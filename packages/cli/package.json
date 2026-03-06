@@ -27,8 +27,10 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@gpc/auth": "workspace:^",
     "@gpc/config": "workspace:*",
-    "@gpc/core": "workspace:*"
+    "@gpc/core": "workspace:*",
+    "commander": "^14.0.3"
   },
   "keywords": [
     "google-play",

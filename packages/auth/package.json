@@ -11,7 +11,9 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -21,6 +23,16 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
-  "keywords": ["google-play", "auth", "service-account"],
-  "license": "MIT"
+  "keywords": [
+    "google-play",
+    "auth",
+    "service-account"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^25.3.5"
+  },
+  "dependencies": {
+    "googleapis": "^171.4.0"
+  }
 }

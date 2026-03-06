@@ -1,1 +1,1 @@
-export const CLI_VERSION = "0.0.0";
+export { createProgram } from "./program.js";
