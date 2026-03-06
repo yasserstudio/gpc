@@ -205,7 +205,7 @@ deploy:
     GPC_APP: com.example.myapp
 ```
 
-See the full [CI/CD recipes](./design/engineering/CI_CD_RECIPES.md) for GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI.
+See the full [CI/CD recipes](./docs/CI_CD.md) for GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI.
 
 ---
 
@@ -319,12 +319,13 @@ const releases = await client.tracks.get("com.example.app", "production");
 
 ## Documentation
 
-- [Commands Reference](./design/architecture/COMMANDS.md)
-- [Architecture](./design/architecture/ARCHITECTURE.md)
-- [CI/CD Recipes](./design/engineering/CI_CD_RECIPES.md)
-- [API Reference](./design/architecture/API_REFERENCE.md)
-- [Plugin Spec](./design/architecture/PLUGIN_SPEC.md)
-- [Roadmap](./design/engineering/ROADMAP.md)
+- [Commands Reference](./docs/COMMANDS.md)
+- [Architecture](./docs/ARCHITECTURE.md)
+- [CI/CD Recipes](./docs/CI_CD.md)
+- [API Reference](./docs/API_REFERENCE.md)
+- [Plugin Spec](./docs/PLUGIN_SPEC.md)
+- [Security](./docs/SECURITY.md)
+- [Roadmap](./docs/ROADMAP.md)
 
 ---
 

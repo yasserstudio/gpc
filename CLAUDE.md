@@ -14,8 +14,8 @@ packages/auth      → @gpc/auth — service account, OAuth, ADC
 packages/config    → @gpc/config — config loading, env vars, profiles
 packages/plugin-sdk → @gpc/plugin-sdk — plugin interface
 plugins/plugin-ci  → @gpc/plugin-ci — CI/CD helpers
-docs/              → VitePress documentation site
-design/            → Planning and design documents
+docs/              → Public documentation (architecture, commands, CI/CD, etc.)
+.dev/              → Private docs (marketing, strategy, competitive analysis) — gitignored
 e2e/               → End-to-end tests
 ```
 
@@ -43,12 +43,19 @@ e2e/               → End-to-end tests
 - Turborepo for task orchestration
 - Run: `pnpm build` (builds all with dependency order)
 
-## Design Docs
+## Documentation
 
-Read `design/` before making architectural changes:
-- `design/architecture/` — system design, API coverage, security
-- `design/engineering/` — conventions, CI/CD, roadmap
-- `design/marketing/` — branding, launch strategy, content
+Public docs in `docs/` — read before making architectural changes:
+- `docs/ARCHITECTURE.md` — system design, package graph
+- `docs/COMMANDS.md` — CLI command reference
+- `docs/API_REFERENCE.md` — Google Play API deep dive
+- `docs/CONVENTIONS.md` — code style, git, testing
+- `docs/ROADMAP.md` — phased implementation plan
+
+Private strategy docs in `.dev/` (gitignored):
+- `.dev/marketing/` — branding, launch, content, pricing
+- `.dev/engineering/` — implementation strategy
+- `.dev/HONEST_ASSESSMENT.md`, `.dev/COMPARISON_WITH_ASC_CLI.md`
 
 ## Important Rules
 
