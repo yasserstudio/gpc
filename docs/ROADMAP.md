@@ -1,43 +1,43 @@
 # Roadmap
 
 > Each phase maps to a version (0.X.0). Sub-updates (0.X.y) ship between phases.
-> See [IMPLEMENTATION_STRATEGY.md](./IMPLEMENTATION_STRATEGY.md) for sprint details and build order.
+> Sub-updates (0.X.y) ship between phases for features, fixes, and improvements.
 
 ---
 
-## Phase 0 — Foundation
+## Phase 0 — Foundation ✓
 > Monorepo scaffold, tooling, CI. No features. No release.
 
-- [ ] Initialize monorepo (Turborepo + pnpm)
-- [ ] Set up TypeScript, ESLint 9 (flat config), Prettier, Vitest
-- [ ] Create package scaffolds (api, auth, config, core, cli, plugin-sdk)
-- [ ] Configure GitHub Actions (ci.yml, release.yml)
-- [ ] Set up Changesets for versioning
-- [ ] Write CLAUDE.md project instructions
-- [ ] Verify: `pnpm install && pnpm build && pnpm test` all pass
+- [x] Initialize monorepo (Turborepo + pnpm)
+- [x] Set up TypeScript, ESLint 9 (flat config), Prettier, Vitest
+- [x] Create package scaffolds (api, auth, config, core, cli, plugin-sdk)
+- [x] Configure GitHub Actions (ci.yml, release.yml)
+- [x] Set up Changesets for versioning
+- [x] Write CLAUDE.md project instructions
+- [x] Verify: `pnpm install && pnpm build && pnpm test` all pass
 
 ---
 
-## Phase 1 — Auth & Config → v0.1.x
+## Phase 1 — Auth & Config → v0.1.x ✓
 > Users can authenticate and configure the CLI.
 
-- [ ] Service account JSON file authentication
-- [ ] OAuth2 token generation from service account
+- [x] Service account JSON file authentication
+- [x] OAuth2 token generation from service account
 - [ ] Token caching (file-based, keychain later)
-- [ ] `GPC_SERVICE_ACCOUNT` env var support
-- [ ] Config file discovery (`.gpcrc.json`, `gpc.config.ts`)
-- [ ] Environment variable overrides (`GPC_*` prefix)
-- [ ] Config schema validation
-- [ ] `gpc auth login` (service account + OAuth device flow)
-- [ ] `gpc auth logout`, `gpc auth status`, `gpc auth whoami`
-- [ ] `gpc config init`, `gpc config show`, `gpc config set`
-- [ ] `gpc doctor` (connectivity + auth validation)
-- [ ] `gpc docs` (open docs in browser)
-- [ ] TTY detection — auto-switch output format (table/json)
-- [ ] `--output` flag (table, json, yaml, markdown)
-- [ ] Global flags: `--verbose`, `--quiet`, `--app`, `--profile`, `--no-color`
-- [ ] Shell completions (bash, zsh, fish)
-- [ ] Error types: AuthError, ConfigError with codes + suggestions
+- [x] `GPC_SERVICE_ACCOUNT` env var support
+- [x] Config file discovery (`.gpcrc.json`)
+- [x] Environment variable overrides (`GPC_*` prefix)
+- [x] Config schema validation
+- [x] `gpc auth login` (service account)
+- [x] `gpc auth logout`, `gpc auth status`, `gpc auth whoami`
+- [x] `gpc config init`, `gpc config show`, `gpc config set`
+- [x] `gpc doctor` (connectivity + auth validation)
+- [x] `gpc docs` (open docs in browser)
+- [x] TTY detection — auto-switch output format (table/json)
+- [x] `--output` flag (table, json, yaml, markdown)
+- [x] Global flags: `--verbose`, `--quiet`, `--app`, `--profile`, `--no-color`
+- [x] Shell completions (bash, zsh, fish)
+- [x] Error types: AuthError, ConfigError with codes + suggestions
 
 **Sub-updates (v0.1.y):**
 - [ ] OAuth 2.0 device flow for interactive login
@@ -48,18 +48,18 @@
 
 ---
 
-## Phase 2 — API Client & Apps → v0.2.x
+## Phase 2 — API Client & Apps → v0.2.x ✓
 > First real data from Google Play. API foundation for all future phases.
 
-- [ ] Base API client (authenticated HTTP via googleapis)
+- [x] Base API client (native fetch with bearer auth)
 - [ ] Rate limiter (per-bucket token bucket, respecting quota buckets)
-- [ ] Retry logic (exponential backoff with jitter on 429/5xx)
+- [x] Retry logic (exponential backoff with jitter on 429/5xx)
 - [ ] Pagination helper (auto-follow nextPageToken)
-- [ ] Edit lifecycle manager (insert → modify → validate → commit/delete)
-- [ ] `gpc apps list`
-- [ ] `gpc apps info <package>`
+- [x] Edit lifecycle manager (insert → modify → validate → commit/delete)
+- [x] `gpc apps list`
+- [x] `gpc apps info <package>`
 - [ ] `--limit`, `--next-page` pagination flags
-- [ ] Retry env vars: `GPC_MAX_RETRIES`, `GPC_TIMEOUT`, `GPC_BASE_DELAY`, `GPC_MAX_DELAY`
+- [x] Retry env vars: `GPC_MAX_RETRIES`, `GPC_TIMEOUT`, `GPC_BASE_DELAY`, `GPC_MAX_DELAY`
 - [ ] `--retry-log` flag
 
 **Sub-updates (v0.2.y):**
