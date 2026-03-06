@@ -11,6 +11,9 @@ dist/
 .windsurf/skills
 skills-lock.json
 
+# Internal docs (strategy, marketing, competitive analysis)
+.dev/
+
 # Environment
 .env
 .env.*
