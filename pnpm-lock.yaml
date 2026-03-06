@@ -43,6 +43,13 @@ importers:
       '@gpc/auth':
         specifier: workspace:*
         version: link:../auth
+      googleapis:
+        specifier: ^171.4.0
+        version: 171.4.0
+    devDependencies:
+      '@types/node':
+        specifier: ^25.3.5
+        version: 25.3.5
 
   packages/auth:
     dependencies:
@@ -56,6 +63,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@gpc/api':
+        specifier: workspace:*
+        version: link:../api
       '@gpc/auth':
         specifier: workspace:^
         version: link:../auth
