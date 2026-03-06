@@ -1,8 +1,12 @@
+import { readFile } from "node:fs/promises";
 import { ApiError } from "./errors.js";
 import type { ApiClientOptions, ApiResponse } from "./types.js";
 
 const BASE_URL =
   "https://androidpublisher.googleapis.com/androidpublisher/v3/applications";
+
+const UPLOAD_BASE_URL =
+  "https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications";
 
 export interface HttpClient {
   get<T>(path: string, params?: Record<string, string>): Promise<ApiResponse<T>>;
@@ -10,6 +14,7 @@ export interface HttpClient {
   put<T>(path: string, body?: unknown): Promise<ApiResponse<T>>;
   patch<T>(path: string, body?: unknown): Promise<ApiResponse<T>>;
   delete<T>(path: string): Promise<ApiResponse<T>>;
+  upload<T>(path: string, filePath: string, contentType: string): Promise<ApiResponse<T>>;
 }
 
 function envInt(name: string): number | undefined {
@@ -190,6 +195,100 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     throw lastError ?? new ApiError("Request failed", "API_NETWORK_ERROR");
   }
 
+  async function uploadRequest<T>(
+    path: string,
+    filePath: string,
+    contentType: string,
+  ): Promise<ApiResponse<T>> {
+    const url = `${UPLOAD_BASE_URL}${path}`;
+    const fileBuffer = await readFile(filePath);
+
+    let lastError: Error | undefined;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      if (attempt > 0) {
+        const delay = jitteredDelay(baseDelay, attempt - 1, maxDelay);
+        await new Promise((r) => setTimeout(r, delay));
+      }
+
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeout);
+
+      try {
+        const token = await options.auth.getAccessToken();
+
+        const headers: Record<string, string> = {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": contentType,
+        };
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers,
+          body: fileBuffer,
+          signal: controller.signal,
+        });
+
+        if (response.ok) {
+          const text = await response.text();
+          const data = text ? (JSON.parse(text) as T) : ({} as T);
+          return { data, status: response.status };
+        }
+
+        const errorBody = await response.text();
+        const { code, suggestion } = mapStatusToError(response.status, errorBody);
+
+        const err = new ApiError(
+          `POST upload ${path} failed with status ${response.status}: ${errorBody}`,
+          code,
+          response.status,
+          suggestion,
+        );
+
+        if (isRetryable(response.status) && attempt < maxRetries) {
+          lastError = err;
+          continue;
+        }
+
+        throw err;
+      } catch (error) {
+        if (error instanceof ApiError) {
+          throw error;
+        }
+
+        if (error instanceof DOMException && error.name === "AbortError") {
+          const timeoutErr = new ApiError(
+            `POST upload ${path} timed out after ${timeout}ms`,
+            "API_TIMEOUT",
+            undefined,
+            "The request exceeded the configured timeout. Consider increasing the timeout value.",
+          );
+          if (attempt < maxRetries) {
+            lastError = timeoutErr;
+            continue;
+          }
+          throw timeoutErr;
+        }
+
+        const networkErr = new ApiError(
+          `POST upload ${path} failed: ${error instanceof Error ? error.message : String(error)}`,
+          "API_NETWORK_ERROR",
+          undefined,
+          "A network error occurred. Check your internet connection.",
+        );
+        if (attempt < maxRetries) {
+          lastError = networkErr;
+          continue;
+        }
+        throw networkErr;
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    throw lastError ?? new ApiError("Upload request failed", "API_NETWORK_ERROR");
+  }
+
   return {
     get<T>(path: string, params?: Record<string, string>) {
       return request<T>("GET", path, undefined, params);
@@ -205,6 +304,9 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     },
     delete<T>(path: string) {
       return request<T>("DELETE", path);
+    },
+    upload<T>(path: string, filePath: string, contentType: string) {
+      return uploadRequest<T>(path, filePath, contentType);
     },
   };
 }

@@ -5,6 +5,9 @@ import { registerDoctorCommand } from "./commands/doctor.js";
 import { registerDocsCommand } from "./commands/docs.js";
 import { registerCompletionCommand } from "./commands/completion.js";
 import { registerAppsCommands } from "./commands/apps.js";
+import { registerReleasesCommands } from "./commands/releases.js";
+import { registerTracksCommands } from "./commands/tracks.js";
+import { registerStatusCommand } from "./commands/status.js";
 
 export function createProgram(): Command {
   const program = new Command();
@@ -27,6 +30,9 @@ export function createProgram(): Command {
   registerDocsCommand(program);
   registerCompletionCommand(program);
   registerAppsCommands(program);
+  registerReleasesCommands(program);
+  registerTracksCommands(program);
+  registerStatusCommand(program);
 
   return program;
 }

@@ -97,3 +97,21 @@ export interface DeveloperComment {
   text: string;
   lastModified: { seconds: string };
 }
+
+export interface TrackListResponse {
+  tracks: Track[];
+}
+
+export interface BundleListResponse {
+  bundles: Bundle[];
+}
+
+export interface UploadResponse {
+  bundle?: Bundle;
+  apk?: ApkInfo;
+}
+
+export interface ApkInfo {
+  versionCode: number;
+  binary: { sha1: string; sha256: string };
+}
