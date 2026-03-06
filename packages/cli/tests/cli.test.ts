@@ -21,6 +21,20 @@ vi.mock("@gpc/config", () => ({
 vi.mock("@gpc/core", () => ({
   detectOutputFormat: vi.fn().mockReturnValue("table"),
   formatOutput: vi.fn().mockImplementation((data: unknown) => JSON.stringify(data)),
+  uploadRelease: vi.fn().mockResolvedValue({}),
+  getReleasesStatus: vi.fn().mockResolvedValue([]),
+  promoteRelease: vi.fn().mockResolvedValue({}),
+  updateRollout: vi.fn().mockResolvedValue({}),
+  listTracks: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock("@gpc/api", () => ({
+  createApiClient: vi.fn().mockReturnValue({
+    edits: { insert: vi.fn(), get: vi.fn(), validate: vi.fn(), commit: vi.fn(), delete: vi.fn() },
+    details: { get: vi.fn() },
+    bundles: { list: vi.fn(), upload: vi.fn() },
+    tracks: { list: vi.fn(), get: vi.fn(), update: vi.fn() },
+  }),
 }));
 
 describe("createProgram", () => {
@@ -52,6 +66,9 @@ describe("createProgram", () => {
     expect(commandNames).toContain("config");
     expect(commandNames).toContain("doctor");
     expect(commandNames).toContain("docs");
+    expect(commandNames).toContain("releases");
+    expect(commandNames).toContain("tracks");
+    expect(commandNames).toContain("status");
   });
 
   it("has all expected global options", () => {
@@ -188,5 +205,71 @@ describe("config subcommands", () => {
     const output = String(logSpy.mock.calls[0]![0]);
     expect(output).toContain("/");
     expect(output).toContain("gpc");
+  });
+});
+
+describe("releases subcommands", () => {
+  let program: Command;
+
+  beforeEach(() => {
+    program = createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("releases command has all expected subcommands", () => {
+    const releasesCmd = program.commands.find((cmd) => cmd.name() === "releases");
+    expect(releasesCmd).toBeDefined();
+    const subcommandNames = releasesCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("upload");
+    expect(subcommandNames).toContain("status");
+    expect(subcommandNames).toContain("promote");
+    expect(subcommandNames).toContain("rollout");
+    expect(subcommandNames).toContain("notes");
+  });
+});
+
+describe("tracks subcommands", () => {
+  let program: Command;
+
+  beforeEach(() => {
+    program = createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("tracks command has list subcommand", () => {
+    const tracksCmd = program.commands.find((cmd) => cmd.name() === "tracks");
+    expect(tracksCmd).toBeDefined();
+    const subcommandNames = tracksCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("list");
+  });
+});
+
+describe("releases rollout subcommands", () => {
+  let program: Command;
+
+  beforeEach(() => {
+    program = createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("rollout command has all expected subcommands", () => {
+    const releasesCmd = program.commands.find((cmd) => cmd.name() === "releases");
+    expect(releasesCmd).toBeDefined();
+    const rolloutCmd = releasesCmd!.commands.find((cmd) => cmd.name() === "rollout");
+    expect(rolloutCmd).toBeDefined();
+    const subcommandNames = rolloutCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("increase");
+    expect(subcommandNames).toContain("halt");
+    expect(subcommandNames).toContain("resume");
+    expect(subcommandNames).toContain("complete");
   });
 });

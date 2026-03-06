@@ -69,21 +69,21 @@
 
 ---
 
-## Phase 3 — Releases & Tracks → v0.3.x
+## Phase 3 — Releases & Tracks → v0.3.x ✓
 > Core value proposition. Upload, release, rollout, promote.
 
-- [ ] `gpc releases upload <file>` (AAB/APK with progress bar)
+- [x] `gpc releases upload <file>` (AAB/APK with progress bar)
 - [ ] File validation (magic bytes, size check)
 - [ ] Resumable upload for large files
 - [ ] Deobfuscation/mapping file upload (`--mapping`)
-- [ ] `gpc releases status` (current release across tracks)
-- [ ] `gpc releases promote --from <track> --to <track>`
-- [ ] `gpc releases rollout increase/halt/resume/complete`
-- [ ] `gpc releases notes set` (inline + from file)
-- [ ] `gpc tracks list`, `gpc tracks get`
+- [x] `gpc releases status` (current release across tracks)
+- [x] `gpc releases promote --from <track> --to <track>`
+- [x] `gpc releases rollout increase/halt/resume/complete`
+- [x] `gpc releases notes set` (inline + from file)
+- [x] `gpc tracks list`, `gpc tracks get`
 - [ ] `gpc publish <file>` (end-to-end shortcut: upload + track + notes + commit)
 - [ ] `gpc validate` (pre-submission checks)
-- [ ] `gpc status` (cross-track release overview)
+- [x] `gpc status` (cross-track release overview)
 - [ ] Form factor tracks (wear, automotive, tv, android_xr)
 - [ ] Internal app sharing upload (`--internal-sharing`)
 - [ ] Generated APKs download
