@@ -3,6 +3,7 @@ import { registerAuthCommands } from "./commands/auth.js";
 import { registerConfigCommands } from "./commands/config.js";
 import { registerDoctorCommand } from "./commands/doctor.js";
 import { registerDocsCommand } from "./commands/docs.js";
+import { registerCompletionCommand } from "./commands/completion.js";
 
 export function createProgram(): Command {
   const program = new Command();
@@ -23,6 +24,7 @@ export function createProgram(): Command {
   registerConfigCommands(program);
   registerDoctorCommand(program);
   registerDocsCommand(program);
+  registerCompletionCommand(program);
 
   return program;
 }
