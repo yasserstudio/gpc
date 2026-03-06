@@ -1,0 +1,29 @@
+{
+  "name": "@gpc/plugin-ci",
+  "version": "0.0.0",
+  "description": "CI/CD helpers for GPC",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@gpc/plugin-sdk": "workspace:*"
+  },
+  "keywords": ["google-play", "ci", "plugin"],
+  "license": "MIT"
+}

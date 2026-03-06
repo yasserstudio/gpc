@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question / Discussion
+    url: https://github.com/YOUR_USERNAME/gpc/discussions
+    about: Ask questions and discuss ideas
+  - name: Documentation
+    url: https://gpc.dev
+    about: Read the documentation

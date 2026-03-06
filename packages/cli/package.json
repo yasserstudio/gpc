@@ -1,0 +1,44 @@
+{
+  "name": "gpc",
+  "version": "0.0.0",
+  "description": "The complete Google Play CLI",
+  "type": "module",
+  "bin": {
+    "gpc": "./dist/bin.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@gpc/config": "workspace:*",
+    "@gpc/core": "workspace:*"
+  },
+  "keywords": [
+    "google-play",
+    "cli",
+    "android",
+    "play-store",
+    "play-console"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^25.3.5"
+  }
+}

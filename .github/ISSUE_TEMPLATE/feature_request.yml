@@ -1,0 +1,42 @@
+name: Feature Request
+description: Suggest a feature or improvement
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What problem does this feature solve?
+      placeholder: "I'm always frustrated when..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How should this work? Include example commands if applicable.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Other approaches you've considered
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - CLI (commands, flags, output)
+        - API (new endpoint coverage)
+        - Auth (authentication, profiles)
+        - Config (settings, profiles)
+        - CI/CD (workflows, integrations)
+        - Plugins (SDK, ecosystem)
+        - Docs (documentation, guides)
+        - Other
+    validations:
+      required: true
