@@ -1,1 +1,4 @@
-export const AUTH_VERSION = "0.0.0";
+export { resolveAuth } from "./resolve.js";
+export { loadServiceAccountKey, createServiceAccountAuth } from "./service-account.js";
+export { AuthError } from "./errors.js";
+export type { AuthOptions, AuthClient, ServiceAccountKey } from "./types.js";

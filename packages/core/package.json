@@ -11,7 +11,9 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -26,6 +28,12 @@
     "@gpc/auth": "workspace:*",
     "@gpc/config": "workspace:*"
   },
-  "keywords": ["google-play", "core"],
-  "license": "MIT"
+  "keywords": [
+    "google-play",
+    "core"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^25.3.5"
+  }
 }
