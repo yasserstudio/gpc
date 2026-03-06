@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Agent skills (installed per-machine)
+.agents/
+.claude/skills
+.windsurf/skills
+skills-lock.json
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# Test
+coverage/
+
+# Turbo
+.turbo/
+
+# Changesets
+.changeset/*.md
+!.changeset/config.json
+
+# OS
+.DS_Store
+Thumbs.db
