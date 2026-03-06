@@ -33,14 +33,14 @@ e2e/               → End-to-end tests
 ## Current Status
 
 - Phase 0 ✓ — Monorepo scaffold
-- Phase 1 ✓ — Auth, config, CLI shell (73 tests)
-- Phase 2 ✓ — API client, edits lifecycle, apps commands (18 tests)
-- Phase 3 → In progress — Releases, tracks, rollouts
-- 91 total tests, 7 packages building
+- Phase 1 ✓ — Auth, config, CLI shell
+- Phase 2 ✓ — API client, edits lifecycle, apps commands
+- Phase 3 ✓ — Releases, tracks, rollouts, upload, promote
+- 126 total tests, 7 packages building
 
 ## Testing
 
-- Vitest for all tests (91 total across 5 packages)
+- Vitest for all tests (126 total across 5 packages)
 - Tests in `tests/` directory per package
 - Mock external APIs — never call real Google APIs in tests
 - Mock fetch with `vi.stubGlobal("fetch", mockFn)` for API tests

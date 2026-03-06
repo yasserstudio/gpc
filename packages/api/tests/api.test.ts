@@ -3,6 +3,10 @@ import { ApiError } from "../src/errors";
 import { createHttpClient } from "../src/http";
 import { createApiClient } from "../src/client";
 
+vi.mock("node:fs/promises", () => ({
+  readFile: vi.fn().mockResolvedValue(Buffer.from("fake-aab-content")),
+}));
+
 const BASE_URL =
   "https://androidpublisher.googleapis.com/androidpublisher/v3/applications";
 
@@ -328,5 +332,92 @@ describe("createApiClient", () => {
     const [url, init] = mockFetch.mock.calls[0];
     expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/details`);
     expect(init.method).toBe("GET");
+  });
+
+  // --- Phase 3: bundles ---
+
+  describe("bundles", () => {
+    it("bundles.list calls GET /{pkg}/edits/{editId}/bundles and returns bundles array", async () => {
+      const bundles = [
+        { versionCode: 1, sha256: "abc123" },
+        { versionCode: 2, sha256: "def456" },
+      ];
+      mockFetch.mockResolvedValueOnce(mockResponse({ bundles }));
+
+      const client = makeClient();
+      const result = await client.bundles.list(PKG, EDIT_ID);
+
+      expect(result).toEqual(bundles);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/bundles`);
+      expect(init.method).toBe("GET");
+    });
+
+    it("bundles.upload calls POST to upload URL with correct content type and returns bundle", async () => {
+      const UPLOAD_BASE_URL =
+        "https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications";
+      const bundle = { versionCode: 3, sha256: "ghi789" };
+      mockFetch.mockResolvedValueOnce(mockResponse({ bundle }));
+
+      const client = makeClient();
+      const result = await client.bundles.upload(PKG, EDIT_ID, "/tmp/app.aab");
+
+      expect(result).toEqual(bundle);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${UPLOAD_BASE_URL}/${PKG}/edits/${EDIT_ID}/bundles`);
+      expect(init.method).toBe("POST");
+      expect(init.headers["Content-Type"]).toBe("application/octet-stream");
+    });
+  });
+
+  // --- Phase 3: tracks ---
+
+  describe("tracks", () => {
+    it("tracks.list calls GET /{pkg}/edits/{editId}/tracks and returns tracks array", async () => {
+      const tracks = [
+        { track: "production", releases: [] },
+        { track: "beta", releases: [] },
+      ];
+      mockFetch.mockResolvedValueOnce(mockResponse({ tracks }));
+
+      const client = makeClient();
+      const result = await client.tracks.list(PKG, EDIT_ID);
+
+      expect(result).toEqual(tracks);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/tracks`);
+      expect(init.method).toBe("GET");
+    });
+
+    it("tracks.get calls GET /{pkg}/edits/{editId}/tracks/{track} and returns track object", async () => {
+      const track = { track: "internal", releases: [{ status: "completed", versionCodes: ["1"] }] };
+      mockFetch.mockResolvedValueOnce(mockResponse(track));
+
+      const client = makeClient();
+      const result = await client.tracks.get(PKG, EDIT_ID, "internal");
+
+      expect(result).toEqual(track);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/tracks/internal`);
+      expect(init.method).toBe("GET");
+    });
+
+    it("tracks.update calls PUT /{pkg}/edits/{editId}/tracks/{track} with body and returns track", async () => {
+      const release = { status: "completed", versionCodes: ["10"] };
+      const trackResponse = { track: "production", releases: [release] };
+      mockFetch.mockResolvedValueOnce(mockResponse(trackResponse));
+
+      const client = makeClient();
+      const result = await client.tracks.update(PKG, EDIT_ID, "production", release as any);
+
+      expect(result).toEqual(trackResponse);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/tracks/production`);
+      expect(init.method).toBe("PUT");
+      expect(JSON.parse(init.body)).toEqual({
+        track: "production",
+        releases: [release],
+      });
+    });
   });
 });
