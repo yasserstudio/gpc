@@ -27,6 +27,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@gpc/api": "workspace:*",
     "@gpc/auth": "workspace:^",
     "@gpc/config": "workspace:*",
     "@gpc/core": "workspace:*",

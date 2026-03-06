@@ -11,7 +11,9 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -24,6 +26,16 @@
   "peerDependencies": {
     "@gpc/auth": "workspace:*"
   },
-  "keywords": ["google-play", "api", "android-publisher"],
-  "license": "MIT"
+  "keywords": [
+    "google-play",
+    "api",
+    "android-publisher"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "googleapis": "^171.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.5"
+  }
 }
