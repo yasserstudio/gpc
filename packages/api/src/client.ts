@@ -14,6 +14,11 @@ import type {
   Listing,
   ListingsListResponse,
   Release,
+  Review,
+  ReviewReplyRequest,
+  ReviewReplyResponse,
+  ReviewsListOptions,
+  ReviewsListResponse,
   Track,
   TrackListResponse,
   UploadResponse,
@@ -63,6 +68,12 @@ export interface PlayApiClient {
 
   countryAvailability: {
     get(packageName: string, editId: string, track: string): Promise<CountryAvailability>;
+  };
+
+  reviews: {
+    list(packageName: string, options?: ReviewsListOptions): Promise<ReviewsListResponse>;
+    get(packageName: string, reviewId: string, translationLanguage?: string): Promise<Review>;
+    reply(packageName: string, reviewId: string, replyText: string): Promise<ReviewReplyResponse>;
   };
 }
 
@@ -244,6 +255,41 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async get(packageName, editId, track) {
         const { data } = await http.get<CountryAvailability>(
           `/${packageName}/edits/${editId}/countryAvailability/${track}`,
+        );
+        return data;
+      },
+    },
+
+    reviews: {
+      async list(packageName, options?) {
+        const params: Record<string, string> = {};
+        if (options?.token) params["token"] = options.token;
+        if (options?.maxResults) params["maxResults"] = String(options.maxResults);
+        if (options?.translationLanguage) params["translationLanguage"] = options.translationLanguage;
+        const hasParams = Object.keys(params).length > 0;
+        const { data } = await http.get<ReviewsListResponse>(
+          `/${packageName}/reviews`,
+          hasParams ? params : undefined,
+        );
+        return data;
+      },
+
+      async get(packageName, reviewId, translationLanguage?) {
+        const params: Record<string, string> = {};
+        if (translationLanguage) params["translationLanguage"] = translationLanguage;
+        const hasParams = Object.keys(params).length > 0;
+        const { data } = await http.get<Review>(
+          `/${packageName}/reviews/${reviewId}`,
+          hasParams ? params : undefined,
+        );
+        return data;
+      },
+
+      async reply(packageName, reviewId, replyText) {
+        const body: ReviewReplyRequest = { replyText };
+        const { data } = await http.post<ReviewReplyResponse>(
+          `/${packageName}/reviews/${reviewId}:reply`,
+          body,
         );
         return data;
       },

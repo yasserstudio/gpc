@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { ApiError } from "../src/errors";
 import { createHttpClient } from "../src/http";
 import { createApiClient } from "../src/client";
+import { createReportingClient } from "../src/reporting-client";
 
 vi.mock("node:fs/promises", () => ({
   readFile: vi.fn().mockResolvedValue(Buffer.from("fake-aab-content")),
@@ -588,5 +589,139 @@ describe("createApiClient", () => {
       const [url] = mockFetch.mock.calls[0];
       expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/countryAvailability/production`);
     });
+  });
+
+  // --- Phase 5: reviews ---
+
+  describe("reviews", () => {
+    it("reviews.list calls GET /{pkg}/reviews", async () => {
+      const response = { reviews: [{ reviewId: "r1", authorName: "User", comments: [] }] };
+      mockFetch.mockResolvedValueOnce(mockResponse(response));
+
+      const client = makeClient();
+      const result = await client.reviews.list(PKG);
+
+      expect(result).toEqual(response);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/reviews`);
+      expect(init.method).toBe("GET");
+    });
+
+    it("reviews.list passes query params", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ reviews: [] }));
+
+      const client = makeClient();
+      await client.reviews.list(PKG, { translationLanguage: "fr", maxResults: 10 });
+
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toContain("translationLanguage=fr");
+      expect(url).toContain("maxResults=10");
+    });
+
+    it("reviews.get calls GET /{pkg}/reviews/{id}", async () => {
+      const review = { reviewId: "r1", authorName: "User", comments: [] };
+      mockFetch.mockResolvedValueOnce(mockResponse(review));
+
+      const client = makeClient();
+      const result = await client.reviews.get(PKG, "r1");
+
+      expect(result).toEqual(review);
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/reviews/r1`);
+    });
+
+    it("reviews.get passes translationLanguage param", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ reviewId: "r1", authorName: "U", comments: [] }));
+
+      const client = makeClient();
+      await client.reviews.get(PKG, "r1", "ja");
+
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toContain("translationLanguage=ja");
+    });
+
+    it("reviews.reply calls POST /{pkg}/reviews/{id}:reply", async () => {
+      const replyResponse = { result: { replyText: "Thanks!", lastEdited: { seconds: "123" } } };
+      mockFetch.mockResolvedValueOnce(mockResponse(replyResponse));
+
+      const client = makeClient();
+      const result = await client.reviews.reply(PKG, "r1", "Thanks!");
+
+      expect(result).toEqual(replyResponse);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/reviews/r1:reply`);
+      expect(init.method).toBe("POST");
+      expect(JSON.parse(init.body)).toEqual({ replyText: "Thanks!" });
+    });
+  });
+});
+
+// --- Phase 5: Reporting Client ---
+
+describe("createReportingClient", () => {
+  const REPORTING_URL = "https://playdeveloperreporting.googleapis.com/v1beta1";
+
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+
+  function makeClient() {
+    return createReportingClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("queryMetricSet calls POST /apps/{pkg}/{metricSet}:query", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ rows: [] }));
+
+    const client = makeClient();
+    const result = await client.queryMetricSet(PKG, "vitals.crashrate", { metrics: ["errorReportCount"] });
+
+    expect(result).toEqual({ rows: [] });
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${REPORTING_URL}/apps/${PKG}/vitals.crashrate:query`);
+    expect(init.method).toBe("POST");
+  });
+
+  it("getAnomalies calls GET /apps/{pkg}/anomalies", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ anomalies: [] }));
+
+    const client = makeClient();
+    const result = await client.getAnomalies(PKG);
+
+    expect(result).toEqual({ anomalies: [] });
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${REPORTING_URL}/apps/${PKG}/anomalies`);
+    expect(init.method).toBe("GET");
+  });
+
+  it("searchErrorIssues calls GET with filter params", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ errorIssues: [] }));
+
+    const client = makeClient();
+    await client.searchErrorIssues(PKG, "crash", 25);
+
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain(`/apps/${PKG}/errorIssues:search`);
+    expect(url).toContain("filter=crash");
+    expect(url).toContain("pageSize=25");
+  });
+
+  it("searchErrorReports calls GET with issue name", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ errorReports: [] }));
+
+    const client = makeClient();
+    await client.searchErrorReports(PKG, "issue-1", 10);
+
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain(`/apps/${PKG}/errorIssues/issue-1/reports`);
+    expect(url).toContain("pageSize=10");
   });
 });

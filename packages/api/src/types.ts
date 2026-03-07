@@ -7,6 +7,7 @@ export interface ApiClientOptions {
   baseDelay?: number;
   maxDelay?: number;
   rateLimitPerSecond?: number;
+  baseUrl?: string;
 }
 
 export interface ApiResponse<T> {
@@ -154,4 +155,130 @@ export interface CountryAvailability {
     countries: string[];
     includeRestOfWorld: boolean;
   };
+}
+
+// --- Reviews ---
+
+export interface ReviewsListResponse {
+  reviews: Review[];
+  tokenPagination?: TokenPagination;
+}
+
+export interface TokenPagination {
+  nextPageToken?: string;
+  previousPageToken?: string;
+}
+
+export interface ReviewReplyRequest {
+  replyText: string;
+}
+
+export interface ReviewReplyResponse {
+  result: {
+    replyText: string;
+    lastEdited: { seconds: string };
+  };
+}
+
+export interface ReviewsListOptions {
+  token?: string;
+  maxResults?: number;
+  translationLanguage?: string;
+}
+
+// --- Reporting API (Vitals) ---
+
+export type VitalsMetricSet =
+  | "vitals.crashrate"
+  | "vitals.anrrate"
+  | "vitals.excessivewakeuprate"
+  | "vitals.stuckbackgroundwakelockrate"
+  | "vitals.slowstartrate"
+  | "vitals.slowrenderingrate"
+  | "vitals.errors.counts";
+
+export type ReportingDimension =
+  | "apiLevel"
+  | "versionCode"
+  | "deviceModel"
+  | "deviceType"
+  | "countryCode"
+  | "deviceRamBucket"
+  | "deviceSocName"
+  | "deviceCpuMakeModel"
+  | "deviceGlEsVersion"
+  | "deviceVulkanVersion"
+  | "deviceOpenGlVersion"
+  | "deviceBrand";
+
+export type ReportingAggregation = "DAILY" | "HOURLY";
+
+export interface MetricSetQuery {
+  metrics: string[];
+  dimensions?: ReportingDimension[];
+  timelineSpec?: {
+    aggregationPeriod: ReportingAggregation;
+    startTime?: { year: number; month: number; day: number };
+    endTime?: { year: number; month: number; day: number };
+  };
+  filter?: string;
+  pageSize?: number;
+  pageToken?: string;
+}
+
+export interface MetricSetResponse {
+  rows: MetricRow[];
+  nextPageToken?: string;
+}
+
+export interface MetricRow {
+  dimensions?: Record<string, { stringValue?: string; int64Value?: string }>;
+  metrics: Record<string, { decimalValue?: { value: string }; decimalValueConfidenceInterval?: { lowerBound?: { value: string }; upperBound?: { value: string } } }>;
+  startTime?: { year: number; month: number; day: number };
+  endTime?: { year: number; month: number; day: number };
+}
+
+export interface Anomaly {
+  name: string;
+  metricSet: string;
+  timelineSpec: { aggregationPeriod: string };
+  dimensions: Record<string, { stringValue?: string; int64Value?: string }>[];
+  metric: Record<string, { decimalValue?: { value: string } }>;
+}
+
+export interface AnomalyDetectionResponse {
+  anomalies: Anomaly[];
+}
+
+export interface ErrorIssue {
+  name: string;
+  type: string;
+  errorReportCount: string;
+  distinctUsers: string;
+  cause: string;
+  location: string;
+  firstAppVersion?: { versionCode: string };
+  lastAppVersion?: { versionCode: string };
+  firstOsVersion?: { apiLevel: string };
+  lastOsVersion?: { apiLevel: string };
+}
+
+export interface ErrorIssuesResponse {
+  errorIssues: ErrorIssue[];
+  nextPageToken?: string;
+}
+
+export interface ErrorReport {
+  name: string;
+  type: string;
+  reportText: string;
+  issue: string;
+  deviceModel?: { deviceId: string; marketName: string; deviceMarketingName: string };
+  osVersion?: { apiLevel: string };
+  appVersion?: { versionCode: string };
+}
+
+export interface ErrorReportsResponse {
+  errorReports: ErrorReport[];
+  nextPageToken?: string;
 }
