@@ -37,6 +37,20 @@ vi.mock("@gpc/core", () => ({
   getCountryAvailability: vi.fn().mockResolvedValue({}),
   updateAppDetails: vi.fn().mockResolvedValue({}),
   getAppInfo: vi.fn().mockResolvedValue({}),
+  listReviews: vi.fn().mockResolvedValue([]),
+  getReview: vi.fn().mockResolvedValue({}),
+  replyToReview: vi.fn().mockResolvedValue({}),
+  exportReviews: vi.fn().mockResolvedValue("[]"),
+  getVitalsOverview: vi.fn().mockResolvedValue({}),
+  getVitalsCrashes: vi.fn().mockResolvedValue({ rows: [] }),
+  getVitalsAnr: vi.fn().mockResolvedValue({ rows: [] }),
+  getVitalsStartup: vi.fn().mockResolvedValue({ rows: [] }),
+  getVitalsRendering: vi.fn().mockResolvedValue({ rows: [] }),
+  getVitalsBattery: vi.fn().mockResolvedValue({ rows: [] }),
+  getVitalsMemory: vi.fn().mockResolvedValue({ rows: [] }),
+  getVitalsAnomalies: vi.fn().mockResolvedValue({ anomalies: [] }),
+  searchVitalsErrors: vi.fn().mockResolvedValue({ errorIssues: [] }),
+  checkThreshold: vi.fn().mockReturnValue({ breached: false, value: 0, threshold: 0 }),
 }));
 
 vi.mock("@gpc/api", () => ({
@@ -45,6 +59,13 @@ vi.mock("@gpc/api", () => ({
     details: { get: vi.fn() },
     bundles: { list: vi.fn(), upload: vi.fn() },
     tracks: { list: vi.fn(), get: vi.fn(), update: vi.fn() },
+    reviews: { list: vi.fn(), get: vi.fn(), reply: vi.fn() },
+  }),
+  createReportingClient: vi.fn().mockReturnValue({
+    queryMetricSet: vi.fn(),
+    getAnomalies: vi.fn(),
+    searchErrorIssues: vi.fn(),
+    searchErrorReports: vi.fn(),
   }),
 }));
 
@@ -82,6 +103,8 @@ describe("createProgram", () => {
     expect(commandNames).toContain("status");
     expect(commandNames).toContain("listings");
     expect(commandNames).toContain("apps");
+    expect(commandNames).toContain("reviews");
+    expect(commandNames).toContain("vitals");
   });
 
   it("has all expected global options", () => {
@@ -373,5 +396,106 @@ describe("apps subcommands", () => {
     expect(optionFlags).toContain("--phone");
     expect(optionFlags).toContain("--website");
     expect(optionFlags).toContain("--default-lang");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 5 – reviews subcommands
+// ---------------------------------------------------------------------------
+describe("reviews subcommands", () => {
+  let program: Command;
+
+  beforeEach(() => {
+    program = createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("reviews command has all expected subcommands", () => {
+    const reviewsCmd = program.commands.find((cmd) => cmd.name() === "reviews");
+    expect(reviewsCmd).toBeDefined();
+    const subcommandNames = reviewsCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("list");
+    expect(subcommandNames).toContain("get");
+    expect(subcommandNames).toContain("reply");
+    expect(subcommandNames).toContain("export");
+  });
+
+  it("reviews list has expected options", () => {
+    const reviewsCmd = program.commands.find((cmd) => cmd.name() === "reviews");
+    const listCmd = reviewsCmd!.commands.find((cmd) => cmd.name() === "list");
+    expect(listCmd).toBeDefined();
+    const optionFlags = listCmd!.options.map((opt) => opt.long ?? opt.short);
+    expect(optionFlags).toContain("--stars");
+    expect(optionFlags).toContain("--lang");
+    expect(optionFlags).toContain("--since");
+    expect(optionFlags).toContain("--translate-to");
+    expect(optionFlags).toContain("--max");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 5 – vitals subcommands
+// ---------------------------------------------------------------------------
+describe("vitals subcommands", () => {
+  let program: Command;
+
+  beforeEach(() => {
+    program = createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("vitals command has all expected subcommands", () => {
+    const vitalsCmd = program.commands.find((cmd) => cmd.name() === "vitals");
+    expect(vitalsCmd).toBeDefined();
+    const subcommandNames = vitalsCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("overview");
+    expect(subcommandNames).toContain("crashes");
+    expect(subcommandNames).toContain("anr");
+    expect(subcommandNames).toContain("startup");
+    expect(subcommandNames).toContain("rendering");
+    expect(subcommandNames).toContain("battery");
+    expect(subcommandNames).toContain("memory");
+    expect(subcommandNames).toContain("anomalies");
+    expect(subcommandNames).toContain("errors");
+  });
+
+  it("vitals metric commands have threshold option", () => {
+    const vitalsCmd = program.commands.find((cmd) => cmd.name() === "vitals");
+    const crashesCmd = vitalsCmd!.commands.find((cmd) => cmd.name() === "crashes");
+    expect(crashesCmd).toBeDefined();
+    const optionFlags = crashesCmd!.options.map((opt) => opt.long ?? opt.short);
+    expect(optionFlags).toContain("--dim");
+    expect(optionFlags).toContain("--days");
+    expect(optionFlags).toContain("--threshold");
+  });
+
+  it("vitals errors has search subcommand", () => {
+    const vitalsCmd = program.commands.find((cmd) => cmd.name() === "vitals");
+    const errorsCmd = vitalsCmd!.commands.find((cmd) => cmd.name() === "errors");
+    expect(errorsCmd).toBeDefined();
+    const subcommandNames = errorsCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("search");
+  });
+
+  it("vitals --help shows description", async () => {
+    program.exitOverride();
+    const stdoutSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    try {
+      await program.parseAsync(["node", "test", "vitals", "--help"]);
+    } catch {
+      // Commander throws on help display
+    }
+
+    const output = stdoutSpy.mock.calls.map((call) => String(call[0])).join("");
+    expect(output).toContain("vitals");
   });
 });

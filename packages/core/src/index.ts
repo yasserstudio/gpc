@@ -21,3 +21,23 @@ export type { ListingsResult, PushResult, DryRunResult } from "./commands/listin
 export { isValidBcp47, GOOGLE_PLAY_LANGUAGES } from "./utils/bcp47.js";
 export { readListingsFromDir, writeListingsToDir, diffListings } from "./utils/fastlane.js";
 export type { ListingDiff } from "./utils/fastlane.js";
+export {
+  listReviews,
+  getReview,
+  replyToReview,
+  exportReviews,
+} from "./commands/reviews.js";
+export type { ReviewsFilterOptions, ReviewExportOptions } from "./commands/reviews.js";
+export {
+  getVitalsOverview,
+  getVitalsCrashes,
+  getVitalsAnr,
+  getVitalsStartup,
+  getVitalsRendering,
+  getVitalsBattery,
+  getVitalsMemory,
+  getVitalsAnomalies,
+  searchVitalsErrors,
+  checkThreshold,
+} from "./commands/vitals.js";
+export type { VitalsQueryOptions, VitalsOverview, ThresholdResult } from "./commands/vitals.js";

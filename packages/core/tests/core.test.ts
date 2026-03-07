@@ -20,6 +20,24 @@ import {
   getCountryAvailability,
   updateAppDetails,
 } from "../src/commands/listings.js";
+import {
+  listReviews,
+  getReview,
+  replyToReview,
+  exportReviews,
+} from "../src/commands/reviews.js";
+import {
+  getVitalsOverview,
+  getVitalsCrashes,
+  getVitalsAnr,
+  getVitalsStartup,
+  getVitalsRendering,
+  getVitalsBattery,
+  getVitalsMemory,
+  getVitalsAnomalies,
+  searchVitalsErrors,
+  checkThreshold,
+} from "../src/commands/vitals.js";
 import { isValidBcp47, GOOGLE_PLAY_LANGUAGES } from "../src/utils/bcp47.js";
 import { readListingsFromDir, writeListingsToDir, diffListings } from "../src/utils/fastlane.js";
 import { mkdtemp, rm } from "node:fs/promises";
@@ -294,6 +312,11 @@ function mockClient() {
     },
     countryAvailability: {
       get: vi.fn().mockResolvedValue({ countryTargeting: { countries: ["US"], includeRestOfWorld: false } }),
+    },
+    reviews: {
+      list: vi.fn().mockResolvedValue({ reviews: [] }),
+      get: vi.fn().mockResolvedValue({ reviewId: "r1", authorName: "User", comments: [] }),
+      reply: vi.fn().mockResolvedValue({ result: { replyText: "Thanks!", lastEdited: { seconds: "123" } } }),
     },
   } as any;
 }
@@ -1113,5 +1136,352 @@ describe("updateAppDetails", () => {
 
     await expect(updateAppDetails(client, PKG, { contactEmail: "x" })).rejects.toThrow("details fail");
     expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 5 – Reviews
+// ---------------------------------------------------------------------------
+
+function makeReview(overrides: {
+  reviewId?: string;
+  starRating?: number;
+  language?: string;
+  seconds?: string;
+  text?: string;
+} = {}) {
+  return {
+    reviewId: overrides.reviewId ?? "r1",
+    authorName: "User",
+    comments: [{
+      userComment: {
+        text: overrides.text ?? "Great app!",
+        lastModified: { seconds: overrides.seconds ?? "1700000000" },
+        starRating: overrides.starRating ?? 5,
+        reviewerLanguage: overrides.language ?? "en",
+      },
+    }],
+  };
+}
+
+describe("listReviews", () => {
+  it("returns all reviews when no filters", async () => {
+    const client = mockClient();
+    const reviews = [makeReview(), makeReview({ reviewId: "r2" })];
+    client.reviews.list.mockResolvedValue({ reviews });
+
+    const result = await listReviews(client, PKG);
+    expect(result).toHaveLength(2);
+  });
+
+  it("filters by star rating", async () => {
+    const client = mockClient();
+    client.reviews.list.mockResolvedValue({
+      reviews: [makeReview({ starRating: 5 }), makeReview({ reviewId: "r2", starRating: 1 })],
+    });
+
+    const result = await listReviews(client, PKG, { stars: 1 });
+    expect(result).toHaveLength(1);
+    expect(result[0].reviewId).toBe("r2");
+  });
+
+  it("filters by language", async () => {
+    const client = mockClient();
+    client.reviews.list.mockResolvedValue({
+      reviews: [makeReview({ language: "en" }), makeReview({ reviewId: "r2", language: "ja" })],
+    });
+
+    const result = await listReviews(client, PKG, { language: "ja" });
+    expect(result).toHaveLength(1);
+    expect(result[0].reviewId).toBe("r2");
+  });
+
+  it("filters by since date", async () => {
+    const client = mockClient();
+    client.reviews.list.mockResolvedValue({
+      reviews: [
+        makeReview({ seconds: "1700000000" }),
+        makeReview({ reviewId: "r2", seconds: "1600000000" }),
+      ],
+    });
+
+    const result = await listReviews(client, PKG, { since: "2023-11-14T00:00:00Z" });
+    expect(result).toHaveLength(1);
+    expect(result[0].reviewId).toBe("r1");
+  });
+
+  it("passes translationLanguage to API", async () => {
+    const client = mockClient();
+    client.reviews.list.mockResolvedValue({ reviews: [] });
+
+    await listReviews(client, PKG, { translationLanguage: "fr" });
+
+    expect(client.reviews.list).toHaveBeenCalledWith(PKG, expect.objectContaining({
+      translationLanguage: "fr",
+    }));
+  });
+});
+
+describe("getReview", () => {
+  it("returns a single review", async () => {
+    const client = mockClient();
+    const review = makeReview();
+    client.reviews.get.mockResolvedValue(review);
+
+    const result = await getReview(client, PKG, "r1");
+    expect(result).toEqual(review);
+    expect(client.reviews.get).toHaveBeenCalledWith(PKG, "r1", undefined);
+  });
+
+  it("passes translationLanguage", async () => {
+    const client = mockClient();
+    await getReview(client, PKG, "r1", "de");
+    expect(client.reviews.get).toHaveBeenCalledWith(PKG, "r1", "de");
+  });
+});
+
+describe("replyToReview", () => {
+  it("calls API with reply text", async () => {
+    const client = mockClient();
+    const result = await replyToReview(client, PKG, "r1", "Thanks!");
+    expect(result).toEqual({ result: { replyText: "Thanks!", lastEdited: { seconds: "123" } } });
+    expect(client.reviews.reply).toHaveBeenCalledWith(PKG, "r1", "Thanks!");
+  });
+
+  it("throws when reply exceeds 350 characters", async () => {
+    const client = mockClient();
+    const longText = "a".repeat(351);
+    await expect(replyToReview(client, PKG, "r1", longText))
+      .rejects.toThrow("exceeds 350 characters");
+  });
+
+  it("throws when reply is empty", async () => {
+    const client = mockClient();
+    await expect(replyToReview(client, PKG, "r1", ""))
+      .rejects.toThrow("cannot be empty");
+  });
+});
+
+describe("exportReviews", () => {
+  it("exports as JSON by default", async () => {
+    const client = mockClient();
+    const reviews = [makeReview()];
+    client.reviews.list.mockResolvedValue({ reviews });
+
+    const result = await exportReviews(client, PKG);
+    const parsed = JSON.parse(result);
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0].reviewId).toBe("r1");
+  });
+
+  it("exports as CSV", async () => {
+    const client = mockClient();
+    client.reviews.list.mockResolvedValue({
+      reviews: [makeReview({ text: "Great app!" })],
+    });
+
+    const result = await exportReviews(client, PKG, { format: "csv" });
+    const lines = result.split("\n");
+    expect(lines[0]).toBe("reviewId,authorName,starRating,text,language,date,device,appVersionName");
+    expect(lines[1]).toContain("r1");
+    expect(lines[1]).toContain("Great app!");
+  });
+
+  it("CSV escapes commas and quotes", async () => {
+    const client = mockClient();
+    client.reviews.list.mockResolvedValue({
+      reviews: [makeReview({ text: 'Has "quotes" and, commas' })],
+    });
+
+    const result = await exportReviews(client, PKG, { format: "csv" });
+    expect(result).toContain('"Has ""quotes"" and, commas"');
+  });
+
+  it("paginates through all pages", async () => {
+    const client = mockClient();
+    client.reviews.list
+      .mockResolvedValueOnce({
+        reviews: [makeReview()],
+        tokenPagination: { nextPageToken: "page2" },
+      })
+      .mockResolvedValueOnce({
+        reviews: [makeReview({ reviewId: "r2" })],
+      });
+
+    const result = await exportReviews(client, PKG);
+    const parsed = JSON.parse(result);
+    expect(parsed).toHaveLength(2);
+    expect(client.reviews.list).toHaveBeenCalledTimes(2);
+  });
+
+  it("applies filters during export", async () => {
+    const client = mockClient();
+    client.reviews.list.mockResolvedValue({
+      reviews: [makeReview({ starRating: 5 }), makeReview({ reviewId: "r2", starRating: 1 })],
+    });
+
+    const result = await exportReviews(client, PKG, { stars: 5 });
+    const parsed = JSON.parse(result);
+    expect(parsed).toHaveLength(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 5 – Vitals
+// ---------------------------------------------------------------------------
+
+function mockReportingClient() {
+  return {
+    queryMetricSet: vi.fn().mockResolvedValue({ rows: [] }),
+    getAnomalies: vi.fn().mockResolvedValue({ anomalies: [] }),
+    searchErrorIssues: vi.fn().mockResolvedValue({ errorIssues: [] }),
+    searchErrorReports: vi.fn().mockResolvedValue({ errorReports: [] }),
+  } as any;
+}
+
+describe("getVitalsOverview", () => {
+  it("queries all metric sets and returns overview", async () => {
+    const reporting = mockReportingClient();
+    reporting.queryMetricSet.mockResolvedValue({ rows: [{ metrics: {} }] });
+
+    const result = await getVitalsOverview(reporting, PKG);
+
+    expect(result).toHaveProperty("crashRate");
+    expect(result).toHaveProperty("anrRate");
+    expect(result).toHaveProperty("slowStartRate");
+    expect(result).toHaveProperty("slowRenderingRate");
+    expect(result).toHaveProperty("excessiveWakeupRate");
+    expect(result).toHaveProperty("stuckWakelockRate");
+    // 6 metric sets queried
+    expect(reporting.queryMetricSet).toHaveBeenCalledTimes(6);
+  });
+
+  it("handles partial failures gracefully", async () => {
+    const reporting = mockReportingClient();
+    reporting.queryMetricSet
+      .mockResolvedValueOnce({ rows: [{ metrics: {} }] })
+      .mockRejectedValueOnce(new Error("anr fail"))
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] })
+      .mockResolvedValueOnce({ rows: [] });
+
+    const result = await getVitalsOverview(reporting, PKG);
+    expect(result.crashRate).toHaveLength(1);
+    expect(result.anrRate).toBeUndefined();
+  });
+});
+
+describe("getVitalsCrashes", () => {
+  it("queries vitals.crashrate", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsCrashes(reporting, PKG);
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.crashrate", expect.any(Object));
+  });
+
+  it("passes dimension option", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsCrashes(reporting, PKG, { dimension: "versionCode" });
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.crashrate", expect.objectContaining({
+      dimensions: ["versionCode"],
+    }));
+  });
+
+  it("passes days option as timeline spec", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsCrashes(reporting, PKG, { days: 7 });
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.crashrate", expect.objectContaining({
+      timelineSpec: expect.objectContaining({
+        aggregationPeriod: "DAILY",
+      }),
+    }));
+  });
+});
+
+describe("getVitalsAnr", () => {
+  it("queries vitals.anrrate", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsAnr(reporting, PKG);
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.anrrate", expect.any(Object));
+  });
+});
+
+describe("getVitalsStartup", () => {
+  it("queries vitals.slowstartrate", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsStartup(reporting, PKG);
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.slowstartrate", expect.any(Object));
+  });
+});
+
+describe("getVitalsRendering", () => {
+  it("queries vitals.slowrenderingrate", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsRendering(reporting, PKG);
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.slowrenderingrate", expect.any(Object));
+  });
+});
+
+describe("getVitalsBattery", () => {
+  it("queries vitals.excessivewakeuprate", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsBattery(reporting, PKG);
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.excessivewakeuprate", expect.any(Object));
+  });
+});
+
+describe("getVitalsMemory", () => {
+  it("queries vitals.stuckbackgroundwakelockrate", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsMemory(reporting, PKG);
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.stuckbackgroundwakelockrate", expect.any(Object));
+  });
+});
+
+describe("getVitalsAnomalies", () => {
+  it("calls getAnomalies", async () => {
+    const reporting = mockReportingClient();
+    const result = await getVitalsAnomalies(reporting, PKG);
+    expect(result).toEqual({ anomalies: [] });
+    expect(reporting.getAnomalies).toHaveBeenCalledWith(PKG);
+  });
+});
+
+describe("searchVitalsErrors", () => {
+  it("calls searchErrorIssues with options", async () => {
+    const reporting = mockReportingClient();
+    await searchVitalsErrors(reporting, PKG, { filter: "crash", maxResults: 10 });
+    expect(reporting.searchErrorIssues).toHaveBeenCalledWith(PKG, "crash", 10);
+  });
+
+  it("calls with no filter when none provided", async () => {
+    const reporting = mockReportingClient();
+    await searchVitalsErrors(reporting, PKG);
+    expect(reporting.searchErrorIssues).toHaveBeenCalledWith(PKG, undefined, undefined);
+  });
+});
+
+describe("checkThreshold", () => {
+  it("returns breached=true when value exceeds threshold", () => {
+    const result = checkThreshold(5.5, 5.0);
+    expect(result.breached).toBe(true);
+    expect(result.value).toBe(5.5);
+    expect(result.threshold).toBe(5.0);
+  });
+
+  it("returns breached=false when value is below threshold", () => {
+    const result = checkThreshold(3.0, 5.0);
+    expect(result.breached).toBe(false);
+  });
+
+  it("returns breached=false when value equals threshold", () => {
+    const result = checkThreshold(5.0, 5.0);
+    expect(result.breached).toBe(false);
+  });
+
+  it("returns breached=false when value is undefined", () => {
+    const result = checkThreshold(undefined, 5.0);
+    expect(result.breached).toBe(false);
+    expect(result.value).toBeUndefined();
   });
 });
