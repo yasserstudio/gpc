@@ -51,6 +51,38 @@ vi.mock("@gpc/core", () => ({
   getVitalsAnomalies: vi.fn().mockResolvedValue({ anomalies: [] }),
   searchVitalsErrors: vi.fn().mockResolvedValue({ errorIssues: [] }),
   checkThreshold: vi.fn().mockReturnValue({ breached: false, value: 0, threshold: 0 }),
+  listSubscriptions: vi.fn().mockResolvedValue({ subscriptions: [] }),
+  getSubscription: vi.fn().mockResolvedValue({}),
+  createSubscription: vi.fn().mockResolvedValue({}),
+  updateSubscription: vi.fn().mockResolvedValue({}),
+  deleteSubscription: vi.fn().mockResolvedValue(undefined),
+  activateBasePlan: vi.fn().mockResolvedValue({}),
+  deactivateBasePlan: vi.fn().mockResolvedValue({}),
+  deleteBasePlan: vi.fn().mockResolvedValue(undefined),
+  migratePrices: vi.fn().mockResolvedValue({}),
+  listOffers: vi.fn().mockResolvedValue({ subscriptionOffers: [] }),
+  getOffer: vi.fn().mockResolvedValue({}),
+  createOffer: vi.fn().mockResolvedValue({}),
+  updateOffer: vi.fn().mockResolvedValue({}),
+  deleteOffer: vi.fn().mockResolvedValue(undefined),
+  activateOffer: vi.fn().mockResolvedValue({}),
+  deactivateOffer: vi.fn().mockResolvedValue({}),
+  listInAppProducts: vi.fn().mockResolvedValue({ inappproduct: [] }),
+  getInAppProduct: vi.fn().mockResolvedValue({}),
+  createInAppProduct: vi.fn().mockResolvedValue({}),
+  updateInAppProduct: vi.fn().mockResolvedValue({}),
+  deleteInAppProduct: vi.fn().mockResolvedValue(undefined),
+  syncInAppProducts: vi.fn().mockResolvedValue({ created: 0, updated: 0, unchanged: 0, skus: [] }),
+  getProductPurchase: vi.fn().mockResolvedValue({}),
+  acknowledgeProductPurchase: vi.fn().mockResolvedValue(undefined),
+  consumeProductPurchase: vi.fn().mockResolvedValue(undefined),
+  getSubscriptionPurchase: vi.fn().mockResolvedValue({}),
+  cancelSubscriptionPurchase: vi.fn().mockResolvedValue(undefined),
+  deferSubscriptionPurchase: vi.fn().mockResolvedValue({}),
+  revokeSubscriptionPurchase: vi.fn().mockResolvedValue(undefined),
+  listVoidedPurchases: vi.fn().mockResolvedValue({ voidedPurchases: [] }),
+  refundOrder: vi.fn().mockResolvedValue(undefined),
+  convertRegionPrices: vi.fn().mockResolvedValue({ convertedRegionPrices: {} }),
 }));
 
 vi.mock("@gpc/api", () => ({
@@ -105,6 +137,10 @@ describe("createProgram", () => {
     expect(commandNames).toContain("apps");
     expect(commandNames).toContain("reviews");
     expect(commandNames).toContain("vitals");
+    expect(commandNames).toContain("subscriptions");
+    expect(commandNames).toContain("iap");
+    expect(commandNames).toContain("purchases");
+    expect(commandNames).toContain("pricing");
   });
 
   it("has all expected global options", () => {
@@ -497,5 +533,109 @@ describe("vitals subcommands", () => {
 
     const output = stdoutSpy.mock.calls.map((call) => String(call[0])).join("");
     expect(output).toContain("vitals");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 6 – subscriptions subcommands
+// ---------------------------------------------------------------------------
+describe("subscriptions subcommands", () => {
+  let program: Command;
+
+  beforeEach(() => {
+    program = createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("subscriptions command has all expected subcommands", () => {
+    const subsCmd = program.commands.find((cmd) => cmd.name() === "subscriptions");
+    expect(subsCmd).toBeDefined();
+    const subcommandNames = subsCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("list");
+    expect(subcommandNames).toContain("get");
+    expect(subcommandNames).toContain("create");
+    expect(subcommandNames).toContain("update");
+    expect(subcommandNames).toContain("delete");
+    expect(subcommandNames).toContain("base-plans");
+    expect(subcommandNames).toContain("offers");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 6 – iap subcommands
+// ---------------------------------------------------------------------------
+describe("iap subcommands", () => {
+  let program: Command;
+
+  beforeEach(() => {
+    program = createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("iap command has all expected subcommands", () => {
+    const iapCmd = program.commands.find((cmd) => cmd.name() === "iap");
+    expect(iapCmd).toBeDefined();
+    const subcommandNames = iapCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("list");
+    expect(subcommandNames).toContain("get");
+    expect(subcommandNames).toContain("create");
+    expect(subcommandNames).toContain("update");
+    expect(subcommandNames).toContain("delete");
+    expect(subcommandNames).toContain("sync");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 6 – purchases subcommands
+// ---------------------------------------------------------------------------
+describe("purchases subcommands", () => {
+  let program: Command;
+
+  beforeEach(() => {
+    program = createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("purchases command has all expected subcommands", () => {
+    const purchasesCmd = program.commands.find((cmd) => cmd.name() === "purchases");
+    expect(purchasesCmd).toBeDefined();
+    const subcommandNames = purchasesCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("get");
+    expect(subcommandNames).toContain("acknowledge");
+    expect(subcommandNames).toContain("consume");
+    expect(subcommandNames).toContain("subscription");
+    expect(subcommandNames).toContain("voided");
+    expect(subcommandNames).toContain("orders");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 6 – pricing subcommands
+// ---------------------------------------------------------------------------
+describe("pricing subcommands", () => {
+  let program: Command;
+
+  beforeEach(() => {
+    program = createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("pricing command has convert subcommand", () => {
+    const pricingCmd = program.commands.find((cmd) => cmd.name() === "pricing");
+    expect(pricingCmd).toBeDefined();
+    const subcommandNames = pricingCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("convert");
   });
 });
