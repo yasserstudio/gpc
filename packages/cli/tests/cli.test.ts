@@ -26,6 +26,17 @@ vi.mock("@gpc/core", () => ({
   promoteRelease: vi.fn().mockResolvedValue({}),
   updateRollout: vi.fn().mockResolvedValue({}),
   listTracks: vi.fn().mockResolvedValue([]),
+  getListings: vi.fn().mockResolvedValue([]),
+  updateListing: vi.fn().mockResolvedValue({}),
+  deleteListing: vi.fn().mockResolvedValue(undefined),
+  pullListings: vi.fn().mockResolvedValue({ listings: [] }),
+  pushListings: vi.fn().mockResolvedValue({ updated: 0, languages: [] }),
+  listImages: vi.fn().mockResolvedValue([]),
+  uploadImage: vi.fn().mockResolvedValue({}),
+  deleteImage: vi.fn().mockResolvedValue(undefined),
+  getCountryAvailability: vi.fn().mockResolvedValue({}),
+  updateAppDetails: vi.fn().mockResolvedValue({}),
+  getAppInfo: vi.fn().mockResolvedValue({}),
 }));
 
 vi.mock("@gpc/api", () => ({
@@ -69,6 +80,8 @@ describe("createProgram", () => {
     expect(commandNames).toContain("releases");
     expect(commandNames).toContain("tracks");
     expect(commandNames).toContain("status");
+    expect(commandNames).toContain("listings");
+    expect(commandNames).toContain("apps");
   });
 
   it("has all expected global options", () => {
@@ -271,5 +284,94 @@ describe("releases rollout subcommands", () => {
     expect(subcommandNames).toContain("halt");
     expect(subcommandNames).toContain("resume");
     expect(subcommandNames).toContain("complete");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 4 – listings subcommands
+// ---------------------------------------------------------------------------
+describe("listings subcommands", () => {
+  let program: Command;
+
+  beforeEach(() => {
+    program = createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("listings command has all expected subcommands", () => {
+    const listingsCmd = program.commands.find((cmd) => cmd.name() === "listings");
+    expect(listingsCmd).toBeDefined();
+    const subcommandNames = listingsCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("get");
+    expect(subcommandNames).toContain("update");
+    expect(subcommandNames).toContain("delete");
+    expect(subcommandNames).toContain("pull");
+    expect(subcommandNames).toContain("push");
+    expect(subcommandNames).toContain("images");
+    expect(subcommandNames).toContain("availability");
+  });
+
+  it("listings images command has list/upload/delete subcommands", () => {
+    const listingsCmd = program.commands.find((cmd) => cmd.name() === "listings");
+    const imagesCmd = listingsCmd!.commands.find((cmd) => cmd.name() === "images");
+    expect(imagesCmd).toBeDefined();
+    const subcommandNames = imagesCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("list");
+    expect(subcommandNames).toContain("upload");
+    expect(subcommandNames).toContain("delete");
+  });
+
+  it("listings --help shows description", async () => {
+    program.exitOverride();
+    const stdoutSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    try {
+      await program.parseAsync(["node", "test", "listings", "--help"]);
+    } catch {
+      // Commander throws on help display
+    }
+
+    const output = stdoutSpy.mock.calls.map((call) => String(call[0])).join("");
+    expect(output).toContain("Manage store listings");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 4 – apps subcommands
+// ---------------------------------------------------------------------------
+describe("apps subcommands", () => {
+  let program: Command;
+
+  beforeEach(() => {
+    program = createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("apps command has info, update, and list subcommands", () => {
+    const appsCmd = program.commands.find((cmd) => cmd.name() === "apps");
+    expect(appsCmd).toBeDefined();
+    const subcommandNames = appsCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("info");
+    expect(subcommandNames).toContain("update");
+    expect(subcommandNames).toContain("list");
+  });
+
+  it("apps update command has expected options", () => {
+    const appsCmd = program.commands.find((cmd) => cmd.name() === "apps");
+    const updateCmd = appsCmd!.commands.find((cmd) => cmd.name() === "update");
+    expect(updateCmd).toBeDefined();
+    const optionFlags = updateCmd!.options.map((opt) => opt.long ?? opt.short);
+    expect(optionFlags).toContain("--email");
+    expect(optionFlags).toContain("--phone");
+    expect(optionFlags).toContain("--website");
+    expect(optionFlags).toContain("--default-lang");
   });
 });

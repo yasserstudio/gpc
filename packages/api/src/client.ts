@@ -5,6 +5,14 @@ import type {
   AppEdit,
   Bundle,
   BundleListResponse,
+  CountryAvailability,
+  Image,
+  ImageType,
+  ImageUploadResponse,
+  ImagesDeleteAllResponse,
+  ImagesListResponse,
+  Listing,
+  ListingsListResponse,
   Release,
   Track,
   TrackListResponse,
@@ -22,6 +30,8 @@ export interface PlayApiClient {
 
   details: {
     get(packageName: string, editId: string): Promise<AppDetails>;
+    update(packageName: string, editId: string, details: Partial<AppDetails>): Promise<AppDetails>;
+    patch(packageName: string, editId: string, partial: Partial<AppDetails>): Promise<AppDetails>;
   };
 
   bundles: {
@@ -33,6 +43,26 @@ export interface PlayApiClient {
     list(packageName: string, editId: string): Promise<Track[]>;
     get(packageName: string, editId: string, track: string): Promise<Track>;
     update(packageName: string, editId: string, track: string, release: Release): Promise<Track>;
+  };
+
+  listings: {
+    list(packageName: string, editId: string): Promise<Listing[]>;
+    get(packageName: string, editId: string, language: string): Promise<Listing>;
+    update(packageName: string, editId: string, language: string, listing: Omit<Listing, "language">): Promise<Listing>;
+    patch(packageName: string, editId: string, language: string, partial: Partial<Omit<Listing, "language">>): Promise<Listing>;
+    delete(packageName: string, editId: string, language: string): Promise<void>;
+    deleteAll(packageName: string, editId: string): Promise<void>;
+  };
+
+  images: {
+    list(packageName: string, editId: string, language: string, imageType: ImageType): Promise<Image[]>;
+    upload(packageName: string, editId: string, language: string, imageType: ImageType, filePath: string): Promise<Image>;
+    delete(packageName: string, editId: string, language: string, imageType: ImageType, imageId: string): Promise<void>;
+    deleteAll(packageName: string, editId: string, language: string, imageType: ImageType): Promise<Image[]>;
+  };
+
+  countryAvailability: {
+    get(packageName: string, editId: string, track: string): Promise<CountryAvailability>;
   };
 }
 
@@ -79,6 +109,22 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         );
         return data;
       },
+
+      async update(packageName, editId, details) {
+        const { data } = await http.put<AppDetails>(
+          `/${packageName}/edits/${editId}/details`,
+          details,
+        );
+        return data;
+      },
+
+      async patch(packageName, editId, partial) {
+        const { data } = await http.patch<AppDetails>(
+          `/${packageName}/edits/${editId}/details`,
+          partial,
+        );
+        return data;
+      },
     },
 
     bundles: {
@@ -118,6 +164,86 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const { data } = await http.put<Track>(
           `/${packageName}/edits/${editId}/tracks/${track}`,
           { track, releases: [release] },
+        );
+        return data;
+      },
+    },
+
+    listings: {
+      async list(packageName, editId) {
+        const { data } = await http.get<ListingsListResponse>(
+          `/${packageName}/edits/${editId}/listings`,
+        );
+        return data.listings || [];
+      },
+
+      async get(packageName, editId, language) {
+        const { data } = await http.get<Listing>(
+          `/${packageName}/edits/${editId}/listings/${language}`,
+        );
+        return data;
+      },
+
+      async update(packageName, editId, language, listing) {
+        const { data } = await http.put<Listing>(
+          `/${packageName}/edits/${editId}/listings/${language}`,
+          listing,
+        );
+        return data;
+      },
+
+      async patch(packageName, editId, language, partial) {
+        const { data } = await http.patch<Listing>(
+          `/${packageName}/edits/${editId}/listings/${language}`,
+          partial,
+        );
+        return data;
+      },
+
+      async delete(packageName, editId, language) {
+        await http.delete(`/${packageName}/edits/${editId}/listings/${language}`);
+      },
+
+      async deleteAll(packageName, editId) {
+        await http.delete(`/${packageName}/edits/${editId}/listings`);
+      },
+    },
+
+    images: {
+      async list(packageName, editId, language, imageType) {
+        const { data } = await http.get<ImagesListResponse>(
+          `/${packageName}/edits/${editId}/listings/${language}/${imageType}`,
+        );
+        return data.images || [];
+      },
+
+      async upload(packageName, editId, language, imageType, filePath) {
+        const { data } = await http.upload<ImageUploadResponse>(
+          `/${packageName}/edits/${editId}/listings/${language}/${imageType}`,
+          filePath,
+          filePath.endsWith(".png") ? "image/png" : "image/jpeg",
+        );
+        return data.image;
+      },
+
+      async delete(packageName, editId, language, imageType, imageId) {
+        await http.delete(
+          `/${packageName}/edits/${editId}/listings/${language}/${imageType}/${imageId}`,
+        );
+      },
+
+      async deleteAll(packageName, editId, language, imageType) {
+        const { data } = await http.delete<ImagesDeleteAllResponse>(
+          `/${packageName}/edits/${editId}/listings/${language}/${imageType}`,
+        );
+        return data.deleted || [];
+      },
+    },
+
+    countryAvailability: {
+      async get(packageName, editId, track) {
+        const { data } = await http.get<CountryAvailability>(
+          `/${packageName}/edits/${editId}/countryAvailability/${track}`,
         );
         return data;
       },

@@ -2,7 +2,7 @@ import type { Command } from "commander";
 import { loadConfig } from "@gpc/config";
 import { resolveAuth } from "@gpc/auth";
 import { createApiClient } from "@gpc/api";
-import { getAppInfo } from "@gpc/core";
+import { getAppInfo, updateAppDetails } from "@gpc/core";
 import { detectOutputFormat, formatOutput } from "@gpc/core";
 
 export function registerAppsCommands(program: Command): void {
@@ -32,6 +32,48 @@ export function registerAppsCommands(program: Command): void {
         const info = await getAppInfo(client, packageName);
         const format = detectOutputFormat();
         console.log(formatOutput(info, format));
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  apps
+    .command("update")
+    .description("Update app details")
+    .option("--email <email>", "Contact email")
+    .option("--phone <phone>", "Contact phone")
+    .option("--website <url>", "Contact website")
+    .option("--default-lang <lang>", "Default language")
+    .action(async (options) => {
+      const config = await loadConfig();
+      const packageName = options.app || program.opts().app || config.app;
+
+      if (!packageName) {
+        console.error("Error: No package name provided.");
+        console.error("Usage: gpc apps update --email user@example.com");
+        process.exit(2);
+      }
+
+      const data: Record<string, string> = {};
+      if (options.email) data.contactEmail = options.email;
+      if (options.phone) data.contactPhone = options.phone;
+      if (options.website) data.contactWebsite = options.website;
+      if (options.defaultLang) data.defaultLanguage = options.defaultLang;
+
+      if (Object.keys(data).length === 0) {
+        console.error("Error: Provide at least one field to update (--email, --phone, --website, --default-lang).");
+        process.exit(2);
+      }
+
+      try {
+        const auth = await resolveAuth({
+          serviceAccountPath: config.auth?.serviceAccount,
+        });
+        const client = createApiClient({ auth });
+        const result = await updateAppDetails(client, packageName, data);
+        const format = detectOutputFormat();
+        console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
