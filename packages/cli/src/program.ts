@@ -9,6 +9,8 @@ import { registerReleasesCommands } from "./commands/releases.js";
 import { registerTracksCommands } from "./commands/tracks.js";
 import { registerStatusCommand } from "./commands/status.js";
 import { registerListingsCommands } from "./commands/listings.js";
+import { registerReviewsCommands } from "./commands/reviews.js";
+import { registerVitalsCommands } from "./commands/vitals.js";
 
 export function createProgram(): Command {
   const program = new Command();
@@ -35,6 +37,8 @@ export function createProgram(): Command {
   registerTracksCommands(program);
   registerStatusCommand(program);
   registerListingsCommands(program);
+  registerReviewsCommands(program);
+  registerVitalsCommands(program);
 
   return program;
 }

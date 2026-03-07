@@ -1,5 +1,7 @@
 export { createApiClient } from "./client.js";
 export type { PlayApiClient } from "./client.js";
+export { createReportingClient } from "./reporting-client.js";
+export type { ReportingApiClient } from "./reporting-client.js";
 export { createHttpClient } from "./http.js";
 export type { HttpClient } from "./http.js";
 export { ApiError } from "./errors.js";
@@ -30,4 +32,21 @@ export type {
   ImageUploadResponse,
   ImagesDeleteAllResponse,
   CountryAvailability,
+  ReviewsListResponse,
+  TokenPagination,
+  ReviewReplyRequest,
+  ReviewReplyResponse,
+  ReviewsListOptions,
+  VitalsMetricSet,
+  ReportingDimension,
+  ReportingAggregation,
+  MetricSetQuery,
+  MetricSetResponse,
+  MetricRow,
+  Anomaly,
+  AnomalyDetectionResponse,
+  ErrorIssue,
+  ErrorIssuesResponse,
+  ErrorReport,
+  ErrorReportsResponse,
 } from "./types.js";

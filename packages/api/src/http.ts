@@ -97,7 +97,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     body?: unknown,
     params?: Record<string, string>,
   ): Promise<ApiResponse<T>> {
-    let url = `${BASE_URL}${path}`;
+    let url = `${options.baseUrl ?? BASE_URL}${path}`;
     if (params) {
       const search = new URLSearchParams(params);
       url += `?${search.toString()}`;
