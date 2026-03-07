@@ -8,6 +8,23 @@ import {
   updateRollout,
   listTracks,
 } from "../src/commands/releases.js";
+import {
+  getListings,
+  updateListing,
+  deleteListing,
+  pullListings,
+  pushListings,
+  listImages,
+  uploadImage,
+  deleteImage,
+  getCountryAvailability,
+  updateAppDetails,
+} from "../src/commands/listings.js";
+import { isValidBcp47, GOOGLE_PLAY_LANGUAGES } from "../src/utils/bcp47.js";
+import { readListingsFromDir, writeListingsToDir, diffListings } from "../src/utils/fastlane.js";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 // ---------------------------------------------------------------------------
 // GpcError
@@ -247,7 +264,11 @@ function mockClient() {
       commit: vi.fn().mockResolvedValue({ id: "edit-1" }),
       delete: vi.fn().mockResolvedValue(undefined),
     },
-    details: { get: vi.fn() },
+    details: {
+      get: vi.fn(),
+      update: vi.fn(),
+      patch: vi.fn().mockResolvedValue({ defaultLanguage: "en-US", title: "My App" }),
+    },
     bundles: {
       list: vi.fn(),
       upload: vi.fn().mockResolvedValue({ versionCode: 42, sha256: "abc123" }),
@@ -256,6 +277,23 @@ function mockClient() {
       list: vi.fn(),
       get: vi.fn(),
       update: vi.fn().mockResolvedValue({ track: "internal", releases: [] }),
+    },
+    listings: {
+      list: vi.fn().mockResolvedValue([]),
+      get: vi.fn(),
+      update: vi.fn(),
+      patch: vi.fn(),
+      delete: vi.fn().mockResolvedValue(undefined),
+      deleteAll: vi.fn(),
+    },
+    images: {
+      list: vi.fn().mockResolvedValue([]),
+      upload: vi.fn().mockResolvedValue({ id: "img-1", url: "https://example.com/img.png", sha1: "a", sha256: "b" }),
+      delete: vi.fn().mockResolvedValue(undefined),
+      deleteAll: vi.fn(),
+    },
+    countryAvailability: {
+      get: vi.fn().mockResolvedValue({ countryTargeting: { countries: ["US"], includeRestOfWorld: false } }),
     },
   } as any;
 }
@@ -689,5 +727,391 @@ describe("listTracks", () => {
     await listTracks(client, PKG);
 
     expect(client.edits.commit).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 4 – BCP 47 Validation
+// ---------------------------------------------------------------------------
+describe("isValidBcp47", () => {
+  it("returns true for valid Google Play language codes", () => {
+    expect(isValidBcp47("en-US")).toBe(true);
+    expect(isValidBcp47("ja-JP")).toBe(true);
+    expect(isValidBcp47("fr-FR")).toBe(true);
+    expect(isValidBcp47("ar")).toBe(true);
+  });
+
+  it("returns false for invalid language codes", () => {
+    expect(isValidBcp47("en_US")).toBe(false);
+    expect(isValidBcp47("invalid")).toBe(false);
+    expect(isValidBcp47("")).toBe(false);
+    expect(isValidBcp47("xx-YY")).toBe(false);
+  });
+
+  it("GOOGLE_PLAY_LANGUAGES has expected count", () => {
+    expect(GOOGLE_PLAY_LANGUAGES.length).toBeGreaterThan(70);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 4 – Fastlane utils
+// ---------------------------------------------------------------------------
+describe("diffListings", () => {
+  it("detects field differences between local and remote", () => {
+    const local = [{ language: "en-US", title: "New Title", shortDescription: "short", fullDescription: "full" }];
+    const remote = [{ language: "en-US", title: "Old Title", shortDescription: "short", fullDescription: "full" }];
+
+    const diffs = diffListings(local, remote);
+
+    expect(diffs).toHaveLength(1);
+    expect(diffs[0].field).toBe("title");
+    expect(diffs[0].local).toBe("New Title");
+    expect(diffs[0].remote).toBe("Old Title");
+  });
+
+  it("detects new languages (local only)", () => {
+    const local = [{ language: "fr-FR", title: "Bonjour", shortDescription: "s", fullDescription: "f" }];
+    const remote: any[] = [];
+
+    const diffs = diffListings(local, remote);
+
+    expect(diffs.length).toBeGreaterThanOrEqual(1);
+    expect(diffs.every((d) => d.language === "fr-FR")).toBe(true);
+    expect(diffs.every((d) => d.remote === "")).toBe(true);
+  });
+
+  it("detects remote-only languages", () => {
+    const local: any[] = [];
+    const remote = [{ language: "de-DE", title: "Hallo", shortDescription: "s", fullDescription: "f" }];
+
+    const diffs = diffListings(local, remote);
+
+    expect(diffs.length).toBeGreaterThanOrEqual(1);
+    expect(diffs.every((d) => d.language === "de-DE")).toBe(true);
+    expect(diffs.every((d) => d.local === "")).toBe(true);
+  });
+
+  it("returns empty array when local and remote match", () => {
+    const listing = { language: "en-US", title: "Same", shortDescription: "same", fullDescription: "same" };
+    const diffs = diffListings([listing], [{ ...listing }]);
+
+    expect(diffs).toHaveLength(0);
+  });
+});
+
+describe("writeListingsToDir / readListingsFromDir", () => {
+  it("round-trips listings through the filesystem", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "gpc-test-"));
+    try {
+      const listings = [
+        { language: "en-US", title: "My App", shortDescription: "Short", fullDescription: "Full desc" },
+        { language: "ja-JP", title: "My App JP", shortDescription: "Short JP", fullDescription: "Full JP" },
+      ];
+
+      await writeListingsToDir(dir, listings);
+      const result = await readListingsFromDir(dir);
+
+      expect(result).toHaveLength(2);
+      const enUS = result.find((l: any) => l.language === "en-US");
+      expect(enUS).toBeDefined();
+      expect(enUS!.title).toBe("My App");
+      expect(enUS!.shortDescription).toBe("Short");
+      expect(enUS!.fullDescription).toBe("Full desc");
+    } finally {
+      await rm(dir, { recursive: true });
+    }
+  });
+
+  it("returns empty array for non-existent directory", async () => {
+    const result = await readListingsFromDir("/tmp/gpc-nonexistent-dir-" + Date.now());
+    expect(result).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 4 – getListings
+// ---------------------------------------------------------------------------
+describe("getListings", () => {
+  it("returns all listings when no language specified", async () => {
+    const client = mockClient();
+    const listings = [
+      { language: "en-US", title: "App", shortDescription: "s", fullDescription: "f" },
+      { language: "ja-JP", title: "App JP", shortDescription: "s", fullDescription: "f" },
+    ];
+    client.listings.list.mockResolvedValue(listings);
+
+    const result = await getListings(client, PKG);
+
+    expect(result).toEqual(listings);
+    expect(client.edits.insert).toHaveBeenCalledWith(PKG);
+    expect(client.listings.list).toHaveBeenCalledWith(PKG, "edit-1");
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+    expect(client.edits.commit).not.toHaveBeenCalled();
+  });
+
+  it("returns single listing when language specified", async () => {
+    const client = mockClient();
+    const listing = { language: "en-US", title: "App", shortDescription: "s", fullDescription: "f" };
+    client.listings.get.mockResolvedValue(listing);
+
+    const result = await getListings(client, PKG, "en-US");
+
+    expect(result).toEqual([listing]);
+    expect(client.listings.get).toHaveBeenCalledWith(PKG, "edit-1", "en-US");
+    expect(client.listings.list).not.toHaveBeenCalled();
+  });
+
+  it("throws on invalid language code", async () => {
+    const client = mockClient();
+    await expect(getListings(client, PKG, "invalid")).rejects.toThrow("Invalid language tag");
+  });
+
+  it("deletes edit on error", async () => {
+    const client = mockClient();
+    client.listings.list.mockRejectedValue(new Error("api fail"));
+
+    await expect(getListings(client, PKG)).rejects.toThrow("api fail");
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 4 – updateListing
+// ---------------------------------------------------------------------------
+describe("updateListing", () => {
+  it("patches listing, validates, and commits", async () => {
+    const client = mockClient();
+    const updated = { language: "en-US", title: "New", shortDescription: "s", fullDescription: "f" };
+    client.listings.patch.mockResolvedValue(updated);
+
+    const result = await updateListing(client, PKG, "en-US", { title: "New" });
+
+    expect(result).toEqual(updated);
+    expect(client.listings.patch).toHaveBeenCalledWith(PKG, "edit-1", "en-US", { title: "New" });
+    expect(client.edits.validate).toHaveBeenCalled();
+    expect(client.edits.commit).toHaveBeenCalled();
+  });
+
+  it("throws on invalid language code", async () => {
+    const client = mockClient();
+    await expect(updateListing(client, PKG, "bad", { title: "X" })).rejects.toThrow("Invalid language tag");
+  });
+
+  it("deletes edit on error", async () => {
+    const client = mockClient();
+    client.listings.patch.mockRejectedValue(new Error("patch fail"));
+
+    await expect(updateListing(client, PKG, "en-US", { title: "X" })).rejects.toThrow("patch fail");
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 4 – deleteListing
+// ---------------------------------------------------------------------------
+describe("deleteListing", () => {
+  it("deletes listing, validates, and commits", async () => {
+    const client = mockClient();
+
+    await deleteListing(client, PKG, "en-US");
+
+    expect(client.listings.delete).toHaveBeenCalledWith(PKG, "edit-1", "en-US");
+    expect(client.edits.validate).toHaveBeenCalled();
+    expect(client.edits.commit).toHaveBeenCalled();
+  });
+
+  it("throws on invalid language code", async () => {
+    const client = mockClient();
+    await expect(deleteListing(client, PKG, "nope")).rejects.toThrow("Invalid language tag");
+  });
+
+  it("deletes edit on error", async () => {
+    const client = mockClient();
+    client.listings.delete.mockRejectedValue(new Error("delete fail"));
+
+    await expect(deleteListing(client, PKG, "en-US")).rejects.toThrow("delete fail");
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 4 – pushListings
+// ---------------------------------------------------------------------------
+describe("pushListings", () => {
+  it("uploads local listings, validates, and commits", async () => {
+    const client = mockClient();
+
+    const dir = await mkdtemp(join(tmpdir(), "gpc-push-"));
+
+    try {
+      await writeListingsToDir(dir, [
+        { language: "en-US", title: "App", shortDescription: "s", fullDescription: "f" },
+      ]);
+
+      const result = await pushListings(client, PKG, dir);
+
+      expect(result).toEqual({ updated: 1, languages: ["en-US"] });
+      expect(client.listings.update).toHaveBeenCalledWith(PKG, "edit-1", "en-US", {
+        title: "App",
+        shortDescription: "s",
+        fullDescription: "f",
+      });
+      expect(client.edits.validate).toHaveBeenCalled();
+      expect(client.edits.commit).toHaveBeenCalled();
+    } finally {
+      await rm(dir, { recursive: true });
+    }
+  });
+
+  it("dry-run returns diffs without committing", async () => {
+    const client = mockClient();
+    client.listings.list.mockResolvedValue([
+      { language: "en-US", title: "Old", shortDescription: "s", fullDescription: "f" },
+    ]);
+
+    const dir = await mkdtemp(join(tmpdir(), "gpc-dry-"));
+
+    try {
+      await writeListingsToDir(dir, [
+        { language: "en-US", title: "New", shortDescription: "s", fullDescription: "f" },
+      ]);
+
+      const result = await pushListings(client, PKG, dir, { dryRun: true });
+
+      expect((result as any).diffs).toBeDefined();
+      expect((result as any).diffs.length).toBeGreaterThan(0);
+      expect(client.edits.commit).not.toHaveBeenCalled();
+      expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+    } finally {
+      await rm(dir, { recursive: true });
+    }
+  });
+
+  it("throws when directory has no listings", async () => {
+    const client = mockClient();
+    const dir = await mkdtemp(join(tmpdir(), "gpc-empty-"));
+
+    try {
+      await expect(pushListings(client, PKG, dir)).rejects.toThrow("No listings found");
+    } finally {
+      await rm(dir, { recursive: true });
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 4 – listImages
+// ---------------------------------------------------------------------------
+describe("listImages", () => {
+  it("returns images for a language and type", async () => {
+    const client = mockClient();
+    const images = [{ id: "1", url: "https://example.com/1.png", sha1: "a", sha256: "b" }];
+    client.images.list.mockResolvedValue(images);
+
+    const result = await listImages(client, PKG, "en-US", "phoneScreenshots");
+
+    expect(result).toEqual(images);
+    expect(client.images.list).toHaveBeenCalledWith(PKG, "edit-1", "en-US", "phoneScreenshots");
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+  });
+
+  it("throws on invalid language", async () => {
+    const client = mockClient();
+    await expect(listImages(client, PKG, "bad", "icon")).rejects.toThrow("Invalid language tag");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 4 – uploadImage
+// ---------------------------------------------------------------------------
+describe("uploadImage", () => {
+  it("uploads, validates, and commits", async () => {
+    const client = mockClient();
+
+    const result = await uploadImage(client, PKG, "en-US", "icon", "/tmp/icon.png");
+
+    expect(client.images.upload).toHaveBeenCalledWith(PKG, "edit-1", "en-US", "icon", "/tmp/icon.png");
+    expect(client.edits.validate).toHaveBeenCalled();
+    expect(client.edits.commit).toHaveBeenCalled();
+    expect(result).toHaveProperty("id");
+  });
+
+  it("deletes edit on error", async () => {
+    const client = mockClient();
+    client.images.upload.mockRejectedValue(new Error("upload fail"));
+
+    await expect(uploadImage(client, PKG, "en-US", "icon", "/tmp/icon.png")).rejects.toThrow("upload fail");
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 4 – deleteImage
+// ---------------------------------------------------------------------------
+describe("deleteImage", () => {
+  it("deletes image, validates, and commits", async () => {
+    const client = mockClient();
+
+    await deleteImage(client, PKG, "en-US", "phoneScreenshots", "img-1");
+
+    expect(client.images.delete).toHaveBeenCalledWith(PKG, "edit-1", "en-US", "phoneScreenshots", "img-1");
+    expect(client.edits.validate).toHaveBeenCalled();
+    expect(client.edits.commit).toHaveBeenCalled();
+  });
+
+  it("deletes edit on error", async () => {
+    const client = mockClient();
+    client.images.delete.mockRejectedValue(new Error("delete fail"));
+
+    await expect(deleteImage(client, PKG, "en-US", "icon", "img-1")).rejects.toThrow("delete fail");
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 4 – getCountryAvailability
+// ---------------------------------------------------------------------------
+describe("getCountryAvailability", () => {
+  it("returns availability for a track", async () => {
+    const client = mockClient();
+
+    const result = await getCountryAvailability(client, PKG, "production");
+
+    expect(result).toEqual({ countryTargeting: { countries: ["US"], includeRestOfWorld: false } });
+    expect(client.countryAvailability.get).toHaveBeenCalledWith(PKG, "edit-1", "production");
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+    expect(client.edits.commit).not.toHaveBeenCalled();
+  });
+
+  it("deletes edit on error", async () => {
+    const client = mockClient();
+    client.countryAvailability.get.mockRejectedValue(new Error("avail fail"));
+
+    await expect(getCountryAvailability(client, PKG, "production")).rejects.toThrow("avail fail");
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 4 – updateAppDetails
+// ---------------------------------------------------------------------------
+describe("updateAppDetails", () => {
+  it("patches details, validates, and commits", async () => {
+    const client = mockClient();
+
+    const result = await updateAppDetails(client, PKG, { contactEmail: "test@example.com" });
+
+    expect(result).toEqual({ defaultLanguage: "en-US", title: "My App" });
+    expect(client.details.patch).toHaveBeenCalledWith(PKG, "edit-1", { contactEmail: "test@example.com" });
+    expect(client.edits.validate).toHaveBeenCalled();
+    expect(client.edits.commit).toHaveBeenCalled();
+  });
+
+  it("deletes edit on error", async () => {
+    const client = mockClient();
+    client.details.patch.mockRejectedValue(new Error("details fail"));
+
+    await expect(updateAppDetails(client, PKG, { contactEmail: "x" })).rejects.toThrow("details fail");
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
   });
 });
