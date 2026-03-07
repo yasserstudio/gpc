@@ -97,20 +97,20 @@
 
 ---
 
-## Phase 4 — Listings & Metadata → v0.4.x
+## Phase 4 — Listings & Metadata → v0.4.x ✓
 > Full store listing management and Fastlane compatibility.
 
-- [ ] `gpc listings get` (single language + all languages)
-- [ ] `gpc listings update --lang <lang>`
-- [ ] `gpc listings pull --dir metadata/` (download all to local)
-- [ ] `gpc listings push --dir metadata/` (upload local to Play Console)
-- [ ] `gpc listings push --dry-run` (diff preview)
-- [ ] `gpc listings delete --lang <lang>`
-- [ ] `gpc listings images list/upload/delete`
-- [ ] `gpc listings availability` (country availability)
-- [ ] `gpc apps update` (app details: contact email, default language)
-- [ ] Fastlane metadata directory format compatibility
-- [ ] Multi-language support (BCP 47 validation)
+- [x] `gpc listings get` (single language + all languages)
+- [x] `gpc listings update --lang <lang>`
+- [x] `gpc listings pull --dir metadata/` (download all to local)
+- [x] `gpc listings push --dir metadata/` (upload local to Play Console)
+- [x] `gpc listings push --dry-run` (diff preview)
+- [x] `gpc listings delete --lang <lang>`
+- [x] `gpc listings images list/upload/delete`
+- [x] `gpc listings availability` (country availability)
+- [x] `gpc apps update` (app details: contact email, default language)
+- [x] Fastlane metadata directory format compatibility
+- [x] Multi-language support (BCP 47 validation)
 
 **Sub-updates (v0.4.y):**
 - [ ] Fastlane format auto-detection on push
@@ -240,7 +240,7 @@
 | `0.1.0` | 1 | Auth, config, CLI shell | First npm publish |
 | `0.2.0` | 2 | API client, apps | First real API data |
 | `0.3.0` | 3 | Releases, tracks, rollouts | **Start marketing** |
-| `0.4.0` | 4 | Listings, metadata | Fastlane migration path |
+| `0.4.0` | 4 | Listings, metadata ✓ | Fastlane migration path |
 | `0.5.0` | 5 | Reviews, vitals | Monitoring unlocked |
 | `0.6.0` | 6 | Monetization | Subscriptions + IAP |
 | `0.7.0` | 7 | Reports, users, testers | Full API coverage |

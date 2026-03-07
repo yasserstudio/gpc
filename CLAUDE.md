@@ -36,7 +36,8 @@ e2e/               → End-to-end tests
 - Phase 1 ✓ — Auth, config, CLI shell
 - Phase 2 ✓ — API client, edits lifecycle, apps commands
 - Phase 3 ✓ — Releases, tracks, rollouts, upload, promote
-- 126 total tests, 7 packages building
+- Phase 4 ✓ — Listings, metadata, images, Fastlane compat
+- 176 total tests, 7 packages building
 
 ## Testing
 
