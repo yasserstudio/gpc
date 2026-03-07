@@ -370,6 +370,35 @@ describe("createApiClient", () => {
     });
   });
 
+  // --- Phase 3: details.patch ---
+
+  it("details.patch calls PATCH /{packageName}/edits/{editId}/details", async () => {
+    const updated = { defaultLanguage: "en-US", title: "My App", contactEmail: "a@b.com" };
+    mockFetch.mockResolvedValueOnce(mockResponse(updated));
+
+    const client = makeClient();
+    const result = await client.details.patch(PKG, EDIT_ID, { contactEmail: "a@b.com" });
+
+    expect(result).toEqual(updated);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/details`);
+    expect(init.method).toBe("PATCH");
+    expect(JSON.parse(init.body)).toEqual({ contactEmail: "a@b.com" });
+  });
+
+  it("details.update calls PUT /{packageName}/edits/{editId}/details", async () => {
+    const details = { defaultLanguage: "en-US", title: "My App" };
+    mockFetch.mockResolvedValueOnce(mockResponse(details));
+
+    const client = makeClient();
+    const result = await client.details.update(PKG, EDIT_ID, details);
+
+    expect(result).toEqual(details);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/details`);
+    expect(init.method).toBe("PUT");
+  });
+
   // --- Phase 3: tracks ---
 
   describe("tracks", () => {
@@ -418,6 +447,146 @@ describe("createApiClient", () => {
         track: "production",
         releases: [release],
       });
+    });
+  });
+
+  // --- Phase 4: listings ---
+
+  describe("listings", () => {
+    it("listings.list calls GET and returns listings array", async () => {
+      const listings = [
+        { language: "en-US", title: "App", shortDescription: "s", fullDescription: "f" },
+      ];
+      mockFetch.mockResolvedValueOnce(mockResponse({ listings }));
+
+      const client = makeClient();
+      const result = await client.listings.list(PKG, EDIT_ID);
+
+      expect(result).toEqual(listings);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/listings`);
+      expect(init.method).toBe("GET");
+    });
+
+    it("listings.list returns empty array when no listings", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+
+      const client = makeClient();
+      const result = await client.listings.list(PKG, EDIT_ID);
+
+      expect(result).toEqual([]);
+    });
+
+    it("listings.get calls GET with language", async () => {
+      const listing = { language: "en-US", title: "App", shortDescription: "s", fullDescription: "f" };
+      mockFetch.mockResolvedValueOnce(mockResponse(listing));
+
+      const client = makeClient();
+      const result = await client.listings.get(PKG, EDIT_ID, "en-US");
+
+      expect(result).toEqual(listing);
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/listings/en-US`);
+    });
+
+    it("listings.update calls PUT with listing body", async () => {
+      const listing = { language: "en-US", title: "New", shortDescription: "s", fullDescription: "f" };
+      mockFetch.mockResolvedValueOnce(mockResponse(listing));
+
+      const client = makeClient();
+      const result = await client.listings.update(PKG, EDIT_ID, "en-US", { title: "New", shortDescription: "s", fullDescription: "f" });
+
+      expect(result).toEqual(listing);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/listings/en-US`);
+      expect(init.method).toBe("PUT");
+    });
+
+    it("listings.patch calls PATCH with partial body", async () => {
+      const listing = { language: "en-US", title: "Patched", shortDescription: "s", fullDescription: "f" };
+      mockFetch.mockResolvedValueOnce(mockResponse(listing));
+
+      const client = makeClient();
+      const result = await client.listings.patch(PKG, EDIT_ID, "en-US", { title: "Patched" });
+
+      expect(result).toEqual(listing);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/listings/en-US`);
+      expect(init.method).toBe("PATCH");
+    });
+
+    it("listings.delete calls DELETE with language", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+
+      const client = makeClient();
+      await client.listings.delete(PKG, EDIT_ID, "en-US");
+
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/listings/en-US`);
+      expect(init.method).toBe("DELETE");
+    });
+
+    it("listings.deleteAll calls DELETE on listings root", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+
+      const client = makeClient();
+      await client.listings.deleteAll(PKG, EDIT_ID);
+
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/listings`);
+      expect(init.method).toBe("DELETE");
+    });
+  });
+
+  // --- Phase 4: images ---
+
+  describe("images", () => {
+    it("images.list calls GET with language and imageType", async () => {
+      const images = [{ id: "1", url: "https://example.com/1.png", sha1: "a", sha256: "b" }];
+      mockFetch.mockResolvedValueOnce(mockResponse({ images }));
+
+      const client = makeClient();
+      const result = await client.images.list(PKG, EDIT_ID, "en-US", "phoneScreenshots");
+
+      expect(result).toEqual(images);
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/listings/en-US/phoneScreenshots`);
+    });
+
+    it("images.list returns empty array when no images", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+
+      const client = makeClient();
+      const result = await client.images.list(PKG, EDIT_ID, "en-US", "icon");
+
+      expect(result).toEqual([]);
+    });
+
+    it("images.delete calls DELETE with imageId", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+
+      const client = makeClient();
+      await client.images.delete(PKG, EDIT_ID, "en-US", "phoneScreenshots", "img-1");
+
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/listings/en-US/phoneScreenshots/img-1`);
+      expect(init.method).toBe("DELETE");
+    });
+  });
+
+  // --- Phase 4: countryAvailability ---
+
+  describe("countryAvailability", () => {
+    it("countryAvailability.get calls GET with track", async () => {
+      const availability = { countryTargeting: { countries: ["US", "GB"], includeRestOfWorld: true } };
+      mockFetch.mockResolvedValueOnce(mockResponse(availability));
+
+      const client = makeClient();
+      const result = await client.countryAvailability.get(PKG, EDIT_ID, "production");
+
+      expect(result).toEqual(availability);
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/countryAvailability/production`);
     });
   });
 });

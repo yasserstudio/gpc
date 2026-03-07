@@ -115,3 +115,43 @@ export interface ApkInfo {
   versionCode: number;
   binary: { sha1: string; sha256: string };
 }
+
+export interface ListingsListResponse {
+  listings: Listing[];
+}
+
+export type ImageType =
+  | "phoneScreenshots"
+  | "sevenInchScreenshots"
+  | "tenInchScreenshots"
+  | "tvScreenshots"
+  | "wearScreenshots"
+  | "icon"
+  | "featureGraphic"
+  | "tvBanner";
+
+export interface Image {
+  id: string;
+  url: string;
+  sha1: string;
+  sha256: string;
+}
+
+export interface ImagesListResponse {
+  images: Image[];
+}
+
+export interface ImageUploadResponse {
+  image: Image;
+}
+
+export interface ImagesDeleteAllResponse {
+  deleted: Image[];
+}
+
+export interface CountryAvailability {
+  countryTargeting: {
+    countries: string[];
+    includeRestOfWorld: boolean;
+  };
+}
