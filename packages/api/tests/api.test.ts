@@ -725,3 +725,297 @@ describe("createReportingClient", () => {
     expect(url).toContain("pageSize=10");
   });
 });
+
+// --- Phase 6: Monetization ---
+
+describe("monetization API endpoints", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  // --- subscriptions ---
+
+  describe("subscriptions", () => {
+    it("list calls GET /{pkg}/monetization/subscriptions", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ subscriptions: [] }));
+      const client = makeClient();
+      const result = await client.subscriptions.list(PKG);
+      expect(result).toEqual({ subscriptions: [] });
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions`);
+      expect(init.method).toBe("GET");
+    });
+
+    it("get calls GET /{pkg}/monetization/subscriptions/{id}", async () => {
+      const sub = { productId: "sub1", packageName: PKG };
+      mockFetch.mockResolvedValueOnce(mockResponse(sub));
+      const client = makeClient();
+      const result = await client.subscriptions.get(PKG, "sub1");
+      expect(result).toEqual(sub);
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1`);
+    });
+
+    it("create calls POST /{pkg}/monetization/subscriptions", async () => {
+      const sub = { productId: "sub1", packageName: PKG };
+      mockFetch.mockResolvedValueOnce(mockResponse(sub));
+      const client = makeClient();
+      const result = await client.subscriptions.create(PKG, sub as any);
+      expect(result).toEqual(sub);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions`);
+      expect(init.method).toBe("POST");
+    });
+
+    it("update calls PATCH with updateMask in URL", async () => {
+      const sub = { productId: "sub1", packageName: PKG };
+      mockFetch.mockResolvedValueOnce(mockResponse(sub));
+      const client = makeClient();
+      await client.subscriptions.update(PKG, "sub1", sub as any, "listings,basePlans");
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toContain(`/monetization/subscriptions/sub1?updateMask=listings,basePlans`);
+      expect(init.method).toBe("PATCH");
+    });
+
+    it("delete calls DELETE /{pkg}/monetization/subscriptions/{id}", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      await client.subscriptions.delete(PKG, "sub1");
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1`);
+      expect(init.method).toBe("DELETE");
+    });
+
+    it("activateBasePlan calls POST .../:activate", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ productId: "sub1" }));
+      const client = makeClient();
+      await client.subscriptions.activateBasePlan(PKG, "sub1", "bp1");
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1:activate`);
+      expect(init.method).toBe("POST");
+    });
+
+    it("deactivateBasePlan calls POST .../:deactivate", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ productId: "sub1" }));
+      const client = makeClient();
+      await client.subscriptions.deactivateBasePlan(PKG, "sub1", "bp1");
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1:deactivate`);
+      expect(init.method).toBe("POST");
+    });
+
+    it("listOffers calls GET .../offers", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ subscriptionOffers: [] }));
+      const client = makeClient();
+      const result = await client.subscriptions.listOffers(PKG, "sub1", "bp1");
+      expect(result).toEqual({ subscriptionOffers: [] });
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers`);
+    });
+
+    it("createOffer calls POST .../offers", async () => {
+      const offer = { productId: "sub1", basePlanId: "bp1", offerId: "o1", state: "DRAFT", phases: [] };
+      mockFetch.mockResolvedValueOnce(mockResponse(offer));
+      const client = makeClient();
+      await client.subscriptions.createOffer(PKG, "sub1", "bp1", offer as any);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers`);
+      expect(init.method).toBe("POST");
+    });
+
+    it("activateOffer calls POST .../offers/{id}:activate", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ offerId: "o1" }));
+      const client = makeClient();
+      await client.subscriptions.activateOffer(PKG, "sub1", "bp1", "o1");
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers/o1:activate`);
+      expect(init.method).toBe("POST");
+    });
+  });
+
+  // --- inappproducts ---
+
+  describe("inappproducts", () => {
+    it("list calls GET /{pkg}/inappproducts", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ inappproduct: [] }));
+      const client = makeClient();
+      const result = await client.inappproducts.list(PKG);
+      expect(result).toEqual({ inappproduct: [] });
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/inappproducts`);
+      expect(init.method).toBe("GET");
+    });
+
+    it("get calls GET /{pkg}/inappproducts/{sku}", async () => {
+      const product = { sku: "coins100", status: "active" };
+      mockFetch.mockResolvedValueOnce(mockResponse(product));
+      const client = makeClient();
+      const result = await client.inappproducts.get(PKG, "coins100");
+      expect(result).toEqual(product);
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/inappproducts/coins100`);
+    });
+
+    it("create calls POST /{pkg}/inappproducts", async () => {
+      const product = { sku: "coins100", status: "active" };
+      mockFetch.mockResolvedValueOnce(mockResponse(product));
+      const client = makeClient();
+      await client.inappproducts.create(PKG, product as any);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/inappproducts`);
+      expect(init.method).toBe("POST");
+    });
+
+    it("update calls PUT /{pkg}/inappproducts/{sku}", async () => {
+      const product = { sku: "coins100", status: "active" };
+      mockFetch.mockResolvedValueOnce(mockResponse(product));
+      const client = makeClient();
+      await client.inappproducts.update(PKG, "coins100", product as any);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/inappproducts/coins100`);
+      expect(init.method).toBe("PUT");
+    });
+
+    it("delete calls DELETE /{pkg}/inappproducts/{sku}", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      await client.inappproducts.delete(PKG, "coins100");
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/inappproducts/coins100`);
+      expect(init.method).toBe("DELETE");
+    });
+  });
+
+  // --- purchases ---
+
+  describe("purchases", () => {
+    it("getProduct calls GET /{pkg}/purchases/products/{id}/tokens/{token}", async () => {
+      const purchase = { purchaseState: 0, orderId: "order-1" };
+      mockFetch.mockResolvedValueOnce(mockResponse(purchase));
+      const client = makeClient();
+      const result = await client.purchases.getProduct(PKG, "coins100", "tok123");
+      expect(result).toEqual(purchase);
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/purchases/products/coins100/tokens/tok123`);
+    });
+
+    it("acknowledgeProduct calls POST .../:acknowledge", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      await client.purchases.acknowledgeProduct(PKG, "coins100", "tok123");
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/purchases/products/coins100/tokens/tok123:acknowledge`);
+      expect(init.method).toBe("POST");
+    });
+
+    it("consumeProduct calls POST .../:consume", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      await client.purchases.consumeProduct(PKG, "coins100", "tok123");
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/purchases/products/coins100/tokens/tok123:consume`);
+      expect(init.method).toBe("POST");
+    });
+
+    it("getSubscriptionV2 calls GET /{pkg}/purchases/subscriptionsv2/tokens/{token}", async () => {
+      const sub = { kind: "androidpublisher#subscriptionPurchaseV2", subscriptionState: "ACTIVE" };
+      mockFetch.mockResolvedValueOnce(mockResponse(sub));
+      const client = makeClient();
+      const result = await client.purchases.getSubscriptionV2(PKG, "tok456");
+      expect(result).toEqual(sub);
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/purchases/subscriptionsv2/tokens/tok456`);
+    });
+
+    it("cancelSubscription calls POST .../:cancel", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      await client.purchases.cancelSubscription(PKG, "sub1", "tok789");
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/purchases/subscriptions/sub1/tokens/tok789:cancel`);
+      expect(init.method).toBe("POST");
+    });
+
+    it("deferSubscription calls POST .../:defer with body", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ newExpiryTimeMillis: "999999" }));
+      const client = makeClient();
+      const body = { deferralInfo: { expectedExpiryTimeMillis: "100", desiredExpiryTimeMillis: "200" } };
+      const result = await client.purchases.deferSubscription(PKG, "sub1", "tok789", body);
+      expect(result).toEqual({ newExpiryTimeMillis: "999999" });
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/purchases/subscriptions/sub1/tokens/tok789:defer`);
+      expect(init.method).toBe("POST");
+      expect(JSON.parse(init.body)).toEqual(body);
+    });
+
+    it("revokeSubscriptionV2 calls POST .../:revoke", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      await client.purchases.revokeSubscriptionV2(PKG, "tok456");
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/purchases/subscriptionsv2/tokens/tok456:revoke`);
+      expect(init.method).toBe("POST");
+    });
+
+    it("listVoided calls GET /{pkg}/purchases/voidedpurchases", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ voidedPurchases: [] }));
+      const client = makeClient();
+      const result = await client.purchases.listVoided(PKG);
+      expect(result).toEqual({ voidedPurchases: [] });
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/purchases/voidedpurchases`);
+    });
+  });
+
+  // --- orders ---
+
+  describe("orders", () => {
+    it("refund calls POST /{pkg}/orders/{id}:refund", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      await client.orders.refund(PKG, "GPA.1234");
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/orders/GPA.1234:refund`);
+      expect(init.method).toBe("POST");
+    });
+  });
+
+  // --- monetization ---
+
+  describe("monetization", () => {
+    it("convertRegionPrices calls POST /{pkg}/monetization/convertRegionPrices", async () => {
+      const response = { convertedRegionPrices: { US: { regionCode: "US", price: { currencyCode: "USD", units: "4" }, taxAmount: { currencyCode: "USD" } } } };
+      mockFetch.mockResolvedValueOnce(mockResponse(response));
+      const client = makeClient();
+      const result = await client.monetization.convertRegionPrices(PKG, { price: { currencyCode: "USD", units: "4", nanos: 990000000 } });
+      expect(result).toEqual(response);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/convertRegionPrices`);
+      expect(init.method).toBe("POST");
+    });
+  });
+
+  // --- URL verification ---
+
+  it("subscriptions.list passes pagination params", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ subscriptions: [] }));
+    const client = makeClient();
+    await client.subscriptions.list(PKG, { pageSize: 10, pageToken: "abc" });
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("pageSize=10");
+    expect(url).toContain("pageToken=abc");
+  });
+});

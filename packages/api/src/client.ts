@@ -3,25 +3,40 @@ import type {
   ApiClientOptions,
   AppDetails,
   AppEdit,
+  BasePlanMigratePricesRequest,
   Bundle,
   BundleListResponse,
+  ConvertRegionPricesRequest,
+  ConvertRegionPricesResponse,
   CountryAvailability,
   Image,
   ImageType,
   ImageUploadResponse,
   ImagesDeleteAllResponse,
   ImagesListResponse,
+  InAppProduct,
+  InAppProductsListResponse,
   Listing,
   ListingsListResponse,
+  OffersListResponse,
+  ProductPurchase,
   Release,
   Review,
   ReviewReplyRequest,
   ReviewReplyResponse,
   ReviewsListOptions,
   ReviewsListResponse,
+  Subscription,
+  SubscriptionDeferRequest,
+  SubscriptionDeferResponse,
+  SubscriptionOffer,
+  SubscriptionPurchase,
+  SubscriptionPurchaseV2,
+  SubscriptionsListResponse,
   Track,
   TrackListResponse,
   UploadResponse,
+  VoidedPurchasesListResponse,
 } from "./types.js";
 
 export interface PlayApiClient {
@@ -74,6 +89,53 @@ export interface PlayApiClient {
     list(packageName: string, options?: ReviewsListOptions): Promise<ReviewsListResponse>;
     get(packageName: string, reviewId: string, translationLanguage?: string): Promise<Review>;
     reply(packageName: string, reviewId: string, replyText: string): Promise<ReviewReplyResponse>;
+  };
+
+  subscriptions: {
+    list(packageName: string, options?: { pageToken?: string; pageSize?: number }): Promise<SubscriptionsListResponse>;
+    get(packageName: string, productId: string): Promise<Subscription>;
+    create(packageName: string, data: Subscription): Promise<Subscription>;
+    update(packageName: string, productId: string, data: Subscription, updateMask?: string): Promise<Subscription>;
+    delete(packageName: string, productId: string): Promise<void>;
+    activateBasePlan(packageName: string, productId: string, basePlanId: string): Promise<Subscription>;
+    deactivateBasePlan(packageName: string, productId: string, basePlanId: string): Promise<Subscription>;
+    deleteBasePlan(packageName: string, productId: string, basePlanId: string): Promise<void>;
+    migratePrices(packageName: string, productId: string, basePlanId: string, body: BasePlanMigratePricesRequest): Promise<Subscription>;
+    listOffers(packageName: string, productId: string, basePlanId: string): Promise<OffersListResponse>;
+    getOffer(packageName: string, productId: string, basePlanId: string, offerId: string): Promise<SubscriptionOffer>;
+    createOffer(packageName: string, productId: string, basePlanId: string, data: SubscriptionOffer): Promise<SubscriptionOffer>;
+    updateOffer(packageName: string, productId: string, basePlanId: string, offerId: string, data: SubscriptionOffer, updateMask?: string): Promise<SubscriptionOffer>;
+    deleteOffer(packageName: string, productId: string, basePlanId: string, offerId: string): Promise<void>;
+    activateOffer(packageName: string, productId: string, basePlanId: string, offerId: string): Promise<SubscriptionOffer>;
+    deactivateOffer(packageName: string, productId: string, basePlanId: string, offerId: string): Promise<SubscriptionOffer>;
+  };
+
+  inappproducts: {
+    list(packageName: string, options?: { token?: string; maxResults?: number }): Promise<InAppProductsListResponse>;
+    get(packageName: string, sku: string): Promise<InAppProduct>;
+    create(packageName: string, data: InAppProduct): Promise<InAppProduct>;
+    update(packageName: string, sku: string, data: InAppProduct): Promise<InAppProduct>;
+    delete(packageName: string, sku: string): Promise<void>;
+  };
+
+  purchases: {
+    getProduct(packageName: string, productId: string, token: string): Promise<ProductPurchase>;
+    acknowledgeProduct(packageName: string, productId: string, token: string, body?: { developerPayload?: string }): Promise<void>;
+    consumeProduct(packageName: string, productId: string, token: string): Promise<void>;
+    getSubscriptionV2(packageName: string, token: string): Promise<SubscriptionPurchaseV2>;
+    getSubscriptionV1(packageName: string, subscriptionId: string, token: string): Promise<SubscriptionPurchase>;
+    cancelSubscription(packageName: string, subscriptionId: string, token: string): Promise<void>;
+    deferSubscription(packageName: string, subscriptionId: string, token: string, body: SubscriptionDeferRequest): Promise<SubscriptionDeferResponse>;
+    revokeSubscriptionV2(packageName: string, token: string): Promise<void>;
+    listVoided(packageName: string, options?: { startTime?: string; endTime?: string; maxResults?: number; token?: string }): Promise<VoidedPurchasesListResponse>;
+  };
+
+  orders: {
+    refund(packageName: string, orderId: string, body?: { fullRefund?: boolean; proratedRefund?: boolean }): Promise<void>;
+  };
+
+  monetization: {
+    convertRegionPrices(packageName: string, price: ConvertRegionPricesRequest): Promise<ConvertRegionPricesResponse>;
   };
 }
 
@@ -290,6 +352,255 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const { data } = await http.post<ReviewReplyResponse>(
           `/${packageName}/reviews/${reviewId}:reply`,
           body,
+        );
+        return data;
+      },
+    },
+
+    subscriptions: {
+      async list(packageName, options?) {
+        const params: Record<string, string> = {};
+        if (options?.pageToken) params["pageToken"] = options.pageToken;
+        if (options?.pageSize) params["pageSize"] = String(options.pageSize);
+        const hasParams = Object.keys(params).length > 0;
+        const { data } = await http.get<SubscriptionsListResponse>(
+          `/${packageName}/monetization/subscriptions`,
+          hasParams ? params : undefined,
+        );
+        return data;
+      },
+
+      async get(packageName, productId) {
+        const { data } = await http.get<Subscription>(
+          `/${packageName}/monetization/subscriptions/${productId}`,
+        );
+        return data;
+      },
+
+      async create(packageName, body) {
+        const { data } = await http.post<Subscription>(
+          `/${packageName}/monetization/subscriptions`,
+          body,
+        );
+        return data;
+      },
+
+      async update(packageName, productId, body, updateMask?) {
+        const path = updateMask
+          ? `/${packageName}/monetization/subscriptions/${productId}?updateMask=${updateMask}`
+          : `/${packageName}/monetization/subscriptions/${productId}`;
+        const { data } = await http.patch<Subscription>(path, body);
+        return data;
+      },
+
+      async delete(packageName, productId) {
+        await http.delete(`/${packageName}/monetization/subscriptions/${productId}`);
+      },
+
+      async activateBasePlan(packageName, productId, basePlanId) {
+        const { data } = await http.post<Subscription>(
+          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}:activate`,
+        );
+        return data;
+      },
+
+      async deactivateBasePlan(packageName, productId, basePlanId) {
+        const { data } = await http.post<Subscription>(
+          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}:deactivate`,
+        );
+        return data;
+      },
+
+      async deleteBasePlan(packageName, productId, basePlanId) {
+        await http.delete(
+          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}`,
+        );
+      },
+
+      async migratePrices(packageName, productId, basePlanId, body) {
+        const { data } = await http.post<Subscription>(
+          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}:migratePrices`,
+          body,
+        );
+        return data;
+      },
+
+      async listOffers(packageName, productId, basePlanId) {
+        const { data } = await http.get<OffersListResponse>(
+          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers`,
+        );
+        return data;
+      },
+
+      async getOffer(packageName, productId, basePlanId, offerId) {
+        const { data } = await http.get<SubscriptionOffer>(
+          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}`,
+        );
+        return data;
+      },
+
+      async createOffer(packageName, productId, basePlanId, body) {
+        const { data } = await http.post<SubscriptionOffer>(
+          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers`,
+          body,
+        );
+        return data;
+      },
+
+      async updateOffer(packageName, productId, basePlanId, offerId, body, updateMask?) {
+        const path = updateMask
+          ? `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}?updateMask=${updateMask}`
+          : `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}`;
+        const { data } = await http.patch<SubscriptionOffer>(path, body);
+        return data;
+      },
+
+      async deleteOffer(packageName, productId, basePlanId, offerId) {
+        await http.delete(
+          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}`,
+        );
+      },
+
+      async activateOffer(packageName, productId, basePlanId, offerId) {
+        const { data } = await http.post<SubscriptionOffer>(
+          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}:activate`,
+        );
+        return data;
+      },
+
+      async deactivateOffer(packageName, productId, basePlanId, offerId) {
+        const { data } = await http.post<SubscriptionOffer>(
+          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}:deactivate`,
+        );
+        return data;
+      },
+    },
+
+    inappproducts: {
+      async list(packageName, options?) {
+        const params: Record<string, string> = {};
+        if (options?.token) params["token"] = options.token;
+        if (options?.maxResults) params["maxResults"] = String(options.maxResults);
+        const hasParams = Object.keys(params).length > 0;
+        const { data } = await http.get<InAppProductsListResponse>(
+          `/${packageName}/inappproducts`,
+          hasParams ? params : undefined,
+        );
+        return data;
+      },
+
+      async get(packageName, sku) {
+        const { data } = await http.get<InAppProduct>(
+          `/${packageName}/inappproducts/${sku}`,
+        );
+        return data;
+      },
+
+      async create(packageName, body) {
+        const { data } = await http.post<InAppProduct>(
+          `/${packageName}/inappproducts`,
+          body,
+        );
+        return data;
+      },
+
+      async update(packageName, sku, body) {
+        const { data } = await http.put<InAppProduct>(
+          `/${packageName}/inappproducts/${sku}`,
+          body,
+        );
+        return data;
+      },
+
+      async delete(packageName, sku) {
+        await http.delete(`/${packageName}/inappproducts/${sku}`);
+      },
+    },
+
+    purchases: {
+      async getProduct(packageName, productId, token) {
+        const { data } = await http.get<ProductPurchase>(
+          `/${packageName}/purchases/products/${productId}/tokens/${token}`,
+        );
+        return data;
+      },
+
+      async acknowledgeProduct(packageName, productId, token, body?) {
+        await http.post(
+          `/${packageName}/purchases/products/${productId}/tokens/${token}:acknowledge`,
+          body,
+        );
+      },
+
+      async consumeProduct(packageName, productId, token) {
+        await http.post(
+          `/${packageName}/purchases/products/${productId}/tokens/${token}:consume`,
+        );
+      },
+
+      async getSubscriptionV2(packageName, token) {
+        const { data } = await http.get<SubscriptionPurchaseV2>(
+          `/${packageName}/purchases/subscriptionsv2/tokens/${token}`,
+        );
+        return data;
+      },
+
+      async getSubscriptionV1(packageName, subscriptionId, token) {
+        const { data } = await http.get<SubscriptionPurchase>(
+          `/${packageName}/purchases/subscriptions/${subscriptionId}/tokens/${token}`,
+        );
+        return data;
+      },
+
+      async cancelSubscription(packageName, subscriptionId, token) {
+        await http.post(
+          `/${packageName}/purchases/subscriptions/${subscriptionId}/tokens/${token}:cancel`,
+        );
+      },
+
+      async deferSubscription(packageName, subscriptionId, token, body) {
+        const { data } = await http.post<SubscriptionDeferResponse>(
+          `/${packageName}/purchases/subscriptions/${subscriptionId}/tokens/${token}:defer`,
+          body,
+        );
+        return data;
+      },
+
+      async revokeSubscriptionV2(packageName, token) {
+        await http.post(
+          `/${packageName}/purchases/subscriptionsv2/tokens/${token}:revoke`,
+        );
+      },
+
+      async listVoided(packageName, options?) {
+        const params: Record<string, string> = {};
+        if (options?.startTime) params["startTime"] = options.startTime;
+        if (options?.endTime) params["endTime"] = options.endTime;
+        if (options?.maxResults) params["maxResults"] = String(options.maxResults);
+        if (options?.token) params["token"] = options.token;
+        const hasParams = Object.keys(params).length > 0;
+        const { data } = await http.get<VoidedPurchasesListResponse>(
+          `/${packageName}/purchases/voidedpurchases`,
+          hasParams ? params : undefined,
+        );
+        return data;
+      },
+    },
+
+    orders: {
+      async refund(packageName, orderId, body?) {
+        await http.post(
+          `/${packageName}/orders/${orderId}:refund`,
+          body,
+        );
+      },
+    },
+
+    monetization: {
+      async convertRegionPrices(packageName, price) {
+        const { data } = await http.post<ConvertRegionPricesResponse>(
+          `/${packageName}/monetization/convertRegionPrices`,
+          price,
         );
         return data;
       },
