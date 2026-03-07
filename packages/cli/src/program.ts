@@ -11,6 +11,10 @@ import { registerStatusCommand } from "./commands/status.js";
 import { registerListingsCommands } from "./commands/listings.js";
 import { registerReviewsCommands } from "./commands/reviews.js";
 import { registerVitalsCommands } from "./commands/vitals.js";
+import { registerSubscriptionsCommands } from "./commands/subscriptions.js";
+import { registerIapCommands } from "./commands/iap.js";
+import { registerPurchasesCommands } from "./commands/purchases.js";
+import { registerPricingCommands } from "./commands/pricing.js";
 
 export function createProgram(): Command {
   const program = new Command();
@@ -39,6 +43,10 @@ export function createProgram(): Command {
   registerListingsCommands(program);
   registerReviewsCommands(program);
   registerVitalsCommands(program);
+  registerSubscriptionsCommands(program);
+  registerIapCommands(program);
+  registerPurchasesCommands(program);
+  registerPricingCommands(program);
 
   return program;
 }

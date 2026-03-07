@@ -148,24 +148,24 @@
 
 ---
 
-## Phase 6 — Monetization → v0.6.x
+## Phase 6 — Monetization → v0.6.x ✓
 > Subscriptions, IAP, purchases, and pricing.
 
-- [ ] `gpc subscriptions list/get/create/update/delete`
-- [ ] `gpc subscriptions base-plans activate/deactivate/delete`
-- [ ] `gpc subscriptions base-plans migrate-prices`
-- [ ] `gpc subscriptions offers list/get/create/update/delete`
-- [ ] `gpc subscriptions offers activate/deactivate`
+- [x] `gpc subscriptions list/get/create/update/delete`
+- [x] `gpc subscriptions base-plans activate/deactivate/delete`
+- [x] `gpc subscriptions base-plans migrate-prices`
+- [x] `gpc subscriptions offers list/get/create/update/delete`
+- [x] `gpc subscriptions offers activate/deactivate`
 - [ ] Batch operations for subscriptions, base plans, offers
-- [ ] `gpc iap list/get/create/update/delete` (legacy in-app products)
-- [ ] `gpc iap sync --dir products/` (bulk sync from local files)
+- [x] `gpc iap list/get/create/update/delete` (legacy in-app products)
+- [x] `gpc iap sync --dir products/` (bulk sync from local files)
 - [ ] One-time products support (newer `monetization.onetimeproducts` API)
-- [ ] `gpc purchases get <token>` (v1 + v2)
-- [ ] `gpc purchases acknowledge/consume`
-- [ ] `gpc purchases subscription get/cancel/defer/revoke` (v2 API)
-- [ ] `gpc purchases voided list`
-- [ ] `gpc orders get/refund`
-- [ ] `gpc pricing convert --from USD --amount 9.99` (regional price conversion)
+- [x] `gpc purchases get <token>` (v1 + v2)
+- [x] `gpc purchases acknowledge/consume`
+- [x] `gpc purchases subscription get/cancel/defer/revoke` (v2 API)
+- [x] `gpc purchases voided list`
+- [x] `gpc orders refund`
+- [x] `gpc pricing convert --from USD --amount 9.99` (regional price conversion)
 - [ ] Voided purchases rate limiting (6,000/day, 30/30s)
 
 **Sub-updates (v0.6.y):**

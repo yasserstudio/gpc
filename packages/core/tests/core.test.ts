@@ -1485,3 +1485,355 @@ describe("checkThreshold", () => {
     expect(result.value).toBeUndefined();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Phase 6 – Subscriptions
+// ---------------------------------------------------------------------------
+
+import {
+  listSubscriptions,
+  getSubscription,
+  createSubscription,
+  updateSubscription,
+  deleteSubscription,
+  activateBasePlan,
+  deactivateBasePlan,
+  deleteBasePlan,
+  listOffers,
+  createOffer,
+  deleteOffer,
+  activateOffer,
+} from "../src/commands/subscriptions.js";
+
+describe("subscriptions commands", () => {
+  function mockClient(): any {
+    return {
+      subscriptions: {
+        list: vi.fn().mockResolvedValue({ subscriptions: [{ productId: "sub1" }] }),
+        get: vi.fn().mockResolvedValue({ productId: "sub1" }),
+        create: vi.fn().mockResolvedValue({ productId: "sub1" }),
+        update: vi.fn().mockResolvedValue({ productId: "sub1" }),
+        delete: vi.fn().mockResolvedValue(undefined),
+        activateBasePlan: vi.fn().mockResolvedValue({ productId: "sub1" }),
+        deactivateBasePlan: vi.fn().mockResolvedValue({ productId: "sub1" }),
+        deleteBasePlan: vi.fn().mockResolvedValue(undefined),
+        migratePrices: vi.fn().mockResolvedValue({ productId: "sub1" }),
+        listOffers: vi.fn().mockResolvedValue({ subscriptionOffers: [] }),
+        getOffer: vi.fn().mockResolvedValue({ offerId: "o1" }),
+        createOffer: vi.fn().mockResolvedValue({ offerId: "o1" }),
+        updateOffer: vi.fn().mockResolvedValue({ offerId: "o1" }),
+        deleteOffer: vi.fn().mockResolvedValue(undefined),
+        activateOffer: vi.fn().mockResolvedValue({ offerId: "o1" }),
+        deactivateOffer: vi.fn().mockResolvedValue({ offerId: "o1" }),
+      },
+    };
+  }
+
+  it("listSubscriptions calls client.subscriptions.list", async () => {
+    const client = mockClient();
+    const result = await listSubscriptions(client, "com.example");
+    expect(client.subscriptions.list).toHaveBeenCalledWith("com.example", undefined);
+    expect(result.subscriptions).toHaveLength(1);
+  });
+
+  it("getSubscription calls client.subscriptions.get", async () => {
+    const client = mockClient();
+    const result = await getSubscription(client, "com.example", "sub1");
+    expect(client.subscriptions.get).toHaveBeenCalledWith("com.example", "sub1");
+    expect(result.productId).toBe("sub1");
+  });
+
+  it("createSubscription calls client.subscriptions.create", async () => {
+    const client = mockClient();
+    const data = { productId: "sub1" } as any;
+    await createSubscription(client, "com.example", data);
+    expect(client.subscriptions.create).toHaveBeenCalledWith("com.example", data);
+  });
+
+  it("updateSubscription passes updateMask", async () => {
+    const client = mockClient();
+    const data = { productId: "sub1" } as any;
+    await updateSubscription(client, "com.example", "sub1", data, "listings");
+    expect(client.subscriptions.update).toHaveBeenCalledWith("com.example", "sub1", data, "listings");
+  });
+
+  it("deleteSubscription calls client.subscriptions.delete", async () => {
+    const client = mockClient();
+    await deleteSubscription(client, "com.example", "sub1");
+    expect(client.subscriptions.delete).toHaveBeenCalledWith("com.example", "sub1");
+  });
+
+  it("activateBasePlan calls client.subscriptions.activateBasePlan", async () => {
+    const client = mockClient();
+    await activateBasePlan(client, "com.example", "sub1", "bp1");
+    expect(client.subscriptions.activateBasePlan).toHaveBeenCalledWith("com.example", "sub1", "bp1");
+  });
+
+  it("deactivateBasePlan calls client.subscriptions.deactivateBasePlan", async () => {
+    const client = mockClient();
+    await deactivateBasePlan(client, "com.example", "sub1", "bp1");
+    expect(client.subscriptions.deactivateBasePlan).toHaveBeenCalledWith("com.example", "sub1", "bp1");
+  });
+
+  it("deleteBasePlan calls client.subscriptions.deleteBasePlan", async () => {
+    const client = mockClient();
+    await deleteBasePlan(client, "com.example", "sub1", "bp1");
+    expect(client.subscriptions.deleteBasePlan).toHaveBeenCalledWith("com.example", "sub1", "bp1");
+  });
+
+  it("listOffers calls client.subscriptions.listOffers", async () => {
+    const client = mockClient();
+    const result = await listOffers(client, "com.example", "sub1", "bp1");
+    expect(client.subscriptions.listOffers).toHaveBeenCalledWith("com.example", "sub1", "bp1");
+    expect(result.subscriptionOffers).toEqual([]);
+  });
+
+  it("createOffer calls client.subscriptions.createOffer", async () => {
+    const client = mockClient();
+    const data = { offerId: "o1" } as any;
+    await createOffer(client, "com.example", "sub1", "bp1", data);
+    expect(client.subscriptions.createOffer).toHaveBeenCalledWith("com.example", "sub1", "bp1", data);
+  });
+
+  it("deleteOffer calls client.subscriptions.deleteOffer", async () => {
+    const client = mockClient();
+    await deleteOffer(client, "com.example", "sub1", "bp1", "o1");
+    expect(client.subscriptions.deleteOffer).toHaveBeenCalledWith("com.example", "sub1", "bp1", "o1");
+  });
+
+  it("activateOffer calls client.subscriptions.activateOffer", async () => {
+    const client = mockClient();
+    await activateOffer(client, "com.example", "sub1", "bp1", "o1");
+    expect(client.subscriptions.activateOffer).toHaveBeenCalledWith("com.example", "sub1", "bp1", "o1");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 6 – In-App Products
+// ---------------------------------------------------------------------------
+
+import {
+  listInAppProducts,
+  getInAppProduct,
+  createInAppProduct,
+  updateInAppProduct,
+  deleteInAppProduct,
+  syncInAppProducts,
+} from "../src/commands/iap.js";
+import { writeFile, mkdir } from "node:fs/promises";
+
+describe("iap commands", () => {
+  function mockClient(): any {
+    return {
+      inappproducts: {
+        list: vi.fn().mockResolvedValue({ inappproduct: [] }),
+        get: vi.fn().mockResolvedValue({ sku: "coins100" }),
+        create: vi.fn().mockResolvedValue({ sku: "coins100" }),
+        update: vi.fn().mockResolvedValue({ sku: "coins100" }),
+        delete: vi.fn().mockResolvedValue(undefined),
+      },
+    };
+  }
+
+  it("listInAppProducts calls client.inappproducts.list", async () => {
+    const client = mockClient();
+    const result = await listInAppProducts(client, "com.example");
+    expect(client.inappproducts.list).toHaveBeenCalledWith("com.example", undefined);
+    expect(result.inappproduct).toEqual([]);
+  });
+
+  it("getInAppProduct calls client.inappproducts.get", async () => {
+    const client = mockClient();
+    const result = await getInAppProduct(client, "com.example", "coins100");
+    expect(client.inappproducts.get).toHaveBeenCalledWith("com.example", "coins100");
+    expect(result.sku).toBe("coins100");
+  });
+
+  it("createInAppProduct calls client.inappproducts.create", async () => {
+    const client = mockClient();
+    const data = { sku: "coins100" } as any;
+    await createInAppProduct(client, "com.example", data);
+    expect(client.inappproducts.create).toHaveBeenCalledWith("com.example", data);
+  });
+
+  it("updateInAppProduct calls client.inappproducts.update", async () => {
+    const client = mockClient();
+    const data = { sku: "coins100" } as any;
+    await updateInAppProduct(client, "com.example", "coins100", data);
+    expect(client.inappproducts.update).toHaveBeenCalledWith("com.example", "coins100", data);
+  });
+
+  it("deleteInAppProduct calls client.inappproducts.delete", async () => {
+    const client = mockClient();
+    await deleteInAppProduct(client, "com.example", "coins100");
+    expect(client.inappproducts.delete).toHaveBeenCalledWith("com.example", "coins100");
+  });
+
+  it("syncInAppProducts creates new products and updates existing ones", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "gpc-iap-"));
+    await writeFile(join(dir, "coins100.json"), JSON.stringify({ sku: "coins100", status: "active", purchaseType: "managedUser", defaultPrice: { currencyCode: "USD", units: "1" } }));
+    await writeFile(join(dir, "gems50.json"), JSON.stringify({ sku: "gems50", status: "active", purchaseType: "managedUser", defaultPrice: { currencyCode: "USD", units: "2" } }));
+
+    const client = mockClient();
+    client.inappproducts.list.mockResolvedValue({ inappproduct: [{ sku: "coins100" }] });
+
+    const result = await syncInAppProducts(client, "com.example", dir);
+
+    expect(result.created).toBe(1);
+    expect(result.updated).toBe(1);
+    expect(result.skus).toContain("coins100");
+    expect(result.skus).toContain("gems50");
+    expect(client.inappproducts.update).toHaveBeenCalledTimes(1);
+    expect(client.inappproducts.create).toHaveBeenCalledTimes(1);
+
+    await rm(dir, { recursive: true });
+  });
+
+  it("syncInAppProducts dry-run does not call create or update", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "gpc-iap-"));
+    await writeFile(join(dir, "coins100.json"), JSON.stringify({ sku: "coins100" }));
+
+    const client = mockClient();
+    const result = await syncInAppProducts(client, "com.example", dir, { dryRun: true });
+
+    expect(result.created).toBe(1);
+    expect(client.inappproducts.create).not.toHaveBeenCalled();
+    expect(client.inappproducts.update).not.toHaveBeenCalled();
+
+    await rm(dir, { recursive: true });
+  });
+
+  it("syncInAppProducts returns zeros for empty directory", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "gpc-iap-"));
+
+    const client = mockClient();
+    const result = await syncInAppProducts(client, "com.example", dir);
+
+    expect(result.created).toBe(0);
+    expect(result.updated).toBe(0);
+    expect(result.skus).toEqual([]);
+
+    await rm(dir, { recursive: true });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 6 – Purchases
+// ---------------------------------------------------------------------------
+
+import {
+  getProductPurchase,
+  acknowledgeProductPurchase,
+  consumeProductPurchase,
+  getSubscriptionPurchase,
+  cancelSubscriptionPurchase,
+  deferSubscriptionPurchase,
+  revokeSubscriptionPurchase,
+  listVoidedPurchases,
+  refundOrder,
+} from "../src/commands/purchases.js";
+
+describe("purchases commands", () => {
+  function mockClient(): any {
+    return {
+      purchases: {
+        getProduct: vi.fn().mockResolvedValue({ purchaseState: 0, orderId: "o1" }),
+        acknowledgeProduct: vi.fn().mockResolvedValue(undefined),
+        consumeProduct: vi.fn().mockResolvedValue(undefined),
+        getSubscriptionV2: vi.fn().mockResolvedValue({ subscriptionState: "ACTIVE", lineItems: [] }),
+        getSubscriptionV1: vi.fn().mockResolvedValue({ expiryTimeMillis: "100000", orderId: "o1", autoRenewing: true, startTimeMillis: "1" }),
+        cancelSubscription: vi.fn().mockResolvedValue(undefined),
+        deferSubscription: vi.fn().mockResolvedValue({ newExpiryTimeMillis: "200000" }),
+        revokeSubscriptionV2: vi.fn().mockResolvedValue(undefined),
+        listVoided: vi.fn().mockResolvedValue({ voidedPurchases: [] }),
+      },
+      orders: {
+        refund: vi.fn().mockResolvedValue(undefined),
+      },
+    };
+  }
+
+  it("getProductPurchase calls client.purchases.getProduct", async () => {
+    const client = mockClient();
+    const result = await getProductPurchase(client, "com.example", "coins100", "tok");
+    expect(client.purchases.getProduct).toHaveBeenCalledWith("com.example", "coins100", "tok");
+    expect(result.orderId).toBe("o1");
+  });
+
+  it("acknowledgeProductPurchase calls with payload", async () => {
+    const client = mockClient();
+    await acknowledgeProductPurchase(client, "com.example", "coins100", "tok", "payload1");
+    expect(client.purchases.acknowledgeProduct).toHaveBeenCalledWith("com.example", "coins100", "tok", { developerPayload: "payload1" });
+  });
+
+  it("consumeProductPurchase calls client.purchases.consumeProduct", async () => {
+    const client = mockClient();
+    await consumeProductPurchase(client, "com.example", "coins100", "tok");
+    expect(client.purchases.consumeProduct).toHaveBeenCalledWith("com.example", "coins100", "tok");
+  });
+
+  it("getSubscriptionPurchase calls v2 endpoint", async () => {
+    const client = mockClient();
+    const result = await getSubscriptionPurchase(client, "com.example", "tok");
+    expect(client.purchases.getSubscriptionV2).toHaveBeenCalledWith("com.example", "tok");
+    expect(result.subscriptionState).toBe("ACTIVE");
+  });
+
+  it("cancelSubscriptionPurchase calls v1 cancel", async () => {
+    const client = mockClient();
+    await cancelSubscriptionPurchase(client, "com.example", "sub1", "tok");
+    expect(client.purchases.cancelSubscription).toHaveBeenCalledWith("com.example", "sub1", "tok");
+  });
+
+  it("deferSubscriptionPurchase reads v1 expiry then defers", async () => {
+    const client = mockClient();
+    const result = await deferSubscriptionPurchase(client, "com.example", "sub1", "tok", "2025-12-31T00:00:00Z");
+    expect(client.purchases.getSubscriptionV1).toHaveBeenCalledWith("com.example", "sub1", "tok");
+    expect(client.purchases.deferSubscription).toHaveBeenCalled();
+    const deferCall = client.purchases.deferSubscription.mock.calls[0];
+    expect(deferCall[3].deferralInfo.expectedExpiryTimeMillis).toBe("100000");
+    expect(result.newExpiryTimeMillis).toBe("200000");
+  });
+
+  it("revokeSubscriptionPurchase calls v2 revoke", async () => {
+    const client = mockClient();
+    await revokeSubscriptionPurchase(client, "com.example", "tok");
+    expect(client.purchases.revokeSubscriptionV2).toHaveBeenCalledWith("com.example", "tok");
+  });
+
+  it("listVoidedPurchases calls client.purchases.listVoided", async () => {
+    const client = mockClient();
+    const result = await listVoidedPurchases(client, "com.example");
+    expect(client.purchases.listVoided).toHaveBeenCalledWith("com.example", undefined);
+    expect(result.voidedPurchases).toEqual([]);
+  });
+
+  it("refundOrder calls client.orders.refund", async () => {
+    const client = mockClient();
+    await refundOrder(client, "com.example", "GPA.1234", { fullRefund: true });
+    expect(client.orders.refund).toHaveBeenCalledWith("com.example", "GPA.1234", { fullRefund: true });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 6 – Pricing
+// ---------------------------------------------------------------------------
+
+import { convertRegionPrices } from "../src/commands/pricing.js";
+
+describe("pricing commands", () => {
+  it("convertRegionPrices constructs Money from currency and amount", async () => {
+    const client: any = {
+      monetization: {
+        convertRegionPrices: vi.fn().mockResolvedValue({ convertedRegionPrices: {} }),
+      },
+    };
+
+    await convertRegionPrices(client, "com.example", "USD", "4.99");
+    const call = client.monetization.convertRegionPrices.mock.calls[0];
+    expect(call[0]).toBe("com.example");
+    expect(call[1].price.currencyCode).toBe("USD");
+    expect(call[1].price.units).toBe("4");
+    expect(call[1].price.nanos).toBe(990000000);
+  });
+});

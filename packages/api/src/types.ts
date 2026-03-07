@@ -282,3 +282,177 @@ export interface ErrorReportsResponse {
   errorReports: ErrorReport[];
   nextPageToken?: string;
 }
+
+// --- Monetization ---
+
+export interface Money {
+  currencyCode: string;
+  units?: string;
+  nanos?: number;
+}
+
+export interface RegionalBasePlanConfig {
+  regionCode: string;
+  price: Money;
+}
+
+export interface BasePlan {
+  basePlanId: string;
+  state: "ACTIVE" | "INACTIVE" | "DRAFT";
+  autoRenewingBasePlanType?: { billingPeriodDuration?: string; gracePeriodDuration?: string };
+  prepaidBasePlanType?: { billingPeriodDuration?: string };
+  regionalConfigs: RegionalBasePlanConfig[];
+  offerTags?: { tag: string }[];
+}
+
+export interface SubscriptionListing {
+  title: string;
+  description?: string;
+  benefits?: string[];
+  languageCode?: string;
+}
+
+export interface Subscription {
+  productId: string;
+  packageName?: string;
+  listings?: Record<string, SubscriptionListing>;
+  basePlans?: BasePlan[];
+  taxAndComplianceSettings?: Record<string, unknown>;
+}
+
+export interface SubscriptionsListResponse {
+  subscriptions: Subscription[];
+  nextPageToken?: string;
+}
+
+export interface BasePlanMigratePricesRequest {
+  regionalPriceMigrations: {
+    regionCode: string;
+    oldestAllowedPriceVersionTime?: string;
+    priceIncreaseType?: string;
+  }[];
+}
+
+export interface SubscriptionOfferPhase {
+  recurrenceCount: number;
+  duration: string;
+  regionalConfigs: {
+    regionCode: string;
+    price?: Money;
+    absoluteDiscount?: Money;
+    relativeDiscount?: number;
+  }[];
+}
+
+export interface SubscriptionOffer {
+  productId: string;
+  basePlanId: string;
+  offerId: string;
+  state: "ACTIVE" | "INACTIVE" | "DRAFT";
+  offerTags?: { tag: string }[];
+  phases: SubscriptionOfferPhase[];
+  targeting?: Record<string, unknown>;
+  regionalConfigs?: {
+    regionCode: string;
+    newSubscriberAvailability?: boolean;
+  }[];
+}
+
+export interface OffersListResponse {
+  subscriptionOffers: SubscriptionOffer[];
+  nextPageToken?: string;
+}
+
+export interface InAppProductListing {
+  title: string;
+  description: string;
+  benefits?: string[];
+}
+
+export interface InAppProduct {
+  sku: string;
+  status: string;
+  purchaseType: string;
+  defaultPrice: Money;
+  listings?: Record<string, InAppProductListing>;
+  defaultLanguage?: string;
+  packageName?: string;
+}
+
+export interface InAppProductsListResponse {
+  inappproduct: InAppProduct[];
+  tokenPagination?: TokenPagination;
+}
+
+export interface ProductPurchase {
+  purchaseState: number;
+  consumptionState: number;
+  purchaseTimeMillis: string;
+  orderId: string;
+  acknowledgementState: number;
+  regionCode?: string;
+}
+
+export interface SubscriptionPurchaseV2 {
+  kind: string;
+  regionCode?: string;
+  lineItems: SubscriptionPurchaseLineItem[];
+  startTime?: string;
+  subscriptionState: string;
+  acknowledgementState?: string;
+}
+
+export interface SubscriptionPurchaseLineItem {
+  productId: string;
+  expiryTime?: string;
+  autoRenewingPlan?: { autoRenewEnabled?: boolean };
+  offerDetails?: { basePlanId?: string; offerId?: string; offerTags?: string[] };
+}
+
+export interface SubscriptionPurchase {
+  startTimeMillis: string;
+  expiryTimeMillis: string;
+  autoRenewing: boolean;
+  orderId: string;
+  paymentState?: number;
+  cancelReason?: number;
+}
+
+export interface SubscriptionDeferRequest {
+  deferralInfo: {
+    expectedExpiryTimeMillis: string;
+    desiredExpiryTimeMillis: string;
+  };
+}
+
+export interface SubscriptionDeferResponse {
+  newExpiryTimeMillis: string;
+}
+
+export interface VoidedPurchase {
+  purchaseToken: string;
+  purchaseTimeMillis: string;
+  voidedTimeMillis: string;
+  orderId: string;
+  voidedSource: number;
+  voidedReason: number;
+}
+
+export interface VoidedPurchasesListResponse {
+  voidedPurchases: VoidedPurchase[];
+  tokenPagination?: TokenPagination;
+}
+
+export interface ConvertRegionPricesRequest {
+  price: Money;
+}
+
+export interface ConvertedRegionPrice {
+  regionCode: string;
+  price: Money;
+  taxAmount: Money;
+}
+
+export interface ConvertRegionPricesResponse {
+  convertedRegionPrices: Record<string, ConvertedRegionPrice>;
+}

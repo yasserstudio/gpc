@@ -41,3 +41,42 @@ export {
   checkThreshold,
 } from "./commands/vitals.js";
 export type { VitalsQueryOptions, VitalsOverview, ThresholdResult } from "./commands/vitals.js";
+export {
+  listSubscriptions,
+  getSubscription,
+  createSubscription,
+  updateSubscription,
+  deleteSubscription,
+  activateBasePlan,
+  deactivateBasePlan,
+  deleteBasePlan,
+  migratePrices,
+  listOffers,
+  getOffer,
+  createOffer,
+  updateOffer,
+  deleteOffer,
+  activateOffer,
+  deactivateOffer,
+} from "./commands/subscriptions.js";
+export {
+  listInAppProducts,
+  getInAppProduct,
+  createInAppProduct,
+  updateInAppProduct,
+  deleteInAppProduct,
+  syncInAppProducts,
+} from "./commands/iap.js";
+export type { SyncResult } from "./commands/iap.js";
+export {
+  getProductPurchase,
+  acknowledgeProductPurchase,
+  consumeProductPurchase,
+  getSubscriptionPurchase,
+  cancelSubscriptionPurchase,
+  deferSubscriptionPurchase,
+  revokeSubscriptionPurchase,
+  listVoidedPurchases,
+  refundOrder,
+} from "./commands/purchases.js";
+export { convertRegionPrices } from "./commands/pricing.js";
