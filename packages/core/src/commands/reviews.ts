@@ -1,4 +1,5 @@
 import type { PlayApiClient, Review, ReviewsListOptions, ReviewReplyResponse } from "@gpc/api";
+import { paginateAll } from "@gpc/api";
 
 export interface ReviewsFilterOptions {
   stars?: number;
@@ -6,6 +7,8 @@ export interface ReviewsFilterOptions {
   since?: string;
   translationLanguage?: string;
   maxResults?: number;
+  limit?: number;
+  nextPage?: string;
 }
 
 export interface ReviewExportOptions extends ReviewsFilterOptions {
@@ -83,17 +86,14 @@ export async function exportReviews(
   packageName: string,
   options?: ReviewExportOptions,
 ): Promise<string> {
-  const allReviews: Review[] = [];
-  let pageToken: string | undefined;
-
-  do {
-    const apiOptions: ReviewsListOptions = { token: pageToken };
-    if (options?.translationLanguage) apiOptions.translationLanguage = options.translationLanguage;
-    const response = await client.reviews.list(packageName, apiOptions);
-    const reviews = response.reviews || [];
-    allReviews.push(...reviews);
-    pageToken = response.tokenPagination?.nextPageToken;
-  } while (pageToken);
+  const { items: allReviews } = await paginateAll<Review>(
+    async (pageToken) => {
+      const apiOptions: ReviewsListOptions = { token: pageToken };
+      if (options?.translationLanguage) apiOptions.translationLanguage = options.translationLanguage;
+      const response = await client.reviews.list(packageName, apiOptions);
+      return { items: response.reviews || [], nextPageToken: response.tokenPagination?.nextPageToken };
+    },
+  );
 
   let filtered = allReviews;
 

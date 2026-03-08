@@ -38,7 +38,9 @@ export function registerReviewsCommands(program: Command): void {
     .option("--lang <code>", "Filter by reviewer language")
     .option("--since <date>", "Filter reviews after date (ISO 8601)")
     .option("--translate-to <lang>", "Translate reviews to language")
-    .option("--max <n>", "Maximum number of reviews", parseInt)
+    .option("--max <n>", "Maximum number of reviews per page", parseInt)
+    .option("--limit <n>", "Maximum total results", parseInt)
+    .option("--next-page <token>", "Resume from page token")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
@@ -52,6 +54,8 @@ export function registerReviewsCommands(program: Command): void {
           since: options.since,
           translationLanguage: options.translateTo,
           maxResults: options.max,
+          limit: options.limit,
+          nextPage: options.nextPage,
         });
         console.log(formatOutput(result, format));
       } catch (error) {

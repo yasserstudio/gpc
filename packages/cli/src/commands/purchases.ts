@@ -227,7 +227,9 @@ export function registerPurchasesCommands(program: Command): void {
     .description("List voided purchases")
     .option("--start-time <time>", "Start time (milliseconds)")
     .option("--end-time <time>", "End time (milliseconds)")
-    .option("--max-results <n>", "Maximum results", parseInt)
+    .option("--max-results <n>", "Maximum results per page", parseInt)
+    .option("--limit <n>", "Maximum total results", parseInt)
+    .option("--next-page <token>", "Resume from page token")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
@@ -239,6 +241,8 @@ export function registerPurchasesCommands(program: Command): void {
           startTime: options.startTime,
           endTime: options.endTime,
           maxResults: options.maxResults,
+          limit: options.limit,
+          nextPage: options.nextPage,
         });
         console.log(formatOutput(result, format));
       } catch (error) {

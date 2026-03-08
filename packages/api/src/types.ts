@@ -8,6 +8,7 @@ export interface ApiClientOptions {
   maxDelay?: number;
   rateLimitPerSecond?: number;
   baseUrl?: string;
+  rateLimiter?: import("./rate-limiter.js").RateLimiter;
 }
 
 export interface ApiResponse<T> {

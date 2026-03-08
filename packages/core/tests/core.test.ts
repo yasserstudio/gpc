@@ -1536,7 +1536,7 @@ describe("subscriptions commands", () => {
   it("listSubscriptions calls client.subscriptions.list", async () => {
     const client = mockClient();
     const result = await listSubscriptions(client, "com.example");
-    expect(client.subscriptions.list).toHaveBeenCalledWith("com.example", undefined);
+    expect(client.subscriptions.list).toHaveBeenCalledWith("com.example", { pageToken: undefined, pageSize: undefined });
     expect(result.subscriptions).toHaveLength(1);
   });
 
@@ -1642,7 +1642,7 @@ describe("iap commands", () => {
   it("listInAppProducts calls client.inappproducts.list", async () => {
     const client = mockClient();
     const result = await listInAppProducts(client, "com.example");
-    expect(client.inappproducts.list).toHaveBeenCalledWith("com.example", undefined);
+    expect(client.inappproducts.list).toHaveBeenCalledWith("com.example", { token: undefined, maxResults: undefined });
     expect(result.inappproduct).toEqual([]);
   });
 
@@ -1968,10 +1968,10 @@ describe("user commands", () => {
     };
   }
 
-  it("listUsers returns users array", async () => {
+  it("listUsers returns users object", async () => {
     const client = mockUsersClient();
     const result = await listUsers(client, "12345");
-    expect(result).toEqual([{ email: "a@b.com" }]);
+    expect(result.users).toEqual([{ email: "a@b.com" }]);
     expect(client.list).toHaveBeenCalledWith("12345", undefined);
   });
 
@@ -1979,7 +1979,7 @@ describe("user commands", () => {
     const client = mockUsersClient();
     client.list.mockResolvedValue({ users: undefined });
     const result = await listUsers(client, "12345");
-    expect(result).toEqual([]);
+    expect(result.users).toEqual([]);
   });
 
   it("getUser delegates to client.get", async () => {

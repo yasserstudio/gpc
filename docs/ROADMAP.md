@@ -52,13 +52,13 @@
 > First real data from Google Play. API foundation for all future phases.
 
 - [x] Base API client (native fetch with bearer auth)
-- [ ] Rate limiter (per-bucket token bucket, respecting quota buckets)
+- [x] Rate limiter (per-bucket token bucket, respecting quota buckets)
 - [x] Retry logic (exponential backoff with jitter on 429/5xx)
-- [ ] Pagination helper (auto-follow nextPageToken)
+- [x] Pagination helper (auto-follow nextPageToken)
 - [x] Edit lifecycle manager (insert → modify → validate → commit/delete)
 - [x] `gpc apps list`
 - [x] `gpc apps info <package>`
-- [ ] `--limit`, `--next-page` pagination flags
+- [x] `--limit`, `--next-page` pagination flags
 - [x] Retry env vars: `GPC_MAX_RETRIES`, `GPC_TIMEOUT`, `GPC_BASE_DELAY`, `GPC_MAX_DELAY`
 - [ ] `--retry-log` flag
 
@@ -119,27 +119,27 @@
 
 ---
 
-## Phase 5 — Reviews & Vitals → v0.5.x
+## Phase 5 — Reviews & Vitals → v0.5.x ✓
 > Monitoring, engagement, and CI alerting.
 
-- [ ] `gpc reviews list` (with filters: stars, language, since)
-- [ ] `gpc reviews get <review-id>`
-- [ ] `gpc reviews reply <review-id>` (350 char validation, notification warning)
-- [ ] `gpc reviews export --format csv/json`
+- [x] `gpc reviews list` (with filters: stars, language, since)
+- [x] `gpc reviews get <review-id>`
+- [x] `gpc reviews reply <review-id>` (350 char validation, notification warning)
+- [x] `gpc reviews export --format csv/json`
 - [ ] Review translation support (`--translate-to <lang>`)
-- [ ] Separate rate limiting for Reviews API (200 GET/hour, 2,000 POST/day)
-- [ ] Reporting API client (separate base URL: `playdeveloperreporting.googleapis.com`)
-- [ ] `gpc vitals overview` (dashboard summary)
-- [ ] `gpc vitals crashes` (crash rate + clusters)
-- [ ] `gpc vitals anr` (ANR rate)
-- [ ] `gpc vitals startup` (cold/warm start times)
-- [ ] `gpc vitals rendering` (slow frames)
-- [ ] `gpc vitals battery` (wakeups + wakelocks)
-- [ ] `gpc vitals memory` (LMK rate)
-- [ ] `gpc vitals anomalies` (detected anomalies)
-- [ ] `gpc vitals errors search` (error issues + reports)
-- [ ] Dimension filtering (version, OS, device)
-- [ ] Threshold-based exit codes for CI alerting
+- [x] Separate rate limiting for Reviews API (200 GET/hour, 2,000 POST/day)
+- [x] Reporting API client (separate base URL: `playdeveloperreporting.googleapis.com`)
+- [x] `gpc vitals overview` (dashboard summary)
+- [x] `gpc vitals crashes` (crash rate + clusters)
+- [x] `gpc vitals anr` (ANR rate)
+- [x] `gpc vitals startup` (cold/warm start times)
+- [x] `gpc vitals rendering` (slow frames)
+- [x] `gpc vitals battery` (wakeups + wakelocks)
+- [x] `gpc vitals memory` (LMK rate)
+- [x] `gpc vitals anomalies` (detected anomalies)
+- [x] `gpc vitals errors search` (error issues + reports)
+- [x] Dimension filtering (version, OS, device)
+- [x] Threshold-based exit codes for CI alerting
 
 **Sub-updates (v0.5.y):**
 - [ ] Vitals trend comparison (this week vs last week)
@@ -166,7 +166,7 @@
 - [x] `gpc purchases voided list`
 - [x] `gpc orders refund`
 - [x] `gpc pricing convert --from USD --amount 9.99` (regional price conversion)
-- [ ] Voided purchases rate limiting (6,000/day, 30/30s)
+- [x] Voided purchases rate limiting (6,000/day, 30/30s)
 
 **Sub-updates (v0.6.y):**
 - [ ] Subscription listing localization helpers
@@ -224,7 +224,7 @@
 - [x] Proxy and custom CA support (`GPC_CA_CERT`, `HTTPS_PROXY`)
 - [x] Performance optimization (lazy command loading)
 - [x] Unified error hierarchy (exitCode + toJSON on all error types)
-- [ ] 90%+ test coverage on core packages
+- [x] 90%+ test coverage on core packages
 - [ ] VitePress documentation site complete
 - [ ] Standalone binary investigation
 - [ ] Security audit

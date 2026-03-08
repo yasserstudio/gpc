@@ -5,13 +5,31 @@ import type {
   InAppProduct,
   InAppProductsListResponse,
 } from "@gpc/api";
+import { paginateAll } from "@gpc/api";
+
+export interface ListIapOptions {
+  token?: string;
+  maxResults?: number;
+  limit?: number;
+  nextPage?: string;
+}
 
 export async function listInAppProducts(
   client: PlayApiClient,
   packageName: string,
-  options?: { token?: string; maxResults?: number },
-): Promise<InAppProductsListResponse> {
-  return client.inappproducts.list(packageName, options);
+  options?: ListIapOptions,
+): Promise<{ inappproduct: InAppProduct[]; nextPageToken?: string }> {
+  if (options?.limit || options?.nextPage) {
+    const result = await paginateAll<InAppProduct>(
+      async (pageToken) => {
+        const resp = await client.inappproducts.list(packageName, { token: pageToken, maxResults: options?.maxResults });
+        return { items: resp.inappproduct || [], nextPageToken: resp.tokenPagination?.nextPageToken };
+      },
+      { limit: options.limit, startPageToken: options.nextPage },
+    );
+    return { inappproduct: result.items, nextPageToken: result.nextPageToken };
+  }
+  return client.inappproducts.list(packageName, { token: options?.token, maxResults: options?.maxResults });
 }
 
 export async function getInAppProduct(

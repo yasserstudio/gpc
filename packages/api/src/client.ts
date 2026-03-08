@@ -1,4 +1,5 @@
 import { createHttpClient } from "./http.js";
+import type { RateLimiter } from "./rate-limiter.js";
 import type {
   ApiClientOptions,
   AppDetails,
@@ -151,8 +152,13 @@ export interface PlayApiClient {
   };
 }
 
+async function rateLimit(limiter: RateLimiter | undefined, bucket: string): Promise<void> {
+  if (limiter) await limiter.acquire(bucket);
+}
+
 export function createApiClient(options: ApiClientOptions): PlayApiClient {
   const http = createHttpClient(options);
+  const limiter = options.rateLimiter || undefined;
 
   return {
     edits: {
@@ -336,6 +342,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
     reviews: {
       async list(packageName, options?) {
+        await rateLimit(limiter, "reviewsGet");
         const params: Record<string, string> = {};
         if (options?.token) params["token"] = options.token;
         if (options?.maxResults) params["maxResults"] = String(options.maxResults);
@@ -349,6 +356,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async get(packageName, reviewId, translationLanguage?) {
+        await rateLimit(limiter, "reviewsGet");
         const params: Record<string, string> = {};
         if (translationLanguage) params["translationLanguage"] = translationLanguage;
         const hasParams = Object.keys(params).length > 0;
@@ -360,6 +368,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async reply(packageName, reviewId, replyText) {
+        await rateLimit(limiter, "reviewsPost");
         const body: ReviewReplyRequest = { replyText };
         const { data } = await http.post<ReviewReplyResponse>(
           `/${packageName}/reviews/${reviewId}:reply`,
@@ -585,6 +594,8 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async listVoided(packageName, options?) {
+        await rateLimit(limiter, "voidedBurst");
+        await rateLimit(limiter, "voidedDaily");
         const params: Record<string, string> = {};
         if (options?.startTime) params["startTime"] = options.startTime;
         if (options?.endTime) params["endTime"] = options.endTime;
