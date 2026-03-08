@@ -18,72 +18,95 @@ vi.mock("@gpc/config", () => ({
   initConfig: vi.fn().mockResolvedValue("/home/user/.config/gpc/config.toml"),
 }));
 
-vi.mock("@gpc/core", () => ({
-  detectOutputFormat: vi.fn().mockReturnValue("table"),
-  formatOutput: vi.fn().mockImplementation((data: unknown) => JSON.stringify(data)),
-  uploadRelease: vi.fn().mockResolvedValue({}),
-  getReleasesStatus: vi.fn().mockResolvedValue([]),
-  promoteRelease: vi.fn().mockResolvedValue({}),
-  updateRollout: vi.fn().mockResolvedValue({}),
-  listTracks: vi.fn().mockResolvedValue([]),
-  getListings: vi.fn().mockResolvedValue([]),
-  updateListing: vi.fn().mockResolvedValue({}),
-  deleteListing: vi.fn().mockResolvedValue(undefined),
-  pullListings: vi.fn().mockResolvedValue({ listings: [] }),
-  pushListings: vi.fn().mockResolvedValue({ updated: 0, languages: [] }),
-  listImages: vi.fn().mockResolvedValue([]),
-  uploadImage: vi.fn().mockResolvedValue({}),
-  deleteImage: vi.fn().mockResolvedValue(undefined),
-  getCountryAvailability: vi.fn().mockResolvedValue({}),
-  updateAppDetails: vi.fn().mockResolvedValue({}),
-  getAppInfo: vi.fn().mockResolvedValue({}),
-  listReviews: vi.fn().mockResolvedValue([]),
-  getReview: vi.fn().mockResolvedValue({}),
-  replyToReview: vi.fn().mockResolvedValue({}),
-  exportReviews: vi.fn().mockResolvedValue("[]"),
-  getVitalsOverview: vi.fn().mockResolvedValue({}),
-  getVitalsCrashes: vi.fn().mockResolvedValue({ rows: [] }),
-  getVitalsAnr: vi.fn().mockResolvedValue({ rows: [] }),
-  getVitalsStartup: vi.fn().mockResolvedValue({ rows: [] }),
-  getVitalsRendering: vi.fn().mockResolvedValue({ rows: [] }),
-  getVitalsBattery: vi.fn().mockResolvedValue({ rows: [] }),
-  getVitalsMemory: vi.fn().mockResolvedValue({ rows: [] }),
-  getVitalsAnomalies: vi.fn().mockResolvedValue({ anomalies: [] }),
-  searchVitalsErrors: vi.fn().mockResolvedValue({ errorIssues: [] }),
-  checkThreshold: vi.fn().mockReturnValue({ breached: false, value: 0, threshold: 0 }),
-  listSubscriptions: vi.fn().mockResolvedValue({ subscriptions: [] }),
-  getSubscription: vi.fn().mockResolvedValue({}),
-  createSubscription: vi.fn().mockResolvedValue({}),
-  updateSubscription: vi.fn().mockResolvedValue({}),
-  deleteSubscription: vi.fn().mockResolvedValue(undefined),
-  activateBasePlan: vi.fn().mockResolvedValue({}),
-  deactivateBasePlan: vi.fn().mockResolvedValue({}),
-  deleteBasePlan: vi.fn().mockResolvedValue(undefined),
-  migratePrices: vi.fn().mockResolvedValue({}),
-  listOffers: vi.fn().mockResolvedValue({ subscriptionOffers: [] }),
-  getOffer: vi.fn().mockResolvedValue({}),
-  createOffer: vi.fn().mockResolvedValue({}),
-  updateOffer: vi.fn().mockResolvedValue({}),
-  deleteOffer: vi.fn().mockResolvedValue(undefined),
-  activateOffer: vi.fn().mockResolvedValue({}),
-  deactivateOffer: vi.fn().mockResolvedValue({}),
-  listInAppProducts: vi.fn().mockResolvedValue({ inappproduct: [] }),
-  getInAppProduct: vi.fn().mockResolvedValue({}),
-  createInAppProduct: vi.fn().mockResolvedValue({}),
-  updateInAppProduct: vi.fn().mockResolvedValue({}),
-  deleteInAppProduct: vi.fn().mockResolvedValue(undefined),
-  syncInAppProducts: vi.fn().mockResolvedValue({ created: 0, updated: 0, unchanged: 0, skus: [] }),
-  getProductPurchase: vi.fn().mockResolvedValue({}),
-  acknowledgeProductPurchase: vi.fn().mockResolvedValue(undefined),
-  consumeProductPurchase: vi.fn().mockResolvedValue(undefined),
-  getSubscriptionPurchase: vi.fn().mockResolvedValue({}),
-  cancelSubscriptionPurchase: vi.fn().mockResolvedValue(undefined),
-  deferSubscriptionPurchase: vi.fn().mockResolvedValue({}),
-  revokeSubscriptionPurchase: vi.fn().mockResolvedValue(undefined),
-  listVoidedPurchases: vi.fn().mockResolvedValue({ voidedPurchases: [] }),
-  refundOrder: vi.fn().mockResolvedValue(undefined),
-  convertRegionPrices: vi.fn().mockResolvedValue({ convertedRegionPrices: {} }),
-}));
+vi.mock("@gpc/core", () => {
+  // Inline PluginManager mock for CLI tests
+  class MockPluginManager {
+    private plugins: any[] = [];
+    private commands: any[] = [];
+    async load() {}
+    async runBeforeCommand() {}
+    async runAfterCommand() {}
+    async runOnError() {}
+    async runBeforeRequest() {}
+    async runAfterResponse() {}
+    getRegisteredCommands() { return [...this.commands]; }
+    getLoadedPlugins() { return [...this.plugins]; }
+    hasRequestHooks() { return false; }
+    reset() { this.plugins = []; this.commands = []; }
+    // Test helpers
+    _addPlugin(p: any) { this.plugins.push(p); }
+    _addCommand(c: any) { this.commands.push(c); }
+  }
+
+  return {
+    PluginManager: MockPluginManager,
+    discoverPlugins: vi.fn().mockResolvedValue([]),
+    detectOutputFormat: vi.fn().mockReturnValue("table"),
+    formatOutput: vi.fn().mockImplementation((data: unknown) => JSON.stringify(data)),
+    uploadRelease: vi.fn().mockResolvedValue({}),
+    getReleasesStatus: vi.fn().mockResolvedValue([]),
+    promoteRelease: vi.fn().mockResolvedValue({}),
+    updateRollout: vi.fn().mockResolvedValue({}),
+    listTracks: vi.fn().mockResolvedValue([]),
+    getListings: vi.fn().mockResolvedValue([]),
+    updateListing: vi.fn().mockResolvedValue({}),
+    deleteListing: vi.fn().mockResolvedValue(undefined),
+    pullListings: vi.fn().mockResolvedValue({ listings: [] }),
+    pushListings: vi.fn().mockResolvedValue({ updated: 0, languages: [] }),
+    listImages: vi.fn().mockResolvedValue([]),
+    uploadImage: vi.fn().mockResolvedValue({}),
+    deleteImage: vi.fn().mockResolvedValue(undefined),
+    getCountryAvailability: vi.fn().mockResolvedValue({}),
+    updateAppDetails: vi.fn().mockResolvedValue({}),
+    getAppInfo: vi.fn().mockResolvedValue({}),
+    listReviews: vi.fn().mockResolvedValue([]),
+    getReview: vi.fn().mockResolvedValue({}),
+    replyToReview: vi.fn().mockResolvedValue({}),
+    exportReviews: vi.fn().mockResolvedValue("[]"),
+    getVitalsOverview: vi.fn().mockResolvedValue({}),
+    getVitalsCrashes: vi.fn().mockResolvedValue({ rows: [] }),
+    getVitalsAnr: vi.fn().mockResolvedValue({ rows: [] }),
+    getVitalsStartup: vi.fn().mockResolvedValue({ rows: [] }),
+    getVitalsRendering: vi.fn().mockResolvedValue({ rows: [] }),
+    getVitalsBattery: vi.fn().mockResolvedValue({ rows: [] }),
+    getVitalsMemory: vi.fn().mockResolvedValue({ rows: [] }),
+    getVitalsAnomalies: vi.fn().mockResolvedValue({ anomalies: [] }),
+    searchVitalsErrors: vi.fn().mockResolvedValue({ errorIssues: [] }),
+    checkThreshold: vi.fn().mockReturnValue({ breached: false, value: 0, threshold: 0 }),
+    listSubscriptions: vi.fn().mockResolvedValue({ subscriptions: [] }),
+    getSubscription: vi.fn().mockResolvedValue({}),
+    createSubscription: vi.fn().mockResolvedValue({}),
+    updateSubscription: vi.fn().mockResolvedValue({}),
+    deleteSubscription: vi.fn().mockResolvedValue(undefined),
+    activateBasePlan: vi.fn().mockResolvedValue({}),
+    deactivateBasePlan: vi.fn().mockResolvedValue({}),
+    deleteBasePlan: vi.fn().mockResolvedValue(undefined),
+    migratePrices: vi.fn().mockResolvedValue({}),
+    listOffers: vi.fn().mockResolvedValue({ subscriptionOffers: [] }),
+    getOffer: vi.fn().mockResolvedValue({}),
+    createOffer: vi.fn().mockResolvedValue({}),
+    updateOffer: vi.fn().mockResolvedValue({}),
+    deleteOffer: vi.fn().mockResolvedValue(undefined),
+    activateOffer: vi.fn().mockResolvedValue({}),
+    deactivateOffer: vi.fn().mockResolvedValue({}),
+    listInAppProducts: vi.fn().mockResolvedValue({ inappproduct: [] }),
+    getInAppProduct: vi.fn().mockResolvedValue({}),
+    createInAppProduct: vi.fn().mockResolvedValue({}),
+    updateInAppProduct: vi.fn().mockResolvedValue({}),
+    deleteInAppProduct: vi.fn().mockResolvedValue(undefined),
+    syncInAppProducts: vi.fn().mockResolvedValue({ created: 0, updated: 0, unchanged: 0, skus: [] }),
+    getProductPurchase: vi.fn().mockResolvedValue({}),
+    acknowledgeProductPurchase: vi.fn().mockResolvedValue(undefined),
+    consumeProductPurchase: vi.fn().mockResolvedValue(undefined),
+    getSubscriptionPurchase: vi.fn().mockResolvedValue({}),
+    cancelSubscriptionPurchase: vi.fn().mockResolvedValue(undefined),
+    deferSubscriptionPurchase: vi.fn().mockResolvedValue({}),
+    revokeSubscriptionPurchase: vi.fn().mockResolvedValue(undefined),
+    listVoidedPurchases: vi.fn().mockResolvedValue({ voidedPurchases: [] }),
+    refundOrder: vi.fn().mockResolvedValue(undefined),
+    convertRegionPrices: vi.fn().mockResolvedValue({ convertedRegionPrices: {} }),
+  };
+});
 
 vi.mock("@gpc/api", () => ({
   createApiClient: vi.fn().mockReturnValue({
@@ -732,5 +755,117 @@ describe("pricing subcommands", () => {
     expect(pricingCmd).toBeDefined();
     const subcommandNames = pricingCmd!.commands.map((cmd) => cmd.name());
     expect(subcommandNames).toContain("convert");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 8 – plugins command
+// ---------------------------------------------------------------------------
+describe("plugins command", () => {
+  let program: Command;
+  let logSpy: ReturnType<typeof vi.spyOn>;
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("plugins list shows 'No plugins loaded' when none configured", async () => {
+    program = await createProgram();
+    program.exitOverride();
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await program.parseAsync(["node", "test", "plugins", "list"]);
+
+    const output = logSpy.mock.calls.map((call) => String(call[0])).join("\n");
+    expect(output).toContain("No plugins loaded");
+  });
+
+  it("plugins list shows loaded plugins", async () => {
+    const { PluginManager } = await import("@gpc/core");
+    const manager = new PluginManager() as any;
+    manager._addPlugin({ name: "@gpc/plugin-ci", version: "0.8.0", trusted: true });
+    manager._addPlugin({ name: "gpc-plugin-slack", version: "1.0.0", trusted: false });
+
+    program = await createProgram(manager);
+    program.exitOverride();
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await program.parseAsync(["node", "test", "plugins", "list"]);
+
+    const output = logSpy.mock.calls.map((call) => String(call[0])).join("\n");
+    expect(output).toContain("@gpc/plugin-ci@0.8.0");
+    expect(output).toContain("trusted");
+    expect(output).toContain("gpc-plugin-slack@1.0.0");
+    expect(output).toContain("third-party");
+  });
+
+  it("plugins command is registered", async () => {
+    program = await createProgram();
+    const commandNames = program.commands.map((cmd) => cmd.name());
+    expect(commandNames).toContain("plugins");
+  });
+
+  it("plugins list outputs JSON when --output json", async () => {
+    const { PluginManager } = await import("@gpc/core");
+    const manager = new PluginManager() as any;
+    manager._addPlugin({ name: "@gpc/plugin-ci", version: "0.8.0", trusted: true });
+
+    program = await createProgram(manager);
+    program.exitOverride();
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await program.parseAsync(["node", "test", "--output", "json", "plugins", "list"]);
+
+    const output = logSpy.mock.calls.map((call) => String(call[0])).join("\n");
+    const parsed = JSON.parse(output);
+    expect(parsed).toEqual([{ name: "@gpc/plugin-ci", version: "0.8.0", trusted: true }]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 8 – plugin commands registration
+// ---------------------------------------------------------------------------
+describe("plugin commands registration", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("registers plugin-defined commands on the program", async () => {
+    const { PluginManager } = await import("@gpc/core");
+    const manager = new PluginManager() as any;
+    manager._addCommand({
+      name: "deploy",
+      description: "Deploy to Play Store",
+      action: vi.fn(),
+    });
+
+    const program = await createProgram(manager);
+    const commandNames = program.commands.map((cmd) => cmd.name());
+    expect(commandNames).toContain("deploy");
+  });
+
+  it("plugin commands show in plugins list", async () => {
+    const { PluginManager } = await import("@gpc/core");
+    const manager = new PluginManager() as any;
+    manager._addPlugin({ name: "gpc-plugin-deploy", version: "1.0.0", trusted: false });
+    manager._addCommand({
+      name: "deploy",
+      description: "Deploy to Play Store",
+      action: vi.fn(),
+    });
+
+    const program = await createProgram(manager);
+    program.exitOverride();
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await program.parseAsync(["node", "test", "plugins", "list"]);
+
+    const output = logSpy.mock.calls.map((call) => String(call[0])).join("\n");
+    expect(output).toContain("deploy");
+    expect(output).toContain("Deploy to Play Store");
   });
 });

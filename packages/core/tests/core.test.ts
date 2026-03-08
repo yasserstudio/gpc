@@ -2756,3 +2756,158 @@ describe("PluginManager – lifecycle edge cases", () => {
     expect(cmds.map((c) => c.name)).toEqual(["cmd-a", "cmd-b"]);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Phase 8.6 – beforeRequest/afterResponse hooks
+// ---------------------------------------------------------------------------
+describe("PluginManager – request/response hooks", () => {
+  it("runs beforeRequest handlers", async () => {
+    const manager = new PluginManager();
+    const calls: string[] = [];
+
+    await manager.load({
+      name: "req-plugin",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.beforeRequest(async (req) => {
+          calls.push(`${req.method} ${req.path}`);
+        });
+      },
+    });
+
+    await manager.runBeforeRequest({ method: "GET", path: "/apps", startedAt: new Date() });
+    expect(calls).toEqual(["GET /apps"]);
+  });
+
+  it("runs afterResponse handlers", async () => {
+    const manager = new PluginManager();
+    const calls: { path: string; status: number; durationMs: number }[] = [];
+
+    await manager.load({
+      name: "res-plugin",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.afterResponse(async (req, res) => {
+          calls.push({ path: req.path, status: res.status, durationMs: res.durationMs });
+        });
+      },
+    });
+
+    const reqEvent = { method: "POST", path: "/upload", startedAt: new Date() };
+    await manager.runAfterResponse(reqEvent, { status: 200, durationMs: 150, ok: true });
+    expect(calls).toEqual([{ path: "/upload", status: 200, durationMs: 150 }]);
+  });
+
+  it("beforeRequest handler errors don't propagate", async () => {
+    const manager = new PluginManager();
+
+    await manager.load({
+      name: "bad-req",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.beforeRequest(async () => { throw new Error("boom"); });
+      },
+    });
+
+    // Should not throw
+    await manager.runBeforeRequest({ method: "GET", path: "/test", startedAt: new Date() });
+  });
+
+  it("afterResponse handler errors don't propagate", async () => {
+    const manager = new PluginManager();
+
+    await manager.load({
+      name: "bad-res",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.afterResponse(async () => { throw new Error("boom"); });
+      },
+    });
+
+    await manager.runAfterResponse(
+      { method: "GET", path: "/test", startedAt: new Date() },
+      { status: 200, durationMs: 10, ok: true },
+    );
+  });
+
+  it("hasRequestHooks returns false when no hooks registered", () => {
+    const manager = new PluginManager();
+    expect(manager.hasRequestHooks()).toBe(false);
+  });
+
+  it("hasRequestHooks returns true when beforeRequest registered", async () => {
+    const manager = new PluginManager();
+    await manager.load({
+      name: "hook-check",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.beforeRequest(async () => {});
+      },
+    });
+    expect(manager.hasRequestHooks()).toBe(true);
+  });
+
+  it("hasRequestHooks returns true when afterResponse registered", async () => {
+    const manager = new PluginManager();
+    await manager.load({
+      name: "hook-check-2",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.afterResponse(async () => {});
+      },
+    });
+    expect(manager.hasRequestHooks()).toBe(true);
+  });
+
+  it("runs multiple request handlers in order", async () => {
+    const manager = new PluginManager();
+    const order: number[] = [];
+
+    await manager.load({
+      name: "first",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.beforeRequest(async () => { order.push(1); });
+      },
+    });
+
+    await manager.load({
+      name: "second",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.beforeRequest(async () => { order.push(2); });
+      },
+    });
+
+    await manager.runBeforeRequest({ method: "GET", path: "/test", startedAt: new Date() });
+    expect(order).toEqual([1, 2]);
+  });
+
+  it("runBeforeRequest with no handlers does nothing", async () => {
+    const manager = new PluginManager();
+    await manager.runBeforeRequest({ method: "GET", path: "/test", startedAt: new Date() });
+  });
+
+  it("runAfterResponse with no handlers does nothing", async () => {
+    const manager = new PluginManager();
+    await manager.runAfterResponse(
+      { method: "GET", path: "/test", startedAt: new Date() },
+      { status: 200, durationMs: 10, ok: true },
+    );
+  });
+
+  it("new hooks are cleared on reset", async () => {
+    const manager = new PluginManager();
+    await manager.load({
+      name: "resettable",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.beforeRequest(async () => {});
+        hooks.afterResponse(async () => {});
+      },
+    });
+    expect(manager.hasRequestHooks()).toBe(true);
+    manager.reset();
+    expect(manager.hasRequestHooks()).toBe(false);
+  });
+});

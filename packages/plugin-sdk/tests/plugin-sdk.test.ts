@@ -11,6 +11,8 @@ import type {
   PluginError,
   PluginCommand,
   PluginPermission,
+  RequestEvent,
+  ResponseEvent,
 } from "../src/index";
 
 describe("plugin-sdk", () => {
@@ -68,8 +70,10 @@ describe("plugin-sdk", () => {
       "hooks:beforeCommand",
       "hooks:afterCommand",
       "hooks:onError",
+      "hooks:beforeRequest",
+      "hooks:afterResponse",
     ];
-    expect(perms).toHaveLength(9);
+    expect(perms).toHaveLength(11);
   });
 
   it("PluginCommand interface works with options and arguments", () => {
@@ -115,5 +119,38 @@ describe("plugin-sdk", () => {
     };
     expect(error.code).toBe("API_FORBIDDEN");
     expect(error.cause).toBeInstanceOf(Error);
+  });
+
+  it("RequestEvent and ResponseEvent interfaces are structurally valid", () => {
+    const req: RequestEvent = {
+      method: "GET",
+      path: "/apps",
+      startedAt: new Date(),
+    };
+    const res: ResponseEvent = {
+      status: 200,
+      durationMs: 42,
+      ok: true,
+    };
+    expect(req.method).toBe("GET");
+    expect(res.ok).toBe(true);
+  });
+
+  it("register function accepts beforeRequest and afterResponse hooks", () => {
+    const plugin = definePlugin({
+      name: "request-hook-test",
+      version: "0.1.0",
+      register(hooks) {
+        hooks.beforeRequest(async (req) => {
+          // Can access request metadata
+          void req.method;
+        });
+        hooks.afterResponse(async (req, res) => {
+          // Can access response metadata
+          void res.status;
+        });
+      },
+    });
+    expect(plugin.name).toBe("request-hook-test");
   });
 });

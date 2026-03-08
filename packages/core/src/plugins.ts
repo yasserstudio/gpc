@@ -4,6 +4,8 @@ import type {
   BeforeCommandHandler,
   AfterCommandHandler,
   ErrorHandler,
+  BeforeRequestHandler,
+  AfterResponseHandler,
   CommandRegistrar,
   CommandEvent,
   CommandResult,
@@ -11,6 +13,8 @@ import type {
   PluginCommand,
   PluginManifest,
   PluginPermission,
+  RequestEvent,
+  ResponseEvent,
 } from "@gpc/plugin-sdk";
 import { GpcError } from "./errors.js";
 
@@ -23,6 +27,8 @@ export class PluginManager {
   private beforeHandlers: BeforeCommandHandler[] = [];
   private afterHandlers: AfterCommandHandler[] = [];
   private errorHandlers: ErrorHandler[] = [];
+  private beforeRequestHandlers: BeforeRequestHandler[] = [];
+  private afterResponseHandlers: AfterResponseHandler[] = [];
   private registeredCommands: PluginCommand[] = [];
 
   /** Load and register a plugin */
@@ -37,6 +43,8 @@ export class PluginManager {
       this.beforeHandlers,
       this.afterHandlers,
       this.errorHandlers,
+      this.beforeRequestHandlers,
+      this.afterResponseHandlers,
       this.registeredCommands,
     );
 
@@ -74,6 +82,28 @@ export class PluginManager {
     }
   }
 
+  /** Run all beforeRequest handlers */
+  async runBeforeRequest(event: RequestEvent): Promise<void> {
+    for (const handler of this.beforeRequestHandlers) {
+      try {
+        await handler(event);
+      } catch {
+        // Don't let request hooks block API calls
+      }
+    }
+  }
+
+  /** Run all afterResponse handlers */
+  async runAfterResponse(event: RequestEvent, response: ResponseEvent): Promise<void> {
+    for (const handler of this.afterResponseHandlers) {
+      try {
+        await handler(event, response);
+      } catch {
+        // Don't let response hooks crash the process
+      }
+    }
+  }
+
   /** Get commands registered by plugins */
   getRegisteredCommands(): PluginCommand[] {
     return [...this.registeredCommands];
@@ -84,12 +114,19 @@ export class PluginManager {
     return [...this.plugins];
   }
 
+  /** Whether any request/response hooks are registered */
+  hasRequestHooks(): boolean {
+    return this.beforeRequestHandlers.length > 0 || this.afterResponseHandlers.length > 0;
+  }
+
   /** Reset (for testing) */
   reset(): void {
     this.plugins = [];
     this.beforeHandlers = [];
     this.afterHandlers = [];
     this.errorHandlers = [];
+    this.beforeRequestHandlers = [];
+    this.afterResponseHandlers = [];
     this.registeredCommands = [];
   }
 }
@@ -108,6 +145,8 @@ function createHooks(
   beforeHandlers: BeforeCommandHandler[],
   afterHandlers: AfterCommandHandler[],
   errorHandlers: ErrorHandler[],
+  beforeRequestHandlers: BeforeRequestHandler[],
+  afterResponseHandlers: AfterResponseHandler[],
   registeredCommands: PluginCommand[],
 ): PluginHooks {
   return {
@@ -119,6 +158,12 @@ function createHooks(
     },
     onError(handler) {
       errorHandlers.push(handler);
+    },
+    beforeRequest(handler) {
+      beforeRequestHandlers.push(handler);
+    },
+    afterResponse(handler) {
+      afterResponseHandlers.push(handler);
     },
     registerCommands(registrar) {
       const registry = {
@@ -145,6 +190,8 @@ const VALID_PERMISSIONS: ReadonlySet<string> = new Set<PluginPermission>([
   "hooks:beforeCommand",
   "hooks:afterCommand",
   "hooks:onError",
+  "hooks:beforeRequest",
+  "hooks:afterResponse",
 ]);
 
 function validatePermissions(permissions: PluginPermission[]): void {

@@ -1,6 +1,9 @@
 import { Command } from "commander";
+import type { PluginManager } from "@gpc/core";
+import type { CommandEvent, CommandResult, PluginError } from "@gpc/plugin-sdk";
+import { registerPluginCommands } from "./plugins.js";
 
-export async function createProgram(): Promise<Command> {
+export async function createProgram(pluginManager?: PluginManager): Promise<Command> {
   const program = new Command();
 
   program
@@ -38,6 +41,7 @@ export async function createProgram(): Promise<Command> {
     testers: async () => { (await import("./commands/testers.js")).registerTestersCommands(program); },
     validate: async () => { (await import("./commands/validate.js")).registerValidateCommand(program); },
     publish: async () => { (await import("./commands/publish.js")).registerPublishCommand(program); },
+    plugins: async () => { registerPluginsCommand(program, pluginManager); },
   };
 
   const target = process.argv[2];
@@ -48,5 +52,97 @@ export async function createProgram(): Promise<Command> {
     await Promise.all(Object.values(commandLoaders).map((loader) => loader()));
   }
 
+  // Register plugin-defined commands
+  if (pluginManager) {
+    registerPluginCommands(program, pluginManager);
+  }
+
+  // Wire plugin lifecycle hooks around command execution
+  if (pluginManager) {
+    wrapCommandHooks(program, pluginManager);
+  }
+
   return program;
+}
+
+/**
+ * `gpc plugins list` — show loaded plugins.
+ */
+function registerPluginsCommand(program: Command, manager?: PluginManager): void {
+  const cmd = program.command("plugins").description("Manage plugins");
+
+  cmd
+    .command("list")
+    .description("List loaded plugins")
+    .action(() => {
+      const plugins = manager?.getLoadedPlugins() ?? [];
+      const opts = program.opts();
+
+      if (opts["output"] === "json") {
+        console.log(JSON.stringify(plugins, null, 2));
+        return;
+      }
+
+      if (plugins.length === 0) {
+        console.log("No plugins loaded.");
+        console.log('\nConfigure plugins in .gpcrc.json: { "plugins": ["@gpc/plugin-ci"] }');
+        return;
+      }
+
+      console.log("Loaded plugins:\n");
+      for (const p of plugins) {
+        const trust = p.trusted ? "trusted" : "third-party";
+        console.log(`  ${p.name}@${p.version} (${trust})`);
+      }
+
+      const commands = manager?.getRegisteredCommands() ?? [];
+      if (commands.length > 0) {
+        console.log("\nPlugin commands:\n");
+        for (const c of commands) {
+          console.log(`  gpc ${c.name} — ${c.description}`);
+        }
+      }
+    });
+}
+
+/**
+ * Wrap all registered commands so plugin hooks fire before/after each command.
+ */
+function wrapCommandHooks(program: Command, manager: PluginManager): void {
+  program.hook("preAction", async (thisCommand) => {
+    const event: CommandEvent = {
+      command: getFullCommandName(thisCommand),
+      args: thisCommand.opts(),
+      app: program.opts()["app"] as string | undefined,
+      startedAt: new Date(),
+    };
+
+    // Store on the command for afterCommand/onError
+    (thisCommand as any).__pluginEvent = event;
+
+    await manager.runBeforeCommand(event);
+  });
+
+  program.hook("postAction", async (thisCommand) => {
+    const event: CommandEvent = (thisCommand as any).__pluginEvent;
+    if (!event) return;
+
+    const result: CommandResult = {
+      success: true,
+      durationMs: Date.now() - event.startedAt.getTime(),
+      exitCode: 0,
+    };
+
+    await manager.runAfterCommand(event, result);
+  });
+}
+
+function getFullCommandName(cmd: Command): string {
+  const parts: string[] = [];
+  let current: Command | null = cmd;
+  while (current && current.name() !== "gpc") {
+    parts.unshift(current.name());
+    current = current.parent;
+  }
+  return parts.join(" ");
 }
