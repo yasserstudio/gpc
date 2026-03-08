@@ -1,15 +1,33 @@
 import type { UsersApiClient, User, DeveloperPermission, Grant } from "@gpc/api";
+import { paginateAll } from "@gpc/api";
 
 export const PERMISSION_PROPAGATION_WARNING =
   "Note: Permission changes may take up to 48 hours to propagate.";
 
+export interface ListUsersOptions {
+  pageToken?: string;
+  pageSize?: number;
+  limit?: number;
+  nextPage?: string;
+}
+
 export async function listUsers(
   client: UsersApiClient,
   developerId: string,
-  options?: { pageToken?: string; pageSize?: number },
-): Promise<User[]> {
+  options?: ListUsersOptions,
+): Promise<{ users: User[]; nextPageToken?: string }> {
+  if (options?.limit || options?.nextPage) {
+    const result = await paginateAll<User>(
+      async (pageToken) => {
+        const resp = await client.list(developerId, { pageToken, pageSize: options?.pageSize });
+        return { items: resp.users || [], nextPageToken: resp.nextPageToken };
+      },
+      { limit: options.limit, startPageToken: options.nextPage },
+    );
+    return { users: result.items, nextPageToken: result.nextPageToken };
+  }
   const response = await client.list(developerId, options);
-  return response.users || [];
+  return { users: response.users || [], nextPageToken: response.nextPageToken };
 }
 
 export async function getUser(

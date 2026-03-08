@@ -6,13 +6,31 @@ import type {
   SubscriptionOffer,
   OffersListResponse,
 } from "@gpc/api";
+import { paginateAll } from "@gpc/api";
+
+export interface ListSubscriptionsOptions {
+  pageToken?: string;
+  pageSize?: number;
+  limit?: number;
+  nextPage?: string;
+}
 
 export async function listSubscriptions(
   client: PlayApiClient,
   packageName: string,
-  options?: { pageToken?: string; pageSize?: number },
-): Promise<SubscriptionsListResponse> {
-  return client.subscriptions.list(packageName, options);
+  options?: ListSubscriptionsOptions,
+): Promise<{ subscriptions: Subscription[]; nextPageToken?: string }> {
+  if (options?.limit || options?.nextPage) {
+    const result = await paginateAll<Subscription>(
+      async (pageToken) => {
+        const resp = await client.subscriptions.list(packageName, { pageToken, pageSize: options?.pageSize });
+        return { items: resp.subscriptions || [], nextPageToken: resp.nextPageToken };
+      },
+      { limit: options.limit, startPageToken: options.nextPage },
+    );
+    return { subscriptions: result.items, nextPageToken: result.nextPageToken };
+  }
+  return client.subscriptions.list(packageName, { pageToken: options?.pageToken, pageSize: options?.pageSize });
 }
 
 export async function getSubscription(

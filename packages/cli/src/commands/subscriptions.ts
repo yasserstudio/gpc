@@ -49,6 +49,8 @@ export function registerSubscriptionsCommands(program: Command): void {
     .description("List subscriptions")
     .option("--page-size <n>", "Results per page", parseInt)
     .option("--page-token <token>", "Page token")
+    .option("--limit <n>", "Maximum total results", parseInt)
+    .option("--next-page <token>", "Resume from page token")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
@@ -59,6 +61,8 @@ export function registerSubscriptionsCommands(program: Command): void {
         const result = await listSubscriptions(client, packageName, {
           pageSize: options.pageSize,
           pageToken: options.pageToken,
+          limit: options.limit,
+          nextPage: options.nextPage,
         });
         console.log(formatOutput(result, format));
       } catch (error) {

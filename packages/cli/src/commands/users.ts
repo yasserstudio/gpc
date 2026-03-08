@@ -39,14 +39,19 @@ export function registerUsersCommands(program: Command): void {
   users
     .command("list")
     .description("List all users in the developer account")
-    .action(async () => {
+    .option("--limit <n>", "Maximum total results", parseInt)
+    .option("--next-page <token>", "Resume from page token")
+    .action(async (options) => {
       const config = await loadConfig();
       const developerId = resolveDeveloperId(users.opts().developerId, config);
       const client = await getUsersClient(config);
       const format = detectOutputFormat();
 
       try {
-        const result = await listUsers(client, developerId);
+        const result = await listUsers(client, developerId, {
+          limit: options.limit,
+          nextPage: options.nextPage,
+        });
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);

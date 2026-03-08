@@ -37,7 +37,9 @@ export function registerIapCommands(program: Command): void {
   iap
     .command("list")
     .description("List in-app products")
-    .option("--max <n>", "Maximum results", parseInt)
+    .option("--max <n>", "Maximum results per page", parseInt)
+    .option("--limit <n>", "Maximum total results", parseInt)
+    .option("--next-page <token>", "Resume from page token")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
@@ -47,6 +49,8 @@ export function registerIapCommands(program: Command): void {
       try {
         const result = await listInAppProducts(client, packageName, {
           maxResults: options.max,
+          limit: options.limit,
+          nextPage: options.nextPage,
         });
         console.log(formatOutput(result, format));
       } catch (error) {

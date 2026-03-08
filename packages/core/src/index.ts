@@ -30,6 +30,10 @@ export {
   exportReviews,
 } from "./commands/reviews.js";
 export type { ReviewsFilterOptions, ReviewExportOptions } from "./commands/reviews.js";
+export type { ListSubscriptionsOptions } from "./commands/subscriptions.js";
+export type { ListIapOptions } from "./commands/iap.js";
+export type { ListVoidedOptions } from "./commands/purchases.js";
+export type { ListUsersOptions } from "./commands/users.js";
 export {
   getVitalsOverview,
   getVitalsCrashes,

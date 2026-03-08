@@ -3,7 +3,6 @@ import type {
   ProductPurchase,
   SubscriptionPurchaseV2,
   SubscriptionDeferResponse,
-  VoidedPurchasesListResponse,
 } from "@gpc/api";
 
 export async function getProductPurchase(
@@ -76,11 +75,37 @@ export async function revokeSubscriptionPurchase(
   return client.purchases.revokeSubscriptionV2(packageName, token);
 }
 
+import type { VoidedPurchase } from "@gpc/api";
+import { paginateAll } from "@gpc/api";
+
+export interface ListVoidedOptions {
+  startTime?: string;
+  endTime?: string;
+  maxResults?: number;
+  limit?: number;
+  nextPage?: string;
+}
+
 export async function listVoidedPurchases(
   client: PlayApiClient,
   packageName: string,
-  options?: { startTime?: string; endTime?: string; maxResults?: number },
-): Promise<VoidedPurchasesListResponse> {
+  options?: ListVoidedOptions,
+): Promise<{ voidedPurchases: VoidedPurchase[]; nextPageToken?: string }> {
+  if (options?.limit || options?.nextPage) {
+    const result = await paginateAll<VoidedPurchase>(
+      async (pageToken) => {
+        const resp = await client.purchases.listVoided(packageName, {
+          startTime: options?.startTime,
+          endTime: options?.endTime,
+          maxResults: options?.maxResults,
+          token: pageToken,
+        });
+        return { items: resp.voidedPurchases || [], nextPageToken: resp.tokenPagination?.nextPageToken };
+      },
+      { limit: options.limit, startPageToken: options.nextPage },
+    );
+    return { voidedPurchases: result.items, nextPageToken: result.nextPageToken };
+  }
   return client.purchases.listVoided(packageName, options);
 }
 
