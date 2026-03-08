@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { ApiError } from "./errors.js";
-import type { ApiClientOptions, ApiResponse } from "./types.js";
+import type { ApiClientOptions, ApiResponse, RetryLogEntry } from "./types.js";
 
 const BASE_URL =
   "https://androidpublisher.googleapis.com/androidpublisher/v3/applications";
@@ -90,6 +90,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
   const timeout = resolveOption(options.timeout, "GPC_TIMEOUT", 30_000);
   const baseDelay = resolveOption(options.baseDelay, "GPC_BASE_DELAY", 1_000);
   const maxDelay = resolveOption(options.maxDelay, "GPC_MAX_DELAY", 60_000);
+  const onRetry = options.onRetry;
 
   async function request<T>(
     method: string,
@@ -152,6 +153,16 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
 
         if (isRetryable(response.status) && attempt < maxRetries) {
           lastError = err;
+          const delay = jitteredDelay(baseDelay, attempt, maxDelay);
+          onRetry?.({
+            attempt: attempt + 1,
+            method,
+            path,
+            status: response.status,
+            error: err.message,
+            delayMs: Math.round(delay),
+            timestamp: new Date().toISOString(),
+          });
           continue;
         }
 
@@ -170,6 +181,14 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
           );
           if (attempt < maxRetries) {
             lastError = timeoutErr;
+            onRetry?.({
+              attempt: attempt + 1,
+              method,
+              path,
+              error: timeoutErr.message,
+              delayMs: Math.round(jitteredDelay(baseDelay, attempt, maxDelay)),
+              timestamp: new Date().toISOString(),
+            });
             continue;
           }
           throw timeoutErr;
@@ -183,6 +202,14 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         );
         if (attempt < maxRetries) {
           lastError = networkErr;
+          onRetry?.({
+            attempt: attempt + 1,
+            method,
+            path,
+            error: networkErr.message,
+            delayMs: Math.round(jitteredDelay(baseDelay, attempt, maxDelay)),
+            timestamp: new Date().toISOString(),
+          });
           continue;
         }
         throw networkErr;
@@ -247,6 +274,16 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
 
         if (isRetryable(response.status) && attempt < maxRetries) {
           lastError = err;
+          const delay = jitteredDelay(baseDelay, attempt, maxDelay);
+          onRetry?.({
+            attempt: attempt + 1,
+            method: "POST",
+            path: `upload ${path}`,
+            status: response.status,
+            error: err.message,
+            delayMs: Math.round(delay),
+            timestamp: new Date().toISOString(),
+          });
           continue;
         }
 
@@ -265,6 +302,14 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
           );
           if (attempt < maxRetries) {
             lastError = timeoutErr;
+            onRetry?.({
+              attempt: attempt + 1,
+              method: "POST",
+              path: `upload ${path}`,
+              error: timeoutErr.message,
+              delayMs: Math.round(jitteredDelay(baseDelay, attempt, maxDelay)),
+              timestamp: new Date().toISOString(),
+            });
             continue;
           }
           throw timeoutErr;
@@ -278,6 +323,14 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         );
         if (attempt < maxRetries) {
           lastError = networkErr;
+          onRetry?.({
+            attempt: attempt + 1,
+            method: "POST",
+            path: `upload ${path}`,
+            error: networkErr.message,
+            delayMs: Math.round(jitteredDelay(baseDelay, attempt, maxDelay)),
+            timestamp: new Date().toISOString(),
+          });
           continue;
         }
         throw networkErr;

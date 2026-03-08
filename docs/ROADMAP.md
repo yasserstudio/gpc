@@ -60,7 +60,7 @@
 - [x] `gpc apps info <package>`
 - [x] `--limit`, `--next-page` pagination flags
 - [x] Retry env vars: `GPC_MAX_RETRIES`, `GPC_TIMEOUT`, `GPC_BASE_DELAY`, `GPC_MAX_DELAY`
-- [ ] `--retry-log` flag
+- [x] `--retry-log` flag
 
 **Sub-updates (v0.2.y):**
 - [ ] Retry log file output
@@ -73,9 +73,9 @@
 > Core value proposition. Upload, release, rollout, promote.
 
 - [x] `gpc releases upload <file>` (AAB/APK with progress bar)
-- [ ] File validation (magic bytes, size check)
+- [x] File validation (magic bytes, size check)
 - [ ] Resumable upload for large files
-- [ ] Deobfuscation/mapping file upload (`--mapping`)
+- [x] Deobfuscation/mapping file upload (`--mapping`)
 - [x] `gpc releases status` (current release across tracks)
 - [x] `gpc releases promote --from <track> --to <track>`
 - [x] `gpc releases rollout increase/halt/resume/complete`

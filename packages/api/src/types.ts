@@ -1,3 +1,13 @@
+export interface RetryLogEntry {
+  attempt: number;
+  method: string;
+  path: string;
+  status?: number;
+  error: string;
+  delayMs: number;
+  timestamp: string;
+}
+
 export interface ApiClientOptions {
   auth: {
     getAccessToken(): Promise<string>;
@@ -9,6 +19,7 @@ export interface ApiClientOptions {
   rateLimitPerSecond?: number;
   baseUrl?: string;
   rateLimiter?: import("./rate-limiter.js").RateLimiter;
+  onRetry?: (entry: RetryLogEntry) => void;
 }
 
 export interface ApiResponse<T> {
@@ -116,6 +127,14 @@ export interface UploadResponse {
 export interface ApkInfo {
   versionCode: number;
   binary: { sha1: string; sha256: string };
+}
+
+export interface DeobfuscationFile {
+  symbolType: string;
+}
+
+export interface DeobfuscationUploadResponse {
+  deobfuscationFile: DeobfuscationFile;
 }
 
 export interface ListingsListResponse {

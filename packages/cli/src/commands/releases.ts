@@ -1,7 +1,9 @@
+import { appendFile } from "node:fs/promises";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc/config";
 import { resolveAuth } from "@gpc/auth";
 import { createApiClient } from "@gpc/api";
+import type { RetryLogEntry } from "@gpc/api";
 import { uploadRelease, getReleasesStatus, promoteRelease, updateRollout } from "@gpc/core";
 import { detectOutputFormat, formatOutput } from "@gpc/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
@@ -15,9 +17,17 @@ function resolvePackageName(packageArg: string | undefined, config: any): string
   return name;
 }
 
-async function getClient(config: any) {
+function createRetryLogger(retryLogPath?: string): ((entry: RetryLogEntry) => void) | undefined {
+  if (!retryLogPath) return undefined;
+  return (entry: RetryLogEntry) => {
+    const line = JSON.stringify(entry) + "\n";
+    appendFile(retryLogPath, line).catch(() => {});
+  };
+}
+
+async function getClient(config: any, retryLogPath?: string) {
   const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
-  return createApiClient({ auth });
+  return createApiClient({ auth, onRetry: createRetryLogger(retryLogPath) });
 }
 
 export function registerReleasesCommands(program: Command): void {
@@ -33,6 +43,8 @@ export function registerReleasesCommands(program: Command): void {
     .option("--rollout <percent>", "Staged rollout percentage (1-100)")
     .option("--notes <text>", "Release notes (en-US)")
     .option("--name <name>", "Release name")
+    .option("--mapping <file>", "ProGuard/R8 mapping file for deobfuscation")
+    .option("--retry-log <path>", "Write retry log entries to file (JSONL)")
     .action(async (file: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
@@ -48,7 +60,7 @@ export function registerReleasesCommands(program: Command): void {
         return;
       }
 
-      const client = await getClient(config);
+      const client = await getClient(config, options.retryLog);
 
       try {
         const result = await uploadRelease(client, packageName, file, {
@@ -56,6 +68,7 @@ export function registerReleasesCommands(program: Command): void {
           userFraction: options.rollout ? Number(options.rollout) / 100 : undefined,
           releaseNotes: options.notes ? [{ language: "en-US", text: options.notes }] : undefined,
           releaseName: options.name,
+          mappingFile: options.mapping,
         });
         console.log(formatOutput(result, format));
       } catch (error) {

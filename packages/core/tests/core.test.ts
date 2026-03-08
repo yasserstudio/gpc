@@ -1,4 +1,16 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+
+// Mock file validation so uploadRelease tests don't need real files
+vi.mock("../src/utils/file-validation.js", () => ({
+  validateUploadFile: vi.fn().mockResolvedValue({
+    valid: true,
+    fileType: "aab",
+    sizeBytes: 1024,
+    errors: [],
+    warnings: [],
+  }),
+}));
+
 import { GpcError, ConfigError, ApiError, NetworkError } from "../src/errors";
 import { detectOutputFormat, formatOutput } from "../src/output";
 import {
