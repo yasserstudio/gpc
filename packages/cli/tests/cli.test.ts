@@ -869,3 +869,28 @@ describe("plugin commands registration", () => {
     expect(output).toContain("Deploy to Play Store");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Phase 8 – plugins init/approve/revoke subcommands
+// ---------------------------------------------------------------------------
+describe("plugins subcommands structure", () => {
+  let program: Command;
+
+  beforeEach(async () => {
+    program = await createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("plugins command has init, approve, revoke subcommands", () => {
+    const pluginsCmd = program.commands.find((cmd) => cmd.name() === "plugins");
+    expect(pluginsCmd).toBeDefined();
+    const subcommandNames = pluginsCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("list");
+    expect(subcommandNames).toContain("init");
+    expect(subcommandNames).toContain("approve");
+    expect(subcommandNames).toContain("revoke");
+  });
+});

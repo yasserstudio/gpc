@@ -206,11 +206,11 @@
 - [x] Permission model for third-party plugins
 - [x] Command registration from plugins
 - [x] `@gpc/plugin-ci` — GitHub Actions summary, CI environment detection
-- [ ] Plugin authoring guide and template
-- [ ] First-run permission approval for third-party plugins
+- [x] Plugin scaffold generator (`gpc plugins init <name>`)
+- [x] First-run permission approval for third-party plugins
 
 **Sub-updates (v0.8.y):**
-- [ ] Plugin template generator
+- [x] Plugin template generator (`gpc plugins init`)
 - [x] Additional lifecycle hooks (beforeRequest, afterResponse)
 - [x] CLI plugin integration (hooks fire around command execution)
 - [x] `gpc plugins list` command

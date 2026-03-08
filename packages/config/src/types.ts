@@ -6,6 +6,7 @@ export interface GpcConfig {
   developerId?: string;
   plugins?: string[];
   profiles?: Record<string, ProfileConfig>;
+  approvedPlugins?: string[];
 }
 
 export interface AuthConfig {
@@ -28,4 +29,5 @@ export interface ResolvedConfig extends Required<Pick<GpcConfig, "output">> {
   developerId?: string;
   plugins?: string[];
   profiles?: Record<string, ProfileConfig>;
+  approvedPlugins?: string[];
 }

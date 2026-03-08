@@ -1,10 +1,11 @@
 import { PluginManager, discoverPlugins } from "@gpc/core";
-import type { PluginCommand } from "@gpc/plugin-sdk";
+import type { GpcPlugin } from "@gpc/plugin-sdk";
 import type { Command } from "commander";
 
 /**
  * Load and initialize all plugins.
- * Reads plugin list from config, discovers plugins, loads them into the manager.
+ * First-party plugins (@gpc/*) are auto-trusted.
+ * Third-party plugins require prior approval stored in config.
  */
 export async function loadPlugins(): Promise<PluginManager> {
   const manager = new PluginManager();
@@ -13,8 +14,23 @@ export async function loadPlugins(): Promise<PluginManager> {
     const { loadConfig } = await import("@gpc/config");
     const config = await loadConfig();
     const plugins = await discoverPlugins({ configPlugins: config.plugins });
+    const approved = new Set(config.approvedPlugins ?? []);
 
     for (const plugin of plugins) {
+      const isTrusted = plugin.name.startsWith("@gpc/");
+
+      if (!isTrusted && !approved.has(plugin.name)) {
+        // Skip unapproved third-party plugins silently in non-interactive mode
+        // In interactive mode, the user would run `gpc plugins approve <name>` first
+        const isQuiet = process.argv.includes("--quiet") || process.argv.includes("-q");
+        if (!isQuiet) {
+          console.error(
+            `Plugin "${plugin.name}" is not approved. Run: gpc plugins approve ${plugin.name}`,
+          );
+        }
+        continue;
+      }
+
       try {
         await manager.load(plugin);
       } catch {

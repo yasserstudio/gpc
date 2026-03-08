@@ -16,6 +16,8 @@ import {
   setProfileConfig,
   deleteProfile,
   listProfiles,
+  approvePlugin,
+  revokePluginApproval,
   DEFAULT_CONFIG,
 } from "../src/index";
 import { readConfigFile } from "../src/loader";
@@ -523,5 +525,63 @@ describe("loadConfig with profiles", () => {
     const config = await loadConfig();
 
     expect(config.auth?.serviceAccount).toBe("/ci.json");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Plugin approval
+// ---------------------------------------------------------------------------
+describe("plugin approval", () => {
+  let envBackup: ReturnType<typeof saveEnv>;
+
+  beforeEach(async () => {
+    envBackup = saveEnv("XDG_CONFIG_HOME");
+    const tmpDir = await mkdtemp(join(tmpdir(), "gpc-approve-"));
+    process.env["XDG_CONFIG_HOME"] = tmpDir;
+  });
+
+  afterEach(() => {
+    envBackup.restore();
+  });
+
+  it("approves a plugin", async () => {
+    await approvePlugin("gpc-plugin-slack");
+
+    const configPath = join(getConfigDir(), "config.json");
+    const content = JSON.parse(await readFile(configPath, "utf-8"));
+    expect(content.approvedPlugins).toContain("gpc-plugin-slack");
+  });
+
+  it("does not duplicate approved plugin", async () => {
+    await approvePlugin("gpc-plugin-slack");
+    await approvePlugin("gpc-plugin-slack");
+
+    const configPath = join(getConfigDir(), "config.json");
+    const content = JSON.parse(await readFile(configPath, "utf-8"));
+    expect(content.approvedPlugins.filter((p: string) => p === "gpc-plugin-slack")).toHaveLength(1);
+  });
+
+  it("approves multiple plugins", async () => {
+    await approvePlugin("gpc-plugin-slack");
+    await approvePlugin("gpc-plugin-jira");
+
+    const configPath = join(getConfigDir(), "config.json");
+    const content = JSON.parse(await readFile(configPath, "utf-8"));
+    expect(content.approvedPlugins).toEqual(["gpc-plugin-slack", "gpc-plugin-jira"]);
+  });
+
+  it("revokes an approved plugin", async () => {
+    await approvePlugin("gpc-plugin-slack");
+    const revoked = await revokePluginApproval("gpc-plugin-slack");
+
+    expect(revoked).toBe(true);
+    const configPath = join(getConfigDir(), "config.json");
+    const content = JSON.parse(await readFile(configPath, "utf-8"));
+    expect(content.approvedPlugins).toEqual([]);
+  });
+
+  it("returns false when revoking unapproved plugin", async () => {
+    const revoked = await revokePluginApproval("gpc-plugin-nope");
+    expect(revoked).toBe(false);
   });
 });

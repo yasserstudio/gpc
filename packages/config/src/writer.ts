@@ -89,6 +89,48 @@ export async function listProfiles(): Promise<string[]> {
   }
 }
 
+export async function approvePlugin(pluginName: string): Promise<void> {
+  const configPath = join(getConfigDir(), "config.json");
+
+  let existing: Record<string, unknown> = {};
+  try {
+    const content = await readFile(configPath, "utf-8");
+    existing = JSON.parse(content) as Record<string, unknown>;
+  } catch {
+    // start fresh
+  }
+
+  const approved = (existing["approvedPlugins"] as string[] | undefined) ?? [];
+  if (!approved.includes(pluginName)) {
+    approved.push(pluginName);
+  }
+  existing["approvedPlugins"] = approved;
+
+  await mkdir(dirname(configPath), { recursive: true });
+  await writeFile(configPath, JSON.stringify(existing, null, 2) + "\n", "utf-8");
+}
+
+export async function revokePluginApproval(pluginName: string): Promise<boolean> {
+  const configPath = join(getConfigDir(), "config.json");
+
+  let existing: Record<string, unknown> = {};
+  try {
+    const content = await readFile(configPath, "utf-8");
+    existing = JSON.parse(content) as Record<string, unknown>;
+  } catch {
+    return false;
+  }
+
+  const approved = (existing["approvedPlugins"] as string[] | undefined) ?? [];
+  const index = approved.indexOf(pluginName);
+  if (index === -1) return false;
+
+  approved.splice(index, 1);
+  existing["approvedPlugins"] = approved;
+  await writeFile(configPath, JSON.stringify(existing, null, 2) + "\n", "utf-8");
+  return true;
+}
+
 export async function initConfig(config: GpcConfig): Promise<string> {
   const configDir = getConfigDir();
   const configPath = join(configDir, "config.json");
