@@ -36,6 +36,8 @@ export async function createProgram(): Promise<Command> {
     reports: async () => { (await import("./commands/reports.js")).registerReportsCommands(program); },
     users: async () => { (await import("./commands/users.js")).registerUsersCommands(program); },
     testers: async () => { (await import("./commands/testers.js")).registerTestersCommands(program); },
+    validate: async () => { (await import("./commands/validate.js")).registerValidateCommand(program); },
+    publish: async () => { (await import("./commands/publish.js")).registerPublishCommand(program); },
   };
 
   const target = process.argv[2];
