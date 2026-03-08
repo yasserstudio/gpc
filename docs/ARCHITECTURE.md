@@ -91,7 +91,7 @@ gpc/
 - Business logic and command orchestration
 - Combines auth + api + config into cohesive workflows
 - Release pipelines, rollout strategies, metadata sync
-- Event emitter for plugin hooks
+- Plugin manager — loads, validates, and runs plugin lifecycle hooks
 
 #### `@gpc/cli`
 - Command registration and argument parsing
@@ -101,10 +101,11 @@ gpc/
 - Shell completion generation (bash, zsh, fish)
 
 #### `@gpc/plugin-sdk`
-- Plugin interface definition
-- Lifecycle hooks (pre/post command, auth, output)
-- Plugin discovery and loading
-- SDK for third-party plugin authors
+- Plugin interface definition (`GpcPlugin`, `PluginHooks`)
+- Lifecycle hook types (`BeforeCommandHandler`, `AfterCommandHandler`, `ErrorHandler`)
+- Command registry for plugin-added commands
+- Permission model (`PluginManifest`, `PluginPermission`)
+- `definePlugin()` helper for type-safe plugin authoring
 
 ## Design Principles
 
@@ -176,24 +177,68 @@ User runs command
   Suggest: gpc auth login
 ```
 
-## Plugin System (v2+)
+## Plugin System
+
+The plugin system (`@gpc/plugin-sdk` + `PluginManager` in `@gpc/core`) provides extensibility without forking.
+
+### Architecture
+
+```
+┌──────────────────┐     ┌──────────────────┐
+│  @gpc/plugin-sdk │     │  @gpc/plugin-ci  │
+│  (interfaces)    │◄────│  (first-party)   │
+└────────┬─────────┘     └──────────────────┘
+         │
+┌────────▼─────────┐
+│  PluginManager   │  ← @gpc/core — orchestrates lifecycle
+│  (core/plugins)  │
+└──────────────────┘
+```
+
+### Plugin Interface
 
 ```typescript
 interface GpcPlugin {
   name: string;
   version: string;
-  register(hooks: PluginHooks): void;
+  register(hooks: PluginHooks): void | Promise<void>;
 }
 
 interface PluginHooks {
-  beforeCommand(ctx: CommandContext): Promise<void>;
-  afterCommand(ctx: CommandContext, result: CommandResult): Promise<void>;
-  onError(ctx: CommandContext, error: GpcError): Promise<void>;
-  registerCommands(registry: CommandRegistry): void;
+  beforeCommand(handler: BeforeCommandHandler): void;
+  afterCommand(handler: AfterCommandHandler): void;
+  onError(handler: ErrorHandler): void;
+  registerCommands(handler: CommandRegistrar): void;
 }
 ```
 
+### Trust Model
+
+- **First-party** (`@gpc/*`): Auto-trusted, no permission checks
+- **Third-party**: Permissions validated against declared `PluginManifest`
+- 9 permission types: `read:config`, `write:config`, `read:auth`, `api:read`, `api:write`, `commands:register`, `hooks:beforeCommand`, `hooks:afterCommand`, `hooks:onError`
+
+### Discovery
+
 Plugins are discovered via:
-1. `gpc.config.ts` → `plugins: [...]`
-2. `node_modules/@gpc/plugin-*`
-3. `node_modules/gpc-plugin-*`
+1. Config file: `plugins: ["@gpc/plugin-ci", "gpc-plugin-slack"]`
+2. Convention: `node_modules/@gpc/plugin-*` (first-party, trusted)
+3. Convention: `node_modules/gpc-plugin-*` (third-party)
+
+### First-Party Plugin: `@gpc/plugin-ci`
+
+CI/CD environment detection and GitHub Actions step summary output. Detects GitHub Actions, GitLab CI, Jenkins, CircleCI, and Bitrise. When running in GitHub Actions with `$GITHUB_STEP_SUMMARY` available, writes markdown summaries for command results and errors.
+
+## API Clients
+
+### Publisher API (`androidpublisher.googleapis.com`)
+
+The main API client (`@gpc/api`) handles all publisher endpoints — apps, edits, releases, tracks, listings, reviews, monetization, purchases, and testers.
+
+### Reporting API (`playdeveloperreporting.googleapis.com`)
+
+Separate client for Play Vitals data — crash rates, ANR rates, startup times, rendering metrics, battery usage, and error reports.
+
+### Users API (`/developers/{developerId}`)
+
+Separate client (`UsersApiClient`) for developer account user management. Uses a different base path than other publisher endpoints because user operations are scoped to the developer account, not individual apps.

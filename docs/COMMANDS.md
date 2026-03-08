@@ -161,32 +161,63 @@ gpc vitals permissions                # Permission denials
 ## Report Commands
 
 ```bash
-gpc reports list                      # Available reports
+# List available reports
+gpc reports list <report-type> --month YYYY-MM
+
+# Financial report types: earnings, estimated_sales, play_balance
 gpc reports download financial --month 2026-02
-gpc reports download stats --month 2026-02 --dimension country
-gpc reports download stats --type installs --since 30d
+gpc reports download financial --month 2026-02 --type earnings
+gpc reports download financial --month 2026-02 --output-file report.csv
+
+# Stats report types: installs, crashes, ratings, reviews, store_performance
+gpc reports download stats --month 2026-02 --type installs
+gpc reports download stats --month 2026-02 --type crashes --output-file crashes.csv
 ```
+
+Report download is a two-step process: the API returns a signed GCS URI, then the CSV is fetched from that URI.
 
 ## Testers Commands
 
 ```bash
+# List testers on a track (uses edit lifecycle: insert → read → delete)
 gpc testers list --track internal
-gpc testers add --track internal user@example.com
-gpc testers add --track internal --file testers.csv
-gpc testers remove --track internal user@example.com
-gpc testers groups list
-gpc testers groups create "Beta Team"
+
+# Add testers (merges with existing, deduplicates)
+gpc testers add user1@example.com user2@example.com --track internal
+
+# Remove testers
+gpc testers remove user@example.com --track internal
+
+# Bulk import from CSV file (emails separated by commas or newlines)
+gpc testers import --track internal --file testers.csv
 ```
+
+Tester operations use the edits lifecycle — an edit is created, modified, and committed (or deleted on failure) transparently.
 
 ## User / Permission Commands
 
 ```bash
-gpc users list                        # Developer account users
-gpc users get <email>
-gpc users invite <email> --role admin
-gpc users update <email> --add-app com.example.app
-gpc users remove <email>
+# List developer account users (requires --developer-id or GPC_DEVELOPER_ID)
+gpc users list --developer-id <id>
+gpc users get <email> --developer-id <id>
+
+# Invite a new user with developer-level permissions
+gpc users invite user@example.com --developer-id <id> \
+  --role ADMIN CAN_VIEW_FINANCIAL_DATA
+
+# Invite with per-app grants
+gpc users invite user@example.com --developer-id <id> \
+  --grant "com.example.app:CAN_MANAGE_PUBLIC_LISTING,CAN_REPLY_TO_REVIEWS"
+
+# Update user permissions
+gpc users update user@example.com --developer-id <id> \
+  --role CAN_VIEW_FINANCIAL_DATA
+
+# Remove a user
+gpc users remove user@example.com --developer-id <id>
 ```
+
+> **Note:** Permission changes can take up to 48 hours to propagate. All mutation commands display this warning.
 
 ## Config Commands
 
@@ -231,6 +262,7 @@ gpc update                            # Check for updates
 | `3` | Authentication error |
 | `4` | API error (rate limit, permission, etc.) |
 | `5` | Network error |
+| `6` | Threshold breach (vitals CI alerting) |
 | `10` | Plugin error |
 
 ## JSON Output Contract
@@ -251,6 +283,7 @@ gpc update                            # Check for updates
 | `GPC_BASE_DELAY` | Base retry delay in milliseconds | `1000` |
 | `GPC_MAX_DELAY` | Max retry delay in milliseconds | `60000` |
 | `GPC_RATE_LIMIT` | Requests per second | `50` |
+| `GPC_DEVELOPER_ID` | Developer account ID (for user management) | — |
 | `GPC_CA_CERT` | Custom CA certificate path | — |
 | `HTTPS_PROXY` | HTTP proxy URL | — |
 
