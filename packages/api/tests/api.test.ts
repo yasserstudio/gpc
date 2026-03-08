@@ -1175,3 +1175,274 @@ describe("createUsersClient", () => {
     expect(init.method).toBe("DELETE");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Coverage boost: HTTP error paths, methods, upload edge cases, client gaps
+// ---------------------------------------------------------------------------
+
+describe("HTTP error paths and methods", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function makeHttp(overrides?: Record<string, unknown>) {
+    return createHttpClient({ auth: mockAuth(), maxRetries: 0, ...overrides });
+  }
+
+  // 1. HTTP 409 → API_EDIT_CONFLICT
+  it("maps 409 to API_EDIT_CONFLICT with suggestion", async () => {
+    mockFetch.mockResolvedValueOnce(
+      new Response("conflict", { status: 409, headers: { "Content-Type": "text/plain" } }),
+    );
+    const http = makeHttp();
+    await expect(http.get("/com.example/edits")).rejects.toThrow(ApiError);
+    try {
+      await http.get("/com.example/edits");
+    } catch {
+      // already asserted above
+    }
+    // re-test to inspect properties
+    mockFetch.mockResolvedValueOnce(
+      new Response("conflict", { status: 409, headers: { "Content-Type": "text/plain" } }),
+    );
+    const http2 = makeHttp();
+    try {
+      await http2.get("/com.example/edits");
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ApiError);
+      expect(err.code).toBe("API_EDIT_CONFLICT");
+      expect(err.statusCode).toBe(409);
+      expect(err.suggestion).toContain("Delete the existing edit");
+    }
+  });
+
+  // 2. Generic HTTP error (422) → API_HTTP_422
+  it("maps non-standard status 422 to API_HTTP_422", async () => {
+    mockFetch.mockResolvedValueOnce(
+      new Response("unprocessable", { status: 422, headers: { "Content-Type": "text/plain" } }),
+    );
+    const http = makeHttp();
+    try {
+      await http.post("/com.example/edits", { bad: true });
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ApiError);
+      expect(err.code).toBe("API_HTTP_422");
+      expect(err.statusCode).toBe(422);
+      expect(err.suggestion).toBeUndefined();
+    }
+  });
+
+  // 3. Network error (TypeError) → API_NETWORK_ERROR
+  it("maps TypeError to API_NETWORK_ERROR", async () => {
+    mockFetch.mockRejectedValueOnce(new TypeError("fetch failed"));
+    const http = makeHttp();
+    try {
+      await http.get("/com.example/edits");
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ApiError);
+      expect(err.code).toBe("API_NETWORK_ERROR");
+      expect(err.message).toContain("fetch failed");
+      expect(err.suggestion).toContain("network error");
+    }
+  });
+
+  // 4. Upload retry on 500
+  it("upload retries on 500 and succeeds on third attempt", async () => {
+    mockFetch
+      .mockResolvedValueOnce(new Response("error", { status: 500 }))
+      .mockResolvedValueOnce(new Response("error", { status: 500 }))
+      .mockResolvedValueOnce(mockResponse({ bundle: { versionCode: 42 } }));
+    const http = createHttpClient({ auth: mockAuth(), maxRetries: 2, baseDelay: 1, maxDelay: 1 });
+    const result = await http.upload("/com.example/edits/1/bundles", "/fake/path.aab", "application/octet-stream");
+    expect(result.data).toEqual({ bundle: { versionCode: 42 } });
+    expect(mockFetch).toHaveBeenCalledTimes(3);
+  });
+
+  // 5. Upload timeout (AbortError)
+  it("upload throws API_TIMEOUT on AbortError", async () => {
+    const abortErr = new DOMException("The operation was aborted", "AbortError");
+    mockFetch.mockRejectedValueOnce(abortErr);
+    const http = makeHttp();
+    try {
+      await http.upload("/com.example/edits/1/bundles", "/fake/path.aab", "application/octet-stream");
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ApiError);
+      expect(err.code).toBe("API_TIMEOUT");
+      expect(err.message).toContain("timed out");
+    }
+  });
+
+  // 6. Upload network error (TypeError)
+  it("upload throws API_NETWORK_ERROR on TypeError", async () => {
+    mockFetch.mockRejectedValueOnce(new TypeError("network down"));
+    const http = makeHttp();
+    try {
+      await http.upload("/com.example/edits/1/bundles", "/fake/path.aab", "application/octet-stream");
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ApiError);
+      expect(err.code).toBe("API_NETWORK_ERROR");
+      expect(err.message).toContain("network down");
+    }
+  });
+
+  // 6b. Upload timeout retries then succeeds
+  it("upload retries on timeout then succeeds", async () => {
+    const abortErr = new DOMException("The operation was aborted", "AbortError");
+    mockFetch
+      .mockRejectedValueOnce(abortErr)
+      .mockResolvedValueOnce(mockResponse({ bundle: { versionCode: 1 } }));
+    const http = createHttpClient({ auth: mockAuth(), maxRetries: 1, baseDelay: 1, maxDelay: 1 });
+    const result = await http.upload("/com.example/edits/1/bundles", "/fake/path.aab", "application/octet-stream");
+    expect(result.data).toEqual({ bundle: { versionCode: 1 } });
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
+  // 6c. Upload network error retries then succeeds
+  it("upload retries on network error then succeeds", async () => {
+    mockFetch
+      .mockRejectedValueOnce(new TypeError("network down"))
+      .mockResolvedValueOnce(mockResponse({ bundle: { versionCode: 2 } }));
+    const http = createHttpClient({ auth: mockAuth(), maxRetries: 1, baseDelay: 1, maxDelay: 1 });
+    const result = await http.upload("/com.example/edits/1/bundles", "/fake/path.aab", "application/octet-stream");
+    expect(result.data).toEqual({ bundle: { versionCode: 2 } });
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
+  // 7. PUT method
+  it("put sends PUT request with body", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ updated: true }));
+    const http = makeHttp();
+    const result = await http.put("/com.example/edits/1/details", { title: "New" });
+    expect(result.data).toEqual({ updated: true });
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toContain("/com.example/edits/1/details");
+    expect(init.method).toBe("PUT");
+    expect(JSON.parse(init.body)).toEqual({ title: "New" });
+  });
+
+  // 8. PATCH method
+  it("patch sends PATCH request with body", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ patched: true }));
+    const http = makeHttp();
+    const result = await http.patch("/com.example/edits/1/details", { title: "Patched" });
+    expect(result.data).toEqual({ patched: true });
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toContain("/com.example/edits/1/details");
+    expect(init.method).toBe("PATCH");
+    expect(JSON.parse(init.body)).toEqual({ title: "Patched" });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Coverage boost: client methods — deactivateOffer, getSubscriptionV1, listVoided with options
+// ---------------------------------------------------------------------------
+
+describe("client coverage gaps", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  // 9. deactivateOffer
+  it("deactivateOffer calls POST .../offers/{id}:deactivate", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ offerId: "o1", state: "INACTIVE" }));
+    const client = makeClient();
+    const result = await client.subscriptions.deactivateOffer(PKG, "sub1", "bp1", "o1");
+    expect(result).toEqual({ offerId: "o1", state: "INACTIVE" });
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers/o1:deactivate`);
+    expect(init.method).toBe("POST");
+  });
+
+  // 10. getSubscriptionV1
+  it("getSubscriptionV1 calls GET /{pkg}/purchases/subscriptions/{id}/tokens/{token}", async () => {
+    const sub = { kind: "androidpublisher#subscriptionPurchase", startTimeMillis: "1000", expiryTimeMillis: "2000" };
+    mockFetch.mockResolvedValueOnce(mockResponse(sub));
+    const client = makeClient();
+    const result = await client.purchases.getSubscriptionV1(PKG, "sub1", "tok999");
+    expect(result).toEqual(sub);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/purchases/subscriptions/sub1/tokens/tok999`);
+    expect(init.method).toBe("GET");
+  });
+
+  // 11a. getOffer
+  it("getOffer calls GET .../offers/{id}", async () => {
+    const offer = { offerId: "o1", state: "ACTIVE" };
+    mockFetch.mockResolvedValueOnce(mockResponse(offer));
+    const client = makeClient();
+    const result = await client.subscriptions.getOffer(PKG, "sub1", "bp1", "o1");
+    expect(result).toEqual(offer);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers/o1`);
+    expect(init.method).toBe("GET");
+  });
+
+  // 11b. updateOffer with updateMask
+  it("updateOffer calls PATCH with updateMask", async () => {
+    const offer = { offerId: "o1", state: "ACTIVE" };
+    mockFetch.mockResolvedValueOnce(mockResponse(offer));
+    const client = makeClient();
+    await client.subscriptions.updateOffer(PKG, "sub1", "bp1", "o1", offer as any, "phases");
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toContain("/offers/o1?updateMask=phases");
+    expect(init.method).toBe("PATCH");
+  });
+
+  // 11c. deleteOffer
+  it("deleteOffer calls DELETE .../offers/{id}", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+    const client = makeClient();
+    await client.subscriptions.deleteOffer(PKG, "sub1", "bp1", "o1");
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers/o1`);
+    expect(init.method).toBe("DELETE");
+  });
+
+  // 11d. deleteBasePlan
+  it("deleteBasePlan calls DELETE .../basePlans/{id}", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+    const client = makeClient();
+    await client.subscriptions.deleteBasePlan(PKG, "sub1", "bp1");
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1`);
+    expect(init.method).toBe("DELETE");
+  });
+
+  // 12. listVoided with options
+  it("listVoided passes startTime, endTime, maxResults, token as query params", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ voidedPurchases: [{ orderId: "o1" }] }));
+    const client = makeClient();
+    const result = await client.purchases.listVoided(PKG, {
+      startTime: "1609459200000",
+      endTime: "1612137600000",
+      maxResults: 50,
+      token: "page2",
+    });
+    expect(result).toEqual({ voidedPurchases: [{ orderId: "o1" }] });
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("startTime=1609459200000");
+    expect(url).toContain("endTime=1612137600000");
+    expect(url).toContain("maxResults=50");
+    expect(url).toContain("token=page2");
+  });
+});
