@@ -37,6 +37,33 @@ describe("ApiError", () => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// Phase 9 – error hierarchy
+// ---------------------------------------------------------------------------
+describe("error hierarchy", () => {
+  it("ApiError has exitCode 4", () => {
+    const err = new ApiError("fail", "FAIL_CODE", 500);
+    expect(err.exitCode).toBe(4);
+  });
+
+  it("ApiError has toJSON() that returns structured error", () => {
+    const err = new ApiError("not found", "NOT_FOUND", 404, "Check the resource ID.");
+    expect(err.toJSON()).toEqual({
+      success: false,
+      error: {
+        code: "NOT_FOUND",
+        message: "not found",
+        suggestion: "Check the resource ID.",
+      },
+    });
+  });
+
+  it("ApiError preserves statusCode", () => {
+    const err = new ApiError("rate limited", "RATE_LIMIT", 429, "Slow down.");
+    expect(err.statusCode).toBe(429);
+  });
+});
+
 describe("createHttpClient", () => {
   let mockFetch: ReturnType<typeof vi.fn>;
 

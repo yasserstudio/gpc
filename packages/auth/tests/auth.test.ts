@@ -82,6 +82,28 @@ describe("AuthError", () => {
 });
 
 // ---------------------------------------------------------------------------
+// Phase 9 – error hierarchy
+// ---------------------------------------------------------------------------
+describe("error hierarchy", () => {
+  it("AuthError has exitCode 3", () => {
+    const err = new AuthError("expired", "AUTH_EXPIRED");
+    expect(err.exitCode).toBe(3);
+  });
+
+  it("AuthError has toJSON() that returns structured error", () => {
+    const err = new AuthError("invalid key", "AUTH_INVALID_KEY", "Regenerate key.");
+    expect(err.toJSON()).toEqual({
+      success: false,
+      error: {
+        code: "AUTH_INVALID_KEY",
+        message: "invalid key",
+        suggestion: "Regenerate key.",
+      },
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
 // loadServiceAccountKey
 // ---------------------------------------------------------------------------
 describe("loadServiceAccountKey", () => {

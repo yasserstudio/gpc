@@ -14,6 +14,7 @@ import {
   detectOutputFormat,
   formatOutput,
 } from "@gpc/core";
+import { isDryRun, printDryRun } from "../dry-run.js";
 
 function resolveDeveloperId(devIdArg: string | undefined, config: any): string {
   const id = devIdArg || config.developerId;
@@ -79,8 +80,19 @@ export function registerUsersCommands(program: Command): void {
     .action(async (email: string, options) => {
       const config = await loadConfig();
       const developerId = resolveDeveloperId(users.opts().developerId, config);
-      const client = await getUsersClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "users invite",
+          action: "invite",
+          target: email,
+          details: { role: options.role, grant: options.grant },
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getUsersClient(config);
 
       try {
         const permissions = options.role as DeveloperPermission[] | undefined;
@@ -102,8 +114,19 @@ export function registerUsersCommands(program: Command): void {
     .action(async (email: string, options) => {
       const config = await loadConfig();
       const developerId = resolveDeveloperId(users.opts().developerId, config);
-      const client = await getUsersClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "users update",
+          action: "update",
+          target: email,
+          details: { role: options.role, grant: options.grant },
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getUsersClient(config);
 
       try {
         const permissions = options.role as DeveloperPermission[] | undefined;
@@ -123,6 +146,17 @@ export function registerUsersCommands(program: Command): void {
     .action(async (email: string) => {
       const config = await loadConfig();
       const developerId = resolveDeveloperId(users.opts().developerId, config);
+
+      if (isDryRun(program)) {
+        const format = detectOutputFormat();
+        printDryRun({
+          command: "users remove",
+          action: "remove",
+          target: email,
+        }, format, formatOutput);
+        return;
+      }
+
       const client = await getUsersClient(config);
 
       try {

@@ -4,6 +4,7 @@ import { resolveAuth } from "@gpc/auth";
 import { createApiClient } from "@gpc/api";
 import { uploadRelease, getReleasesStatus, promoteRelease, updateRollout } from "@gpc/core";
 import { detectOutputFormat, formatOutput } from "@gpc/core";
+import { isDryRun, printDryRun } from "../dry-run.js";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;
@@ -35,8 +36,19 @@ export function registerReleasesCommands(program: Command): void {
     .action(async (file: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "releases upload",
+          action: "upload",
+          target: file,
+          details: { track: options.track, rollout: options.rollout },
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const result = await uploadRelease(client, packageName, file, {
@@ -83,8 +95,19 @@ export function registerReleasesCommands(program: Command): void {
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "releases promote",
+          action: "promote",
+          target: `${options.from} → ${options.to}`,
+          details: { rollout: options.rollout },
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const result = await promoteRelease(client, packageName, options.from, options.to, {
@@ -116,8 +139,19 @@ export function registerReleasesCommands(program: Command): void {
     cmd.action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: `releases rollout ${action}`,
+          action: action,
+          target: options.track,
+          details: { percentage: options.to },
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const result = await updateRollout(
@@ -162,7 +196,5 @@ export function registerReleasesCommands(program: Command): void {
       }
 
       console.log(`Release notes set for ${options.track} (${options.lang})`);
-      // Full implementation requires getting current track release and updating it
-      // This will be completed when integrated with the full edit lifecycle
     });
 }

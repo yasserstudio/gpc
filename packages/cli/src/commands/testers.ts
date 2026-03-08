@@ -10,6 +10,7 @@ import {
   detectOutputFormat,
   formatOutput,
 } from "@gpc/core";
+import { isDryRun, printDryRun } from "../dry-run.js";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;
@@ -56,8 +57,19 @@ export function registerTestersCommands(program: Command): void {
     .action(async (emails: string[], options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "testers add",
+          action: "add testers to",
+          target: options.track,
+          details: { emails },
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const result = await addTesters(client, packageName, options.track, emails);
@@ -75,8 +87,19 @@ export function registerTestersCommands(program: Command): void {
     .action(async (emails: string[], options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "testers remove",
+          action: "remove testers from",
+          target: options.track,
+          details: { emails },
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const result = await removeTesters(client, packageName, options.track, emails);
@@ -95,8 +118,19 @@ export function registerTestersCommands(program: Command): void {
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "testers import",
+          action: "import testers to",
+          target: options.track,
+          details: { file: options.file },
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const result = await importTestersFromCsv(client, packageName, options.track, options.file);

@@ -2346,3 +2346,39 @@ describe("discoverPlugins", () => {
     expect(plugins).toEqual([]);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Phase 9 – error unification
+// ---------------------------------------------------------------------------
+describe("error unification", () => {
+  it("GpcError has toJSON()", () => {
+    const err = new GpcError("unified", "UNI_CODE", 2, "see docs");
+    const json = err.toJSON();
+    expect(json).toEqual({
+      success: false,
+      error: {
+        code: "UNI_CODE",
+        message: "unified",
+        suggestion: "see docs",
+      },
+    });
+  });
+
+  it("ApiError (from @gpc/core) has exitCode 4", () => {
+    const err = new ApiError("api fail", "API_FAIL", 500);
+    expect(err.exitCode).toBe(4);
+    expect(err).toBeInstanceOf(GpcError);
+  });
+
+  it("NetworkError has exitCode 5", () => {
+    const err = new NetworkError("connection refused");
+    expect(err.exitCode).toBe(5);
+    expect(err).toBeInstanceOf(GpcError);
+  });
+
+  it("ConfigError has exitCode 1", () => {
+    const err = new ConfigError("bad config", "BAD_CFG");
+    expect(err.exitCode).toBe(1);
+    expect(err).toBeInstanceOf(GpcError);
+  });
+});

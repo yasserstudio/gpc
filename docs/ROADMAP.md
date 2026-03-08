@@ -219,10 +219,11 @@
 > Production hardening and stable release.
 
 - [ ] Interactive mode (guided workflows for complex operations)
-- [ ] `--dry-run` support for all remaining write operations
+- [x] `--dry-run` support for all write operations
 - [ ] Audit logging
-- [ ] Proxy and custom CA support (`GPC_CA_CERT`, `HTTPS_PROXY`)
-- [ ] Performance optimization (<500ms cold start)
+- [x] Proxy and custom CA support (`GPC_CA_CERT`, `HTTPS_PROXY`)
+- [x] Performance optimization (lazy command loading)
+- [x] Unified error hierarchy (exitCode + toJSON on all error types)
 - [ ] 90%+ test coverage on core packages
 - [ ] VitePress documentation site complete
 - [ ] Standalone binary investigation
