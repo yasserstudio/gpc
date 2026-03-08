@@ -1,4 +1,5 @@
 import type { PlayApiClient, Release, Track, Bundle } from "@gpc/api";
+import { validateUploadFile } from "../utils/file-validation.js";
 
 export interface UploadResult {
   versionCode: number;
@@ -24,12 +25,29 @@ export async function uploadRelease(
     userFraction?: number;
     releaseNotes?: { language: string; text: string }[];
     releaseName?: string;
+    mappingFile?: string;
   },
 ): Promise<UploadResult> {
+  // Validate file before upload
+  const validation = await validateUploadFile(filePath);
+  if (!validation.valid) {
+    throw new Error(`File validation failed:\n${validation.errors.join("\n")}`);
+  }
+
   const edit = await client.edits.insert(packageName);
   try {
     // Upload the bundle
     const bundle = await client.bundles.upload(packageName, edit.id, filePath);
+
+    // Upload mapping file if provided
+    if (options.mappingFile) {
+      await client.deobfuscation.upload(
+        packageName,
+        edit.id,
+        bundle.versionCode,
+        options.mappingFile,
+      );
+    }
 
     // Create release and assign to track
     const release: Release = {

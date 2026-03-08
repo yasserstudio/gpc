@@ -10,6 +10,8 @@ import type {
   ConvertRegionPricesRequest,
   ConvertRegionPricesResponse,
   CountryAvailability,
+  DeobfuscationFile,
+  DeobfuscationUploadResponse,
   Image,
   ImageType,
   ImageUploadResponse,
@@ -149,6 +151,10 @@ export interface PlayApiClient {
   testers: {
     get(packageName: string, editId: string, track: string): Promise<Testers>;
     update(packageName: string, editId: string, track: string, testers: Testers): Promise<Testers>;
+  };
+
+  deobfuscation: {
+    upload(packageName: string, editId: string, versionCode: number, filePath: string): Promise<DeobfuscationFile>;
   };
 }
 
@@ -653,6 +659,17 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           testersData,
         );
         return data;
+      },
+    },
+
+    deobfuscation: {
+      async upload(packageName, editId, versionCode, filePath) {
+        const { data } = await http.upload<DeobfuscationUploadResponse>(
+          `/${packageName}/edits/${editId}/apks/${versionCode}/deobfuscationFiles/proguard`,
+          filePath,
+          "application/octet-stream",
+        );
+        return data.deobfuscationFile;
       },
     },
   };

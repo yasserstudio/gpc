@@ -21,6 +21,8 @@ export {
 } from "./commands/listings.js";
 export type { ListingsResult, PushResult, DryRunResult } from "./commands/listings.js";
 export { isValidBcp47, GOOGLE_PLAY_LANGUAGES } from "./utils/bcp47.js";
+export { validateUploadFile } from "./utils/file-validation.js";
+export type { FileValidationResult } from "./utils/file-validation.js";
 export { readListingsFromDir, writeListingsToDir, diffListings } from "./utils/fastlane.js";
 export type { ListingDiff } from "./utils/fastlane.js";
 export {
