@@ -4,7 +4,7 @@ import { loadConfig } from "@gpc/config";
 import { resolveAuth } from "@gpc/auth";
 import { createApiClient } from "@gpc/api";
 import type { RetryLogEntry } from "@gpc/api";
-import { uploadRelease, getReleasesStatus, promoteRelease, updateRollout } from "@gpc/core";
+import { uploadRelease, getReleasesStatus, promoteRelease, updateRollout, readReleaseNotesFromDir } from "@gpc/core";
 import { detectOutputFormat, formatOutput } from "@gpc/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 
@@ -44,8 +44,13 @@ export function registerReleasesCommands(program: Command): void {
     .option("--notes <text>", "Release notes (en-US)")
     .option("--name <name>", "Release name")
     .option("--mapping <file>", "ProGuard/R8 mapping file for deobfuscation")
+    .option("--notes-dir <dir>", "Read release notes from directory (<dir>/<lang>.txt)")
     .option("--retry-log <path>", "Write retry log entries to file (JSONL)")
     .action(async (file: string, options) => {
+      if (options.notes && options.notesDir) {
+        console.error("Error: Cannot use both --notes and --notes-dir");
+        process.exit(2);
+      }
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
       const format = detectOutputFormat();
@@ -63,10 +68,17 @@ export function registerReleasesCommands(program: Command): void {
       const client = await getClient(config, options.retryLog);
 
       try {
+        let releaseNotes: { language: string; text: string }[] | undefined;
+        if (options.notesDir) {
+          releaseNotes = await readReleaseNotesFromDir(options.notesDir);
+        } else if (options.notes) {
+          releaseNotes = [{ language: "en-US", text: options.notes }];
+        }
+
         const result = await uploadRelease(client, packageName, file, {
           track: options.track,
           userFraction: options.rollout ? Number(options.rollout) / 100 : undefined,
-          releaseNotes: options.notes ? [{ language: "en-US", text: options.notes }] : undefined,
+          releaseNotes,
           releaseName: options.name,
           mappingFile: options.mapping,
         });

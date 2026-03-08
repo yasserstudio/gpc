@@ -23,6 +23,12 @@ export type { ListingsResult, PushResult, DryRunResult } from "./commands/listin
 export { isValidBcp47, GOOGLE_PLAY_LANGUAGES } from "./utils/bcp47.js";
 export { validateUploadFile } from "./utils/file-validation.js";
 export type { FileValidationResult } from "./utils/file-validation.js";
+export { readReleaseNotesFromDir, validateReleaseNotes } from "./utils/release-notes.js";
+export type { ReleaseNotesValidation } from "./utils/release-notes.js";
+export { validatePreSubmission } from "./commands/validate.js";
+export type { ValidateOptions, ValidateCheck, ValidateResult } from "./commands/validate.js";
+export { publish } from "./commands/publish.js";
+export type { PublishOptions, PublishResult } from "./commands/publish.js";
 export { readListingsFromDir, writeListingsToDir, diffListings } from "./utils/fastlane.js";
 export type { ListingDiff } from "./utils/fastlane.js";
 export {

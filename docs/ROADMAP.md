@@ -81,8 +81,8 @@
 - [x] `gpc releases rollout increase/halt/resume/complete`
 - [x] `gpc releases notes set` (inline + from file)
 - [x] `gpc tracks list`, `gpc tracks get`
-- [ ] `gpc publish <file>` (end-to-end shortcut: upload + track + notes + commit)
-- [ ] `gpc validate` (pre-submission checks)
+- [x] `gpc publish <file>` (end-to-end shortcut: upload + track + notes + commit)
+- [x] `gpc validate` (pre-submission checks)
 - [x] `gpc status` (cross-track release overview)
 - [ ] Form factor tracks (wear, automotive, tv, android_xr)
 - [ ] Internal app sharing upload (`--internal-sharing`)
@@ -91,7 +91,7 @@
 **Sub-updates (v0.3.y):**
 - [ ] `--dry-run` for releases upload
 - [ ] `gpc diff --from <version> --to <version>`
-- [ ] Release notes from directory (per-language files)
+- [x] Release notes from directory (per-language files)
 - [ ] Custom closed testing track support
 - [ ] Upload progress improvements
 
