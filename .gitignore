@@ -31,7 +31,6 @@ coverage/
 .turbo/
 
 # Changesets
-.changeset/*.md
 !.changeset/config.json
 
 # OS
