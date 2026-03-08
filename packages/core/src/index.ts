@@ -122,3 +122,5 @@ export {
   removeTesters,
   importTestersFromCsv,
 } from "./commands/testers.js";
+export { scaffoldPlugin } from "./commands/plugin-scaffold.js";
+export type { ScaffoldOptions, ScaffoldResult } from "./commands/plugin-scaffold.js";

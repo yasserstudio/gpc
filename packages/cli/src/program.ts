@@ -66,7 +66,7 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
 }
 
 /**
- * `gpc plugins list` — show loaded plugins.
+ * `gpc plugins` — manage plugins.
  */
 function registerPluginsCommand(program: Command, manager?: PluginManager): void {
   const cmd = program.command("plugins").description("Manage plugins");
@@ -101,6 +101,52 @@ function registerPluginsCommand(program: Command, manager?: PluginManager): void
         for (const c of commands) {
           console.log(`  gpc ${c.name} — ${c.description}`);
         }
+      }
+    });
+
+  cmd
+    .command("init <name>")
+    .description("Scaffold a new plugin project")
+    .option("-d, --dir <path>", "Output directory (defaults to ./gpc-plugin-<name>)")
+    .option("--description <text>", "Plugin description")
+    .action(async (name: string, opts: { dir?: string; description?: string }) => {
+      const { scaffoldPlugin } = await import("@gpc/core");
+      const pluginName = name.startsWith("gpc-plugin-") ? name : `gpc-plugin-${name}`;
+      const dir = opts.dir ?? `./${pluginName}`;
+
+      const result = await scaffoldPlugin({ name, dir, description: opts.description });
+
+      console.log(`Plugin scaffolded at ${result.dir}/\n`);
+      console.log("Files created:");
+      for (const f of result.files) {
+        console.log(`  ${f}`);
+      }
+      console.log(`\nNext steps:`);
+      console.log(`  cd ${pluginName}`);
+      console.log(`  npm install`);
+      console.log(`  npm run build`);
+      console.log(`  npm test`);
+    });
+
+  cmd
+    .command("approve <name>")
+    .description("Approve a third-party plugin for loading")
+    .action(async (name: string) => {
+      const { approvePlugin } = await import("@gpc/config");
+      await approvePlugin(name);
+      console.log(`Plugin "${name}" approved. It will be loaded on next run.`);
+    });
+
+  cmd
+    .command("revoke <name>")
+    .description("Revoke approval for a third-party plugin")
+    .action(async (name: string) => {
+      const { revokePluginApproval } = await import("@gpc/config");
+      const removed = await revokePluginApproval(name);
+      if (removed) {
+        console.log(`Plugin "${name}" approval revoked.`);
+      } else {
+        console.log(`Plugin "${name}" was not in the approved list.`);
       }
     });
 }
