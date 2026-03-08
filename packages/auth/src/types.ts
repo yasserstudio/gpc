@@ -1,6 +1,7 @@
 export interface AuthOptions {
   serviceAccountPath?: string;
   serviceAccountJson?: string;
+  cachePath?: string;
 }
 
 export interface AuthClient {

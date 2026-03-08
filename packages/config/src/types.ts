@@ -5,10 +5,17 @@ export interface GpcConfig {
   auth?: AuthConfig;
   developerId?: string;
   plugins?: string[];
+  profiles?: Record<string, ProfileConfig>;
 }
 
 export interface AuthConfig {
   serviceAccount?: string;
+}
+
+export interface ProfileConfig {
+  auth?: AuthConfig;
+  app?: string;
+  developerId?: string;
 }
 
 export type OutputFormat = "table" | "json" | "yaml" | "markdown";
@@ -20,4 +27,5 @@ export interface ResolvedConfig extends Required<Pick<GpcConfig, "output">> {
   configPath?: string;
   developerId?: string;
   plugins?: string[];
+  profiles?: Record<string, ProfileConfig>;
 }

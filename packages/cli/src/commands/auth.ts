@@ -1,6 +1,6 @@
 import type { Command } from "commander";
-import { resolveAuth, loadServiceAccountKey, AuthError } from "@gpc/auth";
-import { loadConfig } from "@gpc/config";
+import { resolveAuth, loadServiceAccountKey, clearTokenCache, AuthError } from "@gpc/auth";
+import { loadConfig, getCacheDir } from "@gpc/config";
 import { detectOutputFormat, formatOutput } from "@gpc/core";
 
 export function registerAuthCommands(program: Command): void {
@@ -13,13 +13,23 @@ export function registerAuthCommands(program: Command): void {
     .description("Authenticate with Google Play Developer API")
     .option("--service-account <path>", "Path to service account JSON key file")
     .option("--adc", "Use Application Default Credentials")
-    .action(async (options: { serviceAccount?: string; adc?: boolean }) => {
+    .option("--profile <name>", "Store credentials under a named profile")
+    .action(async (options: { serviceAccount?: string; adc?: boolean; profile?: string }) => {
       try {
         if (options.serviceAccount) {
           const key = await loadServiceAccountKey(options.serviceAccount);
-          const { setConfigValue } = await import("@gpc/config");
-          await setConfigValue("auth.serviceAccount", options.serviceAccount);
-          console.log(`Authenticated as ${key.client_email}`);
+
+          if (options.profile) {
+            const { setProfileConfig } = await import("@gpc/config");
+            await setProfileConfig(options.profile, {
+              auth: { serviceAccount: options.serviceAccount },
+            });
+            console.log(`Profile "${options.profile}" configured with ${key.client_email}`);
+          } else {
+            const { setConfigValue } = await import("@gpc/config");
+            await setConfigValue("auth.serviceAccount", options.serviceAccount);
+            console.log(`Authenticated as ${key.client_email}`);
+          }
           console.log(`Project: ${key.project_id}`);
         } else if (options.adc) {
           const client = await resolveAuth();
@@ -32,7 +42,8 @@ export function registerAuthCommands(program: Command): void {
           console.log("  --service-account <path>  Service account JSON key file");
           console.log("  --adc                     Application Default Credentials");
           console.log("");
-          console.log("OAuth device flow coming in v0.1.1");
+          console.log("Options:");
+          console.log("  --profile <name>          Store under a named profile");
         }
       } catch (error) {
         if (error instanceof AuthError) {
@@ -52,12 +63,14 @@ export function registerAuthCommands(program: Command): void {
         const config = await loadConfig();
         const client = await resolveAuth({
           serviceAccountPath: config.auth?.serviceAccount,
+          cachePath: getCacheDir(),
         });
         const format = detectOutputFormat();
         const data = {
           authenticated: true,
           account: client.getClientEmail(),
           project: client.getProjectId(),
+          ...(config.profile && { profile: config.profile }),
         };
         console.log(formatOutput(data, format));
       } catch (error) {
@@ -77,11 +90,12 @@ export function registerAuthCommands(program: Command): void {
 
   auth
     .command("logout")
-    .description("Clear stored credentials")
+    .description("Clear stored credentials and token cache")
     .action(async () => {
       const { setConfigValue } = await import("@gpc/config");
       await setConfigValue("auth.serviceAccount", "");
-      console.log("Credentials cleared.");
+      await clearTokenCache(getCacheDir());
+      console.log("Credentials and token cache cleared.");
     });
 
   auth
@@ -92,11 +106,52 @@ export function registerAuthCommands(program: Command): void {
         const config = await loadConfig();
         const client = await resolveAuth({
           serviceAccountPath: config.auth?.serviceAccount,
+          cachePath: getCacheDir(),
         });
         console.log(client.getClientEmail());
       } catch {
         console.error("Not authenticated. Run: gpc auth login");
         process.exit(3);
       }
+    });
+
+  auth
+    .command("switch <profile>")
+    .description("Switch to a named profile")
+    .action(async (profile: string) => {
+      try {
+        // Verify profile exists
+        const config = await loadConfig({ profile });
+        const { setConfigValue } = await import("@gpc/config");
+        await setConfigValue("profile", profile);
+        console.log(`Switched to profile "${profile}"`);
+        if (config.auth?.serviceAccount) {
+          console.log(`Service account: ${config.auth.serviceAccount}`);
+        }
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(2);
+      }
+    });
+
+  auth
+    .command("profiles")
+    .description("List configured profiles")
+    .action(async () => {
+      const { listProfiles } = await import("@gpc/config");
+      const config = await loadConfig();
+      const profiles = await listProfiles();
+      const format = detectOutputFormat();
+
+      if (profiles.length === 0) {
+        console.log("No profiles configured. Use: gpc auth login --service-account <path> --profile <name>");
+        return;
+      }
+
+      const data = profiles.map((name) => ({
+        name,
+        active: name === config.profile,
+      }));
+      console.log(formatOutput(data, format));
     });
 }

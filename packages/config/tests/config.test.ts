@@ -10,8 +10,12 @@ import {
   getConfigDir,
   getUserConfigPath,
   getDataDir,
+  getCacheDir,
   setConfigValue,
   initConfig,
+  setProfileConfig,
+  deleteProfile,
+  listProfiles,
   DEFAULT_CONFIG,
 } from "../src/index";
 import { readConfigFile } from "../src/loader";
@@ -293,6 +297,17 @@ describe("getConfigDir / getUserConfigPath / getDataDir", () => {
     process.env["XDG_DATA_HOME"] = "/custom/data";
     expect(getDataDir()).toBe(join("/custom/data", "gpc"));
   });
+
+  it("returns default cache dir", () => {
+    delete process.env["XDG_CACHE_HOME"];
+    const home = homedir();
+    expect(getCacheDir()).toBe(join(home, ".cache", "gpc"));
+  });
+
+  it("respects XDG_CACHE_HOME env var", () => {
+    process.env["XDG_CACHE_HOME"] = "/custom/cache";
+    expect(getCacheDir()).toBe(join("/custom/cache", "gpc"));
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -381,5 +396,132 @@ describe("initConfig", () => {
 
     const expectedPath = join(tmpDir, "gpc", "config.json");
     expect(result).toBe(expectedPath);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Profile management
+// ---------------------------------------------------------------------------
+describe("setProfileConfig / deleteProfile / listProfiles", () => {
+  let tmpDir: string;
+  let envBackup: ReturnType<typeof saveEnv>;
+
+  beforeEach(async () => {
+    tmpDir = await mkdtemp(join(tmpdir(), "gpc-test-"));
+    envBackup = saveEnv("XDG_CONFIG_HOME");
+    process.env["XDG_CONFIG_HOME"] = tmpDir;
+  });
+
+  afterEach(async () => {
+    envBackup.restore();
+    await rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it("creates a profile", async () => {
+    await setProfileConfig("staging", { auth: { serviceAccount: "/path/staging.json" } });
+
+    const profiles = await listProfiles();
+    expect(profiles).toEqual(["staging"]);
+  });
+
+  it("creates multiple profiles", async () => {
+    await setProfileConfig("staging", { auth: { serviceAccount: "/staging.json" } });
+    await setProfileConfig("production", { auth: { serviceAccount: "/prod.json" }, app: "com.prod" });
+
+    const profiles = await listProfiles();
+    expect(profiles).toContain("staging");
+    expect(profiles).toContain("production");
+  });
+
+  it("deletes a profile", async () => {
+    await setProfileConfig("staging", { auth: { serviceAccount: "/staging.json" } });
+    const deleted = await deleteProfile("staging");
+
+    expect(deleted).toBe(true);
+    expect(await listProfiles()).toEqual([]);
+  });
+
+  it("returns false when deleting nonexistent profile", async () => {
+    const deleted = await deleteProfile("nope");
+    expect(deleted).toBe(false);
+  });
+
+  it("returns empty list when no profiles configured", async () => {
+    const profiles = await listProfiles();
+    expect(profiles).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Profile resolution in loadConfig
+// ---------------------------------------------------------------------------
+describe("loadConfig with profiles", () => {
+  let tmpDir: string;
+  let envBackup: ReturnType<typeof saveEnv>;
+  let originalCwd: typeof process.cwd;
+
+  beforeEach(async () => {
+    tmpDir = await mkdtemp(join(tmpdir(), "gpc-test-"));
+    envBackup = saveEnv("GPC_APP", "GPC_OUTPUT", "GPC_PROFILE", "GPC_SERVICE_ACCOUNT", "XDG_CONFIG_HOME");
+    for (const k of ["GPC_APP", "GPC_OUTPUT", "GPC_PROFILE", "GPC_SERVICE_ACCOUNT"]) {
+      delete process.env[k];
+    }
+    process.env["XDG_CONFIG_HOME"] = join(tmpDir, "xdg-config");
+    originalCwd = process.cwd;
+    process.cwd = () => tmpDir;
+  });
+
+  afterEach(async () => {
+    envBackup.restore();
+    process.cwd = originalCwd;
+    await rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it("resolves profile auth from config file", async () => {
+    const configDir = join(tmpDir, "xdg-config", "gpc");
+    await mkdir(configDir, { recursive: true });
+    await writeFile(join(configDir, "config.json"), JSON.stringify({
+      app: "default-app",
+      auth: { serviceAccount: "/default.json" },
+      profiles: {
+        staging: { auth: { serviceAccount: "/staging.json" }, app: "staging-app" },
+      },
+    }));
+
+    const config = await loadConfig({ profile: "staging" });
+
+    expect(config.auth?.serviceAccount).toBe("/staging.json");
+    expect(config.app).toBe("staging-app");
+  });
+
+  it("throws when profile does not exist", async () => {
+    const configDir = join(tmpDir, "xdg-config", "gpc");
+    await mkdir(configDir, { recursive: true });
+    await writeFile(join(configDir, "config.json"), JSON.stringify({
+      profiles: { prod: { app: "com.prod" } },
+    }));
+
+    await expect(loadConfig({ profile: "nope" })).rejects.toThrow(/Profile "nope" not found/);
+  });
+
+  it("does not throw when profile is set but no profiles key exists", async () => {
+    // profile set but no profiles map — just silently continues
+    const config = await loadConfig({ profile: "ghost" });
+    expect(config.profile).toBe("ghost");
+  });
+
+  it("profile from GPC_PROFILE env var is resolved", async () => {
+    const configDir = join(tmpDir, "xdg-config", "gpc");
+    await mkdir(configDir, { recursive: true });
+    await writeFile(join(configDir, "config.json"), JSON.stringify({
+      profiles: {
+        ci: { auth: { serviceAccount: "/ci.json" } },
+      },
+    }));
+
+    process.env["GPC_PROFILE"] = "ci";
+    const config = await loadConfig();
+
+    expect(config.auth?.serviceAccount).toBe("/ci.json");
   });
 });

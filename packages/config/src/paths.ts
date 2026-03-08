@@ -16,3 +16,9 @@ export function getDataDir(): string {
   const base = xdg || join(homedir(), ".local", "share");
   return join(base, "gpc");
 }
+
+export function getCacheDir(): string {
+  const xdg = process.env["XDG_CACHE_HOME"];
+  const base = xdg || join(homedir(), ".cache");
+  return join(base, "gpc");
+}

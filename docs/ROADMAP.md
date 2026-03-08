@@ -23,7 +23,7 @@
 
 - [x] Service account JSON file authentication
 - [x] OAuth2 token generation from service account
-- [ ] Token caching (file-based, keychain later)
+- [x] Token caching (file-based, keychain later)
 - [x] `GPC_SERVICE_ACCOUNT` env var support
 - [x] Config file discovery (`.gpcrc.json`)
 - [x] Environment variable overrides (`GPC_*` prefix)
@@ -41,8 +41,8 @@
 
 **Sub-updates (v0.1.y):**
 - [ ] OAuth 2.0 device flow for interactive login
-- [ ] Application Default Credentials support
-- [ ] Multi-profile support (`gpc auth switch`)
+- [x] Application Default Credentials support
+- [x] Multi-profile support (`gpc auth switch`)
 - [ ] `GPC_SKIP_KEYCHAIN` env var
 - [ ] OS keychain storage (macOS Keychain, libsecret)
 
