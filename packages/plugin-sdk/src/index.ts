@@ -29,6 +29,12 @@ export interface PluginHooks {
   /** Run when a command fails with an error. */
   onError(handler: ErrorHandler): void;
 
+  /** Run before each API request. Can inspect/modify request metadata. */
+  beforeRequest(handler: BeforeRequestHandler): void;
+
+  /** Run after each API response. Can inspect response metadata. */
+  afterResponse(handler: AfterResponseHandler): void;
+
   /** Register additional CLI commands from the plugin. */
   registerCommands(handler: CommandRegistrar): void;
 }
@@ -36,6 +42,8 @@ export interface PluginHooks {
 export type BeforeCommandHandler = (ctx: CommandEvent) => void | Promise<void>;
 export type AfterCommandHandler = (ctx: CommandEvent, result: CommandResult) => void | Promise<void>;
 export type ErrorHandler = (ctx: CommandEvent, error: PluginError) => void | Promise<void>;
+export type BeforeRequestHandler = (req: RequestEvent) => void | Promise<void>;
+export type AfterResponseHandler = (req: RequestEvent, res: ResponseEvent) => void | Promise<void>;
 export type CommandRegistrar = (registry: CommandRegistry) => void;
 
 // ---------------------------------------------------------------------------
@@ -69,6 +77,36 @@ export interface CommandResult {
   /** Exit code */
   exitCode: number;
 }
+
+// ---------------------------------------------------------------------------
+// Request/response events (for beforeRequest/afterResponse hooks)
+// ---------------------------------------------------------------------------
+
+export interface RequestEvent {
+  /** HTTP method (GET, POST, PUT, PATCH, DELETE) */
+  method: string;
+
+  /** Request path (relative to API base URL) */
+  path: string;
+
+  /** Timestamp when the request started */
+  startedAt: Date;
+}
+
+export interface ResponseEvent {
+  /** HTTP status code */
+  status: number;
+
+  /** Duration in milliseconds */
+  durationMs: number;
+
+  /** Whether the response was successful (2xx) */
+  ok: boolean;
+}
+
+// ---------------------------------------------------------------------------
+// Error types
+// ---------------------------------------------------------------------------
 
 export interface PluginError {
   /** Error code */
@@ -149,7 +187,9 @@ export type PluginPermission =
   | "commands:register"
   | "hooks:beforeCommand"
   | "hooks:afterCommand"
-  | "hooks:onError";
+  | "hooks:onError"
+  | "hooks:beforeRequest"
+  | "hooks:afterResponse";
 
 // ---------------------------------------------------------------------------
 // Helper to define a plugin (for plugin authors)

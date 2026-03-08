@@ -211,7 +211,10 @@
 
 **Sub-updates (v0.8.y):**
 - [ ] Plugin template generator
-- [ ] Additional lifecycle hooks (beforeRequest, afterResponse)
+- [x] Additional lifecycle hooks (beforeRequest, afterResponse)
+- [x] CLI plugin integration (hooks fire around command execution)
+- [x] `gpc plugins list` command
+- [x] Plugin command registration with Commander
 
 ---
 

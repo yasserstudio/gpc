@@ -31,6 +31,7 @@
     "@gpc/auth": "workspace:^",
     "@gpc/config": "workspace:*",
     "@gpc/core": "workspace:*",
+    "@gpc/plugin-sdk": "workspace:*",
     "commander": "^14.0.3"
   },
   "keywords": [
