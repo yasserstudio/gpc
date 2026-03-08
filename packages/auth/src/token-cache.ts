@@ -1,0 +1,85 @@
+import { mkdir, readFile, writeFile, rename, unlink } from "node:fs/promises";
+import { dirname, join } from "node:path";
+
+export interface TokenCacheEntry {
+  token: string;
+  expiresAt: number;
+}
+
+export type TokenCache = Record<string, TokenCacheEntry>;
+
+const CACHE_FILE = "token-cache.json";
+const SAFETY_MARGIN_MS = 5 * 60 * 1000; // 5 minutes
+
+function getCachePath(cacheDir: string): string {
+  return join(cacheDir, CACHE_FILE);
+}
+
+async function readCache(cacheDir: string): Promise<TokenCache> {
+  try {
+    const content = await readFile(getCachePath(cacheDir), "utf-8");
+    return JSON.parse(content) as TokenCache;
+  } catch {
+    return {};
+  }
+}
+
+async function writeCache(cacheDir: string, cache: TokenCache): Promise<void> {
+  const cachePath = getCachePath(cacheDir);
+  const tmpPath = cachePath + ".tmp";
+
+  await mkdir(dirname(cachePath), { recursive: true });
+  await writeFile(tmpPath, JSON.stringify(cache, null, 2) + "\n", {
+    encoding: "utf-8",
+    mode: 0o600,
+  });
+  await rename(tmpPath, cachePath);
+}
+
+export async function getCachedToken(
+  cacheDir: string,
+  email: string,
+): Promise<string | null> {
+  const cache = await readCache(cacheDir);
+  const entry = cache[email];
+
+  if (!entry) return null;
+
+  // Check expiry with safety margin
+  if (Date.now() >= entry.expiresAt - SAFETY_MARGIN_MS) {
+    return null;
+  }
+
+  return entry.token;
+}
+
+export async function setCachedToken(
+  cacheDir: string,
+  email: string,
+  token: string,
+  expiresInSeconds: number,
+): Promise<void> {
+  const cache = await readCache(cacheDir);
+  cache[email] = {
+    token,
+    expiresAt: Date.now() + expiresInSeconds * 1000,
+  };
+  await writeCache(cacheDir, cache);
+}
+
+export async function clearTokenCache(
+  cacheDir: string,
+  email?: string,
+): Promise<void> {
+  if (email) {
+    const cache = await readCache(cacheDir);
+    delete cache[email];
+    await writeCache(cacheDir, cache);
+  } else {
+    try {
+      await unlink(getCachePath(cacheDir));
+    } catch {
+      // File doesn't exist — nothing to clear
+    }
+  }
+}

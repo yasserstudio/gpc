@@ -48,22 +48,33 @@ export async function resolveAuth(
   // 1. Explicit options
   if (options?.serviceAccountJson) {
     const key = await loadServiceAccountKey(options.serviceAccountJson);
-    return createServiceAccountAuth(key);
+    return createServiceAccountAuth(key, options?.cachePath);
   }
 
   if (options?.serviceAccountPath) {
     const key = await loadServiceAccountKey(options.serviceAccountPath);
-    return createServiceAccountAuth(key);
+    return createServiceAccountAuth(key, options?.cachePath);
   }
 
-  // 2. Environment variable
+  // 2. GPC_SERVICE_ACCOUNT environment variable
   const envValue = process.env["GPC_SERVICE_ACCOUNT"];
   if (envValue) {
     const key = await loadServiceAccountKey(envValue);
-    return createServiceAccountAuth(key);
+    return createServiceAccountAuth(key, options?.cachePath);
   }
 
-  // 3. Application Default Credentials
+  // 3. GOOGLE_APPLICATION_CREDENTIALS environment variable
+  const gacPath = process.env["GOOGLE_APPLICATION_CREDENTIALS"];
+  if (gacPath) {
+    try {
+      const key = await loadServiceAccountKey(gacPath);
+      return createServiceAccountAuth(key, options?.cachePath);
+    } catch {
+      // Fall through to ADC which also reads GOOGLE_APPLICATION_CREDENTIALS
+    }
+  }
+
+  // 4. Application Default Credentials
   const adcClient = await tryApplicationDefaultCredentials();
   if (adcClient) {
     return adcClient;
@@ -76,7 +87,8 @@ export async function resolveAuth(
       "Provide credentials using one of these methods:",
       "  1. Pass serviceAccountPath or serviceAccountJson in options",
       "  2. Set the GPC_SERVICE_ACCOUNT environment variable to a file path or raw JSON",
-      "  3. Configure Application Default Credentials: gcloud auth application-default login",
+      "  3. Set GOOGLE_APPLICATION_CREDENTIALS to a service account key file",
+      "  4. Configure Application Default Credentials: gcloud auth application-default login",
     ].join("\n"),
   );
 }

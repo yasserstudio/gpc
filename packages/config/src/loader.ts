@@ -114,6 +114,19 @@ export async function loadConfig(
     Object.assign(result, stripUndefined(overrides));
   }
 
+  // Resolve profile overrides
+  if (result.profile && result.profiles?.[result.profile]) {
+    const p = result.profiles[result.profile]!;
+    if (p.auth) result.auth = p.auth;
+    if (p.app) result.app = p.app;
+    if (p.developerId) result.developerId = p.developerId;
+  } else if (result.profile && result.profiles && !(result.profile in result.profiles)) {
+    const available = Object.keys(result.profiles).join(", ");
+    throw new Error(
+      `Profile "${result.profile}" not found. Available profiles: ${available || "(none)"}`,
+    );
+  }
+
   // Validate final output format
   if (!isValidOutputFormat(result.output)) {
     result.output = DEFAULT_CONFIG.output;
