@@ -15,6 +15,9 @@ import { registerSubscriptionsCommands } from "./commands/subscriptions.js";
 import { registerIapCommands } from "./commands/iap.js";
 import { registerPurchasesCommands } from "./commands/purchases.js";
 import { registerPricingCommands } from "./commands/pricing.js";
+import { registerReportsCommands } from "./commands/reports.js";
+import { registerUsersCommands } from "./commands/users.js";
+import { registerTestersCommands } from "./commands/testers.js";
 
 export function createProgram(): Command {
   const program = new Command();
@@ -47,6 +50,9 @@ export function createProgram(): Command {
   registerIapCommands(program);
   registerPurchasesCommands(program);
   registerPricingCommands(program);
+  registerReportsCommands(program);
+  registerUsersCommands(program);
+  registerTestersCommands(program);
 
   return program;
 }

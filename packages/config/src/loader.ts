@@ -38,6 +38,9 @@ export function loadEnvConfig(): Partial<GpcConfig> {
     config.auth = { serviceAccount };
   }
 
+  const developerId = process.env["GPC_DEVELOPER_ID"];
+  if (developerId) config.developerId = developerId;
+
   return config;
 }
 

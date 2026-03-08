@@ -21,6 +21,8 @@ import type {
   OffersListResponse,
   ProductPurchase,
   Release,
+  ReportsListResponse,
+  ReportType,
   Review,
   ReviewReplyRequest,
   ReviewReplyResponse,
@@ -33,6 +35,7 @@ import type {
   SubscriptionPurchase,
   SubscriptionPurchaseV2,
   SubscriptionsListResponse,
+  Testers,
   Track,
   TrackListResponse,
   UploadResponse,
@@ -136,6 +139,15 @@ export interface PlayApiClient {
 
   monetization: {
     convertRegionPrices(packageName: string, price: ConvertRegionPricesRequest): Promise<ConvertRegionPricesResponse>;
+  };
+
+  reports: {
+    list(packageName: string, reportType: ReportType, year: number, month: number): Promise<ReportsListResponse>;
+  };
+
+  testers: {
+    get(packageName: string, editId: string, track: string): Promise<Testers>;
+    update(packageName: string, editId: string, track: string, testers: Testers): Promise<Testers>;
   };
 }
 
@@ -601,6 +613,33 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const { data } = await http.post<ConvertRegionPricesResponse>(
           `/${packageName}/monetization/convertRegionPrices`,
           price,
+        );
+        return data;
+      },
+    },
+
+    reports: {
+      async list(packageName, reportType, year, month) {
+        const monthStr = String(month).padStart(2, "0");
+        const { data } = await http.get<ReportsListResponse>(
+          `/${packageName}/reports/${reportType}/${year}/${monthStr}`,
+        );
+        return data;
+      },
+    },
+
+    testers: {
+      async get(packageName, editId, track) {
+        const { data } = await http.get<Testers>(
+          `/${packageName}/edits/${editId}/testers/${track}`,
+        );
+        return data;
+      },
+
+      async update(packageName, editId, track, testersData) {
+        const { data } = await http.put<Testers>(
+          `/${packageName}/edits/${editId}/testers/${track}`,
+          testersData,
         );
         return data;
       },

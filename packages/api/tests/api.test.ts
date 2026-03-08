@@ -3,6 +3,7 @@ import { ApiError } from "../src/errors";
 import { createHttpClient } from "../src/http";
 import { createApiClient } from "../src/client";
 import { createReportingClient } from "../src/reporting-client";
+import { createUsersClient } from "../src/users-client";
 
 vi.mock("node:fs/promises", () => ({
   readFile: vi.fn().mockResolvedValue(Buffer.from("fake-aab-content")),
@@ -1017,5 +1018,133 @@ describe("monetization API endpoints", () => {
     const [url] = mockFetch.mock.calls[0];
     expect(url).toContain("pageSize=10");
     expect(url).toContain("pageToken=abc");
+  });
+
+  // --- Phase 7: reports ---
+
+  describe("reports", () => {
+    it("reports.list calls GET /{pkg}/reports/{type}/{year}/{month}", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ reports: [{ bucketId: "b1", uri: "https://storage.googleapis.com/report.csv" }] }));
+      const client = makeClient();
+      const result = await client.reports.list(PKG, "earnings", 2026, 3);
+      expect(result).toEqual({ reports: [{ bucketId: "b1", uri: "https://storage.googleapis.com/report.csv" }] });
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/reports/earnings/2026/03`);
+      expect(init.method).toBe("GET");
+    });
+
+    it("reports.list pads single-digit month", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ reports: [] }));
+      const client = makeClient();
+      await client.reports.list(PKG, "installs", 2025, 1);
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toContain("/2025/01");
+    });
+  });
+
+  // --- Phase 7: testers ---
+
+  describe("testers", () => {
+    const EDIT_ID = "edit-123";
+
+    it("testers.get calls GET /{pkg}/edits/{editId}/testers/{track}", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ googleGroups: ["g@example.com"], googleGroupsCount: 1 }));
+      const client = makeClient();
+      const result = await client.testers.get(PKG, EDIT_ID, "internal");
+      expect(result).toEqual({ googleGroups: ["g@example.com"], googleGroupsCount: 1 });
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/testers/internal`);
+      expect(init.method).toBe("GET");
+    });
+
+    it("testers.update calls PUT /{pkg}/edits/{editId}/testers/{track}", async () => {
+      const updated = { googleGroups: ["a@example.com", "b@example.com"], googleGroupsCount: 2 };
+      mockFetch.mockResolvedValueOnce(mockResponse(updated));
+      const client = makeClient();
+      const result = await client.testers.update(PKG, EDIT_ID, "beta", { googleGroups: ["a@example.com", "b@example.com"] });
+      expect(result).toEqual(updated);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/testers/beta`);
+      expect(init.method).toBe("PUT");
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 7: UsersApiClient
+// ---------------------------------------------------------------------------
+
+describe("createUsersClient", () => {
+  const USERS_BASE = "https://androidpublisher.googleapis.com/androidpublisher/v3/developers";
+  const DEV_ID = "12345678";
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function makeClient() {
+    return createUsersClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("list calls GET /developers/{id}/users", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ users: [{ email: "a@b.com" }] }));
+    const client = makeClient();
+    const result = await client.list(DEV_ID);
+    expect(result).toEqual({ users: [{ email: "a@b.com" }] });
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${USERS_BASE}/${DEV_ID}/users`);
+    expect(init.method).toBe("GET");
+  });
+
+  it("list passes pagination params", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ users: [] }));
+    const client = makeClient();
+    await client.list(DEV_ID, { pageSize: 5, pageToken: "next" });
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("pageSize=5");
+    expect(url).toContain("pageToken=next");
+  });
+
+  it("get calls GET /developers/{id}/users/{userId}", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ email: "a@b.com", name: "Alice" }));
+    const client = makeClient();
+    const result = await client.get(DEV_ID, "a@b.com");
+    expect(result.email).toBe("a@b.com");
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${USERS_BASE}/${DEV_ID}/users/a@b.com`);
+  });
+
+  it("create calls POST /developers/{id}/users", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ email: "new@b.com" }));
+    const client = makeClient();
+    const result = await client.create(DEV_ID, { email: "new@b.com" });
+    expect(result.email).toBe("new@b.com");
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${USERS_BASE}/${DEV_ID}/users`);
+    expect(init.method).toBe("POST");
+  });
+
+  it("update calls PATCH /developers/{id}/users/{userId}", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ email: "a@b.com" }));
+    const client = makeClient();
+    await client.update(DEV_ID, "a@b.com", { developerAccountPermission: ["ADMIN"] }, "developerAccountPermission");
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${USERS_BASE}/${DEV_ID}/users/a@b.com?updateMask=developerAccountPermission`);
+    expect(init.method).toBe("PATCH");
+  });
+
+  it("delete calls DELETE /developers/{id}/users/{userId}", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+    const client = makeClient();
+    await client.delete(DEV_ID, "a@b.com");
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${USERS_BASE}/${DEV_ID}/users/a@b.com`);
+    expect(init.method).toBe("DELETE");
   });
 });
