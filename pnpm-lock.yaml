@@ -100,6 +100,9 @@ importers:
       '@gpc/config':
         specifier: workspace:*
         version: link:../config
+      '@gpc/plugin-sdk':
+        specifier: workspace:*
+        version: link:../plugin-sdk
     devDependencies:
       '@types/node':
         specifier: ^25.3.5
@@ -112,6 +115,10 @@ importers:
       '@gpc/plugin-sdk':
         specifier: workspace:*
         version: link:../../packages/plugin-sdk
+    devDependencies:
+      '@types/node':
+        specifier: ^25.3.5
+        version: 25.3.5
 
 packages:
 

@@ -26,7 +26,8 @@
   "dependencies": {
     "@gpc/api": "workspace:*",
     "@gpc/auth": "workspace:*",
-    "@gpc/config": "workspace:*"
+    "@gpc/config": "workspace:*",
+    "@gpc/plugin-sdk": "workspace:*"
   },
   "keywords": [
     "google-play",
