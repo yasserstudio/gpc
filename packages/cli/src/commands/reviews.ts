@@ -10,6 +10,7 @@ import {
   detectOutputFormat,
   formatOutput,
 } from "@gpc/core";
+import { isDryRun, printDryRun } from "../dry-run.js";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;
@@ -85,8 +86,19 @@ export function registerReviewsCommands(program: Command): void {
     .action(async (reviewId: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "reviews reply",
+          action: "reply to",
+          target: reviewId,
+          details: { text: options.text },
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const result = await replyToReview(client, packageName, reviewId, options.text);

@@ -13,6 +13,7 @@ import {
   detectOutputFormat,
   formatOutput,
 } from "@gpc/core";
+import { isDryRun, printDryRun } from "../dry-run.js";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;
@@ -79,8 +80,18 @@ export function registerIapCommands(program: Command): void {
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "iap create",
+          action: "create",
+          target: `in-app product from ${options.file}`,
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const data = JSON.parse(await readFile(options.file, "utf-8"));
@@ -99,8 +110,19 @@ export function registerIapCommands(program: Command): void {
     .action(async (sku: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "iap update",
+          action: "update",
+          target: sku,
+          details: { file: options.file },
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const data = JSON.parse(await readFile(options.file, "utf-8"));
@@ -118,6 +140,17 @@ export function registerIapCommands(program: Command): void {
     .action(async (sku: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+
+      if (isDryRun(program)) {
+        const format = detectOutputFormat();
+        printDryRun({
+          command: "iap delete",
+          action: "delete",
+          target: sku,
+        }, format, formatOutput);
+        return;
+      }
+
       const client = await getClient(config);
 
       try {

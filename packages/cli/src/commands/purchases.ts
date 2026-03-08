@@ -15,6 +15,7 @@ import {
   detectOutputFormat,
   formatOutput,
 } from "@gpc/core";
+import { isDryRun, printDryRun } from "../dry-run.js";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;
@@ -60,6 +61,18 @@ export function registerPurchasesCommands(program: Command): void {
     .action(async (productId: string, token: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+
+      if (isDryRun(program)) {
+        const format = detectOutputFormat();
+        printDryRun({
+          command: "purchases acknowledge",
+          action: "acknowledge",
+          target: `${productId}/${token}`,
+          details: { payload: options.payload },
+        }, format, formatOutput);
+        return;
+      }
+
       const client = await getClient(config);
 
       try {
@@ -77,6 +90,17 @@ export function registerPurchasesCommands(program: Command): void {
     .action(async (productId: string, token: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+
+      if (isDryRun(program)) {
+        const format = detectOutputFormat();
+        printDryRun({
+          command: "purchases consume",
+          action: "consume",
+          target: `${productId}/${token}`,
+        }, format, formatOutput);
+        return;
+      }
+
       const client = await getClient(config);
 
       try {
@@ -117,6 +141,17 @@ export function registerPurchasesCommands(program: Command): void {
     .action(async (subscriptionId: string, token: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+
+      if (isDryRun(program)) {
+        const format = detectOutputFormat();
+        printDryRun({
+          command: "purchases subscription cancel",
+          action: "cancel subscription",
+          target: `${subscriptionId}/${token}`,
+        }, format, formatOutput);
+        return;
+      }
+
       const client = await getClient(config);
 
       try {
@@ -135,8 +170,19 @@ export function registerPurchasesCommands(program: Command): void {
     .action(async (subscriptionId: string, token: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "purchases subscription defer",
+          action: "defer subscription",
+          target: `${subscriptionId}/${token}`,
+          details: { expiry: options.expiry },
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const result = await deferSubscriptionPurchase(client, packageName, subscriptionId, token, options.expiry);
@@ -153,6 +199,17 @@ export function registerPurchasesCommands(program: Command): void {
     .action(async (token: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+
+      if (isDryRun(program)) {
+        const format = detectOutputFormat();
+        printDryRun({
+          command: "purchases subscription revoke",
+          action: "revoke subscription",
+          target: token,
+        }, format, formatOutput);
+        return;
+      }
+
       const client = await getClient(config);
 
       try {
@@ -203,6 +260,18 @@ export function registerPurchasesCommands(program: Command): void {
     .action(async (orderId: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+
+      if (isDryRun(program)) {
+        const format = detectOutputFormat();
+        printDryRun({
+          command: "purchases orders refund",
+          action: "refund",
+          target: orderId,
+          details: { fullRefund: options.fullRefund, proratedRefund: options.proratedRefund },
+        }, format, formatOutput);
+        return;
+      }
+
       const client = await getClient(config);
 
       try {

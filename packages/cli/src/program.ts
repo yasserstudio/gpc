@@ -1,25 +1,6 @@
 import { Command } from "commander";
-import { registerAuthCommands } from "./commands/auth.js";
-import { registerConfigCommands } from "./commands/config.js";
-import { registerDoctorCommand } from "./commands/doctor.js";
-import { registerDocsCommand } from "./commands/docs.js";
-import { registerCompletionCommand } from "./commands/completion.js";
-import { registerAppsCommands } from "./commands/apps.js";
-import { registerReleasesCommands } from "./commands/releases.js";
-import { registerTracksCommands } from "./commands/tracks.js";
-import { registerStatusCommand } from "./commands/status.js";
-import { registerListingsCommands } from "./commands/listings.js";
-import { registerReviewsCommands } from "./commands/reviews.js";
-import { registerVitalsCommands } from "./commands/vitals.js";
-import { registerSubscriptionsCommands } from "./commands/subscriptions.js";
-import { registerIapCommands } from "./commands/iap.js";
-import { registerPurchasesCommands } from "./commands/purchases.js";
-import { registerPricingCommands } from "./commands/pricing.js";
-import { registerReportsCommands } from "./commands/reports.js";
-import { registerUsersCommands } from "./commands/users.js";
-import { registerTestersCommands } from "./commands/testers.js";
 
-export function createProgram(): Command {
+export async function createProgram(): Promise<Command> {
   const program = new Command();
 
   program
@@ -32,27 +13,38 @@ export function createProgram(): Command {
     .option("-a, --app <package>", "App package name")
     .option("-p, --profile <name>", "Auth profile name")
     .option("--no-color", "Disable colored output")
-    .option("--no-interactive", "Disable interactive prompts");
+    .option("--no-interactive", "Disable interactive prompts")
+    .option("--dry-run", "Preview changes without executing");
 
-  registerAuthCommands(program);
-  registerConfigCommands(program);
-  registerDoctorCommand(program);
-  registerDocsCommand(program);
-  registerCompletionCommand(program);
-  registerAppsCommands(program);
-  registerReleasesCommands(program);
-  registerTracksCommands(program);
-  registerStatusCommand(program);
-  registerListingsCommands(program);
-  registerReviewsCommands(program);
-  registerVitalsCommands(program);
-  registerSubscriptionsCommands(program);
-  registerIapCommands(program);
-  registerPurchasesCommands(program);
-  registerPricingCommands(program);
-  registerReportsCommands(program);
-  registerUsersCommands(program);
-  registerTestersCommands(program);
+  const commandLoaders: Record<string, () => Promise<void>> = {
+    auth: async () => { (await import("./commands/auth.js")).registerAuthCommands(program); },
+    config: async () => { (await import("./commands/config.js")).registerConfigCommands(program); },
+    doctor: async () => { (await import("./commands/doctor.js")).registerDoctorCommand(program); },
+    docs: async () => { (await import("./commands/docs.js")).registerDocsCommand(program); },
+    completion: async () => { (await import("./commands/completion.js")).registerCompletionCommand(program); },
+    apps: async () => { (await import("./commands/apps.js")).registerAppsCommands(program); },
+    releases: async () => { (await import("./commands/releases.js")).registerReleasesCommands(program); },
+    tracks: async () => { (await import("./commands/tracks.js")).registerTracksCommands(program); },
+    status: async () => { (await import("./commands/status.js")).registerStatusCommand(program); },
+    listings: async () => { (await import("./commands/listings.js")).registerListingsCommands(program); },
+    reviews: async () => { (await import("./commands/reviews.js")).registerReviewsCommands(program); },
+    vitals: async () => { (await import("./commands/vitals.js")).registerVitalsCommands(program); },
+    subscriptions: async () => { (await import("./commands/subscriptions.js")).registerSubscriptionsCommands(program); },
+    iap: async () => { (await import("./commands/iap.js")).registerIapCommands(program); },
+    purchases: async () => { (await import("./commands/purchases.js")).registerPurchasesCommands(program); },
+    pricing: async () => { (await import("./commands/pricing.js")).registerPricingCommands(program); },
+    reports: async () => { (await import("./commands/reports.js")).registerReportsCommands(program); },
+    users: async () => { (await import("./commands/users.js")).registerUsersCommands(program); },
+    testers: async () => { (await import("./commands/testers.js")).registerTestersCommands(program); },
+  };
+
+  const target = process.argv[2];
+
+  if (target && target in commandLoaders) {
+    await commandLoaders[target]!();
+  } else {
+    await Promise.all(Object.values(commandLoaders).map((loader) => loader()));
+  }
 
   return program;
 }

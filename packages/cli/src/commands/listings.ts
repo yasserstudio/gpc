@@ -16,6 +16,7 @@ import {
   detectOutputFormat,
   formatOutput,
 } from "@gpc/core";
+import { isDryRun, printDryRun } from "../dry-run.js";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;
@@ -83,7 +84,6 @@ export function registerListingsCommands(program: Command): void {
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
 
       try {
@@ -102,6 +102,17 @@ export function registerListingsCommands(program: Command): void {
           process.exit(2);
         }
 
+        if (isDryRun(program)) {
+          printDryRun({
+            command: "listings update",
+            action: "update listing for",
+            target: options.lang,
+            details: data,
+          }, format, formatOutput);
+          return;
+        }
+
+        const client = await getClient(config);
         const result = await updateListing(client, packageName, options.lang, data);
         console.log(formatOutput(result, format));
       } catch (error) {
@@ -118,6 +129,17 @@ export function registerListingsCommands(program: Command): void {
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+
+      if (isDryRun(program)) {
+        const format = detectOutputFormat();
+        printDryRun({
+          command: "listings delete",
+          action: "delete listing for",
+          target: options.lang,
+        }, format, formatOutput);
+        return;
+      }
+
       const client = await getClient(config);
 
       try {

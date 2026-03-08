@@ -23,6 +23,7 @@ import {
   detectOutputFormat,
   formatOutput,
 } from "@gpc/core";
+import { isDryRun, printDryRun } from "../dry-run.js";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;
@@ -91,8 +92,18 @@ export function registerSubscriptionsCommands(program: Command): void {
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "subscriptions create",
+          action: "create",
+          target: `subscription from ${options.file}`,
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const data = JSON.parse(await readFile(options.file, "utf-8"));
@@ -112,8 +123,19 @@ export function registerSubscriptionsCommands(program: Command): void {
     .action(async (productId: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "subscriptions update",
+          action: "update",
+          target: productId,
+          details: { file: options.file, updateMask: options.updateMask },
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const data = JSON.parse(await readFile(options.file, "utf-8"));
@@ -131,6 +153,17 @@ export function registerSubscriptionsCommands(program: Command): void {
     .action(async (productId: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+
+      if (isDryRun(program)) {
+        const format = detectOutputFormat();
+        printDryRun({
+          command: "subscriptions delete",
+          action: "delete",
+          target: productId,
+        }, format, formatOutput);
+        return;
+      }
+
       const client = await getClient(config);
 
       try {
@@ -153,8 +186,18 @@ export function registerSubscriptionsCommands(program: Command): void {
     .action(async (productId: string, basePlanId: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "subscriptions base-plans activate",
+          action: "activate",
+          target: `${productId}/${basePlanId}`,
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const result = await activateBasePlan(client, packageName, productId, basePlanId);
@@ -171,8 +214,18 @@ export function registerSubscriptionsCommands(program: Command): void {
     .action(async (productId: string, basePlanId: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "subscriptions base-plans deactivate",
+          action: "deactivate",
+          target: `${productId}/${basePlanId}`,
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const result = await deactivateBasePlan(client, packageName, productId, basePlanId);
@@ -189,6 +242,17 @@ export function registerSubscriptionsCommands(program: Command): void {
     .action(async (productId: string, basePlanId: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+
+      if (isDryRun(program)) {
+        const format = detectOutputFormat();
+        printDryRun({
+          command: "subscriptions base-plans delete",
+          action: "delete",
+          target: `${productId}/${basePlanId}`,
+        }, format, formatOutput);
+        return;
+      }
+
       const client = await getClient(config);
 
       try {
@@ -207,8 +271,19 @@ export function registerSubscriptionsCommands(program: Command): void {
     .action(async (productId: string, basePlanId: string, options: any) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "subscriptions base-plans migrate-prices",
+          action: "migrate prices for",
+          target: `${productId}/${basePlanId}`,
+          details: { file: options.file },
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const data = JSON.parse(await readFile(options.file, "utf-8"));
@@ -268,8 +343,19 @@ export function registerSubscriptionsCommands(program: Command): void {
     .action(async (productId: string, basePlanId: string, options: any) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "subscriptions offers create",
+          action: "create offer for",
+          target: `${productId}/${basePlanId}`,
+          details: { file: options.file },
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const data = JSON.parse(await readFile(options.file, "utf-8"));
@@ -289,8 +375,19 @@ export function registerSubscriptionsCommands(program: Command): void {
     .action(async (productId: string, basePlanId: string, offerId: string, options: any) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "subscriptions offers update",
+          action: "update offer",
+          target: `${productId}/${basePlanId}/${offerId}`,
+          details: { file: options.file, updateMask: options.updateMask },
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const data = JSON.parse(await readFile(options.file, "utf-8"));
@@ -308,6 +405,17 @@ export function registerSubscriptionsCommands(program: Command): void {
     .action(async (productId: string, basePlanId: string, offerId: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+
+      if (isDryRun(program)) {
+        const format = detectOutputFormat();
+        printDryRun({
+          command: "subscriptions offers delete",
+          action: "delete offer",
+          target: `${productId}/${basePlanId}/${offerId}`,
+        }, format, formatOutput);
+        return;
+      }
+
       const client = await getClient(config);
 
       try {
@@ -325,8 +433,18 @@ export function registerSubscriptionsCommands(program: Command): void {
     .action(async (productId: string, basePlanId: string, offerId: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "subscriptions offers activate",
+          action: "activate offer",
+          target: `${productId}/${basePlanId}/${offerId}`,
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const result = await activateOffer(client, packageName, productId, basePlanId, offerId);
@@ -343,8 +461,18 @@ export function registerSubscriptionsCommands(program: Command): void {
     .action(async (productId: string, basePlanId: string, offerId: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
-      const client = await getClient(config);
       const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun({
+          command: "subscriptions offers deactivate",
+          action: "deactivate offer",
+          target: `${productId}/${basePlanId}/${offerId}`,
+        }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
 
       try {
         const result = await deactivateOffer(client, packageName, productId, basePlanId, offerId);

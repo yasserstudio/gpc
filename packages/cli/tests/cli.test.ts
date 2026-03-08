@@ -104,8 +104,8 @@ vi.mock("@gpc/api", () => ({
 describe("createProgram", () => {
   let program: Command;
 
-  beforeEach(() => {
-    program = createProgram();
+  beforeEach(async () => {
+    program = await createProgram();
   });
 
   afterEach(() => {
@@ -160,8 +160,8 @@ describe("command parsing", () => {
   let logSpy: ReturnType<typeof vi.spyOn>;
   let errorSpy: ReturnType<typeof vi.spyOn>;
 
-  beforeEach(() => {
-    program = createProgram();
+  beforeEach(async () => {
+    program = await createProgram();
     program.exitOverride();
     logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
@@ -235,8 +235,8 @@ describe("auth subcommands", () => {
   let program: Command;
   let logSpy: ReturnType<typeof vi.spyOn>;
 
-  beforeEach(() => {
-    program = createProgram();
+  beforeEach(async () => {
+    program = await createProgram();
     program.exitOverride();
     logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
@@ -259,8 +259,8 @@ describe("config subcommands", () => {
   let program: Command;
   let logSpy: ReturnType<typeof vi.spyOn>;
 
-  beforeEach(() => {
-    program = createProgram();
+  beforeEach(async () => {
+    program = await createProgram();
     program.exitOverride();
     logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
@@ -283,8 +283,8 @@ describe("config subcommands", () => {
 describe("releases subcommands", () => {
   let program: Command;
 
-  beforeEach(() => {
-    program = createProgram();
+  beforeEach(async () => {
+    program = await createProgram();
   });
 
   afterEach(() => {
@@ -306,8 +306,8 @@ describe("releases subcommands", () => {
 describe("tracks subcommands", () => {
   let program: Command;
 
-  beforeEach(() => {
-    program = createProgram();
+  beforeEach(async () => {
+    program = await createProgram();
   });
 
   afterEach(() => {
@@ -325,8 +325,8 @@ describe("tracks subcommands", () => {
 describe("releases rollout subcommands", () => {
   let program: Command;
 
-  beforeEach(() => {
-    program = createProgram();
+  beforeEach(async () => {
+    program = await createProgram();
   });
 
   afterEach(() => {
@@ -352,8 +352,8 @@ describe("releases rollout subcommands", () => {
 describe("listings subcommands", () => {
   let program: Command;
 
-  beforeEach(() => {
-    program = createProgram();
+  beforeEach(async () => {
+    program = await createProgram();
   });
 
   afterEach(() => {
@@ -406,8 +406,8 @@ describe("listings subcommands", () => {
 describe("apps subcommands", () => {
   let program: Command;
 
-  beforeEach(() => {
-    program = createProgram();
+  beforeEach(async () => {
+    program = await createProgram();
   });
 
   afterEach(() => {
@@ -441,8 +441,8 @@ describe("apps subcommands", () => {
 describe("reviews subcommands", () => {
   let program: Command;
 
-  beforeEach(() => {
-    program = createProgram();
+  beforeEach(async () => {
+    program = await createProgram();
   });
 
   afterEach(() => {
@@ -478,8 +478,8 @@ describe("reviews subcommands", () => {
 describe("vitals subcommands", () => {
   let program: Command;
 
-  beforeEach(() => {
-    program = createProgram();
+  beforeEach(async () => {
+    program = await createProgram();
   });
 
   afterEach(() => {
@@ -542,8 +542,8 @@ describe("vitals subcommands", () => {
 describe("subscriptions subcommands", () => {
   let program: Command;
 
-  beforeEach(() => {
-    program = createProgram();
+  beforeEach(async () => {
+    program = await createProgram();
   });
 
   afterEach(() => {
@@ -570,8 +570,8 @@ describe("subscriptions subcommands", () => {
 describe("iap subcommands", () => {
   let program: Command;
 
-  beforeEach(() => {
-    program = createProgram();
+  beforeEach(async () => {
+    program = await createProgram();
   });
 
   afterEach(() => {
@@ -597,8 +597,8 @@ describe("iap subcommands", () => {
 describe("purchases subcommands", () => {
   let program: Command;
 
-  beforeEach(() => {
-    program = createProgram();
+  beforeEach(async () => {
+    program = await createProgram();
   });
 
   afterEach(() => {
@@ -621,11 +621,106 @@ describe("purchases subcommands", () => {
 // ---------------------------------------------------------------------------
 // Phase 6 – pricing subcommands
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Phase 9 – dry-run helper
+// ---------------------------------------------------------------------------
+describe("isDryRun", () => {
+  it("returns false when no --dry-run flag", async () => {
+    const { isDryRun } = await import("../src/dry-run.js");
+    const fakeProgram = { opts: () => ({}) } as any;
+    expect(isDryRun(fakeProgram)).toBe(false);
+  });
+
+  it("walks parent chain to find root program opts", async () => {
+    const { isDryRun } = await import("../src/dry-run.js");
+    const root = { opts: () => ({ dryRun: true }), parent: null } as any;
+    const child = { opts: () => ({}), parent: root } as any;
+    expect(isDryRun(child)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 9 – dry-run option
+// ---------------------------------------------------------------------------
+describe("dry-run option", () => {
+  let program: Command;
+
+  beforeEach(async () => {
+    program = await createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("program has --dry-run option", () => {
+    const optionFlags = program.options.map((opt) => opt.long ?? opt.short);
+    expect(optionFlags).toContain("--dry-run");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 9 – lazy loading / command structure
+// ---------------------------------------------------------------------------
+describe("createProgram command structure", () => {
+  let program: Command;
+
+  beforeEach(async () => {
+    program = await createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("createProgram registers auth command with expected subcommands", () => {
+    const authCmd = program.commands.find((cmd) => cmd.name() === "auth");
+    expect(authCmd).toBeDefined();
+    const subNames = authCmd!.commands.map((cmd) => cmd.name());
+    expect(subNames).toContain("login");
+    expect(subNames).toContain("status");
+    expect(subNames).toContain("logout");
+    expect(subNames).toContain("whoami");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 9 – networking
+// ---------------------------------------------------------------------------
+describe("setupNetworking", () => {
+  const originalCaCert = process.env["GPC_CA_CERT"];
+  const originalNodeCa = process.env["NODE_EXTRA_CA_CERTS"];
+
+  afterEach(() => {
+    if (originalCaCert !== undefined) {
+      process.env["GPC_CA_CERT"] = originalCaCert;
+    } else {
+      delete process.env["GPC_CA_CERT"];
+    }
+    if (originalNodeCa !== undefined) {
+      process.env["NODE_EXTRA_CA_CERTS"] = originalNodeCa;
+    } else {
+      delete process.env["NODE_EXTRA_CA_CERTS"];
+    }
+    vi.restoreAllMocks();
+  });
+
+  it("maps GPC_CA_CERT to NODE_EXTRA_CA_CERTS", async () => {
+    delete process.env["NODE_EXTRA_CA_CERTS"];
+    process.env["GPC_CA_CERT"] = "/path/to/ca-bundle.crt";
+
+    const { setupNetworking } = await import("../src/networking.js");
+    await setupNetworking();
+
+    expect(process.env["NODE_EXTRA_CA_CERTS"]).toBe("/path/to/ca-bundle.crt");
+  });
+});
+
 describe("pricing subcommands", () => {
   let program: Command;
 
-  beforeEach(() => {
-    program = createProgram();
+  beforeEach(async () => {
+    program = await createProgram();
   });
 
   afterEach(() => {
