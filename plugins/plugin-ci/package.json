@@ -15,7 +15,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit",
@@ -23,6 +23,9 @@
   },
   "dependencies": {
     "@gpc/plugin-sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.5"
   },
   "keywords": ["google-play", "ci", "plugin"],
   "license": "MIT"
