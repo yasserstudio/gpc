@@ -1,6 +1,8 @@
 export { GpcError, ConfigError, ApiError, NetworkError } from "./errors.js";
 export { detectOutputFormat, formatOutput } from "./output.js";
 export type { CommandContext } from "./context.js";
+export { PluginManager, discoverPlugins } from "./plugins.js";
+export type { LoadedPlugin, DiscoverPluginsOptions } from "./plugins.js";
 export { getAppInfo } from "./commands/apps.js";
 export type { AppInfo } from "./commands/apps.js";
 export { uploadRelease, getReleasesStatus, promoteRelease, updateRollout, listTracks } from "./commands/releases.js";
@@ -80,3 +82,28 @@ export {
   refundOrder,
 } from "./commands/purchases.js";
 export { convertRegionPrices } from "./commands/pricing.js";
+export {
+  listReports,
+  downloadReport,
+  parseMonth,
+  isValidReportType,
+  isFinancialReportType,
+  isStatsReportType,
+  isValidStatsDimension,
+} from "./commands/reports.js";
+export type { ParsedMonth } from "./commands/reports.js";
+export {
+  listUsers,
+  getUser,
+  inviteUser,
+  updateUser,
+  removeUser,
+  parseGrantArg,
+  PERMISSION_PROPAGATION_WARNING,
+} from "./commands/users.js";
+export {
+  listTesters,
+  addTesters,
+  removeTesters,
+  importTestersFromCsv,
+} from "./commands/testers.js";

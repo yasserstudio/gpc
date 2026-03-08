@@ -1837,3 +1837,512 @@ describe("pricing commands", () => {
     expect(call[1].price.nanos).toBe(990000000);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Phase 7 – Reports
+// ---------------------------------------------------------------------------
+
+import {
+  listReports,
+  downloadReport,
+  parseMonth,
+  isValidReportType,
+  isFinancialReportType,
+  isStatsReportType,
+  isValidStatsDimension,
+} from "../src/commands/reports.js";
+
+describe("report commands", () => {
+  it("parseMonth parses valid YYYY-MM format", () => {
+    const result = parseMonth("2026-03");
+    expect(result).toEqual({ year: 2026, month: 3 });
+  });
+
+  it("parseMonth throws on invalid format", () => {
+    expect(() => parseMonth("2026-3")).toThrow("Invalid month format");
+    expect(() => parseMonth("2026")).toThrow("Invalid month format");
+    expect(() => parseMonth("03-2026")).toThrow("Invalid month format");
+  });
+
+  it("parseMonth throws on invalid month number", () => {
+    expect(() => parseMonth("2026-13")).toThrow("Invalid month");
+    expect(() => parseMonth("2026-00")).toThrow("Invalid month");
+  });
+
+  it("isValidReportType accepts valid types", () => {
+    expect(isValidReportType("earnings")).toBe(true);
+    expect(isValidReportType("installs")).toBe(true);
+    expect(isValidReportType("invalid")).toBe(false);
+  });
+
+  it("isFinancialReportType identifies financial types", () => {
+    expect(isFinancialReportType("earnings")).toBe(true);
+    expect(isFinancialReportType("sales")).toBe(true);
+    expect(isFinancialReportType("installs")).toBe(false);
+  });
+
+  it("isStatsReportType identifies stats types", () => {
+    expect(isStatsReportType("installs")).toBe(true);
+    expect(isStatsReportType("crashes")).toBe(true);
+    expect(isStatsReportType("earnings")).toBe(false);
+  });
+
+  it("isValidStatsDimension validates dimensions", () => {
+    expect(isValidStatsDimension("country")).toBe(true);
+    expect(isValidStatsDimension("bogus")).toBe(false);
+  });
+
+  it("listReports calls client.reports.list and returns buckets", async () => {
+    const buckets = [{ bucketId: "b1", uri: "https://storage.googleapis.com/r.csv" }];
+    const client: any = {
+      reports: {
+        list: vi.fn().mockResolvedValue({ reports: buckets }),
+      },
+    };
+    const result = await listReports(client, "com.example", "earnings", 2026, 3);
+    expect(result).toEqual(buckets);
+    expect(client.reports.list).toHaveBeenCalledWith("com.example", "earnings", 2026, 3);
+  });
+
+  it("listReports returns empty array when no reports", async () => {
+    const client: any = {
+      reports: { list: vi.fn().mockResolvedValue({ reports: undefined }) },
+    };
+    const result = await listReports(client, "com.example", "earnings", 2026, 3);
+    expect(result).toEqual([]);
+  });
+
+  it("downloadReport fetches CSV from signed URI", async () => {
+    const client: any = {
+      reports: {
+        list: vi.fn().mockResolvedValue({ reports: [{ bucketId: "b1", uri: "https://storage.example.com/r.csv" }] }),
+      },
+    };
+    const originalFetch = globalThis.fetch;
+    const mockFetch = vi.fn().mockResolvedValue(new Response("col1,col2\nval1,val2", { status: 200 }));
+    vi.stubGlobal("fetch", mockFetch);
+
+    try {
+      const csv = await downloadReport(client, "com.example", "earnings", 2026, 3);
+      expect(csv).toBe("col1,col2\nval1,val2");
+      expect(mockFetch).toHaveBeenCalledWith("https://storage.example.com/r.csv");
+    } finally {
+      vi.stubGlobal("fetch", originalFetch);
+    }
+  });
+
+  it("downloadReport throws when no reports found", async () => {
+    const client: any = {
+      reports: { list: vi.fn().mockResolvedValue({ reports: [] }) },
+    };
+    await expect(downloadReport(client, "com.example", "earnings", 2026, 3)).rejects.toThrow("No earnings reports found");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 7 – Users
+// ---------------------------------------------------------------------------
+
+import {
+  listUsers,
+  getUser,
+  inviteUser,
+  updateUser,
+  removeUser,
+  parseGrantArg,
+  PERMISSION_PROPAGATION_WARNING,
+} from "../src/commands/users.js";
+
+describe("user commands", () => {
+  function mockUsersClient(): any {
+    return {
+      list: vi.fn().mockResolvedValue({ users: [{ email: "a@b.com" }] }),
+      get: vi.fn().mockResolvedValue({ email: "a@b.com", name: "Alice" }),
+      create: vi.fn().mockResolvedValue({ email: "new@b.com" }),
+      update: vi.fn().mockResolvedValue({ email: "a@b.com" }),
+      delete: vi.fn().mockResolvedValue(undefined),
+    };
+  }
+
+  it("listUsers returns users array", async () => {
+    const client = mockUsersClient();
+    const result = await listUsers(client, "12345");
+    expect(result).toEqual([{ email: "a@b.com" }]);
+    expect(client.list).toHaveBeenCalledWith("12345", undefined);
+  });
+
+  it("listUsers returns empty when no users", async () => {
+    const client = mockUsersClient();
+    client.list.mockResolvedValue({ users: undefined });
+    const result = await listUsers(client, "12345");
+    expect(result).toEqual([]);
+  });
+
+  it("getUser delegates to client.get", async () => {
+    const client = mockUsersClient();
+    const result = await getUser(client, "12345", "a@b.com");
+    expect(result.email).toBe("a@b.com");
+    expect(client.get).toHaveBeenCalledWith("12345", "a@b.com");
+  });
+
+  it("inviteUser creates user with email and permissions", async () => {
+    const client = mockUsersClient();
+    await inviteUser(client, "12345", "new@b.com", ["ADMIN"]);
+    const call = client.create.mock.calls[0];
+    expect(call[0]).toBe("12345");
+    expect(call[1].email).toBe("new@b.com");
+    expect(call[1].developerAccountPermission).toEqual(["ADMIN"]);
+  });
+
+  it("inviteUser passes grants when provided", async () => {
+    const client = mockUsersClient();
+    const grants = [{ packageName: "com.example", appLevelPermissions: ["CAN_MANAGE_PUBLIC_APKS" as const] }];
+    await inviteUser(client, "12345", "new@b.com", undefined, grants);
+    const call = client.create.mock.calls[0];
+    expect(call[1].grants).toEqual(grants);
+  });
+
+  it("updateUser sends updateMask with changed fields", async () => {
+    const client = mockUsersClient();
+    await updateUser(client, "12345", "a@b.com", ["CAN_VIEW_FINANCIAL_DATA"]);
+    expect(client.update).toHaveBeenCalledWith("12345", "a@b.com", { developerAccountPermission: ["CAN_VIEW_FINANCIAL_DATA"] }, "developerAccountPermission");
+  });
+
+  it("updateUser includes grants in updateMask", async () => {
+    const client = mockUsersClient();
+    const grants = [{ packageName: "com.example", appLevelPermissions: ["ADMIN" as const] }];
+    await updateUser(client, "12345", "a@b.com", ["ADMIN"], grants);
+    expect(client.update).toHaveBeenCalledWith("12345", "a@b.com",
+      { developerAccountPermission: ["ADMIN"], grants },
+      "developerAccountPermission,grants",
+    );
+  });
+
+  it("removeUser delegates to client.delete", async () => {
+    const client = mockUsersClient();
+    await removeUser(client, "12345", "a@b.com");
+    expect(client.delete).toHaveBeenCalledWith("12345", "a@b.com");
+  });
+
+  it("parseGrantArg parses package:permission format", () => {
+    const grant = parseGrantArg("com.example:ADMIN,CAN_VIEW_FINANCIAL_DATA");
+    expect(grant.packageName).toBe("com.example");
+    expect(grant.appLevelPermissions).toEqual(["ADMIN", "CAN_VIEW_FINANCIAL_DATA"]);
+  });
+
+  it("parseGrantArg throws on invalid format", () => {
+    expect(() => parseGrantArg("com.example")).toThrow("Invalid grant format");
+  });
+
+  it("PERMISSION_PROPAGATION_WARNING is defined", () => {
+    expect(PERMISSION_PROPAGATION_WARNING).toContain("48 hours");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 7 – Testers
+// ---------------------------------------------------------------------------
+
+import {
+  listTesters,
+  addTesters,
+  removeTesters,
+  importTestersFromCsv,
+} from "../src/commands/testers.js";
+
+describe("tester commands", () => {
+  function mockClient(): any {
+    return {
+      edits: {
+        insert: vi.fn().mockResolvedValue({ id: "edit-1" }),
+        validate: vi.fn().mockResolvedValue({}),
+        commit: vi.fn().mockResolvedValue({}),
+        delete: vi.fn().mockResolvedValue(undefined),
+      },
+      testers: {
+        get: vi.fn().mockResolvedValue({ googleGroups: ["existing@example.com"], googleGroupsCount: 1 }),
+        update: vi.fn().mockImplementation((_pkg, _editId, _track, data) => Promise.resolve(data)),
+      },
+    };
+  }
+
+  it("listTesters opens edit, reads testers, deletes edit", async () => {
+    const client = mockClient();
+    const result = await listTesters(client, "com.example", "internal");
+    expect(result.googleGroups).toEqual(["existing@example.com"]);
+    expect(client.edits.insert).toHaveBeenCalledWith("com.example");
+    expect(client.testers.get).toHaveBeenCalledWith("com.example", "edit-1", "internal");
+    expect(client.edits.delete).toHaveBeenCalledWith("com.example", "edit-1");
+  });
+
+  it("addTesters merges new emails with existing", async () => {
+    const client = mockClient();
+    const result = await addTesters(client, "com.example", "internal", ["new@example.com"]);
+    expect(result.googleGroups).toContain("existing@example.com");
+    expect(result.googleGroups).toContain("new@example.com");
+    expect(client.edits.validate).toHaveBeenCalled();
+    expect(client.edits.commit).toHaveBeenCalled();
+  });
+
+  it("addTesters deduplicates emails", async () => {
+    const client = mockClient();
+    const result = await addTesters(client, "com.example", "internal", ["existing@example.com"]);
+    expect(result.googleGroups).toEqual(["existing@example.com"]);
+  });
+
+  it("removeTesters filters out specified emails", async () => {
+    const client = mockClient();
+    const result = await removeTesters(client, "com.example", "internal", ["existing@example.com"]);
+    expect(result.googleGroups).toEqual([]);
+    expect(client.edits.commit).toHaveBeenCalled();
+  });
+
+  it("removeTesters keeps non-matching emails", async () => {
+    const client = mockClient();
+    const result = await removeTesters(client, "com.example", "internal", ["other@example.com"]);
+    expect(result.googleGroups).toEqual(["existing@example.com"]);
+  });
+
+  it("addTesters cleans up edit on error", async () => {
+    const client = mockClient();
+    client.testers.get.mockRejectedValue(new Error("API error"));
+    await expect(addTesters(client, "com.example", "internal", ["a@b.com"])).rejects.toThrow("API error");
+    expect(client.edits.delete).toHaveBeenCalled();
+  });
+
+  it("importTestersFromCsv reads file and adds testers", async () => {
+    const client = mockClient();
+    const { writeFile } = await import("node:fs/promises");
+    const dir = await mkdtemp(join(tmpdir(), "gpc-testers-"));
+    const csvPath = join(dir, "testers.csv");
+    await writeFile(csvPath, "a@example.com,b@example.com\nc@example.com");
+
+    try {
+      const result = await importTestersFromCsv(client, "com.example", "internal", csvPath);
+      expect(result.added).toBe(3);
+      expect(result.testers.googleGroups).toContain("a@example.com");
+      expect(result.testers.googleGroups).toContain("b@example.com");
+      expect(result.testers.googleGroups).toContain("c@example.com");
+    } finally {
+      await rm(dir, { recursive: true });
+    }
+  });
+
+  it("importTestersFromCsv throws if no valid emails found", async () => {
+    const client = mockClient();
+    const { writeFile } = await import("node:fs/promises");
+    const dir = await mkdtemp(join(tmpdir(), "gpc-testers-"));
+    const csvPath = join(dir, "bad.csv");
+    await writeFile(csvPath, "not-an-email\nanother-bad");
+
+    try {
+      await expect(importTestersFromCsv(client, "com.example", "internal", csvPath)).rejects.toThrow("No valid email addresses");
+    } finally {
+      await rm(dir, { recursive: true });
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 8 – Plugin System
+// ---------------------------------------------------------------------------
+
+import { PluginManager, discoverPlugins } from "../src/plugins.js";
+import type { GpcPlugin } from "@gpc/plugin-sdk";
+
+describe("PluginManager", () => {
+  it("loads a plugin and tracks it", async () => {
+    const manager = new PluginManager();
+    const plugin: GpcPlugin = {
+      name: "test-plugin",
+      version: "1.0.0",
+      register() {},
+    };
+    await manager.load(plugin);
+    const loaded = manager.getLoadedPlugins();
+    expect(loaded).toHaveLength(1);
+    expect(loaded[0]!.name).toBe("test-plugin");
+    expect(loaded[0]!.version).toBe("1.0.0");
+  });
+
+  it("marks @gpc/* plugins as trusted", async () => {
+    const manager = new PluginManager();
+    await manager.load({
+      name: "@gpc/plugin-ci",
+      version: "0.8.0",
+      register() {},
+    });
+    expect(manager.getLoadedPlugins()[0]!.trusted).toBe(true);
+  });
+
+  it("marks third-party plugins as untrusted", async () => {
+    const manager = new PluginManager();
+    await manager.load({
+      name: "gpc-plugin-slack",
+      version: "1.0.0",
+      register() {},
+    });
+    expect(manager.getLoadedPlugins()[0]!.trusted).toBe(false);
+  });
+
+  it("runs beforeCommand handlers in order", async () => {
+    const manager = new PluginManager();
+    const order: number[] = [];
+    await manager.load({
+      name: "p1",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.beforeCommand(async () => { order.push(1); });
+      },
+    });
+    await manager.load({
+      name: "p2",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.beforeCommand(async () => { order.push(2); });
+      },
+    });
+
+    await manager.runBeforeCommand({
+      command: "releases upload",
+      args: {},
+      startedAt: new Date(),
+    });
+    expect(order).toEqual([1, 2]);
+  });
+
+  it("runs afterCommand handlers with result", async () => {
+    const manager = new PluginManager();
+    let receivedResult: any;
+    await manager.load({
+      name: "p1",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.afterCommand(async (_ctx, result) => { receivedResult = result; });
+      },
+    });
+
+    const event = { command: "apps info", args: {}, startedAt: new Date() };
+    const result = { success: true, durationMs: 100, exitCode: 0, data: { app: "com.example" } };
+    await manager.runAfterCommand(event, result);
+    expect(receivedResult).toEqual(result);
+  });
+
+  it("runs onError handlers and swallows handler errors", async () => {
+    const manager = new PluginManager();
+    let receivedError: any;
+    await manager.load({
+      name: "crash-handler",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.onError(async () => { throw new Error("handler crashed"); });
+      },
+    });
+    await manager.load({
+      name: "good-handler",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.onError(async (_ctx, err) => { receivedError = err; });
+      },
+    });
+
+    const event = { command: "releases upload", args: {}, startedAt: new Date() };
+    const error = { code: "API_FORBIDDEN", message: "denied", exitCode: 4 };
+    // Should not throw even though first handler crashes
+    await manager.runOnError(event, error);
+    expect(receivedError).toEqual(error);
+  });
+
+  it("collects commands registered by plugins", async () => {
+    const manager = new PluginManager();
+    await manager.load({
+      name: "p1",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.registerCommands((registry) => {
+          registry.add({
+            name: "deploy",
+            description: "Deploy the app",
+            action: async () => {},
+          });
+          registry.add({
+            name: "rollback",
+            description: "Rollback deployment",
+            action: async () => {},
+          });
+        });
+      },
+    });
+
+    const cmds = manager.getRegisteredCommands();
+    expect(cmds).toHaveLength(2);
+    expect(cmds[0]!.name).toBe("deploy");
+    expect(cmds[1]!.name).toBe("rollback");
+  });
+
+  it("reset clears all state", async () => {
+    const manager = new PluginManager();
+    await manager.load({
+      name: "p1",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.beforeCommand(async () => {});
+        hooks.registerCommands((r) => r.add({ name: "x", description: "x", action: async () => {} }));
+      },
+    });
+
+    expect(manager.getLoadedPlugins()).toHaveLength(1);
+    expect(manager.getRegisteredCommands()).toHaveLength(1);
+
+    manager.reset();
+    expect(manager.getLoadedPlugins()).toHaveLength(0);
+    expect(manager.getRegisteredCommands()).toHaveLength(0);
+  });
+
+  it("rejects invalid permissions for untrusted plugins", async () => {
+    const manager = new PluginManager();
+    await expect(
+      manager.load(
+        { name: "bad-plugin", version: "1.0.0", register() {} },
+        { name: "bad-plugin", version: "1.0.0", permissions: ["invalid:perm" as any] },
+      ),
+    ).rejects.toThrow("Unknown plugin permission");
+  });
+
+  it("allows any permissions for trusted plugins", async () => {
+    const manager = new PluginManager();
+    // Should not throw — trusted plugins skip permission validation
+    await manager.load(
+      { name: "@gpc/plugin-ci", version: "0.8.0", register() {} },
+      { name: "@gpc/plugin-ci", version: "0.8.0", trusted: true, permissions: ["api:write"] },
+    );
+    expect(manager.getLoadedPlugins()).toHaveLength(1);
+  });
+
+  it("supports async register functions", async () => {
+    const manager = new PluginManager();
+    let registered = false;
+    await manager.load({
+      name: "async-plugin",
+      version: "1.0.0",
+      async register(hooks) {
+        await new Promise((r) => setTimeout(r, 1));
+        hooks.beforeCommand(async () => {});
+        registered = true;
+      },
+    });
+    expect(registered).toBe(true);
+  });
+});
+
+describe("discoverPlugins", () => {
+  it("returns empty array when no config plugins", async () => {
+    const plugins = await discoverPlugins();
+    expect(plugins).toEqual([]);
+  });
+
+  it("returns empty array for non-existent plugin modules", async () => {
+    const plugins = await discoverPlugins({ configPlugins: ["nonexistent-plugin-xyz"] });
+    expect(plugins).toEqual([]);
+  });
+});

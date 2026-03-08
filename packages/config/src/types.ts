@@ -3,6 +3,8 @@ export interface GpcConfig {
   output?: OutputFormat;
   profile?: string;
   auth?: AuthConfig;
+  developerId?: string;
+  plugins?: string[];
 }
 
 export interface AuthConfig {
@@ -16,4 +18,6 @@ export interface ResolvedConfig extends Required<Pick<GpcConfig, "output">> {
   profile?: string;
   auth?: AuthConfig;
   configPath?: string;
+  developerId?: string;
+  plugins?: string[];
 }

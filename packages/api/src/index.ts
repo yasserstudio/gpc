@@ -2,6 +2,8 @@ export { createApiClient } from "./client.js";
 export type { PlayApiClient } from "./client.js";
 export { createReportingClient } from "./reporting-client.js";
 export type { ReportingApiClient } from "./reporting-client.js";
+export { createUsersClient } from "./users-client.js";
+export type { UsersApiClient } from "./users-client.js";
 export { createHttpClient } from "./http.js";
 export type { HttpClient } from "./http.js";
 export { ApiError } from "./errors.js";
@@ -73,4 +75,13 @@ export type {
   ConvertRegionPricesRequest,
   ConvertedRegionPrice,
   ConvertRegionPricesResponse,
+  ReportType,
+  StatsDimension,
+  ReportBucket,
+  ReportsListResponse,
+  DeveloperPermission,
+  Grant,
+  User,
+  UsersListResponse,
+  Testers,
 } from "./types.js";

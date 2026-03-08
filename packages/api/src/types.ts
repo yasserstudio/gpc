@@ -456,3 +456,74 @@ export interface ConvertedRegionPrice {
 export interface ConvertRegionPricesResponse {
   convertedRegionPrices: Record<string, ConvertedRegionPrice>;
 }
+
+// --- Reports ---
+
+export type ReportType =
+  | "earnings"
+  | "sales"
+  | "estimated_sales"
+  | "installs"
+  | "crashes"
+  | "ratings"
+  | "reviews"
+  | "store_performance"
+  | "subscriptions"
+  | "play_balance";
+
+export type StatsDimension =
+  | "country"
+  | "language"
+  | "os_version"
+  | "device"
+  | "app_version"
+  | "carrier"
+  | "overview";
+
+export interface ReportBucket {
+  bucketId: string;
+  uri: string;
+}
+
+export interface ReportsListResponse {
+  reports: ReportBucket[];
+}
+
+// --- Users ---
+
+export type DeveloperPermission =
+  | "ADMIN"
+  | "CAN_MANAGE_PERMISSIONS"
+  | "CAN_MANAGE_PUBLIC_APKS"
+  | "CAN_MANAGE_TRACK_USERS"
+  | "CAN_MANAGE_TRACK_CONFIGURATION"
+  | "CAN_VIEW_FINANCIAL_DATA"
+  | "CAN_REPLY_TO_REVIEWS"
+  | "CAN_MANAGE_PUBLIC_LISTING"
+  | "CAN_MANAGE_DRAFT_APPS"
+  | "CAN_MANAGE_ORDERS";
+
+export interface Grant {
+  packageName: string;
+  appLevelPermissions: DeveloperPermission[];
+}
+
+export interface User {
+  email: string;
+  name?: string;
+  developerAccountPermission?: DeveloperPermission[];
+  grants?: Grant[];
+  expirationTime?: string;
+}
+
+export interface UsersListResponse {
+  users: User[];
+  nextPageToken?: string;
+}
+
+// --- Testers ---
+
+export interface Testers {
+  googleGroups?: string[];
+  googleGroupsCount?: number;
+}
