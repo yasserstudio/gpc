@@ -173,6 +173,85 @@ export async function searchVitalsErrors(
   );
 }
 
+export interface VitalsTrendComparison {
+  metric: string;
+  current: number | undefined;
+  previous: number | undefined;
+  changePercent: number | undefined;
+  direction: "improved" | "degraded" | "unchanged" | "unknown";
+}
+
+export async function compareVitalsTrend(
+  reporting: ReportingApiClient,
+  packageName: string,
+  metricSet: VitalsMetricSet,
+  days: number = 7,
+): Promise<VitalsTrendComparison> {
+  const now = new Date();
+
+  // Current period
+  const currentEnd = new Date(now);
+  const currentStart = new Date(now);
+  currentStart.setDate(currentStart.getDate() - days);
+
+  // Previous period
+  const previousEnd = new Date(currentStart);
+  const previousStart = new Date(previousEnd);
+  previousStart.setDate(previousStart.getDate() - days);
+
+  const makeQuery = (start: Date, end: Date): MetricSetQuery => ({
+    metrics: ["errorReportCount", "distinctUsers"],
+    timelineSpec: {
+      aggregationPeriod: "DAILY",
+      startTime: { year: start.getFullYear(), month: start.getMonth() + 1, day: start.getDate() },
+      endTime: { year: end.getFullYear(), month: end.getMonth() + 1, day: end.getDate() },
+    },
+  });
+
+  const [currentResult, previousResult] = await Promise.all([
+    reporting.queryMetricSet(packageName, metricSet, makeQuery(currentStart, currentEnd)),
+    reporting.queryMetricSet(packageName, metricSet, makeQuery(previousStart, previousEnd)),
+  ]);
+
+  const extractAvg = (rows: MetricRow[] | undefined): number | undefined => {
+    if (!rows || rows.length === 0) return undefined;
+    const values = rows
+      .map((r) => {
+        const keys = Object.keys(r.metrics);
+        const first = keys[0];
+        return first ? Number(r.metrics[first]?.decimalValue?.value) : NaN;
+      })
+      .filter((v) => !isNaN(v));
+    if (values.length === 0) return undefined;
+    return values.reduce((a, b) => a + b, 0) / values.length;
+  };
+
+  const current = extractAvg(currentResult.rows);
+  const previous = extractAvg(previousResult.rows);
+
+  let changePercent: number | undefined;
+  let direction: VitalsTrendComparison["direction"] = "unknown";
+
+  if (current !== undefined && previous !== undefined && previous !== 0) {
+    changePercent = ((current - previous) / previous) * 100;
+    if (Math.abs(changePercent) < 1) {
+      direction = "unchanged";
+    } else if (changePercent < 0) {
+      direction = "improved"; // lower error rate = better
+    } else {
+      direction = "degraded";
+    }
+  }
+
+  return {
+    metric: metricSet,
+    current,
+    previous,
+    changePercent: changePercent !== undefined ? Math.round(changePercent * 10) / 10 : undefined,
+    direction,
+  };
+}
+
 export function checkThreshold(
   value: number | undefined,
   threshold: number,
