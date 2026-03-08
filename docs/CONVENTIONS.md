@@ -31,17 +31,20 @@
 
 ## Git
 
-### Branch Naming
+### Branch Strategy
+Trunk-based development on `main`. Short-lived branches only for risky experiments.
+
 ```
-main                          # Stable release branch
-develop                       # Integration branch
-feat/<scope>/<short-desc>     # Feature branches
-fix/<scope>/<short-desc>      # Bug fixes
+main                          # Primary branch (direct commits)
+feat/<scope>/<short-desc>     # Feature branches (when needed)
+fix/<scope>/<short-desc>      # Bug fixes (when needed)
 chore/<scope>/<short-desc>    # Maintenance
 docs/<short-desc>             # Documentation
 ```
 
 Scopes: `api`, `auth`, `config`, `core`, `cli`, `plugin-sdk`, `ci`, `docs`
+
+> See `docs/GITHUB.md` for full repository management guide.
 
 ### Commit Messages
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
@@ -159,10 +162,11 @@ interface GpcConfig {
   profile?: string;            // Default auth profile
   output?: "human" | "json" | "yaml";
   color?: boolean;
+  developerId?: string;        // Developer account ID (for user management)
   auth?: {
     serviceAccount?: string;   // Path to service account key
   };
-  plugins?: string[];          // Plugin package names
+  plugins?: string[];          // Plugin package names or paths
 }
 ```
 

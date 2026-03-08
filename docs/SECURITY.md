@@ -165,33 +165,43 @@ All output layers (human, JSON, debug logs) redact:
 
 ## Plugin Security
 
-### Permission Model (v2+)
-Plugins declare required permissions:
+### Trust Model
+
+| Plugin Type | Pattern | Trust Level |
+|-------------|---------|-------------|
+| First-party | `@gpc/plugin-*` | Auto-trusted — no permission checks |
+| Third-party | `gpc-plugin-*` or config path | Untrusted — permissions validated |
+
+### Permission Model
+
+Third-party plugins declare required permissions in their `PluginManifest`:
 
 ```typescript
 interface PluginManifest {
   name: string;
-  permissions: PluginPermission[];
+  version: string;
+  permissions?: PluginPermission[];
+  trusted?: boolean;
 }
 
 type PluginPermission =
-  | "read:apps"        // Read app information
-  | "read:releases"    // Read release data
-  | "write:releases"   // Modify releases
-  | "read:reviews"     // Read reviews
-  | "write:reviews"    // Reply to reviews
-  | "read:vitals"      // Read vitals data
-  | "read:financial"   // Read financial reports
-  | "network"          // Make external network requests
-  | "filesystem"       // Read/write local files
+  | "read:config"            // Read configuration
+  | "write:config"           // Modify configuration
+  | "read:auth"              // Read auth state
+  | "api:read"               // Read API data
+  | "api:write"              // Write API data
+  | "commands:register"      // Register new CLI commands
+  | "hooks:beforeCommand"    // Hook into pre-command
+  | "hooks:afterCommand"     // Hook into post-command
+  | "hooks:onError"          // Hook into error handling
 ```
 
 ### Rules
 1. Plugins cannot access credentials directly
-2. API calls from plugins go through the permission-checked core layer
-3. First-party plugins (`@gpc/plugin-*`) are trusted
-4. Third-party plugins prompt for permission approval on first use
-5. Plugin permissions cached in config after approval
+2. First-party plugins (`@gpc/plugin-*`) are auto-trusted via name prefix
+3. Third-party plugins have permissions validated before loading
+4. Unknown permissions throw `PLUGIN_INVALID_PERMISSION` (exit code 10)
+5. Error handlers in plugins are wrapped — a failing handler cannot crash GPC
 
 ---
 

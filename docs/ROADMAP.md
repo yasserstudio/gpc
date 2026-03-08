@@ -175,37 +175,37 @@
 
 ---
 
-## Phase 7 — Reports & Users → v0.7.x
+## Phase 7 — Reports & Users → v0.7.x ✓
 > Financial reporting, team management, and tester operations.
 
-- [ ] `gpc reports list`
-- [ ] `gpc reports download financial --month YYYY-MM`
-- [ ] `gpc reports download stats --month YYYY-MM --dimension <dim>`
-- [ ] `gpc users list/get`
-- [ ] `gpc users invite <email> --role <role>`
-- [ ] `gpc users update <email>`
-- [ ] `gpc users remove <email>`
-- [ ] Permission propagation delay warning (48h)
-- [ ] `gpc testers list --track <track>`
-- [ ] `gpc testers add/remove`
-- [ ] `gpc testers groups list/create`
-- [ ] Grant management (per-app permissions)
+- [x] `gpc reports list`
+- [x] `gpc reports download financial --month YYYY-MM`
+- [x] `gpc reports download stats --month YYYY-MM --dimension <dim>`
+- [x] `gpc users list/get`
+- [x] `gpc users invite <email> --role <role>`
+- [x] `gpc users update <email>`
+- [x] `gpc users remove <email>`
+- [x] Permission propagation delay warning (48h)
+- [x] `gpc testers list --track <track>`
+- [x] `gpc testers add/remove`
+- [x] `gpc testers groups list/create` (via Google Group emails)
+- [x] Grant management (per-app permissions)
 
 **Sub-updates (v0.7.y):**
-- [ ] Bulk tester import from CSV
+- [x] Bulk tester import from CSV
 - [ ] User permission audit command
 
 ---
 
-## Phase 8 — Plugin System → v0.8.x
+## Phase 8 — Plugin System → v0.8.x ✓
 > Extensibility for third-party integrations.
 
-- [ ] `@gpc/plugin-sdk` — full plugin interface and types
-- [ ] Plugin discovery (config, node_modules, local file)
-- [ ] Lifecycle hooks (beforeCommand, afterCommand, onError)
-- [ ] Permission model for third-party plugins
-- [ ] Command registration from plugins
-- [ ] `@gpc/plugin-ci` — GitHub Actions summary, CI environment detection
+- [x] `@gpc/plugin-sdk` — full plugin interface and types
+- [x] Plugin discovery (config, node_modules, local file)
+- [x] Lifecycle hooks (beforeCommand, afterCommand, onError)
+- [x] Permission model for third-party plugins
+- [x] Command registration from plugins
+- [x] `@gpc/plugin-ci` — GitHub Actions summary, CI environment detection
 - [ ] Plugin authoring guide and template
 - [ ] First-run permission approval for third-party plugins
 
@@ -243,8 +243,8 @@
 | `0.4.0` | 4 | Listings, metadata ✓ | Fastlane migration path |
 | `0.5.0` | 5 | Reviews, vitals | Monitoring unlocked |
 | `0.6.0` | 6 | Monetization | Subscriptions + IAP |
-| `0.7.0` | 7 | Reports, users, testers | Full API coverage |
-| `0.8.0` | 8 | Plugin system | Ecosystem extensibility |
+| `0.7.0` | 7 | Reports, users, testers ✓ | Full API coverage |
+| `0.8.0` | 8 | Plugin system ✓ | Ecosystem extensibility |
 | `1.0.0` | 9 | Polish, stability | **Product Hunt launch** |
 
 Sub-updates (0.X.y) ship between phases for features, fixes, and improvements.

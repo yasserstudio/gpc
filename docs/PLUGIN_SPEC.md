@@ -1,12 +1,12 @@
-# Plugin System Specification
+# Plugin System
 
-> Phase 7 — designed now, implemented later.
+> Phase 8 — implemented in `@gpc/plugin-sdk`, `@gpc/core` (PluginManager), and `@gpc/plugin-ci`.
 
 ---
 
 ## Overview
 
-The plugin system allows third-party developers to extend GPC with custom commands, output formats, integrations, and workflow hooks — without forking the core.
+The plugin system allows extending GPC with custom commands, lifecycle hooks, and integrations — without forking the core. First-party plugins (`@gpc/*`) are auto-trusted; third-party plugins require permission validation.
 
 ---
 
@@ -14,115 +14,84 @@ The plugin system allows third-party developers to extend GPC with custom comman
 
 ```typescript
 interface GpcPlugin {
-  /** Unique plugin name (npm package name) */
+  /** Unique plugin name (e.g., "@gpc/plugin-ci" or "gpc-plugin-slack") */
   name: string;
 
-  /** Semver version */
+  /** Plugin version (semver) */
   version: string;
 
-  /** Minimum GPC version required */
-  gpcVersion: string;
-
-  /** Required permissions */
-  permissions: PluginPermission[];
-
-  /** Called once when plugin is loaded */
-  activate(ctx: PluginContext): Promise<void>;
-
-  /** Called when GPC shuts down */
-  deactivate?(): Promise<void>;
+  /** Called once when the plugin is loaded. Register hooks here. */
+  register(hooks: PluginHooks): void | Promise<void>;
 }
 ```
-
-## Plugin Context
-
-```typescript
-interface PluginContext {
-  /** Register new CLI commands */
-  commands: CommandRegistry;
-
-  /** Subscribe to lifecycle events */
-  hooks: HookRegistry;
-
-  /** GPC logger (respects --verbose, --quiet, --json) */
-  logger: Logger;
-
-  /** Read-only access to resolved config */
-  config: ResolvedConfig;
-
-  /** Make authenticated API calls (permission-checked) */
-  api: ScopedApiClient;
-}
-```
-
----
 
 ## Lifecycle Hooks
 
 ```typescript
-interface HookRegistry {
-  /** Before any command executes */
+interface PluginHooks {
+  /** Run before a command executes */
   beforeCommand(handler: BeforeCommandHandler): void;
 
-  /** After any command completes successfully */
+  /** Run after a command completes successfully */
   afterCommand(handler: AfterCommandHandler): void;
 
-  /** When any command fails */
+  /** Run when a command fails with an error */
   onError(handler: ErrorHandler): void;
 
-  /** Before an API request is sent */
-  beforeRequest(handler: BeforeRequestHandler): void;
-
-  /** After an API response is received */
-  afterResponse(handler: AfterResponseHandler): void;
-
-  /** When output is being formatted */
-  formatOutput(handler: OutputFormatter): void;
+  /** Register additional CLI commands from the plugin */
+  registerCommands(handler: CommandRegistrar): void;
 }
 
-type BeforeCommandHandler = (ctx: {
-  command: string;
-  args: Record<string, unknown>;
-  flags: Record<string, unknown>;
-}) => Promise<void | { skip: true; reason: string }>;
+type BeforeCommandHandler = (ctx: CommandEvent) => void | Promise<void>;
+type AfterCommandHandler = (ctx: CommandEvent, result: CommandResult) => void | Promise<void>;
+type ErrorHandler = (ctx: CommandEvent, error: PluginError) => void | Promise<void>;
+type CommandRegistrar = (registry: CommandRegistry) => void;
+```
 
-type AfterCommandHandler = (ctx: {
-  command: string;
-  result: CommandResult;
-  duration: number;
-}) => Promise<void>;
+---
 
-type ErrorHandler = (ctx: {
-  command: string;
-  error: GpcError;
-}) => Promise<void | { handled: true }>;
+## Event Types
+
+```typescript
+interface CommandEvent {
+  command: string;                    // e.g., "releases upload"
+  args: Record<string, unknown>;     // Resolved arguments
+  app?: string;                      // Package name (if available)
+  startedAt: Date;                   // When the command started
+}
+
+interface CommandResult {
+  success: boolean;
+  data?: unknown;
+  durationMs: number;
+  exitCode: number;
+}
+
+interface PluginError {
+  code: string;
+  message: string;
+  exitCode: number;
+  cause?: Error;
+}
 ```
 
 ---
 
 ## Command Registration
 
+Plugins can add new CLI commands:
+
 ```typescript
 interface CommandRegistry {
-  /** Register a new top-level command group */
-  addGroup(group: CommandGroup): void;
-
-  /** Add a subcommand to an existing group */
-  addCommand(group: string, command: CommandDefinition): void;
+  add(definition: PluginCommand): void;
 }
 
-interface CommandGroup {
+interface PluginCommand {
   name: string;
   description: string;
-}
-
-interface CommandDefinition {
-  name: string;
-  description: string;
-  arguments?: ArgumentDef[];
-  options?: OptionDef[];
-  examples?: string[];
-  execute(args: ParsedArgs, ctx: CommandContext): Promise<CommandResult>;
+  options?: PluginCommandOption[];
+  arguments?: PluginCommandArgument[];
+  action: (args: Record<string, unknown>, options: Record<string, unknown>) => void | Promise<void>;
 }
 ```
 
@@ -132,61 +101,25 @@ interface CommandDefinition {
 
 ```typescript
 type PluginPermission =
-  // API scopes
-  | "api:apps:read"
-  | "api:apps:write"
-  | "api:releases:read"
-  | "api:releases:write"
-  | "api:listings:read"
-  | "api:listings:write"
-  | "api:reviews:read"
-  | "api:reviews:write"
-  | "api:vitals:read"
-  | "api:subscriptions:read"
-  | "api:subscriptions:write"
-  | "api:financial:read"
-  | "api:users:read"
-  | "api:users:write"
-
-  // System scopes
-  | "system:network"       // Make arbitrary HTTP requests
-  | "system:filesystem"    // Read/write local files
-  | "system:exec"          // Execute shell commands
-  | "system:env"           // Read environment variables
+  | "read:config"
+  | "write:config"
+  | "read:auth"
+  | "api:read"
+  | "api:write"
+  | "commands:register"
+  | "hooks:beforeCommand"
+  | "hooks:afterCommand"
+  | "hooks:onError";
 ```
 
-### Permission Enforcement
+### Trust Model
 
-```
-Plugin calls api.releases.list()
-        │
-        ▼
-  Check plugin has "api:releases:read"
-        │
-   ┌────┴────┐
-   │ Allowed  │──► Execute API call
-   └─────────┘
-   │ Denied   │──► Throw PluginPermissionError
-   └─────────┘
-```
+| Plugin Type | Pattern | Trust | Permissions |
+|-------------|---------|-------|-------------|
+| First-party | `@gpc/plugin-*` | Auto-trusted | No checks |
+| Third-party | `gpc-plugin-*` | Untrusted | Validated against manifest |
 
-### First-Run Approval
-
-When a third-party plugin is loaded for the first time:
-
-```
-$ gpc releases status
-
-Plugin "gpc-plugin-slack" requests the following permissions:
-  - api:releases:read    (read release information)
-  - system:network       (send HTTP requests to external services)
-
-Allow? [y/N/always]
-```
-
-- `y` — allow for this session
-- `always` — save approval to config
-- `N` — deny and skip plugin
+Third-party plugins must declare permissions in their `PluginManifest`. Unknown permissions throw `PLUGIN_INVALID_PERMISSION` (exit code 10).
 
 ---
 
@@ -196,7 +129,7 @@ Allow? [y/N/always]
 
 1. **Config file** — explicit plugin list
    ```json
-   { "plugins": ["gpc-plugin-slack", "@myorg/gpc-plugin-deploy"] }
+   { "plugins": ["@gpc/plugin-ci", "gpc-plugin-slack"] }
    ```
 
 2. **node_modules** — auto-discover by naming convention
@@ -208,146 +141,101 @@ Allow? [y/N/always]
    { "plugins": ["./plugins/custom.js"] }
    ```
 
-### Package Convention
+### Module Resolution
 
-Third-party plugins should:
-- Name: `gpc-plugin-<name>` or `@scope/gpc-plugin-<name>`
-- Export default: `GpcPlugin` implementation
-- Declare `gpc` in `peerDependencies`
-- Include `keywords: ["gpc-plugin"]` in package.json
+Plugins are loaded via dynamic `import()`. The resolver checks:
+1. Default export → `GpcPlugin`
+2. Named `plugin` export → `GpcPlugin`
+3. Module itself → duck-typed check for `name`, `version`, `register`
 
 ---
 
-## Example Plugins
+## PluginManager (Core)
 
-### Slack Notifications
+The `PluginManager` class in `@gpc/core` orchestrates the plugin lifecycle:
 
 ```typescript
-import type { GpcPlugin, PluginContext } from "@gpc/plugin-sdk";
+class PluginManager {
+  load(plugin: GpcPlugin, manifest?: PluginManifest): Promise<void>;
+  runBeforeCommand(event: CommandEvent): Promise<void>;
+  runAfterCommand(event: CommandEvent, result: CommandResult): Promise<void>;
+  runOnError(event: CommandEvent, error: PluginError): Promise<void>;
+  getRegisteredCommands(): PluginCommand[];
+  getLoadedPlugins(): LoadedPlugin[];
+  reset(): void;  // For testing
+}
+```
 
-const plugin: GpcPlugin = {
+Key behaviors:
+- `runOnError` swallows handler errors to prevent cascading failures
+- Hooks run sequentially in registration order
+- `reset()` clears all state (used in tests)
+
+---
+
+## First-Party Plugin: `@gpc/plugin-ci`
+
+CI/CD environment detection and GitHub Actions integration.
+
+### CI Detection
+
+Detects 5 CI providers + generic `CI=true`:
+
+| Provider | Detection | Build ID | Branch | Step Summary |
+|----------|-----------|----------|--------|-------------|
+| GitHub Actions | `GITHUB_ACTIONS=true` | `GITHUB_RUN_ID` | `GITHUB_REF_NAME` | Yes |
+| GitLab CI | `GITLAB_CI=true` | `CI_JOB_ID` | `CI_COMMIT_BRANCH` | No |
+| Jenkins | `JENKINS_URL` set | `BUILD_NUMBER` | `BRANCH_NAME` | No |
+| CircleCI | `CIRCLECI=true` | `CIRCLE_BUILD_NUM` | `CIRCLE_BRANCH` | No |
+| Bitrise | `BITRISE_IO=true` | `BITRISE_BUILD_NUMBER` | `BITRISE_GIT_BRANCH` | No |
+| Generic | `CI=true` | — | — | No |
+
+### GitHub Actions Step Summary
+
+When running in GitHub Actions with `$GITHUB_STEP_SUMMARY` available, the plugin:
+- Writes a markdown table after each command (app, duration, exit code)
+- Writes error details on command failure (error code, message)
+
+---
+
+## Example: Writing a Plugin
+
+```typescript
+import { definePlugin } from "@gpc/plugin-sdk";
+
+export const myPlugin = definePlugin({
   name: "gpc-plugin-slack",
   version: "1.0.0",
-  gpcVersion: ">=1.0.0",
-  permissions: ["api:releases:read", "system:network"],
 
-  async activate(ctx: PluginContext) {
-    ctx.hooks.afterCommand(async ({ command, result }) => {
-      if (command.startsWith("releases") && result.success) {
-        await sendSlackMessage({
-          text: `Release ${result.data.versionName} deployed to ${result.data.track}`,
-        });
+  register(hooks) {
+    hooks.afterCommand(async (event, result) => {
+      if (event.command.startsWith("releases") && result.success) {
+        await notifySlack(`Released ${event.app} via gpc ${event.command}`);
       }
     });
   },
-};
-
-export default plugin;
-```
-
-### CI Summary (First-Party)
-
-```typescript
-import type { GpcPlugin, PluginContext } from "@gpc/plugin-sdk";
-
-const plugin: GpcPlugin = {
-  name: "@gpc/plugin-ci",
-  version: "1.0.0",
-  gpcVersion: ">=1.0.0",
-  permissions: ["api:releases:read", "api:vitals:read", "system:env"],
-
-  async activate(ctx: PluginContext) {
-    // Detect CI environment
-    const isGitHubActions = !!process.env.GITHUB_ACTIONS;
-
-    if (isGitHubActions) {
-      ctx.hooks.afterCommand(async ({ command, result }) => {
-        // Write GitHub Actions job summary
-        const summary = formatSummary(command, result);
-        await appendFile(process.env.GITHUB_STEP_SUMMARY!, summary);
-      });
-    }
-  },
-};
-
-export default plugin;
-```
-
-### Custom Deploy Gate
-
-```typescript
-import type { GpcPlugin, PluginContext } from "@gpc/plugin-sdk";
-
-const plugin: GpcPlugin = {
-  name: "gpc-plugin-deploy-gate",
-  version: "1.0.0",
-  gpcVersion: ">=1.0.0",
-  permissions: ["api:releases:read", "api:vitals:read"],
-
-  async activate(ctx: PluginContext) {
-    ctx.hooks.beforeCommand(async ({ command, args }) => {
-      // Block production releases if vitals are bad
-      if (command === "releases promote" && args.to === "production") {
-        const vitals = await ctx.api.vitals.overview();
-        if (vitals.crashRate > 2.0) {
-          return {
-            skip: true,
-            reason: `Crash rate ${vitals.crashRate}% exceeds 2% threshold`,
-          };
-        }
-      }
-    });
-  },
-};
-
-export default plugin;
+});
 ```
 
 ---
 
-## Plugin Development Workflow
-
-```bash
-# Scaffold a new plugin
-mkdir gpc-plugin-myname && cd gpc-plugin-myname
-npm init -y
-npm install @gpc/plugin-sdk --save-peer
-
-# Develop
-npm link
-cd /path/to/my-app
-echo '{"plugins": ["gpc-plugin-myname"]}' > .gpcrc.json
-gpc --verbose <command>       # Plugin loads and logs lifecycle
-
-# Test
-npm test
-
-# Publish
-npm publish
-```
-
----
-
-## Plugin SDK Package Exports
+## Plugin SDK Exports
 
 ```typescript
 // @gpc/plugin-sdk
 
 // Core interfaces
-export type { GpcPlugin, PluginContext, PluginPermission };
+export type { GpcPlugin, PluginHooks, PluginManifest, PluginPermission };
 
-// Hook types
-export type {
-  HookRegistry,
-  BeforeCommandHandler,
-  AfterCommandHandler,
-  ErrorHandler,
-};
+// Hook handler types
+export type { BeforeCommandHandler, AfterCommandHandler, ErrorHandler, CommandRegistrar };
+
+// Event types
+export type { CommandEvent, CommandResult, PluginError };
 
 // Command types
-export type { CommandRegistry, CommandDefinition, CommandResult };
+export type { CommandRegistry, PluginCommand, PluginCommandOption, PluginCommandArgument };
 
-// Utilities
-export { definePlugin };     // Type-safe plugin factory
-export { createTestContext }; // Testing helper
+// Helpers
+export { definePlugin };  // Type-safe plugin factory
 ```

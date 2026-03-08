@@ -62,43 +62,43 @@ The Edits resource is the transactional wrapper for most write operations. An ed
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `edits.listings.list` | GET | `gpc listings get --all-languages` | 3 |
-| `edits.listings.get` | GET | `gpc listings get --lang <lang>` | 3 |
-| `edits.listings.update` | PUT | `gpc listings update --lang <lang>` | 3 |
-| `edits.listings.delete` | DELETE | `gpc listings delete --lang <lang>` | 3 |
-| `edits.listings.deleteall` | DELETE | `gpc listings delete --all` | 3 |
-| `edits.listings.patch` | PATCH | `gpc listings update --lang <lang> --patch` | 3 |
+| `edits.listings.list` | GET | `gpc listings get --all-languages` | 4 |
+| `edits.listings.get` | GET | `gpc listings get --lang <lang>` | 4 |
+| `edits.listings.update` | PUT | `gpc listings update --lang <lang>` | 4 |
+| `edits.listings.delete` | DELETE | `gpc listings delete --lang <lang>` | 4 |
+| `edits.listings.deleteall` | DELETE | `gpc listings delete --all` | 4 |
+| `edits.listings.patch` | PATCH | `gpc listings update --lang <lang> --patch` | 4 |
 
 ## Edits: Images
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `edits.images.list` | GET | `gpc listings images list` | 3 |
-| `edits.images.upload` | POST | `gpc listings images upload` | 3 |
-| `edits.images.delete` | DELETE | `gpc listings images delete` | 3 |
-| `edits.images.deleteall` | DELETE | `gpc listings images delete --all` | 3 |
+| `edits.images.list` | GET | `gpc listings images list` | 4 |
+| `edits.images.upload` | POST | `gpc listings images upload` | 4 |
+| `edits.images.delete` | DELETE | `gpc listings images delete` | 4 |
+| `edits.images.deleteall` | DELETE | `gpc listings images delete --all` | 4 |
 
 ## Edits: Details
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
 | `edits.details.get` | GET | `gpc apps info <package>` | 2 |
-| `edits.details.update` | PUT | `gpc apps update <package>` | 3 |
-| `edits.details.patch` | PATCH | `gpc apps update <package> --patch` | 3 |
+| `edits.details.update` | PUT | `gpc apps update <package>` | 4 |
+| `edits.details.patch` | PATCH | `gpc apps update <package> --patch` | 4 |
 
 ## Edits: Country Availability
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `edits.countryavailability.get` | GET | `gpc listings availability` | 3 |
+| `edits.countryavailability.get` | GET | `gpc listings availability` | 4 |
 
 ## Edits: Testers
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `edits.testers.get` | GET | `gpc testers list --track <track>` | 6 |
-| `edits.testers.update` | PUT | `gpc testers add/remove` | 6 |
-| `edits.testers.patch` | PATCH | `gpc testers update` | 6 |
+| `edits.testers.get` | GET | `gpc testers list --track <track>` | 7 |
+| `edits.testers.update` | PUT | `gpc testers add/remove` | 7 |
+| `edits.testers.patch` | PATCH | `gpc testers update` | 7 |
 
 ---
 
@@ -106,9 +106,9 @@ The Edits resource is the transactional wrapper for most write operations. An ed
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `reviews.list` | GET | `gpc reviews list` | 4 |
-| `reviews.get` | GET | `gpc reviews get <id>` | 4 |
-| `reviews.reply` | POST | `gpc reviews reply <id>` | 4 |
+| `reviews.list` | GET | `gpc reviews list` | 5 |
+| `reviews.get` | GET | `gpc reviews get <id>` | 5 |
+| `reviews.reply` | POST | `gpc reviews reply <id>` | 5 |
 
 ---
 
@@ -116,13 +116,13 @@ The Edits resource is the transactional wrapper for most write operations. An ed
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `inappproducts.list` | GET | `gpc iap list` | 5 |
-| `inappproducts.get` | GET | `gpc iap get <sku>` | 5 |
-| `inappproducts.insert` | POST | `gpc iap create` | 5 |
-| `inappproducts.update` | PUT | `gpc iap update <sku>` | 5 |
-| `inappproducts.delete` | DELETE | `gpc iap delete <sku>` | 5 |
-| `inappproducts.patch` | PATCH | `gpc iap update <sku> --patch` | 5 |
-| `inappproducts.batch` | POST | `gpc iap sync` | 5 |
+| `inappproducts.list` | GET | `gpc iap list` | 6 |
+| `inappproducts.get` | GET | `gpc iap get <sku>` | 6 |
+| `inappproducts.insert` | POST | `gpc iap create` | 6 |
+| `inappproducts.update` | PUT | `gpc iap update <sku>` | 6 |
+| `inappproducts.delete` | DELETE | `gpc iap delete <sku>` | 6 |
+| `inappproducts.patch` | PATCH | `gpc iap update <sku> --patch` | 6 |
+| `inappproducts.batch` | POST | `gpc iap sync` | 6 |
 
 ---
 
@@ -130,37 +130,37 @@ The Edits resource is the transactional wrapper for most write operations. An ed
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `monetization.subscriptions.list` | GET | `gpc subscriptions list` | 5 |
-| `monetization.subscriptions.get` | GET | `gpc subscriptions get <id>` | 5 |
-| `monetization.subscriptions.create` | POST | `gpc subscriptions create` | 5 |
-| `monetization.subscriptions.patch` | PATCH | `gpc subscriptions update <id>` | 5 |
-| `monetization.subscriptions.delete` | DELETE | `gpc subscriptions delete <id>` | 5 |
-| `monetization.subscriptions.archive` | POST | `gpc subscriptions archive <id>` | 5 |
+| `monetization.subscriptions.list` | GET | `gpc subscriptions list` | 6 |
+| `monetization.subscriptions.get` | GET | `gpc subscriptions get <id>` | 6 |
+| `monetization.subscriptions.create` | POST | `gpc subscriptions create` | 6 |
+| `monetization.subscriptions.patch` | PATCH | `gpc subscriptions update <id>` | 6 |
+| `monetization.subscriptions.delete` | DELETE | `gpc subscriptions delete <id>` | 6 |
+| `monetization.subscriptions.archive` | POST | `gpc subscriptions archive <id>` | 6 |
 
 ## Monetization: Base Plans
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `monetization.subscriptions.basePlans.activate` | POST | `gpc subscriptions base-plans activate` | 5 |
-| `monetization.subscriptions.basePlans.deactivate` | POST | `gpc subscriptions base-plans deactivate` | 5 |
-| `monetization.subscriptions.basePlans.delete` | DELETE | `gpc subscriptions base-plans delete` | 5 |
-| `monetization.subscriptions.basePlans.migratePrices` | POST | `gpc subscriptions base-plans migrate-prices` | 5 |
-| `monetization.subscriptions.basePlans.batchUpdate` | POST | `gpc subscriptions base-plans sync` | 5 |
-| `monetization.subscriptions.basePlans.batchMigratePrices` | POST | `gpc subscriptions base-plans migrate-prices --batch` | 5 |
+| `monetization.subscriptions.basePlans.activate` | POST | `gpc subscriptions base-plans activate` | 6 |
+| `monetization.subscriptions.basePlans.deactivate` | POST | `gpc subscriptions base-plans deactivate` | 6 |
+| `monetization.subscriptions.basePlans.delete` | DELETE | `gpc subscriptions base-plans delete` | 6 |
+| `monetization.subscriptions.basePlans.migratePrices` | POST | `gpc subscriptions base-plans migrate-prices` | 6 |
+| `monetization.subscriptions.basePlans.batchUpdate` | POST | `gpc subscriptions base-plans sync` | 6 |
+| `monetization.subscriptions.basePlans.batchMigratePrices` | POST | `gpc subscriptions base-plans migrate-prices --batch` | 6 |
 
 ## Monetization: Offers
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `monetization.subscriptions.basePlans.offers.list` | GET | `gpc subscriptions offers list` | 5 |
-| `monetization.subscriptions.basePlans.offers.get` | GET | `gpc subscriptions offers get` | 5 |
-| `monetization.subscriptions.basePlans.offers.create` | POST | `gpc subscriptions offers create` | 5 |
-| `monetization.subscriptions.basePlans.offers.patch` | PATCH | `gpc subscriptions offers update` | 5 |
-| `monetization.subscriptions.basePlans.offers.delete` | DELETE | `gpc subscriptions offers delete` | 5 |
-| `monetization.subscriptions.basePlans.offers.activate` | POST | `gpc subscriptions offers activate` | 5 |
-| `monetization.subscriptions.basePlans.offers.deactivate` | POST | `gpc subscriptions offers deactivate` | 5 |
-| `monetization.subscriptions.basePlans.offers.batchUpdate` | POST | `gpc subscriptions offers sync` | 5 |
-| `monetization.subscriptions.basePlans.offers.batchGet` | POST | `gpc subscriptions offers get --batch` | 5 |
+| `monetization.subscriptions.basePlans.offers.list` | GET | `gpc subscriptions offers list` | 6 |
+| `monetization.subscriptions.basePlans.offers.get` | GET | `gpc subscriptions offers get` | 6 |
+| `monetization.subscriptions.basePlans.offers.create` | POST | `gpc subscriptions offers create` | 6 |
+| `monetization.subscriptions.basePlans.offers.patch` | PATCH | `gpc subscriptions offers update` | 6 |
+| `monetization.subscriptions.basePlans.offers.delete` | DELETE | `gpc subscriptions offers delete` | 6 |
+| `monetization.subscriptions.basePlans.offers.activate` | POST | `gpc subscriptions offers activate` | 6 |
+| `monetization.subscriptions.basePlans.offers.deactivate` | POST | `gpc subscriptions offers deactivate` | 6 |
+| `monetization.subscriptions.basePlans.offers.batchUpdate` | POST | `gpc subscriptions offers sync` | 6 |
+| `monetization.subscriptions.basePlans.offers.batchGet` | POST | `gpc subscriptions offers get --batch` | 6 |
 
 ---
 
@@ -168,18 +168,18 @@ The Edits resource is the transactional wrapper for most write operations. An ed
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `purchases.products.get` | GET | `gpc purchases get <token>` | 5 |
-| `purchases.products.acknowledge` | POST | `gpc purchases acknowledge <token>` | 5 |
-| `purchases.products.consume` | POST | `gpc purchases consume <token>` | 5 |
-| `purchases.subscriptions.get` | GET | `gpc purchases subscription get <token>` | 5 |
-| `purchases.subscriptions.acknowledge` | POST | `gpc purchases subscription acknowledge <token>` | 5 |
-| `purchases.subscriptions.cancel` | POST | `gpc purchases subscription cancel <token>` | 5 |
-| `purchases.subscriptions.defer` | POST | `gpc purchases subscription defer <token>` | 5 |
-| `purchases.subscriptions.refund` | POST | `gpc purchases subscription refund <token>` | 5 |
-| `purchases.subscriptions.revoke` | POST | `gpc purchases subscription revoke <token>` | 5 |
-| `purchases.subscriptionsv2.get` | GET | `gpc purchases subscription get <token> --v2` | 5 |
-| `purchases.subscriptionsv2.revoke` | POST | `gpc purchases subscription revoke <token> --v2` | 5 |
-| `purchases.voidedpurchases.list` | GET | `gpc purchases voided list` | 5 |
+| `purchases.products.get` | GET | `gpc purchases get <token>` | 6 |
+| `purchases.products.acknowledge` | POST | `gpc purchases acknowledge <token>` | 6 |
+| `purchases.products.consume` | POST | `gpc purchases consume <token>` | 6 |
+| `purchases.subscriptions.get` | GET | `gpc purchases subscription get <token>` | 6 |
+| `purchases.subscriptions.acknowledge` | POST | `gpc purchases subscription acknowledge <token>` | 6 |
+| `purchases.subscriptions.cancel` | POST | `gpc purchases subscription cancel <token>` | 6 |
+| `purchases.subscriptions.defer` | POST | `gpc purchases subscription defer <token>` | 6 |
+| `purchases.subscriptions.refund` | POST | `gpc purchases subscription refund <token>` | 6 |
+| `purchases.subscriptions.revoke` | POST | `gpc purchases subscription revoke <token>` | 6 |
+| `purchases.subscriptionsv2.get` | GET | `gpc purchases subscription get <token> --v2` | 6 |
+| `purchases.subscriptionsv2.revoke` | POST | `gpc purchases subscription revoke <token> --v2` | 6 |
+| `purchases.voidedpurchases.list` | GET | `gpc purchases voided list` | 6 |
 
 ---
 
@@ -187,8 +187,8 @@ The Edits resource is the transactional wrapper for most write operations. An ed
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `orders.refund` | POST | `gpc orders refund <order-id>` | 5 |
-| `orders.batchRefund` | POST | `gpc orders refund --batch --file orders.csv` | 5 |
+| `orders.refund` | POST | `gpc orders refund <order-id>` | 6 |
+| `orders.batchRefund` | POST | `gpc orders refund --batch --file orders.csv` | 6 |
 
 ---
 
@@ -196,19 +196,19 @@ The Edits resource is the transactional wrapper for most write operations. An ed
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `grants.create` | POST | `gpc users invite` | 6 |
-| `grants.patch` | PATCH | `gpc users update` | 6 |
-| `grants.delete` | DELETE | `gpc users remove` | 6 |
+| `grants.create` | POST | `gpc users invite` | 7 |
+| `grants.patch` | PATCH | `gpc users update` | 7 |
+| `grants.delete` | DELETE | `gpc users remove` | 7 |
 
 ## Users
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `users.list` | GET | `gpc users list` | 6 |
-| `users.get` | GET | `gpc users get` | 6 |
-| `users.create` | POST | `gpc users invite` | 6 |
-| `users.patch` | PATCH | `gpc users update` | 6 |
-| `users.delete` | DELETE | `gpc users remove` | 6 |
+| `users.list` | GET | `gpc users list` | 7 |
+| `users.get` | GET | `gpc users get` | 7 |
+| `users.create` | POST | `gpc users invite` | 7 |
+| `users.patch` | PATCH | `gpc users update` | 7 |
+| `users.delete` | DELETE | `gpc users remove` | 7 |
 
 ---
 
@@ -268,21 +268,21 @@ The Edits resource is the transactional wrapper for most write operations. An ed
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `vitals.anrrate.get` | GET | `gpc vitals anr` | 4 |
-| `vitals.anrrate.query` | POST | `gpc vitals anr --query` | 4 |
-| `vitals.crashrate.get` | GET | `gpc vitals crashes` | 4 |
-| `vitals.crashrate.query` | POST | `gpc vitals crashes --query` | 4 |
-| `vitals.excessivewakeuprate.get` | GET | `gpc vitals battery` | 4 |
-| `vitals.excessivewakeuprate.query` | POST | `gpc vitals battery --query` | 4 |
-| `vitals.stuckbackgroundwakelockrate.get` | GET | `gpc vitals battery --wakelocks` | 4 |
-| `vitals.stuckbackgroundwakelockrate.query` | POST | `gpc vitals battery --wakelocks --query` | 4 |
-| `vitals.slowrenderingrate.get` | GET | `gpc vitals rendering` | 4 |
-| `vitals.slowrenderingrate.query` | POST | `gpc vitals rendering --query` | 4 |
-| `vitals.slowstartrate.get` | GET | `gpc vitals startup` | 4 |
-| `vitals.slowstartrate.query` | POST | `gpc vitals startup --query` | 4 |
-| `vitals.errors.counts.query` | POST | `gpc vitals errors` | 4 |
-| `vitals.errors.issues.search` | GET | `gpc vitals errors search` | 4 |
-| `vitals.errors.reports.search` | GET | `gpc vitals errors reports` | 4 |
+| `vitals.anrrate.get` | GET | `gpc vitals anr` | 5 |
+| `vitals.anrrate.query` | POST | `gpc vitals anr --query` | 5 |
+| `vitals.crashrate.get` | GET | `gpc vitals crashes` | 5 |
+| `vitals.crashrate.query` | POST | `gpc vitals crashes --query` | 5 |
+| `vitals.excessivewakeuprate.get` | GET | `gpc vitals battery` | 5 |
+| `vitals.excessivewakeuprate.query` | POST | `gpc vitals battery --query` | 5 |
+| `vitals.stuckbackgroundwakelockrate.get` | GET | `gpc vitals battery --wakelocks` | 5 |
+| `vitals.stuckbackgroundwakelockrate.query` | POST | `gpc vitals battery --wakelocks --query` | 5 |
+| `vitals.slowrenderingrate.get` | GET | `gpc vitals rendering` | 5 |
+| `vitals.slowrenderingrate.query` | POST | `gpc vitals rendering --query` | 5 |
+| `vitals.slowstartrate.get` | GET | `gpc vitals startup` | 5 |
+| `vitals.slowstartrate.query` | POST | `gpc vitals startup --query` | 5 |
+| `vitals.errors.counts.query` | POST | `gpc vitals errors` | 5 |
+| `vitals.errors.issues.search` | GET | `gpc vitals errors search` | 5 |
+| `vitals.errors.reports.search` | GET | `gpc vitals errors reports` | 5 |
 
 ---
 
@@ -290,9 +290,9 @@ The Edits resource is the transactional wrapper for most write operations. An ed
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `reports.list` (sales) | GET | `gpc reports list` | 6 |
-| `reports.download` (sales) | GET | `gpc reports download financial` | 6 |
-| `reports.download` (stats) | GET | `gpc reports download stats` | 6 |
+| `reports.list` (sales) | GET | `gpc reports list` | 7 |
+| `reports.download` (sales) | GET | `gpc reports download financial` | 7 |
+| `reports.download` (stats) | GET | `gpc reports download stats` | 7 |
 
 ---
 
@@ -308,22 +308,22 @@ The Edits resource is the transactional wrapper for most write operations. An ed
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `monetization.onetimeproducts.list` | GET | `gpc iap list --one-time` | 5 |
-| `monetization.onetimeproducts.get` | GET | `gpc iap get <id> --one-time` | 5 |
-| `monetization.onetimeproducts.patch` | PATCH | `gpc iap update <id> --one-time` | 5 |
-| `monetization.onetimeproducts.delete` | DELETE | `gpc iap delete <id> --one-time` | 5 |
-| `monetization.onetimeproducts.batchGet` | GET | `gpc iap get --batch --one-time` | 5 |
-| `monetization.onetimeproducts.batchUpdate` | POST | `gpc iap sync --one-time` | 5 |
-| `monetization.onetimeproducts.batchDelete` | POST | `gpc iap delete --batch --one-time` | 5 |
-| `monetization.onetimeproducts.purchaseOptions.batchDelete` | POST | (internal) | 5 |
-| `monetization.onetimeproducts.purchaseOptions.batchUpdateStates` | POST | (internal) | 5 |
-| `monetization.onetimeproducts.purchaseOptions.offers.*` | Various | `gpc iap offers *` | 5 |
+| `monetization.onetimeproducts.list` | GET | `gpc iap list --one-time` | 6 |
+| `monetization.onetimeproducts.get` | GET | `gpc iap get <id> --one-time` | 6 |
+| `monetization.onetimeproducts.patch` | PATCH | `gpc iap update <id> --one-time` | 6 |
+| `monetization.onetimeproducts.delete` | DELETE | `gpc iap delete <id> --one-time` | 6 |
+| `monetization.onetimeproducts.batchGet` | GET | `gpc iap get --batch --one-time` | 6 |
+| `monetization.onetimeproducts.batchUpdate` | POST | `gpc iap sync --one-time` | 6 |
+| `monetization.onetimeproducts.batchDelete` | POST | `gpc iap delete --batch --one-time` | 6 |
+| `monetization.onetimeproducts.purchaseOptions.batchDelete` | POST | (internal) | 6 |
+| `monetization.onetimeproducts.purchaseOptions.batchUpdateStates` | POST | (internal) | 6 |
+| `monetization.onetimeproducts.purchaseOptions.offers.*` | Various | `gpc iap offers *` | 6 |
 
 ### monetization
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `monetization.convertRegionPrices` | POST | `gpc pricing convert --from USD --amount 9.99` | 5 |
+| `monetization.convertRegionPrices` | POST | `gpc pricing convert --from USD --amount 9.99` | 6 |
 
 ### internalappsharingartifacts
 
@@ -336,17 +336,17 @@ The Edits resource is the transactional wrapper for most write operations. An ed
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `purchases.productsv2.getproductpurchasev2` | GET | `gpc purchases get <token> --v2` | 5 |
+| `purchases.productsv2.getproductpurchasev2` | GET | `gpc purchases get <token> --v2` | 6 |
 
 ### Reporting API (separate service: playdeveloperreporting.googleapis.com)
 
 | API Endpoint | Method | GPC Command | Phase |
 |-------------|--------|-------------|-------|
-| `apps.search` | GET | (internal — app discovery) | 4 |
-| `apps.fetchReleaseFilterOptions` | GET | (internal — filter options) | 4 |
-| `anomalies.list` | GET | `gpc vitals anomalies` | 4 |
-| `vitals.lmkRateMetricSet.get` | GET | `gpc vitals memory` | 4 |
-| `vitals.lmkRateMetricSet.query` | POST | `gpc vitals memory --query` | 4 |
+| `apps.search` | GET | (internal — app discovery) | 5 |
+| `apps.fetchReleaseFilterOptions` | GET | (internal — filter options) | 5 |
+| `anomalies.list` | GET | `gpc vitals anomalies` | 5 |
+| `vitals.lmkRateMetricSet.get` | GET | `gpc vitals memory` | 5 |
+| `vitals.lmkRateMetricSet.query` | POST | `gpc vitals memory --query` | 5 |
 
 ---
 
@@ -355,19 +355,19 @@ The Edits resource is the transactional wrapper for most write operations. An ed
 | Domain | Endpoints | Phase | API |
 |--------|-----------|-------|-----|
 | Edits (bundles, APKs, tracks) | 15 | 2 | Publisher |
-| Edits (listings, images, details) | 14 | 3 | Publisher |
-| Edits (testers, country, expansion) | 8 | 3/6 | Publisher |
-| Reviews | 3 | 4 | Publisher |
-| Vitals + Anomalies | 19 | 4 | Reporting |
-| Error Issues + Reports | 2 | 4 | Reporting |
-| In-App Products (legacy) | 9 | 5 | Publisher |
-| One-Time Products (new) | 17 | 5 | Publisher |
-| Subscriptions + Base Plans + Offers | 25 | 5 | Publisher |
-| Purchases (v1 + v2) | 15 | 5 | Publisher |
-| Orders | 3 | 5 | Publisher |
-| Monetization (pricing) | 1 | 5 | Publisher |
-| Users + Grants | 8 | 6 | Publisher |
-| Reports | 3 | 6 | Publisher |
+| Edits (listings, images, details) | 14 | 4 | Publisher |
+| Edits (testers, country, expansion) | 8 | 4/7 | Publisher |
+| Reviews | 3 | 5 | Publisher |
+| Vitals + Anomalies | 19 | 5 | Reporting |
+| Error Issues + Reports | 2 | 5 | Reporting |
+| In-App Products (legacy) | 9 | 6 | Publisher |
+| One-Time Products (new) | 17 | 6 | Publisher |
+| Subscriptions + Base Plans + Offers | 25 | 6 | Publisher |
+| Purchases (v1 + v2) | 15 | 6 | Publisher |
+| Orders | 3 | 6 | Publisher |
+| Monetization (pricing) | 1 | 6 | Publisher |
+| Users + Grants | 8 | 7 | Publisher |
+| Reports | 3 | 7 | Publisher |
 | Internal App Sharing | 2 | 2 | Publisher |
 | App Recovery | 5 | 8 | Publisher |
 | Device Tiers | 3 | 8 | Publisher |

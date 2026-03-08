@@ -39,11 +39,13 @@ e2e/               → End-to-end tests
 - Phase 4 ✓ — Listings, metadata, images, Fastlane compat
 - Phase 5 ✓ — Reviews, vitals, reporting API, CI threshold alerting
 - Phase 6 ✓ — Subscriptions, IAP, purchases, pricing, regional conversion
-- 283 total tests, 7 packages building
+- Phase 7 ✓ — Reports, users, testers, grants, CSV import
+- Phase 8 ✓ — Plugin SDK, plugin manager, lifecycle hooks, plugin-ci
+- 354 total tests, 7 packages building
 
 ## Testing
 
-- Vitest for all tests (283 total across 5 packages)
+- Vitest for all tests (354 total across 7 packages)
 - Tests in `tests/` directory per package
 - Mock external APIs — never call real Google APIs in tests
 - Mock fetch with `vi.stubGlobal("fetch", mockFn)` for API tests

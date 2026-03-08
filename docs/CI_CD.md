@@ -2,6 +2,8 @@
 
 Ready-to-use workflows for integrating GPC into CI/CD pipelines.
 
+> **Tip:** Install `@gpc/plugin-ci` for automatic CI environment detection and GitHub Actions step summaries. When enabled, every GPC command writes a markdown summary to `$GITHUB_STEP_SUMMARY` with the command name, app, duration, and exit code. See `docs/PLUGIN_SPEC.md` for details.
+
 ---
 
 ## GitHub Actions
@@ -388,6 +390,7 @@ gpc reviews list \
 |----------|-------------|----------|
 | `GPC_SERVICE_ACCOUNT` | Service account JSON string or file path | Yes (CI) |
 | `GPC_APP` | Default package name | Recommended |
+| `GPC_DEVELOPER_ID` | Developer account ID (for user management) | No |
 | `GPC_PROFILE` | Auth profile name | No |
 | `GPC_OUTPUT` | Default output format (`human`/`json`/`yaml`) | No |
 | `GPC_NO_COLOR` | Disable color output | No |
