@@ -3,6 +3,7 @@ import { loadConfig } from "@gpc/config";
 import { resolveAuth } from "@gpc/auth";
 import { createReportingClient } from "@gpc/api";
 import type { ReportingDimension } from "@gpc/api";
+import type { VitalsMetricSet } from "@gpc/api";
 import {
   getVitalsOverview,
   getVitalsCrashes,
@@ -13,6 +14,7 @@ import {
   getVitalsMemory,
   getVitalsAnomalies,
   searchVitalsErrors,
+  compareVitalsTrend,
   checkThreshold,
   detectOutputFormat,
   formatOutput,
@@ -164,6 +166,40 @@ export function registerVitalsCommands(program: Command): void {
           filter: options.filter,
           maxResults: options.max,
         });
+        console.log(formatOutput(result, format));
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  const METRIC_MAP: Record<string, VitalsMetricSet> = {
+    crashes: "vitals.crashrate",
+    anr: "vitals.anrrate",
+    startup: "vitals.slowstartrate",
+    rendering: "vitals.slowrenderingrate",
+    battery: "vitals.excessivewakeuprate",
+    memory: "vitals.stuckbackgroundwakelockrate",
+  };
+
+  vitals
+    .command("compare <metric>")
+    .description("Compare metric trend: this period vs previous period")
+    .option("--days <n>", "Period length in days", parseInt, 7)
+    .action(async (metric: string, options) => {
+      const metricSet = METRIC_MAP[metric];
+      if (!metricSet) {
+        console.error(`Error: Unknown metric "${metric}". Use: ${Object.keys(METRIC_MAP).join(", ")}`);
+        process.exit(2);
+      }
+
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts().app, config);
+      const reporting = await getReportingClient(config);
+      const format = detectOutputFormat();
+
+      try {
+        const result = await compareVitalsTrend(reporting, packageName, metricSet, options.days);
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);

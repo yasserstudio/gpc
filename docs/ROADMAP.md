@@ -84,7 +84,7 @@
 - [x] `gpc publish <file>` (end-to-end shortcut: upload + track + notes + commit)
 - [x] `gpc validate` (pre-submission checks)
 - [x] `gpc status` (cross-track release overview)
-- [ ] Form factor tracks (wear, automotive, tv, android_xr)
+- [x] Form factor tracks (wear, automotive, tv, android_xr)
 - [ ] Internal app sharing upload (`--internal-sharing`)
 - [ ] Generated APKs download
 
@@ -92,7 +92,7 @@
 - [ ] `--dry-run` for releases upload
 - [ ] `gpc diff --from <version> --to <version>`
 - [x] Release notes from directory (per-language files)
-- [ ] Custom closed testing track support
+- [x] Custom closed testing track support
 - [ ] Upload progress improvements
 
 ---
@@ -114,7 +114,7 @@
 
 **Sub-updates (v0.4.y):**
 - [ ] Fastlane format auto-detection on push
-- [ ] Image optimization warnings (size/format)
+- [x] Image optimization warnings (size/format)
 - [ ] Bulk image upload with progress
 
 ---
@@ -142,7 +142,7 @@
 - [x] Threshold-based exit codes for CI alerting
 
 **Sub-updates (v0.5.y):**
-- [ ] Vitals trend comparison (this week vs last week)
+- [x] Vitals trend comparison (this week vs last week)
 - [ ] Reviews digest command (summary of recent low-rated reviews)
 - [ ] Custom threshold configuration
 

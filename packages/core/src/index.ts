@@ -52,9 +52,12 @@ export {
   getVitalsMemory,
   getVitalsAnomalies,
   searchVitalsErrors,
+  compareVitalsTrend,
   checkThreshold,
 } from "./commands/vitals.js";
-export type { VitalsQueryOptions, VitalsOverview, ThresholdResult } from "./commands/vitals.js";
+export type { VitalsQueryOptions, VitalsOverview, VitalsTrendComparison, ThresholdResult } from "./commands/vitals.js";
+export { validateImage } from "./utils/image-validation.js";
+export type { ImageValidationResult } from "./utils/image-validation.js";
 export {
   listSubscriptions,
   getSubscription,

@@ -21,7 +21,14 @@ export interface ValidateResult {
   checks: ValidateCheck[];
 }
 
-const STANDARD_TRACKS = new Set(["internal", "alpha", "beta", "production"]);
+const STANDARD_TRACKS = new Set([
+  "internal", "alpha", "beta", "production",
+  // Form factor tracks
+  "wear:internal", "wear:alpha", "wear:beta", "wear:production",
+  "automotive:internal", "automotive:alpha", "automotive:beta", "automotive:production",
+  "tv:internal", "tv:alpha", "tv:beta", "tv:production",
+  "android_xr:internal", "android_xr:alpha", "android_xr:beta", "android_xr:production",
+]);
 const TRACK_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9_:-]*$/;
 
 export async function validatePreSubmission(

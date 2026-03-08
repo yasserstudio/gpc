@@ -11,6 +11,15 @@ vi.mock("../src/utils/file-validation.js", () => ({
   }),
 }));
 
+// Mock image validation so uploadImage tests don't need real files
+vi.mock("../src/utils/image-validation.js", () => ({
+  validateImage: vi.fn().mockResolvedValue({
+    valid: true,
+    errors: [],
+    warnings: [],
+  }),
+}));
+
 import { GpcError, ConfigError, ApiError, NetworkError } from "../src/errors";
 import { detectOutputFormat, formatOutput } from "../src/output";
 import {

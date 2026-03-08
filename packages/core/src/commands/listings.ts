@@ -1,5 +1,6 @@
 import type { PlayApiClient, Listing, Image, ImageType, AppDetails, CountryAvailability } from "@gpc/api";
 import { isValidBcp47 } from "../utils/bcp47.js";
+import { validateImage } from "../utils/image-validation.js";
 import { readListingsFromDir, writeListingsToDir, diffListings } from "../utils/fastlane.js";
 import type { ListingDiff } from "../utils/fastlane.js";
 
@@ -168,6 +169,18 @@ export async function uploadImage(
   filePath: string,
 ): Promise<Image> {
   validateLanguage(language);
+
+  // Validate image before upload
+  const imageCheck = await validateImage(filePath, imageType);
+  if (!imageCheck.valid) {
+    throw new Error(`Image validation failed: ${imageCheck.errors.join("; ")}`);
+  }
+  if (imageCheck.warnings.length > 0) {
+    for (const w of imageCheck.warnings) {
+      console.warn(`Warning: ${w}`);
+    }
+  }
+
   const edit = await client.edits.insert(packageName);
   try {
     const image = await client.images.upload(packageName, edit.id, language, imageType, filePath);
