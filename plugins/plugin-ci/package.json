@@ -1,6 +1,6 @@
 {
   "name": "@gpc-cli/plugin-ci",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "CI/CD helpers for GPC",
   "type": "module",
   "main": "./dist/index.js",
@@ -11,7 +11,9 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -27,6 +29,10 @@
   "devDependencies": {
     "@types/node": "^25.3.5"
   },
-  "keywords": ["google-play", "ci", "plugin"],
+  "keywords": [
+    "google-play",
+    "ci",
+    "plugin"
+  ],
   "license": "MIT"
 }
