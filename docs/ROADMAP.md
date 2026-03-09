@@ -229,7 +229,7 @@
 - [x] Unified error hierarchy (exitCode + toJSON on all error types)
 - [x] 90%+ test coverage on core packages
 - [ ] VitePress documentation site complete
-- [ ] Standalone binary investigation
+- [x] Standalone binary (esbuild bundle + Bun compile, cross-platform)
 - [x] Security audit
 - [x] README and docs final polish
 - [x] CHANGELOG complete

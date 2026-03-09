@@ -6,9 +6,15 @@ import type { Command } from "commander";
  * Load and initialize all plugins.
  * First-party plugins (@gpc/*) are auto-trusted.
  * Third-party plugins require prior approval stored in config.
+ * Plugin loading is disabled in standalone binary mode.
  */
 export async function loadPlugins(): Promise<PluginManager> {
   const manager = new PluginManager();
+
+  // Standalone binary cannot resolve external npm packages at runtime
+  if (process.env["__GPC_BINARY"] === "1") {
+    return manager;
+  }
 
   try {
     const { loadConfig } = await import("@gpc/config");

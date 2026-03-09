@@ -1,0 +1,75 @@
+name: Build Binaries
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to attach binaries to (e.g. v1.0.0)"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - target: darwin-arm64
+            asset: gpc-darwin-arm64
+          - target: darwin-x64
+            asset: gpc-darwin-x64
+          - target: linux-x64
+            asset: gpc-linux-x64
+          - target: windows-x64
+            asset: gpc-windows-x64.exe
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build
+
+      - name: Bundle and compile
+        run: npx tsx scripts/build-binary.ts --target=${{ matrix.target }}
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: dist/bin/${{ matrix.asset }}
+
+  attach:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' || github.event.inputs.tag
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: binaries
+          merge-multiple: true
+
+      - name: Generate checksums
+        run: |
+          cd binaries
+          sha256sum gpc-* > checksums.txt
+          cat checksums.txt
+
+      - name: Attach to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ github.event.release.tag_name || github.event.inputs.tag }}"
+          gh release upload "$TAG" binaries/* --repo ${{ github.repository }} --clobber
