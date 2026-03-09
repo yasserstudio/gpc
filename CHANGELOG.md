@@ -4,6 +4,22 @@ All notable changes to GPC are documented here.
 
 ---
 
+## v0.9.6 — Phase 9 Complete
+
+- **feat(cli):** Interactive mode — guided prompts for all commands with missing required options
+- **feat(cli):** `--yes` / `-y` flag to skip confirmation prompts (CI-safe)
+- **feat(cli):** Confirmation prompts on destructive operations (delete, remove, refund)
+- **feat(cli):** `requireOption` / `requireConfirm` shared helpers
+- **fix(core,api,auth,config):** Security audit — 12 findings fixed (credentials, paths, output)
+- **feat(cli):** Standalone binary: linux-arm64 target (5 platforms total)
+- **feat(cli):** Binary version injection from package.json
+- **fix(cli):** Binary-mode networking (Bun handles proxy natively)
+- **feat(cli):** Binary build metafile output for bundle analysis
+- **docs:** VitePress documentation site (37+ pages, AI-optimized with llms.txt)
+- **docs:** GitHub Actions deployment workflow for docs
+- **docs:** Expanded migration guides (from Fastlane, from Console UI)
+- 597 total tests
+
 ## v0.9.3 — Standalone Binary & Dependency Optimization
 
 - **refactor(auth):** Replace `googleapis` (194MB) with `google-auth-library` (776KB) — 250x size reduction
