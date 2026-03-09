@@ -1,6 +1,6 @@
 {
   "name": "@gpc-cli/api",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Typed client for Google Play Developer API v3",
   "type": "module",
   "main": "./dist/index.js",

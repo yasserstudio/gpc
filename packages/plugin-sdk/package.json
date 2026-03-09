@@ -1,6 +1,6 @@
 {
   "name": "@gpc-cli/plugin-sdk",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Plugin interface and SDK for extending GPC",
   "type": "module",
   "main": "./dist/index.js",
@@ -11,7 +11,9 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -21,6 +23,10 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
-  "keywords": ["google-play", "plugin", "sdk"],
+  "keywords": [
+    "google-play",
+    "plugin",
+    "sdk"
+  ],
   "license": "MIT"
 }
