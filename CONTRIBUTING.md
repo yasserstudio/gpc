@@ -14,7 +14,7 @@ Thanks for your interest in contributing to GPC! This guide will help you get st
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/gpc.git
+git clone https://github.com/yasserstudio/gpc.git
 cd gpc
 
 # Install dependencies
@@ -105,10 +105,10 @@ pnpm test -- --watch                # Watch mode
 - TypeScript strict mode
 - ESM modules
 - Named exports only (no default exports)
-- See [CONVENTIONS.md](./design/engineering/CONVENTIONS.md) for full details
+- See [CONVENTIONS.md](./docs/CONVENTIONS.md) for full details
 
 ## Need Help?
 
-- Open a [Discussion](https://github.com/YOUR_USERNAME/gpc/discussions) for questions
-- Check existing [Issues](https://github.com/YOUR_USERNAME/gpc/issues) before filing new ones
-- See the [design docs](./design/) for architecture decisions
+- Open a [Discussion](https://github.com/yasserstudio/gpc/discussions) for questions
+- Check existing [Issues](https://github.com/yasserstudio/gpc/issues) before filing new ones
+- See the [architecture docs](./docs/ARCHITECTURE.md) for design decisions

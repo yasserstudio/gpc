@@ -6,9 +6,7 @@ If you discover a security vulnerability in GPC, please report it responsibly.
 
 **Do NOT open a public GitHub issue for security vulnerabilities.**
 
-Instead, please email: **security@gpc.dev** (placeholder)
-
-Or use [GitHub's private vulnerability reporting](https://github.com/YOUR_USERNAME/gpc/security/advisories/new).
+Instead, use [GitHub's private vulnerability reporting](https://github.com/yasserstudio/gpc/security/advisories/new).
 
 ### What to Include
 
@@ -33,7 +31,7 @@ Or use [GitHub's private vulnerability reporting](https://github.com/YOUR_USERNA
 
 ## Security Practices
 
-See [design/architecture/SECURITY.md](./design/architecture/SECURITY.md) for details on:
+See [docs/SECURITY.md](./docs/SECURITY.md) for details on:
 
 - Credential storage and handling
 - Secrets redaction in output

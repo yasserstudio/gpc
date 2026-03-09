@@ -9,10 +9,10 @@
 | **Monorepo** | Turborepo | Fast builds, caching, task orchestration |
 | **Package Manager** | pnpm | Strict dependency resolution, disk efficiency |
 | **CLI Framework** | Commander.js | Mature, composable, low overhead |
-| **API Client** | googleapis / custom | Official Google client + typed wrappers |
+| **API Client** | Native fetch + typed wrappers | Zero-dependency HTTP client with retry + rate limiting |
 | **Auth** | google-auth-library | Service accounts, OAuth 2.0, ADC |
-| **Output** | chalk + ora + cli-table3 | Human-friendly with `--json` machine output |
-| **Config** | cosmiconfig | Standard config file discovery |
+| **Output** | Built-in formatters | Human-friendly tables with `--json` machine output |
+| **Config** | Custom loader | `.gpcrc.json` discovery, env vars, profiles |
 | **Testing** | Vitest | Fast, TypeScript-native, ESM-first |
 | **Linting** | ESLint 9 (flat config) + Prettier | Consistent code style |
 | **Bundling** | tsup | Fast, zero-config TypeScript bundling |
@@ -62,7 +62,7 @@ gpc/
                     ▼
             ┌──────────────┐
             │ google-auth  │  ← External dependency
-            │  googleapis  │
+            │  -library    │
             └──────────────┘
 ```
 
@@ -82,7 +82,7 @@ gpc/
 - Multi-account profile management
 
 #### `@gpc/config`
-- Config file discovery (`.gpcrc`, `gpc.config.ts`, `package.json#gpc`)
+- Config file discovery (`.gpcrc.json`, user config dir)
 - Profile-based configuration (dev, staging, production)
 - Environment variable overrides (`GPC_*` prefix)
 - Schema validation with clear error messages
@@ -95,7 +95,7 @@ gpc/
 
 #### `@gpc/cli`
 - Command registration and argument parsing
-- Interactive prompts (inquirer/prompts)
+- Interactive prompts (node:readline)
 - Output formatting: human (table/list), JSON, YAML
 - Progress indicators, spinners, color output
 - Shell completion generation (bash, zsh, fish)
@@ -216,7 +216,7 @@ interface PluginHooks {
 
 - **First-party** (`@gpc/*`): Auto-trusted, no permission checks
 - **Third-party**: Permissions validated against declared `PluginManifest`
-- 9 permission types: `read:config`, `write:config`, `read:auth`, `api:read`, `api:write`, `commands:register`, `hooks:beforeCommand`, `hooks:afterCommand`, `hooks:onError`
+- 11 permission types: `read:config`, `write:config`, `read:auth`, `api:read`, `api:write`, `commands:register`, `hooks:beforeCommand`, `hooks:afterCommand`, `hooks:onError`, `hooks:beforeRequest`, `hooks:afterResponse`
 
 ### Discovery
 
