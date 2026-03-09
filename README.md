@@ -25,11 +25,18 @@ Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.
 ## Install
 
 ```bash
-# npm (recommended — includes plugin support)
+# Homebrew (macOS/Linux)
+brew install yasserstudio/tap/gpc
+
+# npm (includes plugin support)
 npm install -g gpc
 
 # Standalone binary (no Node.js required)
 curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
+
+# From source
+git clone https://github.com/yasserstudio/gpc.git
+cd gpc && pnpm install && pnpm build
 ```
 
 ---
@@ -397,6 +404,7 @@ Your CI can distinguish "auth expired" from "crash rate too high" and react diff
 
 ## Documentation
 
+- [Installation](./docs/INSTALLATION.md)
 - [Commands Reference](./docs/COMMANDS.md)
 - [Architecture](./docs/ARCHITECTURE.md)
 - [CI/CD Recipes](./docs/CI_CD.md)
