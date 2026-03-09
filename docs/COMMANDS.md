@@ -17,6 +17,7 @@ gpc <domain> <action> [options]
 | `--app` | `-a` | App package name (overrides config) |
 | `--no-color` | | Disable colored output |
 | `--no-interactive` | | Disable interactive prompts |
+| `--dry-run` | | Preview changes without executing |
 | `--limit` | | Max results per page |
 | `--next-page` | | Pagination token for next page |
 | `--retry-log` | | Log retry attempts to file |
@@ -84,7 +85,6 @@ gpc releases notes set --track beta --file release-notes/
 ```bash
 gpc tracks list                       # List all tracks
 gpc tracks get <track>                # Show track details + releases
-gpc tracks create <name>              # Create custom track
 ```
 
 ## Listing / Metadata Commands
@@ -144,18 +144,41 @@ gpc iap delete <sku>
 gpc iap sync --dir products/          # Bulk sync from local files
 ```
 
+## Purchase Commands
+
+```bash
+gpc purchases get <token>             # Get product purchase details (v1 + v2)
+gpc purchases acknowledge <token>     # Acknowledge a purchase
+gpc purchases consume <token>         # Consume a consumable purchase
+gpc purchases subscription get <token>   # Get subscription purchase (v2 API)
+gpc purchases subscription cancel <token>
+gpc purchases subscription defer <token>
+gpc purchases subscription revoke <token>
+gpc purchases voided list             # List voided purchases
+gpc orders refund <order-id>          # Refund an order
+```
+
+## Pricing Commands
+
+```bash
+gpc pricing convert --from USD --amount 9.99  # Regional price conversion
+```
+
 ## Vitals Commands
 
 ```bash
 gpc vitals overview                   # Summary dashboard
 gpc vitals crashes                    # Crash rate and clusters
 gpc vitals crashes --version 42       # Filter by version code
+gpc vitals crashes --threshold 2.0    # Exit code 6 if breached (CI gates)
 gpc vitals anr                        # ANR rate and clusters
 gpc vitals startup                    # Cold/warm start times
 gpc vitals rendering                  # Frame rate metrics
 gpc vitals battery                    # Battery usage stats
-gpc vitals size                       # App size metrics
-gpc vitals permissions                # Permission denials
+gpc vitals memory                     # Low memory killer rate
+gpc vitals anomalies                  # Detected anomalies
+gpc vitals errors search              # Error issues and reports
+gpc vitals compare crashes --days 7   # This week vs last week
 ```
 
 ## Report Commands
@@ -232,11 +255,21 @@ gpc config path                       # Show config file location
 ## High-Level Workflow Commands
 
 ```bash
-gpc publish <file>                    # End-to-end: upload + assign track + release notes + commit
+gpc publish <file>                    # End-to-end: validate + upload + track + notes + commit
 gpc publish <file> --track beta --notes "Bug fixes"
-gpc validate                          # Pre-submission checks (metadata, screenshots, bundle)
+gpc publish <file> --notes-dir ./release-notes/  # Multi-language notes
+gpc validate <file>                   # Pre-submission validation checks
+gpc validate <file> --track beta      # Validate for specific track
 gpc status                            # Cross-track release overview for current app
-gpc diff --from 141 --to 142         # Compare two version codes (track, rollout, notes)
+```
+
+## Plugin Commands
+
+```bash
+gpc plugins list                      # Show loaded plugins
+gpc plugins init <name>               # Scaffold a new plugin project
+gpc plugins approve <name>            # Approve a third-party plugin
+gpc plugins revoke <name>             # Revoke plugin approval
 ```
 
 ## Utility Commands
@@ -247,7 +280,6 @@ gpc completion zsh                    # Generate zsh completions
 gpc completion fish                   # Generate fish completions
 gpc doctor                            # Verify setup and connectivity
 gpc docs                              # Open documentation in browser
-gpc update                            # Check for updates
 ```
 
 ---

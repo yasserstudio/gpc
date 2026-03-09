@@ -40,12 +40,20 @@ interface PluginHooks {
 
   /** Register additional CLI commands from the plugin */
   registerCommands(handler: CommandRegistrar): void;
+
+  /** Run before an API request is sent */
+  beforeRequest(handler: BeforeRequestHandler): void;
+
+  /** Run after an API response is received */
+  afterResponse(handler: AfterResponseHandler): void;
 }
 
 type BeforeCommandHandler = (ctx: CommandEvent) => void | Promise<void>;
 type AfterCommandHandler = (ctx: CommandEvent, result: CommandResult) => void | Promise<void>;
 type ErrorHandler = (ctx: CommandEvent, error: PluginError) => void | Promise<void>;
 type CommandRegistrar = (registry: CommandRegistry) => void;
+type BeforeRequestHandler = (event: RequestEvent) => void | Promise<void>;
+type AfterResponseHandler = (event: ResponseEvent) => void | Promise<void>;
 ```
 
 ---
@@ -72,6 +80,18 @@ interface PluginError {
   message: string;
   exitCode: number;
   cause?: Error;
+}
+
+interface RequestEvent {
+  method: string;
+  path: string;
+  startedAt: Date;
+}
+
+interface ResponseEvent {
+  status: number;
+  durationMs: number;
+  ok: boolean;
 }
 ```
 
@@ -109,7 +129,9 @@ type PluginPermission =
   | "commands:register"
   | "hooks:beforeCommand"
   | "hooks:afterCommand"
-  | "hooks:onError";
+  | "hooks:onError"
+  | "hooks:beforeRequest"
+  | "hooks:afterResponse";
 ```
 
 ### Trust Model
@@ -229,6 +251,10 @@ export type { GpcPlugin, PluginHooks, PluginManifest, PluginPermission };
 
 // Hook handler types
 export type { BeforeCommandHandler, AfterCommandHandler, ErrorHandler, CommandRegistrar };
+export type { BeforeRequestHandler, AfterResponseHandler };
+
+// Event types
+export type { CommandEvent, CommandResult, PluginError, RequestEvent, ResponseEvent };
 
 // Event types
 export type { CommandEvent, CommandResult, PluginError };
