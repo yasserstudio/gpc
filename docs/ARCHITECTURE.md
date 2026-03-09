@@ -5,7 +5,8 @@
 | Layer | Technology | Rationale |
 |-------|-----------|-----------|
 | **Language** | TypeScript 5.x | Type safety, ecosystem, npm distribution |
-| **Runtime** | Node.js 20+ LTS | Stability, `npx` support, broad adoption |
+| **Runtime** | Node.js 20+ LTS / Bun (binary) | Stability, `npx` support, broad adoption |
+| **Distribution** | npm, Homebrew, standalone binary | Multiple install paths, no lock-in |
 | **Monorepo** | Turborepo | Fast builds, caching, task orchestration |
 | **Package Manager** | pnpm | Strict dependency resolution, disk efficiency |
 | **CLI Framework** | Commander.js | Mature, composable, low overhead |
