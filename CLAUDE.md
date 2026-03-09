@@ -72,6 +72,22 @@ Private strategy docs in `.dev/` (gitignored):
 - `.dev/engineering/` — implementation strategy
 - `.dev/HONEST_ASSESSMENT.md`, `.dev/COMPARISON_WITH_ASC_CLI.md`
 
+## GPC Skills
+
+Agent skills for GPC workflows are in `.agents/skills/gpc-*`:
+
+| Skill | When to Use |
+|-------|-------------|
+| `gpc-setup` | Auth (service account, OAuth, ADC), config, profiles, `gpc doctor` |
+| `gpc-release-flow` | Upload AAB, releases, rollouts, promote, `gpc publish` |
+| `gpc-metadata-sync` | Store listings, images, Fastlane metadata compat, pull/push |
+| `gpc-vitals-monitoring` | Crashes, ANR, vitals thresholds, reviews, reports |
+| `gpc-ci-integration` | GitHub Actions, GitLab CI, env vars, JSON output, exit codes |
+| `gpc-monetization` | Subscriptions, IAP, base plans, offers, purchases, pricing, regional conversion |
+| `gpc-user-management` | Developer account users, permissions, grants, testers, CSV import |
+
+Read the relevant `SKILL.md` and its `references/` when working on these workflows.
+
 ## Important Rules
 
 - Never commit credentials or service account keys
