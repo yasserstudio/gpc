@@ -1,5 +1,5 @@
 export { GpcError, ConfigError, ApiError, NetworkError } from "./errors.js";
-export { detectOutputFormat, formatOutput } from "./output.js";
+export { detectOutputFormat, formatOutput, redactSensitive } from "./output.js";
 export type { CommandContext } from "./context.js";
 export { PluginManager, discoverPlugins } from "./plugins.js";
 export type { LoadedPlugin, DiscoverPluginsOptions } from "./plugins.js";
@@ -122,5 +122,6 @@ export {
   removeTesters,
   importTestersFromCsv,
 } from "./commands/testers.js";
+export { safePath, safePathWithin } from "./utils/safe-path.js";
 export { scaffoldPlugin } from "./commands/plugin-scaffold.js";
 export type { ScaffoldOptions, ScaffoldResult } from "./commands/plugin-scaffold.js";

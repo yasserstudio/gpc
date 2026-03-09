@@ -5,19 +5,69 @@ export function detectOutputFormat(): OutputFormat {
   return process.stdout.isTTY ? "table" : "json";
 }
 
-export function formatOutput(data: unknown, format: OutputFormat): string {
+export function formatOutput(data: unknown, format: OutputFormat, redact = true): string {
+  const safe = redact ? redactSensitive(data) : data;
   switch (format) {
     case "json":
-      return formatJson(data);
+      return formatJson(safe);
     case "yaml":
-      return formatYaml(data);
+      return formatYaml(safe);
     case "markdown":
-      return formatMarkdown(data);
+      return formatMarkdown(safe);
     case "table":
-      return formatTable(data);
+      return formatTable(safe);
     default:
-      return formatJson(data);
+      return formatJson(safe);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Sensitive field redaction
+// ---------------------------------------------------------------------------
+
+const SENSITIVE_KEYS = new Set([
+  "private_key",
+  "privateKey",
+  "private_key_id",
+  "privateKeyId",
+  "accessToken",
+  "access_token",
+  "refreshToken",
+  "refresh_token",
+  "client_secret",
+  "clientSecret",
+  "token",
+  "password",
+  "secret",
+  "credentials",
+]);
+
+const REDACTED = "[REDACTED]";
+
+/** Recursively redact sensitive fields from data before output. */
+export function redactSensitive(data: unknown): unknown {
+  if (data === null || data === undefined) return data;
+
+  if (typeof data === "string") return data;
+  if (typeof data === "number" || typeof data === "boolean") return data;
+
+  if (Array.isArray(data)) {
+    return data.map((item) => redactSensitive(item));
+  }
+
+  if (typeof data === "object") {
+    const result: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
+      if (SENSITIVE_KEYS.has(key) && typeof value === "string") {
+        result[key] = REDACTED;
+      } else {
+        result[key] = redactSensitive(value);
+      }
+    }
+    return result;
+  }
+
+  return data;
 }
 
 function formatJson(data: unknown): string {

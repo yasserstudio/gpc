@@ -230,7 +230,7 @@
 - [x] 90%+ test coverage on core packages
 - [ ] VitePress documentation site complete
 - [ ] Standalone binary investigation
-- [ ] Security audit
+- [x] Security audit
 - [ ] README and docs final polish
 - [ ] CHANGELOG complete
 - [ ] Wall of Apps community showcase

@@ -69,6 +69,9 @@ export async function readConfigFile(filePath: string): Promise<GpcConfig> {
   const content = await readFile(filePath, "utf-8");
   const parsed = JSON.parse(content) as GpcConfig;
 
+  // Guard against prototype pollution
+  sanitizeObject(parsed);
+
   // Validate output format if present
   if (parsed.output !== undefined && !isValidOutputFormat(parsed.output)) {
     throw new Error(
@@ -77,6 +80,25 @@ export async function readConfigFile(filePath: string): Promise<GpcConfig> {
   }
 
   return parsed;
+}
+
+const DANGEROUS_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
+/** Remove prototype pollution vectors from parsed JSON objects recursively. */
+function sanitizeObject(obj: unknown): void {
+  if (!obj || typeof obj !== "object") return;
+  if (Array.isArray(obj)) {
+    for (const item of obj) sanitizeObject(item);
+    return;
+  }
+  const record = obj as Record<string, unknown>;
+  for (const key of Object.keys(record)) {
+    if (DANGEROUS_KEYS.has(key)) {
+      delete record[key];
+    } else if (typeof record[key] === "object" && record[key] !== null) {
+      sanitizeObject(record[key]);
+    }
+  }
 }
 
 export async function loadConfig(
