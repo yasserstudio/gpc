@@ -231,8 +231,8 @@
 - [ ] VitePress documentation site complete
 - [ ] Standalone binary investigation
 - [x] Security audit
-- [ ] README and docs final polish
-- [ ] CHANGELOG complete
+- [x] README and docs final polish
+- [x] CHANGELOG complete
 - [ ] Wall of Apps community showcase
 
 ---

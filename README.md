@@ -100,9 +100,12 @@ gpc reviews export --format csv --output reviews.csv
 ```bash
 gpc vitals overview                        # Summary dashboard
 gpc vitals crashes --version 142
+gpc vitals crashes --threshold 2.0         # Exit code 6 if breached (CI gates)
+gpc vitals compare crashes --days 7        # This week vs last week
 gpc vitals anr
 gpc vitals startup
 gpc vitals battery
+gpc vitals anomalies
 ```
 
 ### Subscriptions & In-App Products
@@ -121,21 +124,40 @@ gpc reports download financial --month 2026-02
 gpc reports download stats --type installs --since 30d
 ```
 
+### Purchases & Pricing
+
+```bash
+gpc purchases get <token>
+gpc purchases subscription get <token>
+gpc purchases voided list
+gpc orders refund <order-id>
+gpc pricing convert --from USD --amount 9.99
+```
+
 ### Testers & Users
 
 ```bash
-gpc testers add --track internal user@example.com
-gpc users list
-gpc users invite dev@company.com --role admin
+gpc testers add user@example.com --track internal
+gpc testers import --track beta --file testers.csv
+gpc users list --developer-id <id>
+gpc users invite dev@company.com --developer-id <id> --role ADMIN
 ```
 
 ### High-Level Workflows
 
 ```bash
-gpc publish app.aab --track beta --notes "Bug fixes"    # End-to-end flow
-gpc validate                                              # Pre-submission checks
-gpc status                                                # Cross-track overview
-gpc diff --from 141 --to 142                              # Compare versions
+gpc publish app.aab --track beta --notes "Bug fixes"      # End-to-end flow
+gpc publish app.aab --notes-dir ./release-notes/           # Multi-language notes
+gpc validate app.aab --track beta                          # Pre-submission checks
+gpc status                                                 # Cross-track overview
+```
+
+### Plugins
+
+```bash
+gpc plugins list                           # Show loaded plugins
+gpc plugins init my-plugin                 # Scaffold a new plugin
+gpc plugins approve gpc-plugin-slack       # Approve third-party plugin
 ```
 
 ---
@@ -205,7 +227,26 @@ deploy:
     GPC_APP: com.example.myapp
 ```
 
+Add `@gpc/plugin-ci` for automatic GitHub Actions step summaries:
+
+```json
+{
+  "plugins": ["@gpc/plugin-ci"]
+}
+```
+
 See the full [CI/CD recipes](./docs/CI_CD.md) for GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI.
+
+---
+
+## Dry Run
+
+All write operations support `--dry-run` to preview changes without executing:
+
+```bash
+gpc listings push --dir metadata/ --dry-run
+gpc releases upload app.aab --track beta --dry-run
+```
 
 ---
 
@@ -313,6 +354,7 @@ const releases = await client.tracks.get("com.example.app", "production");
 | `3` | Authentication error |
 | `4` | API error (rate limit, permission) |
 | `5` | Network error |
+| `6` | Threshold breach (vitals CI alerting) |
 | `10` | Plugin error |
 
 ---
