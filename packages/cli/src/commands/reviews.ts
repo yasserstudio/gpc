@@ -11,6 +11,7 @@ import {
   formatOutput,
 } from "@gpc/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
+import { isInteractive, requireOption } from "../prompt.js";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;
@@ -86,11 +87,16 @@ export function registerReviewsCommands(program: Command): void {
   reviews
     .command("reply <review-id>")
     .description("Reply to a review")
-    .requiredOption("--text <text>", "Reply text (max 350 chars)")
+    .option("--text <text>", "Reply text (max 350 chars)")
     .action(async (reviewId: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
       const format = detectOutputFormat();
+      const interactive = isInteractive(program);
+
+      options.text = await requireOption("text", options.text, {
+        message: "Reply text (max 350 chars):",
+      }, interactive);
 
       if (isDryRun(program)) {
         printDryRun({

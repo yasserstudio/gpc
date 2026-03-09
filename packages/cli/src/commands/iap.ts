@@ -14,6 +14,7 @@ import {
   formatOutput,
 } from "@gpc/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
+import { requireConfirm } from "../prompt.js";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;
@@ -144,6 +145,8 @@ export function registerIapCommands(program: Command): void {
     .action(async (sku: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+
+      await requireConfirm(`Delete in-app product "${sku}"?`, program);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();

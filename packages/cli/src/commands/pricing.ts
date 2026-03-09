@@ -30,11 +30,22 @@ export function registerPricingCommands(program: Command): void {
   pricing
     .command("convert")
     .description("Convert a price to all regional prices")
-    .requiredOption("--from <currency>", "Source currency code (e.g. USD)")
-    .requiredOption("--amount <number>", "Price amount (e.g. 4.99)")
+    .option("--from <currency>", "Source currency code (e.g. USD)")
+    .option("--amount <number>", "Price amount (e.g. 4.99)")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+      const { isInteractive, requireOption } = await import("../prompt.js");
+      const interactive = isInteractive(program);
+
+      options.from = await requireOption("from", options.from, {
+        message: "Source currency code (e.g. USD):",
+        default: "USD",
+      }, interactive);
+
+      options.amount = await requireOption("amount", options.amount, {
+        message: "Price amount (e.g. 4.99):",
+      }, interactive);
       const client = await getClient(config);
       const format = detectOutputFormat();
 

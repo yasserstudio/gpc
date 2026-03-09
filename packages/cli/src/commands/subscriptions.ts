@@ -24,6 +24,7 @@ import {
   formatOutput,
 } from "@gpc/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
+import { requireConfirm } from "../prompt.js";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;
@@ -158,6 +159,8 @@ export function registerSubscriptionsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
 
+      await requireConfirm(`Delete subscription "${productId}"?`, program);
+
       if (isDryRun(program)) {
         const format = detectOutputFormat();
         printDryRun({
@@ -246,6 +249,8 @@ export function registerSubscriptionsCommands(program: Command): void {
     .action(async (productId: string, basePlanId: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+
+      await requireConfirm(`Delete base plan "${basePlanId}" from subscription "${productId}"?`, program);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();
@@ -409,6 +414,8 @@ export function registerSubscriptionsCommands(program: Command): void {
     .action(async (productId: string, basePlanId: string, offerId: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+
+      await requireConfirm(`Delete offer "${offerId}"?`, program);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();

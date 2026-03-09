@@ -16,6 +16,7 @@ import {
   formatOutput,
 } from "@gpc/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
+import { isInteractive, requireOption, requireConfirm } from "../prompt.js";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;
@@ -166,11 +167,16 @@ export function registerPurchasesCommands(program: Command): void {
   sub
     .command("defer <subscription-id> <token>")
     .description("Defer a subscription expiry")
-    .requiredOption("--expiry <iso-date>", "Desired new expiry date (ISO 8601)")
+    .option("--expiry <iso-date>", "Desired new expiry date (ISO 8601)")
     .action(async (subscriptionId: string, token: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
       const format = detectOutputFormat();
+      const interactive = isInteractive(program);
+
+      options.expiry = await requireOption("expiry", options.expiry, {
+        message: "New expiry date (ISO 8601, e.g. 2026-12-31T23:59:59Z):",
+      }, interactive);
 
       if (isDryRun(program)) {
         printDryRun({
@@ -264,6 +270,8 @@ export function registerPurchasesCommands(program: Command): void {
     .action(async (orderId: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+
+      await requireConfirm(`Refund order "${orderId}"?`, program);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();
