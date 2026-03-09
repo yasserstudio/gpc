@@ -15,6 +15,7 @@ import {
 } from "@gpc/core";
 import type { ReportType, StatsDimension } from "@gpc/api";
 import { writeFile } from "node:fs/promises";
+import { isInteractive, requireOption } from "../prompt.js";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;
@@ -38,8 +39,17 @@ export function registerReportsCommands(program: Command): void {
   reports
     .command("list <report-type>")
     .description("List available report buckets")
-    .requiredOption("--month <YYYY-MM>", "Report month (e.g., 2026-03)")
+    .option("--month <YYYY-MM>", "Report month (e.g., 2026-03)")
     .action(async (reportType: string, options) => {
+      const interactive = isInteractive(program);
+      const now = new Date();
+      const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+      options.month = await requireOption("month", options.month, {
+        message: "Report month (YYYY-MM):",
+        default: defaultMonth,
+      }, interactive);
+
       if (!isValidReportType(reportType)) {
         console.error(`Error: Invalid report type "${reportType}". Valid types: earnings, sales, estimated_sales, installs, crashes, ratings, reviews, store_performance, subscriptions, play_balance`);
         process.exit(2);
@@ -66,10 +76,19 @@ export function registerReportsCommands(program: Command): void {
   download
     .command("financial")
     .description("Download a financial report")
-    .requiredOption("--month <YYYY-MM>", "Report month (e.g., 2026-03)")
+    .option("--month <YYYY-MM>", "Report month (e.g., 2026-03)")
     .option("--type <report-type>", "Report type", "earnings")
     .option("--output-file <path>", "Save to file instead of stdout")
     .action(async (options) => {
+      const interactive = isInteractive(program);
+      const now = new Date();
+      const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+      options.month = await requireOption("month", options.month, {
+        message: "Report month (YYYY-MM):",
+        default: defaultMonth,
+      }, interactive);
+
       if (!isFinancialReportType(options.type)) {
         console.error(`Error: Invalid financial report type "${options.type}". Valid types: earnings, sales, estimated_sales, play_balance`);
         process.exit(2);
@@ -96,10 +115,25 @@ export function registerReportsCommands(program: Command): void {
   download
     .command("stats")
     .description("Download a stats report")
-    .requiredOption("--month <YYYY-MM>", "Report month (e.g., 2026-03)")
-    .requiredOption("--type <report-type>", "Report type (installs, crashes, ratings, reviews, store_performance, subscriptions)")
+    .option("--month <YYYY-MM>", "Report month (e.g., 2026-03)")
+    .option("--type <report-type>", "Report type (installs, crashes, ratings, reviews, store_performance, subscriptions)")
     .option("--output-file <path>", "Save to file instead of stdout")
     .action(async (options) => {
+      const interactive = isInteractive(program);
+      const now = new Date();
+      const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+      const statsTypes = ["installs", "crashes", "ratings", "reviews", "store_performance", "subscriptions"];
+
+      options.month = await requireOption("month", options.month, {
+        message: "Report month (YYYY-MM):",
+        default: defaultMonth,
+      }, interactive);
+
+      options.type = await requireOption("type", options.type, {
+        message: "Stats report type:",
+        choices: statsTypes,
+      }, interactive);
+
       if (!isStatsReportType(options.type)) {
         console.error(`Error: Invalid stats report type "${options.type}". Valid types: installs, crashes, ratings, reviews, store_performance, subscriptions`);
         process.exit(2);

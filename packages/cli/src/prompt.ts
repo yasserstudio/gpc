@@ -24,6 +24,54 @@ export function isInteractive(program?: { opts(): Record<string, unknown> }): bo
 }
 
 /**
+ * Check if --yes flag is set (skip confirmation prompts).
+ */
+export function skipConfirm(program?: { opts(): Record<string, unknown> }): boolean {
+  if (!program) return false;
+  let root = program as any;
+  while (root.parent) root = root.parent;
+  return root.opts().yes === true;
+}
+
+/**
+ * Require an option value: return existing value, prompt interactively, or exit with error.
+ */
+export async function requireOption(
+  name: string,
+  value: string | undefined,
+  prompt: { message: string; choices?: string[]; default?: string },
+  interactive: boolean,
+): Promise<string> {
+  if (value) return value;
+  if (interactive) {
+    return prompt.choices
+      ? promptSelect(prompt.message, prompt.choices, prompt.default)
+      : promptInput(prompt.message, prompt.default);
+  }
+  process.stderr.write(`Error: Missing required option --${name}\n`);
+  process.stderr.write(`Suggestion: Provide --${name} or run interactively (remove --no-interactive)\n`);
+  process.exit(2);
+}
+
+/**
+ * Require confirmation for destructive operations.
+ * Returns true if confirmed (or --yes flag is set / non-interactive).
+ * Exits with code 0 if denied.
+ */
+export async function requireConfirm(
+  message: string,
+  program?: { opts(): Record<string, unknown> },
+): Promise<void> {
+  if (skipConfirm(program)) return;
+  if (!isInteractive(program)) return;
+  const confirmed = await promptConfirm(message, false);
+  if (!confirmed) {
+    console.log("Aborted.");
+    process.exit(0);
+  }
+}
+
+/**
  * Prompt for text input.
  */
 export async function promptInput(message: string, defaultValue?: string): Promise<string> {

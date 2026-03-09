@@ -15,6 +15,7 @@ import {
   formatOutput,
 } from "@gpc/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
+import { requireConfirm } from "../prompt.js";
 
 function resolveDeveloperId(devIdArg: string | undefined, config: any): string {
   const id = devIdArg || config.developerId;
@@ -151,6 +152,8 @@ export function registerUsersCommands(program: Command): void {
     .action(async (email: string) => {
       const config = await loadConfig();
       const developerId = resolveDeveloperId(users.opts().developerId, config);
+
+      await requireConfirm(`Remove user "${email}" from developer account?`, program);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();

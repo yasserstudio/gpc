@@ -11,6 +11,7 @@ import {
   formatOutput,
 } from "@gpc/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
+import { isInteractive, requireOption, requireConfirm } from "../prompt.js";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;
@@ -34,10 +35,17 @@ export function registerTestersCommands(program: Command): void {
   testers
     .command("list")
     .description("List testers for a track")
-    .requiredOption("--track <track>", "Track name (e.g., internal, alpha, beta)")
+    .option("--track <track>", "Track name (e.g., internal, alpha, beta)")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
+      const interactive = isInteractive(program);
+
+      options.track = await requireOption("track", options.track, {
+        message: "Track:",
+        choices: ["internal", "alpha", "beta"],
+      }, interactive);
+
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -53,11 +61,17 @@ export function registerTestersCommands(program: Command): void {
   testers
     .command("add <emails...>")
     .description("Add testers (Google Group emails) to a track")
-    .requiredOption("--track <track>", "Track name (e.g., internal, alpha, beta)")
+    .option("--track <track>", "Track name (e.g., internal, alpha, beta)")
     .action(async (emails: string[], options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
       const format = detectOutputFormat();
+      const interactive = isInteractive(program);
+
+      options.track = await requireOption("track", options.track, {
+        message: "Track:",
+        choices: ["internal", "alpha", "beta"],
+      }, interactive);
 
       if (isDryRun(program)) {
         printDryRun({
@@ -83,11 +97,19 @@ export function registerTestersCommands(program: Command): void {
   testers
     .command("remove <emails...>")
     .description("Remove testers (Google Group emails) from a track")
-    .requiredOption("--track <track>", "Track name (e.g., internal, alpha, beta)")
+    .option("--track <track>", "Track name (e.g., internal, alpha, beta)")
     .action(async (emails: string[], options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
       const format = detectOutputFormat();
+      const interactive = isInteractive(program);
+
+      options.track = await requireOption("track", options.track, {
+        message: "Track:",
+        choices: ["internal", "alpha", "beta"],
+      }, interactive);
+
+      await requireConfirm(`Remove ${emails.length} tester(s) from ${options.track}?`, program);
 
       if (isDryRun(program)) {
         printDryRun({
@@ -113,12 +135,22 @@ export function registerTestersCommands(program: Command): void {
   testers
     .command("import")
     .description("Import testers from a CSV file")
-    .requiredOption("--track <track>", "Track name (e.g., internal, alpha, beta)")
-    .requiredOption("--file <path>", "CSV file with email addresses")
+    .option("--track <track>", "Track name (e.g., internal, alpha, beta)")
+    .option("--file <path>", "CSV file with email addresses")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
       const format = detectOutputFormat();
+      const interactive = isInteractive(program);
+
+      options.track = await requireOption("track", options.track, {
+        message: "Track:",
+        choices: ["internal", "alpha", "beta"],
+      }, interactive);
+
+      options.file = await requireOption("file", options.file, {
+        message: "CSV file path:",
+      }, interactive);
 
       if (isDryRun(program)) {
         printDryRun({

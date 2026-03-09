@@ -17,6 +17,7 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     .option("-p, --profile <name>", "Auth profile name")
     .option("--no-color", "Disable colored output")
     .option("--no-interactive", "Disable interactive prompts")
+    .option("-y, --yes", "Skip confirmation prompts")
     .option("--dry-run", "Preview changes without executing");
 
   const commandLoaders: Record<string, () => Promise<void>> = {

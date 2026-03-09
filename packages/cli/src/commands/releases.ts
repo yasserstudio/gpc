@@ -7,7 +7,7 @@ import type { RetryLogEntry } from "@gpc/api";
 import { uploadRelease, getReleasesStatus, promoteRelease, updateRollout, readReleaseNotesFromDir, writeAuditLog, createAuditEntry } from "@gpc/core";
 import { detectOutputFormat, formatOutput } from "@gpc/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
-import { isInteractive, promptSelect, promptInput, promptConfirm } from "../prompt.js";
+import { isInteractive, promptSelect, promptInput, promptConfirm, requireOption, requireConfirm } from "../prompt.js";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;
@@ -146,14 +146,26 @@ export function registerReleasesCommands(program: Command): void {
   releases
     .command("promote")
     .description("Promote a release from one track to another")
-    .requiredOption("--from <track>", "Source track")
-    .requiredOption("--to <track>", "Target track")
+    .option("--from <track>", "Source track")
+    .option("--to <track>", "Target track")
     .option("--rollout <percent>", "Staged rollout percentage")
     .option("--notes <text>", "Release notes")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
       const format = detectOutputFormat();
+      const interactive = isInteractive(program);
+      const tracks = ["internal", "alpha", "beta", "production"];
+
+      options.from = await requireOption("from", options.from, {
+        message: "Source track:",
+        choices: tracks,
+      }, interactive);
+
+      options.to = await requireOption("to", options.to, {
+        message: "Target track:",
+        choices: tracks.filter((t: string) => t !== options.from),
+      }, interactive);
 
       if (isDryRun(program)) {
         printDryRun({
@@ -188,16 +200,29 @@ export function registerReleasesCommands(program: Command): void {
     const cmd = rollout
       .command(action)
       .description(`${action.charAt(0).toUpperCase() + action.slice(1)} a staged rollout`)
-      .requiredOption("--track <track>", "Track name");
+      .option("--track <track>", "Track name");
 
     if (action === "increase") {
-      cmd.requiredOption("--to <percent>", "New rollout percentage");
+      cmd.option("--to <percent>", "New rollout percentage");
     }
 
     cmd.action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
       const format = detectOutputFormat();
+      const interactive = isInteractive(program);
+      const tracks = ["internal", "alpha", "beta", "production"];
+
+      options.track = await requireOption("track", options.track, {
+        message: "Track:",
+        choices: tracks,
+      }, interactive);
+
+      if (action === "increase") {
+        options.to = await requireOption("to", options.to, {
+          message: "New rollout percentage (1-100):",
+        }, interactive);
+      }
 
       if (isDryRun(program)) {
         printDryRun({
@@ -232,7 +257,7 @@ export function registerReleasesCommands(program: Command): void {
     .command("notes")
     .description("Set release notes")
     .argument("<action>", "Action: set")
-    .requiredOption("--track <track>", "Track name")
+    .option("--track <track>", "Track name")
     .option("--lang <language>", "Language code", "en-US")
     .option("--notes <text>", "Release notes text")
     .option("--file <path>", "Read notes from file")
@@ -242,10 +267,22 @@ export function registerReleasesCommands(program: Command): void {
         process.exit(2);
       }
 
+      const interactive = isInteractive(program);
+      const tracks = ["internal", "alpha", "beta", "production"];
+
+      options.track = await requireOption("track", options.track, {
+        message: "Track:",
+        choices: tracks,
+      }, interactive);
+
       let notesText = options.notes;
       if (options.file) {
         const { readFile } = await import("node:fs/promises");
         notesText = await readFile(options.file, "utf-8");
+      }
+
+      if (!notesText && interactive) {
+        notesText = await promptInput("Release notes text:");
       }
 
       if (!notesText) {
