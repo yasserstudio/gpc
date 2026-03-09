@@ -230,7 +230,7 @@
 - [x] 90%+ test coverage on core packages
 - [ ] VitePress documentation site complete
 - [x] Standalone binary (esbuild bundle + Bun compile, cross-platform)
-- [ ] Homebrew tap (`yasserstudio/homebrew-tap`) for `brew install` distribution
+- [x] Homebrew tap (`yasserstudio/homebrew-tap`) for `brew install` distribution
 - [x] Security audit
 - [x] README and docs final polish
 - [x] CHANGELOG complete

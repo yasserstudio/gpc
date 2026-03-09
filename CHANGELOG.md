@@ -4,6 +4,12 @@ All notable changes to GPC are documented here.
 
 ---
 
+## v0.9.7 — Homebrew Tap
+
+- **feat(ci):** Homebrew tap at `yasserstudio/homebrew-tap` — `brew install yasserstudio/tap/gpc`
+- **feat(ci):** Auto-update formula on release via `repository_dispatch`
+- **feat(ci):** Platform-specific formula with SHA256 checksums (macOS arm64/x64, Linux x64)
+
 ## v0.9.6 — Phase 9 Complete
 
 - **feat(cli):** Interactive mode — guided prompts for all commands with missing required options
