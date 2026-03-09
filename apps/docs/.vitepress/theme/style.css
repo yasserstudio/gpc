@@ -1,0 +1,19 @@
+:root {
+  --vp-c-brand-1: #00d26a;
+  --vp-c-brand-2: #00bfa5;
+  --vp-c-brand-3: #009e73;
+  --vp-c-brand-soft: rgba(0, 210, 106, 0.14);
+}
+
+.dark {
+  --vp-c-brand-1: #00d26a;
+  --vp-c-brand-2: #00bfa5;
+  --vp-c-brand-3: #00e676;
+  --vp-c-brand-soft: rgba(0, 210, 106, 0.16);
+}
+
+/* Terminal-style code blocks */
+.vp-doc div[class*="language-bash"] pre,
+.vp-doc div[class*="language-sh"] pre {
+  font-size: 0.9em;
+}
