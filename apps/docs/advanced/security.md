@@ -1,0 +1,285 @@
+---
+outline: deep
+---
+
+# Security
+
+GPC handles sensitive credentials (service account keys, OAuth tokens) and interacts with production app releases. This page documents the threat model, security controls, and best practices.
+
+## Threat Model
+
+### Assets to Protect
+
+| Asset | Sensitivity | Risk if Compromised |
+|-------|------------|---------------------|
+| Service account keys | Critical | Full API access to all apps in the account |
+| OAuth tokens | High | User-scoped access, time-limited |
+| API responses | Medium | May contain PII (reviews, user emails) |
+| Upload artifacts | Medium | AAB/APK files (intellectual property) |
+| Configuration files | Low | May reference credential paths |
+
+### Attack Vectors
+
+| Vector | Risk | Mitigation |
+|--------|------|------------|
+| Credential committed to repo | High | `.gitignore` templates, `gpc doctor` warnings |
+| Credential leaked in logs | High | Redaction in verbose/debug output |
+| Token theft from disk | Medium | OS keychain storage, file permissions (0600) |
+| Man-in-the-middle | Low | TLS-only, custom CA certificate support |
+| Malicious plugin | Medium | Plugin permission scoping, approval flow |
+| Dependency supply chain | Medium | Lockfile, audit, minimal dependencies |
+
+## Credential Storage
+
+### Service Account Keys
+
+Service account keys grant full API access and are long-lived. GPC never copies, moves, or embeds key content.
+
+| Environment | Storage Method | Notes |
+|------------|---------------|-------|
+| CI/CD | Environment variable or mounted secret | `GPC_SERVICE_ACCOUNT` (JSON string or file path) |
+| Local dev | File path reference in config | Never copied into GPC storage |
+| Docker | Mounted volume or env var | Never baked into image |
+
+**Rules enforced by GPC:**
+- Config stores only the *path* to the key file, never the key content
+- `gpc doctor` warns if the key file has overly permissive permissions (>0600)
+- `gpc doctor` warns if the key file is inside a git repository
+
+### OAuth Tokens
+
+| Platform | Storage Location |
+|----------|-----------------|
+| macOS | Keychain (`security` CLI) |
+| Linux | `libsecret` / `gnome-keyring` / encrypted file fallback |
+| Windows | Windows Credential Manager |
+| CI/headless | Not applicable -- use service account |
+
+**Fallback:** If no OS keychain is available, tokens are stored in `~/.config/gpc/credentials.json` with `0600` permissions and a warning on first use.
+
+**Token lifecycle:**
+1. OAuth device flow produces access + refresh tokens
+2. Access token cached (1-hour TTL)
+3. On expiry, auto-refreshed using refresh token
+4. On `gpc auth logout`, token is revoked and deleted from storage
+5. Refresh token rotation enforced when supported
+
+## Secrets Redaction
+
+All output layers (human, JSON, YAML, debug logs) pass through a redaction filter before reaching any output destination.
+
+### Redacted Patterns
+
+| Pattern | Example Input | Redacted Output |
+|---------|--------------|----------------|
+| Service account key ID | `"private_key_id": "abc123..."` | `"private_key_id": "[REDACTED]"` |
+| Private key content | `-----BEGIN PRIVATE KEY-----` | `[REDACTED_KEY]` |
+| OAuth access tokens | `ya29.a0AfH6SM...` | `ya29.[REDACTED]` |
+| Refresh tokens | `1//0eXy...` | `1//[REDACTED]` |
+| Client secret | `"client_secret": "GOCSPX-..."` | `"client_secret": "[REDACTED]"` |
+| Client email | `"client_email": "sa@proj.iam..."` | Shown (needed for debugging) |
+
+### Redaction Architecture
+
+```
+┌─────────────────────┐
+│   Command Output    │
+└──────────┬──────────┘
+           │
+    ┌──────▼──────┐
+    │  Redaction   │  <- Applied before ANY output
+    │   Filter     │     (console, file, JSON)
+    └──────┬──────┘
+           │
+    ┌──────▼──────┐
+    │  Formatter   │  <- Human / JSON / YAML
+    └─────────────┘
+```
+
+Redaction is applied before formatting and cannot be disabled.
+
+### Debug Mode
+
+- `--verbose` shows request URLs and response headers (auth header redacted)
+- Request/response bodies containing credentials are never logged
+- `GPC_DEBUG=1` enables full debug output but still applies redaction
+
+## File Permissions
+
+### Files Created by GPC
+
+| File | Permissions | Contents |
+|------|------------|----------|
+| `~/.config/gpc/config.json` | `0644` | Non-sensitive configuration |
+| `~/.config/gpc/credentials.json` | `0600` | OAuth tokens (keychain fallback) |
+| `~/.config/gpc/profiles/` | `0700` | Profile directories |
+| `~/.config/gpc/audit.log` | `0600` | Audit log (JSON Lines) |
+
+### Files Validated by GPC
+
+| File | Expected Permissions | Action if Wrong |
+|------|---------------------|----------------|
+| Service account key | `0600` | Warning via `gpc doctor` |
+| Credentials file | `0600` | Auto-fix + warning |
+| Config directory | `0700` | Warning via `gpc doctor` |
+
+## Network Security
+
+### TLS
+
+- All API communication is over HTTPS (enforced by the googleapis client library)
+- No HTTP fallback exists
+- Custom CA certificates are supported via `GPC_CA_CERT` or `NODE_EXTRA_CA_CERTS`
+
+### Proxy Support
+
+| Configuration | Method |
+|--------------|--------|
+| Environment variable | `HTTPS_PROXY` or `https_proxy` |
+| Exclusions | `NO_PROXY` for bypass rules |
+| Config file | `proxy: "https://proxy.corp:8080"` |
+| With authentication | `https://user:pass@proxy:8080` |
+
+### Client-Side Rate Limiting
+
+| Bucket | Default Limit | Protects Against |
+|--------|--------------|-----------------|
+| General API | 50 req/s | Exceeding 3,000/min quota |
+| Reviews GET | 3 req/s | Exceeding 200/hour quota |
+| Reviews POST | 1 req/s | Exceeding 2,000/day quota |
+| Voided purchases | 1 req/s | Exceeding 30/30s burst quota |
+
+## Input Validation
+
+### CLI Arguments
+
+| Input | Validation | Reject Example |
+|-------|-----------|----------------|
+| Package names | Android format: `[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+` | `invalid` |
+| File paths | Existence and type check before upload | `/nonexistent/file.aab` |
+| Track names | Known tracks + custom track format | `unknown-track` |
+| Language codes | BCP 47 validation | `xx-YY` |
+| Arguments | No shell expansion passed to API | -- |
+
+### File Uploads
+
+| Check | Validation | Limit |
+|-------|-----------|-------|
+| File type | Magic bytes validation (AAB/APK) | -- |
+| File size | Size check against Play Console limits | 150MB (APK/AAB) |
+| Mapping files | ProGuard/R8 format validation | -- |
+
+### Config Files
+
+- Schema validation on load with clear error messages
+- Unknown keys trigger warnings (not errors) for forward compatibility
+- Environment variable values are validated the same as config values
+
+## Plugin Security
+
+### Trust Model
+
+| Plugin Type | Pattern | Trust Level |
+|-------------|---------|-------------|
+| First-party | `@gpc/plugin-*` | Auto-trusted, no permission checks |
+| Third-party | `gpc-plugin-*` or config path | Untrusted, permissions validated |
+
+### Permission Enforcement
+
+Third-party plugins declare required permissions in `PluginManifest`:
+
+```typescript
+type PluginPermission =
+  | "read:config"
+  | "write:config"
+  | "read:auth"
+  | "api:read"
+  | "api:write"
+  | "commands:register"
+  | "hooks:beforeCommand"
+  | "hooks:afterCommand"
+  | "hooks:onError"
+  | "hooks:beforeRequest"
+  | "hooks:afterResponse";
+```
+
+**Rules:**
+1. Plugins cannot access credentials directly
+2. Third-party plugins require explicit user approval on first run
+3. Unknown permissions throw `PLUGIN_INVALID_PERMISSION` (exit code 10)
+4. Error handlers in plugins are wrapped -- a failing handler cannot crash GPC
+5. Plugin approval can be revoked: `gpc plugins revoke <name>`
+
+## CI/CD Security Guidelines
+
+### Secrets Management
+
+```yaml
+# GitHub Actions -- recommended pattern
+env:
+  GPC_SERVICE_ACCOUNT: ${{ secrets.GPC_SERVICE_ACCOUNT }}
+```
+
+::: danger Do NOT
+- Hardcode credentials in workflow files
+- Echo or print credential values in CI logs
+- Store credentials as build artifacts
+- Use credentials from forks in pull request workflows
+:::
+
+### Least Privilege
+
+- Create dedicated service accounts per CI environment (staging vs production)
+- Grant only required Play Console permissions (e.g., "Release manager" not "Admin")
+- Rotate service account keys on a regular schedule
+- Use short-lived credentials where possible (Workload Identity Federation)
+
+### Audit Trail
+
+- `--json` output includes command name, timestamp, and auth identity
+- CI plugins can emit structured logs for SIEM ingestion
+- All write operations are logged with before/after state
+- Use `--dry-run` in PR checks to validate without modifying state
+
+## Dependency Policy
+
+### Rules
+
+1. Minimize dependency count -- prefer Node.js built-ins
+2. Pin major versions in `package.json`
+3. `pnpm audit` runs in CI on every pull request
+4. Dependabot enabled for security updates
+5. No `postinstall` scripts in production dependencies
+
+### Approved External Dependencies
+
+| Package | Purpose | Justification |
+|---------|---------|--------------|
+| `google-auth-library` | Auth strategies | Official Google library |
+| `commander` | CLI framework | Industry standard, battle-tested |
+| `chalk` | Terminal colors | Cross-platform color support |
+| `ora` | Spinners | Terminal animation handling |
+| `cli-table3` | Table output | Column alignment, wrapping |
+
+New dependencies are reviewed for: maintenance status, download count, transitive dependency count, and license compatibility (MIT, Apache-2.0, BSD preferred).
+
+## Security Checklist
+
+### Before Release
+
+- [ ] No credentials in source code or test fixtures
+- [ ] All user inputs validated before API calls
+- [ ] Secrets redacted in all output modes (human, JSON, YAML, debug)
+- [ ] File permissions set correctly on credential files
+- [ ] `pnpm audit` shows no high/critical vulnerabilities
+- [ ] Plugin permission model enforced
+- [ ] Error messages do not leak sensitive information
+- [ ] TLS enforced for all network communication
+
+### For Contributors
+
+- [ ] Never commit real service account keys (use fixtures with fake data)
+- [ ] Test fixtures use obviously fake credentials
+- [ ] New dependencies reviewed for security posture
+- [ ] No `eval()`, `Function()`, or dynamic `require()` of user input
+- [ ] No shell command construction from user input
