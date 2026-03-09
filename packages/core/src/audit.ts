@@ -1,4 +1,4 @@
-import { appendFile, mkdir } from "node:fs/promises";
+import { appendFile, chmod, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 
 export interface AuditEntry {
@@ -29,13 +29,37 @@ export async function writeAuditLog(entry: AuditEntry): Promise<void> {
   if (!auditDir) return;
 
   try {
-    await mkdir(auditDir, { recursive: true });
+    await mkdir(auditDir, { recursive: true, mode: 0o700 });
     const logPath = join(auditDir, "audit.log");
-    const line = JSON.stringify(entry) + "\n";
-    await appendFile(logPath, line, "utf-8");
+    const redactedEntry = redactAuditArgs(entry);
+    const line = JSON.stringify(redactedEntry) + "\n";
+    await appendFile(logPath, line, { encoding: "utf-8", mode: 0o600 });
+    await chmod(logPath, 0o600).catch(() => {});
   } catch {
     // Audit logging must never break the CLI
   }
+}
+
+const SENSITIVE_ARG_KEYS = new Set([
+  "key",
+  "keyFile",
+  "key-file",
+  "serviceAccount",
+  "service-account",
+  "token",
+  "password",
+  "secret",
+  "credentials",
+  "private_key",
+  "client_secret",
+]);
+
+function redactAuditArgs(entry: AuditEntry): AuditEntry {
+  const redacted: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(entry.args)) {
+    redacted[k] = SENSITIVE_ARG_KEYS.has(k) ? "[REDACTED]" : v;
+  }
+  return { ...entry, args: redacted };
 }
 
 /**

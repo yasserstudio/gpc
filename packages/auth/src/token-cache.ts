@@ -1,5 +1,5 @@
 import { chmod, mkdir, readFile, writeFile, rename, unlink } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, join, isAbsolute } from "node:path";
 
 export interface TokenCacheEntry {
   token: string;
@@ -11,8 +11,20 @@ export type TokenCache = Record<string, TokenCacheEntry>;
 const CACHE_FILE = "token-cache.json";
 const SAFETY_MARGIN_MS = 5 * 60 * 1000; // 5 minutes
 
+// Email must look like a service account email — no path separators or special chars
+const SAFE_CACHE_KEY = /^[a-zA-Z0-9._%+@-]+$/;
+
 function getCachePath(cacheDir: string): string {
+  if (!isAbsolute(cacheDir)) {
+    throw new Error("Cache directory must be an absolute path");
+  }
   return join(cacheDir, CACHE_FILE);
+}
+
+function validateCacheKey(email: string): void {
+  if (!SAFE_CACHE_KEY.test(email)) {
+    throw new Error("Invalid cache key: must be a valid email address");
+  }
 }
 
 async function readCache(cacheDir: string): Promise<TokenCache> {
@@ -43,6 +55,7 @@ export async function getCachedToken(
   cacheDir: string,
   email: string,
 ): Promise<string | null> {
+  validateCacheKey(email);
   const cache = await readCache(cacheDir);
   const entry = cache[email];
 
@@ -62,6 +75,7 @@ export async function setCachedToken(
   token: string,
   expiresInSeconds: number,
 ): Promise<void> {
+  validateCacheKey(email);
   const cache = await readCache(cacheDir);
   cache[email] = {
     token,

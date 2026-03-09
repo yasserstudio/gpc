@@ -62,9 +62,10 @@ export function createUsersClient(
     },
 
     async update(developerId, userId, user, updateMask?) {
-      const path = updateMask
-        ? `/${developerId}/users/${userId}?updateMask=${updateMask}`
-        : `/${developerId}/users/${userId}`;
+      let path = `/${developerId}/users/${userId}`;
+      if (updateMask) {
+        path += `?updateMask=${encodeURIComponent(updateMask).replace(/%2C/gi, ",")}`;
+      }
       const { data } = await http.patch<User>(path, user);
       return data;
     },

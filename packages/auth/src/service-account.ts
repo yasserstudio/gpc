@@ -120,8 +120,10 @@ export function createServiceAccountAuth(key: ServiceAccountKey, cachePath?: str
 
         return token;
       } catch (err) {
+        const rawMsg = err instanceof Error ? err.message : String(err);
+        const safeMsg = rawMsg.length > 150 ? rawMsg.slice(0, 150) + "..." : rawMsg;
         throw new AuthError(
-          `Failed to obtain access token: ${err instanceof Error ? err.message : String(err)}`,
+          `Failed to obtain access token: ${safeMsg}`,
           "AUTH_TOKEN_FAILED",
           "Verify that the service account key is valid and not expired. Check that the private key has not been revoked.",
         );
