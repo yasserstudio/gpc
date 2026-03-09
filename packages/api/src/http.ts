@@ -1,6 +1,34 @@
 import { readFile } from "node:fs/promises";
+import { resolve, isAbsolute } from "node:path";
 import { ApiError } from "./errors.js";
 import type { ApiClientOptions, ApiResponse, RetryLogEntry } from "./types.js";
+
+/** Extract a short, safe error summary from API response body (no tokens/secrets). */
+function sanitizeErrorBody(body: string): string {
+  try {
+    const parsed = JSON.parse(body) as { error?: { message?: string; status?: string; code?: number } };
+    if (parsed?.error?.message) {
+      return `${parsed.error.code ?? "?"} ${parsed.error.status ?? ""}: ${parsed.error.message}`.trim();
+    }
+  } catch {
+    // not JSON
+  }
+  // Truncate raw body to prevent leaking large payloads
+  return body.length > 200 ? body.slice(0, 200) + "..." : body;
+}
+
+/** Validate upload file path to prevent path traversal. */
+function validateFilePath(filePath: string): string {
+  const resolved = resolve(filePath);
+  if (!isAbsolute(resolved)) {
+    throw new ApiError("Invalid file path", "API_INVALID_PATH", undefined, "File path must resolve to an absolute path.");
+  }
+  // Block obvious traversal patterns in the original input
+  if (filePath.includes("\0")) {
+    throw new ApiError("Invalid file path: null bytes not allowed", "API_INVALID_PATH");
+  }
+  return resolved;
+}
 
 const BASE_URL =
   "https://androidpublisher.googleapis.com/androidpublisher/v3/applications";
@@ -145,7 +173,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         const { code, suggestion } = mapStatusToError(response.status, errorBody);
 
         const err = new ApiError(
-          `${method} ${path} failed with status ${response.status}: ${errorBody}`,
+          `${method} ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
           code,
           response.status,
           suggestion,
@@ -228,7 +256,8 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     contentType: string,
   ): Promise<ApiResponse<T>> {
     const url = `${UPLOAD_BASE_URL}${path}`;
-    const fileBuffer = await readFile(filePath);
+    const safeFilePath = validateFilePath(filePath);
+    const fileBuffer = await readFile(safeFilePath);
 
     let lastError: Error | undefined;
 
@@ -266,7 +295,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         const { code, suggestion } = mapStatusToError(response.status, errorBody);
 
         const err = new ApiError(
-          `POST upload ${path} failed with status ${response.status}: ${errorBody}`,
+          `POST upload ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
           code,
           response.status,
           suggestion,

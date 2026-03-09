@@ -1,9 +1,14 @@
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { join, isAbsolute } from "node:path";
+
+function resolveXdg(envVar: string, fallback: string): string {
+  const xdg = process.env[envVar];
+  if (xdg && isAbsolute(xdg)) return xdg;
+  return fallback;
+}
 
 export function getConfigDir(): string {
-  const xdg = process.env["XDG_CONFIG_HOME"];
-  const base = xdg || join(homedir(), ".config");
+  const base = resolveXdg("XDG_CONFIG_HOME", join(homedir(), ".config"));
   return join(base, "gpc");
 }
 
@@ -12,13 +17,11 @@ export function getUserConfigPath(): string {
 }
 
 export function getDataDir(): string {
-  const xdg = process.env["XDG_DATA_HOME"];
-  const base = xdg || join(homedir(), ".local", "share");
+  const base = resolveXdg("XDG_DATA_HOME", join(homedir(), ".local", "share"));
   return join(base, "gpc");
 }
 
 export function getCacheDir(): string {
-  const xdg = process.env["XDG_CACHE_HOME"];
-  const base = xdg || join(homedir(), ".cache");
+  const base = resolveXdg("XDG_CACHE_HOME", join(homedir(), ".cache"));
   return join(base, "gpc");
 }

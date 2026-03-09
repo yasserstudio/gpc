@@ -1,8 +1,13 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 import { getConfigDir } from "./paths.js";
 import type { GpcConfig, ProfileConfig } from "./types.js";
+
+async function writeSecureFile(filePath: string, content: string): Promise<void> {
+  await writeFile(filePath, content, { encoding: "utf-8", mode: 0o600 });
+  await chmod(filePath, 0o600).catch(() => {});
+}
 
 export async function setConfigValue(
   key: string,
@@ -30,8 +35,8 @@ export async function setConfigValue(
   }
   target[keys[keys.length - 1]!] = value;
 
-  await mkdir(dirname(configPath), { recursive: true });
-  await writeFile(configPath, JSON.stringify(existing, null, 2) + "\n", "utf-8");
+  await mkdir(dirname(configPath), { recursive: true, mode: 0o700 });
+  await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
 }
 
 export async function setProfileConfig(
@@ -53,8 +58,8 @@ export async function setProfileConfig(
   }
   (existing["profiles"] as Record<string, unknown>)[profileName] = config;
 
-  await mkdir(dirname(configPath), { recursive: true });
-  await writeFile(configPath, JSON.stringify(existing, null, 2) + "\n", "utf-8");
+  await mkdir(dirname(configPath), { recursive: true, mode: 0o700 });
+  await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
 }
 
 export async function deleteProfile(profileName: string): Promise<boolean> {
@@ -72,7 +77,7 @@ export async function deleteProfile(profileName: string): Promise<boolean> {
   if (!profiles || !(profileName in profiles)) return false;
 
   delete profiles[profileName];
-  await writeFile(configPath, JSON.stringify(existing, null, 2) + "\n", "utf-8");
+  await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
   return true;
 }
 
@@ -106,8 +111,8 @@ export async function approvePlugin(pluginName: string): Promise<void> {
   }
   existing["approvedPlugins"] = approved;
 
-  await mkdir(dirname(configPath), { recursive: true });
-  await writeFile(configPath, JSON.stringify(existing, null, 2) + "\n", "utf-8");
+  await mkdir(dirname(configPath), { recursive: true, mode: 0o700 });
+  await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
 }
 
 export async function revokePluginApproval(pluginName: string): Promise<boolean> {
@@ -127,7 +132,7 @@ export async function revokePluginApproval(pluginName: string): Promise<boolean>
 
   approved.splice(index, 1);
   existing["approvedPlugins"] = approved;
-  await writeFile(configPath, JSON.stringify(existing, null, 2) + "\n", "utf-8");
+  await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
   return true;
 }
 
@@ -135,8 +140,8 @@ export async function initConfig(config: GpcConfig): Promise<string> {
   const configDir = getConfigDir();
   const configPath = join(configDir, "config.json");
 
-  await mkdir(configDir, { recursive: true });
-  await writeFile(configPath, JSON.stringify(config, null, 2) + "\n", "utf-8");
+  await mkdir(configDir, { recursive: true, mode: 0o700 });
+  await writeSecureFile(configPath, JSON.stringify(config, null, 2) + "\n");
 
   return configPath;
 }

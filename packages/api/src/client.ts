@@ -413,9 +413,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async update(packageName, productId, body, updateMask?) {
-        const path = updateMask
-          ? `/${packageName}/monetization/subscriptions/${productId}?updateMask=${updateMask}`
-          : `/${packageName}/monetization/subscriptions/${productId}`;
+        let path = `/${packageName}/monetization/subscriptions/${productId}`;
+        if (updateMask) {
+          path += `?updateMask=${encodeURIComponent(updateMask).replace(/%2C/gi, ",")}`;
+        }
         const { data } = await http.patch<Subscription>(path, body);
         return data;
       },
@@ -475,9 +476,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async updateOffer(packageName, productId, basePlanId, offerId, body, updateMask?) {
-        const path = updateMask
-          ? `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}?updateMask=${updateMask}`
-          : `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}`;
+        let path = `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}`;
+        if (updateMask) {
+          path += `?updateMask=${encodeURIComponent(updateMask).replace(/%2C/gi, ",")}`;
+        }
         const { data } = await http.patch<SubscriptionOffer>(path, body);
         return data;
       },
