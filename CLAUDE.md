@@ -88,6 +88,9 @@ Agent skills for GPC workflows are in `.agents/skills/gpc-*`:
 | `gpc-migrate-fastlane` | Fastlane-to-GPC migration, command mapping, CI migration |
 | `gpc-plugin-development` | Plugin SDK, lifecycle hooks, permissions, custom commands |
 | `gpc-troubleshooting` | Exit codes, error catalog, debug mode, common fixes |
+| `gpc-sdk-usage` | @gpc/api and @gpc/auth as standalone TypeScript SDK |
+| `gpc-multi-app` | Multiple apps, profiles, batch operations, monorepo patterns |
+| `gpc-security` | Credential storage, key rotation, audit logging, incident response |
 
 Read the relevant `SKILL.md` and its `references/` when working on these workflows.
 
