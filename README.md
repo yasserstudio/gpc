@@ -7,7 +7,8 @@
   <img src="https://img.shields.io/badge/Node.js-20+-339933?style=for-the-badge&logo=node.js" alt="Node.js">
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
   <a href="https://www.npmjs.com/package/gpc"><img src="https://img.shields.io/npm/dm/gpc?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
-  <img src="https://img.shields.io/badge/Tests-584_passing-00D26A?style=for-the-badge" alt="Tests">
+  <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
+  <img src="https://img.shields.io/badge/Tests-597_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
@@ -86,9 +87,10 @@ GPC covers the **entire Google Play Developer API** in one CLI. No Ruby. No brow
 | CI/CD native | JSON + exit codes + env vars | Partial | Gradle tasks | No |
 | Cold start | <500ms | 2-3s | 3-5s | 5-10s |
 | Plugin system | Yes | No | No | No |
-| Test suite | 584 tests, 90%+ coverage | — | — | — |
+| Interactive mode | Yes (guided prompts) | No | No | N/A |
+| Test suite | 597 tests, 90%+ coverage | — | — | — |
 
-See the full [command reference](./docs/COMMANDS.md) for all 162 endpoints.
+See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 162 endpoints.
 
 ---
 
@@ -264,7 +266,27 @@ Add `@gpc/plugin-ci` for automatic GitHub Actions step summaries:
 }
 ```
 
-See the full [CI/CD recipes](./docs/CI_CD.md) for GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI.
+See the full [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/) for GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI.
+
+---
+
+## Interactive Mode
+
+Missing a flag? GPC will ask. In your terminal, missing required options trigger guided prompts. In CI, they fail fast with clear error messages.
+
+```bash
+gpc releases promote                    # Prompts: Source track? Target track?
+gpc releases promote --from beta --to production   # No prompts
+```
+
+Destructive commands ask for confirmation:
+
+```bash
+gpc subscriptions delete my-sub         # "Delete subscription 'my-sub'?" [y/N]
+gpc subscriptions delete my-sub --yes   # Skip confirmation (CI-safe)
+```
+
+Disable all prompts: `--no-interactive` or `GPC_NO_INTERACTIVE=1`.
 
 ---
 
@@ -404,14 +426,16 @@ Your CI can distinguish "auth expired" from "crash rate too high" and react diff
 
 ## Documentation
 
-- [Installation](./docs/INSTALLATION.md)
-- [Commands Reference](./docs/COMMANDS.md)
-- [Architecture](./docs/ARCHITECTURE.md)
-- [CI/CD Recipes](./docs/CI_CD.md)
-- [API Reference](./docs/API_REFERENCE.md)
-- [Plugin Spec](./docs/PLUGIN_SPEC.md)
-- [Security](./docs/SECURITY.md)
-- [Roadmap](./docs/ROADMAP.md)
+Full documentation at **[yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)**
+
+- [Installation](https://yasserstudio.github.io/gpc/guide/installation)
+- [Quick Start](https://yasserstudio.github.io/gpc/guide/quick-start)
+- [Commands Reference](https://yasserstudio.github.io/gpc/commands/)
+- [CI/CD Recipes](https://yasserstudio.github.io/gpc/ci-cd/)
+- [Architecture](https://yasserstudio.github.io/gpc/advanced/architecture)
+- [Plugin Development](https://yasserstudio.github.io/gpc/advanced/plugins)
+- [Security](https://yasserstudio.github.io/gpc/advanced/security)
+- [Migration from Fastlane](https://yasserstudio.github.io/gpc/migration/from-fastlane)
 
 ---
 
@@ -432,7 +456,7 @@ git clone https://github.com/yasserstudio/gpc.git
 cd gpc
 pnpm install
 pnpm build
-pnpm test    # 584 tests across 7 packages
+pnpm test    # 597 tests across 7 packages
 ```
 
 ---

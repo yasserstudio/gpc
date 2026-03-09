@@ -41,12 +41,12 @@ e2e/               → End-to-end tests
 - Phase 6 ✓ — Subscriptions, IAP, purchases, pricing, regional conversion
 - Phase 7 ✓ — Reports, users, testers, grants, CSV import
 - Phase 8 ✓ — Plugin SDK, plugin manager, lifecycle hooks, plugin-ci
-- Phase 9 ✓ — Polish, security, interactive mode, audit logging, standalone binary
-- 584 total tests, 7 packages building, 90%+ line coverage on all core packages
+- Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, README/CHANGELOG
+- 597 total tests, 7 packages building, 90%+ line coverage on all core packages
 
 ## Testing
 
-- Vitest for all tests (584 total across 7 packages + e2e)
+- Vitest for all tests (597 total across 7 packages + e2e)
 - Tests in `tests/` directory per package
 - Mock external APIs — never call real Google APIs in tests
 - Mock fetch with `vi.stubGlobal("fetch", mockFn)` for API tests
@@ -60,7 +60,10 @@ e2e/               → End-to-end tests
 
 ## Documentation
 
-Public docs in `docs/` — read before making architectural changes:
+VitePress docs site: https://yasserstudio.github.io/gpc/
+Source: `apps/docs/` — 37+ pages across guide, commands, CI/CD, advanced, migration, reference
+
+Legacy markdown docs in `docs/` — read before making architectural changes:
 - `docs/ARCHITECTURE.md` — system design, package graph
 - `docs/COMMANDS.md` — CLI command reference
 - `docs/API_REFERENCE.md` — Google Play API deep dive
