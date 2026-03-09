@@ -1,5 +1,5 @@
-import { definePlugin } from "@gpc/plugin-sdk";
-import type { CommandEvent, CommandResult, PluginError } from "@gpc/plugin-sdk";
+import { definePlugin } from "@gpc-cli/plugin-sdk";
+import type { CommandEvent, CommandResult, PluginError } from "@gpc-cli/plugin-sdk";
 
 export const PLUGIN_CI_VERSION = "0.8.0";
 
@@ -146,7 +146,7 @@ function formatErrorSummary(event: CommandEvent, error: PluginError): string {
 // ---------------------------------------------------------------------------
 
 export const ciPlugin = definePlugin({
-  name: "@gpc/plugin-ci",
+  name: "@gpc-cli/plugin-ci",
   version: PLUGIN_CI_VERSION,
 
   register(hooks) {

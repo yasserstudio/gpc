@@ -1,7 +1,7 @@
 import type { Command } from "commander";
-import { loadConfig } from "@gpc/config";
-import { resolveAuth } from "@gpc/auth";
-import { createApiClient } from "@gpc/api";
+import { loadConfig } from "@gpc-cli/config";
+import { resolveAuth } from "@gpc-cli/auth";
+import { createApiClient } from "@gpc-cli/api";
 import {
   listReviews,
   getReview,
@@ -9,7 +9,7 @@ import {
   exportReviews,
   detectOutputFormat,
   formatOutput,
-} from "@gpc/core";
+} from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, requireOption } from "../prompt.js";
 

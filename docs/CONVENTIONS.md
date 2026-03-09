@@ -21,10 +21,10 @@
 | Constants | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` |
 | Env vars | UPPER_SNAKE_CASE with `GPC_` prefix | `GPC_SERVICE_ACCOUNT` |
 | CLI flags | kebab-case | `--service-account` |
-| npm packages | `@gpc/<name>` | `@gpc/core` |
+| npm packages | `@gpc-cli/<name>` | `@gpc-cli/core` |
 
 ### Imports
-- Use path aliases within packages: `@gpc/api`, `@gpc/core`, etc.
+- Use path aliases within packages: `@gpc-cli/api`, `@gpc-cli/core`, etc.
 - Relative imports within a package: `./errors`, `../models/tracks`
 - No default exports — use named exports exclusively
 - Sort imports: external deps → internal packages → relative
@@ -98,7 +98,7 @@ test(auth): add service account auth integration tests
 ### Test Commands
 ```bash
 pnpm test                    # Run all tests
-pnpm test --filter @gpc/api  # Run tests for specific package
+pnpm test --filter @gpc-cli/api  # Run tests for specific package
 pnpm test:watch              # Watch mode
 pnpm test:coverage           # With coverage report
 pnpm test:e2e                # End-to-end tests
@@ -109,7 +109,7 @@ pnpm test:e2e                # End-to-end tests
 - **Changesets** for version management
 - **Semantic versioning** (semver)
 - All packages versioned independently
-- `@gpc/cli` version displayed as the "GPC version" to users
+- `@gpc-cli/cli` version displayed as the "GPC version" to users
 - Pre-1.0: breaking changes bump minor, features/fixes bump patch
 - Post-1.0: standard semver rules
 

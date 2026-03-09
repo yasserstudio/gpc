@@ -204,7 +204,7 @@ done
 1. **Install GPC**
 
    ```bash
-   npm install -g gpc
+   npm install -g @gpc-cli/cli
    ```
 
 2. **Authenticate**

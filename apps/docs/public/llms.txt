@@ -73,9 +73,9 @@ gpc doctor                                   # Diagnose setup problems
 | Package | npm | Purpose |
 |---------|-----|---------|
 | gpc | gpc | CLI entry point |
-| @gpc/core | @gpc/core | Business logic, command orchestration |
-| @gpc/api | @gpc/api | Typed Google Play API client |
-| @gpc/auth | @gpc/auth | Authentication (SA, OAuth, ADC) |
-| @gpc/config | @gpc/config | Config loading, env vars, profiles |
-| @gpc/plugin-sdk | @gpc/plugin-sdk | Plugin interface and hooks |
-| @gpc/plugin-ci | @gpc/plugin-ci | CI/CD helpers |
+| @gpc-cli/core | @gpc-cli/core | Business logic, command orchestration |
+| @gpc-cli/api | @gpc-cli/api | Typed Google Play API client |
+| @gpc-cli/auth | @gpc-cli/auth | Authentication (SA, OAuth, ADC) |
+| @gpc-cli/config | @gpc-cli/config | Config loading, env vars, profiles |
+| @gpc-cli/plugin-sdk | @gpc-cli/plugin-sdk | Plugin interface and hooks |
+| @gpc-cli/plugin-ci | @gpc-cli/plugin-ci | CI/CD helpers |

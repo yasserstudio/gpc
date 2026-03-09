@@ -1,6 +1,6 @@
 import { Command } from "commander";
-import type { PluginManager } from "@gpc/core";
-import type { CommandEvent, CommandResult, PluginError } from "@gpc/plugin-sdk";
+import type { PluginManager } from "@gpc-cli/core";
+import type { CommandEvent, CommandResult, PluginError } from "@gpc-cli/plugin-sdk";
 import { registerPluginCommands } from "./plugins.js";
 
 export async function createProgram(pluginManager?: PluginManager): Promise<Command> {
@@ -86,7 +86,7 @@ function registerPluginsCommand(program: Command, manager?: PluginManager): void
 
       if (plugins.length === 0) {
         console.log("No plugins loaded.");
-        console.log('\nConfigure plugins in .gpcrc.json: { "plugins": ["@gpc/plugin-ci"] }');
+        console.log('\nConfigure plugins in .gpcrc.json: { "plugins": ["@gpc-cli/plugin-ci"] }');
         return;
       }
 
@@ -111,7 +111,7 @@ function registerPluginsCommand(program: Command, manager?: PluginManager): void
     .option("-d, --dir <path>", "Output directory (defaults to ./gpc-plugin-<name>)")
     .option("--description <text>", "Plugin description")
     .action(async (name: string, opts: { dir?: string; description?: string }) => {
-      const { scaffoldPlugin } = await import("@gpc/core");
+      const { scaffoldPlugin } = await import("@gpc-cli/core");
       const pluginName = name.startsWith("gpc-plugin-") ? name : `gpc-plugin-${name}`;
       const dir = opts.dir ?? `./${pluginName}`;
 
@@ -133,7 +133,7 @@ function registerPluginsCommand(program: Command, manager?: PluginManager): void
     .command("approve <name>")
     .description("Approve a third-party plugin for loading")
     .action(async (name: string) => {
-      const { approvePlugin } = await import("@gpc/config");
+      const { approvePlugin } = await import("@gpc-cli/config");
       await approvePlugin(name);
       console.log(`Plugin "${name}" approved. It will be loaded on next run.`);
     });
@@ -142,7 +142,7 @@ function registerPluginsCommand(program: Command, manager?: PluginManager): void
     .command("revoke <name>")
     .description("Revoke approval for a third-party plugin")
     .action(async (name: string) => {
-      const { revokePluginApproval } = await import("@gpc/config");
+      const { revokePluginApproval } = await import("@gpc-cli/config");
       const removed = await revokePluginApproval(name);
       if (removed) {
         console.log(`Plugin "${name}" approval revoked.`);

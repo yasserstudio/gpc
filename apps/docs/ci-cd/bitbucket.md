@@ -34,7 +34,7 @@ definitions:
         name: Upload to Play Store
         image: node:20
         script:
-          - npm install -g gpc
+          - npm install -g @gpc-cli/cli
           - |
             gpc releases upload \
               app/build/outputs/bundle/release/app-release.aab \
@@ -72,7 +72,7 @@ definitions:
         name: Upload to Internal
         image: node:20
         script:
-          - npm install -g gpc
+          - npm install -g @gpc-cli/cli
           - |
             gpc releases upload \
               app/build/outputs/bundle/release/app-release.aab \
@@ -85,7 +85,7 @@ definitions:
         image: node:20
         trigger: manual
         script:
-          - npm install -g gpc
+          - npm install -g @gpc-cli/cli
           - gpc releases promote --from internal --to beta --json
 
     - step: &promote-production
@@ -93,7 +93,7 @@ definitions:
         image: node:20
         trigger: manual
         script:
-          - npm install -g gpc
+          - npm install -g @gpc-cli/cli
           - |
             gpc releases promote \
               --from beta \
@@ -129,7 +129,7 @@ pipelines:
           name: Validate Metadata
           image: node:20
           script:
-            - npm install -g gpc
+            - npm install -g @gpc-cli/cli
             - gpc listings push --dir metadata/ --dry-run --json
           condition:
             changesets:
@@ -142,7 +142,7 @@ pipelines:
           name: Sync Metadata
           image: node:20
           script:
-            - npm install -g gpc
+            - npm install -g @gpc-cli/cli
             - gpc listings push --dir metadata/ --json
           condition:
             changesets:
@@ -163,7 +163,7 @@ pipelines:
           name: Check Vitals
           image: node:20
           script:
-            - npm install -g gpc
+            - npm install -g @gpc-cli/cli
             - |
               CRASH_RATE=$(gpc vitals crashes --json | jq -r '.data.crashRate')
               ANR_RATE=$(gpc vitals anr --json | jq -r '.data.anrRate')

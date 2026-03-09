@@ -1,5 +1,5 @@
-import type { AuthClient } from "@gpc/auth";
-import type { ResolvedConfig, OutputFormat } from "@gpc/config";
+import type { AuthClient } from "@gpc-cli/auth";
+import type { ResolvedConfig, OutputFormat } from "@gpc-cli/config";
 
 export interface CommandContext {
   config: ResolvedConfig;

@@ -49,10 +49,10 @@ esac
 ### npm (Node.js available)
 
 ```yaml
-- run: npm install -g gpc
+- run: npm install -g @gpc-cli/cli
 ```
 
-Best when Node.js is already in your pipeline. Includes plugin support (`@gpc/plugin-ci` for GitHub Actions step summaries).
+Best when Node.js is already in your pipeline. Includes plugin support (`@gpc-cli/plugin-ci` for GitHub Actions step summaries).
 
 ### Standalone Binary (no dependencies)
 
@@ -68,12 +68,12 @@ No Node.js required. Downloads the platform-specific binary with SHA256 checksum
 - run: brew install yasserstudio/tap/gpc
 ```
 
-## @gpc/plugin-ci
+## @gpc-cli/plugin-ci
 
-Install `@gpc/plugin-ci` alongside GPC to get automatic CI environment detection and GitHub Actions step summaries.
+Install `@gpc-cli/plugin-ci` alongside GPC to get automatic CI environment detection and GitHub Actions step summaries.
 
 ```bash
-npm install -g gpc @gpc/plugin-ci
+npm install -g @gpc-cli/cli @gpc-cli/plugin-ci
 ```
 
 When running in GitHub Actions with `$GITHUB_STEP_SUMMARY` available, the plugin writes a markdown summary after each command with:

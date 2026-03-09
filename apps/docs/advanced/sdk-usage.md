@@ -4,12 +4,12 @@ outline: deep
 
 # SDK Usage
 
-Use `@gpc/api` and `@gpc/auth` programmatically in your own Node.js applications. Build custom tooling, dashboards, or automation on top of the same typed API client that powers the GPC CLI.
+Use `@gpc-cli/api` and `@gpc-cli/auth` programmatically in your own Node.js applications. Build custom tooling, dashboards, or automation on top of the same typed API client that powers the GPC CLI.
 
 ## Installation
 
 ```bash
-npm install @gpc/api @gpc/auth
+npm install @gpc-cli/api @gpc-cli/auth
 ```
 
 Both packages are ESM-only and require Node.js 20+.
@@ -19,7 +19,7 @@ Both packages are ESM-only and require Node.js 20+.
 ### Service Account
 
 ```typescript
-import { ServiceAccountAuth } from "@gpc/auth";
+import { ServiceAccountAuth } from "@gpc-cli/auth";
 
 const auth = new ServiceAccountAuth({
   keyFile: "./service-account.json",
@@ -41,7 +41,7 @@ const auth = new ServiceAccountAuth({
 Works automatically in Google Cloud environments (Cloud Run, GKE, Cloud Functions).
 
 ```typescript
-import { AdcAuth } from "@gpc/auth";
+import { AdcAuth } from "@gpc-cli/auth";
 
 const auth = new AdcAuth();
 ```
@@ -60,8 +60,8 @@ Tokens are cached and automatically refreshed on expiry.
 ## Creating an API Client
 
 ```typescript
-import { PlayApiClient } from "@gpc/api";
-import { ServiceAccountAuth } from "@gpc/auth";
+import { PlayApiClient } from "@gpc-cli/api";
+import { ServiceAccountAuth } from "@gpc-cli/auth";
 
 const auth = new ServiceAccountAuth({
   keyFile: "./service-account.json",
@@ -92,8 +92,8 @@ const client = new PlayApiClient({
 ### Upload an AAB
 
 ```typescript
-import { PlayApiClient } from "@gpc/api";
-import { ServiceAccountAuth } from "@gpc/auth";
+import { PlayApiClient } from "@gpc-cli/api";
+import { ServiceAccountAuth } from "@gpc-cli/auth";
 import { readFileSync } from "node:fs";
 
 const auth = new ServiceAccountAuth({ keyFile: "./sa.json" });
@@ -155,8 +155,8 @@ await client.reviews.reply("review-id-123", {
 The Reporting API uses a separate client:
 
 ```typescript
-import { ReportingApiClient } from "@gpc/api";
-import { ServiceAccountAuth } from "@gpc/auth";
+import { ReportingApiClient } from "@gpc-cli/api";
+import { ServiceAccountAuth } from "@gpc-cli/auth";
 
 const auth = new ServiceAccountAuth({ keyFile: "./sa.json" });
 const reporting = new ReportingApiClient({ auth, packageName: "com.example.myapp" });
@@ -271,7 +271,7 @@ console.log(`Total reviews: ${allReviews.length}`);
 Use the built-in pagination helper for automatic iteration:
 
 ```typescript
-import { paginate } from "@gpc/api";
+import { paginate } from "@gpc-cli/api";
 
 const allReviews = await paginate((token) =>
   client.reviews.list({ maxResults: 100, token })
@@ -330,7 +330,7 @@ const client = new PlayApiClient({
 API errors are thrown as typed exceptions:
 
 ```typescript
-import { ApiError, RateLimitError, NotFoundError } from "@gpc/api";
+import { ApiError, RateLimitError, NotFoundError } from "@gpc-cli/api";
 
 try {
   await client.reviews.reply("review-id", { replyText: "Thanks!" });

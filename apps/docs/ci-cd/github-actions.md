@@ -47,7 +47,7 @@ jobs:
           node-version: 20
 
       - name: Install GPC
-        run: npm install -g gpc
+        run: npm install -g @gpc-cli/cli
 
       - name: Upload to Internal Track
         env:
@@ -131,7 +131,7 @@ jobs:
           node-version: 20
 
       - name: Install GPC
-        run: npm install -g gpc
+        run: npm install -g @gpc-cli/cli
 
       - name: Upload to internal track
         run: |
@@ -156,7 +156,7 @@ jobs:
           node-version: 20
 
       - name: Install GPC
-        run: npm install -g gpc
+        run: npm install -g @gpc-cli/cli
 
       - name: Promote to target track
         run: |
@@ -206,7 +206,7 @@ jobs:
           node-version: 20
 
       - name: Install GPC
-        run: npm install -g gpc
+        run: npm install -g @gpc-cli/cli
 
       - name: Check current rollout status
         id: status
@@ -318,7 +318,7 @@ jobs:
           node-version: 20
 
       - name: Install GPC
-        run: npm install -g gpc
+        run: npm install -g @gpc-cli/cli
 
       - name: Collect vitals
         id: vitals
@@ -415,7 +415,7 @@ jobs:
           node-version: 20
 
       - name: Install GPC
-        run: npm install -g gpc
+        run: npm install -g @gpc-cli/cli
 
       - name: Dry-run metadata push
         run: |
@@ -439,7 +439,7 @@ jobs:
           node-version: 20
 
       - name: Install GPC
-        run: npm install -g gpc
+        run: npm install -g @gpc-cli/cli
 
       - name: Push metadata to Play Console
         run: |
@@ -491,7 +491,7 @@ jobs:
           node-version: 20
 
       - name: Install GPC
-        run: npm install -g gpc
+        run: npm install -g @gpc-cli/cli
 
       - name: Upload ${{ matrix.app.package }}
         env:
@@ -538,7 +538,7 @@ jobs:
           node-version: 20
 
       - name: Install GPC
-        run: npm install -g gpc
+        run: npm install -g @gpc-cli/cli
 
       - name: Upload to Internal
         run: |

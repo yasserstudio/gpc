@@ -1,10 +1,10 @@
-import { PluginManager, discoverPlugins } from "@gpc/core";
-import type { GpcPlugin } from "@gpc/plugin-sdk";
+import { PluginManager, discoverPlugins } from "@gpc-cli/core";
+import type { GpcPlugin } from "@gpc-cli/plugin-sdk";
 import type { Command } from "commander";
 
 /**
  * Load and initialize all plugins.
- * First-party plugins (@gpc/*) are auto-trusted.
+ * First-party plugins (@gpc-cli/*) are auto-trusted.
  * Third-party plugins require prior approval stored in config.
  * Plugin loading is disabled in standalone binary mode.
  */
@@ -17,13 +17,13 @@ export async function loadPlugins(): Promise<PluginManager> {
   }
 
   try {
-    const { loadConfig } = await import("@gpc/config");
+    const { loadConfig } = await import("@gpc-cli/config");
     const config = await loadConfig();
     const plugins = await discoverPlugins({ configPlugins: config.plugins });
     const approved = new Set(config.approvedPlugins ?? []);
 
     for (const plugin of plugins) {
-      const isTrusted = plugin.name.startsWith("@gpc/");
+      const isTrusted = plugin.name.startsWith("@gpc-cli/");
 
       if (!isTrusted && !approved.has(plugin.name)) {
         // Skip unapproved third-party plugins silently in non-interactive mode

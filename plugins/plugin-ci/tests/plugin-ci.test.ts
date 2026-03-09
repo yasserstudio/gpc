@@ -98,7 +98,7 @@ describe("plugin-ci", () => {
 
   describe("ciPlugin", () => {
     it("has correct name and version", () => {
-      expect(ciPlugin.name).toBe("@gpc/plugin-ci");
+      expect(ciPlugin.name).toBe("@gpc-cli/plugin-ci");
       expect(ciPlugin.version).toBe(PLUGIN_CI_VERSION);
     });
 

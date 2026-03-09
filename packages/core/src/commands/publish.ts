@@ -1,4 +1,4 @@
-import type { PlayApiClient } from "@gpc/api";
+import type { PlayApiClient } from "@gpc-cli/api";
 import { uploadRelease } from "./releases.js";
 import type { UploadResult } from "./releases.js";
 import { validatePreSubmission } from "./validate.js";

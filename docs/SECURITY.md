@@ -169,7 +169,7 @@ All output layers (human, JSON, debug logs) redact:
 
 | Plugin Type | Pattern | Trust Level |
 |-------------|---------|-------------|
-| First-party | `@gpc/plugin-*` | Auto-trusted — no permission checks |
+| First-party | `@gpc-cli/plugin-*` | Auto-trusted — no permission checks |
 | Third-party | `gpc-plugin-*` or config path | Untrusted — permissions validated |
 
 ### Permission Model
@@ -198,7 +198,7 @@ type PluginPermission =
 
 ### Rules
 1. Plugins cannot access credentials directly
-2. First-party plugins (`@gpc/plugin-*`) are auto-trusted via name prefix
+2. First-party plugins (`@gpc-cli/plugin-*`) are auto-trusted via name prefix
 3. Third-party plugins have permissions validated before loading
 4. Unknown permissions throw `PLUGIN_INVALID_PERMISSION` (exit code 10)
 5. Error handlers in plugins are wrapped — a failing handler cannot crash GPC

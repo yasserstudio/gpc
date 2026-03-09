@@ -1,9 +1,9 @@
 import type { Command } from "commander";
-import { loadConfig } from "@gpc/config";
-import { resolveAuth } from "@gpc/auth";
-import { createApiClient } from "@gpc/api";
-import { getAppInfo, updateAppDetails } from "@gpc/core";
-import { detectOutputFormat, formatOutput } from "@gpc/core";
+import { loadConfig } from "@gpc-cli/config";
+import { resolveAuth } from "@gpc-cli/auth";
+import { createApiClient } from "@gpc-cli/api";
+import { getAppInfo, updateAppDetails } from "@gpc-cli/core";
+import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
 
 export function registerAppsCommands(program: Command): void {
   const apps = program

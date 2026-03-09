@@ -12,7 +12,7 @@ Every GPC plugin implements the `GpcPlugin` interface:
 
 ```typescript
 interface GpcPlugin {
-  /** Unique plugin name (e.g., "@gpc/plugin-ci" or "gpc-plugin-slack") */
+  /** Unique plugin name (e.g., "@gpc-cli/plugin-ci" or "gpc-plugin-slack") */
   name: string;
 
   /** Plugin version (semver) */
@@ -191,7 +191,7 @@ type PluginPermission =
 
 | Plugin Type | Name Pattern | Trust Level | Permission Check |
 |-------------|-------------|-------------|-----------------|
-| First-party | `@gpc/plugin-*` | Auto-trusted | No checks |
+| First-party | `@gpc-cli/plugin-*` | Auto-trusted | No checks |
 | Third-party | `gpc-plugin-*` | Untrusted | Validated against manifest |
 
 Third-party plugins that use hooks or APIs without declaring the corresponding permission throw `PLUGIN_INVALID_PERMISSION` (exit code 10).
@@ -203,7 +203,7 @@ interface PluginManifest {
   name: string;
   version: string;
   permissions?: PluginPermission[];
-  trusted?: boolean;  // Only true for @gpc/* packages
+  trusted?: boolean;  // Only true for @gpc-cli/* packages
 }
 ```
 
@@ -215,13 +215,13 @@ Plugins are discovered in this order:
 
 ```json
 {
-  "plugins": ["@gpc/plugin-ci", "gpc-plugin-slack"]
+  "plugins": ["@gpc-cli/plugin-ci", "gpc-plugin-slack"]
 }
 ```
 
 ### 2. node_modules (auto-discover by naming convention)
 
-- `@gpc/plugin-*` -- first-party, auto-trusted
+- `@gpc-cli/plugin-*` -- first-party, auto-trusted
 - `gpc-plugin-*` -- third-party, permission-checked
 
 ### 3. Local File (relative path)
@@ -242,7 +242,7 @@ Plugins are loaded via dynamic `import()`. The resolver checks for:
 
 ## PluginManager
 
-The `PluginManager` class in `@gpc/core` orchestrates the full plugin lifecycle.
+The `PluginManager` class in `@gpc-cli/core` orchestrates the full plugin lifecycle.
 
 ```typescript
 class PluginManager {
@@ -262,7 +262,7 @@ Key behaviors:
 - Hooks run sequentially in registration order
 - `reset()` clears all state (used in tests)
 
-## @gpc/plugin-ci
+## @gpc-cli/plugin-ci
 
 The built-in CI/CD plugin. Detects CI environments and writes GitHub Actions step summaries.
 
@@ -290,7 +290,7 @@ A complete example plugin that sends Slack notifications on release commands.
 
 ```typescript
 // gpc-plugin-slack/src/index.ts
-import { definePlugin } from "@gpc/plugin-sdk";
+import { definePlugin } from "@gpc-cli/plugin-sdk";
 
 export const plugin = definePlugin({
   name: "gpc-plugin-slack",
@@ -356,7 +356,7 @@ export const plugin = definePlugin({
 A plugin that logs all command executions to a file.
 
 ```typescript
-import { definePlugin } from "@gpc/plugin-sdk";
+import { definePlugin } from "@gpc-cli/plugin-sdk";
 import { appendFileSync } from "node:fs";
 
 export const plugin = definePlugin({
@@ -394,7 +394,7 @@ export const plugin = definePlugin({
 
 ## Plugin SDK Exports
 
-Everything you need to build a plugin is exported from `@gpc/plugin-sdk`:
+Everything you need to build a plugin is exported from `@gpc-cli/plugin-sdk`:
 
 ```typescript
 // Core interfaces
@@ -423,7 +423,7 @@ gpc plugins init my-plugin
 ```
 
 This creates a directory with:
-- `package.json` with `@gpc/plugin-sdk` peer dependency
+- `package.json` with `@gpc-cli/plugin-sdk` peer dependency
 - `tsconfig.json` configured for ESM
 - `src/index.ts` with a plugin skeleton using `definePlugin()`
 - Basic test file

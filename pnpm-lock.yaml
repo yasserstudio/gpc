@@ -58,7 +58,7 @@ importers:
 
   packages/api:
     dependencies:
-      '@gpc/auth':
+      '@gpc-cli/auth':
         specifier: workspace:*
         version: link:../auth
     devDependencies:
@@ -78,19 +78,19 @@ importers:
 
   packages/cli:
     dependencies:
-      '@gpc/api':
+      '@gpc-cli/api':
         specifier: workspace:*
         version: link:../api
-      '@gpc/auth':
+      '@gpc-cli/auth':
         specifier: workspace:^
         version: link:../auth
-      '@gpc/config':
+      '@gpc-cli/config':
         specifier: workspace:*
         version: link:../config
-      '@gpc/core':
+      '@gpc-cli/core':
         specifier: workspace:*
         version: link:../core
-      '@gpc/plugin-sdk':
+      '@gpc-cli/plugin-sdk':
         specifier: workspace:*
         version: link:../plugin-sdk
       commander:
@@ -109,16 +109,16 @@ importers:
 
   packages/core:
     dependencies:
-      '@gpc/api':
+      '@gpc-cli/api':
         specifier: workspace:*
         version: link:../api
-      '@gpc/auth':
+      '@gpc-cli/auth':
         specifier: workspace:*
         version: link:../auth
-      '@gpc/config':
+      '@gpc-cli/config':
         specifier: workspace:*
         version: link:../config
-      '@gpc/plugin-sdk':
+      '@gpc-cli/plugin-sdk':
         specifier: workspace:*
         version: link:../plugin-sdk
     devDependencies:
@@ -130,7 +130,7 @@ importers:
 
   plugins/plugin-ci:
     dependencies:
-      '@gpc/plugin-sdk':
+      '@gpc-cli/plugin-sdk':
         specifier: workspace:*
         version: link:../../packages/plugin-sdk
     devDependencies:

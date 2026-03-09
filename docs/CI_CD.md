@@ -4,7 +4,7 @@ Ready-to-use workflows for integrating GPC into CI/CD pipelines.
 
 > **Install options in CI:** Use `npm install -g gpc` when Node.js is available (includes plugin support), or `curl -fsSL .../install.sh | sh` for the standalone binary (no dependencies). On macOS runners, `brew install yasserstudio/tap/gpc` also works. See [Installation](./INSTALLATION.md) for details.
 
-> **Tip:** Install `@gpc/plugin-ci` for automatic CI environment detection and GitHub Actions step summaries. When enabled, every GPC command writes a markdown summary to `$GITHUB_STEP_SUMMARY` with the command name, app, duration, and exit code. See `docs/PLUGIN_SPEC.md` for details.
+> **Tip:** Install `@gpc-cli/plugin-ci` for automatic CI environment detection and GitHub Actions step summaries. When enabled, every GPC command writes a markdown summary to `$GITHUB_STEP_SUMMARY` with the command name, app, duration, and exit code. See `docs/PLUGIN_SPEC.md` for details.
 
 ---
 
@@ -37,7 +37,7 @@ jobs:
           node-version: 20
 
       - name: Install GPC
-        run: npm install -g @gpc/cli
+        run: npm install -g @gpc-cli/cli
 
       - name: Upload to Internal Track
         env:
@@ -99,7 +99,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm install -g @gpc/cli
+      - run: npm install -g @gpc-cli/cli
       - name: Upload to Internal
         run: |
           gpc releases upload app-release.aab \
@@ -117,7 +117,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm install -g @gpc/cli
+      - run: npm install -g @gpc-cli/cli
       - name: Promote
         run: |
           gpc releases promote \
@@ -147,7 +147,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm install -g @gpc/cli
+      - run: npm install -g @gpc-cli/cli
 
       - name: Check vitals before increasing rollout
         id: vitals
@@ -197,7 +197,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm install -g @gpc/cli
+      - run: npm install -g @gpc-cli/cli
 
       - name: Check vitals
         run: |
@@ -239,7 +239,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm install -g @gpc/cli
+      - run: npm install -g @gpc-cli/cli
       - name: Validate metadata
         run: |
           gpc listings push --dir metadata/ --dry-run --json
@@ -253,7 +253,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm install -g @gpc/cli
+      - run: npm install -g @gpc-cli/cli
       - name: Push metadata
         run: |
           gpc listings push --dir metadata/ --json
@@ -275,7 +275,7 @@ release:
     GPC_SERVICE_ACCOUNT: $GPC_SERVICE_ACCOUNT
     GPC_APP: com.example.myapp
   before_script:
-    - npm install -g @gpc/cli
+    - npm install -g @gpc-cli/cli
   script:
     - gpc releases upload build/app-release.aab --track internal --json
 ```
@@ -292,7 +292,7 @@ pipelines:
           name: Release to Play Store
           image: node:20
           script:
-            - npm install -g @gpc/cli
+            - npm install -g @gpc-cli/cli
             - gpc releases upload build/app-release.aab
                 --track internal --json
           deployment: production
@@ -314,7 +314,7 @@ jobs:
       - checkout
       - run:
           name: Install GPC
-          command: npm install -g @gpc/cli
+          command: npm install -g @gpc-cli/cli
       - run:
           name: Upload to Play Store
           command: |

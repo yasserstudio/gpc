@@ -5,7 +5,7 @@ export const PLUGIN_SDK_VERSION = "0.8.0";
 // ---------------------------------------------------------------------------
 
 export interface GpcPlugin {
-  /** Unique plugin name (e.g., "@gpc/plugin-ci" or "gpc-plugin-slack") */
+  /** Unique plugin name (e.g., "@gpc-cli/plugin-ci" or "gpc-plugin-slack") */
   name: string;
 
   /** Plugin version (semver) */
@@ -174,7 +174,7 @@ export interface PluginManifest {
   /** Required permissions */
   permissions?: PluginPermission[];
 
-  /** Whether this is a first-party (@gpc/*) plugin */
+  /** Whether this is a first-party (@gpc-cli/*) plugin */
   trusted?: boolean;
 }
 

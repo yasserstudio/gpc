@@ -1,7 +1,7 @@
 import type { Command } from "commander";
-import { loadConfig } from "@gpc/config";
-import { resolveAuth } from "@gpc/auth";
-import { createApiClient } from "@gpc/api";
+import { loadConfig } from "@gpc-cli/config";
+import { resolveAuth } from "@gpc-cli/auth";
+import { createApiClient } from "@gpc-cli/api";
 import {
   listReports,
   downloadReport,
@@ -12,8 +12,8 @@ import {
   isValidStatsDimension,
   detectOutputFormat,
   formatOutput,
-} from "@gpc/core";
-import type { ReportType, StatsDimension } from "@gpc/api";
+} from "@gpc-cli/core";
+import type { ReportType, StatsDimension } from "@gpc-cli/api";
 import { writeFile } from "node:fs/promises";
 import { isInteractive, requireOption } from "../prompt.js";
 

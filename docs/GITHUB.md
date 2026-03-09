@@ -18,7 +18,7 @@ gh issue list --label "p0:critical"
 gh issue close 42 --reason completed
 
 # Labels (bulk create/edit)
-gh label create "pkg:core" --color "1d76db" --description "@gpc/core"
+gh label create "pkg:core" --color "1d76db" --description "@gpc-cli/core"
 gh label list
 
 # Releases
@@ -86,13 +86,13 @@ When contributors join or after stable release:
 
 | Label | Color | Description |
 | --- | --- | --- |
-| `pkg:cli` | `#1d76db` | @gpc/cli |
-| `pkg:core` | `#1d76db` | @gpc/core |
-| `pkg:api` | `#1d76db` | @gpc/api |
-| `pkg:auth` | `#1d76db` | @gpc/auth |
-| `pkg:config` | `#1d76db` | @gpc/config |
-| `pkg:plugin-sdk` | `#1d76db` | @gpc/plugin-sdk |
-| `pkg:plugin-ci` | `#1d76db` | @gpc/plugin-ci |
+| `pkg:cli` | `#1d76db` | @gpc-cli/cli |
+| `pkg:core` | `#1d76db` | @gpc-cli/core |
+| `pkg:api` | `#1d76db` | @gpc-cli/api |
+| `pkg:auth` | `#1d76db` | @gpc-cli/auth |
+| `pkg:config` | `#1d76db` | @gpc-cli/config |
+| `pkg:plugin-sdk` | `#1d76db` | @gpc-cli/plugin-sdk |
+| `pkg:plugin-ci` | `#1d76db` | @gpc-cli/plugin-ci |
 
 ### Type Labels
 
@@ -125,7 +125,7 @@ done
 
 # Package labels
 for pkg in cli core api auth config plugin-sdk plugin-ci; do
-  gh label create "pkg:$pkg" --color "1d76db" --description "@gpc/$pkg"
+  gh label create "pkg:$pkg" --color "1d76db" --description "@gpc-cli/$pkg"
 done
 
 # Type labels
@@ -307,7 +307,7 @@ gh release upload v0.8.0 dist/gpc-linux-x64 dist/gpc-darwin-arm64
 ### GitHub Releases
 
 - Auto-generated from changeset summaries
-- Tag format: `@gpc/core@0.8.0` (standard monorepo convention)
+- Tag format: `@gpc-cli/core@0.8.0` (standard monorepo convention)
 - Attach notable highlights in release notes
 
 ---

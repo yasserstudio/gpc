@@ -1,6 +1,6 @@
 import type { Command } from "commander";
-import { loadConfig, setConfigValue, getUserConfigPath, initConfig } from "@gpc/config";
-import { detectOutputFormat, formatOutput, writeAuditLog, createAuditEntry } from "@gpc/core";
+import { loadConfig, setConfigValue, getUserConfigPath, initConfig } from "@gpc-cli/config";
+import { detectOutputFormat, formatOutput, writeAuditLog, createAuditEntry } from "@gpc-cli/core";
 import { isInteractive, promptInput, promptSelect } from "../prompt.js";
 
 export function registerConfigCommands(program: Command): void {

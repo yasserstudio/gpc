@@ -70,7 +70,7 @@ trap 'rm -f "$TMPFILE"' EXIT
 
 if ! curl -fsSL -o "$TMPFILE" "$URL"; then
   echo "Error: Download failed. Binary may not be available for ${PLATFORM}-${ARCH}."
-  echo "Install via npm instead: npm install -g gpc"
+  echo "Install via npm instead: npm install -g @gpc-cli/cli"
   exit 1
 fi
 

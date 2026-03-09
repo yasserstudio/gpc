@@ -17,7 +17,7 @@ Manage GPC plugins. Plugins extend the CLI with custom commands and lifecycle ho
 
 ## Plugin Trust Model
 
-- **First-party plugins** (`@gpc/*` scope) are automatically trusted and loaded.
+- **First-party plugins** (`@gpc-cli/*` scope) are automatically trusted and loaded.
 - **Third-party plugins** must be explicitly approved before they are loaded. This prevents untrusted code from running automatically.
 
 ## `plugins list`
@@ -43,7 +43,7 @@ gpc plugins list
 ```
 Loaded plugins:
 
-  @gpc/plugin-ci@0.8.0 (trusted)
+  @gpc-cli/plugin-ci@0.8.0 (trusted)
 
 Plugin commands:
 
@@ -59,7 +59,7 @@ gpc plugins list --output json
 ```json
 [
   {
-    "name": "@gpc/plugin-ci",
+    "name": "@gpc-cli/plugin-ci",
     "version": "0.8.0",
     "trusted": true
   }
@@ -71,7 +71,7 @@ When no plugins are loaded:
 ```
 No plugins loaded.
 
-Configure plugins in .gpcrc.json: { "plugins": ["@gpc/plugin-ci"] }
+Configure plugins in .gpcrc.json: { "plugins": ["@gpc-cli/plugin-ci"] }
 ```
 
 ---
@@ -199,7 +199,7 @@ Plugins are configured in `.gpcrc.json`:
 ```json
 {
   "plugins": [
-    "@gpc/plugin-ci",
+    "@gpc-cli/plugin-ci",
     "gpc-plugin-slack"
   ],
   "approvedPlugins": [

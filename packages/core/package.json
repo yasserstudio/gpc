@@ -1,5 +1,5 @@
 {
-  "name": "@gpc/core",
+  "name": "@gpc-cli/core",
   "version": "0.0.0",
   "description": "Business logic and command orchestration for GPC",
   "type": "module",
@@ -24,10 +24,10 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@gpc/api": "workspace:*",
-    "@gpc/auth": "workspace:*",
-    "@gpc/config": "workspace:*",
-    "@gpc/plugin-sdk": "workspace:*"
+    "@gpc-cli/api": "workspace:*",
+    "@gpc-cli/auth": "workspace:*",
+    "@gpc-cli/config": "workspace:*",
+    "@gpc-cli/plugin-sdk": "workspace:*"
   },
   "keywords": [
     "google-play",

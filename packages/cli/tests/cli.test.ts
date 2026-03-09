@@ -3,7 +3,7 @@ import { Command } from "commander";
 import { createProgram } from "../src/program";
 
 // Mock external dependencies to avoid real file/API operations
-vi.mock("@gpc/auth", () => ({
+vi.mock("@gpc-cli/auth", () => ({
   resolveAuth: vi.fn(),
   loadServiceAccountKey: vi.fn(),
   AuthError: class AuthError extends Error {
@@ -11,14 +11,14 @@ vi.mock("@gpc/auth", () => ({
   },
 }));
 
-vi.mock("@gpc/config", () => ({
+vi.mock("@gpc-cli/config", () => ({
   loadConfig: vi.fn().mockResolvedValue({}),
   setConfigValue: vi.fn().mockResolvedValue(undefined),
   getUserConfigPath: vi.fn().mockReturnValue("/home/user/.config/gpc/config.toml"),
   initConfig: vi.fn().mockResolvedValue("/home/user/.config/gpc/config.toml"),
 }));
 
-vi.mock("@gpc/core", () => {
+vi.mock("@gpc-cli/core", () => {
   // Inline PluginManager mock for CLI tests
   class MockPluginManager {
     private plugins: any[] = [];
@@ -108,7 +108,7 @@ vi.mock("@gpc/core", () => {
   };
 });
 
-vi.mock("@gpc/api", () => ({
+vi.mock("@gpc-cli/api", () => ({
   createApiClient: vi.fn().mockReturnValue({
     edits: { insert: vi.fn(), get: vi.fn(), validate: vi.fn(), commit: vi.fn(), delete: vi.fn() },
     details: { get: vi.fn() },
@@ -782,9 +782,9 @@ describe("plugins command", () => {
   });
 
   it("plugins list shows loaded plugins", async () => {
-    const { PluginManager } = await import("@gpc/core");
+    const { PluginManager } = await import("@gpc-cli/core");
     const manager = new PluginManager() as any;
-    manager._addPlugin({ name: "@gpc/plugin-ci", version: "0.8.0", trusted: true });
+    manager._addPlugin({ name: "@gpc-cli/plugin-ci", version: "0.8.0", trusted: true });
     manager._addPlugin({ name: "gpc-plugin-slack", version: "1.0.0", trusted: false });
 
     program = await createProgram(manager);
@@ -795,7 +795,7 @@ describe("plugins command", () => {
     await program.parseAsync(["node", "test", "plugins", "list"]);
 
     const output = logSpy.mock.calls.map((call) => String(call[0])).join("\n");
-    expect(output).toContain("@gpc/plugin-ci@0.8.0");
+    expect(output).toContain("@gpc-cli/plugin-ci@0.8.0");
     expect(output).toContain("trusted");
     expect(output).toContain("gpc-plugin-slack@1.0.0");
     expect(output).toContain("third-party");
@@ -808,9 +808,9 @@ describe("plugins command", () => {
   });
 
   it("plugins list outputs JSON when --output json", async () => {
-    const { PluginManager } = await import("@gpc/core");
+    const { PluginManager } = await import("@gpc-cli/core");
     const manager = new PluginManager() as any;
-    manager._addPlugin({ name: "@gpc/plugin-ci", version: "0.8.0", trusted: true });
+    manager._addPlugin({ name: "@gpc-cli/plugin-ci", version: "0.8.0", trusted: true });
 
     program = await createProgram(manager);
     program.exitOverride();
@@ -821,7 +821,7 @@ describe("plugins command", () => {
 
     const output = logSpy.mock.calls.map((call) => String(call[0])).join("\n");
     const parsed = JSON.parse(output);
-    expect(parsed).toEqual([{ name: "@gpc/plugin-ci", version: "0.8.0", trusted: true }]);
+    expect(parsed).toEqual([{ name: "@gpc-cli/plugin-ci", version: "0.8.0", trusted: true }]);
   });
 });
 
@@ -834,7 +834,7 @@ describe("plugin commands registration", () => {
   });
 
   it("registers plugin-defined commands on the program", async () => {
-    const { PluginManager } = await import("@gpc/core");
+    const { PluginManager } = await import("@gpc-cli/core");
     const manager = new PluginManager() as any;
     manager._addCommand({
       name: "deploy",
@@ -848,7 +848,7 @@ describe("plugin commands registration", () => {
   });
 
   it("plugin commands show in plugins list", async () => {
-    const { PluginManager } = await import("@gpc/core");
+    const { PluginManager } = await import("@gpc-cli/core");
     const manager = new PluginManager() as any;
     manager._addPlugin({ name: "gpc-plugin-deploy", version: "1.0.0", trusted: false });
     manager._addCommand({

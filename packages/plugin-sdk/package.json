@@ -1,5 +1,5 @@
 {
-  "name": "@gpc/plugin-sdk",
+  "name": "@gpc-cli/plugin-sdk",
   "version": "0.0.0",
   "description": "Plugin interface and SDK for extending GPC",
   "type": "module",

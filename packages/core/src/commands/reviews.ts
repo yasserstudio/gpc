@@ -1,5 +1,5 @@
-import type { PlayApiClient, Review, ReviewsListOptions, ReviewReplyResponse } from "@gpc/api";
-import { paginateAll } from "@gpc/api";
+import type { PlayApiClient, Review, ReviewsListOptions, ReviewReplyResponse } from "@gpc-cli/api";
+import { paginateAll } from "@gpc-cli/api";
 
 export interface ReviewsFilterOptions {
   stars?: number;

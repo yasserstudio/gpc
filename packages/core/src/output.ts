@@ -1,4 +1,4 @@
-import type { OutputFormat } from "@gpc/config";
+import type { OutputFormat } from "@gpc-cli/config";
 import process from "node:process";
 
 export function detectOutputFormat(): OutputFormat {

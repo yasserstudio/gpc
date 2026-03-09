@@ -2173,7 +2173,7 @@ describe("tester commands", () => {
 // ---------------------------------------------------------------------------
 
 import { PluginManager, discoverPlugins } from "../src/plugins.js";
-import type { GpcPlugin } from "@gpc/plugin-sdk";
+import type { GpcPlugin } from "@gpc-cli/plugin-sdk";
 
 describe("PluginManager", () => {
   it("loads a plugin and tracks it", async () => {
@@ -2190,10 +2190,10 @@ describe("PluginManager", () => {
     expect(loaded[0]!.version).toBe("1.0.0");
   });
 
-  it("marks @gpc/* plugins as trusted", async () => {
+  it("marks @gpc-cli/* plugins as trusted", async () => {
     const manager = new PluginManager();
     await manager.load({
-      name: "@gpc/plugin-ci",
+      name: "@gpc-cli/plugin-ci",
       version: "0.8.0",
       register() {},
     });
@@ -2338,8 +2338,8 @@ describe("PluginManager", () => {
     const manager = new PluginManager();
     // Should not throw — trusted plugins skip permission validation
     await manager.load(
-      { name: "@gpc/plugin-ci", version: "0.8.0", register() {} },
-      { name: "@gpc/plugin-ci", version: "0.8.0", trusted: true, permissions: ["api:write"] },
+      { name: "@gpc-cli/plugin-ci", version: "0.8.0", register() {} },
+      { name: "@gpc-cli/plugin-ci", version: "0.8.0", trusted: true, permissions: ["api:write"] },
     );
     expect(manager.getLoadedPlugins()).toHaveLength(1);
   });
@@ -2389,7 +2389,7 @@ describe("error unification", () => {
     });
   });
 
-  it("ApiError (from @gpc/core) has exitCode 4", () => {
+  it("ApiError (from @gpc-cli/core) has exitCode 4", () => {
     const err = new ApiError("api fail", "API_FAIL", 500);
     expect(err.exitCode).toBe(4);
     expect(err).toBeInstanceOf(GpcError);

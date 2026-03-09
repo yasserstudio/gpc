@@ -1,9 +1,9 @@
 import type { Command } from "commander";
-import { loadConfig } from "@gpc/config";
-import { resolveAuth } from "@gpc/auth";
-import { createApiClient } from "@gpc/api";
-import { getReleasesStatus } from "@gpc/core";
-import { detectOutputFormat, formatOutput } from "@gpc/core";
+import { loadConfig } from "@gpc-cli/config";
+import { resolveAuth } from "@gpc-cli/auth";
+import { createApiClient } from "@gpc-cli/api";
+import { getReleasesStatus } from "@gpc-cli/core";
+import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
 
 export function registerStatusCommand(program: Command): void {
   program

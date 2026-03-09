@@ -1,9 +1,9 @@
 import type { Command } from "commander";
-import { loadConfig } from "@gpc/config";
-import { resolveAuth } from "@gpc/auth";
-import { createReportingClient } from "@gpc/api";
-import type { ReportingDimension } from "@gpc/api";
-import type { VitalsMetricSet } from "@gpc/api";
+import { loadConfig } from "@gpc-cli/config";
+import { resolveAuth } from "@gpc-cli/auth";
+import { createReportingClient } from "@gpc-cli/api";
+import type { ReportingDimension } from "@gpc-cli/api";
+import type { VitalsMetricSet } from "@gpc-cli/api";
 import {
   getVitalsOverview,
   getVitalsCrashes,
@@ -18,7 +18,7 @@ import {
   checkThreshold,
   detectOutputFormat,
   formatOutput,
-} from "@gpc/core";
+} from "@gpc-cli/core";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;

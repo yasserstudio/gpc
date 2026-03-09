@@ -82,7 +82,7 @@ gpc/
 
 ## Package Responsibilities
 
-### @gpc/cli
+### @gpc-cli/cli
 
 - Command registration and argument parsing (Commander.js)
 - Interactive prompts (`node:readline`)
@@ -91,7 +91,7 @@ gpc/
 - Shell completion generation (bash, zsh, fish)
 - Lazy command loading for fast startup
 
-### @gpc/core
+### @gpc-cli/core
 
 - Business logic and command orchestration
 - Combines auth + api + config into cohesive workflows
@@ -99,7 +99,7 @@ gpc/
 - Plugin manager -- loads, validates, and runs plugin lifecycle hooks
 - Dry-run support for all write operations
 
-### @gpc/api
+### @gpc-cli/api
 
 - Typed wrappers around Google Play Developer API v3
 - Request/response models matching the API specification
@@ -108,7 +108,7 @@ gpc/
 - Pagination helpers (auto-follow `nextPageToken`)
 - Zero business logic -- pure API surface
 
-### @gpc/auth
+### @gpc-cli/auth
 
 - Service account JSON key file authentication
 - OAuth 2.0 device flow for interactive login
@@ -116,14 +116,14 @@ gpc/
 - Token caching, refresh, and revocation
 - Multi-account profile management
 
-### @gpc/config
+### @gpc-cli/config
 
 - Config file discovery (`.gpcrc.json`, user config dir)
 - Profile-based configuration (dev, staging, production)
 - Environment variable overrides (`GPC_*` prefix)
 - Schema validation with clear error messages
 
-### @gpc/plugin-sdk
+### @gpc-cli/plugin-sdk
 
 - Plugin interface definition (`GpcPlugin`, `PluginHooks`)
 - Lifecycle hook types (`BeforeCommandHandler`, `AfterCommandHandler`, `ErrorHandler`)
@@ -241,12 +241,12 @@ User runs command
 
 ```
 ┌──────────────────┐     ┌──────────────────┐
-│  @gpc/plugin-sdk │     │  @gpc/plugin-ci  │
+│  @gpc-cli/plugin-sdk │     │  @gpc-cli/plugin-ci  │
 │  (interfaces)    │<────│  (first-party)   │
 └────────┬─────────┘     └──────────────────┘
          │
 ┌────────▼─────────┐
-│  PluginManager   │  <- @gpc/core — orchestrates lifecycle
+│  PluginManager   │  <- @gpc-cli/core — orchestrates lifecycle
 │  (core/plugins)  │
 └──────────────────┘
 ```
@@ -259,7 +259,7 @@ User runs command
 5. On error: `runOnError(event, error)` fires all registered hooks (errors in handlers are swallowed)
 
 **Trust model:**
-- First-party plugins (`@gpc/plugin-*`): auto-trusted, no permission checks
+- First-party plugins (`@gpc-cli/plugin-*`): auto-trusted, no permission checks
 - Third-party plugins (`gpc-plugin-*`): permissions validated against declared manifest
 - Unknown permissions throw `PLUGIN_INVALID_PERMISSION` (exit code 10)
 
@@ -272,4 +272,4 @@ GPC communicates with two separate Google APIs:
 | Android Publisher API v3 | `androidpublisher.googleapis.com` | Publishing, monetization, reviews, purchases, users |
 | Play Developer Reporting API v1beta1 | `playdeveloperreporting.googleapis.com` | Vitals, crash rates, ANR, performance metrics |
 
-Both APIs require separate enablement in Google Cloud Console but share the same service account credentials. Internally, `@gpc/api` maintains two separate client instances with independent rate limiters and retry configurations.
+Both APIs require separate enablement in Google Cloud Console but share the same service account credentials. Internally, `@gpc-cli/api` maintains two separate client instances with independent rate limiters and retry configurations.

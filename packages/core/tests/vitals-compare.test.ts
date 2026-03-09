@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { compareVitalsTrend } from "../src/commands/vitals";
-import type { ReportingApiClient } from "@gpc/api";
+import type { ReportingApiClient } from "@gpc-cli/api";
 
 function mockReporting(currentRows: any[], previousRows: any[]): ReportingApiClient {
   let callCount = 0;

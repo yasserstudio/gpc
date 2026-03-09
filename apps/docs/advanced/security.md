@@ -181,7 +181,7 @@ Redaction is applied before formatting and cannot be disabled.
 
 | Plugin Type | Pattern | Trust Level |
 |-------------|---------|-------------|
-| First-party | `@gpc/plugin-*` | Auto-trusted, no permission checks |
+| First-party | `@gpc-cli/plugin-*` | Auto-trusted, no permission checks |
 | Third-party | `gpc-plugin-*` or config path | Untrusted, permissions validated |
 
 ### Permission Enforcement

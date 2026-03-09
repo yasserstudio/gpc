@@ -18,7 +18,7 @@ The Edits resource is the transactional wrapper for most write operations. An ed
 | `edits.validate` | POST | (internal — pre-commit check) | 2 |
 | `edits.delete` | DELETE | (internal — auto on failure) | 2 |
 
-> Edits are managed internally by `@gpc/api`. Users never interact with edits directly — the CLI creates, uses, and commits/deletes them transparently.
+> Edits are managed internally by `@gpc-cli/api`. Users never interact with edits directly — the CLI creates, uses, and commits/deletes them transparently.
 
 ## Edits: Bundles
 

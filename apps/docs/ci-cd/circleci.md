@@ -64,7 +64,7 @@ jobs:
           at: .
       - run:
           name: Install GPC
-          command: npm install -g gpc
+          command: npm install -g @gpc-cli/cli
       - run:
           name: Upload to Play Store
           command: |
@@ -126,7 +126,7 @@ jobs:
           at: .
       - run:
           name: Install GPC
-          command: npm install -g gpc
+          command: npm install -g @gpc-cli/cli
       - run:
           name: Upload to internal track
           command: |
@@ -144,7 +144,7 @@ jobs:
     steps:
       - run:
           name: Install GPC
-          command: npm install -g gpc
+          command: npm install -g @gpc-cli/cli
       - run:
           name: Promote to beta
           command: gpc releases promote --from internal --to beta --json
@@ -157,7 +157,7 @@ jobs:
     steps:
       - run:
           name: Install GPC
-          command: npm install -g gpc
+          command: npm install -g @gpc-cli/cli
       - run:
           name: Check vitals before promotion
           command: |
@@ -180,7 +180,7 @@ jobs:
     steps:
       - run:
           name: Install GPC
-          command: npm install -g gpc
+          command: npm install -g @gpc-cli/cli
       - run:
           name: Check vitals
           command: |
@@ -271,7 +271,7 @@ commands:
     steps:
       - run:
           name: Install GPC
-          command: npm install -g gpc
+          command: npm install -g @gpc-cli/cli
 
   gpc-upload:
     description: Upload AAB to a track

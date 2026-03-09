@@ -1,5 +1,5 @@
 {
-  "name": "@gpc/docs",
+  "name": "@gpc-cli/docs",
   "private": true,
   "type": "module",
   "scripts": {

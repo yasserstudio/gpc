@@ -1,11 +1,11 @@
 ---
-"gpc": minor
-"@gpc/api": minor
-"@gpc/auth": minor
-"@gpc/core": minor
-"@gpc/config": minor
-"@gpc/plugin-sdk": minor
-"@gpc/plugin-ci": minor
+"@gpc-cli/cli": minor
+"@gpc-cli/api": minor
+"@gpc-cli/auth": minor
+"@gpc-cli/core": minor
+"@gpc-cli/config": minor
+"@gpc-cli/plugin-sdk": minor
+"@gpc-cli/plugin-ci": minor
 ---
 
 Phase 9 — Production hardening

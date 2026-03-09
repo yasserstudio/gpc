@@ -1,8 +1,8 @@
 import { setupNetworking } from "./networking.js";
 import { createProgram } from "./program.js";
 import { loadPlugins } from "./plugins.js";
-import { initAudit } from "@gpc/core";
-import { getConfigDir } from "@gpc/config";
+import { initAudit } from "@gpc-cli/core";
+import { getConfigDir } from "@gpc-cli/config";
 
 await setupNetworking();
 initAudit(getConfigDir());
