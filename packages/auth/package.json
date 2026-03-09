@@ -33,6 +33,6 @@
     "@types/node": "^25.3.5"
   },
   "dependencies": {
-    "googleapis": "^171.4.0"
+    "google-auth-library": "^10.6.1"
   }
 }
