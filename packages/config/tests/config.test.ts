@@ -20,7 +20,7 @@ import {
   revokePluginApproval,
   DEFAULT_CONFIG,
 } from "../src/index";
-import { readConfigFile } from "../src/loader";
+import { readConfigFile, findConfigFile } from "../src/loader";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -583,5 +583,58 @@ describe("plugin approval", () => {
   it("returns false when revoking unapproved plugin", async () => {
     const revoked = await revokePluginApproval("gpc-plugin-nope");
     expect(revoked).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Prototype pollution protection
+// ---------------------------------------------------------------------------
+describe("prototype pollution protection", () => {
+  let tmpDir: string;
+
+  beforeEach(async () => {
+    tmpDir = await mkdtemp(join(tmpdir(), "gpc-proto-"));
+  });
+
+  afterEach(async () => {
+    await rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it("strips __proto__ from config file", async () => {
+    const configPath = join(tmpDir, "config.json");
+    await writeFile(configPath, JSON.stringify({
+      app: "com.safe",
+      "__proto__": { "polluted": true },
+    }));
+
+    const config = await readConfigFile(configPath);
+    expect((config as any).__proto__?.polluted).toBeUndefined();
+    expect(config.app).toBe("com.safe");
+  });
+
+  it("strips constructor from config file", async () => {
+    const configPath = join(tmpDir, "config.json");
+    await writeFile(configPath, JSON.stringify({
+      app: "com.safe",
+      "constructor": { "polluted": true },
+    }));
+
+    const config = await readConfigFile(configPath);
+    expect((config as any).constructor?.polluted).toBeUndefined();
+    expect(config.app).toBe("com.safe");
+  });
+
+  it("strips nested __proto__ keys", async () => {
+    const configPath = join(tmpDir, "config.json");
+    await writeFile(configPath, JSON.stringify({
+      auth: {
+        serviceAccount: "/safe.json",
+        "__proto__": { "admin": true },
+      },
+    }));
+
+    const config = await readConfigFile(configPath);
+    expect((config.auth as any)?.__proto__?.admin).toBeUndefined();
+    expect(config.auth?.serviceAccount).toBe("/safe.json");
   });
 });
