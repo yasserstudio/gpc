@@ -98,7 +98,8 @@ Download the binary for your platform from the [GitHub releases page](https://gi
 | macOS | arm64 (Apple Silicon) | `gpc-darwin-arm64` |
 | macOS | x64 (Intel) | `gpc-darwin-x64` |
 | Linux | x64 | `gpc-linux-x64` |
-| Windows | x64 | `gpc-win-x64.exe` |
+| Linux | arm64 | `gpc-linux-arm64` |
+| Windows | x64 | `gpc-windows-x64.exe` |
 
 ### Manual install steps (Linux/macOS)
 
@@ -120,7 +121,7 @@ gpc --version
 
 ```powershell
 # Download the binary
-Invoke-WebRequest -Uri "https://github.com/yasserstudio/gpc/releases/latest/download/gpc-win-x64.exe" -OutFile "gpc.exe"
+Invoke-WebRequest -Uri "https://github.com/yasserstudio/gpc/releases/latest/download/gpc-windows-x64.exe" -OutFile "gpc.exe"
 
 # Move to a directory in your PATH (e.g., C:\Windows\System32 or a custom directory)
 Move-Item gpc.exe C:\Windows\System32\gpc.exe

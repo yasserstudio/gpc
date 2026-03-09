@@ -41,7 +41,7 @@ e2e/               → End-to-end tests
 - Phase 6 ✓ — Subscriptions, IAP, purchases, pricing, regional conversion
 - Phase 7 ✓ — Reports, users, testers, grants, CSV import
 - Phase 8 ✓ — Plugin SDK, plugin manager, lifecycle hooks, plugin-ci
-- Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, README/CHANGELOG
+- Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, Homebrew tap, README/CHANGELOG
 - 597 total tests, 7 packages building, 90%+ line coverage on all core packages
 
 ## Testing
