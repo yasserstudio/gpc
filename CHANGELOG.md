@@ -4,6 +4,15 @@ All notable changes to GPC are documented here.
 
 ---
 
+## v0.9.2 — Interactive Mode & Audit Logging
+
+- **feat(cli):** Interactive prompts for `releases upload`, `publish`, and `config init` when flags are missing
+- **feat(cli):** Prompt utilities (select, input, confirm) with TTY/CI detection
+- **feat(cli):** `--no-interactive` flag and `GPC_NO_INTERACTIVE` env var respected
+- **feat(core):** Audit logging — all write operations logged to `~/.config/gpc/audit.log` (JSONL)
+- **feat(core):** `initAudit`, `writeAuditLog`, `createAuditEntry` utilities
+- 576 total tests
+
 ## v0.9.0 — Security Audit & Hardening
 
 - **fix(cli):** Replace `exec()` with `execFile()` in `gpc docs` to prevent command injection

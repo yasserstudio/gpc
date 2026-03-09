@@ -4,9 +4,10 @@ import { loadConfig, getCacheDir } from "@gpc/config";
 import { resolveAuth } from "@gpc/auth";
 import { createApiClient } from "@gpc/api";
 import type { RetryLogEntry } from "@gpc/api";
-import { publish } from "@gpc/core";
+import { publish, writeAuditLog, createAuditEntry } from "@gpc/core";
 import { detectOutputFormat, formatOutput } from "@gpc/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
+import { isInteractive, promptSelect, promptInput } from "../prompt.js";
 
 function resolvePackageName(packageArg: string | undefined, config: any): string {
   const name = packageArg || config.app;
@@ -38,6 +39,26 @@ export function registerPublishCommand(program: Command): void {
       const packageName = resolvePackageName(program.opts().app, config);
       const format = detectOutputFormat();
 
+      // Interactive mode: prompt for missing options
+      if (isInteractive(program)) {
+        if (!options.track || options.track === "internal") {
+          const tracks = ["internal", "alpha", "beta", "production"];
+          options.track = await promptSelect("Select track:", tracks, "internal");
+        }
+
+        if (!options.rollout && options.track === "production") {
+          const rolloutStr = await promptInput("Staged rollout percentage (1-100, blank for full)", "100");
+          if (rolloutStr && rolloutStr !== "100") {
+            options.rollout = rolloutStr;
+          }
+        }
+
+        if (!options.notes && !options.notesDir) {
+          const notes = await promptInput("Release notes (en-US, blank to skip)");
+          if (notes) options.notes = notes;
+        }
+      }
+
       if (isDryRun(program)) {
         printDryRun({
           command: "publish",
@@ -47,6 +68,12 @@ export function registerPublishCommand(program: Command): void {
         }, format, formatOutput);
         return;
       }
+
+      const auditEntry = createAuditEntry("publish", {
+        file,
+        track: options.track,
+        rollout: options.rollout,
+      }, packageName);
 
       let onRetry: ((entry: RetryLogEntry) => void) | undefined;
       if (options.retryLog) {
@@ -77,13 +104,21 @@ export function registerPublishCommand(program: Command): void {
             const icon = check.passed ? "✓" : "✗";
             console.error(`  ${icon} ${check.name}: ${check.message}`);
           }
+          auditEntry.success = false;
+          auditEntry.error = "Validation failed";
           process.exit(1);
         }
 
         console.log(formatOutput(result, format));
+        auditEntry.success = true;
       } catch (error) {
+        auditEntry.success = false;
+        auditEntry.error = error instanceof Error ? error.message : String(error);
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
+      } finally {
+        auditEntry.durationMs = Date.now() - new Date(auditEntry.timestamp).getTime();
+        writeAuditLog(auditEntry).catch(() => {});
       }
     });
 }
