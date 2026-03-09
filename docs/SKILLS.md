@@ -23,6 +23,9 @@ Skills are structured documentation that teach AI assistants how to use GPC. Whe
 | **gpc-ci-integration** | Set up GPC in GitHub Actions, GitLab CI, Bitbucket, CircleCI with JSON output and exit codes |
 | **gpc-monetization** | Subscriptions, IAP, base plans, offers, purchases, pricing, regional conversion |
 | **gpc-user-management** | Developer account users, permissions, grants, testers, CSV import |
+| **gpc-migrate-fastlane** | Migrate from Fastlane supply — command mapping, CI migration, coexistence |
+| **gpc-plugin-development** | Build GPC plugins — lifecycle hooks, permissions, custom commands |
+| **gpc-troubleshooting** | Debug GPC errors — exit codes, error catalog, verbose output, common fixes |
 
 ---
 
@@ -53,6 +56,15 @@ Skills are automatically available when you work in the GPC repository with Clau
 
 "Invite a new team member to our Play Console"
 → Claude reads gpc-user-management skill
+
+"Migrate from Fastlane to GPC"
+→ Claude reads gpc-migrate-fastlane skill
+
+"Build a plugin that sends Slack notifications"
+→ Claude reads gpc-plugin-development skill
+
+"Why is gpc failing with exit code 4?"
+→ Claude reads gpc-troubleshooting skill
 ```
 
 ---
@@ -80,6 +92,9 @@ gpc-<name>/
 | gpc-ci-integration | `github-actions.md` · `troubleshooting.md` · `gitlab-ci.md` · `bitbucket-pipelines.md` |
 | gpc-monetization | `subscription-schema.md` · `iap-schema.md` · `purchase-verification.md` |
 | gpc-user-management | `permissions.md` · `tester-workflows.md` |
+| gpc-migrate-fastlane | `command-mapping.md` · `ci-migration.md` |
+| gpc-plugin-development | `hooks-reference.md` · `permissions-system.md` |
+| gpc-troubleshooting | `exit-codes.md` · `error-catalog.md` |
 
 ---
 
@@ -125,11 +140,22 @@ cp -r /tmp/gpc/.agents/skills/gpc-* .agents/skills/
 | `gpc users *` | gpc-user-management |
 | `gpc testers *` | gpc-user-management |
 
-Commands not yet covered by skills: `plugins`. These will be added in future skill releases.
+| `gpc plugins *` | gpc-plugin-development |
+| Fastlane migration | gpc-migrate-fastlane |
+| Error debugging | gpc-troubleshooting |
+
+All GPC commands are now covered by skills.
 
 ---
 
 ## Changelog
+
+### v0.11.0 (2026-03-09)
+
+- Added **gpc-migrate-fastlane** skill — Fastlane-to-GPC migration with command mapping
+- Added **gpc-plugin-development** skill — plugin SDK, hooks, permissions, custom commands
+- Added **gpc-troubleshooting** skill — exit codes, error catalog, debug mode
+- All GPC commands now covered by skills (10 skills total)
 
 ### v0.10.0 (2026-03-09)
 

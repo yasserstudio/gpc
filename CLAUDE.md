@@ -85,6 +85,9 @@ Agent skills for GPC workflows are in `.agents/skills/gpc-*`:
 | `gpc-ci-integration` | GitHub Actions, GitLab CI, env vars, JSON output, exit codes |
 | `gpc-monetization` | Subscriptions, IAP, base plans, offers, purchases, pricing, regional conversion |
 | `gpc-user-management` | Developer account users, permissions, grants, testers, CSV import |
+| `gpc-migrate-fastlane` | Fastlane-to-GPC migration, command mapping, CI migration |
+| `gpc-plugin-development` | Plugin SDK, lifecycle hooks, permissions, custom commands |
+| `gpc-troubleshooting` | Exit codes, error catalog, debug mode, common fixes |
 
 Read the relevant `SKILL.md` and its `references/` when working on these workflows.
 
