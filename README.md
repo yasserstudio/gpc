@@ -7,12 +7,15 @@
   <img src="https://img.shields.io/badge/Node.js-20+-339933?style=for-the-badge&logo=node.js" alt="Node.js">
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
   <a href="https://www.npmjs.com/package/gpc"><img src="https://img.shields.io/npm/dm/gpc?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
+  <img src="https://img.shields.io/badge/Tests-584_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
 <p align="center"><strong>Ship Android apps from your terminal.</strong></p>
 
 <p align="center">
-The complete CLI for Google Play. Upload releases, manage rollouts, sync metadata, monitor vitals, respond to reviews, manage subscriptions — all from one tool.
+The complete CLI for Google Play — 162 API endpoints, one tool.<br>
+Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.
 </p>
 
 <!-- ![demo](./assets/demo.gif) -->
@@ -57,7 +60,9 @@ gpc reviews list --stars 1-3 --since 7d
 
 You shouldn't need a browser to ship your app.
 
-Every Android release follows the same ritual: open the Play Console, upload your AAB, fill in release notes, pick a track, set the rollout percentage, click through confirmation screens. Or you set up Fastlane — install Ruby, Bundler, 150+ gems — and get access to maybe 20% of the API.
+Every Android release follows the same ritual: open the Play Console, upload your AAB, fill in release notes, pick a track, set the rollout percentage, click through confirmation screens. Fifteen minutes of clicking. Every single time.
+
+The alternative? Install Ruby, Bundler, and 150+ gems to run Fastlane — and get access to maybe 20 of 162 API endpoints. No reviews. No vitals. No subscriptions.
 
 GPC covers the **entire Google Play Developer API** in one CLI. No Ruby. No browser. No ceremony.
 
@@ -74,10 +79,24 @@ GPC covers the **entire Google Play Developer API** in one CLI. No Ruby. No brow
 | CI/CD native | JSON + exit codes + env vars | Partial | Gradle tasks | No |
 | Cold start | <500ms | 2-3s | 3-5s | 5-10s |
 | Plugin system | Yes | No | No | No |
+| Test suite | 584 tests, 90%+ coverage | — | — | — |
+
+See the full [command reference](./docs/COMMANDS.md) for all 162 endpoints.
 
 ---
 
-## What You Can Do
+## Commands
+
+The simplest way to ship:
+
+```bash
+gpc publish app.aab --track beta --notes "Bug fixes"      # End-to-end flow
+gpc publish app.aab --notes-dir ./release-notes/           # Multi-language notes
+gpc validate app.aab --track beta                          # Pre-submission checks
+gpc status                                                 # Cross-track overview
+```
+
+Every Play Store operation is covered. Here's the full breakdown.
 
 ### Releases
 
@@ -153,15 +172,6 @@ gpc users list --developer-id <id>
 gpc users invite dev@company.com --developer-id <id> --role ADMIN
 ```
 
-### High-Level Workflows
-
-```bash
-gpc publish app.aab --track beta --notes "Bug fixes"      # End-to-end flow
-gpc publish app.aab --notes-dir ./release-notes/           # Multi-language notes
-gpc validate app.aab --track beta                          # Pre-submission checks
-gpc status                                                 # Cross-track overview
-```
-
 ### Plugins
 
 ```bash
@@ -172,14 +182,16 @@ gpc plugins approve gpc-plugin-slack       # Approve third-party plugin
 
 ---
 
-## Output (TTY-Aware)
+## Output
 
-GPC auto-detects your environment:
+GPC auto-detects your environment — no flags needed:
 
-- **Terminal (TTY):** formatted tables — human-readable
-- **Pipe / CI:** JSON — machine-parseable, zero config
+- **Terminal:** formatted tables you can actually read
+- **Piped or CI:** structured JSON your scripts can parse
 
-Override anytime:
+No `--output json` in CI. No `| column -t` in your terminal. It just works.
+
+Override when you need to:
 
 ```bash
 gpc releases status --output json
@@ -205,7 +217,7 @@ All JSON follows a consistent contract:
 
 ## CI/CD
 
-GPC is built for automation. Every command supports structured output and proper exit codes.
+Drop GPC into any pipeline. JSON output, semantic exit codes (0-6), env var config — no wrapper scripts needed.
 
 ### GitHub Actions
 
@@ -251,7 +263,7 @@ See the full [CI/CD recipes](./docs/CI_CD.md) for GitHub Actions, GitLab CI, Bit
 
 ## Dry Run
 
-All write operations support `--dry-run` to preview changes without executing:
+Test your CI pipeline against real data without shipping anything. Every write operation supports `--dry-run`:
 
 ```bash
 gpc listings push --dir metadata/ --dry-run
@@ -261,6 +273,15 @@ gpc releases upload app.aab --track beta --dry-run
 ---
 
 ## Authentication
+
+Four options — pick the one that fits:
+
+| Method | Best for |
+|--------|----------|
+| Service account | CI/CD pipelines, automation |
+| OAuth | Local development, quick setup |
+| Environment variable | Docker, ephemeral environments |
+| ADC | GCP-hosted runners (Cloud Build, GKE) |
 
 ```bash
 # Service account (recommended for CI/CD)
@@ -276,7 +297,7 @@ export GPC_SERVICE_ACCOUNT=/path/to/key.json
 gpc auth login --adc
 ```
 
-Manage multiple accounts:
+Credentials are stored locally and never leave your machine. Manage multiple accounts:
 
 ```bash
 gpc auth profiles
@@ -326,9 +347,9 @@ Or drop a `.gpcrc.json` in your project:
 
 ---
 
-## Packages
+## Packages (CLI + SDK)
 
-GPC is a TypeScript monorepo. Each package is independently publishable and usable:
+GPC is a TypeScript monorepo. Each package is independently publishable — use the CLI from your terminal, or import the SDK into your own projects:
 
 | Package | Description |
 | --- | --- |
@@ -339,7 +360,7 @@ GPC is a TypeScript monorepo. Each package is independently publishable and usab
 | [`@gpc/config`](./packages/config) | Configuration loading and validation |
 | [`@gpc/plugin-sdk`](./packages/plugin-sdk) | Plugin interface for third-party extensions |
 
-Use `@gpc/api` directly in your own projects:
+Build custom dashboards, Slack bots, or internal tools on top of the same API client GPC uses:
 
 ```typescript
 import { createClient } from "@gpc/api";
@@ -350,11 +371,16 @@ const client = createClient({
 });
 
 const releases = await client.tracks.get("com.example.app", "production");
+const vitals = await client.vitals.overview("com.example.app");
 ```
+
+CLI for your terminal. SDK for everything else.
 
 ---
 
 ## Exit Codes
+
+Your CI can distinguish "auth expired" from "crash rate too high" and react differently:
 
 | Code | Meaning |
 |------|---------|
@@ -381,16 +407,24 @@ const releases = await client.tracks.get("com.example.app", "production");
 
 ---
 
+## Get Help
+
+- [GitHub Discussions](https://github.com/yasserstudio/gpc/discussions) — questions, ideas, show what you built
+- [Issues](https://github.com/yasserstudio/gpc/issues) — bug reports and feature requests
+- `gpc doctor` — diagnose setup problems locally
+
+---
+
 ## Contributing
 
-Contributions are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and guidelines.
+Found a bug? Want to add a feature? PRs are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup.
 
 ```bash
 git clone https://github.com/yasserstudio/gpc.git
 cd gpc
 pnpm install
 pnpm build
-pnpm test
+pnpm test    # 584 tests across 7 packages
 ```
 
 ---
