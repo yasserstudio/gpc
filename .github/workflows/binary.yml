@@ -24,6 +24,8 @@ jobs:
             asset: gpc-darwin-x64
           - target: linux-x64
             asset: gpc-linux-x64
+          - target: linux-arm64
+            asset: gpc-linux-arm64
           - target: windows-x64
             asset: gpc-windows-x64.exe
     steps:
@@ -44,6 +46,24 @@ jobs:
 
       - name: Bundle and compile
         run: npx tsx scripts/build-binary.ts --target=${{ matrix.target }}
+
+      - name: Smoke test binary
+        if: matrix.target == 'linux-x64'
+        run: |
+          chmod +x dist/bin/${{ matrix.asset }}
+          ./dist/bin/${{ matrix.asset }} --version
+          ./dist/bin/${{ matrix.asset }} --help | head -5
+          ./dist/bin/${{ matrix.asset }} config show --output json 2>/dev/null || true
+
+      - name: Check binary size
+        run: |
+          SIZE=$(stat -c%s "dist/bin/${{ matrix.asset }}")
+          MB=$((SIZE / 1024 / 1024))
+          echo "Binary size: ${MB}MB"
+          if [ "$SIZE" -gt 125829120 ]; then
+            echo "::error::Binary exceeds 120MB limit (${MB}MB)"
+            exit 1
+          fi
 
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4

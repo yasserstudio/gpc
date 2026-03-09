@@ -1,11 +1,25 @@
 #!/bin/sh
 # Install GPC standalone binary
-# Usage: curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
+#
+# Usage:
+#   curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
+#   curl -fsSL ... | sh -s -- --version v0.9.0
+#   curl -fsSL ... | sh -s -- --dir ~/.local/bin
 
 set -e
 
 REPO="yasserstudio/gpc"
 INSTALL_DIR="${GPC_INSTALL_DIR:-/usr/local/bin}"
+VERSION=""
+
+# Parse args
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --version) VERSION="$2"; shift 2 ;;
+    --dir) INSTALL_DIR="$2"; shift 2 ;;
+    *) shift ;;
+  esac
+done
 
 # Detect platform
 OS="$(uname -s)"
@@ -34,15 +48,18 @@ esac
 ASSET="gpc-${PLATFORM}-${ARCH}"
 echo "Detected: ${PLATFORM}-${ARCH}"
 
-# Get latest release tag
-TAG=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" | grep '"tag_name"' | head -1 | cut -d'"' -f4)
-
-if [ -z "$TAG" ]; then
-  echo "Error: Could not determine latest release"
-  exit 1
+# Get release tag
+if [ -n "$VERSION" ]; then
+  TAG="$VERSION"
+else
+  TAG=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" | grep '"tag_name"' | head -1 | cut -d'"' -f4)
+  if [ -z "$TAG" ]; then
+    echo "Error: Could not determine latest release"
+    exit 1
+  fi
 fi
 
-echo "Latest release: ${TAG}"
+echo "Release: ${TAG}"
 
 # Download binary
 URL="https://github.com/${REPO}/releases/download/${TAG}/${ASSET}"
