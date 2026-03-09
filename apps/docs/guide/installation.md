@@ -44,17 +44,17 @@ brew uninstall gpc
 Recommended for Node.js projects and CI/CD pipelines. This is the only method that supports plugins.
 
 ```bash
-npm install -g gpc
+npm install -g @gpc-cli/cli
 ```
 
 Or with other package managers:
 
 ```bash
-pnpm add -g gpc
+pnpm add -g @gpc-cli/cli
 ```
 
 ```bash
-yarn global add gpc
+yarn global add @gpc-cli/cli
 ```
 
 Verify the installation:
@@ -66,13 +66,13 @@ gpc --version
 Update to the latest version:
 
 ```bash
-npm update -g gpc
+npm update -g @gpc-cli/cli
 ```
 
 Uninstall:
 
 ```bash
-npm uninstall -g gpc
+npm uninstall -g @gpc-cli/cli
 ```
 
 ## Standalone Binary
@@ -193,7 +193,7 @@ pnpm unlink --global gpc
 
 ```yaml
 - name: Install GPC
-  run: npm install -g gpc
+  run: npm install -g @gpc-cli/cli
 
 - name: Authenticate
   run: gpc auth login --service-account "${{ secrets.GPC_SERVICE_ACCOUNT_JSON }}"
@@ -210,7 +210,7 @@ Or with the standalone binary (no Node.js required):
 
 ```yaml
 before_script:
-  - npm install -g gpc
+  - npm install -g @gpc-cli/cli
   - gpc auth login --service-account "$GPC_SERVICE_ACCOUNT_JSON"
 ```
 
@@ -218,7 +218,7 @@ before_script:
 
 ```dockerfile
 FROM node:20-slim
-RUN npm install -g gpc
+RUN npm install -g @gpc-cli/cli
 ```
 
 Or with the standalone binary:

@@ -1,4 +1,4 @@
-import type { PlayApiClient, Testers } from "@gpc/api";
+import type { PlayApiClient, Testers } from "@gpc-cli/api";
 import { readFile } from "node:fs/promises";
 
 export async function listTesters(

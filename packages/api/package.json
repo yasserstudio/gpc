@@ -1,5 +1,5 @@
 {
-  "name": "@gpc/api",
+  "name": "@gpc-cli/api",
   "version": "0.0.0",
   "description": "Typed client for Google Play Developer API v3",
   "type": "module",
@@ -24,7 +24,7 @@
     "clean": "rm -rf dist"
   },
   "peerDependencies": {
-    "@gpc/auth": "workspace:*"
+    "@gpc-cli/auth": "workspace:*"
   },
   "keywords": [
     "google-play",

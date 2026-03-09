@@ -1,5 +1,5 @@
 {
-  "name": "@gpc/config",
+  "name": "@gpc-cli/config",
   "version": "0.0.0",
   "description": "Configuration loading and validation for GPC",
   "type": "module",

@@ -37,7 +37,7 @@ release:
   variables:
     GPC_SERVICE_ACCOUNT: $GPC_SERVICE_ACCOUNT
   before_script:
-    - npm install -g gpc
+    - npm install -g @gpc-cli/cli
   script:
     - |
       gpc releases upload \
@@ -72,7 +72,7 @@ variables:
 .gpc_setup: &gpc_setup
   image: node:20
   before_script:
-    - npm install -g gpc
+    - npm install -g @gpc-cli/cli
 
 # -- Build --
 
@@ -189,7 +189,7 @@ validate:metadata:
   stage: validate
   image: node:20
   before_script:
-    - npm install -g gpc
+    - npm install -g @gpc-cli/cli
   script:
     - gpc listings push --dir metadata/ --dry-run --json
   only:
@@ -201,7 +201,7 @@ sync:metadata:
   stage: sync
   image: node:20
   before_script:
-    - npm install -g gpc
+    - npm install -g @gpc-cli/cli
   script:
     - gpc listings push --dir metadata/ --json
   only:

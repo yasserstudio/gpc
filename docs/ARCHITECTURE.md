@@ -69,39 +69,39 @@ gpc/
 
 ### Package Responsibilities
 
-#### `@gpc/api`
+#### `@gpc-cli/api`
 - Typed wrappers around Google Play Developer API v3
 - Request/response models auto-generated from API discovery docs
 - Rate limiting, retry logic, pagination helpers
 - Zero business logic — pure API surface
 
-#### `@gpc/auth`
+#### `@gpc-cli/auth`
 - Service account JSON key file authentication
 - OAuth 2.0 device flow for interactive login
 - Application Default Credentials (ADC) support
 - Token caching, refresh, and revocation
 - Multi-account profile management
 
-#### `@gpc/config`
+#### `@gpc-cli/config`
 - Config file discovery (`.gpcrc.json`, user config dir)
 - Profile-based configuration (dev, staging, production)
 - Environment variable overrides (`GPC_*` prefix)
 - Schema validation with clear error messages
 
-#### `@gpc/core`
+#### `@gpc-cli/core`
 - Business logic and command orchestration
 - Combines auth + api + config into cohesive workflows
 - Release pipelines, rollout strategies, metadata sync
 - Plugin manager — loads, validates, and runs plugin lifecycle hooks
 
-#### `@gpc/cli`
+#### `@gpc-cli/cli`
 - Command registration and argument parsing
 - Interactive prompts (node:readline)
 - Output formatting: human (table/list), JSON, YAML
 - Progress indicators, spinners, color output
 - Shell completion generation (bash, zsh, fish)
 
-#### `@gpc/plugin-sdk`
+#### `@gpc-cli/plugin-sdk`
 - Plugin interface definition (`GpcPlugin`, `PluginHooks`)
 - Lifecycle hook types (`BeforeCommandHandler`, `AfterCommandHandler`, `ErrorHandler`)
 - Command registry for plugin-added commands
@@ -180,18 +180,18 @@ User runs command
 
 ## Plugin System
 
-The plugin system (`@gpc/plugin-sdk` + `PluginManager` in `@gpc/core`) provides extensibility without forking.
+The plugin system (`@gpc-cli/plugin-sdk` + `PluginManager` in `@gpc-cli/core`) provides extensibility without forking.
 
 ### Architecture
 
 ```
 ┌──────────────────┐     ┌──────────────────┐
-│  @gpc/plugin-sdk │     │  @gpc/plugin-ci  │
+│  @gpc-cli/plugin-sdk │     │  @gpc-cli/plugin-ci  │
 │  (interfaces)    │◄────│  (first-party)   │
 └────────┬─────────┘     └──────────────────┘
          │
 ┌────────▼─────────┐
-│  PluginManager   │  ← @gpc/core — orchestrates lifecycle
+│  PluginManager   │  ← @gpc-cli/core — orchestrates lifecycle
 │  (core/plugins)  │
 └──────────────────┘
 ```
@@ -215,18 +215,18 @@ interface PluginHooks {
 
 ### Trust Model
 
-- **First-party** (`@gpc/*`): Auto-trusted, no permission checks
+- **First-party** (`@gpc-cli/*`): Auto-trusted, no permission checks
 - **Third-party**: Permissions validated against declared `PluginManifest`
 - 11 permission types: `read:config`, `write:config`, `read:auth`, `api:read`, `api:write`, `commands:register`, `hooks:beforeCommand`, `hooks:afterCommand`, `hooks:onError`, `hooks:beforeRequest`, `hooks:afterResponse`
 
 ### Discovery
 
 Plugins are discovered via:
-1. Config file: `plugins: ["@gpc/plugin-ci", "gpc-plugin-slack"]`
-2. Convention: `node_modules/@gpc/plugin-*` (first-party, trusted)
+1. Config file: `plugins: ["@gpc-cli/plugin-ci", "gpc-plugin-slack"]`
+2. Convention: `node_modules/@gpc-cli/plugin-*` (first-party, trusted)
 3. Convention: `node_modules/gpc-plugin-*` (third-party)
 
-### First-Party Plugin: `@gpc/plugin-ci`
+### First-Party Plugin: `@gpc-cli/plugin-ci`
 
 CI/CD environment detection and GitHub Actions step summary output. Detects GitHub Actions, GitLab CI, Jenkins, CircleCI, and Bitrise. When running in GitHub Actions with `$GITHUB_STEP_SUMMARY` available, writes markdown summaries for command results and errors.
 
@@ -234,7 +234,7 @@ CI/CD environment detection and GitHub Actions step summary output. Detects GitH
 
 ### Publisher API (`androidpublisher.googleapis.com`)
 
-The main API client (`@gpc/api`) handles all publisher endpoints — apps, edits, releases, tracks, listings, reviews, monetization, purchases, and testers.
+The main API client (`@gpc-cli/api`) handles all publisher endpoints — apps, edits, releases, tracks, listings, reviews, monetization, purchases, and testers.
 
 ### Reporting API (`playdeveloperreporting.googleapis.com`)
 

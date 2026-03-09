@@ -33,22 +33,22 @@ brew uninstall gpc
 Best for Node.js projects and when you want plugin support.
 
 ```bash
-npm install -g gpc
+npm install -g @gpc-cli/cli
 ```
 
 Or use without installing:
 
 ```bash
-npx gpc releases status
+npx @gpc-cli/cli releases status
 ```
 
 Update:
 
 ```bash
-npm update -g gpc
+npm update -g @gpc-cli/cli
 ```
 
-> **Note:** The npm install includes full plugin support (`@gpc/plugin-sdk`, `@gpc/plugin-ci`). The standalone binary disables plugin discovery since it can't resolve npm packages at runtime.
+> **Note:** The npm install includes full plugin support (`@gpc-cli/plugin-sdk`, `@gpc-cli/plugin-ci`). The standalone binary disables plugin discovery since it can't resolve npm packages at runtime.
 
 ---
 
@@ -174,7 +174,7 @@ For CI pipelines, choose based on your environment:
 
 ```yaml
 # Node.js available — use npm
-- run: npm install -g gpc
+- run: npm install -g @gpc-cli/cli
 
 # No Node.js — use standalone binary
 - run: curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
@@ -203,7 +203,7 @@ gpc doctor        # Check auth, connectivity, and config
 brew uninstall gpc
 
 # npm
-npm uninstall -g gpc
+npm uninstall -g @gpc-cli/cli
 
 # Standalone binary
 sudo rm /usr/local/bin/gpc

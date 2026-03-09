@@ -95,7 +95,7 @@ gpc config set profile production
   "noColor": false,
   "noInteractive": false,
   "plugins": [
-    "@gpc/plugin-ci",
+    "@gpc-cli/plugin-ci",
     "gpc-plugin-slack"
   ]
 }
@@ -342,7 +342,7 @@ A typical project setup with config file, environment-specific profiles, and CI/
   "maxRetries": 3,
   "timeout": 30000,
   "plugins": [
-    "@gpc/plugin-ci"
+    "@gpc-cli/plugin-ci"
   ]
 }
 ```
@@ -380,7 +380,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install GPC
-        run: npm install -g gpc
+        run: npm install -g @gpc-cli/cli
 
       - name: Upload to internal
         run: gpc publish app-release.aab --track internal --notes "Build ${{ github.run_number }}"

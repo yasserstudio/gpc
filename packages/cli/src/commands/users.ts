@@ -1,8 +1,8 @@
 import type { Command } from "commander";
-import { loadConfig } from "@gpc/config";
-import { resolveAuth } from "@gpc/auth";
-import { createUsersClient } from "@gpc/api";
-import type { DeveloperPermission } from "@gpc/api";
+import { loadConfig } from "@gpc-cli/config";
+import { resolveAuth } from "@gpc-cli/auth";
+import { createUsersClient } from "@gpc-cli/api";
+import type { DeveloperPermission } from "@gpc-cli/api";
 import {
   listUsers,
   getUser,
@@ -13,7 +13,7 @@ import {
   PERMISSION_PROPAGATION_WARNING,
   detectOutputFormat,
   formatOutput,
-} from "@gpc/core";
+} from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
 

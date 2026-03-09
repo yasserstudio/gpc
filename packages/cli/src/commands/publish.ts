@@ -1,11 +1,11 @@
 import { appendFile } from "node:fs/promises";
 import type { Command } from "commander";
-import { loadConfig, getCacheDir } from "@gpc/config";
-import { resolveAuth } from "@gpc/auth";
-import { createApiClient } from "@gpc/api";
-import type { RetryLogEntry } from "@gpc/api";
-import { publish, writeAuditLog, createAuditEntry } from "@gpc/core";
-import { detectOutputFormat, formatOutput } from "@gpc/core";
+import { loadConfig, getCacheDir } from "@gpc-cli/config";
+import { resolveAuth } from "@gpc-cli/auth";
+import { createApiClient } from "@gpc-cli/api";
+import type { RetryLogEntry } from "@gpc-cli/api";
+import { publish, writeAuditLog, createAuditEntry } from "@gpc-cli/core";
+import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, promptSelect, promptInput } from "../prompt.js";
 

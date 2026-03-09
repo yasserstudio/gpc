@@ -4,8 +4,8 @@ import type {
   PlayApiClient,
   InAppProduct,
   InAppProductsListResponse,
-} from "@gpc/api";
-import { paginateAll } from "@gpc/api";
+} from "@gpc-cli/api";
+import { paginateAll } from "@gpc-cli/api";
 
 export interface ListIapOptions {
   token?: string;

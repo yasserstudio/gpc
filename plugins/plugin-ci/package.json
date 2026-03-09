@@ -1,5 +1,5 @@
 {
-  "name": "@gpc/plugin-ci",
+  "name": "@gpc-cli/plugin-ci",
   "version": "0.0.0",
   "description": "CI/CD helpers for GPC",
   "type": "module",
@@ -22,7 +22,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@gpc/plugin-sdk": "workspace:*"
+    "@gpc-cli/plugin-sdk": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.3.5"

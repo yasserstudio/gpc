@@ -210,7 +210,7 @@ jobs:
           GPC_SERVICE_ACCOUNT: ${{ secrets.GPC_SERVICE_ACCOUNT }}
           GPC_APP: com.example.myapp
         run: |
-          npm install -g gpc
+          npm install -g @gpc-cli/cli
           gpc releases upload \
             app/build/outputs/bundle/release/app-release.aab \
             --track internal \
@@ -251,7 +251,7 @@ release:
   image: node:20
   stage: deploy
   before_script:
-    - npm install -g gpc
+    - npm install -g @gpc-cli/cli
   script:
     - gpc releases upload build/app-release.aab --track internal --json
   variables:

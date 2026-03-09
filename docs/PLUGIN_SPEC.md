@@ -1,12 +1,12 @@
 # Plugin System
 
-> Phase 8 — implemented in `@gpc/plugin-sdk`, `@gpc/core` (PluginManager), and `@gpc/plugin-ci`.
+> Phase 8 — implemented in `@gpc-cli/plugin-sdk`, `@gpc-cli/core` (PluginManager), and `@gpc-cli/plugin-ci`.
 
 ---
 
 ## Overview
 
-The plugin system allows extending GPC with custom commands, lifecycle hooks, and integrations — without forking the core. First-party plugins (`@gpc/*`) are auto-trusted; third-party plugins require permission validation.
+The plugin system allows extending GPC with custom commands, lifecycle hooks, and integrations — without forking the core. First-party plugins (`@gpc-cli/*`) are auto-trusted; third-party plugins require permission validation.
 
 ---
 
@@ -14,7 +14,7 @@ The plugin system allows extending GPC with custom commands, lifecycle hooks, an
 
 ```typescript
 interface GpcPlugin {
-  /** Unique plugin name (e.g., "@gpc/plugin-ci" or "gpc-plugin-slack") */
+  /** Unique plugin name (e.g., "@gpc-cli/plugin-ci" or "gpc-plugin-slack") */
   name: string;
 
   /** Plugin version (semver) */
@@ -138,7 +138,7 @@ type PluginPermission =
 
 | Plugin Type | Pattern | Trust | Permissions |
 |-------------|---------|-------|-------------|
-| First-party | `@gpc/plugin-*` | Auto-trusted | No checks |
+| First-party | `@gpc-cli/plugin-*` | Auto-trusted | No checks |
 | Third-party | `gpc-plugin-*` | Untrusted | Validated against manifest |
 
 Third-party plugins must declare permissions in their `PluginManifest`. Unknown permissions throw `PLUGIN_INVALID_PERMISSION` (exit code 10).
@@ -151,11 +151,11 @@ Third-party plugins must declare permissions in their `PluginManifest`. Unknown 
 
 1. **Config file** — explicit plugin list
    ```json
-   { "plugins": ["@gpc/plugin-ci", "gpc-plugin-slack"] }
+   { "plugins": ["@gpc-cli/plugin-ci", "gpc-plugin-slack"] }
    ```
 
 2. **node_modules** — auto-discover by naming convention
-   - `@gpc/plugin-*` (first-party, trusted)
+   - `@gpc-cli/plugin-*` (first-party, trusted)
    - `gpc-plugin-*` (third-party, permission-checked)
 
 3. **Local file** — relative path
@@ -174,7 +174,7 @@ Plugins are loaded via dynamic `import()`. The resolver checks:
 
 ## PluginManager (Core)
 
-The `PluginManager` class in `@gpc/core` orchestrates the plugin lifecycle:
+The `PluginManager` class in `@gpc-cli/core` orchestrates the plugin lifecycle:
 
 ```typescript
 class PluginManager {
@@ -195,7 +195,7 @@ Key behaviors:
 
 ---
 
-## First-Party Plugin: `@gpc/plugin-ci`
+## First-Party Plugin: `@gpc-cli/plugin-ci`
 
 CI/CD environment detection and GitHub Actions integration.
 
@@ -223,7 +223,7 @@ When running in GitHub Actions with `$GITHUB_STEP_SUMMARY` available, the plugin
 ## Example: Writing a Plugin
 
 ```typescript
-import { definePlugin } from "@gpc/plugin-sdk";
+import { definePlugin } from "@gpc-cli/plugin-sdk";
 
 export const myPlugin = definePlugin({
   name: "gpc-plugin-slack",
@@ -244,7 +244,7 @@ export const myPlugin = definePlugin({
 ## Plugin SDK Exports
 
 ```typescript
-// @gpc/plugin-sdk
+// @gpc-cli/plugin-sdk
 
 // Core interfaces
 export type { GpcPlugin, PluginHooks, PluginManifest, PluginPermission };

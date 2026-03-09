@@ -1,6 +1,6 @@
 import type { Command } from "commander";
-import { validatePreSubmission, readReleaseNotesFromDir } from "@gpc/core";
-import { detectOutputFormat, formatOutput } from "@gpc/core";
+import { validatePreSubmission, readReleaseNotesFromDir } from "@gpc-cli/core";
+import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
 
 export function registerValidateCommand(program: Command): void {
   program

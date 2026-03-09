@@ -1,6 +1,6 @@
 import { readFile, writeFile, mkdir, readdir, stat } from "node:fs/promises";
 import { join } from "node:path";
-import type { Listing } from "@gpc/api";
+import type { Listing } from "@gpc-cli/api";
 
 const FILE_MAP: Record<string, keyof Omit<Listing, "language">> = {
   "title.txt": "title",

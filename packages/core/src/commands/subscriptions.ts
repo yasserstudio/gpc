@@ -5,8 +5,8 @@ import type {
   BasePlanMigratePricesRequest,
   SubscriptionOffer,
   OffersListResponse,
-} from "@gpc/api";
-import { paginateAll } from "@gpc/api";
+} from "@gpc-cli/api";
+import { paginateAll } from "@gpc-cli/api";
 
 export interface ListSubscriptionsOptions {
   pageToken?: string;

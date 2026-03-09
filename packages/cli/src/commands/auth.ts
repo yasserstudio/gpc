@@ -1,7 +1,7 @@
 import type { Command } from "commander";
-import { resolveAuth, loadServiceAccountKey, clearTokenCache, AuthError } from "@gpc/auth";
-import { loadConfig, getCacheDir } from "@gpc/config";
-import { detectOutputFormat, formatOutput } from "@gpc/core";
+import { resolveAuth, loadServiceAccountKey, clearTokenCache, AuthError } from "@gpc-cli/auth";
+import { loadConfig, getCacheDir } from "@gpc-cli/config";
+import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
 
 export function registerAuthCommands(program: Command): void {
   const auth = program
@@ -20,13 +20,13 @@ export function registerAuthCommands(program: Command): void {
           const key = await loadServiceAccountKey(options.serviceAccount);
 
           if (options.profile) {
-            const { setProfileConfig } = await import("@gpc/config");
+            const { setProfileConfig } = await import("@gpc-cli/config");
             await setProfileConfig(options.profile, {
               auth: { serviceAccount: options.serviceAccount },
             });
             console.log(`Profile "${options.profile}" configured with ${key.client_email}`);
           } else {
-            const { setConfigValue } = await import("@gpc/config");
+            const { setConfigValue } = await import("@gpc-cli/config");
             await setConfigValue("auth.serviceAccount", options.serviceAccount);
             console.log(`Authenticated as ${key.client_email}`);
           }
@@ -92,7 +92,7 @@ export function registerAuthCommands(program: Command): void {
     .command("logout")
     .description("Clear stored credentials and token cache")
     .action(async () => {
-      const { setConfigValue } = await import("@gpc/config");
+      const { setConfigValue } = await import("@gpc-cli/config");
       await setConfigValue("auth.serviceAccount", "");
       await clearTokenCache(getCacheDir());
       console.log("Credentials and token cache cleared.");
@@ -122,7 +122,7 @@ export function registerAuthCommands(program: Command): void {
       try {
         // Verify profile exists
         const config = await loadConfig({ profile });
-        const { setConfigValue } = await import("@gpc/config");
+        const { setConfigValue } = await import("@gpc-cli/config");
         await setConfigValue("profile", profile);
         console.log(`Switched to profile "${profile}"`);
         if (config.auth?.serviceAccount) {
@@ -138,7 +138,7 @@ export function registerAuthCommands(program: Command): void {
     .command("profiles")
     .description("List configured profiles")
     .action(async () => {
-      const { listProfiles } = await import("@gpc/config");
+      const { listProfiles } = await import("@gpc-cli/config");
       const config = await loadConfig();
       const profiles = await listProfiles();
       const format = detectOutputFormat();

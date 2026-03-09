@@ -3,7 +3,7 @@ import type {
   ProductPurchase,
   SubscriptionPurchaseV2,
   SubscriptionDeferResponse,
-} from "@gpc/api";
+} from "@gpc-cli/api";
 
 export async function getProductPurchase(
   client: PlayApiClient,
@@ -75,8 +75,8 @@ export async function revokeSubscriptionPurchase(
   return client.purchases.revokeSubscriptionV2(packageName, token);
 }
 
-import type { VoidedPurchase } from "@gpc/api";
-import { paginateAll } from "@gpc/api";
+import type { VoidedPurchase } from "@gpc-cli/api";
+import { paginateAll } from "@gpc-cli/api";
 
 export interface ListVoidedOptions {
   startTime?: string;

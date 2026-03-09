@@ -15,7 +15,7 @@ import type {
   PluginPermission,
   RequestEvent,
   ResponseEvent,
-} from "@gpc/plugin-sdk";
+} from "@gpc-cli/plugin-sdk";
 import { GpcError } from "./errors.js";
 
 // ---------------------------------------------------------------------------
@@ -33,7 +33,7 @@ export class PluginManager {
 
   /** Load and register a plugin */
   async load(plugin: GpcPlugin, manifest?: PluginManifest): Promise<void> {
-    const isTrusted = manifest?.trusted ?? plugin.name.startsWith("@gpc/");
+    const isTrusted = manifest?.trusted ?? plugin.name.startsWith("@gpc-cli/");
 
     if (!isTrusted && manifest?.permissions) {
       validatePermissions(manifest.permissions);
@@ -222,7 +222,7 @@ export interface DiscoverPluginsOptions {
 /**
  * Discover plugins from multiple sources:
  * 1. Explicit config: gpc.config.ts → plugins: [...]
- * 2. Convention: node_modules/@gpc/plugin-*
+ * 2. Convention: node_modules/@gpc-cli/plugin-*
  * 3. Convention: node_modules/gpc-plugin-*
  */
 export async function discoverPlugins(

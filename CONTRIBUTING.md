@@ -96,7 +96,7 @@ Scopes: `cli`, `core`, `api`, `auth`, `config`, `plugin-sdk`, `ci`, `docs`
 
 ```bash
 pnpm test                           # All tests
-pnpm test --filter @gpc/api         # Single package
+pnpm test --filter @gpc-cli/api         # Single package
 pnpm test -- --watch                # Watch mode
 ```
 

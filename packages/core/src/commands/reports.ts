@@ -1,4 +1,4 @@
-import type { PlayApiClient, ReportBucket, ReportType, StatsDimension } from "@gpc/api";
+import type { PlayApiClient, ReportBucket, ReportType, StatsDimension } from "@gpc-cli/api";
 
 const FINANCIAL_REPORT_TYPES: ReadonlySet<string> = new Set([
   "earnings",

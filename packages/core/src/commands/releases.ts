@@ -1,4 +1,4 @@
-import type { PlayApiClient, Release, Track, Bundle } from "@gpc/api";
+import type { PlayApiClient, Release, Track, Bundle } from "@gpc-cli/api";
 import { validateUploadFile } from "../utils/file-validation.js";
 
 export interface UploadResult {

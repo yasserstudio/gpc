@@ -1,4 +1,4 @@
-import type { PlayApiClient, ConvertRegionPricesResponse } from "@gpc/api";
+import type { PlayApiClient, ConvertRegionPricesResponse } from "@gpc-cli/api";
 
 export async function convertRegionPrices(
   client: PlayApiClient,

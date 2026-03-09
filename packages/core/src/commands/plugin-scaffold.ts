@@ -54,10 +54,10 @@ export async function scaffoldPlugin(options: ScaffoldOptions): Promise<Scaffold
     keywords: ["gpc", "gpc-plugin", "google-play"],
     license: "MIT",
     peerDependencies: {
-      "@gpc/plugin-sdk": ">=0.8.0",
+      "@gpc-cli/plugin-sdk": ">=0.8.0",
     },
     devDependencies: {
-      "@gpc/plugin-sdk": "^0.8.0",
+      "@gpc-cli/plugin-sdk": "^0.8.0",
       tsup: "^8.0.0",
       typescript: "^5.0.0",
       vitest: "^3.0.0",
@@ -85,8 +85,8 @@ export async function scaffoldPlugin(options: ScaffoldOptions): Promise<Scaffold
   files.push("tsconfig.json");
 
   // src/index.ts
-  const srcContent = `import { definePlugin } from "@gpc/plugin-sdk";
-import type { CommandEvent, CommandResult } from "@gpc/plugin-sdk";
+  const srcContent = `import { definePlugin } from "@gpc-cli/plugin-sdk";
+import type { CommandEvent, CommandResult } from "@gpc-cli/plugin-sdk";
 
 export const plugin = definePlugin({
   name: "${pluginName}",

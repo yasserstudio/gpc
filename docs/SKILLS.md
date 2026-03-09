@@ -26,7 +26,7 @@ Skills are structured documentation that teach AI assistants how to use GPC. Whe
 | **gpc-migrate-fastlane** | Migrate from Fastlane supply — command mapping, CI migration, coexistence |
 | **gpc-plugin-development** | Build GPC plugins — lifecycle hooks, permissions, custom commands |
 | **gpc-troubleshooting** | Debug GPC errors — exit codes, error catalog, verbose output, common fixes |
-| **gpc-sdk-usage** | Use @gpc/api and @gpc/auth as standalone TypeScript SDK for programmatic access |
+| **gpc-sdk-usage** | Use @gpc-cli/api and @gpc-cli/auth as standalone TypeScript SDK for programmatic access |
 | **gpc-multi-app** | Manage multiple apps — profiles, batch operations, monorepo patterns, CI matrix |
 | **gpc-security** | Credential storage, key rotation, audit logging, incident response, CI security |
 
@@ -69,7 +69,7 @@ Skills are automatically available when you work in the GPC repository with Clau
 "Why is gpc failing with exit code 4?"
 → Claude reads gpc-troubleshooting skill
 
-"Build a backend that verifies purchases with @gpc/api"
+"Build a backend that verifies purchases with @gpc-cli/api"
 → Claude reads gpc-sdk-usage skill
 
 "Deploy to 3 white-label apps at once"
@@ -170,7 +170,7 @@ All GPC commands and workflows are covered by skills.
 
 ### v0.12.0 (2026-03-09)
 
-- Added **gpc-sdk-usage** skill — @gpc/api and @gpc/auth as standalone TypeScript SDK
+- Added **gpc-sdk-usage** skill — @gpc-cli/api and @gpc-cli/auth as standalone TypeScript SDK
 - Added **gpc-multi-app** skill — profiles, batch operations, monorepo patterns
 - Added **gpc-security** skill — credential storage, key rotation, audit logging
 - 13 skills total, all phases complete

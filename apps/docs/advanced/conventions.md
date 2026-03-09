@@ -18,10 +18,10 @@ All packages use ES modules. No CommonJS `require()` calls.
 
 ```typescript
 // Correct
-import { PlayApiClient } from "@gpc/api";
+import { PlayApiClient } from "@gpc-cli/api";
 
 // Wrong
-const { PlayApiClient } = require("@gpc/api");
+const { PlayApiClient } = require("@gpc-cli/api");
 ```
 
 ### Named Exports Only
@@ -95,7 +95,7 @@ export type { ClientOptions, ApiResponse } from "./types.js";
 | Constants | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` |
 | Env vars | UPPER_SNAKE_CASE with `GPC_` prefix | `GPC_SERVICE_ACCOUNT` |
 | CLI flags | kebab-case | `--service-account` |
-| npm packages | `@gpc/<name>` | `@gpc/core` |
+| npm packages | `@gpc-cli/<name>` | `@gpc-cli/core` |
 
 ## Import Order
 
@@ -103,7 +103,7 @@ Sort imports in this order, with a blank line between groups:
 
 1. Node.js built-ins
 2. External dependencies
-3. Internal packages (`@gpc/*`)
+3. Internal packages (`@gpc-cli/*`)
 4. Relative imports
 
 ```typescript
@@ -112,8 +112,8 @@ import { resolve } from "node:path";
 
 import { Command } from "commander";
 
-import { PlayApiClient } from "@gpc/api";
-import { ServiceAccountAuth } from "@gpc/auth";
+import { PlayApiClient } from "@gpc-cli/api";
+import { ServiceAccountAuth } from "@gpc-cli/auth";
 
 import { formatOutput } from "./formatters.js";
 import type { UploadOptions } from "./types.js";
@@ -194,11 +194,11 @@ packages/api/
 
 | Package | Target |
 |---------|--------|
-| `@gpc/api` | 90% |
-| `@gpc/auth` | 90% |
-| `@gpc/config` | 95% |
-| `@gpc/core` | 85% |
-| `@gpc/cli` | 80% |
+| `@gpc-cli/api` | 90% |
+| `@gpc-cli/auth` | 90% |
+| `@gpc-cli/config` | 95% |
+| `@gpc-cli/core` | 85% |
+| `@gpc-cli/cli` | 80% |
 
 ### Mock External APIs
 
@@ -232,7 +232,7 @@ describe("PlayApiClient", () => {
 
 ```bash
 pnpm test                       # Run all tests
-pnpm test --filter @gpc/api     # Run tests for specific package
+pnpm test --filter @gpc-cli/api     # Run tests for specific package
 pnpm test:watch                 # Watch mode
 pnpm test:coverage              # With coverage report
 pnpm test:e2e                   # End-to-end tests
@@ -288,6 +288,6 @@ Settings are resolved in this order (highest priority first):
 - **Changesets** for version management
 - **Semantic versioning** (semver)
 - All packages versioned independently
-- `@gpc/cli` version displayed as the "GPC version" to users
+- `@gpc-cli/cli` version displayed as the "GPC version" to users
 - Pre-1.0: breaking changes bump minor, features/fixes bump patch
 - Post-1.0: standard semver rules

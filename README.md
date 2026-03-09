@@ -1,12 +1,12 @@
 # gpc
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/gpc"><img src="https://img.shields.io/npm/v/gpc?style=for-the-badge&color=00D26A" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/v/@gpc-cli/cli?style=for-the-badge&color=00D26A" alt="npm version"></a>
   <a href="https://github.com/yasserstudio/gpc/stargazers"><img src="https://img.shields.io/github/stars/yasserstudio/gpc?style=for-the-badge" alt="GitHub Stars"></a>
   <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript">
   <img src="https://img.shields.io/badge/Node.js-20+-339933?style=for-the-badge&logo=node.js" alt="Node.js">
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
-  <a href="https://www.npmjs.com/package/gpc"><img src="https://img.shields.io/npm/dm/gpc?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
+  <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
   <img src="https://img.shields.io/badge/Tests-597_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
@@ -30,7 +30,7 @@ Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.
 brew install yasserstudio/tap/gpc
 
 # npm (includes plugin support)
-npm install -g gpc
+npm install -g @gpc-cli/cli
 
 # Standalone binary (no Node.js required)
 curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
@@ -232,7 +232,7 @@ Drop GPC into any pipeline. JSON output, semantic exit codes (0-6), env var conf
 
 ```yaml
 - name: Install GPC
-  run: npm install -g gpc
+  run: npm install -g @gpc-cli/cli
 
 - name: Upload to Internal Track
   env:
@@ -251,18 +251,18 @@ Drop GPC into any pipeline. JSON output, semantic exit codes (0-6), env var conf
 deploy:
   image: node:20
   script:
-    - npm install -g gpc
+    - npm install -g @gpc-cli/cli
     - gpc releases upload app.aab --track production --rollout 10
   variables:
     GPC_SERVICE_ACCOUNT: $GPC_SERVICE_ACCOUNT
     GPC_APP: com.example.myapp
 ```
 
-Add `@gpc/plugin-ci` for automatic GitHub Actions step summaries:
+Add `@gpc-cli/plugin-ci` for automatic GitHub Actions step summaries:
 
 ```json
 {
-  "plugins": ["@gpc/plugin-ci"]
+  "plugins": ["@gpc-cli/plugin-ci"]
 }
 ```
 
@@ -383,17 +383,17 @@ GPC is a TypeScript monorepo. Each package is independently publishable — use 
 | Package | Description |
 | --- | --- |
 | [`gpc`](./packages/cli) | CLI entry point — the command you run |
-| [`@gpc/core`](./packages/core) | Business logic and command orchestration |
-| [`@gpc/api`](./packages/api) | Typed Google Play Developer API v3 client |
-| [`@gpc/auth`](./packages/auth) | Authentication strategies (service account, OAuth, ADC) |
-| [`@gpc/config`](./packages/config) | Configuration loading and validation |
-| [`@gpc/plugin-sdk`](./packages/plugin-sdk) | Plugin interface for third-party extensions |
+| [`@gpc-cli/core`](./packages/core) | Business logic and command orchestration |
+| [`@gpc-cli/api`](./packages/api) | Typed Google Play Developer API v3 client |
+| [`@gpc-cli/auth`](./packages/auth) | Authentication strategies (service account, OAuth, ADC) |
+| [`@gpc-cli/config`](./packages/config) | Configuration loading and validation |
+| [`@gpc-cli/plugin-sdk`](./packages/plugin-sdk) | Plugin interface for third-party extensions |
 
 Build custom dashboards, Slack bots, or internal tools on top of the same API client GPC uses:
 
 ```typescript
-import { createClient } from "@gpc/api";
-import { serviceAccount } from "@gpc/auth";
+import { createClient } from "@gpc-cli/api";
+import { serviceAccount } from "@gpc-cli/auth";
 
 const client = createClient({
   auth: serviceAccount("./key.json"),

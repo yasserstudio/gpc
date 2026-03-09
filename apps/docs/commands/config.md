@@ -88,7 +88,7 @@ gpc config show
     "serviceAccount": "./service-account-key.json"
   },
   "profile": "production",
-  "plugins": ["@gpc/plugin-ci"]
+  "plugins": ["@gpc-cli/plugin-ci"]
 }
 ```
 
@@ -105,7 +105,7 @@ auth:
   serviceAccount: ./service-account-key.json
 profile: production
 plugins:
-  - "@gpc/plugin-ci"
+  - "@gpc-cli/plugin-ci"
 ```
 
 ---
@@ -198,7 +198,7 @@ The `.gpcrc.json` file supports these fields:
     "serviceAccount": "./service-account-key.json"
   },
   "plugins": [
-    "@gpc/plugin-ci"
+    "@gpc-cli/plugin-ci"
   ],
   "approvedPlugins": [
     "gpc-plugin-slack"

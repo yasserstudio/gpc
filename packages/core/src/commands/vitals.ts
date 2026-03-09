@@ -8,7 +8,7 @@ import type {
   ErrorIssuesResponse,
   ReportingDimension,
   ReportingAggregation,
-} from "@gpc/api";
+} from "@gpc-cli/api";
 
 export interface VitalsQueryOptions {
   dimension?: ReportingDimension;

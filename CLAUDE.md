@@ -7,13 +7,13 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. Monorepo with Turb
 ## Project Structure
 
 ```
-packages/cli       → @gpc/cli (bin: gpc) — CLI entry point, Commander.js
-packages/core      → @gpc/core — business logic, command orchestration
-packages/api       → @gpc/api — typed Google Play API client
-packages/auth      → @gpc/auth — service account, OAuth, ADC
-packages/config    → @gpc/config — config loading, env vars, profiles
-packages/plugin-sdk → @gpc/plugin-sdk — plugin interface
-plugins/plugin-ci  → @gpc/plugin-ci — CI/CD helpers
+packages/cli       → @gpc-cli/cli (bin: gpc) — CLI entry point, Commander.js
+packages/core      → @gpc-cli/core — business logic, command orchestration
+packages/api       → @gpc-cli/api — typed Google Play API client
+packages/auth      → @gpc-cli/auth — service account, OAuth, ADC
+packages/config    → @gpc-cli/config — config loading, env vars, profiles
+packages/plugin-sdk → @gpc-cli/plugin-sdk — plugin interface
+plugins/plugin-ci  → @gpc-cli/plugin-ci — CI/CD helpers
 docs/              → Public documentation (architecture, commands, CI/CD, etc.)
 .dev/              → Private docs (marketing, strategy, competitive analysis) — gitignored
 e2e/               → End-to-end tests
@@ -50,7 +50,7 @@ e2e/               → End-to-end tests
 - Tests in `tests/` directory per package
 - Mock external APIs — never call real Google APIs in tests
 - Mock fetch with `vi.stubGlobal("fetch", mockFn)` for API tests
-- Run: `pnpm test` or `pnpm test --filter @gpc/<package>`
+- Run: `pnpm test` or `pnpm test --filter @gpc-cli/<package>`
 
 ## Building
 
@@ -91,7 +91,7 @@ Agent skills for GPC workflows are in `.agents/skills/gpc-*`:
 | `gpc-migrate-fastlane` | Fastlane-to-GPC migration, command mapping, CI migration |
 | `gpc-plugin-development` | Plugin SDK, lifecycle hooks, permissions, custom commands |
 | `gpc-troubleshooting` | Exit codes, error catalog, debug mode, common fixes |
-| `gpc-sdk-usage` | @gpc/api and @gpc/auth as standalone TypeScript SDK |
+| `gpc-sdk-usage` | @gpc-cli/api and @gpc-cli/auth as standalone TypeScript SDK |
 | `gpc-multi-app` | Multiple apps, profiles, batch operations, monorepo patterns |
 | `gpc-security` | Credential storage, key rotation, audit logging, incident response |
 

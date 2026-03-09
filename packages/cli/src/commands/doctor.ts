@@ -1,6 +1,6 @@
 import type { Command } from "commander";
-import { loadConfig } from "@gpc/config";
-import { resolveAuth, AuthError } from "@gpc/auth";
+import { loadConfig } from "@gpc-cli/config";
+import { resolveAuth, AuthError } from "@gpc-cli/auth";
 
 export function registerDoctorCommand(program: Command): void {
   program

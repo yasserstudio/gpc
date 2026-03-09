@@ -50,7 +50,7 @@ features:
 brew install yasserstudio/tap/gpc
 
 # npm (includes plugin support)
-npm install -g gpc
+npm install -g @gpc-cli/cli
 
 # Standalone binary (no Node.js required)
 curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh

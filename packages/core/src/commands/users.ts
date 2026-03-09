@@ -1,5 +1,5 @@
-import type { UsersApiClient, User, DeveloperPermission, Grant } from "@gpc/api";
-import { paginateAll } from "@gpc/api";
+import type { UsersApiClient, User, DeveloperPermission, Grant } from "@gpc-cli/api";
+import { paginateAll } from "@gpc-cli/api";
 
 export const PERMISSION_PROPAGATION_WARNING =
   "Note: Permission changes may take up to 48 hours to propagate.";

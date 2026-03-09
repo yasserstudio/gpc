@@ -35,7 +35,7 @@ describe("scaffoldPlugin", () => {
     expect(pkg.name).toBe("gpc-plugin-hello");
     expect(pkg.version).toBe("0.1.0");
     expect(pkg.type).toBe("module");
-    expect(pkg.peerDependencies["@gpc/plugin-sdk"]).toBeDefined();
+    expect(pkg.peerDependencies["@gpc-cli/plugin-sdk"]).toBeDefined();
     expect(pkg.keywords).toContain("gpc-plugin");
   });
 

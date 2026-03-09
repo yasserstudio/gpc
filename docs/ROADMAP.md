@@ -200,12 +200,12 @@
 ## Phase 8 — Plugin System → v0.8.x ✓
 > Extensibility for third-party integrations.
 
-- [x] `@gpc/plugin-sdk` — full plugin interface and types
+- [x] `@gpc-cli/plugin-sdk` — full plugin interface and types
 - [x] Plugin discovery (config, node_modules, local file)
 - [x] Lifecycle hooks (beforeCommand, afterCommand, onError)
 - [x] Permission model for third-party plugins
 - [x] Command registration from plugins
-- [x] `@gpc/plugin-ci` — GitHub Actions summary, CI environment detection
+- [x] `@gpc-cli/plugin-ci` — GitHub Actions summary, CI environment detection
 - [x] Plugin scaffold generator (`gpc plugins init <name>`)
 - [x] First-run permission approval for third-party plugins
 
