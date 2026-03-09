@@ -7,11 +7,12 @@
  *   npx tsx scripts/build-binary.ts                    # Current platform only
  *   npx tsx scripts/build-binary.ts --target linux-x64 # Specific target
  *   npx tsx scripts/build-binary.ts --all              # All platforms
+ *   npx tsx scripts/build-binary.ts --bundle-only      # Bundle only, no compile
  */
 
 import { build } from "esbuild";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
@@ -20,6 +21,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const DIST = join(ROOT, "dist", "bin");
 const BUNDLE_PATH = join(ROOT, "dist", "gpc-bundled.mjs");
+const META_PATH = join(ROOT, "dist", "gpc-bundle-meta.json");
 
 interface Target {
   bun: string;
@@ -30,6 +32,7 @@ const TARGETS: Record<string, Target> = {
   "darwin-arm64": { bun: "bun-darwin-arm64", asset: "gpc-darwin-arm64" },
   "darwin-x64": { bun: "bun-darwin-x64", asset: "gpc-darwin-x64" },
   "linux-x64": { bun: "bun-linux-x64", asset: "gpc-linux-x64" },
+  "linux-arm64": { bun: "bun-linux-arm64", asset: "gpc-linux-arm64" },
   "windows-x64": { bun: "bun-windows-x64", asset: "gpc-windows-x64.exe" },
 };
 
@@ -39,24 +42,36 @@ function detectCurrentTarget(): string {
   return `${platform}-${arch}`;
 }
 
-async function bundle(): Promise<void> {
-  console.log("Bundling with esbuild...");
+function readVersion(): string {
+  const pkgPath = join(ROOT, "packages", "cli", "package.json");
+  const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
+  return pkg.version || "0.0.0";
+}
 
-  await build({
+async function bundle(): Promise<void> {
+  const version = readVersion();
+  console.log(`Bundling v${version} with esbuild...`);
+
+  const result = await build({
     entryPoints: [join(ROOT, "packages", "cli", "src", "bin.ts")],
     bundle: true,
     format: "esm",
     platform: "node",
     target: "node20",
     outfile: BUNDLE_PATH,
-    minify: true,
+    metafile: true,
     treeShaking: true,
-    // Mark binary mode so plugins.ts can detect it
+    // Preserve identifiers for readable stack traces; minify syntax/whitespace
+    minifySyntax: true,
+    minifyWhitespace: true,
+    minifyIdentifiers: false,
+    // Mark binary mode and inject version
     define: {
       "process.env.__GPC_BINARY": '"1"',
+      "process.env.__GPC_VERSION": JSON.stringify(version),
     },
-    // Node builtins are external (provided by Bun/Node runtime).
-    // undici is dynamically imported for proxy support — excluded from bundle.
+    // Node builtins are external (provided by Bun runtime).
+    // undici is dynamically imported for proxy — skipped in binary mode (Bun handles proxy natively).
     external: [
       "node:child_process",
       "node:crypto",
@@ -65,6 +80,7 @@ async function bundle(): Promise<void> {
       "node:fs/promises",
       "node:http",
       "node:https",
+      "node:module",
       "node:net",
       "node:os",
       "node:path",
@@ -106,7 +122,14 @@ async function bundle(): Promise<void> {
     },
   });
 
-  console.log(`  Bundle: ${BUNDLE_PATH}`);
+  // Write metafile for bundle analysis
+  if (result.metafile) {
+    writeFileSync(META_PATH, JSON.stringify(result.metafile, null, 2), "utf-8");
+  }
+
+  const bundleSize = statSync(BUNDLE_PATH).size;
+  console.log(`  Bundle: ${BUNDLE_PATH} (${(bundleSize / 1024).toFixed(0)} KB)`);
+  console.log(`  Metafile: ${META_PATH}`);
 }
 
 function compile(targetKey: string): string {
@@ -133,7 +156,8 @@ function compile(targetKey: string): string {
     stdio: "inherit",
   });
 
-  console.log(`  Binary: ${outfile}`);
+  const size = statSync(outfile).size;
+  console.log(`  Binary: ${outfile} (${(size / 1024 / 1024).toFixed(1)} MB)`);
   return outfile;
 }
 
@@ -145,8 +169,14 @@ function generateChecksum(filePath: string): string {
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const isAll = args.includes("--all");
-  const targetFlag = args.find((a) => a.startsWith("--target="));
+  const targetFlag = args.find((a) => a.startsWith("--target=") || a.startsWith("--target "));
   const bundleOnly = args.includes("--bundle-only");
+
+  // Also support --target linux-x64 (space-separated)
+  let targetValue: string | undefined;
+  if (targetFlag) {
+    targetValue = targetFlag.includes("=") ? targetFlag.split("=")[1]! : args[args.indexOf("--target") + 1];
+  }
 
   // Step 1: Bundle
   await bundle();
@@ -160,8 +190,8 @@ async function main(): Promise<void> {
   let targets: string[];
   if (isAll) {
     targets = Object.keys(TARGETS);
-  } else if (targetFlag) {
-    targets = [targetFlag.split("=")[1]!];
+  } else if (targetValue) {
+    targets = [targetValue];
   } else {
     targets = [detectCurrentTarget()];
   }

@@ -9,7 +9,7 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
   program
     .name("gpc")
     .description("The complete Google Play CLI")
-    .version("0.0.0", "-V, --version")
+    .version(process.env["__GPC_VERSION"] || "0.0.0", "-V, --version")
     .option("-o, --output <format>", "Output format: table, json, yaml, markdown")
     .option("-v, --verbose", "Enable debug logging")
     .option("-q, --quiet", "Suppress non-essential output")
