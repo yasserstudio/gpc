@@ -4,6 +4,17 @@ All notable changes to GPC are documented here.
 
 ---
 
+## v0.9.3 — Standalone Binary & Dependency Optimization
+
+- **refactor(auth):** Replace `googleapis` (194MB) with `google-auth-library` (776KB) — 250x size reduction
+- **feat(cli):** Standalone binary build via esbuild bundle + Bun compile
+- **feat(cli):** Cross-platform targets: macOS (arm64/x64), Linux (x64), Windows (x64)
+- **feat(ci):** GitHub Actions workflow to build and attach binaries to releases
+- **feat(cli):** Install script (`curl | sh`) with SHA256 checksum verification
+- **feat(cli):** Binary mode disables plugin loading (plugins require npm install)
+- **test(e2e):** 8 smoke tests for bundled CLI (version, help, commands, flags)
+- 584 total tests
+
 ## v0.9.2 — Interactive Mode & Audit Logging
 
 - **feat(cli):** Interactive prompts for `releases upload`, `publish`, and `config init` when flags are missing

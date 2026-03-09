@@ -19,11 +19,21 @@ The complete CLI for Google Play. Upload releases, manage rollouts, sync metadat
 
 ---
 
+## Install
+
+```bash
+# npm (recommended — includes plugin support)
+npm install -g gpc
+
+# Standalone binary (no Node.js required)
+curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
+```
+
+---
+
 ## Quick Start
 
 ```bash
-# Install
-npm install -g gpc
 
 # Authenticate
 gpc auth login --service-account path/to/key.json

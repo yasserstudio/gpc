@@ -42,7 +42,7 @@ e2e/               → End-to-end tests
 - Phase 7 ✓ — Reports, users, testers, grants, CSV import
 - Phase 8 ✓ — Plugin SDK, plugin manager, lifecycle hooks, plugin-ci
 - Phase 9 (in progress) — Lazy loading, --dry-run, unified errors, proxy/CA, 90%+ coverage
-- 576 total tests, 7 packages building, 90%+ line coverage on all core packages
+- 584 total tests, 7 packages building, 90%+ line coverage on all core packages
 
 ## Testing
 
