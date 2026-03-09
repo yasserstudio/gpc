@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { google } from "googleapis";
+import { JWT } from "google-auth-library";
 import { AuthError } from "./errors.js";
 import { getCachedToken, setCachedToken } from "./token-cache.js";
 import type { AuthClient, ServiceAccountKey } from "./types.js";
@@ -93,7 +93,7 @@ export async function loadServiceAccountKey(
 const TOKEN_EXPIRY_SECONDS = 3600; // Google OAuth2 tokens expire in 1 hour
 
 export function createServiceAccountAuth(key: ServiceAccountKey, cachePath?: string): AuthClient {
-  const jwtClient = new google.auth.JWT({
+  const jwtClient = new JWT({
     email: key.client_email,
     key: key.private_key,
     scopes: [ANDROID_PUBLISHER_SCOPE],

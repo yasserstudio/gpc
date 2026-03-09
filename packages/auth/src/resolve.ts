@@ -1,4 +1,4 @@
-import { google } from "googleapis";
+import { GoogleAuth } from "google-auth-library";
 import { AuthError } from "./errors.js";
 import { createServiceAccountAuth, loadServiceAccountKey } from "./service-account.js";
 import type { AuthClient, AuthOptions } from "./types.js";
@@ -8,7 +8,7 @@ const ANDROID_PUBLISHER_SCOPE =
 
 async function tryApplicationDefaultCredentials(): Promise<AuthClient | null> {
   try {
-    const auth = new google.auth.GoogleAuth({
+    const auth = new GoogleAuth({
       scopes: [ANDROID_PUBLISHER_SCOPE],
     });
 

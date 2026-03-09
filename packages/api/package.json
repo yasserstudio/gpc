@@ -32,9 +32,6 @@
     "android-publisher"
   ],
   "license": "MIT",
-  "dependencies": {
-    "googleapis": "^171.4.0"
-  },
   "devDependencies": {
     "@types/node": "^25.3.5"
   }

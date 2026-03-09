@@ -20,7 +20,7 @@ const { mockGetAccessToken, mockGetClient, mockGetProjectId, jwtOverride, adcOve
     return { mockGetAccessToken, mockGetClient, mockGetProjectId, jwtOverride, adcOverride };
   });
 
-vi.mock("googleapis", () => {
+vi.mock("google-auth-library", () => {
   // Must use function (not arrow) so it can be called with `new`
   function MockJWT() {
     if (jwtOverride.fn) {
@@ -44,12 +44,8 @@ vi.mock("googleapis", () => {
   }
 
   return {
-    google: {
-      auth: {
-        JWT: MockJWT,
-        GoogleAuth: MockGoogleAuth,
-      },
-    },
+    JWT: MockJWT,
+    GoogleAuth: MockGoogleAuth,
   };
 });
 
