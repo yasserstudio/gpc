@@ -221,9 +221,9 @@
 ## Phase 9 — Polish & v1.0.0
 > Production hardening and stable release.
 
-- [ ] Interactive mode (guided workflows for complex operations)
+- [x] Interactive mode (guided workflows for complex operations)
 - [x] `--dry-run` support for all write operations
-- [ ] Audit logging
+- [x] Audit logging
 - [x] Proxy and custom CA support (`GPC_CA_CERT`, `HTTPS_PROXY`)
 - [x] Performance optimization (lazy command loading)
 - [x] Unified error hierarchy (exitCode + toJSON on all error types)

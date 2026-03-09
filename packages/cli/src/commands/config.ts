@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import { loadConfig, setConfigValue, getUserConfigPath, initConfig } from "@gpc/config";
-import { detectOutputFormat, formatOutput } from "@gpc/core";
+import { detectOutputFormat, formatOutput, writeAuditLog, createAuditEntry } from "@gpc/core";
+import { isInteractive, promptInput, promptSelect } from "../prompt.js";
 
 export function registerConfigCommands(program: Command): void {
   const config = program
@@ -12,8 +13,22 @@ export function registerConfigCommands(program: Command): void {
     .description("Create a configuration file")
     .option("--global", "Create in user config directory (~/.config/gpc/)")
     .action(async (_options: { global?: boolean }) => {
-      const path = await initConfig({});
+      let initialConfig: Record<string, unknown> = {};
+
+      if (isInteractive(program)) {
+        const app = await promptInput("Default package name (e.g. com.example.app, blank to skip)");
+        if (app) initialConfig["app"] = app;
+
+        const output = await promptSelect("Default output format:", ["table", "json", "yaml", "markdown"], "table");
+        if (output !== "table") initialConfig["output"] = output;
+
+        const sa = await promptInput("Service account JSON path (blank to skip)");
+        if (sa) initialConfig["auth"] = { serviceAccount: sa };
+      }
+
+      const path = await initConfig(initialConfig as any);
       console.log(`Configuration file created at: ${path}`);
+      writeAuditLog(createAuditEntry("config init", { path })).catch(() => {});
     });
 
   config

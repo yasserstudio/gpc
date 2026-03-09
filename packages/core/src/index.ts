@@ -125,3 +125,5 @@ export {
 export { safePath, safePathWithin } from "./utils/safe-path.js";
 export { scaffoldPlugin } from "./commands/plugin-scaffold.js";
 export type { ScaffoldOptions, ScaffoldResult } from "./commands/plugin-scaffold.js";
+export { initAudit, writeAuditLog, createAuditEntry } from "./audit.js";
+export type { AuditEntry } from "./audit.js";

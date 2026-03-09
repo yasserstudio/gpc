@@ -78,6 +78,9 @@ importers:
       '@gpc/core':
         specifier: workspace:*
         version: link:../core
+      '@gpc/plugin-sdk':
+        specifier: workspace:*
+        version: link:../plugin-sdk
       commander:
         specifier: ^14.0.3
         version: 14.0.3
