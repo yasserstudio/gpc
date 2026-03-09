@@ -17,22 +17,28 @@ hero:
       link: https://github.com/yasserstudio/gpc
 
 features:
-  - icon: "\U0001F680"
+  - icon:
+      src: /icons/layers.svg
     title: Full API Coverage
     details: 162 Google Play Developer API endpoints. Releases, rollouts, metadata, vitals, reviews, subscriptions, purchases, reports, users, and more.
-  - icon: "\U0001F4E6"
+  - icon:
+      src: /icons/package.svg
     title: Zero Dependencies
     details: Standalone binary — no Ruby, no JVM, no browser. One curl command to install. Under 500ms cold start.
-  - icon: "\U0001F916"
+  - icon:
+      src: /icons/terminal.svg
     title: CI/CD Native
     details: Structured JSON output, semantic exit codes (0-6), env var config. Drop into GitHub Actions, GitLab CI, Bitbucket, or CircleCI.
-  - icon: "\U0001F50C"
+  - icon:
+      src: /icons/plug.svg
     title: Plugin System
     details: Extend GPC with lifecycle hooks, custom commands, and integrations. First-party CI plugin included.
-  - icon: "\U0001F6E1\uFE0F"
+  - icon:
+      src: /icons/shield.svg
     title: Battle-Tested
-    details: 545+ tests, 90%+ code coverage, security-audited credential handling, automatic secrets redaction.
-  - icon: "\U0001F4CA"
+    details: 597 tests, 90%+ code coverage, security-audited credential handling, automatic secrets redaction.
+  - icon:
+      src: /icons/activity.svg
     title: Vitals-Gated Releases
     details: Gate deployments on crash rate and ANR thresholds. Exit code 6 when breached — CI stops the rollout automatically.
 ---
