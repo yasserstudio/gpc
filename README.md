@@ -475,6 +475,21 @@ pnpm test    # 597 tests across 7 packages
 
 ---
 
+## Built with Claude
+
+<p align="center">
+  <a href="https://claude.ai/claude-code">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg" alt="Claude" width="48">
+  </a>
+</p>
+
+<p align="center">
+  GPC was built entirely with <a href="https://claude.ai/claude-code">Claude Code</a> — from architecture design through implementation, testing, and documentation.<br>
+  597 tests, 7 packages, 90%+ coverage, all written through AI-assisted development.
+</p>
+
+---
+
 <p align="center">
   <sub>This project is an independent, unofficial tool and is not affiliated with, endorsed by, or sponsored by Google LLC. Google Play, Android, and Google are trademarks of Google LLC.</sub>
 </p>
