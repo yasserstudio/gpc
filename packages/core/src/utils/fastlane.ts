@@ -84,8 +84,12 @@ export function diffListings(local: Listing[], remote: Listing[]): ListingDiff[]
   for (const localListing of local) {
     const remoteListing = remoteMap.get(localListing.language);
     for (const [field] of Object.entries(FIELD_TO_FILE)) {
-      const localVal = ((localListing as unknown as Record<string, string>)[field] ?? "").toString();
-      const remoteVal = remoteListing ? ((remoteListing as unknown as Record<string, string>)[field] ?? "").toString() : "";
+      const localVal = (
+        (localListing as unknown as Record<string, string>)[field] ?? ""
+      ).toString();
+      const remoteVal = remoteListing
+        ? ((remoteListing as unknown as Record<string, string>)[field] ?? "").toString()
+        : "";
       if (localVal !== remoteVal) {
         diffs.push({
           language: localListing.language,
@@ -101,7 +105,9 @@ export function diffListings(local: Listing[], remote: Listing[]): ListingDiff[]
   for (const remoteListing of remote) {
     if (!localMap.has(remoteListing.language)) {
       for (const [field] of Object.entries(FIELD_TO_FILE)) {
-        const remoteVal = ((remoteListing as unknown as Record<string, string>)[field] ?? "").toString();
+        const remoteVal = (
+          (remoteListing as unknown as Record<string, string>)[field] ?? ""
+        ).toString();
         if (remoteVal) {
           diffs.push({
             language: remoteListing.language,

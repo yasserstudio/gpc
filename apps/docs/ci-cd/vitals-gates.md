@@ -47,12 +47,12 @@ gpc vitals crashes --version 42 --threshold 2.0 --json
 
 ### Crash Rate Thresholds
 
-| Level | Threshold | Action |
-|-------|-----------|--------|
-| Google Play warning | 1.09% | Play Console shows warning |
-| Conservative CI gate | 1.5% | Block promotion, alert team |
-| Standard CI gate | 2.0% | Block rollout increase |
-| Emergency halt | 3.0% | Halt active rollout immediately |
+| Level                | Threshold | Action                          |
+| -------------------- | --------- | ------------------------------- |
+| Google Play warning  | 1.09%     | Play Console shows warning      |
+| Conservative CI gate | 1.5%      | Block promotion, alert team     |
+| Standard CI gate     | 2.0%      | Block rollout increase          |
+| Emergency halt       | 3.0%      | Halt active rollout immediately |
 
 ## ANR Rate Gating
 
@@ -68,12 +68,12 @@ gpc vitals anr --threshold 1.0 --json
 
 ### ANR Rate Thresholds
 
-| Level | Threshold | Action |
-|-------|-----------|--------|
-| Google Play warning | 0.47% | Play Console shows warning |
-| Conservative CI gate | 0.5% | Block promotion |
-| Standard CI gate | 1.0% | Block rollout increase |
-| Emergency halt | 2.0% | Halt active rollout |
+| Level                | Threshold | Action                     |
+| -------------------- | --------- | -------------------------- |
+| Google Play warning  | 0.47%     | Play Console shows warning |
+| Conservative CI gate | 0.5%      | Block promotion            |
+| Standard CI gate     | 1.0%      | Block rollout increase     |
+| Emergency halt       | 2.0%      | Halt active rollout        |
 
 ## Multi-Metric Gating Script
 
@@ -346,12 +346,12 @@ esac
 
 For reference, these are the thresholds Google Play uses to flag apps. Exceeding these can affect your app's visibility in the Play Store.
 
-| Metric | Threshold | Consequence |
-|--------|-----------|-------------|
-| User-perceived crash rate | 1.09% | Play Console warning, potential visibility impact |
-| User-perceived ANR rate | 0.47% | Play Console warning, potential visibility impact |
-| Excessive wakeups | 10 per hour | Battery vitals warning |
-| Stuck wakelocks | 0.70% | Battery vitals warning |
+| Metric                    | Threshold   | Consequence                                       |
+| ------------------------- | ----------- | ------------------------------------------------- |
+| User-perceived crash rate | 1.09%       | Play Console warning, potential visibility impact |
+| User-perceived ANR rate   | 0.47%       | Play Console warning, potential visibility impact |
+| Excessive wakeups         | 10 per hour | Battery vitals warning                            |
+| Stuck wakelocks           | 0.70%       | Battery vitals warning                            |
 
 ::: tip
 Set your CI thresholds slightly above Google's thresholds to catch regressions before Google flags your app. A common approach is to use 1.5x the Google threshold as a CI gate and 2x as an emergency halt trigger.

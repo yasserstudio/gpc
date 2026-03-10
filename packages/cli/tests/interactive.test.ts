@@ -11,10 +11,15 @@ vi.mock("node:readline", () => ({
 
 describe("requireOption", () => {
   it("returns existing value without prompting", async () => {
-    const result = await requireOption("track", "beta", {
-      message: "Track:",
-      choices: ["internal", "alpha", "beta"],
-    }, true);
+    const result = await requireOption(
+      "track",
+      "beta",
+      {
+        message: "Track:",
+        choices: ["internal", "alpha", "beta"],
+      },
+      true,
+    );
     expect(result).toBe("beta");
   });
 
@@ -25,10 +30,15 @@ describe("requireOption", () => {
       close: vi.fn(),
     });
 
-    const result = await requireOption("track", undefined, {
-      message: "Track:",
-      choices: ["internal", "alpha", "beta"],
-    }, true);
+    const result = await requireOption(
+      "track",
+      undefined,
+      {
+        message: "Track:",
+        choices: ["internal", "alpha", "beta"],
+      },
+      true,
+    );
     // promptSelect with "2" selects second choice
     expect(result).toBe("alpha");
   });
@@ -40,9 +50,14 @@ describe("requireOption", () => {
       close: vi.fn(),
     });
 
-    const result = await requireOption("text", undefined, {
-      message: "Enter text:",
-    }, true);
+    const result = await requireOption(
+      "text",
+      undefined,
+      {
+        message: "Enter text:",
+      },
+      true,
+    );
     expect(result).toBe("my-value");
   });
 
@@ -53,10 +68,15 @@ describe("requireOption", () => {
       close: vi.fn(),
     });
 
-    const result = await requireOption("currency", undefined, {
-      message: "Currency:",
-      default: "USD",
-    }, true);
+    const result = await requireOption(
+      "currency",
+      undefined,
+      {
+        message: "Currency:",
+        default: "USD",
+      },
+      true,
+    );
     expect(result).toBe("USD");
   });
 
@@ -67,10 +87,15 @@ describe("requireOption", () => {
     const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
 
     await expect(
-      requireOption("track", undefined, {
-        message: "Track:",
-        choices: ["internal", "alpha", "beta"],
-      }, false),
+      requireOption(
+        "track",
+        undefined,
+        {
+          message: "Track:",
+          choices: ["internal", "alpha", "beta"],
+        },
+        false,
+      ),
     ).rejects.toThrow("process.exit");
 
     expect(exitSpy).toHaveBeenCalledWith(2);

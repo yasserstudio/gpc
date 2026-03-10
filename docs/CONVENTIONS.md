@@ -3,6 +3,7 @@
 ## Code Style
 
 ### TypeScript
+
 - **Strict mode** enabled (`strict: true` in tsconfig)
 - **ESM-first** — all packages use ES modules
 - **Explicit return types** on exported functions
@@ -11,19 +12,20 @@
 
 ### Naming
 
-| Entity | Convention | Example |
-|--------|-----------|---------|
-| Files | kebab-case | `rate-limiter.ts` |
-| Classes | PascalCase | `ApiClient` |
-| Interfaces | PascalCase (no `I` prefix) | `AuthStrategy` |
-| Types | PascalCase | `TrackRelease` |
-| Functions | camelCase | `uploadBundle()` |
-| Constants | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` |
-| Env vars | UPPER_SNAKE_CASE with `GPC_` prefix | `GPC_SERVICE_ACCOUNT` |
-| CLI flags | kebab-case | `--service-account` |
-| npm packages | `@gpc-cli/<name>` | `@gpc-cli/core` |
+| Entity       | Convention                          | Example               |
+| ------------ | ----------------------------------- | --------------------- |
+| Files        | kebab-case                          | `rate-limiter.ts`     |
+| Classes      | PascalCase                          | `ApiClient`           |
+| Interfaces   | PascalCase (no `I` prefix)          | `AuthStrategy`        |
+| Types        | PascalCase                          | `TrackRelease`        |
+| Functions    | camelCase                           | `uploadBundle()`      |
+| Constants    | UPPER_SNAKE_CASE                    | `MAX_RETRY_COUNT`     |
+| Env vars     | UPPER*SNAKE_CASE with `GPC*` prefix | `GPC_SERVICE_ACCOUNT` |
+| CLI flags    | kebab-case                          | `--service-account`   |
+| npm packages | `@gpc-cli/<name>`                   | `@gpc-cli/core`       |
 
 ### Imports
+
 - Use path aliases within packages: `@gpc-cli/api`, `@gpc-cli/core`, etc.
 - Relative imports within a package: `./errors`, `../models/tracks`
 - No default exports — use named exports exclusively
@@ -32,6 +34,7 @@
 ## Git
 
 ### Branch Strategy
+
 Trunk-based development on `main`. Short-lived branches only for risky experiments.
 
 ```
@@ -47,6 +50,7 @@ Scopes: `api`, `auth`, `config`, `core`, `cli`, `plugin-sdk`, `ci`, `docs`
 > See `docs/GITHUB.md` for full repository management guide.
 
 ### Commit Messages
+
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
@@ -60,6 +64,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 **Types:** `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `perf`, `ci`, `build`
 
 **Examples:**
+
 ```
 feat(cli): add gpc releases upload command
 fix(auth): handle expired refresh tokens gracefully
@@ -70,6 +75,7 @@ test(auth): add service account auth integration tests
 ```
 
 ### Pull Requests
+
 - One feature/fix per PR
 - Require at least 1 review
 - Must pass CI (lint, typecheck, test)
@@ -79,16 +85,18 @@ test(auth): add service account auth integration tests
 ## Testing
 
 ### Strategy
-| Layer | Type | Tool | Coverage Target |
-|-------|------|------|----------------|
-| `api` | Unit + Integration | Vitest | 90% |
-| `auth` | Unit + Integration | Vitest | 90% |
-| `config` | Unit | Vitest | 95% |
-| `core` | Unit | Vitest | 85% |
-| `cli` | Unit + Snapshot | Vitest | 80% |
-| `e2e` | Integration | Vitest | Key workflows |
+
+| Layer    | Type               | Tool   | Coverage Target |
+| -------- | ------------------ | ------ | --------------- |
+| `api`    | Unit + Integration | Vitest | 90%             |
+| `auth`   | Unit + Integration | Vitest | 90%             |
+| `config` | Unit               | Vitest | 95%             |
+| `core`   | Unit               | Vitest | 85%             |
+| `cli`    | Unit + Snapshot    | Vitest | 80%             |
+| `e2e`    | Integration        | Vitest | Key workflows   |
 
 ### Conventions
+
 - Test files colocated: `tests/` directory in each package
 - Test file naming: `<module>.test.ts`
 - Fixtures in `tests/fixtures/`
@@ -96,6 +104,7 @@ test(auth): add service account auth integration tests
 - E2E tests use a dedicated test app in Google Play Console
 
 ### Test Commands
+
 ```bash
 pnpm test                    # Run all tests
 pnpm test --filter @gpc-cli/api  # Run tests for specific package
@@ -114,6 +123,7 @@ pnpm test:e2e                # End-to-end tests
 - Post-1.0: standard semver rules
 
 ### Release Process
+
 1. Create changeset: `pnpm changeset`
 2. PR merges to `main`
 3. Changesets bot creates "Version Packages" PR
@@ -122,6 +132,7 @@ pnpm test:e2e                # End-to-end tests
 ## Error Handling
 
 ### Error Classes
+
 ```
 GpcError (base)
 ├── AuthError
@@ -140,6 +151,7 @@ GpcError (base)
 ```
 
 ### Rules
+
 1. Every error has a unique `code` string (e.g., `AUTH_TOKEN_EXPIRED`)
 2. Every error includes a human-readable `message`
 3. Actionable errors include a `suggestion` field
@@ -149,6 +161,7 @@ GpcError (base)
 ## Configuration
 
 ### File Priority (highest to lowest)
+
 1. CLI flags (`--app`, `--profile`)
 2. Environment variables (`GPC_APP`, `GPC_PROFILE`)
 3. Project config (`.gpcrc.json`, `gpc.config.ts`, `package.json#gpc`)
@@ -156,17 +169,18 @@ GpcError (base)
 5. Defaults
 
 ### Config Schema
+
 ```typescript
 interface GpcConfig {
-  app?: string;                // Default package name
-  profile?: string;            // Default auth profile
+  app?: string; // Default package name
+  profile?: string; // Default auth profile
   output?: "human" | "json" | "yaml";
   color?: boolean;
-  developerId?: string;        // Developer account ID (for user management)
+  developerId?: string; // Developer account ID (for user management)
   auth?: {
-    serviceAccount?: string;   // Path to service account key
+    serviceAccount?: string; // Path to service account key
   };
-  plugins?: string[];          // Plugin package names or paths
+  plugins?: string[]; // Plugin package names or paths
 }
 ```
 

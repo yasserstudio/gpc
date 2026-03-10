@@ -2,8 +2,7 @@ import { defineConfig } from "vitepress";
 
 export default defineConfig({
   title: "GPC",
-  description:
-    "The complete CLI for Google Play — 162 API endpoints, one tool.",
+  description: "The complete CLI for Google Play — 162 API endpoints, one tool.",
 
   base: "/gpc/",
 
@@ -65,9 +64,7 @@ export default defineConfig({
       "/commands/": [
         {
           text: "Commands",
-          items: [
-            { text: "Overview", link: "/commands/" },
-          ],
+          items: [{ text: "Overview", link: "/commands/" }],
         },
         {
           text: "Core Workflow",
@@ -188,8 +185,7 @@ export default defineConfig({
     ],
 
     editLink: {
-      pattern:
-        "https://github.com/yasserstudio/gpc/edit/main/apps/docs/:path",
+      pattern: "https://github.com/yasserstudio/gpc/edit/main/apps/docs/:path",
       text: "Edit this page on GitHub",
     },
 
@@ -199,8 +195,7 @@ export default defineConfig({
 
     footer: {
       message: "Released under the MIT License.",
-      copyright:
-        "Not affiliated with Google LLC. Google Play is a trademark of Google LLC.",
+      copyright: "Not affiliated with Google LLC. Google Play is a trademark of Google LLC.",
     },
   },
 });

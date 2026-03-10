@@ -14,21 +14,21 @@ Skills are structured documentation that teach AI assistants how to use GPC. Whe
 
 ## Available Skills
 
-| Skill | What It Covers |
-|-------|---------------|
-| **gpc-setup** | Install GPC, authenticate (service account, OAuth, ADC), configure defaults, run `gpc doctor` |
-| **gpc-release-flow** | Upload AAB/APK, create releases, promote between tracks, manage staged rollouts |
-| **gpc-metadata-sync** | Pull/push store listings, manage screenshots, migrate from Fastlane metadata format |
-| **gpc-vitals-monitoring** | Monitor crash rates, ANR, startup time, respond to reviews, download reports |
-| **gpc-ci-integration** | Set up GPC in GitHub Actions, GitLab CI, Bitbucket, CircleCI with JSON output and exit codes |
-| **gpc-monetization** | Subscriptions, IAP, base plans, offers, purchases, pricing, regional conversion |
-| **gpc-user-management** | Developer account users, permissions, grants, testers, CSV import |
-| **gpc-migrate-fastlane** | Migrate from Fastlane supply — command mapping, CI migration, coexistence |
-| **gpc-plugin-development** | Build GPC plugins — lifecycle hooks, permissions, custom commands |
-| **gpc-troubleshooting** | Debug GPC errors — exit codes, error catalog, verbose output, common fixes |
-| **gpc-sdk-usage** | Use @gpc-cli/api and @gpc-cli/auth as standalone TypeScript SDK for programmatic access |
-| **gpc-multi-app** | Manage multiple apps — profiles, batch operations, monorepo patterns, CI matrix |
-| **gpc-security** | Credential storage, key rotation, audit logging, incident response, CI security |
+| Skill                      | What It Covers                                                                                |
+| -------------------------- | --------------------------------------------------------------------------------------------- |
+| **gpc-setup**              | Install GPC, authenticate (service account, OAuth, ADC), configure defaults, run `gpc doctor` |
+| **gpc-release-flow**       | Upload AAB/APK, create releases, promote between tracks, manage staged rollouts               |
+| **gpc-metadata-sync**      | Pull/push store listings, manage screenshots, migrate from Fastlane metadata format           |
+| **gpc-vitals-monitoring**  | Monitor crash rates, ANR, startup time, respond to reviews, download reports                  |
+| **gpc-ci-integration**     | Set up GPC in GitHub Actions, GitLab CI, Bitbucket, CircleCI with JSON output and exit codes  |
+| **gpc-monetization**       | Subscriptions, IAP, base plans, offers, purchases, pricing, regional conversion               |
+| **gpc-user-management**    | Developer account users, permissions, grants, testers, CSV import                             |
+| **gpc-migrate-fastlane**   | Migrate from Fastlane supply — command mapping, CI migration, coexistence                     |
+| **gpc-plugin-development** | Build GPC plugins — lifecycle hooks, permissions, custom commands                             |
+| **gpc-troubleshooting**    | Debug GPC errors — exit codes, error catalog, verbose output, common fixes                    |
+| **gpc-sdk-usage**          | Use @gpc-cli/api and @gpc-cli/auth as standalone TypeScript SDK for programmatic access       |
+| **gpc-multi-app**          | Manage multiple apps — profiles, batch operations, monorepo patterns, CI matrix               |
+| **gpc-security**           | Credential storage, key rotation, audit logging, incident response, CI security               |
 
 ---
 
@@ -95,21 +95,21 @@ gpc-<name>/
 
 ### Reference Docs
 
-| Skill | References |
-|-------|-----------|
-| gpc-setup | `service-account.md` · `configuration.md` · `troubleshooting.md` · `oauth-flow.md` |
-| gpc-release-flow | `upload-lifecycle.md` · `rollout-strategies.md` · `troubleshooting.md` · `release-notes.md` |
-| gpc-metadata-sync | `directory-structure.md` · `fastlane-migration.md` · `image-requirements.md` |
-| gpc-vitals-monitoring | `ci-gating.md` · `review-management.md` |
-| gpc-ci-integration | `github-actions.md` · `troubleshooting.md` · `gitlab-ci.md` · `bitbucket-pipelines.md` |
-| gpc-monetization | `subscription-schema.md` · `iap-schema.md` · `purchase-verification.md` |
-| gpc-user-management | `permissions.md` · `tester-workflows.md` |
-| gpc-migrate-fastlane | `command-mapping.md` · `ci-migration.md` |
-| gpc-plugin-development | `hooks-reference.md` · `permissions-system.md` |
-| gpc-troubleshooting | `exit-codes.md` · `error-catalog.md` |
-| gpc-sdk-usage | `auth-patterns.md` · `api-reference.md` |
-| gpc-multi-app | `profile-patterns.md` · `ci-multi-app.md` |
-| gpc-security | `credential-storage.md` · `key-rotation.md` |
+| Skill                  | References                                                                                  |
+| ---------------------- | ------------------------------------------------------------------------------------------- |
+| gpc-setup              | `service-account.md` · `configuration.md` · `troubleshooting.md` · `oauth-flow.md`          |
+| gpc-release-flow       | `upload-lifecycle.md` · `rollout-strategies.md` · `troubleshooting.md` · `release-notes.md` |
+| gpc-metadata-sync      | `directory-structure.md` · `fastlane-migration.md` · `image-requirements.md`                |
+| gpc-vitals-monitoring  | `ci-gating.md` · `review-management.md`                                                     |
+| gpc-ci-integration     | `github-actions.md` · `troubleshooting.md` · `gitlab-ci.md` · `bitbucket-pipelines.md`      |
+| gpc-monetization       | `subscription-schema.md` · `iap-schema.md` · `purchase-verification.md`                     |
+| gpc-user-management    | `permissions.md` · `tester-workflows.md`                                                    |
+| gpc-migrate-fastlane   | `command-mapping.md` · `ci-migration.md`                                                    |
+| gpc-plugin-development | `hooks-reference.md` · `permissions-system.md`                                              |
+| gpc-troubleshooting    | `exit-codes.md` · `error-catalog.md`                                                        |
+| gpc-sdk-usage          | `auth-patterns.md` · `api-reference.md`                                                     |
+| gpc-multi-app          | `profile-patterns.md` · `ci-multi-app.md`                                                   |
+| gpc-security           | `credential-storage.md` · `key-rotation.md`                                                 |
 
 ---
 
@@ -131,22 +131,22 @@ cp -r /tmp/gpc/.agents/skills/gpc-* .agents/skills/
 
 ## Skill Coverage Map
 
-| GPC Command | Covered By |
-|-------------|-----------|
-| `gpc auth login` | gpc-setup |
-| `gpc config init` | gpc-setup |
-| `gpc doctor` | gpc-setup |
-| `gpc releases upload` | gpc-release-flow |
-| `gpc publish` | gpc-release-flow |
-| `gpc releases promote` | gpc-release-flow |
-| `gpc releases rollout *` | gpc-release-flow |
-| `gpc validate` | gpc-release-flow |
-| `gpc listings pull/push` | gpc-metadata-sync |
-| `gpc listings images *` | gpc-metadata-sync |
-| `gpc vitals *` | gpc-vitals-monitoring |
-| `gpc reviews *` | gpc-vitals-monitoring |
-| `gpc reports *` | gpc-vitals-monitoring |
-| CI/CD workflows | gpc-ci-integration |
+| GPC Command              | Covered By            |
+| ------------------------ | --------------------- |
+| `gpc auth login`         | gpc-setup             |
+| `gpc config init`        | gpc-setup             |
+| `gpc doctor`             | gpc-setup             |
+| `gpc releases upload`    | gpc-release-flow      |
+| `gpc publish`            | gpc-release-flow      |
+| `gpc releases promote`   | gpc-release-flow      |
+| `gpc releases rollout *` | gpc-release-flow      |
+| `gpc validate`           | gpc-release-flow      |
+| `gpc listings pull/push` | gpc-metadata-sync     |
+| `gpc listings images *`  | gpc-metadata-sync     |
+| `gpc vitals *`           | gpc-vitals-monitoring |
+| `gpc reviews *`          | gpc-vitals-monitoring |
+| `gpc reports *`          | gpc-vitals-monitoring |
+| CI/CD workflows          | gpc-ci-integration    |
 
 | `gpc subscriptions *` | gpc-monetization |
 | `gpc iap *` | gpc-monetization |

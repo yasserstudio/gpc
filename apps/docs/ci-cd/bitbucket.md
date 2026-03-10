@@ -188,10 +188,10 @@ pipelines:
 
 Bitbucket deployments map naturally to Play Store tracks:
 
-| Bitbucket Environment | Play Store Track | Trigger |
-|----------------------|-----------------|---------|
-| `staging` | `internal` | Automatic on tag |
-| `test` | `beta` | Manual |
-| `production` | `production` | Manual |
+| Bitbucket Environment | Play Store Track | Trigger          |
+| --------------------- | ---------------- | ---------------- |
+| `staging`             | `internal`       | Automatic on tag |
+| `test`                | `beta`           | Manual           |
+| `production`          | `production`     | Manual           |
 
 Configure environments in **Repository settings > Deployments** to require manual approval for production deployments and to track deployment history.

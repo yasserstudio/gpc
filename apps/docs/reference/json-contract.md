@@ -8,12 +8,12 @@ All GPC commands return structured output. The format depends on TTY detection o
 
 ## Output Formats
 
-| Format | Flag | When Used | Purpose |
-|--------|------|-----------|---------|
-| `table` | `--output table` | Default in TTY (terminal) | Human-readable |
-| `json` | `--output json` | Default in pipe/CI | Machine-parseable |
-| `yaml` | `--output yaml` | Explicit only | Config-friendly |
-| `markdown` | `--output markdown` | Explicit only | GitHub `$GITHUB_STEP_SUMMARY` |
+| Format     | Flag                | When Used                 | Purpose                       |
+| ---------- | ------------------- | ------------------------- | ----------------------------- |
+| `table`    | `--output table`    | Default in TTY (terminal) | Human-readable                |
+| `json`     | `--output json`     | Default in pipe/CI        | Machine-parseable             |
+| `yaml`     | `--output yaml`     | Explicit only             | Config-friendly               |
+| `markdown` | `--output markdown` | Explicit only             | GitHub `$GITHUB_STEP_SUMMARY` |
 
 ## Auto-Detection
 
@@ -61,15 +61,15 @@ gpc releases status --output markdown
 
 ### Fields
 
-| Field | Type | Always Present | Description |
-|-------|------|----------------|-------------|
-| `success` | `boolean` | Yes | `true` on success, `false` on error |
-| `data` | `object \| array` | Yes (on success) | Command-specific response data |
-| `metadata` | `object` | Yes | Execution metadata |
-| `metadata.command` | `string` | Yes | The command that was executed |
-| `metadata.app` | `string` | When available | Package name used |
-| `metadata.timestamp` | `string` | Yes | ISO 8601 timestamp |
-| `metadata.duration_ms` | `number` | Yes | Execution time in milliseconds |
+| Field                  | Type              | Always Present   | Description                         |
+| ---------------------- | ----------------- | ---------------- | ----------------------------------- |
+| `success`              | `boolean`         | Yes              | `true` on success, `false` on error |
+| `data`                 | `object \| array` | Yes (on success) | Command-specific response data      |
+| `metadata`             | `object`          | Yes              | Execution metadata                  |
+| `metadata.command`     | `string`          | Yes              | The command that was executed       |
+| `metadata.app`         | `string`          | When available   | Package name used                   |
+| `metadata.timestamp`   | `string`          | Yes              | ISO 8601 timestamp                  |
+| `metadata.duration_ms` | `number`          | Yes              | Execution time in milliseconds      |
 
 ## Error Response
 
@@ -92,11 +92,11 @@ gpc releases status --output markdown
 
 ### Error Fields
 
-| Field | Type | Always Present | Description |
-|-------|------|----------------|-------------|
-| `error.code` | `string` | Yes | Machine-readable error code (e.g., `API_FORBIDDEN`) |
-| `error.message` | `string` | Yes | Human-readable error description |
-| `error.suggestion` | `string` | When available | Actionable fix suggestion |
+| Field              | Type     | Always Present | Description                                         |
+| ------------------ | -------- | -------------- | --------------------------------------------------- |
+| `error.code`       | `string` | Yes            | Machine-readable error code (e.g., `API_FORBIDDEN`) |
+| `error.message`    | `string` | Yes            | Human-readable error description                    |
+| `error.suggestion` | `string` | When available | Actionable fix suggestion                           |
 
 ## Parsing Examples
 
@@ -163,16 +163,16 @@ else:
 
 All output (including JSON) automatically redacts sensitive fields:
 
-| Field | Redacted To |
-|-------|-------------|
-| `private_key` | `[REDACTED]` |
+| Field            | Redacted To  |
+| ---------------- | ------------ |
+| `private_key`    | `[REDACTED]` |
 | `private_key_id` | `[REDACTED]` |
-| `access_token` | `[REDACTED]` |
-| `refresh_token` | `[REDACTED]` |
-| `client_secret` | `[REDACTED]` |
-| `token` | `[REDACTED]` |
-| `password` | `[REDACTED]` |
-| `secret` | `[REDACTED]` |
-| `credentials` | `[REDACTED]` |
+| `access_token`   | `[REDACTED]` |
+| `refresh_token`  | `[REDACTED]` |
+| `client_secret`  | `[REDACTED]` |
+| `token`          | `[REDACTED]` |
+| `password`       | `[REDACTED]` |
+| `secret`         | `[REDACTED]` |
+| `credentials`    | `[REDACTED]` |
 
 Redaction is applied before output formatting and cannot be disabled.

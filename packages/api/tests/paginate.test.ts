@@ -3,7 +3,8 @@ import { paginate, paginateAll } from "../src/paginate";
 
 describe("paginate", () => {
   it("yields all pages when no limit", async () => {
-    const fetchPage = vi.fn()
+    const fetchPage = vi
+      .fn()
       .mockResolvedValueOnce({ items: [1, 2], nextPageToken: "page2" })
       .mockResolvedValueOnce({ items: [3, 4], nextPageToken: "page3" })
       .mockResolvedValueOnce({ items: [5], nextPageToken: undefined });
@@ -21,7 +22,8 @@ describe("paginate", () => {
   });
 
   it("stops when empty page returned", async () => {
-    const fetchPage = vi.fn()
+    const fetchPage = vi
+      .fn()
       .mockResolvedValueOnce({ items: [1, 2], nextPageToken: "page2" })
       .mockResolvedValueOnce({ items: [], nextPageToken: "page3" });
 
@@ -35,7 +37,8 @@ describe("paginate", () => {
   });
 
   it("respects limit", async () => {
-    const fetchPage = vi.fn()
+    const fetchPage = vi
+      .fn()
       .mockResolvedValueOnce({ items: [1, 2, 3], nextPageToken: "page2" })
       .mockResolvedValueOnce({ items: [4, 5, 6], nextPageToken: "page3" });
 
@@ -49,8 +52,7 @@ describe("paginate", () => {
   });
 
   it("respects startPageToken", async () => {
-    const fetchPage = vi.fn()
-      .mockResolvedValueOnce({ items: [3, 4], nextPageToken: undefined });
+    const fetchPage = vi.fn().mockResolvedValueOnce({ items: [3, 4], nextPageToken: undefined });
 
     const pages: number[][] = [];
     for await (const page of paginate(fetchPage, { startPageToken: "page2" })) {
@@ -62,8 +64,7 @@ describe("paginate", () => {
   });
 
   it("handles single page", async () => {
-    const fetchPage = vi.fn()
-      .mockResolvedValueOnce({ items: [1, 2], nextPageToken: undefined });
+    const fetchPage = vi.fn().mockResolvedValueOnce({ items: [1, 2], nextPageToken: undefined });
 
     const pages: number[][] = [];
     for await (const page of paginate(fetchPage)) {
@@ -75,8 +76,7 @@ describe("paginate", () => {
   });
 
   it("handles empty first page", async () => {
-    const fetchPage = vi.fn()
-      .mockResolvedValueOnce({ items: [], nextPageToken: undefined });
+    const fetchPage = vi.fn().mockResolvedValueOnce({ items: [], nextPageToken: undefined });
 
     const pages: number[][] = [];
     for await (const page of paginate(fetchPage)) {
@@ -88,7 +88,8 @@ describe("paginate", () => {
   });
 
   it("stops when limit is exactly met", async () => {
-    const fetchPage = vi.fn()
+    const fetchPage = vi
+      .fn()
       .mockResolvedValueOnce({ items: [1, 2], nextPageToken: "page2" })
       .mockResolvedValueOnce({ items: [3, 4], nextPageToken: "page3" });
 
@@ -104,7 +105,8 @@ describe("paginate", () => {
 
 describe("paginateAll", () => {
   it("collects all items into a single array", async () => {
-    const fetchPage = vi.fn()
+    const fetchPage = vi
+      .fn()
       .mockResolvedValueOnce({ items: [1, 2], nextPageToken: "page2" })
       .mockResolvedValueOnce({ items: [3, 4], nextPageToken: undefined });
 
@@ -114,7 +116,8 @@ describe("paginateAll", () => {
   });
 
   it("respects limit", async () => {
-    const fetchPage = vi.fn()
+    const fetchPage = vi
+      .fn()
       .mockResolvedValueOnce({ items: [1, 2, 3], nextPageToken: "page2" })
       .mockResolvedValueOnce({ items: [4, 5, 6], nextPageToken: "page3" });
 
@@ -124,8 +127,7 @@ describe("paginateAll", () => {
   });
 
   it("works with startPageToken", async () => {
-    const fetchPage = vi.fn()
-      .mockResolvedValueOnce({ items: [5, 6], nextPageToken: undefined });
+    const fetchPage = vi.fn().mockResolvedValueOnce({ items: [5, 6], nextPageToken: undefined });
 
     const result = await paginateAll(fetchPage, { startPageToken: "page3" });
 
@@ -134,8 +136,7 @@ describe("paginateAll", () => {
   });
 
   it("returns empty array for empty results", async () => {
-    const fetchPage = vi.fn()
-      .mockResolvedValueOnce({ items: [], nextPageToken: undefined });
+    const fetchPage = vi.fn().mockResolvedValueOnce({ items: [], nextPageToken: undefined });
 
     const result = await paginateAll(fetchPage);
 

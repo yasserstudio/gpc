@@ -62,10 +62,10 @@ type AfterResponseHandler = (event: ResponseEvent) => void | Promise<void>;
 
 ```typescript
 interface CommandEvent {
-  command: string;                    // e.g., "releases upload"
-  args: Record<string, unknown>;     // Resolved arguments
-  app?: string;                      // Package name (if available)
-  startedAt: Date;                   // When the command started
+  command: string; // e.g., "releases upload"
+  args: Record<string, unknown>; // Resolved arguments
+  app?: string; // Package name (if available)
+  startedAt: Date; // When the command started
 }
 
 interface CommandResult {
@@ -136,10 +136,10 @@ type PluginPermission =
 
 ### Trust Model
 
-| Plugin Type | Pattern | Trust | Permissions |
-|-------------|---------|-------|-------------|
-| First-party | `@gpc-cli/plugin-*` | Auto-trusted | No checks |
-| Third-party | `gpc-plugin-*` | Untrusted | Validated against manifest |
+| Plugin Type | Pattern             | Trust        | Permissions                |
+| ----------- | ------------------- | ------------ | -------------------------- |
+| First-party | `@gpc-cli/plugin-*` | Auto-trusted | No checks                  |
+| Third-party | `gpc-plugin-*`      | Untrusted    | Validated against manifest |
 
 Third-party plugins must declare permissions in their `PluginManifest`. Unknown permissions throw `PLUGIN_INVALID_PERMISSION` (exit code 10).
 
@@ -150,6 +150,7 @@ Third-party plugins must declare permissions in their `PluginManifest`. Unknown 
 ### Resolution Order
 
 1. **Config file** — explicit plugin list
+
    ```json
    { "plugins": ["@gpc-cli/plugin-ci", "gpc-plugin-slack"] }
    ```
@@ -166,6 +167,7 @@ Third-party plugins must declare permissions in their `PluginManifest`. Unknown 
 ### Module Resolution
 
 Plugins are loaded via dynamic `import()`. The resolver checks:
+
 1. Default export → `GpcPlugin`
 2. Named `plugin` export → `GpcPlugin`
 3. Module itself → duck-typed check for `name`, `version`, `register`
@@ -184,11 +186,12 @@ class PluginManager {
   runOnError(event: CommandEvent, error: PluginError): Promise<void>;
   getRegisteredCommands(): PluginCommand[];
   getLoadedPlugins(): LoadedPlugin[];
-  reset(): void;  // For testing
+  reset(): void; // For testing
 }
 ```
 
 Key behaviors:
+
 - `runOnError` swallows handler errors to prevent cascading failures
 - Hooks run sequentially in registration order
 - `reset()` clears all state (used in tests)
@@ -203,18 +206,19 @@ CI/CD environment detection and GitHub Actions integration.
 
 Detects 5 CI providers + generic `CI=true`:
 
-| Provider | Detection | Build ID | Branch | Step Summary |
-|----------|-----------|----------|--------|-------------|
-| GitHub Actions | `GITHUB_ACTIONS=true` | `GITHUB_RUN_ID` | `GITHUB_REF_NAME` | Yes |
-| GitLab CI | `GITLAB_CI=true` | `CI_JOB_ID` | `CI_COMMIT_BRANCH` | No |
-| Jenkins | `JENKINS_URL` set | `BUILD_NUMBER` | `BRANCH_NAME` | No |
-| CircleCI | `CIRCLECI=true` | `CIRCLE_BUILD_NUM` | `CIRCLE_BRANCH` | No |
-| Bitrise | `BITRISE_IO=true` | `BITRISE_BUILD_NUMBER` | `BITRISE_GIT_BRANCH` | No |
-| Generic | `CI=true` | — | — | No |
+| Provider       | Detection             | Build ID               | Branch               | Step Summary |
+| -------------- | --------------------- | ---------------------- | -------------------- | ------------ |
+| GitHub Actions | `GITHUB_ACTIONS=true` | `GITHUB_RUN_ID`        | `GITHUB_REF_NAME`    | Yes          |
+| GitLab CI      | `GITLAB_CI=true`      | `CI_JOB_ID`            | `CI_COMMIT_BRANCH`   | No           |
+| Jenkins        | `JENKINS_URL` set     | `BUILD_NUMBER`         | `BRANCH_NAME`        | No           |
+| CircleCI       | `CIRCLECI=true`       | `CIRCLE_BUILD_NUM`     | `CIRCLE_BRANCH`      | No           |
+| Bitrise        | `BITRISE_IO=true`     | `BITRISE_BUILD_NUMBER` | `BITRISE_GIT_BRANCH` | No           |
+| Generic        | `CI=true`             | —                      | —                    | No           |
 
 ### GitHub Actions Step Summary
 
 When running in GitHub Actions with `$GITHUB_STEP_SUMMARY` available, the plugin:
+
 - Writes a markdown table after each command (app, duration, exit code)
 - Writes error details on command failure (error code, message)
 
@@ -263,5 +267,5 @@ export type { CommandEvent, CommandResult, PluginError };
 export type { CommandRegistry, PluginCommand, PluginCommandOption, PluginCommandArgument };
 
 // Helpers
-export { definePlugin };  // Type-safe plugin factory
+export { definePlugin }; // Type-safe plugin factory
 ```

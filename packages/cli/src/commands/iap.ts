@@ -32,9 +32,7 @@ async function getClient(config: GpcConfig) {
 }
 
 export function registerIapCommands(program: Command): void {
-  const iap = program
-    .command("iap")
-    .description("Manage in-app products");
+  const iap = program.command("iap").description("Manage in-app products");
 
   iap
     .command("list")
@@ -44,7 +42,7 @@ export function registerIapCommands(program: Command): void {
     .option("--next-page <token>", "Resume from page token")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -66,7 +64,7 @@ export function registerIapCommands(program: Command): void {
     .description("Get an in-app product")
     .action(async (sku: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -85,15 +83,19 @@ export function registerIapCommands(program: Command): void {
     .requiredOption("--file <path>", "JSON file with product data")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const format = detectOutputFormat();
 
       if (isDryRun(program)) {
-        printDryRun({
-          command: "iap create",
-          action: "create",
-          target: `in-app product from ${options.file}`,
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "iap create",
+            action: "create",
+            target: `in-app product from ${options.file}`,
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
@@ -115,16 +117,20 @@ export function registerIapCommands(program: Command): void {
     .requiredOption("--file <path>", "JSON file with product data")
     .action(async (sku: string, options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const format = detectOutputFormat();
 
       if (isDryRun(program)) {
-        printDryRun({
-          command: "iap update",
-          action: "update",
-          target: sku,
-          details: { file: options.file },
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "iap update",
+            action: "update",
+            target: sku,
+            details: { file: options.file },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
@@ -145,17 +151,21 @@ export function registerIapCommands(program: Command): void {
     .description("Delete an in-app product")
     .action(async (sku: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
 
       await requireConfirm(`Delete in-app product "${sku}"?`, program);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();
-        printDryRun({
-          command: "iap delete",
-          action: "delete",
-          target: sku,
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "iap delete",
+            action: "delete",
+            target: sku,
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
@@ -177,7 +187,7 @@ export function registerIapCommands(program: Command): void {
     .option("--dry-run", "Preview changes without applying")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 

@@ -17,9 +17,7 @@ export function safePathWithin(userPath: string, baseDir: string): string {
   const base = safePath(baseDir);
 
   if (!resolved.startsWith(base + "/") && resolved !== base) {
-    throw new Error(
-      `Path "${userPath}" resolves outside the expected directory "${baseDir}"`,
-    );
+    throw new Error(`Path "${userPath}" resolves outside the expected directory "${baseDir}"`);
   }
 
   return resolved;

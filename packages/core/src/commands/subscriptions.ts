@@ -22,14 +22,20 @@ export async function listSubscriptions(
   if (options?.limit || options?.nextPage) {
     const result = await paginateAll<Subscription>(
       async (pageToken) => {
-        const resp = await client.subscriptions.list(packageName, { pageToken, pageSize: options?.pageSize });
+        const resp = await client.subscriptions.list(packageName, {
+          pageToken,
+          pageSize: options?.pageSize,
+        });
         return { items: resp.subscriptions || [], nextPageToken: resp.nextPageToken };
       },
       { limit: options.limit, startPageToken: options.nextPage },
     );
     return { subscriptions: result.items, nextPageToken: result.nextPageToken };
   }
-  return client.subscriptions.list(packageName, { pageToken: options?.pageToken, pageSize: options?.pageSize });
+  return client.subscriptions.list(packageName, {
+    pageToken: options?.pageToken,
+    pageSize: options?.pageSize,
+  });
 }
 
 export async function getSubscription(
@@ -141,7 +147,14 @@ export async function updateOffer(
   data: SubscriptionOffer,
   updateMask?: string,
 ): Promise<SubscriptionOffer> {
-  return client.subscriptions.updateOffer(packageName, productId, basePlanId, offerId, data, updateMask);
+  return client.subscriptions.updateOffer(
+    packageName,
+    productId,
+    basePlanId,
+    offerId,
+    data,
+    updateMask,
+  );
 }
 
 export async function deleteOffer(

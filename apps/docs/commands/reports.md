@@ -8,11 +8,11 @@ Download financial and statistics reports from Google Play. Reports are delivere
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`reports list`](#reports-list) | List available report buckets for a month |
-| [`reports download financial`](#reports-download-financial) | Download a financial report |
-| [`reports download stats`](#reports-download-stats) | Download a statistics report |
+| Command                                                     | Description                               |
+| ----------------------------------------------------------- | ----------------------------------------- |
+| [`reports list`](#reports-list)                             | List available report buckets for a month |
+| [`reports download financial`](#reports-download-financial) | Download a financial report               |
+| [`reports download stats`](#reports-download-stats)         | Download a statistics report              |
 
 ## `reports list`
 
@@ -26,9 +26,9 @@ gpc reports list <report-type> --month <YYYY-MM>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--month` | | `string` | **(required)** | Report month (format: `YYYY-MM`) |
+| Flag      | Short | Type     | Default        | Description                      |
+| --------- | ----- | -------- | -------------- | -------------------------------- |
+| `--month` |       | `string` | **(required)** | Report month (format: `YYYY-MM`) |
 
 Valid report types: `earnings`, `sales`, `estimated_sales`, `play_balance`, `installs`, `crashes`, `ratings`, `reviews`, `store_performance`, `subscriptions`.
 
@@ -72,11 +72,11 @@ gpc reports download financial --month <YYYY-MM> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--month` | | `string` | **(required)** | Report month (format: `YYYY-MM`) |
-| `--type` | | `string` | `earnings` | Financial report type: `earnings`, `sales`, `estimated_sales`, `play_balance` |
-| `--output-file` | | `string` | | Save to file instead of stdout |
+| Flag            | Short | Type     | Default        | Description                                                                   |
+| --------------- | ----- | -------- | -------------- | ----------------------------------------------------------------------------- |
+| `--month`       |       | `string` | **(required)** | Report month (format: `YYYY-MM`)                                              |
+| `--type`        |       | `string` | `earnings`     | Financial report type: `earnings`, `sales`, `estimated_sales`, `play_balance` |
+| `--output-file` |       | `string` |                | Save to file instead of stdout                                                |
 
 ### Example
 
@@ -129,11 +129,11 @@ gpc reports download stats --month <YYYY-MM> --type <report-type> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--month` | | `string` | **(required)** | Report month (format: `YYYY-MM`) |
-| `--type` | | `string` | **(required)** | Stats report type: `installs`, `crashes`, `ratings`, `reviews`, `store_performance`, `subscriptions` |
-| `--output-file` | | `string` | | Save to file instead of stdout |
+| Flag            | Short | Type     | Default        | Description                                                                                          |
+| --------------- | ----- | -------- | -------------- | ---------------------------------------------------------------------------------------------------- |
+| `--month`       |       | `string` | **(required)** | Report month (format: `YYYY-MM`)                                                                     |
+| `--type`        |       | `string` | **(required)** | Stats report type: `installs`, `crashes`, `ratings`, `reviews`, `store_performance`, `subscriptions` |
+| `--output-file` |       | `string` |                | Save to file instead of stdout                                                                       |
 
 ### Example
 

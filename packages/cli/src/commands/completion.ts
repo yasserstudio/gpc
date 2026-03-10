@@ -1,9 +1,7 @@
 import type { Command } from "commander";
 
 export function registerCompletionCommand(program: Command): void {
-  const completion = program
-    .command("completion")
-    .description("Generate shell completions");
+  const completion = program.command("completion").description("Generate shell completions");
 
   completion
     .command("bash")

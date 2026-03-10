@@ -5,7 +5,15 @@ import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
 import type { RetryLogEntry } from "@gpc-cli/api";
-import { uploadRelease, getReleasesStatus, promoteRelease, updateRollout, readReleaseNotesFromDir, writeAuditLog, createAuditEntry } from "@gpc-cli/core";
+import {
+  uploadRelease,
+  getReleasesStatus,
+  promoteRelease,
+  updateRollout,
+  readReleaseNotesFromDir,
+  writeAuditLog,
+  createAuditEntry,
+} from "@gpc-cli/core";
 import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, promptSelect, promptInput, requireOption } from "../prompt.js";
@@ -33,9 +41,7 @@ async function getClient(config: GpcConfig, retryLogPath?: string) {
 }
 
 export function registerReleasesCommands(program: Command): void {
-  const releases = program
-    .command("releases")
-    .description("Manage releases and rollouts");
+  const releases = program.command("releases").description("Manage releases and rollouts");
 
   // Upload
   releases
@@ -54,7 +60,7 @@ export function registerReleasesCommands(program: Command): void {
         process.exit(2);
       }
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const format = detectOutputFormat();
 
       // Interactive mode: prompt for missing options
@@ -65,7 +71,10 @@ export function registerReleasesCommands(program: Command): void {
         }
 
         if (!options.rollout && options.track === "production") {
-          const rolloutStr = await promptInput("Staged rollout percentage (1-100, blank for full)", "100");
+          const rolloutStr = await promptInput(
+            "Staged rollout percentage (1-100, blank for full)",
+            "100",
+          );
           if (rolloutStr && rolloutStr !== "100") {
             options.rollout = rolloutStr;
           }
@@ -78,20 +87,28 @@ export function registerReleasesCommands(program: Command): void {
       }
 
       if (isDryRun(program)) {
-        printDryRun({
-          command: "releases upload",
-          action: "upload",
-          target: file,
-          details: { track: options.track, rollout: options.rollout },
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "releases upload",
+            action: "upload",
+            target: file,
+            details: { track: options.track, rollout: options.rollout },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
-      const auditEntry = createAuditEntry("releases upload", {
-        file,
-        track: options.track,
-        rollout: options.rollout,
-      }, packageName);
+      const auditEntry = createAuditEntry(
+        "releases upload",
+        {
+          file,
+          track: options.track,
+          rollout: options.rollout,
+        },
+        packageName,
+      );
 
       const client = await getClient(config, options.retryLog);
 
@@ -130,7 +147,7 @@ export function registerReleasesCommands(program: Command): void {
     .option("--track <track>", "Filter by track")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -153,28 +170,42 @@ export function registerReleasesCommands(program: Command): void {
     .option("--notes <text>", "Release notes")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const format = detectOutputFormat();
       const interactive = isInteractive(program);
       const tracks = ["internal", "alpha", "beta", "production"];
 
-      options.from = await requireOption("from", options.from, {
-        message: "Source track:",
-        choices: tracks,
-      }, interactive);
+      options.from = await requireOption(
+        "from",
+        options.from,
+        {
+          message: "Source track:",
+          choices: tracks,
+        },
+        interactive,
+      );
 
-      options.to = await requireOption("to", options.to, {
-        message: "Target track:",
-        choices: tracks.filter((t: string) => t !== options.from),
-      }, interactive);
+      options.to = await requireOption(
+        "to",
+        options.to,
+        {
+          message: "Target track:",
+          choices: tracks.filter((t: string) => t !== options.from),
+        },
+        interactive,
+      );
 
       if (isDryRun(program)) {
-        printDryRun({
-          command: "releases promote",
-          action: "promote",
-          target: `${options.from} → ${options.to}`,
-          details: { rollout: options.rollout },
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "releases promote",
+            action: "promote",
+            target: `${options.from} → ${options.to}`,
+            details: { rollout: options.rollout },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
@@ -193,9 +224,7 @@ export function registerReleasesCommands(program: Command): void {
     });
 
   // Rollout subcommands
-  const rollout = releases
-    .command("rollout")
-    .description("Manage staged rollouts");
+  const rollout = releases.command("rollout").description("Manage staged rollouts");
 
   for (const action of ["increase", "halt", "resume", "complete"] as const) {
     const cmd = rollout
@@ -209,29 +238,43 @@ export function registerReleasesCommands(program: Command): void {
 
     cmd.action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const format = detectOutputFormat();
       const interactive = isInteractive(program);
       const tracks = ["internal", "alpha", "beta", "production"];
 
-      options.track = await requireOption("track", options.track, {
-        message: "Track:",
-        choices: tracks,
-      }, interactive);
+      options.track = await requireOption(
+        "track",
+        options.track,
+        {
+          message: "Track:",
+          choices: tracks,
+        },
+        interactive,
+      );
 
       if (action === "increase") {
-        options.to = await requireOption("to", options.to, {
-          message: "New rollout percentage (1-100):",
-        }, interactive);
+        options.to = await requireOption(
+          "to",
+          options.to,
+          {
+            message: "New rollout percentage (1-100):",
+          },
+          interactive,
+        );
       }
 
       if (isDryRun(program)) {
-        printDryRun({
-          command: `releases rollout ${action}`,
-          action: action,
-          target: options.track,
-          details: { percentage: options.to },
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: `releases rollout ${action}`,
+            action: action,
+            target: options.track,
+            details: { percentage: options.to },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
@@ -271,10 +314,15 @@ export function registerReleasesCommands(program: Command): void {
       const interactive = isInteractive(program);
       const tracks = ["internal", "alpha", "beta", "production"];
 
-      options.track = await requireOption("track", options.track, {
-        message: "Track:",
-        choices: tracks,
-      }, interactive);
+      options.track = await requireOption(
+        "track",
+        options.track,
+        {
+          message: "Track:",
+          choices: tracks,
+        },
+        interactive,
+      );
 
       let notesText = options.notes;
       if (options.file) {

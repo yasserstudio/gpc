@@ -224,9 +224,7 @@ export interface DiscoverPluginsOptions {
  * 2. Convention: node_modules/@gpc-cli/plugin-*
  * 3. Convention: node_modules/gpc-plugin-*
  */
-export async function discoverPlugins(
-  options?: DiscoverPluginsOptions,
-): Promise<GpcPlugin[]> {
+export async function discoverPlugins(options?: DiscoverPluginsOptions): Promise<GpcPlugin[]> {
   const plugins: GpcPlugin[] = [];
   const seen = new Set<string>();
 

@@ -1,9 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import type {
-  PlayApiClient,
-  InAppProduct,
-} from "@gpc-cli/api";
+import type { PlayApiClient, InAppProduct } from "@gpc-cli/api";
 import { paginateAll } from "@gpc-cli/api";
 
 export interface ListIapOptions {
@@ -21,14 +18,23 @@ export async function listInAppProducts(
   if (options?.limit || options?.nextPage) {
     const result = await paginateAll<InAppProduct>(
       async (pageToken) => {
-        const resp = await client.inappproducts.list(packageName, { token: pageToken, maxResults: options?.maxResults });
-        return { items: resp.inappproduct || [], nextPageToken: resp.tokenPagination?.nextPageToken };
+        const resp = await client.inappproducts.list(packageName, {
+          token: pageToken,
+          maxResults: options?.maxResults,
+        });
+        return {
+          items: resp.inappproduct || [],
+          nextPageToken: resp.tokenPagination?.nextPageToken,
+        };
       },
       { limit: options.limit, startPageToken: options.nextPage },
     );
     return { inappproduct: result.items, nextPageToken: result.nextPageToken };
   }
-  return client.inappproducts.list(packageName, { token: options?.token, maxResults: options?.maxResults });
+  return client.inappproducts.list(packageName, {
+    token: options?.token,
+    maxResults: options?.maxResults,
+  });
 }
 
 export async function getInAppProduct(

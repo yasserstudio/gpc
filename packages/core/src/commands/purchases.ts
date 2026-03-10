@@ -100,7 +100,10 @@ export async function listVoidedPurchases(
           maxResults: options?.maxResults,
           token: pageToken,
         });
-        return { items: resp.voidedPurchases || [], nextPageToken: resp.tokenPagination?.nextPageToken };
+        return {
+          items: resp.voidedPurchases || [],
+          nextPageToken: resp.tokenPagination?.nextPageToken,
+        };
       },
       { limit: options.limit, startPageToken: options.nextPage },
     );

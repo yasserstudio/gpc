@@ -44,6 +44,7 @@ plugins/
 ## Development Workflow
 
 1. **Create a branch** from `main`:
+
    ```bash
    git checkout -b feat/api/add-subscription-endpoint
    ```
@@ -51,6 +52,7 @@ plugins/
 2. **Make your changes** in the relevant package(s).
 
 3. **Run checks** before committing:
+
    ```bash
    pnpm lint
    pnpm typecheck
@@ -58,11 +60,13 @@ plugins/
    ```
 
 4. **Create a changeset** (if your change affects published packages):
+
    ```bash
    pnpm changeset
    ```
 
 5. **Commit** using [Conventional Commits](https://www.conventionalcommits.org/):
+
    ```
    feat(api): add subscription listing endpoint
    fix(auth): handle expired refresh tokens

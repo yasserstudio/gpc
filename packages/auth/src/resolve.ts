@@ -3,8 +3,7 @@ import { AuthError } from "./errors.js";
 import { createServiceAccountAuth, loadServiceAccountKey } from "./service-account.js";
 import type { AuthClient, AuthOptions } from "./types.js";
 
-const ANDROID_PUBLISHER_SCOPE =
-  "https://www.googleapis.com/auth/androidpublisher";
+const ANDROID_PUBLISHER_SCOPE = "https://www.googleapis.com/auth/androidpublisher";
 
 async function tryApplicationDefaultCredentials(): Promise<AuthClient | null> {
   try {
@@ -42,9 +41,7 @@ async function tryApplicationDefaultCredentials(): Promise<AuthClient | null> {
   }
 }
 
-export async function resolveAuth(
-  options?: AuthOptions,
-): Promise<AuthClient> {
+export async function resolveAuth(options?: AuthOptions): Promise<AuthClient> {
   // 1. Explicit options
   if (options?.serviceAccountJson) {
     const key = await loadServiceAccountKey(options.serviceAccountJson);

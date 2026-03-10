@@ -4,9 +4,7 @@ import { loadConfig, getCacheDir } from "@gpc-cli/config";
 import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
 
 export function registerAuthCommands(program: Command): void {
-  const auth = program
-    .command("auth")
-    .description("Manage authentication");
+  const auth = program.command("auth").description("Manage authentication");
 
   auth
     .command("login")
@@ -144,7 +142,9 @@ export function registerAuthCommands(program: Command): void {
       const format = detectOutputFormat();
 
       if (profiles.length === 0) {
-        console.log("No profiles configured. Use: gpc auth login --service-account <path> --profile <name>");
+        console.log(
+          "No profiles configured. Use: gpc auth login --service-account <path> --profile <name>",
+        );
         return;
       }
 

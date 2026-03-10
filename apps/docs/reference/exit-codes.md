@@ -8,16 +8,16 @@ GPC uses semantic exit codes so CI pipelines can distinguish error types and rea
 
 ## Exit Code Reference
 
-| Code | Name | Meaning | CI Action |
-|------|------|---------|-----------|
-| `0` | Success | Command completed successfully | Continue pipeline |
-| `1` | General Error | Unexpected error, unhandled exception | Fail and investigate |
-| `2` | Usage Error | Invalid arguments, unknown flag, missing required option | Fix command syntax |
-| `3` | Auth Error | No credentials, expired token, invalid key, revoked access | Re-authenticate or check secrets |
-| `4` | API Error | Google Play API returned an error (rate limit, permission denied, not found, conflict) | Check permissions or retry |
-| `5` | Network Error | DNS failure, timeout, connection refused, proxy error | Check connectivity |
-| `6` | Threshold Breach | Vitals metric exceeded the specified threshold | Halt rollout, investigate vitals |
-| `10` | Plugin Error | Plugin failed to load, invalid permissions, runtime error in plugin | Check plugin config |
+| Code | Name             | Meaning                                                                                | CI Action                        |
+| ---- | ---------------- | -------------------------------------------------------------------------------------- | -------------------------------- |
+| `0`  | Success          | Command completed successfully                                                         | Continue pipeline                |
+| `1`  | General Error    | Unexpected error, unhandled exception                                                  | Fail and investigate             |
+| `2`  | Usage Error      | Invalid arguments, unknown flag, missing required option                               | Fix command syntax               |
+| `3`  | Auth Error       | No credentials, expired token, invalid key, revoked access                             | Re-authenticate or check secrets |
+| `4`  | API Error        | Google Play API returned an error (rate limit, permission denied, not found, conflict) | Check permissions or retry       |
+| `5`  | Network Error    | DNS failure, timeout, connection refused, proxy error                                  | Check connectivity               |
+| `6`  | Threshold Breach | Vitals metric exceeded the specified threshold                                         | Halt rollout, investigate vitals |
+| `10` | Plugin Error     | Plugin failed to load, invalid permissions, runtime error in plugin                    | Check plugin config              |
 
 ## CI Scripting Patterns
 
@@ -88,30 +88,30 @@ When an error occurs with `--output json`, the response follows this structure:
 
 ### Error Code Prefixes
 
-| Prefix | Category | Exit Code |
-|--------|----------|-----------|
-| `AUTH_*` | Authentication errors | 3 |
-| `API_*` | Google Play API errors | 4 |
-| `CONFIG_*` | Configuration errors | 1 |
-| `UPLOAD_*` | File upload errors | 1 |
-| `NETWORK_*` | Network/connectivity errors | 5 |
-| `PLUGIN_*` | Plugin system errors | 10 |
+| Prefix      | Category                    | Exit Code |
+| ----------- | --------------------------- | --------- |
+| `AUTH_*`    | Authentication errors       | 3         |
+| `API_*`     | Google Play API errors      | 4         |
+| `CONFIG_*`  | Configuration errors        | 1         |
+| `UPLOAD_*`  | File upload errors          | 1         |
+| `NETWORK_*` | Network/connectivity errors | 5         |
+| `PLUGIN_*`  | Plugin system errors        | 10        |
 
 ### Common Error Codes
 
-| Code | Cause | Fix |
-|------|-------|-----|
-| `AUTH_INVALID_KEY` | Service account JSON is malformed | Download a fresh key from Google Cloud Console |
-| `AUTH_FILE_NOT_FOUND` | Key file path does not exist | Check the path in `GPC_SERVICE_ACCOUNT` or config |
-| `AUTH_TOKEN_FAILED` | Could not obtain access token | Verify key is valid and not revoked |
-| `AUTH_EXPIRED` | Access token expired and refresh failed | Run `gpc auth login` |
-| `API_UNAUTHORIZED` | 401 — invalid or expired token | Re-authenticate |
-| `API_FORBIDDEN` | 403 — insufficient permissions | Check service account permissions in Play Console |
-| `API_NOT_FOUND` | 404 — resource does not exist | Verify package name and resource IDs |
-| `API_EDIT_CONFLICT` | 409 — another edit in progress | Delete existing edit and retry |
-| `API_RATE_LIMITED` | 429 — too many requests | GPC retries automatically; reduce concurrent requests |
-| `API_SERVER_ERROR` | 5xx — Google server error | GPC retries automatically |
-| `API_TIMEOUT` | Request exceeded timeout | Increase `GPC_TIMEOUT` or check network |
-| `API_NETWORK_ERROR` | Connection failed | Check internet connection and proxy settings |
-| `CONFIG_INVALID` | Config file has invalid schema | Run `gpc config show` to see resolved config |
-| `PLUGIN_INVALID_PERMISSION` | Plugin requests unknown permission | Check plugin manifest |
+| Code                        | Cause                                   | Fix                                                   |
+| --------------------------- | --------------------------------------- | ----------------------------------------------------- |
+| `AUTH_INVALID_KEY`          | Service account JSON is malformed       | Download a fresh key from Google Cloud Console        |
+| `AUTH_FILE_NOT_FOUND`       | Key file path does not exist            | Check the path in `GPC_SERVICE_ACCOUNT` or config     |
+| `AUTH_TOKEN_FAILED`         | Could not obtain access token           | Verify key is valid and not revoked                   |
+| `AUTH_EXPIRED`              | Access token expired and refresh failed | Run `gpc auth login`                                  |
+| `API_UNAUTHORIZED`          | 401 — invalid or expired token          | Re-authenticate                                       |
+| `API_FORBIDDEN`             | 403 — insufficient permissions          | Check service account permissions in Play Console     |
+| `API_NOT_FOUND`             | 404 — resource does not exist           | Verify package name and resource IDs                  |
+| `API_EDIT_CONFLICT`         | 409 — another edit in progress          | Delete existing edit and retry                        |
+| `API_RATE_LIMITED`          | 429 — too many requests                 | GPC retries automatically; reduce concurrent requests |
+| `API_SERVER_ERROR`          | 5xx — Google server error               | GPC retries automatically                             |
+| `API_TIMEOUT`               | Request exceeded timeout                | Increase `GPC_TIMEOUT` or check network               |
+| `API_NETWORK_ERROR`         | Connection failed                       | Check internet connection and proxy settings          |
+| `CONFIG_INVALID`            | Config file has invalid schema          | Run `gpc config show` to see resolved config          |
+| `PLUGIN_INVALID_PERMISSION` | Plugin requests unknown permission      | Check plugin manifest                                 |

@@ -57,9 +57,20 @@ describe("redactSensitive", () => {
 
   it("redacts all known sensitive keys", () => {
     const keys = [
-      "private_key", "privateKey", "private_key_id", "privateKeyId",
-      "accessToken", "access_token", "refreshToken", "refresh_token",
-      "client_secret", "clientSecret", "token", "password", "secret", "credentials",
+      "private_key",
+      "privateKey",
+      "private_key_id",
+      "privateKeyId",
+      "accessToken",
+      "access_token",
+      "refreshToken",
+      "refresh_token",
+      "client_secret",
+      "clientSecret",
+      "token",
+      "password",
+      "secret",
+      "credentials",
     ];
     for (const key of keys) {
       const data = { [key]: "sensitive-value" };
@@ -112,9 +123,7 @@ describe("safePathWithin", () => {
   });
 
   it("throws for path traversal outside base", () => {
-    expect(() => safePathWithin("/base/../etc/passwd", "/base")).toThrow(
-      /resolves outside/,
-    );
+    expect(() => safePathWithin("/base/../etc/passwd", "/base")).toThrow(/resolves outside/);
   });
 
   it("allows the base directory itself", () => {
@@ -123,8 +132,6 @@ describe("safePathWithin", () => {
   });
 
   it("rejects sibling directories", () => {
-    expect(() => safePathWithin("/other/file.txt", "/base")).toThrow(
-      /resolves outside/,
-    );
+    expect(() => safePathWithin("/other/file.txt", "/base")).toThrow(/resolves outside/);
   });
 });

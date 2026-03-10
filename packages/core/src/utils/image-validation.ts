@@ -66,7 +66,9 @@ export async function validateImage(
 
   // PNG optimization warning
   if (ext === ".png" && sizeBytes > 512 * 1024) {
-    warnings.push("PNG file is over 512 KB. Consider compressing with tools like pngquant or optipng.");
+    warnings.push(
+      "PNG file is over 512 KB. Consider compressing with tools like pngquant or optipng.",
+    );
   }
 
   return { valid: errors.length === 0, errors, warnings };

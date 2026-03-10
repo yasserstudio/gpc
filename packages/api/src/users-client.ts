@@ -1,12 +1,7 @@
 import { createHttpClient } from "./http.js";
-import type {
-  ApiClientOptions,
-  User,
-  UsersListResponse,
-} from "./types.js";
+import type { ApiClientOptions, User, UsersListResponse } from "./types.js";
 
-const USERS_BASE_URL =
-  "https://androidpublisher.googleapis.com/androidpublisher/v3/developers";
+const USERS_BASE_URL = "https://androidpublisher.googleapis.com/androidpublisher/v3/developers";
 
 export interface UsersApiClient {
   list(
@@ -28,9 +23,7 @@ export interface UsersApiClient {
   delete(developerId: string, userId: string): Promise<void>;
 }
 
-export function createUsersClient(
-  options: ApiClientOptions,
-): UsersApiClient {
+export function createUsersClient(options: ApiClientOptions): UsersApiClient {
   const http = createHttpClient({ ...options, baseUrl: USERS_BASE_URL });
 
   return {
@@ -47,17 +40,12 @@ export function createUsersClient(
     },
 
     async get(developerId, userId) {
-      const { data } = await http.get<User>(
-        `/${developerId}/users/${userId}`,
-      );
+      const { data } = await http.get<User>(`/${developerId}/users/${userId}`);
       return data;
     },
 
     async create(developerId, user) {
-      const { data } = await http.post<User>(
-        `/${developerId}/users`,
-        user,
-      );
+      const { data } = await http.post<User>(`/${developerId}/users`, user);
       return data;
     },
 

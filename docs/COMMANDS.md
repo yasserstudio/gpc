@@ -8,24 +8,25 @@ gpc <domain> <action> [options]
 
 **Global Flags:**
 
-| Flag | Short | Description |
-|------|-------|-------------|
-| `--output` | `-o` | Output format: `table` (default TTY), `json` (default pipe), `yaml`, `markdown` |
-| `--quiet` | `-q` | Suppress non-essential output |
-| `--verbose` | `-v` | Enable debug logging |
-| `--profile` | `-p` | Use named auth profile |
-| `--app` | `-a` | App package name (overrides config) |
-| `--no-color` | | Disable colored output |
-| `--no-interactive` | | Disable interactive prompts |
-| `--dry-run` | | Preview changes without executing |
-| `--limit` | | Max results per page |
-| `--next-page` | | Pagination token for next page |
-| `--retry-log` | | Log retry attempts to file |
-| `--config` | | Path to config file |
-| `--version` | `-V` | Show version |
-| `--help` | `-h` | Show help |
+| Flag               | Short | Description                                                                     |
+| ------------------ | ----- | ------------------------------------------------------------------------------- |
+| `--output`         | `-o`  | Output format: `table` (default TTY), `json` (default pipe), `yaml`, `markdown` |
+| `--quiet`          | `-q`  | Suppress non-essential output                                                   |
+| `--verbose`        | `-v`  | Enable debug logging                                                            |
+| `--profile`        | `-p`  | Use named auth profile                                                          |
+| `--app`            | `-a`  | App package name (overrides config)                                             |
+| `--no-color`       |       | Disable colored output                                                          |
+| `--no-interactive` |       | Disable interactive prompts                                                     |
+| `--dry-run`        |       | Preview changes without executing                                               |
+| `--limit`          |       | Max results per page                                                            |
+| `--next-page`      |       | Pagination token for next page                                                  |
+| `--retry-log`      |       | Log retry attempts to file                                                      |
+| `--config`         |       | Path to config file                                                             |
+| `--version`        | `-V`  | Show version                                                                    |
+| `--help`           | `-h`  | Show help                                                                       |
 
 **Output Behavior:**
+
 - **TTY (terminal):** Defaults to `table` — human-readable formatted output
 - **Non-TTY (pipe/CI):** Defaults to `json` — machine-parseable, auto-detected
 - `--output` flag overrides auto-detection in both cases
@@ -286,38 +287,38 @@ gpc docs                              # Open documentation in browser
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| `0` | Success |
-| `1` | General error |
-| `2` | Usage error (bad arguments) |
-| `3` | Authentication error |
-| `4` | API error (rate limit, permission, etc.) |
-| `5` | Network error |
-| `6` | Threshold breach (vitals CI alerting) |
-| `10` | Plugin error |
+| Code | Meaning                                  |
+| ---- | ---------------------------------------- |
+| `0`  | Success                                  |
+| `1`  | General error                            |
+| `2`  | Usage error (bad arguments)              |
+| `3`  | Authentication error                     |
+| `4`  | API error (rate limit, permission, etc.) |
+| `5`  | Network error                            |
+| `6`  | Threshold breach (vitals CI alerting)    |
+| `10` | Plugin error                             |
 
 ## JSON Output Contract
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `GPC_SERVICE_ACCOUNT` | Service account JSON string or file path | — |
-| `GPC_APP` | Default package name | — |
-| `GPC_PROFILE` | Auth profile name | — |
-| `GPC_OUTPUT` | Default output format | `table` (TTY) / `json` (pipe) |
-| `GPC_NO_COLOR` | Disable color output | — |
-| `GPC_NO_INTERACTIVE` | Disable prompts | Auto in CI |
-| `GPC_SKIP_KEYCHAIN` | Skip OS keychain, use file storage | — |
-| `GPC_MAX_RETRIES` | Max retry attempts on transient errors | `3` |
-| `GPC_TIMEOUT` | Request timeout in milliseconds | `30000` |
-| `GPC_BASE_DELAY` | Base retry delay in milliseconds | `1000` |
-| `GPC_MAX_DELAY` | Max retry delay in milliseconds | `60000` |
-| `GPC_RATE_LIMIT` | Requests per second | `50` |
-| `GPC_DEVELOPER_ID` | Developer account ID (for user management) | — |
-| `GPC_CA_CERT` | Custom CA certificate path | — |
-| `HTTPS_PROXY` | HTTP proxy URL | — |
+| Variable              | Description                                | Default                       |
+| --------------------- | ------------------------------------------ | ----------------------------- |
+| `GPC_SERVICE_ACCOUNT` | Service account JSON string or file path   | —                             |
+| `GPC_APP`             | Default package name                       | —                             |
+| `GPC_PROFILE`         | Auth profile name                          | —                             |
+| `GPC_OUTPUT`          | Default output format                      | `table` (TTY) / `json` (pipe) |
+| `GPC_NO_COLOR`        | Disable color output                       | —                             |
+| `GPC_NO_INTERACTIVE`  | Disable prompts                            | Auto in CI                    |
+| `GPC_SKIP_KEYCHAIN`   | Skip OS keychain, use file storage         | —                             |
+| `GPC_MAX_RETRIES`     | Max retry attempts on transient errors     | `3`                           |
+| `GPC_TIMEOUT`         | Request timeout in milliseconds            | `30000`                       |
+| `GPC_BASE_DELAY`      | Base retry delay in milliseconds           | `1000`                        |
+| `GPC_MAX_DELAY`       | Max retry delay in milliseconds            | `60000`                       |
+| `GPC_RATE_LIMIT`      | Requests per second                        | `50`                          |
+| `GPC_DEVELOPER_ID`    | Developer account ID (for user management) | —                             |
+| `GPC_CA_CERT`         | Custom CA certificate path                 | —                             |
+| `HTTPS_PROXY`         | HTTP proxy URL                             | —                             |
 
 ## Output Contract
 

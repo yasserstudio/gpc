@@ -9,10 +9,7 @@ async function writeSecureFile(filePath: string, content: string): Promise<void>
   await chmod(filePath, 0o600).catch(() => {});
 }
 
-export async function setConfigValue(
-  key: string,
-  value: string,
-): Promise<void> {
+export async function setConfigValue(key: string, value: string): Promise<void> {
   const configPath = join(getConfigDir(), "config.json");
 
   let existing: Record<string, unknown> = {};
@@ -40,10 +37,7 @@ export async function setConfigValue(
   await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
 }
 
-export async function setProfileConfig(
-  profileName: string,
-  config: ProfileConfig,
-): Promise<void> {
+export async function setProfileConfig(profileName: string, config: ProfileConfig): Promise<void> {
   const configPath = join(getConfigDir(), "config.json");
 
   let existing: Record<string, unknown> = {};

@@ -51,10 +51,7 @@ async function writeCache(cacheDir: string, cache: TokenCache): Promise<void> {
   await rename(tmpPath, cachePath);
 }
 
-export async function getCachedToken(
-  cacheDir: string,
-  email: string,
-): Promise<string | null> {
+export async function getCachedToken(cacheDir: string, email: string): Promise<string | null> {
   validateCacheKey(email);
   const cache = await readCache(cacheDir);
   const entry = cache[email];
@@ -84,15 +81,10 @@ export async function setCachedToken(
   await writeCache(cacheDir, cache);
 }
 
-export async function clearTokenCache(
-  cacheDir: string,
-  email?: string,
-): Promise<void> {
+export async function clearTokenCache(cacheDir: string, email?: string): Promise<void> {
   if (email) {
     const cache = await readCache(cacheDir);
-    const updated = Object.fromEntries(
-      Object.entries(cache).filter(([key]) => key !== email),
-    );
+    const updated = Object.fromEntries(Object.entries(cache).filter(([key]) => key !== email));
     await writeCache(cacheDir, updated);
   } else {
     try {

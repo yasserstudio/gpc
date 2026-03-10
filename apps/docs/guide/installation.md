@@ -6,12 +6,12 @@ outline: deep
 
 GPC supports four installation methods. Choose based on your environment:
 
-| Method | Best For | Plugin Support | Auto-Update |
-|--------|----------|----------------|-------------|
-| [Homebrew](#homebrew) | macOS / Linux desktops | No | `brew upgrade` |
-| [npm](#npm) | Node.js projects, CI/CD | Yes | `npm update -g` |
-| [Standalone binary](#standalone-binary) | CI/CD, no Node.js required | No | Re-download |
-| [From source](#from-source) | Contributors, development | Yes | `git pull` |
+| Method                                  | Best For                   | Plugin Support | Auto-Update     |
+| --------------------------------------- | -------------------------- | -------------- | --------------- |
+| [Homebrew](#homebrew)                   | macOS / Linux desktops     | No             | `brew upgrade`  |
+| [npm](#npm)                             | Node.js projects, CI/CD    | Yes            | `npm update -g` |
+| [Standalone binary](#standalone-binary) | CI/CD, no Node.js required | No             | Re-download     |
+| [From source](#from-source)             | Contributors, development  | Yes            | `git pull`      |
 
 ## Homebrew
 
@@ -93,13 +93,13 @@ Download the binary for your platform from the [GitHub releases page](https://gi
 
 ### Platform support
 
-| Platform | Architecture | Binary |
-|----------|-------------|--------|
-| macOS | arm64 (Apple Silicon) | `gpc-darwin-arm64` |
-| macOS | x64 (Intel) | `gpc-darwin-x64` |
-| Linux | x64 | `gpc-linux-x64` |
-| Linux | arm64 | `gpc-linux-arm64` |
-| Windows | x64 | `gpc-windows-x64.exe` |
+| Platform | Architecture          | Binary                |
+| -------- | --------------------- | --------------------- |
+| macOS    | arm64 (Apple Silicon) | `gpc-darwin-arm64`    |
+| macOS    | x64 (Intel)           | `gpc-darwin-x64`      |
+| Linux    | x64                   | `gpc-linux-x64`       |
+| Linux    | arm64                 | `gpc-linux-arm64`     |
+| Windows  | x64                   | `gpc-windows-x64.exe` |
 
 ### Manual install steps (Linux/macOS)
 

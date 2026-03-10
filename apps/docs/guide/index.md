@@ -10,18 +10,18 @@ GPC replaces fragmented tooling (Fastlane supply, gradle-play-publisher, Console
 
 ## What GPC Does
 
-| Domain | Commands | Description |
-|--------|----------|-------------|
-| **Releases** | `releases upload`, `releases promote`, `releases rollout`, `publish` | Upload AAB/APK, promote across tracks, manage staged rollouts |
-| **Listings** | `listings get`, `listings push`, `listings pull`, `listings images` | Store metadata, screenshots, localization, Fastlane format |
-| **Reviews** | `reviews list`, `reviews reply`, `reviews export` | Filter by stars/language/time, reply, export to CSV |
-| **Vitals** | `vitals crashes`, `vitals anr`, `vitals startup`, `vitals rendering` | Crash rates, ANR, startup times, frame rates, CI quality gates |
-| **Subscriptions** | `subscriptions list`, `subscriptions create`, `subscriptions offers` | Base plans, offers, activation, price migration |
-| **In-App Products** | `iap list`, `iap create`, `iap sync` | Managed products, bulk sync from local files |
-| **Purchases** | `purchases get`, `purchases acknowledge`, `orders refund` | Purchase verification, consumption, voided purchases |
-| **Reports** | `reports download financial`, `reports download stats` | Earnings, installs, crashes, ratings CSV downloads |
-| **Testers** | `testers list`, `testers add`, `testers import` | Track-scoped tester management, CSV bulk import |
-| **Users** | `users list`, `users invite`, `users update` | Developer account user and permission management |
+| Domain              | Commands                                                             | Description                                                    |
+| ------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------- |
+| **Releases**        | `releases upload`, `releases promote`, `releases rollout`, `publish` | Upload AAB/APK, promote across tracks, manage staged rollouts  |
+| **Listings**        | `listings get`, `listings push`, `listings pull`, `listings images`  | Store metadata, screenshots, localization, Fastlane format     |
+| **Reviews**         | `reviews list`, `reviews reply`, `reviews export`                    | Filter by stars/language/time, reply, export to CSV            |
+| **Vitals**          | `vitals crashes`, `vitals anr`, `vitals startup`, `vitals rendering` | Crash rates, ANR, startup times, frame rates, CI quality gates |
+| **Subscriptions**   | `subscriptions list`, `subscriptions create`, `subscriptions offers` | Base plans, offers, activation, price migration                |
+| **In-App Products** | `iap list`, `iap create`, `iap sync`                                 | Managed products, bulk sync from local files                   |
+| **Purchases**       | `purchases get`, `purchases acknowledge`, `orders refund`            | Purchase verification, consumption, voided purchases           |
+| **Reports**         | `reports download financial`, `reports download stats`               | Earnings, installs, crashes, ratings CSV downloads             |
+| **Testers**         | `testers list`, `testers add`, `testers import`                      | Track-scoped tester management, CSV bulk import                |
+| **Users**           | `users list`, `users invite`, `users update`                         | Developer account user and permission management               |
 
 ## Architecture
 
@@ -42,28 +42,28 @@ Dependency flow: `cli` calls `core`, which calls `api`, `auth`, and `config`. Th
 
 ## Comparison with Alternatives
 
-| Feature | GPC | Fastlane supply | gradle-play-publisher | Console UI |
-|---------|-----|-----------------|----------------------|------------|
-| **Language** | TypeScript (Node.js) | Ruby | Kotlin (Gradle) | Browser |
-| **Install** | `npm install -g @gpc-cli/cli` | `gem install fastlane` | Gradle plugin | None |
-| **Releases** | Upload, promote, rollout, halt, resume, complete | Upload, promote | Upload, promote | Manual |
-| **Staged rollouts** | `rollout increase`, `rollout halt`, `rollout resume` | Limited | Limited | Manual |
-| **Listings** | Pull/push, images, Fastlane format compatible | Pull/push, images | Listings only | Manual |
-| **Reviews** | List, filter, reply, export CSV | None | None | Manual |
-| **Vitals** | Crashes, ANR, startup, rendering, battery, memory | None | None | View only |
-| **CI quality gates** | `--threshold` flag, exit code 6 | None | None | None |
-| **Subscriptions** | Full CRUD, base plans, offers, price migration | None | None | Manual |
-| **In-app products** | CRUD, bulk sync from files | None | None | Manual |
-| **Purchases** | Verify, acknowledge, consume, refund | None | None | Manual |
-| **Reports** | Financial and stats CSV download | None | None | Download |
-| **Testers** | List, add, remove, CSV import | None | None | Manual |
-| **User management** | Invite, update, remove, per-app grants | None | None | Manual |
-| **Plugins** | SDK with lifecycle hooks | Lanes + actions | None | None |
-| **Output formats** | `table`, `json`, `yaml`, `markdown` | Stdout | Stdout | N/A |
-| **Dry run** | All write operations | None | None | N/A |
-| **Auth methods** | Service account, OAuth, ADC, env var | Service account | Service account | Google account |
-| **Profiles** | Multi-profile switching | None | None | N/A |
-| **API endpoints** | 162 | ~15 | ~10 | All (manual) |
+| Feature              | GPC                                                  | Fastlane supply        | gradle-play-publisher | Console UI     |
+| -------------------- | ---------------------------------------------------- | ---------------------- | --------------------- | -------------- |
+| **Language**         | TypeScript (Node.js)                                 | Ruby                   | Kotlin (Gradle)       | Browser        |
+| **Install**          | `npm install -g @gpc-cli/cli`                        | `gem install fastlane` | Gradle plugin         | None           |
+| **Releases**         | Upload, promote, rollout, halt, resume, complete     | Upload, promote        | Upload, promote       | Manual         |
+| **Staged rollouts**  | `rollout increase`, `rollout halt`, `rollout resume` | Limited                | Limited               | Manual         |
+| **Listings**         | Pull/push, images, Fastlane format compatible        | Pull/push, images      | Listings only         | Manual         |
+| **Reviews**          | List, filter, reply, export CSV                      | None                   | None                  | Manual         |
+| **Vitals**           | Crashes, ANR, startup, rendering, battery, memory    | None                   | None                  | View only      |
+| **CI quality gates** | `--threshold` flag, exit code 6                      | None                   | None                  | None           |
+| **Subscriptions**    | Full CRUD, base plans, offers, price migration       | None                   | None                  | Manual         |
+| **In-app products**  | CRUD, bulk sync from files                           | None                   | None                  | Manual         |
+| **Purchases**        | Verify, acknowledge, consume, refund                 | None                   | None                  | Manual         |
+| **Reports**          | Financial and stats CSV download                     | None                   | None                  | Download       |
+| **Testers**          | List, add, remove, CSV import                        | None                   | None                  | Manual         |
+| **User management**  | Invite, update, remove, per-app grants               | None                   | None                  | Manual         |
+| **Plugins**          | SDK with lifecycle hooks                             | Lanes + actions        | None                  | None           |
+| **Output formats**   | `table`, `json`, `yaml`, `markdown`                  | Stdout                 | Stdout                | N/A            |
+| **Dry run**          | All write operations                                 | None                   | None                  | N/A            |
+| **Auth methods**     | Service account, OAuth, ADC, env var                 | Service account        | Service account       | Google account |
+| **Profiles**         | Multi-profile switching                              | None                   | None                  | N/A            |
+| **API endpoints**    | 162                                                  | ~15                    | ~10                   | All (manual)   |
 
 ## Key Design Decisions
 

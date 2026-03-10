@@ -6,6 +6,7 @@
 ---
 
 ## Phase 0 — Foundation ✓
+
 > Monorepo scaffold, tooling, CI. No features. No release.
 
 - [x] Initialize monorepo (Turborepo + pnpm)
@@ -19,6 +20,7 @@
 ---
 
 ## Phase 1 — Auth & Config → v0.1.x ✓
+
 > Users can authenticate and configure the CLI.
 
 - [x] Service account JSON file authentication
@@ -40,6 +42,7 @@
 - [x] Error types: AuthError, ConfigError with codes + suggestions
 
 **Sub-updates (v0.1.y):**
+
 - [ ] OAuth 2.0 device flow for interactive login
 - [x] Application Default Credentials support
 - [x] Multi-profile support (`gpc auth switch`)
@@ -49,6 +52,7 @@
 ---
 
 ## Phase 2 — API Client & Apps → v0.2.x ✓
+
 > First real data from Google Play. API foundation for all future phases.
 
 - [x] Base API client (native fetch with bearer auth)
@@ -63,6 +67,7 @@
 - [x] `--retry-log` flag
 
 **Sub-updates (v0.2.y):**
+
 - [ ] Retry log file output
 - [ ] Pagination edge case fixes
 - [ ] Rate limiter per-bucket improvements
@@ -70,6 +75,7 @@
 ---
 
 ## Phase 3 — Releases & Tracks → v0.3.x ✓
+
 > Core value proposition. Upload, release, rollout, promote.
 
 - [x] `gpc releases upload <file>` (AAB/APK with progress bar)
@@ -89,6 +95,7 @@
 - [ ] Generated APKs download
 
 **Sub-updates (v0.3.y):**
+
 - [ ] `--dry-run` for releases upload
 - [ ] `gpc diff --from <version> --to <version>`
 - [x] Release notes from directory (per-language files)
@@ -98,6 +105,7 @@
 ---
 
 ## Phase 4 — Listings & Metadata → v0.4.x ✓
+
 > Full store listing management and Fastlane compatibility.
 
 - [x] `gpc listings get` (single language + all languages)
@@ -113,6 +121,7 @@
 - [x] Multi-language support (BCP 47 validation)
 
 **Sub-updates (v0.4.y):**
+
 - [ ] Fastlane format auto-detection on push
 - [x] Image optimization warnings (size/format)
 - [ ] Bulk image upload with progress
@@ -120,6 +129,7 @@
 ---
 
 ## Phase 5 — Reviews & Vitals → v0.5.x ✓
+
 > Monitoring, engagement, and CI alerting.
 
 - [x] `gpc reviews list` (with filters: stars, language, since)
@@ -142,6 +152,7 @@
 - [x] Threshold-based exit codes for CI alerting
 
 **Sub-updates (v0.5.y):**
+
 - [x] Vitals trend comparison (this week vs last week)
 - [ ] Reviews digest command (summary of recent low-rated reviews)
 - [ ] Custom threshold configuration
@@ -149,6 +160,7 @@
 ---
 
 ## Phase 6 — Monetization → v0.6.x ✓
+
 > Subscriptions, IAP, purchases, and pricing.
 
 - [x] `gpc subscriptions list/get/create/update/delete`
@@ -169,6 +181,7 @@
 - [x] Voided purchases rate limiting (6,000/day, 30/30s)
 
 **Sub-updates (v0.6.y):**
+
 - [ ] Subscription listing localization helpers
 - [ ] Pricing template support
 - [ ] Offer targeting validation
@@ -176,6 +189,7 @@
 ---
 
 ## Phase 7 — Reports & Users → v0.7.x ✓
+
 > Financial reporting, team management, and tester operations.
 
 - [x] `gpc reports list`
@@ -192,12 +206,14 @@
 - [x] Grant management (per-app permissions)
 
 **Sub-updates (v0.7.y):**
+
 - [x] Bulk tester import from CSV
 - [ ] User permission audit command
 
 ---
 
 ## Phase 8 — Plugin System → v0.8.x ✓
+
 > Extensibility for third-party integrations.
 
 - [x] `@gpc-cli/plugin-sdk` — full plugin interface and types
@@ -210,6 +226,7 @@
 - [x] First-run permission approval for third-party plugins
 
 **Sub-updates (v0.8.y):**
+
 - [x] Plugin template generator (`gpc plugins init`)
 - [x] Additional lifecycle hooks (beforeRequest, afterResponse)
 - [x] CLI plugin integration (hooks fire around command execution)
@@ -219,6 +236,7 @@
 ---
 
 ## Phase 9 — Polish & v1.0.0
+
 > Production hardening and stable release.
 
 - [x] Interactive mode (guided workflows for complex operations)
@@ -240,16 +258,16 @@
 
 ## Version Map
 
-| Version | Phase | Focus | Key Moment |
-| --- | --- | --- | --- |
-| `0.1.0` | 1 | Auth, config, CLI shell | First npm publish |
-| `0.2.0` | 2 | API client, apps | First real API data |
-| `0.3.0` | 3 | Releases, tracks, rollouts | **Start marketing** |
-| `0.4.0` | 4 | Listings, metadata ✓ | Fastlane migration path |
-| `0.5.0` | 5 | Reviews, vitals | Monitoring unlocked |
-| `0.6.0` | 6 | Monetization | Subscriptions + IAP |
-| `0.7.0` | 7 | Reports, users, testers ✓ | Full API coverage |
-| `0.8.0` | 8 | Plugin system ✓ | Ecosystem extensibility |
-| `1.0.0` | 9 | Polish, stability | **Product Hunt launch** |
+| Version | Phase | Focus                      | Key Moment              |
+| ------- | ----- | -------------------------- | ----------------------- |
+| `0.1.0` | 1     | Auth, config, CLI shell    | First npm publish       |
+| `0.2.0` | 2     | API client, apps           | First real API data     |
+| `0.3.0` | 3     | Releases, tracks, rollouts | **Start marketing**     |
+| `0.4.0` | 4     | Listings, metadata ✓       | Fastlane migration path |
+| `0.5.0` | 5     | Reviews, vitals            | Monitoring unlocked     |
+| `0.6.0` | 6     | Monetization               | Subscriptions + IAP     |
+| `0.7.0` | 7     | Reports, users, testers ✓  | Full API coverage       |
+| `0.8.0` | 8     | Plugin system ✓            | Ecosystem extensibility |
+| `1.0.0` | 9     | Polish, stability          | **Product Hunt launch** |
 
 Sub-updates (0.X.y) ship between phases for features, fixes, and improvements.

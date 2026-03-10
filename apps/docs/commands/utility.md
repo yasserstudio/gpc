@@ -8,13 +8,13 @@ Utility commands for environment verification, documentation access, and shell c
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`doctor`](#gpc-doctor) | Verify setup and connectivity |
-| [`docs`](#gpc-docs) | Open documentation in browser |
-| [`completion bash`](#completion-bash) | Generate bash completions |
-| [`completion zsh`](#completion-zsh) | Generate zsh completions |
-| [`completion fish`](#completion-fish) | Generate fish completions |
+| Command                               | Description                   |
+| ------------------------------------- | ----------------------------- |
+| [`doctor`](#gpc-doctor)               | Verify setup and connectivity |
+| [`docs`](#gpc-docs)                   | Open documentation in browser |
+| [`completion bash`](#completion-bash) | Generate bash completions     |
+| [`completion zsh`](#completion-zsh)   | Generate zsh completions      |
+| [`completion fish`](#completion-fish) | Generate fish completions     |
 
 ## `gpc doctor`
 

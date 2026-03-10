@@ -29,9 +29,7 @@ async function getClient(config: GpcConfig) {
 }
 
 export function registerTestersCommands(program: Command): void {
-  const testers = program
-    .command("testers")
-    .description("Manage testers and tester groups");
+  const testers = program.command("testers").description("Manage testers and tester groups");
 
   testers
     .command("list")
@@ -39,13 +37,18 @@ export function registerTestersCommands(program: Command): void {
     .option("--track <track>", "Track name (e.g., internal, alpha, beta)")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const interactive = isInteractive(program);
 
-      options.track = await requireOption("track", options.track, {
-        message: "Track:",
-        choices: ["internal", "alpha", "beta"],
-      }, interactive);
+      options.track = await requireOption(
+        "track",
+        options.track,
+        {
+          message: "Track:",
+          choices: ["internal", "alpha", "beta"],
+        },
+        interactive,
+      );
 
       const client = await getClient(config);
       const format = detectOutputFormat();
@@ -65,22 +68,31 @@ export function registerTestersCommands(program: Command): void {
     .option("--track <track>", "Track name (e.g., internal, alpha, beta)")
     .action(async (emails: string[], options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const format = detectOutputFormat();
       const interactive = isInteractive(program);
 
-      options.track = await requireOption("track", options.track, {
-        message: "Track:",
-        choices: ["internal", "alpha", "beta"],
-      }, interactive);
+      options.track = await requireOption(
+        "track",
+        options.track,
+        {
+          message: "Track:",
+          choices: ["internal", "alpha", "beta"],
+        },
+        interactive,
+      );
 
       if (isDryRun(program)) {
-        printDryRun({
-          command: "testers add",
-          action: "add testers to",
-          target: options.track,
-          details: { emails },
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "testers add",
+            action: "add testers to",
+            target: options.track,
+            details: { emails },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
@@ -101,24 +113,33 @@ export function registerTestersCommands(program: Command): void {
     .option("--track <track>", "Track name (e.g., internal, alpha, beta)")
     .action(async (emails: string[], options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const format = detectOutputFormat();
       const interactive = isInteractive(program);
 
-      options.track = await requireOption("track", options.track, {
-        message: "Track:",
-        choices: ["internal", "alpha", "beta"],
-      }, interactive);
+      options.track = await requireOption(
+        "track",
+        options.track,
+        {
+          message: "Track:",
+          choices: ["internal", "alpha", "beta"],
+        },
+        interactive,
+      );
 
       await requireConfirm(`Remove ${emails.length} tester(s) from ${options.track}?`, program);
 
       if (isDryRun(program)) {
-        printDryRun({
-          command: "testers remove",
-          action: "remove testers from",
-          target: options.track,
-          details: { emails },
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "testers remove",
+            action: "remove testers from",
+            target: options.track,
+            details: { emails },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
@@ -140,26 +161,40 @@ export function registerTestersCommands(program: Command): void {
     .option("--file <path>", "CSV file with email addresses")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const format = detectOutputFormat();
       const interactive = isInteractive(program);
 
-      options.track = await requireOption("track", options.track, {
-        message: "Track:",
-        choices: ["internal", "alpha", "beta"],
-      }, interactive);
+      options.track = await requireOption(
+        "track",
+        options.track,
+        {
+          message: "Track:",
+          choices: ["internal", "alpha", "beta"],
+        },
+        interactive,
+      );
 
-      options.file = await requireOption("file", options.file, {
-        message: "CSV file path:",
-      }, interactive);
+      options.file = await requireOption(
+        "file",
+        options.file,
+        {
+          message: "CSV file path:",
+        },
+        interactive,
+      );
 
       if (isDryRun(program)) {
-        printDryRun({
-          command: "testers import",
-          action: "import testers to",
-          target: options.track,
-          details: { file: options.file },
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "testers import",
+            action: "import testers to",
+            target: options.track,
+            details: { file: options.file },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 

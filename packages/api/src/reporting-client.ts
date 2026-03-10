@@ -9,8 +9,7 @@ import type {
   VitalsMetricSet,
 } from "./types.js";
 
-const REPORTING_BASE_URL =
-  "https://playdeveloperreporting.googleapis.com/v1beta1";
+const REPORTING_BASE_URL = "https://playdeveloperreporting.googleapis.com/v1beta1";
 
 export interface ReportingApiClient {
   queryMetricSet(
@@ -36,9 +35,7 @@ export interface ReportingApiClient {
   ): Promise<ErrorReportsResponse>;
 }
 
-export function createReportingClient(
-  options: ApiClientOptions,
-): ReportingApiClient {
+export function createReportingClient(options: ApiClientOptions): ReportingApiClient {
   const http = createHttpClient({ ...options, baseUrl: REPORTING_BASE_URL });
 
   return {
@@ -51,9 +48,7 @@ export function createReportingClient(
     },
 
     async getAnomalies(packageName) {
-      const { data } = await http.get<AnomalyDetectionResponse>(
-        `/apps/${packageName}/anomalies`,
-      );
+      const { data } = await http.get<AnomalyDetectionResponse>(`/apps/${packageName}/anomalies`);
       return data;
     },
 

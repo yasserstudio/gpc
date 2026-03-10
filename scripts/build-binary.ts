@@ -145,16 +145,14 @@ function compile(targetKey: string): string {
 
   console.log(`Compiling for ${targetKey}...`);
 
-  execFileSync("bun", [
-    "build",
-    "--compile",
-    `--target=${target.bun}`,
-    BUNDLE_PATH,
-    `--outfile=${outfile}`,
-  ], {
-    cwd: ROOT,
-    stdio: "inherit",
-  });
+  execFileSync(
+    "bun",
+    ["build", "--compile", `--target=${target.bun}`, BUNDLE_PATH, `--outfile=${outfile}`],
+    {
+      cwd: ROOT,
+      stdio: "inherit",
+    },
+  );
 
   const size = statSync(outfile).size;
   console.log(`  Binary: ${outfile} (${(size / 1024 / 1024).toFixed(1)} MB)`);
@@ -175,7 +173,9 @@ async function main(): Promise<void> {
   // Also support --target linux-x64 (space-separated)
   let targetValue: string | undefined;
   if (targetFlag) {
-    targetValue = targetFlag.includes("=") ? targetFlag.split("=")[1]! : args[args.indexOf("--target") + 1];
+    targetValue = targetFlag.includes("=")
+      ? targetFlag.split("=")[1]!
+      : args[args.indexOf("--target") + 1];
   }
 
   // Step 1: Bundle

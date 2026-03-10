@@ -12,12 +12,12 @@ Permission changes can take up to 48 hours to propagate across Google Play syste
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`users list`](#users-list) | List all users in the developer account |
-| [`users get`](#users-get) | Get user details |
-| [`users invite`](#users-invite) | Invite a user to the developer account |
-| [`users update`](#users-update) | Update user permissions |
+| Command                         | Description                              |
+| ------------------------------- | ---------------------------------------- |
+| [`users list`](#users-list)     | List all users in the developer account  |
+| [`users get`](#users-get)       | Get user details                         |
+| [`users invite`](#users-invite) | Invite a user to the developer account   |
+| [`users update`](#users-update) | Update user permissions                  |
 | [`users remove`](#users-remove) | Remove a user from the developer account |
 
 ## Developer Account ID
@@ -53,11 +53,11 @@ gpc users list [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--developer-id` | | `string` | | Developer account ID (on parent `users` command) |
-| `--limit` | | `number` | | Maximum total results |
-| `--next-page` | | `string` | | Resume from pagination token |
+| Flag             | Short | Type     | Default | Description                                      |
+| ---------------- | ----- | -------- | ------- | ------------------------------------------------ |
+| `--developer-id` |       | `string` |         | Developer account ID (on parent `users` command) |
+| `--limit`        |       | `number` |         | Maximum total results                            |
+| `--next-page`    |       | `string` |         | Resume from pagination token                     |
 
 ### Example
 
@@ -101,9 +101,9 @@ gpc users get <email>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--developer-id` | | `string` | | Developer account ID (on parent `users` command) |
+| Flag             | Short | Type     | Default | Description                                      |
+| ---------------- | ----- | -------- | ------- | ------------------------------------------------ |
+| `--developer-id` |       | `string` |         | Developer account ID (on parent `users` command) |
 
 ### Example
 
@@ -125,11 +125,11 @@ gpc users invite <email> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--developer-id` | | `string` | | Developer account ID (on parent `users` command) |
-| `--role` | | `string[]` | | Developer-level permissions (space-separated) |
-| `--grant` | | `string[]` | | Per-app grants (format: `com.example.app:PERM1,PERM2`) |
+| Flag             | Short | Type       | Default | Description                                            |
+| ---------------- | ----- | ---------- | ------- | ------------------------------------------------------ |
+| `--developer-id` |       | `string`   |         | Developer account ID (on parent `users` command)       |
+| `--role`         |       | `string[]` |         | Developer-level permissions (space-separated)          |
+| `--grant`        |       | `string[]` |         | Per-app grants (format: `com.example.app:PERM1,PERM2`) |
 
 Available developer-level permissions: `ADMIN`, `CAN_VIEW_FINANCIAL_DATA`, `CAN_MANAGE_PERMISSIONS`, `CAN_REPLY_TO_REVIEWS`, `CAN_MANAGE_PUBLIC_LISTING`, `CAN_MANAGE_TRACK_USERS`, `CAN_MANAGE_TRACK_CONFIGURATION`, `CAN_VIEW_NON_FINANCIAL_DATA`.
 
@@ -184,11 +184,11 @@ gpc users update <email> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--developer-id` | | `string` | | Developer account ID (on parent `users` command) |
-| `--role` | | `string[]` | | Developer-level permissions (space-separated) |
-| `--grant` | | `string[]` | | Per-app grants (format: `com.example.app:PERM1,PERM2`) |
+| Flag             | Short | Type       | Default | Description                                            |
+| ---------------- | ----- | ---------- | ------- | ------------------------------------------------------ |
+| `--developer-id` |       | `string`   |         | Developer account ID (on parent `users` command)       |
+| `--role`         |       | `string[]` |         | Developer-level permissions (space-separated)          |
+| `--grant`        |       | `string[]` |         | Per-app grants (format: `com.example.app:PERM1,PERM2`) |
 
 ### Example
 
@@ -222,9 +222,9 @@ gpc users remove <email>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--developer-id` | | `string` | | Developer account ID (on parent `users` command) |
+| Flag             | Short | Type     | Default | Description                                      |
+| ---------------- | ----- | -------- | ------- | ------------------------------------------------ |
+| `--developer-id` |       | `string` |         | Developer account ID (on parent `users` command) |
 
 ### Example
 

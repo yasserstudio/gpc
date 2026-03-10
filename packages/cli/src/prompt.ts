@@ -9,7 +9,7 @@ export function isInteractive(program?: { opts(): Record<string, unknown> }): bo
   if (program) {
     let root: { parent?: unknown; opts(): Record<string, unknown> } = program;
     while (root.parent) root = root.parent as typeof root;
-    if (root.opts()['interactive'] === false) return false;
+    if (root.opts()["interactive"] === false) return false;
   }
 
   if (process.env["GPC_NO_INTERACTIVE"] === "1" || process.env["GPC_NO_INTERACTIVE"] === "true") {
@@ -30,7 +30,7 @@ export function skipConfirm(program?: { opts(): Record<string, unknown> }): bool
   if (!program) return false;
   let root: { parent?: unknown; opts(): Record<string, unknown> } = program;
   while (root.parent) root = root.parent as typeof root;
-  return root.opts()['yes'] === true;
+  return root.opts()["yes"] === true;
 }
 
 /**
@@ -49,7 +49,9 @@ export async function requireOption(
       : promptInput(prompt.message, prompt.default);
   }
   process.stderr.write(`Error: Missing required option --${name}\n`);
-  process.stderr.write(`Suggestion: Provide --${name} or run interactively (remove --no-interactive)\n`);
+  process.stderr.write(
+    `Suggestion: Provide --${name} or run interactively (remove --no-interactive)\n`,
+  );
   process.exit(2);
 }
 
@@ -89,7 +91,11 @@ export async function promptInput(message: string, defaultValue?: string): Promi
 /**
  * Prompt for selection from a list of choices.
  */
-export async function promptSelect(message: string, choices: string[], defaultValue?: string): Promise<string> {
+export async function promptSelect(
+  message: string,
+  choices: string[],
+  defaultValue?: string,
+): Promise<string> {
   const rl = createInterface({ input: process.stdin, output: process.stderr });
 
   process.stderr.write(`${message}\n`);

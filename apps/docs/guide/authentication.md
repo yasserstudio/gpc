@@ -6,12 +6,12 @@ outline: deep
 
 GPC supports four authentication methods. Service accounts are recommended for CI/CD; OAuth is available for interactive use.
 
-| Method | Best For | Requires | Interactive |
-|--------|----------|----------|-------------|
-| [Service account](#service-account) | CI/CD, automation | JSON key file | No |
-| [OAuth 2.0](#oauth-2-0) | Developer machines | Google account | Yes |
-| [Environment variable](#environment-variable) | CI/CD secrets | `GPC_SERVICE_ACCOUNT` | No |
-| [Application Default Credentials](#application-default-credentials) | GCP-hosted workloads | `gcloud` or metadata server | No |
+| Method                                                              | Best For             | Requires                    | Interactive |
+| ------------------------------------------------------------------- | -------------------- | --------------------------- | ----------- |
+| [Service account](#service-account)                                 | CI/CD, automation    | JSON key file               | No          |
+| [OAuth 2.0](#oauth-2-0)                                             | Developer machines   | Google account              | Yes         |
+| [Environment variable](#environment-variable)                       | CI/CD secrets        | `GPC_SERVICE_ACCOUNT`       | No          |
+| [Application Default Credentials](#application-default-credentials) | GCP-hosted workloads | `gcloud` or metadata server | No          |
 
 ## Google Cloud Setup
 
@@ -233,24 +233,24 @@ The service account (or user) must have appropriate permissions in Google Play C
 
 ### Account-level permissions
 
-| Permission | Required For | GPC Commands |
-|------------|-------------|--------------|
-| **View app information and download bulk reports** | Read access to all apps | `apps list`, `apps info`, `reports download` |
-| **View financial data, orders, and cancellation survey responses** | Financial reports, purchases | `reports download financial`, `purchases get`, `orders refund` |
-| **Manage orders and subscriptions** | Purchase management | `purchases acknowledge`, `purchases consume`, `purchases subscription cancel` |
+| Permission                                                         | Required For                 | GPC Commands                                                                  |
+| ------------------------------------------------------------------ | ---------------------------- | ----------------------------------------------------------------------------- |
+| **View app information and download bulk reports**                 | Read access to all apps      | `apps list`, `apps info`, `reports download`                                  |
+| **View financial data, orders, and cancellation survey responses** | Financial reports, purchases | `reports download financial`, `purchases get`, `orders refund`                |
+| **Manage orders and subscriptions**                                | Purchase management          | `purchases acknowledge`, `purchases consume`, `purchases subscription cancel` |
 
 ### App-level permissions
 
-| Permission | Required For | GPC Commands |
-|------------|-------------|--------------|
-| **View app information** | Read metadata and stats | `apps info`, `vitals overview`, `reviews list` |
-| **Create, edit, and delete draft apps** | App creation | (future: `apps create`) |
-| **Release to production, exclude devices, and use Play App Signing** | Production releases | `releases upload --track production`, `releases promote --to production` |
-| **Release apps to testing tracks** | Internal/alpha/beta releases | `releases upload --track internal`, `releases promote --to beta` |
-| **Manage testing tracks and edit tester lists** | Tester management | `testers list`, `testers add`, `testers remove` |
-| **Manage store presence** | Listings and metadata | `listings update`, `listings push`, `listings images upload` |
-| **Reply to reviews** | Review replies | `reviews reply` |
-| **Manage policy compliance submissions** | (future) | N/A |
+| Permission                                                           | Required For                 | GPC Commands                                                             |
+| -------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------ |
+| **View app information**                                             | Read metadata and stats      | `apps info`, `vitals overview`, `reviews list`                           |
+| **Create, edit, and delete draft apps**                              | App creation                 | (future: `apps create`)                                                  |
+| **Release to production, exclude devices, and use Play App Signing** | Production releases          | `releases upload --track production`, `releases promote --to production` |
+| **Release apps to testing tracks**                                   | Internal/alpha/beta releases | `releases upload --track internal`, `releases promote --to beta`         |
+| **Manage testing tracks and edit tester lists**                      | Tester management            | `testers list`, `testers add`, `testers remove`                          |
+| **Manage store presence**                                            | Listings and metadata        | `listings update`, `listings push`, `listings images upload`             |
+| **Reply to reviews**                                                 | Review replies               | `reviews reply`                                                          |
+| **Manage policy compliance submissions**                             | (future)                     | N/A                                                                      |
 
 ### Recommended CI/CD permissions
 

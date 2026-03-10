@@ -188,8 +188,8 @@ Runs on a cron schedule (weekdays at 10am UTC). Checks vitals before each rollou
 name: Staged Rollout
 on:
   schedule:
-    - cron: "0 10 * * 1-5"  # Weekdays at 10am UTC
-  workflow_dispatch:         # Manual trigger
+    - cron: "0 10 * * 1-5" # Weekdays at 10am UTC
+  workflow_dispatch: # Manual trigger
 
 env:
   GPC_SERVICE_ACCOUNT: ${{ secrets.GPC_SERVICE_ACCOUNT }}
@@ -302,7 +302,7 @@ Scheduled vitals check every 6 hours. Writes a dashboard to the step summary and
 name: Vitals Monitor
 on:
   schedule:
-    - cron: "0 */6 * * *"  # Every 6 hours
+    - cron: "0 */6 * * *" # Every 6 hours
   workflow_dispatch:
 
 env:

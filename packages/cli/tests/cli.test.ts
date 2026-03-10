@@ -29,13 +29,26 @@ vi.mock("@gpc-cli/core", () => {
     async runOnError() {}
     async runBeforeRequest() {}
     async runAfterResponse() {}
-    getRegisteredCommands() { return [...this.commands]; }
-    getLoadedPlugins() { return [...this.plugins]; }
-    hasRequestHooks() { return false; }
-    reset() { this.plugins = []; this.commands = []; }
+    getRegisteredCommands() {
+      return [...this.commands];
+    }
+    getLoadedPlugins() {
+      return [...this.plugins];
+    }
+    hasRequestHooks() {
+      return false;
+    }
+    reset() {
+      this.plugins = [];
+      this.commands = [];
+    }
     // Test helpers
-    _addPlugin(p: any) { this.plugins.push(p); }
-    _addCommand(c: any) { this.commands.push(c); }
+    _addPlugin(p: any) {
+      this.plugins.push(p);
+    }
+    _addCommand(c: any) {
+      this.commands.push(c);
+    }
   }
 
   return {
@@ -94,7 +107,9 @@ vi.mock("@gpc-cli/core", () => {
     createInAppProduct: vi.fn().mockResolvedValue({}),
     updateInAppProduct: vi.fn().mockResolvedValue({}),
     deleteInAppProduct: vi.fn().mockResolvedValue(undefined),
-    syncInAppProducts: vi.fn().mockResolvedValue({ created: 0, updated: 0, unchanged: 0, skus: [] }),
+    syncInAppProducts: vi
+      .fn()
+      .mockResolvedValue({ created: 0, updated: 0, unchanged: 0, skus: [] }),
     getProductPurchase: vi.fn().mockResolvedValue({}),
     acknowledgeProductPurchase: vi.fn().mockResolvedValue(undefined),
     consumeProductPurchase: vi.fn().mockResolvedValue(undefined),

@@ -34,16 +34,14 @@ async function getClient(config: GpcConfig) {
 }
 
 export function registerPurchasesCommands(program: Command): void {
-  const purchases = program
-    .command("purchases")
-    .description("Manage purchases and orders");
+  const purchases = program.command("purchases").description("Manage purchases and orders");
 
   purchases
     .command("get <product-id> <token>")
     .description("Get a product purchase")
     .action(async (productId: string, token: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -62,16 +60,20 @@ export function registerPurchasesCommands(program: Command): void {
     .option("--payload <text>", "Developer payload")
     .action(async (productId: string, token: string, options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();
-        printDryRun({
-          command: "purchases acknowledge",
-          action: "acknowledge",
-          target: `${productId}/${token}`,
-          details: { payload: options.payload },
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "purchases acknowledge",
+            action: "acknowledge",
+            target: `${productId}/${token}`,
+            details: { payload: options.payload },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
@@ -91,15 +93,19 @@ export function registerPurchasesCommands(program: Command): void {
     .description("Consume a product purchase")
     .action(async (productId: string, token: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();
-        printDryRun({
-          command: "purchases consume",
-          action: "consume",
-          target: `${productId}/${token}`,
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "purchases consume",
+            action: "consume",
+            target: `${productId}/${token}`,
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
@@ -115,16 +121,14 @@ export function registerPurchasesCommands(program: Command): void {
     });
 
   // --- Subscription purchases ---
-  const sub = purchases
-    .command("subscription")
-    .description("Manage subscription purchases");
+  const sub = purchases.command("subscription").description("Manage subscription purchases");
 
   sub
     .command("get <token>")
     .description("Get a subscription purchase (v2)")
     .action(async (token: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -142,15 +146,19 @@ export function registerPurchasesCommands(program: Command): void {
     .description("Cancel a subscription (v1)")
     .action(async (subscriptionId: string, token: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();
-        printDryRun({
-          command: "purchases subscription cancel",
-          action: "cancel subscription",
-          target: `${subscriptionId}/${token}`,
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "purchases subscription cancel",
+            action: "cancel subscription",
+            target: `${subscriptionId}/${token}`,
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
@@ -171,28 +179,43 @@ export function registerPurchasesCommands(program: Command): void {
     .option("--expiry <iso-date>", "Desired new expiry date (ISO 8601)")
     .action(async (subscriptionId: string, token: string, options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const format = detectOutputFormat();
       const interactive = isInteractive(program);
 
-      options.expiry = await requireOption("expiry", options.expiry, {
-        message: "New expiry date (ISO 8601, e.g. 2026-12-31T23:59:59Z):",
-      }, interactive);
+      options.expiry = await requireOption(
+        "expiry",
+        options.expiry,
+        {
+          message: "New expiry date (ISO 8601, e.g. 2026-12-31T23:59:59Z):",
+        },
+        interactive,
+      );
 
       if (isDryRun(program)) {
-        printDryRun({
-          command: "purchases subscription defer",
-          action: "defer subscription",
-          target: `${subscriptionId}/${token}`,
-          details: { expiry: options.expiry },
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "purchases subscription defer",
+            action: "defer subscription",
+            target: `${subscriptionId}/${token}`,
+            details: { expiry: options.expiry },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
       const client = await getClient(config);
 
       try {
-        const result = await deferSubscriptionPurchase(client, packageName, subscriptionId, token, options.expiry);
+        const result = await deferSubscriptionPurchase(
+          client,
+          packageName,
+          subscriptionId,
+          token,
+          options.expiry,
+        );
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -205,15 +228,19 @@ export function registerPurchasesCommands(program: Command): void {
     .description("Revoke a subscription (v2)")
     .action(async (token: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();
-        printDryRun({
-          command: "purchases subscription revoke",
-          action: "revoke subscription",
-          target: token,
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "purchases subscription revoke",
+            action: "revoke subscription",
+            target: token,
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
@@ -239,7 +266,7 @@ export function registerPurchasesCommands(program: Command): void {
     .option("--next-page <token>", "Resume from page token")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -259,9 +286,7 @@ export function registerPurchasesCommands(program: Command): void {
     });
 
   // --- Orders ---
-  const orders = purchases
-    .command("orders")
-    .description("Manage orders");
+  const orders = purchases.command("orders").description("Manage orders");
 
   orders
     .command("refund <order-id>")
@@ -270,18 +295,22 @@ export function registerPurchasesCommands(program: Command): void {
     .option("--prorated-refund", "Prorated refund")
     .action(async (orderId: string, options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
 
       await requireConfirm(`Refund order "${orderId}"?`, program);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();
-        printDryRun({
-          command: "purchases orders refund",
-          action: "refund",
-          target: orderId,
-          details: { fullRefund: options.fullRefund, proratedRefund: options.proratedRefund },
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "purchases orders refund",
+            action: "refund",
+            target: orderId,
+            details: { fullRefund: options.fullRefund, proratedRefund: options.proratedRefund },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 

@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  PLUGIN_SDK_VERSION,
-  definePlugin,
-} from "../src/index";
+import { PLUGIN_SDK_VERSION, definePlugin } from "../src/index";
 import type {
   GpcPlugin,
   PluginHooks,
@@ -80,12 +77,8 @@ describe("plugin-sdk", () => {
     const cmd: PluginCommand = {
       name: "deploy",
       description: "Deploy the app",
-      options: [
-        { flags: "--env <env>", description: "Target environment" },
-      ],
-      arguments: [
-        { name: "target", description: "Deploy target", required: true },
-      ],
+      options: [{ flags: "--env <env>", description: "Target environment" }],
+      arguments: [{ name: "target", description: "Deploy target", required: true }],
       action: async () => {},
     };
     expect(cmd.name).toBe("deploy");

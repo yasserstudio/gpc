@@ -6,15 +6,12 @@ export default tseslint.config(
   ...tseslint.configs.strict,
   {
     rules: {
-      "@typescript-eslint/no-unused-vars": [
-        "error",
-        { argsIgnorePattern: "^_" },
-      ],
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
       "@typescript-eslint/consistent-type-imports": "error",
       "@typescript-eslint/no-import-type-side-effects": "error",
     },
   },
   {
     ignores: ["**/dist/**", "**/node_modules/**", "**/*.js", "**/*.mjs"],
-  }
+  },
 );

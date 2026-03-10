@@ -86,14 +86,15 @@ export async function exportReviews(
   packageName: string,
   options?: ReviewExportOptions,
 ): Promise<string> {
-  const { items: allReviews } = await paginateAll<Review>(
-    async (pageToken) => {
-      const apiOptions: ReviewsListOptions = { token: pageToken };
-      if (options?.translationLanguage) apiOptions.translationLanguage = options.translationLanguage;
-      const response = await client.reviews.list(packageName, apiOptions);
-      return { items: response.reviews || [], nextPageToken: response.tokenPagination?.nextPageToken };
-    },
-  );
+  const { items: allReviews } = await paginateAll<Review>(async (pageToken) => {
+    const apiOptions: ReviewsListOptions = { token: pageToken };
+    if (options?.translationLanguage) apiOptions.translationLanguage = options.translationLanguage;
+    const response = await client.reviews.list(packageName, apiOptions);
+    return {
+      items: response.reviews || [],
+      nextPageToken: response.tokenPagination?.nextPageToken,
+    };
+  });
 
   let filtered = allReviews;
 

@@ -8,11 +8,11 @@ High-level workflow commands that combine multiple operations into a single step
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`gpc publish`](#gpc-publish) | Validate, upload, and release in one step |
-| [`gpc validate`](#gpc-validate) | Pre-submission validation checks |
-| [`gpc status`](#gpc-status) | Cross-track release overview |
+| Command                         | Description                               |
+| ------------------------------- | ----------------------------------------- |
+| [`gpc publish`](#gpc-publish)   | Validate, upload, and release in one step |
+| [`gpc validate`](#gpc-validate) | Pre-submission validation checks          |
+| [`gpc status`](#gpc-status)     | Cross-track release overview              |
 
 ## `gpc publish`
 
@@ -26,15 +26,15 @@ gpc publish <file> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--track` | | `string` | `internal` | Target track (`internal`, `alpha`, `beta`, `production`, or custom) |
-| `--rollout` | | `number` | | Staged rollout percentage (1-100) |
-| `--notes` | | `string` | | Release notes text (en-US) |
-| `--notes-dir` | | `string` | | Directory with per-language release notes (`<dir>/<lang>.txt`) |
-| `--name` | | `string` | | Release name |
-| `--mapping` | | `string` | | Path to ProGuard/R8 mapping file for deobfuscation |
-| `--retry-log` | | `string` | | Write retry log entries to file (JSONL) |
+| Flag          | Short | Type     | Default    | Description                                                         |
+| ------------- | ----- | -------- | ---------- | ------------------------------------------------------------------- |
+| `--track`     |       | `string` | `internal` | Target track (`internal`, `alpha`, `beta`, `production`, or custom) |
+| `--rollout`   |       | `number` |            | Staged rollout percentage (1-100)                                   |
+| `--notes`     |       | `string` |            | Release notes text (en-US)                                          |
+| `--notes-dir` |       | `string` |            | Directory with per-language release notes (`<dir>/<lang>.txt`)      |
+| `--name`      |       | `string` |            | Release name                                                        |
+| `--mapping`   |       | `string` |            | Path to ProGuard/R8 mapping file for deobfuscation                  |
+| `--retry-log` |       | `string` |            | Write retry log entries to file (JSONL)                             |
 
 ::: warning
 `--notes` and `--notes-dir` are mutually exclusive. Providing both causes exit code 2.
@@ -110,12 +110,12 @@ gpc validate <file> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--track` | | `string` | | Target track to validate against |
-| `--mapping` | | `string` | | Path to ProGuard/R8 mapping file |
-| `--notes` | | `string` | | Release notes text (en-US) |
-| `--notes-dir` | | `string` | | Directory with per-language release notes |
+| Flag          | Short | Type     | Default | Description                               |
+| ------------- | ----- | -------- | ------- | ----------------------------------------- |
+| `--track`     |       | `string` |         | Target track to validate against          |
+| `--mapping`   |       | `string` |         | Path to ProGuard/R8 mapping file          |
+| `--notes`     |       | `string` |         | Release notes text (en-US)                |
+| `--notes-dir` |       | `string` |         | Directory with per-language release notes |
 
 ### Example
 

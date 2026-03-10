@@ -27,7 +27,9 @@ export function registerDoctorCommand(program: Command): void {
         if (config.app) {
           console.log(`  \u2713 Default app: ${config.app}`);
         } else {
-          console.log(`  - No default app configured (use --app flag or gpc config set app <package>)`);
+          console.log(
+            `  - No default app configured (use --app flag or gpc config set app <package>)`,
+          );
         }
       } catch {
         console.log("  \u2717 Configuration error");

@@ -8,14 +8,14 @@ Manage authentication, credentials, and named profiles.
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`auth login`](#auth-login) | Authenticate with Google Play Developer API |
-| [`auth logout`](#auth-logout) | Clear stored credentials and token cache |
-| [`auth status`](#auth-status) | Show current authentication status |
-| [`auth whoami`](#auth-whoami) | Show current authenticated identity |
-| [`auth profiles`](#auth-profiles) | List configured profiles |
-| [`auth switch`](#auth-switch) | Switch to a named profile |
+| Command                           | Description                                 |
+| --------------------------------- | ------------------------------------------- |
+| [`auth login`](#auth-login)       | Authenticate with Google Play Developer API |
+| [`auth logout`](#auth-logout)     | Clear stored credentials and token cache    |
+| [`auth status`](#auth-status)     | Show current authentication status          |
+| [`auth whoami`](#auth-whoami)     | Show current authenticated identity         |
+| [`auth profiles`](#auth-profiles) | List configured profiles                    |
+| [`auth switch`](#auth-switch)     | Switch to a named profile                   |
 
 ## `auth login`
 
@@ -29,11 +29,11 @@ gpc auth login [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--service-account` | | `string` | | Path to service account JSON key file |
-| `--adc` | | `boolean` | `false` | Use Application Default Credentials |
-| `--profile` | | `string` | | Store credentials under a named profile |
+| Flag                | Short | Type      | Default | Description                             |
+| ------------------- | ----- | --------- | ------- | --------------------------------------- |
+| `--service-account` |       | `string`  |         | Path to service account JSON key file   |
+| `--adc`             |       | `boolean` | `false` | Use Application Default Credentials     |
+| `--profile`         |       | `string`  |         | Store credentials under a named profile |
 
 ### Example
 

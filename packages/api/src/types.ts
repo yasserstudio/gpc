@@ -255,7 +255,16 @@ export interface MetricSetResponse {
 
 export interface MetricRow {
   dimensions?: Record<string, { stringValue?: string; int64Value?: string }>;
-  metrics: Record<string, { decimalValue?: { value: string }; decimalValueConfidenceInterval?: { lowerBound?: { value: string }; upperBound?: { value: string } } }>;
+  metrics: Record<
+    string,
+    {
+      decimalValue?: { value: string };
+      decimalValueConfidenceInterval?: {
+        lowerBound?: { value: string };
+        upperBound?: { value: string };
+      };
+    }
+  >;
   startTime?: { year: number; month: number; day: number };
   endTime?: { year: number; month: number; day: number };
 }

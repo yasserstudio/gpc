@@ -50,9 +50,7 @@ export async function removeTesters(
   try {
     const current = await client.testers.get(packageName, edit.id, track);
     const toRemove = new Set(groupEmails.map((e) => e.trim()));
-    const filtered = (current.googleGroups || []).filter(
-      (g) => !toRemove.has(g),
-    );
+    const filtered = (current.googleGroups || []).filter((g) => !toRemove.has(g));
     const updated = await client.testers.update(packageName, edit.id, track, {
       googleGroups: filtered,
     });

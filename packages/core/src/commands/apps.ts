@@ -7,10 +7,7 @@ export interface AppInfo {
   contactEmail?: string;
 }
 
-export async function getAppInfo(
-  client: PlayApiClient,
-  packageName: string,
-): Promise<AppInfo> {
+export async function getAppInfo(client: PlayApiClient, packageName: string): Promise<AppInfo> {
   // Create an edit to read app details (Google Play requires an edit context)
   const edit = await client.edits.insert(packageName);
   try {

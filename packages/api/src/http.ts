@@ -6,7 +6,9 @@ import type { ApiClientOptions, ApiResponse } from "./types.js";
 /** Extract a short, safe error summary from API response body (no tokens/secrets). */
 function sanitizeErrorBody(body: string): string {
   try {
-    const parsed = JSON.parse(body) as { error?: { message?: string; status?: string; code?: number } };
+    const parsed = JSON.parse(body) as {
+      error?: { message?: string; status?: string; code?: number };
+    };
     if (parsed?.error?.message) {
       return `${parsed.error.code ?? "?"} ${parsed.error.status ?? ""}: ${parsed.error.message}`.trim();
     }
@@ -21,7 +23,12 @@ function sanitizeErrorBody(body: string): string {
 function validateFilePath(filePath: string): string {
   const resolved = resolve(filePath);
   if (!isAbsolute(resolved)) {
-    throw new ApiError("Invalid file path", "API_INVALID_PATH", undefined, "File path must resolve to an absolute path.");
+    throw new ApiError(
+      "Invalid file path",
+      "API_INVALID_PATH",
+      undefined,
+      "File path must resolve to an absolute path.",
+    );
   }
   // Block obvious traversal patterns in the original input
   if (filePath.includes("\0")) {
@@ -30,8 +37,7 @@ function validateFilePath(filePath: string): string {
   return resolved;
 }
 
-const BASE_URL =
-  "https://androidpublisher.googleapis.com/androidpublisher/v3/applications";
+const BASE_URL = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications";
 
 const UPLOAD_BASE_URL =
   "https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications";
@@ -52,18 +58,11 @@ function envInt(name: string): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
-function resolveOption(
-  explicit: number | undefined,
-  envName: string,
-  fallback: number,
-): number {
+function resolveOption(explicit: number | undefined, envName: string, fallback: number): number {
   return explicit ?? envInt(envName) ?? fallback;
 }
 
-function mapStatusToError(
-  status: number,
-  _body: string,
-): { code: string; suggestion?: string } {
+function mapStatusToError(status: number, _body: string): { code: string; suggestion?: string } {
   switch (status) {
     case 401:
       return {
@@ -73,8 +72,7 @@ function mapStatusToError(
     case 403:
       return {
         code: "API_FORBIDDEN",
-        suggestion:
-          "Ensure the service account has the required permissions for this operation.",
+        suggestion: "Ensure the service account has the required permissions for this operation.",
       };
     case 404:
       return {
@@ -84,8 +82,7 @@ function mapStatusToError(
     case 409:
       return {
         code: "API_EDIT_CONFLICT",
-        suggestion:
-          "Another edit may be in progress. Delete the existing edit and retry.",
+        suggestion: "Another edit may be in progress. Delete the existing edit and retry.",
       };
     case 429:
       return {

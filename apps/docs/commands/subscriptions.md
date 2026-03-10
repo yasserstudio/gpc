@@ -8,24 +8,24 @@ Manage subscriptions, base plans, and subscription offers.
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`subscriptions list`](#subscriptions-list) | List subscriptions |
-| [`subscriptions get`](#subscriptions-get) | Get a subscription |
-| [`subscriptions create`](#subscriptions-create) | Create a subscription from JSON |
-| [`subscriptions update`](#subscriptions-update) | Update a subscription from JSON |
-| [`subscriptions delete`](#subscriptions-delete) | Delete a subscription |
-| [`subscriptions base-plans activate`](#subscriptions-base-plans-activate) | Activate a base plan |
-| [`subscriptions base-plans deactivate`](#subscriptions-base-plans-deactivate) | Deactivate a base plan |
-| [`subscriptions base-plans delete`](#subscriptions-base-plans-delete) | Delete a base plan |
-| [`subscriptions base-plans migrate-prices`](#subscriptions-base-plans-migrate-prices) | Migrate base plan prices |
-| [`subscriptions offers list`](#subscriptions-offers-list) | List offers for a base plan |
-| [`subscriptions offers get`](#subscriptions-offers-get) | Get an offer |
-| [`subscriptions offers create`](#subscriptions-offers-create) | Create an offer from JSON |
-| [`subscriptions offers update`](#subscriptions-offers-update) | Update an offer from JSON |
-| [`subscriptions offers delete`](#subscriptions-offers-delete) | Delete an offer |
-| [`subscriptions offers activate`](#subscriptions-offers-activate) | Activate an offer |
-| [`subscriptions offers deactivate`](#subscriptions-offers-deactivate) | Deactivate an offer |
+| Command                                                                               | Description                     |
+| ------------------------------------------------------------------------------------- | ------------------------------- |
+| [`subscriptions list`](#subscriptions-list)                                           | List subscriptions              |
+| [`subscriptions get`](#subscriptions-get)                                             | Get a subscription              |
+| [`subscriptions create`](#subscriptions-create)                                       | Create a subscription from JSON |
+| [`subscriptions update`](#subscriptions-update)                                       | Update a subscription from JSON |
+| [`subscriptions delete`](#subscriptions-delete)                                       | Delete a subscription           |
+| [`subscriptions base-plans activate`](#subscriptions-base-plans-activate)             | Activate a base plan            |
+| [`subscriptions base-plans deactivate`](#subscriptions-base-plans-deactivate)         | Deactivate a base plan          |
+| [`subscriptions base-plans delete`](#subscriptions-base-plans-delete)                 | Delete a base plan              |
+| [`subscriptions base-plans migrate-prices`](#subscriptions-base-plans-migrate-prices) | Migrate base plan prices        |
+| [`subscriptions offers list`](#subscriptions-offers-list)                             | List offers for a base plan     |
+| [`subscriptions offers get`](#subscriptions-offers-get)                               | Get an offer                    |
+| [`subscriptions offers create`](#subscriptions-offers-create)                         | Create an offer from JSON       |
+| [`subscriptions offers update`](#subscriptions-offers-update)                         | Update an offer from JSON       |
+| [`subscriptions offers delete`](#subscriptions-offers-delete)                         | Delete an offer                 |
+| [`subscriptions offers activate`](#subscriptions-offers-activate)                     | Activate an offer               |
+| [`subscriptions offers deactivate`](#subscriptions-offers-deactivate)                 | Deactivate an offer             |
 
 ## `subscriptions list`
 
@@ -39,12 +39,12 @@ gpc subscriptions list [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--page-size` | | `number` | | Results per page |
-| `--page-token` | | `string` | | Page token for pagination |
-| `--limit` | | `number` | | Maximum total results |
-| `--next-page` | | `string` | | Resume from page token |
+| Flag           | Short | Type     | Default | Description               |
+| -------------- | ----- | -------- | ------- | ------------------------- |
+| `--page-size`  |       | `number` |         | Results per page          |
+| `--page-token` |       | `string` |         | Page token for pagination |
+| `--limit`      |       | `number` |         | Maximum total results     |
+| `--next-page`  |       | `string` |         | Resume from page token    |
 
 ### Example
 
@@ -113,9 +113,9 @@ gpc subscriptions create --file <path>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--file` | | `string` | **(required)** | Path to JSON file with subscription data |
+| Flag     | Short | Type     | Default        | Description                              |
+| -------- | ----- | -------- | -------------- | ---------------------------------------- |
+| `--file` |       | `string` | **(required)** | Path to JSON file with subscription data |
 
 ### Example
 
@@ -176,10 +176,10 @@ gpc subscriptions update <product-id> --file <path> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--file` | | `string` | **(required)** | Path to JSON file with subscription data |
-| `--update-mask` | | `string` | | Comma-separated field mask (e.g., `listings,basePlans`) |
+| Flag            | Short | Type     | Default        | Description                                             |
+| --------------- | ----- | -------- | -------------- | ------------------------------------------------------- |
+| `--file`        |       | `string` | **(required)** | Path to JSON file with subscription data                |
+| `--update-mask` |       | `string` |                | Comma-separated field mask (e.g., `listings,basePlans`) |
 
 ### Example
 
@@ -295,9 +295,9 @@ gpc subscriptions base-plans migrate-prices <product-id> <base-plan-id> --file <
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--file` | | `string` | **(required)** | Path to JSON file with migration data |
+| Flag     | Short | Type     | Default        | Description                           |
+| -------- | ----- | -------- | -------------- | ------------------------------------- |
+| `--file` |       | `string` | **(required)** | Path to JSON file with migration data |
 
 ### Example
 
@@ -384,9 +384,9 @@ gpc subscriptions offers create <product-id> <base-plan-id> --file <path>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--file` | | `string` | **(required)** | Path to JSON file with offer data |
+| Flag     | Short | Type     | Default        | Description                       |
+| -------- | ----- | -------- | -------------- | --------------------------------- |
+| `--file` |       | `string` | **(required)** | Path to JSON file with offer data |
 
 ### Example
 
@@ -433,10 +433,10 @@ gpc subscriptions offers update <product-id> <base-plan-id> <offer-id> --file <p
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--file` | | `string` | **(required)** | Path to JSON file with offer data |
-| `--update-mask` | | `string` | | Comma-separated field mask |
+| Flag            | Short | Type     | Default        | Description                       |
+| --------------- | ----- | -------- | -------------- | --------------------------------- |
+| `--file`        |       | `string` | **(required)** | Path to JSON file with offer data |
+| `--update-mask` |       | `string` |                | Comma-separated field mask        |
 
 ### Example
 

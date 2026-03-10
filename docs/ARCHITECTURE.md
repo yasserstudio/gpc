@@ -2,24 +2,24 @@
 
 ## Tech Stack
 
-| Layer | Technology | Rationale |
-|-------|-----------|-----------|
-| **Language** | TypeScript 5.x | Type safety, ecosystem, npm distribution |
-| **Runtime** | Node.js 20+ LTS / Bun (binary) | Stability, `npx` support, broad adoption |
-| **Distribution** | npm, Homebrew, standalone binary | Multiple install paths, no lock-in |
-| **Monorepo** | Turborepo | Fast builds, caching, task orchestration |
-| **Package Manager** | pnpm | Strict dependency resolution, disk efficiency |
-| **CLI Framework** | Commander.js | Mature, composable, low overhead |
-| **API Client** | Native fetch + typed wrappers | Zero-dependency HTTP client with retry + rate limiting |
-| **Auth** | google-auth-library | Service accounts, OAuth 2.0, ADC |
-| **Output** | Built-in formatters | Human-friendly tables with `--json` machine output |
-| **Config** | Custom loader | `.gpcrc.json` discovery, env vars, profiles |
-| **Testing** | Vitest | Fast, TypeScript-native, ESM-first |
-| **Linting** | ESLint 9 (flat config) + Prettier | Consistent code style |
-| **Bundling** | tsup | Fast, zero-config TypeScript bundling |
-| **Docs** | VitePress | Lightweight, markdown-driven |
-| **CI/CD** | GitHub Actions | Standard, free for open source |
-| **Releases** | Changesets | Monorepo-aware versioning and changelogs |
+| Layer               | Technology                        | Rationale                                              |
+| ------------------- | --------------------------------- | ------------------------------------------------------ |
+| **Language**        | TypeScript 5.x                    | Type safety, ecosystem, npm distribution               |
+| **Runtime**         | Node.js 20+ LTS / Bun (binary)    | Stability, `npx` support, broad adoption               |
+| **Distribution**    | npm, Homebrew, standalone binary  | Multiple install paths, no lock-in                     |
+| **Monorepo**        | Turborepo                         | Fast builds, caching, task orchestration               |
+| **Package Manager** | pnpm                              | Strict dependency resolution, disk efficiency          |
+| **CLI Framework**   | Commander.js                      | Mature, composable, low overhead                       |
+| **API Client**      | Native fetch + typed wrappers     | Zero-dependency HTTP client with retry + rate limiting |
+| **Auth**            | google-auth-library               | Service accounts, OAuth 2.0, ADC                       |
+| **Output**          | Built-in formatters               | Human-friendly tables with `--json` machine output     |
+| **Config**          | Custom loader                     | `.gpcrc.json` discovery, env vars, profiles            |
+| **Testing**         | Vitest                            | Fast, TypeScript-native, ESM-first                     |
+| **Linting**         | ESLint 9 (flat config) + Prettier | Consistent code style                                  |
+| **Bundling**        | tsup                              | Fast, zero-config TypeScript bundling                  |
+| **Docs**            | VitePress                         | Lightweight, markdown-driven                           |
+| **CI/CD**           | GitHub Actions                    | Standard, free for open source                         |
+| **Releases**        | Changesets                        | Monorepo-aware versioning and changelogs               |
 
 ## Monorepo Package Architecture
 
@@ -70,12 +70,14 @@ gpc/
 ### Package Responsibilities
 
 #### `@gpc-cli/api`
+
 - Typed wrappers around Google Play Developer API v3
 - Request/response models auto-generated from API discovery docs
 - Rate limiting, retry logic, pagination helpers
 - Zero business logic — pure API surface
 
 #### `@gpc-cli/auth`
+
 - Service account JSON key file authentication
 - OAuth 2.0 device flow for interactive login
 - Application Default Credentials (ADC) support
@@ -83,18 +85,21 @@ gpc/
 - Multi-account profile management
 
 #### `@gpc-cli/config`
+
 - Config file discovery (`.gpcrc.json`, user config dir)
 - Profile-based configuration (dev, staging, production)
 - Environment variable overrides (`GPC_*` prefix)
 - Schema validation with clear error messages
 
 #### `@gpc-cli/core`
+
 - Business logic and command orchestration
 - Combines auth + api + config into cohesive workflows
 - Release pipelines, rollout strategies, metadata sync
 - Plugin manager — loads, validates, and runs plugin lifecycle hooks
 
 #### `@gpc-cli/cli`
+
 - Command registration and argument parsing
 - Interactive prompts (node:readline)
 - Output formatting: human (table/list), JSON, YAML
@@ -102,6 +107,7 @@ gpc/
 - Shell completion generation (bash, zsh, fish)
 
 #### `@gpc-cli/plugin-sdk`
+
 - Plugin interface definition (`GpcPlugin`, `PluginHooks`)
 - Lifecycle hook types (`BeforeCommandHandler`, `AfterCommandHandler`, `ErrorHandler`)
 - Command registry for plugin-added commands
@@ -111,18 +117,23 @@ gpc/
 ## Design Principles
 
 ### 1. Layered Architecture
+
 Each package has a single responsibility. No circular dependencies. The CLI layer never touches the API directly — it always goes through core.
 
 ### 2. Output-First Design
+
 Every command supports `--json` for machine-readable output. Human output is the formatted view of the same data. Internal commands return typed result objects, never print directly.
 
 ### 3. Fail Fast, Fail Clearly
+
 Validate inputs before making API calls. Surface auth issues immediately. Provide actionable error messages with suggested fixes.
 
 ### 4. Idempotent Operations
+
 Commands that modify state (uploads, releases) should be safe to retry. Use checksums and version checks to prevent duplicate operations.
 
 ### 5. Progressive Disclosure
+
 Simple commands have simple interfaces. Advanced options exist but don't clutter the default experience. Interactive mode guides users; flags enable automation.
 
 ## Error Handling Strategy
@@ -222,6 +233,7 @@ interface PluginHooks {
 ### Discovery
 
 Plugins are discovered via:
+
 1. Config file: `plugins: ["@gpc-cli/plugin-ci", "gpc-plugin-slack"]`
 2. Convention: `node_modules/@gpc-cli/plugin-*` (first-party, trusted)
 3. Convention: `node_modules/gpc-plugin-*` (third-party)

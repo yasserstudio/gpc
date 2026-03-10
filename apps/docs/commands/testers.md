@@ -8,11 +8,11 @@ Manage testers and tester groups for testing tracks. Tester operations use the G
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`testers list`](#testers-list) | List testers for a track |
-| [`testers add`](#testers-add) | Add testers to a track |
-| [`testers remove`](#testers-remove) | Remove testers from a track |
+| Command                             | Description                    |
+| ----------------------------------- | ------------------------------ |
+| [`testers list`](#testers-list)     | List testers for a track       |
+| [`testers add`](#testers-add)       | Add testers to a track         |
+| [`testers remove`](#testers-remove) | Remove testers from a track    |
 | [`testers import`](#testers-import) | Import testers from a CSV file |
 
 ## `testers list`
@@ -27,9 +27,9 @@ gpc testers list --track <track>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--track` | | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom) |
+| Flag      | Short | Type     | Default        | Description                                         |
+| --------- | ----- | -------- | -------------- | --------------------------------------------------- |
+| `--track` |       | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom) |
 
 ### Example
 
@@ -39,11 +39,7 @@ gpc testers list --app com.example.myapp --track internal
 
 ```json
 {
-  "testers": [
-    "tester1@example.com",
-    "tester2@example.com",
-    "qa-team@googlegroups.com"
-  ]
+  "testers": ["tester1@example.com", "tester2@example.com", "qa-team@googlegroups.com"]
 }
 ```
 
@@ -67,9 +63,9 @@ gpc testers add <emails...> --track <track>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--track` | | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom) |
+| Flag      | Short | Type     | Default        | Description                                         |
+| --------- | ----- | -------- | -------------- | --------------------------------------------------- |
+| `--track` |       | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom) |
 
 ### Example
 
@@ -112,9 +108,9 @@ gpc testers remove <emails...> --track <track>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--track` | | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom) |
+| Flag      | Short | Type     | Default        | Description                                         |
+| --------- | ----- | -------- | -------------- | --------------------------------------------------- |
+| `--track` |       | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom) |
 
 ### Example
 
@@ -146,10 +142,10 @@ gpc testers import --track <track> --file <path>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--track` | | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom) |
-| `--file` | | `string` | **(required)** | Path to CSV file with email addresses |
+| Flag      | Short | Type     | Default        | Description                                         |
+| --------- | ----- | -------- | -------------- | --------------------------------------------------- |
+| `--track` |       | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom) |
+| `--file`  |       | `string` | **(required)** | Path to CSV file with email addresses               |
 
 ### Example
 
