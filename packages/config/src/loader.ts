@@ -1,5 +1,4 @@
-import { statSync } from "node:fs";
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 import { DEFAULT_CONFIG } from "./defaults.js";
@@ -39,13 +38,13 @@ export function loadEnvConfig(): Partial<GpcConfig> {
   return config;
 }
 
-export function findConfigFile(startDir?: string): string | undefined {
+export async function findConfigFile(startDir?: string): Promise<string | undefined> {
   let dir = startDir || process.cwd();
 
   while (true) {
     const candidate = join(dir, ".gpcrc.json");
     try {
-      statSync(candidate);
+      await stat(candidate);
       return candidate;
     } catch {
       // file does not exist, keep walking up
@@ -108,7 +107,7 @@ export async function loadConfig(overrides?: Partial<GpcConfig>): Promise<Resolv
   }
 
   // Layer 3: project config file (.gpcrc.json walking up)
-  const projectConfigPath = findConfigFile();
+  const projectConfigPath = await findConfigFile();
   if (projectConfigPath) {
     try {
       const projectConfig = await readConfigFile(projectConfigPath);
