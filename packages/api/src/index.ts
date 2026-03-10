@@ -8,7 +8,7 @@ export { createHttpClient } from "./http.js";
 export type { HttpClient } from "./http.js";
 export { createRateLimiter, RATE_LIMIT_BUCKETS } from "./rate-limiter.js";
 export type { RateLimitBucket, RateLimiter } from "./rate-limiter.js";
-export { paginate, paginateAll } from "./paginate.js";
+export { paginate, paginateAll, paginateParallel } from "./paginate.js";
 export type { PaginateOptions } from "./paginate.js";
 export { ApiError } from "./errors.js";
 export type {
