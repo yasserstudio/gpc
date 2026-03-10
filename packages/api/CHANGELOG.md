@@ -1,5 +1,13 @@
 # @gpc-cli/api
 
+## 1.0.2
+
+### Patch Changes
+
+- 0a55387: Add README files for all npm packages
+- Updated dependencies [0a55387]
+  - @gpc-cli/auth@0.1.2
+
 ## 1.0.1
 
 ### Patch Changes
