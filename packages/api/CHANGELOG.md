@@ -1,5 +1,13 @@
 # @gpc-cli/api
 
+## 1.0.1
+
+### Patch Changes
+
+- 5504b8e: Add publishConfig with public access for npm publishing
+- Updated dependencies [5504b8e]
+  - @gpc-cli/auth@0.1.1
+
 ## 1.0.0
 
 ### Minor Changes
