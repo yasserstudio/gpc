@@ -55,3 +55,36 @@ export async function paginateAll<TItem>(
 
   return { items: allItems, nextPageToken: lastPageToken };
 }
+
+/**
+ * Fetch multiple known pages in parallel.
+ * Useful when page tokens are predictable or when pre-fetching subsequent pages
+ * after an initial sequential fetch reveals the token pattern.
+ *
+ * @param fetchPage - Function that fetches a page given a token
+ * @param pageTokens - Array of page tokens to fetch concurrently
+ * @param concurrency - Max concurrent requests (default: 4)
+ */
+export async function paginateParallel<TItem>(
+  fetchPage: (pageToken?: string) => Promise<{ items: TItem[]; nextPageToken?: string }>,
+  pageTokens: string[],
+  concurrency = 4,
+): Promise<{ items: TItem[]; nextPageToken?: string }> {
+  const allItems: TItem[] = [];
+  let lastNextPageToken: string | undefined;
+
+  // Process in batches of `concurrency`
+  for (let i = 0; i < pageTokens.length; i += concurrency) {
+    const batch = pageTokens.slice(i, i + concurrency);
+    const results = await Promise.all(batch.map((token) => fetchPage(token)));
+
+    for (const result of results) {
+      allItems.push(...result.items);
+      if (result.nextPageToken) {
+        lastNextPageToken = result.nextPageToken;
+      }
+    }
+  }
+
+  return { items: allItems, nextPageToken: lastNextPageToken };
+}

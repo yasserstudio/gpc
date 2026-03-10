@@ -146,12 +146,15 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         const headers: Record<string, string> = {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
+          "Accept-Encoding": "gzip, deflate",
+          Connection: "keep-alive",
         };
 
         const init: RequestInit = {
           method,
           headers,
           signal: controller.signal,
+          keepalive: true,
         };
 
         if (body !== undefined) {
@@ -273,6 +276,8 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         const headers: Record<string, string> = {
           Authorization: `Bearer ${token}`,
           "Content-Type": contentType,
+          "Accept-Encoding": "gzip, deflate",
+          Connection: "keep-alive",
         };
 
         const response = await fetch(url, {
@@ -280,6 +285,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
           headers,
           body: fileBuffer,
           signal: controller.signal,
+          keepalive: true,
         });
 
         if (response.ok) {

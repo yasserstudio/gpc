@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { paginate, paginateAll } from "../src/paginate";
+import { paginate, paginateAll, paginateParallel } from "../src/paginate";
 
 describe("paginate", () => {
   it("yields all pages when no limit", async () => {
@@ -141,5 +141,76 @@ describe("paginateAll", () => {
     const result = await paginateAll(fetchPage);
 
     expect(result.items).toEqual([]);
+  });
+});
+
+describe("paginateParallel", () => {
+  it("fetches multiple pages in parallel", async () => {
+    const fetchPage = vi.fn()
+      .mockImplementation(async (token: string) => {
+        if (token === "page2") return { items: [3, 4], nextPageToken: "page3" };
+        if (token === "page3") return { items: [5, 6], nextPageToken: undefined };
+        return { items: [], nextPageToken: undefined };
+      });
+
+    const result = await paginateParallel(fetchPage, ["page2", "page3"]);
+
+    expect(result.items).toEqual([3, 4, 5, 6]);
+    expect(fetchPage).toHaveBeenCalledTimes(2);
+  });
+
+  it("respects concurrency limit", async () => {
+    let maxConcurrent = 0;
+    let currentConcurrent = 0;
+
+    const fetchPage = vi.fn().mockImplementation(async (token: string) => {
+      currentConcurrent++;
+      if (currentConcurrent > maxConcurrent) maxConcurrent = currentConcurrent;
+      await new Promise((r) => setTimeout(r, 10));
+      currentConcurrent--;
+      return { items: [Number(token)], nextPageToken: undefined };
+    });
+
+    await paginateParallel(fetchPage, ["1", "2", "3", "4", "5", "6"], 2);
+
+    expect(fetchPage).toHaveBeenCalledTimes(6);
+    expect(maxConcurrent).toBeLessThanOrEqual(2);
+  });
+
+  it("returns last nextPageToken", async () => {
+    const fetchPage = vi.fn()
+      .mockResolvedValueOnce({ items: [1], nextPageToken: undefined })
+      .mockResolvedValueOnce({ items: [2], nextPageToken: "page4" });
+
+    const result = await paginateParallel(fetchPage, ["page2", "page3"]);
+
+    expect(result.items).toEqual([1, 2]);
+    expect(result.nextPageToken).toBe("page4");
+  });
+
+  it("handles empty page tokens array", async () => {
+    const fetchPage = vi.fn();
+    const result = await paginateParallel(fetchPage, []);
+
+    expect(result.items).toEqual([]);
+    expect(fetchPage).not.toHaveBeenCalled();
+  });
+
+  it("defaults to concurrency of 4", async () => {
+    let maxConcurrent = 0;
+    let currentConcurrent = 0;
+
+    const fetchPage = vi.fn().mockImplementation(async () => {
+      currentConcurrent++;
+      if (currentConcurrent > maxConcurrent) maxConcurrent = currentConcurrent;
+      await new Promise((r) => setTimeout(r, 10));
+      currentConcurrent--;
+      return { items: [1], nextPageToken: undefined };
+    });
+
+    await paginateParallel(fetchPage, ["a", "b", "c", "d", "e", "f", "g", "h"]);
+
+    expect(fetchPage).toHaveBeenCalledTimes(8);
+    expect(maxConcurrent).toBeLessThanOrEqual(4);
   });
 });
