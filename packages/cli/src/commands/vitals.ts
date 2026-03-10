@@ -68,7 +68,7 @@ function registerMetricCommand(
     .option("--threshold <value>", "Threshold value for CI alerting", parseFloat)
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const reporting = await getReportingClient(config);
       const format = detectOutputFormat();
 
@@ -109,7 +109,7 @@ export function registerVitalsCommands(program: Command): void {
     .description("Dashboard summary of all vital metrics")
     .action(async () => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const reporting = await getReportingClient(config);
       const format = detectOutputFormat();
 
@@ -134,7 +134,7 @@ export function registerVitalsCommands(program: Command): void {
     .description("Detect anomalies in app vitals")
     .action(async () => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const reporting = await getReportingClient(config);
       const format = detectOutputFormat();
 
@@ -158,7 +158,7 @@ export function registerVitalsCommands(program: Command): void {
     .option("--max <n>", "Maximum results", parseInt)
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const reporting = await getReportingClient(config);
       const format = detectOutputFormat();
 
@@ -195,7 +195,7 @@ export function registerVitalsCommands(program: Command): void {
       }
 
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const reporting = await getReportingClient(config);
       const format = detectOutputFormat();
 

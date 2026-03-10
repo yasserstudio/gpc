@@ -35,7 +35,7 @@ export function registerPricingCommands(program: Command): void {
     .option("--amount <number>", "Price amount (e.g. 4.99)")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const { isInteractive, requireOption } = await import("../prompt.js");
       const interactive = isInteractive(program);
 

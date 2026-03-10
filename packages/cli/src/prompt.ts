@@ -9,7 +9,7 @@ export function isInteractive(program?: { opts(): Record<string, unknown> }): bo
   if (program) {
     let root: { parent?: unknown; opts(): Record<string, unknown> } = program;
     while (root.parent) root = root.parent as typeof root;
-    if (root.opts().interactive === false) return false;
+    if (root.opts()['interactive'] === false) return false;
   }
 
   if (process.env["GPC_NO_INTERACTIVE"] === "1" || process.env["GPC_NO_INTERACTIVE"] === "true") {
@@ -30,7 +30,7 @@ export function skipConfirm(program?: { opts(): Record<string, unknown> }): bool
   if (!program) return false;
   let root: { parent?: unknown; opts(): Record<string, unknown> } = program;
   while (root.parent) root = root.parent as typeof root;
-  return root.opts().yes === true;
+  return root.opts()['yes'] === true;
 }
 
 /**

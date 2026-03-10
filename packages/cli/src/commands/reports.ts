@@ -55,7 +55,7 @@ export function registerReportsCommands(program: Command): void {
         process.exit(2);
       }
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -94,7 +94,7 @@ export function registerReportsCommands(program: Command): void {
         process.exit(2);
       }
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
 
       try {
@@ -139,7 +139,7 @@ export function registerReportsCommands(program: Command): void {
         process.exit(2);
       }
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
 
       try {

@@ -65,7 +65,7 @@ export function registerPluginCommands(program: Command, manager: PluginManager)
 
     if (def.options) {
       for (const opt of def.options) {
-        cmd.option(opt.flags, opt.description, opt.defaultValue);
+        cmd.option(opt.flags, opt.description, opt.defaultValue as string | boolean | string[] | undefined);
       }
     }
 

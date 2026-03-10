@@ -15,7 +15,7 @@ export function registerTracksCommands(program: Command): void {
     .description("List all tracks")
     .action(async () => {
       const config = await loadConfig();
-      const packageName = program.opts().app || config.app;
+      const packageName = program.opts()['app'] || config.app;
       if (!packageName) {
         console.error("Error: No package name. Use --app <package> or gpc config set app <package>");
         process.exit(2);

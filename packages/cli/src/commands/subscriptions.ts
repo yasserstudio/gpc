@@ -55,7 +55,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .option("--next-page <token>", "Resume from page token")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -78,7 +78,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .description("Get a subscription")
     .action(async (productId: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -97,7 +97,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .requiredOption("--file <path>", "JSON file with subscription data")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
 
       if (isDryRun(program)) {
@@ -128,7 +128,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .option("--update-mask <fields>", "Comma-separated field mask")
     .action(async (productId: string, options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
 
       if (isDryRun(program)) {
@@ -158,7 +158,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .description("Delete a subscription")
     .action(async (productId: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
 
       await requireConfirm(`Delete subscription "${productId}"?`, program);
 
@@ -193,7 +193,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .description("Activate a base plan")
     .action(async (productId: string, basePlanId: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
 
       if (isDryRun(program)) {
@@ -221,7 +221,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .description("Deactivate a base plan")
     .action(async (productId: string, basePlanId: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
 
       if (isDryRun(program)) {
@@ -249,7 +249,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .description("Delete a base plan")
     .action(async (productId: string, basePlanId: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
 
       await requireConfirm(`Delete base plan "${basePlanId}" from subscription "${productId}"?`, program);
 
@@ -280,7 +280,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .requiredOption("--file <path>", "JSON file with migration data")
     .action(async (productId: string, basePlanId: string, options: { file: string; updateMask?: string }) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
 
       if (isDryRun(program)) {
@@ -315,7 +315,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .description("List offers for a base plan")
     .action(async (productId: string, basePlanId: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -333,7 +333,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .description("Get an offer")
     .action(async (productId: string, basePlanId: string, offerId: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -352,7 +352,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .requiredOption("--file <path>", "JSON file with offer data")
     .action(async (productId: string, basePlanId: string, options: { file: string; updateMask?: string }) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
 
       if (isDryRun(program)) {
@@ -384,7 +384,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .option("--update-mask <fields>", "Comma-separated field mask")
     .action(async (productId: string, basePlanId: string, offerId: string, options: { file: string; updateMask?: string }) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
 
       if (isDryRun(program)) {
@@ -414,7 +414,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .description("Delete an offer")
     .action(async (productId: string, basePlanId: string, offerId: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
 
       await requireConfirm(`Delete offer "${offerId}"?`, program);
 
@@ -444,7 +444,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .description("Activate an offer")
     .action(async (productId: string, basePlanId: string, offerId: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
 
       if (isDryRun(program)) {
@@ -472,7 +472,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .description("Deactivate an offer")
     .action(async (productId: string, basePlanId: string, offerId: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
 
       if (isDryRun(program)) {

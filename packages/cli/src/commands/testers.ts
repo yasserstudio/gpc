@@ -39,7 +39,7 @@ export function registerTestersCommands(program: Command): void {
     .option("--track <track>", "Track name (e.g., internal, alpha, beta)")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const interactive = isInteractive(program);
 
       options.track = await requireOption("track", options.track, {
@@ -65,7 +65,7 @@ export function registerTestersCommands(program: Command): void {
     .option("--track <track>", "Track name (e.g., internal, alpha, beta)")
     .action(async (emails: string[], options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
       const interactive = isInteractive(program);
 
@@ -101,7 +101,7 @@ export function registerTestersCommands(program: Command): void {
     .option("--track <track>", "Track name (e.g., internal, alpha, beta)")
     .action(async (emails: string[], options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
       const interactive = isInteractive(program);
 
@@ -140,7 +140,7 @@ export function registerTestersCommands(program: Command): void {
     .option("--file <path>", "CSV file with email addresses")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
       const interactive = isInteractive(program);
 

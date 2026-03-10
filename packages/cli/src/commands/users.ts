@@ -45,7 +45,7 @@ export function registerUsersCommands(program: Command): void {
     .option("--next-page <token>", "Resume from page token")
     .action(async (options) => {
       const config = await loadConfig();
-      const developerId = resolveDeveloperId(users.opts().developerId, config);
+      const developerId = resolveDeveloperId(users.opts()['developerId'], config);
       const client = await getUsersClient(config);
       const format = detectOutputFormat();
 
@@ -66,7 +66,7 @@ export function registerUsersCommands(program: Command): void {
     .description("Get user details")
     .action(async (email: string) => {
       const config = await loadConfig();
-      const developerId = resolveDeveloperId(users.opts().developerId, config);
+      const developerId = resolveDeveloperId(users.opts()['developerId'], config);
       const client = await getUsersClient(config);
       const format = detectOutputFormat();
 
@@ -86,7 +86,7 @@ export function registerUsersCommands(program: Command): void {
     .option("--grant <grants...>", "Per-app grants (format: com.example.app:PERMISSION1,PERMISSION2)")
     .action(async (email: string, options) => {
       const config = await loadConfig();
-      const developerId = resolveDeveloperId(users.opts().developerId, config);
+      const developerId = resolveDeveloperId(users.opts()['developerId'], config);
       const format = detectOutputFormat();
 
       if (isDryRun(program)) {
@@ -120,7 +120,7 @@ export function registerUsersCommands(program: Command): void {
     .option("--grant <grants...>", "Per-app grants (format: com.example.app:PERMISSION1,PERMISSION2)")
     .action(async (email: string, options) => {
       const config = await loadConfig();
-      const developerId = resolveDeveloperId(users.opts().developerId, config);
+      const developerId = resolveDeveloperId(users.opts()['developerId'], config);
       const format = detectOutputFormat();
 
       if (isDryRun(program)) {
@@ -152,7 +152,7 @@ export function registerUsersCommands(program: Command): void {
     .description("Remove a user from the developer account")
     .action(async (email: string) => {
       const config = await loadConfig();
-      const developerId = resolveDeveloperId(users.opts().developerId, config);
+      const developerId = resolveDeveloperId(users.opts()['developerId'], config);
 
       await requireConfirm(`Remove user "${email}" from developer account?`, program);
 

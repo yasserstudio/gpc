@@ -15,6 +15,7 @@ export async function setupNetworking(): Promise<void> {
   const proxyUrl = process.env["HTTPS_PROXY"] || process.env["https_proxy"] || process.env["HTTP_PROXY"] || process.env["http_proxy"];
   if (proxyUrl) {
     try {
+      // @ts-expect-error undici types not available in all environments
       const { ProxyAgent, setGlobalDispatcher } = await import("undici");
       setGlobalDispatcher(new ProxyAgent(proxyUrl));
     } catch {

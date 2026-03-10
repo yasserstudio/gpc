@@ -43,7 +43,7 @@ export function registerPurchasesCommands(program: Command): void {
     .description("Get a product purchase")
     .action(async (productId: string, token: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -62,7 +62,7 @@ export function registerPurchasesCommands(program: Command): void {
     .option("--payload <text>", "Developer payload")
     .action(async (productId: string, token: string, options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();
@@ -91,7 +91,7 @@ export function registerPurchasesCommands(program: Command): void {
     .description("Consume a product purchase")
     .action(async (productId: string, token: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();
@@ -124,7 +124,7 @@ export function registerPurchasesCommands(program: Command): void {
     .description("Get a subscription purchase (v2)")
     .action(async (token: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -142,7 +142,7 @@ export function registerPurchasesCommands(program: Command): void {
     .description("Cancel a subscription (v1)")
     .action(async (subscriptionId: string, token: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();
@@ -171,7 +171,7 @@ export function registerPurchasesCommands(program: Command): void {
     .option("--expiry <iso-date>", "Desired new expiry date (ISO 8601)")
     .action(async (subscriptionId: string, token: string, options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
       const interactive = isInteractive(program);
 
@@ -205,7 +205,7 @@ export function registerPurchasesCommands(program: Command): void {
     .description("Revoke a subscription (v2)")
     .action(async (token: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();
@@ -239,7 +239,7 @@ export function registerPurchasesCommands(program: Command): void {
     .option("--next-page <token>", "Resume from page token")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -270,7 +270,7 @@ export function registerPurchasesCommands(program: Command): void {
     .option("--prorated-refund", "Prorated refund")
     .action(async (orderId: string, options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
 
       await requireConfirm(`Refund order "${orderId}"?`, program);
 
