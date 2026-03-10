@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { getCachedToken, setCachedToken, clearTokenCache, acquireToken, _resetMemoryCache } from "../src/token-cache";
+import {
+  getCachedToken,
+  setCachedToken,
+  clearTokenCache,
+  acquireToken,
+  _resetMemoryCache,
+} from "../src/token-cache";
 import { mkdir, rm, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -214,7 +220,9 @@ describe("token-cache", () => {
       };
 
       // First call should fail
-      await expect(acquireToken("fail@example.com", cacheDir, failingRefresh)).rejects.toThrow("network error");
+      await expect(acquireToken("fail@example.com", cacheDir, failingRefresh)).rejects.toThrow(
+        "network error",
+      );
 
       // Second call should succeed (inflight promise was cleaned up)
       const token = await acquireToken("fail@example.com", cacheDir, failingRefresh);
