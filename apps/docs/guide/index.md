@@ -45,7 +45,7 @@ Dependency flow: `cli` calls `core`, which calls `api`, `auth`, and `config`. Th
 | Feature | GPC | Fastlane supply | gradle-play-publisher | Console UI |
 |---------|-----|-----------------|----------------------|------------|
 | **Language** | TypeScript (Node.js) | Ruby | Kotlin (Gradle) | Browser |
-| **Install** | `npm install -g gpc` | `gem install fastlane` | Gradle plugin | None |
+| **Install** | `npm install -g @gpc-cli/cli` | `gem install fastlane` | Gradle plugin | None |
 | **Releases** | Upload, promote, rollout, halt, resume, complete | Upload, promote | Upload, promote | Manual |
 | **Staged rollouts** | `rollout increase`, `rollout halt`, `rollout resume` | Limited | Limited | Manual |
 | **Listings** | Pull/push, images, Fastlane format compatible | Pull/push, images | Listings only | Manual |
