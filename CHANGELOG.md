@@ -4,6 +4,14 @@ All notable changes to GPC are documented here.
 
 ---
 
+## v0.1.2 — First npm Publish
+
+- **feat:** Published all 7 packages to npm under `@gpc-cli` scope
+- **feat:** `npm install -g @gpc-cli/cli` now works
+- **fix:** Added `publishConfig: { access: "public" }` to all packages
+- **fix(ci):** Pass `NODE_AUTH_TOKEN` for npm publish in release workflow
+- Packages: `@gpc-cli/cli`, `@gpc-cli/core`, `@gpc-cli/api`, `@gpc-cli/auth`, `@gpc-cli/config`, `@gpc-cli/plugin-sdk`, `@gpc-cli/plugin-ci`
+
 ## v0.9.7 — Homebrew Tap
 
 - **feat(ci):** Homebrew tap at `yasserstudio/homebrew-tap` — `brew install yasserstudio/tap/gpc`
