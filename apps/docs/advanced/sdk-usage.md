@@ -75,17 +75,17 @@ const client = new PlayApiClient({
 
 ### Client Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `auth` | `AuthStrategy` | required | Authentication provider |
-| `packageName` | `string` | required | Android package name |
-| `rateLimit` | `number` | `50` | Requests per second |
-| `maxRetries` | `number` | `3` | Retry count for transient errors |
-| `timeout` | `number` | `30000` | Request timeout in milliseconds |
-| `baseDelay` | `number` | `1000` | Base retry delay in milliseconds |
-| `maxDelay` | `number` | `60000` | Maximum retry delay in milliseconds |
-| `proxy` | `string` | -- | HTTPS proxy URL |
-| `caCert` | `string` | -- | Custom CA certificate path |
+| Option        | Type           | Default  | Description                         |
+| ------------- | -------------- | -------- | ----------------------------------- |
+| `auth`        | `AuthStrategy` | required | Authentication provider             |
+| `packageName` | `string`       | required | Android package name                |
+| `rateLimit`   | `number`       | `50`     | Requests per second                 |
+| `maxRetries`  | `number`       | `3`      | Retry count for transient errors    |
+| `timeout`     | `number`       | `30000`  | Request timeout in milliseconds     |
+| `baseDelay`   | `number`       | `1000`   | Base retry delay in milliseconds    |
+| `maxDelay`    | `number`       | `60000`  | Maximum retry delay in milliseconds |
+| `proxy`       | `string`       | --       | HTTPS proxy URL                     |
+| `caCert`      | `string`       | --       | Custom CA certificate path          |
 
 ## Examples
 
@@ -115,9 +115,7 @@ await client.edits.tracks.update(edit.id, "internal", {
     {
       versionCodes: [bundle.versionCode],
       status: "completed",
-      releaseNotes: [
-        { language: "en-US", text: "Bug fixes and improvements" },
-      ],
+      releaseNotes: [{ language: "en-US", text: "Bug fixes and improvements" }],
     },
   ],
 });
@@ -273,9 +271,7 @@ Use the built-in pagination helper for automatic iteration:
 ```typescript
 import { paginate } from "@gpc-cli/api";
 
-const allReviews = await paginate((token) =>
-  client.reviews.list({ maxResults: 100, token })
-);
+const allReviews = await paginate((token) => client.reviews.list({ maxResults: 100, token }));
 
 console.log(`Total reviews: ${allReviews.length}`);
 ```
@@ -298,12 +294,12 @@ Rate limits are applied per client instance. If you need different limits for di
 
 Google Play API quotas are per-bucket:
 
-| Bucket | Limit | Endpoints |
-|--------|-------|-----------|
-| Publishing, Monetization, Reviews | 3,000/min | Edits, Listings, Tracks, IAP, Subscriptions |
-| Reviews (GET) | 200/hour | `reviews.list`, `reviews.get` |
-| Reviews (POST) | 2,000/day | `reviews.reply` |
-| Voided Purchases | 6,000/day, 30/30s | `voidedPurchases.list` |
+| Bucket                            | Limit             | Endpoints                                   |
+| --------------------------------- | ----------------- | ------------------------------------------- |
+| Publishing, Monetization, Reviews | 3,000/min         | Edits, Listings, Tracks, IAP, Subscriptions |
+| Reviews (GET)                     | 200/hour          | `reviews.list`, `reviews.get`               |
+| Reviews (POST)                    | 2,000/day         | `reviews.reply`                             |
+| Voided Purchases                  | 6,000/day, 30/30s | `voidedPurchases.list`                      |
 
 The API client automatically applies appropriate rate limits per endpoint category.
 
@@ -349,10 +345,10 @@ try {
 
 ### Error Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `code` | `string` | Error code (e.g., `API_RATE_LIMITED`) |
-| `message` | `string` | Human-readable description |
-| `status` | `number` | HTTP status code |
-| `suggestion` | `string` | Actionable fix |
-| `retryAfter` | `number` | Seconds to wait (rate limit errors) |
+| Property     | Type     | Description                           |
+| ------------ | -------- | ------------------------------------- |
+| `code`       | `string` | Error code (e.g., `API_RATE_LIMITED`) |
+| `message`    | `string` | Human-readable description            |
+| `status`     | `number` | HTTP status code                      |
+| `suggestion` | `string` | Actionable fix                        |
+| `retryAfter` | `number` | Seconds to wait (rate limit errors)   |

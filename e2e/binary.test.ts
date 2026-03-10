@@ -54,10 +54,26 @@ describe.skipIf(!hasBundledCli)("bundled CLI", () => {
   it("lists commands in help", () => {
     const output = run("--help");
     const commands = [
-      "auth", "config", "doctor", "apps", "releases", "tracks",
-      "status", "listings", "reviews", "vitals", "subscriptions",
-      "iap", "purchases", "pricing", "reports", "users", "testers",
-      "validate", "publish", "plugins",
+      "auth",
+      "config",
+      "doctor",
+      "apps",
+      "releases",
+      "tracks",
+      "status",
+      "listings",
+      "reviews",
+      "vitals",
+      "subscriptions",
+      "iap",
+      "purchases",
+      "pricing",
+      "reports",
+      "users",
+      "testers",
+      "validate",
+      "publish",
+      "plugins",
     ];
     for (const cmd of commands) {
       expect(output).toContain(cmd);

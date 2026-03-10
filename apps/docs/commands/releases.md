@@ -8,16 +8,16 @@ Manage releases, uploads, promotions, rollouts, and release notes.
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`releases upload`](#releases-upload) | Upload AAB/APK and assign to a track |
-| [`releases status`](#releases-status) | Show release status across tracks |
-| [`releases promote`](#releases-promote) | Promote a release between tracks |
-| [`releases rollout increase`](#releases-rollout-increase) | Increase staged rollout percentage |
-| [`releases rollout halt`](#releases-rollout-halt) | Halt a staged rollout |
-| [`releases rollout resume`](#releases-rollout-resume) | Resume a halted rollout |
-| [`releases rollout complete`](#releases-rollout-complete) | Complete a staged rollout to 100% |
-| [`releases notes set`](#releases-notes-set) | Set release notes for a track |
+| Command                                                   | Description                          |
+| --------------------------------------------------------- | ------------------------------------ |
+| [`releases upload`](#releases-upload)                     | Upload AAB/APK and assign to a track |
+| [`releases status`](#releases-status)                     | Show release status across tracks    |
+| [`releases promote`](#releases-promote)                   | Promote a release between tracks     |
+| [`releases rollout increase`](#releases-rollout-increase) | Increase staged rollout percentage   |
+| [`releases rollout halt`](#releases-rollout-halt)         | Halt a staged rollout                |
+| [`releases rollout resume`](#releases-rollout-resume)     | Resume a halted rollout              |
+| [`releases rollout complete`](#releases-rollout-complete) | Complete a staged rollout to 100%    |
+| [`releases notes set`](#releases-notes-set)               | Set release notes for a track        |
 
 ## `releases upload`
 
@@ -31,15 +31,15 @@ gpc releases upload <file> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--track` | | `string` | `internal` | Target track (`internal`, `alpha`, `beta`, `production`, or custom) |
-| `--rollout` | | `number` | | Staged rollout percentage (1-100) |
-| `--notes` | | `string` | | Release notes text (en-US) |
-| `--name` | | `string` | | Release name |
-| `--mapping` | | `string` | | Path to ProGuard/R8 mapping file for deobfuscation |
-| `--notes-dir` | | `string` | | Directory with per-language release notes (`<dir>/<lang>.txt`) |
-| `--retry-log` | | `string` | | Write retry log entries to file (JSONL) |
+| Flag          | Short | Type     | Default    | Description                                                         |
+| ------------- | ----- | -------- | ---------- | ------------------------------------------------------------------- |
+| `--track`     |       | `string` | `internal` | Target track (`internal`, `alpha`, `beta`, `production`, or custom) |
+| `--rollout`   |       | `number` |            | Staged rollout percentage (1-100)                                   |
+| `--notes`     |       | `string` |            | Release notes text (en-US)                                          |
+| `--name`      |       | `string` |            | Release name                                                        |
+| `--mapping`   |       | `string` |            | Path to ProGuard/R8 mapping file for deobfuscation                  |
+| `--notes-dir` |       | `string` |            | Directory with per-language release notes (`<dir>/<lang>.txt`)      |
+| `--retry-log` |       | `string` |            | Write retry log entries to file (JSONL)                             |
 
 ### Example
 
@@ -91,9 +91,9 @@ gpc releases status [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--track` | | `string` | | Filter by a specific track |
+| Flag      | Short | Type     | Default | Description                |
+| --------- | ----- | -------- | ------- | -------------------------- |
+| `--track` |       | `string` |         | Filter by a specific track |
 
 ### Example
 
@@ -141,12 +141,12 @@ gpc releases promote --from <track> --to <track> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--from` | | `string` | **(required)** | Source track |
-| `--to` | | `string` | **(required)** | Target track |
-| `--rollout` | | `number` | | Staged rollout percentage (1-100) for the target track |
-| `--notes` | | `string` | | Release notes text (en-US) |
+| Flag        | Short | Type     | Default        | Description                                            |
+| ----------- | ----- | -------- | -------------- | ------------------------------------------------------ |
+| `--from`    |       | `string` | **(required)** | Source track                                           |
+| `--to`      |       | `string` | **(required)** | Target track                                           |
+| `--rollout` |       | `number` |                | Staged rollout percentage (1-100) for the target track |
+| `--notes`   |       | `string` |                | Release notes text (en-US)                             |
 
 ### Example
 
@@ -190,10 +190,10 @@ gpc releases rollout increase --track <track> --to <percent>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--track` | | `string` | **(required)** | Track name |
-| `--to` | | `number` | **(required)** | New rollout percentage (1-100) |
+| Flag      | Short | Type     | Default        | Description                    |
+| --------- | ----- | -------- | -------------- | ------------------------------ |
+| `--track` |       | `string` | **(required)** | Track name                     |
+| `--to`    |       | `number` | **(required)** | New rollout percentage (1-100) |
 
 ### Example
 
@@ -218,9 +218,9 @@ gpc releases rollout halt --track <track>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--track` | | `string` | **(required)** | Track name |
+| Flag      | Short | Type     | Default        | Description |
+| --------- | ----- | -------- | -------------- | ----------- |
+| `--track` |       | `string` | **(required)** | Track name  |
 
 ### Example
 
@@ -244,9 +244,9 @@ gpc releases rollout resume --track <track>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--track` | | `string` | **(required)** | Track name |
+| Flag      | Short | Type     | Default        | Description |
+| --------- | ----- | -------- | -------------- | ----------- |
+| `--track` |       | `string` | **(required)** | Track name  |
 
 ### Example
 
@@ -270,9 +270,9 @@ gpc releases rollout complete --track <track>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--track` | | `string` | **(required)** | Track name |
+| Flag      | Short | Type     | Default        | Description |
+| --------- | ----- | -------- | -------------- | ----------- |
+| `--track` |       | `string` | **(required)** | Track name  |
 
 ### Example
 
@@ -296,12 +296,12 @@ gpc releases notes set --track <track> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--track` | | `string` | **(required)** | Track name |
-| `--lang` | | `string` | `en-US` | Language code (BCP 47) |
-| `--notes` | | `string` | | Release notes text |
-| `--file` | | `string` | | Read notes from a file |
+| Flag      | Short | Type     | Default        | Description            |
+| --------- | ----- | -------- | -------------- | ---------------------- |
+| `--track` |       | `string` | **(required)** | Track name             |
+| `--lang`  |       | `string` | `en-US`        | Language code (BCP 47) |
+| `--notes` |       | `string` |                | Release notes text     |
+| `--file`  |       | `string` |                | Read notes from a file |
 
 ### Example
 

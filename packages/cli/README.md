@@ -38,18 +38,18 @@ gpc reviews list --stars 1-3 --since 7d
 
 162 API endpoints across 10 command groups:
 
-| Command Group | Examples |
-|--------------|----------|
-| **Releases** | `upload`, `promote`, `rollout increase/halt/resume`, `publish` |
-| **Listings** | `pull`, `push`, `images upload/delete`, Fastlane format |
-| **Reviews** | `list`, `reply`, `export --format csv` |
-| **Vitals** | `crashes`, `anr`, `startup`, `rendering`, `battery`, `memory` |
-| **Subscriptions** | `list`, `create`, `base-plans`, `offers` |
-| **IAP** | `list`, `create`, `sync --dir products/` |
-| **Purchases** | `get`, `acknowledge`, `cancel`, `refund` |
-| **Reports** | `download financial`, `download stats` |
-| **Testers** | `add`, `remove`, `import --file testers.csv` |
-| **Users** | `invite`, `update`, `remove`, per-app grants |
+| Command Group     | Examples                                                       |
+| ----------------- | -------------------------------------------------------------- |
+| **Releases**      | `upload`, `promote`, `rollout increase/halt/resume`, `publish` |
+| **Listings**      | `pull`, `push`, `images upload/delete`, Fastlane format        |
+| **Reviews**       | `list`, `reply`, `export --format csv`                         |
+| **Vitals**        | `crashes`, `anr`, `startup`, `rendering`, `battery`, `memory`  |
+| **Subscriptions** | `list`, `create`, `base-plans`, `offers`                       |
+| **IAP**           | `list`, `create`, `sync --dir products/`                       |
+| **Purchases**     | `get`, `acknowledge`, `cancel`, `refund`                       |
+| **Reports**       | `download financial`, `download stats`                         |
+| **Testers**       | `add`, `remove`, `import --file testers.csv`                   |
+| **Users**         | `invite`, `update`, `remove`, per-app grants                   |
 
 ## CI/CD
 
@@ -81,15 +81,15 @@ Full docs at **[yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)
 
 ## Part of the GPC Monorepo
 
-| Package | Description |
-|---------|-------------|
-| **@gpc-cli/cli** | CLI entry point (this package) |
-| [@gpc-cli/core](https://www.npmjs.com/package/@gpc-cli/core) | Business logic and orchestration |
-| [@gpc-cli/api](https://www.npmjs.com/package/@gpc-cli/api) | Typed Google Play API v3 client |
-| [@gpc-cli/auth](https://www.npmjs.com/package/@gpc-cli/auth) | Authentication (service account, OAuth, ADC) |
-| [@gpc-cli/config](https://www.npmjs.com/package/@gpc-cli/config) | Configuration and profiles |
-| [@gpc-cli/plugin-sdk](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface and lifecycle hooks |
-| [@gpc-cli/plugin-ci](https://www.npmjs.com/package/@gpc-cli/plugin-ci) | CI/CD helpers |
+| Package                                                                  | Description                                  |
+| ------------------------------------------------------------------------ | -------------------------------------------- |
+| **@gpc-cli/cli**                                                         | CLI entry point (this package)               |
+| [@gpc-cli/core](https://www.npmjs.com/package/@gpc-cli/core)             | Business logic and orchestration             |
+| [@gpc-cli/api](https://www.npmjs.com/package/@gpc-cli/api)               | Typed Google Play API v3 client              |
+| [@gpc-cli/auth](https://www.npmjs.com/package/@gpc-cli/auth)             | Authentication (service account, OAuth, ADC) |
+| [@gpc-cli/config](https://www.npmjs.com/package/@gpc-cli/config)         | Configuration and profiles                   |
+| [@gpc-cli/plugin-sdk](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface and lifecycle hooks         |
+| [@gpc-cli/plugin-ci](https://www.npmjs.com/package/@gpc-cli/plugin-ci)   | CI/CD helpers                                |
 
 ## License
 

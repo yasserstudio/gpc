@@ -80,7 +80,12 @@ function formatYaml(data: unknown, indent = 0): string {
   }
 
   if (typeof data === "string") {
-    return data.includes("\n") ? `|\n${data.split("\n").map((l) => `${"  ".repeat(indent + 1)}${l}`).join("\n")}` : data;
+    return data.includes("\n")
+      ? `|\n${data
+          .split("\n")
+          .map((l) => `${"  ".repeat(indent + 1)}${l}`)
+          .join("\n")}`
+      : data;
   }
 
   if (typeof data === "number" || typeof data === "boolean") {
@@ -95,7 +100,10 @@ function formatYaml(data: unknown, indent = 0): string {
         const prefix = `${"  ".repeat(indent)}- `;
         if (typeof item === "object" && item !== null && !Array.isArray(item)) {
           const lines = value.split("\n");
-          return `${prefix}${lines[0]}\n${lines.slice(1).map((l) => `${"  ".repeat(indent)}  ${l}`).join("\n")}`;
+          return `${prefix}${lines[0]}\n${lines
+            .slice(1)
+            .map((l) => `${"  ".repeat(indent)}  ${l}`)
+            .join("\n")}`;
         }
         return `${prefix}${value}`;
       })
@@ -134,9 +142,7 @@ function formatTable(data: unknown): string {
   const header = keys.map((key, i) => key.padEnd(widths[i] ?? 0)).join("  ");
   const separator = widths.map((w) => "-".repeat(w)).join("  ");
   const body = rows
-    .map((row) =>
-      keys.map((key, i) => String(row[key] ?? "").padEnd(widths[i] ?? 0)).join("  "),
-    )
+    .map((row) => keys.map((key, i) => String(row[key] ?? "").padEnd(widths[i] ?? 0)).join("  "))
     .join("\n");
 
   return `${header}\n${separator}\n${body}`;
@@ -170,8 +176,7 @@ function formatMarkdown(data: unknown): string {
 function toRows(data: unknown): Record<string, unknown>[] {
   if (Array.isArray(data)) {
     return data.filter(
-      (item): item is Record<string, unknown> =>
-        typeof item === "object" && item !== null,
+      (item): item is Record<string, unknown> => typeof item === "object" && item !== null,
     );
   }
   if (typeof data === "object" && data !== null) {

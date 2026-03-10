@@ -8,17 +8,17 @@ Manage store listings, metadata, images, and country availability.
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`listings get`](#listings-get) | Get store listing(s) |
-| [`listings update`](#listings-update) | Update a store listing |
-| [`listings delete`](#listings-delete) | Delete a store listing for a language |
-| [`listings pull`](#listings-pull) | Download listings to Fastlane-format directory |
-| [`listings push`](#listings-push) | Upload listings from Fastlane-format directory |
-| [`listings images list`](#listings-images-list) | List images for a language and type |
-| [`listings images upload`](#listings-images-upload) | Upload an image |
-| [`listings images delete`](#listings-images-delete) | Delete an image |
-| [`listings availability`](#listings-availability) | Get country availability for a track |
+| Command                                             | Description                                    |
+| --------------------------------------------------- | ---------------------------------------------- |
+| [`listings get`](#listings-get)                     | Get store listing(s)                           |
+| [`listings update`](#listings-update)               | Update a store listing                         |
+| [`listings delete`](#listings-delete)               | Delete a store listing for a language          |
+| [`listings pull`](#listings-pull)                   | Download listings to Fastlane-format directory |
+| [`listings push`](#listings-push)                   | Upload listings from Fastlane-format directory |
+| [`listings images list`](#listings-images-list)     | List images for a language and type            |
+| [`listings images upload`](#listings-images-upload) | Upload an image                                |
+| [`listings images delete`](#listings-images-delete) | Delete an image                                |
+| [`listings availability`](#listings-availability)   | Get country availability for a track           |
 
 ## `listings get`
 
@@ -32,9 +32,9 @@ gpc listings get [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--lang` | | `string` | | Language code (BCP 47). Omit to get all languages. |
+| Flag     | Short | Type     | Default | Description                                        |
+| -------- | ----- | -------- | ------- | -------------------------------------------------- |
+| `--lang` |       | `string` |         | Language code (BCP 47). Omit to get all languages. |
 
 ### Example
 
@@ -74,14 +74,14 @@ gpc listings update --lang <language> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--lang` | | `string` | **(required)** | Language code (BCP 47) |
-| `--title` | | `string` | | App title (max 30 chars) |
-| `--short` | | `string` | | Short description (max 80 chars) |
-| `--full` | | `string` | | Full description (max 4000 chars) |
-| `--full-file` | | `string` | | Read full description from a file |
-| `--video` | | `string` | | YouTube video URL |
+| Flag          | Short | Type     | Default        | Description                       |
+| ------------- | ----- | -------- | -------------- | --------------------------------- |
+| `--lang`      |       | `string` | **(required)** | Language code (BCP 47)            |
+| `--title`     |       | `string` |                | App title (max 30 chars)          |
+| `--short`     |       | `string` |                | Short description (max 80 chars)  |
+| `--full`      |       | `string` |                | Full description (max 4000 chars) |
+| `--full-file` |       | `string` |                | Read full description from a file |
+| `--video`     |       | `string` |                | YouTube video URL                 |
 
 ### Example
 
@@ -128,9 +128,9 @@ gpc listings delete --lang <language>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--lang` | | `string` | **(required)** | Language code (BCP 47) |
+| Flag     | Short | Type     | Default        | Description            |
+| -------- | ----- | -------- | -------------- | ---------------------- |
+| `--lang` |       | `string` | **(required)** | Language code (BCP 47) |
 
 ### Example
 
@@ -152,9 +152,9 @@ gpc listings pull [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--dir` | | `string` | `metadata` | Output directory path |
+| Flag    | Short | Type     | Default    | Description           |
+| ------- | ----- | -------- | ---------- | --------------------- |
+| `--dir` |       | `string` | `metadata` | Output directory path |
 
 ### Example
 
@@ -200,10 +200,10 @@ gpc listings push [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--dir` | | `string` | `metadata` | Source directory path |
-| `--dry-run` | | `boolean` | `false` | Preview changes without applying |
+| Flag        | Short | Type      | Default    | Description                      |
+| ----------- | ----- | --------- | ---------- | -------------------------------- |
+| `--dir`     |       | `string`  | `metadata` | Source directory path            |
+| `--dry-run` |       | `boolean` | `false`    | Preview changes without applying |
 
 ### Example
 
@@ -243,10 +243,10 @@ gpc listings images list --lang <language> --type <type>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--lang` | | `string` | **(required)** | Language code (BCP 47) |
-| `--type` | | `string` | **(required)** | Image type (see below) |
+| Flag     | Short | Type     | Default        | Description            |
+| -------- | ----- | -------- | -------------- | ---------------------- |
+| `--lang` |       | `string` | **(required)** | Language code (BCP 47) |
+| `--type` |       | `string` | **(required)** | Image type (see below) |
 
 Valid image types: `phoneScreenshots`, `sevenInchScreenshots`, `tenInchScreenshots`, `tvScreenshots`, `wearScreenshots`, `icon`, `featureGraphic`, `tvBanner`.
 
@@ -282,10 +282,10 @@ gpc listings images upload <file> --lang <language> --type <type>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--lang` | | `string` | **(required)** | Language code (BCP 47) |
-| `--type` | | `string` | **(required)** | Image type |
+| Flag     | Short | Type     | Default        | Description            |
+| -------- | ----- | -------- | -------------- | ---------------------- |
+| `--lang` |       | `string` | **(required)** | Language code (BCP 47) |
+| `--type` |       | `string` | **(required)** | Image type             |
 
 ### Example
 
@@ -310,11 +310,11 @@ gpc listings images delete --lang <language> --type <type> --id <imageId>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--lang` | | `string` | **(required)** | Language code (BCP 47) |
-| `--type` | | `string` | **(required)** | Image type |
-| `--id` | | `string` | **(required)** | Image ID to delete |
+| Flag     | Short | Type     | Default        | Description            |
+| -------- | ----- | -------- | -------------- | ---------------------- |
+| `--lang` |       | `string` | **(required)** | Language code (BCP 47) |
+| `--type` |       | `string` | **(required)** | Image type             |
+| `--id`   |       | `string` | **(required)** | Image ID to delete     |
 
 ### Example
 
@@ -340,9 +340,9 @@ gpc listings availability [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--track` | | `string` | `production` | Track name |
+| Flag      | Short | Type     | Default      | Description |
+| --------- | ----- | -------- | ------------ | ----------- |
+| `--track` |       | `string` | `production` | Track name  |
 
 ### Example
 

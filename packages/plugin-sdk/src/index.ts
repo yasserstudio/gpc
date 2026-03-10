@@ -40,7 +40,10 @@ export interface PluginHooks {
 }
 
 export type BeforeCommandHandler = (ctx: CommandEvent) => void | Promise<void>;
-export type AfterCommandHandler = (ctx: CommandEvent, result: CommandResult) => void | Promise<void>;
+export type AfterCommandHandler = (
+  ctx: CommandEvent,
+  result: CommandResult,
+) => void | Promise<void>;
 export type ErrorHandler = (ctx: CommandEvent, error: PluginError) => void | Promise<void>;
 export type BeforeRequestHandler = (req: RequestEvent) => void | Promise<void>;
 export type AfterResponseHandler = (req: RequestEvent, res: ResponseEvent) => void | Promise<void>;

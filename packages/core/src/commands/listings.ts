@@ -1,4 +1,11 @@
-import type { PlayApiClient, Listing, Image, ImageType, AppDetails, CountryAvailability } from "@gpc-cli/api";
+import type {
+  PlayApiClient,
+  Listing,
+  Image,
+  ImageType,
+  AppDetails,
+  CountryAvailability,
+} from "@gpc-cli/api";
 import { isValidBcp47 } from "../utils/bcp47.js";
 import { validateImage } from "../utils/image-validation.js";
 import { readListingsFromDir, writeListingsToDir, diffListings } from "../utils/fastlane.js";

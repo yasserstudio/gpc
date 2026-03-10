@@ -8,14 +8,14 @@ Manage legacy in-app products (one-time purchases, consumables, non-consumables)
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`iap list`](#iap-list) | List in-app products |
-| [`iap get`](#iap-get) | Get an in-app product by SKU |
-| [`iap create`](#iap-create) | Create an in-app product from JSON |
-| [`iap update`](#iap-update) | Update an in-app product from JSON |
-| [`iap delete`](#iap-delete) | Delete an in-app product |
-| [`iap sync`](#iap-sync) | Sync in-app products from a directory of JSON files |
+| Command                     | Description                                         |
+| --------------------------- | --------------------------------------------------- |
+| [`iap list`](#iap-list)     | List in-app products                                |
+| [`iap get`](#iap-get)       | Get an in-app product by SKU                        |
+| [`iap create`](#iap-create) | Create an in-app product from JSON                  |
+| [`iap update`](#iap-update) | Update an in-app product from JSON                  |
+| [`iap delete`](#iap-delete) | Delete an in-app product                            |
+| [`iap sync`](#iap-sync)     | Sync in-app products from a directory of JSON files |
 
 ## `iap list`
 
@@ -29,11 +29,11 @@ gpc iap list [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--max` | | `number` | | Maximum results per page |
-| `--limit` | | `number` | | Maximum total results |
-| `--next-page` | | `string` | | Resume from pagination token |
+| Flag          | Short | Type     | Default | Description                  |
+| ------------- | ----- | -------- | ------- | ---------------------------- |
+| `--max`       |       | `number` |         | Maximum results per page     |
+| `--limit`     |       | `number` |         | Maximum total results        |
+| `--next-page` |       | `string` |         | Resume from pagination token |
 
 ### Example
 
@@ -99,9 +99,9 @@ gpc iap create --file <path>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--file` | | `string` | **(required)** | Path to JSON file with product data |
+| Flag     | Short | Type     | Default        | Description                         |
+| -------- | ----- | -------- | -------------- | ----------------------------------- |
+| `--file` |       | `string` | **(required)** | Path to JSON file with product data |
 
 ### Example
 
@@ -152,9 +152,9 @@ gpc iap update <sku> --file <path>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--file` | | `string` | **(required)** | Path to JSON file with product data |
+| Flag     | Short | Type     | Default        | Description                         |
+| -------- | ----- | -------- | -------------- | ----------------------------------- |
+| `--file` |       | `string` | **(required)** | Path to JSON file with product data |
 
 ### Example
 
@@ -206,10 +206,10 @@ gpc iap sync --dir <path> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--dir` | | `string` | **(required)** | Directory containing product JSON files |
-| `--dry-run` | | `boolean` | `false` | Preview changes without applying |
+| Flag        | Short | Type      | Default        | Description                             |
+| ----------- | ----- | --------- | -------------- | --------------------------------------- |
+| `--dir`     |       | `string`  | **(required)** | Directory containing product JSON files |
+| `--dry-run` |       | `boolean` | `false`        | Preview changes without applying        |
 
 ### Example
 

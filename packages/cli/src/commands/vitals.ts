@@ -36,10 +36,18 @@ async function getReportingClient(config: GpcConfig) {
 }
 
 const VALID_DIMENSIONS: ReportingDimension[] = [
-  "apiLevel", "versionCode", "deviceModel", "deviceType",
-  "countryCode", "deviceRamBucket", "deviceSocName",
-  "deviceCpuMakeModel", "deviceGlEsVersion", "deviceVulkanVersion",
-  "deviceOpenGlVersion", "deviceBrand",
+  "apiLevel",
+  "versionCode",
+  "deviceModel",
+  "deviceType",
+  "countryCode",
+  "deviceRamBucket",
+  "deviceSocName",
+  "deviceCpuMakeModel",
+  "deviceGlEsVersion",
+  "deviceVulkanVersion",
+  "deviceOpenGlVersion",
+  "deviceBrand",
 ];
 
 function validateDimension(dim: string): ReportingDimension {
@@ -68,7 +76,7 @@ function registerMetricCommand(
     .option("--threshold <value>", "Threshold value for CI alerting", parseFloat)
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const reporting = await getReportingClient(config);
       const format = detectOutputFormat();
 
@@ -109,7 +117,7 @@ export function registerVitalsCommands(program: Command): void {
     .description("Dashboard summary of all vital metrics")
     .action(async () => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const reporting = await getReportingClient(config);
       const format = detectOutputFormat();
 
@@ -125,8 +133,20 @@ export function registerVitalsCommands(program: Command): void {
   registerMetricCommand(vitals, "crashes", "Query crash rate metrics", getVitalsCrashes, program);
   registerMetricCommand(vitals, "anr", "Query ANR rate metrics", getVitalsAnr, program);
   registerMetricCommand(vitals, "startup", "Query slow startup metrics", getVitalsStartup, program);
-  registerMetricCommand(vitals, "rendering", "Query slow rendering metrics", getVitalsRendering, program);
-  registerMetricCommand(vitals, "battery", "Query excessive wakeup metrics", getVitalsBattery, program);
+  registerMetricCommand(
+    vitals,
+    "rendering",
+    "Query slow rendering metrics",
+    getVitalsRendering,
+    program,
+  );
+  registerMetricCommand(
+    vitals,
+    "battery",
+    "Query excessive wakeup metrics",
+    getVitalsBattery,
+    program,
+  );
   registerMetricCommand(vitals, "memory", "Query stuck wakelock metrics", getVitalsMemory, program);
 
   vitals
@@ -134,7 +154,7 @@ export function registerVitalsCommands(program: Command): void {
     .description("Detect anomalies in app vitals")
     .action(async () => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const reporting = await getReportingClient(config);
       const format = detectOutputFormat();
 
@@ -147,9 +167,7 @@ export function registerVitalsCommands(program: Command): void {
       }
     });
 
-  const errors = vitals
-    .command("errors")
-    .description("Search and view error issues");
+  const errors = vitals.command("errors").description("Search and view error issues");
 
   errors
     .command("search")
@@ -158,7 +176,7 @@ export function registerVitalsCommands(program: Command): void {
     .option("--max <n>", "Maximum results", parseInt)
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const reporting = await getReportingClient(config);
       const format = detectOutputFormat();
 
@@ -190,12 +208,14 @@ export function registerVitalsCommands(program: Command): void {
     .action(async (metric: string, options) => {
       const metricSet = METRIC_MAP[metric];
       if (!metricSet) {
-        console.error(`Error: Unknown metric "${metric}". Use: ${Object.keys(METRIC_MAP).join(", ")}`);
+        console.error(
+          `Error: Unknown metric "${metric}". Use: ${Object.keys(METRIC_MAP).join(", ")}`,
+        );
         process.exit(2);
       }
 
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const reporting = await getReportingClient(config);
       const format = detectOutputFormat();
 

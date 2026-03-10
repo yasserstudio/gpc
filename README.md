@@ -76,19 +76,19 @@ GPC covers the **entire Google Play Developer API** in one CLI. No Ruby. No brow
 
 ### GPC vs Alternatives
 
-|  | **GPC** | Fastlane supply | gradle-play-publisher | Console UI |
-| --- | --- | --- | --- | --- |
-| API coverage | **162 endpoints** | ~20 | ~15 | All (manual) |
-| Standalone CLI | Yes | Yes | No (Gradle only) | N/A |
-| Runtime | Node.js | Ruby + Bundler | JVM | Browser |
-| JSON output | Structured + TTY-aware | Partial | No | No |
-| Reviews & Vitals | Yes | No | No | Yes (manual) |
-| Subscriptions & IAP | Yes | No | No | Yes (manual) |
-| CI/CD native | JSON + exit codes + env vars | Partial | Gradle tasks | No |
-| Cold start | <500ms | 2-3s | 3-5s | 5-10s |
-| Plugin system | Yes | No | No | No |
-| Interactive mode | Yes (guided prompts) | No | No | N/A |
-| Test suite | 597 tests, 90%+ coverage | — | — | — |
+|                     | **GPC**                      | Fastlane supply | gradle-play-publisher | Console UI   |
+| ------------------- | ---------------------------- | --------------- | --------------------- | ------------ |
+| API coverage        | **162 endpoints**            | ~20             | ~15                   | All (manual) |
+| Standalone CLI      | Yes                          | Yes             | No (Gradle only)      | N/A          |
+| Runtime             | Node.js                      | Ruby + Bundler  | JVM                   | Browser      |
+| JSON output         | Structured + TTY-aware       | Partial         | No                    | No           |
+| Reviews & Vitals    | Yes                          | No              | No                    | Yes (manual) |
+| Subscriptions & IAP | Yes                          | No              | No                    | Yes (manual) |
+| CI/CD native        | JSON + exit codes + env vars | Partial         | Gradle tasks          | No           |
+| Cold start          | <500ms                       | 2-3s            | 3-5s                  | 5-10s        |
+| Plugin system       | Yes                          | No              | No                    | No           |
+| Interactive mode    | Yes (guided prompts)         | No              | No                    | N/A          |
+| Test suite          | 597 tests, 90%+ coverage     | —               | —                     | —            |
 
 See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 162 endpoints.
 
@@ -305,12 +305,12 @@ gpc releases upload app.aab --track beta --dry-run
 
 Four options — pick the one that fits:
 
-| Method | Best for |
-|--------|----------|
-| Service account | CI/CD pipelines, automation |
-| OAuth | Local development, quick setup |
-| Environment variable | Docker, ephemeral environments |
-| ADC | GCP-hosted runners (Cloud Build, GKE) |
+| Method               | Best for                              |
+| -------------------- | ------------------------------------- |
+| Service account      | CI/CD pipelines, automation           |
+| OAuth                | Local development, quick setup        |
+| Environment variable | Docker, ephemeral environments        |
+| ADC                  | GCP-hosted runners (Cloud Build, GKE) |
 
 ```bash
 # Service account (recommended for CI/CD)
@@ -363,16 +363,16 @@ Or drop a `.gpcrc.json` in your project:
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `GPC_SERVICE_ACCOUNT` | Service account JSON string or file path | — |
-| `GPC_APP` | Default package name | — |
-| `GPC_PROFILE` | Auth profile name | — |
-| `GPC_OUTPUT` | Default output format | `table` (TTY) / `json` (pipe) |
-| `GPC_NO_COLOR` | Disable color output | — |
-| `GPC_NO_INTERACTIVE` | Disable prompts (auto in CI) | — |
-| `GPC_MAX_RETRIES` | Max retry attempts | `3` |
-| `GPC_TIMEOUT` | Request timeout (ms) | `30000` |
+| Variable              | Description                              | Default                       |
+| --------------------- | ---------------------------------------- | ----------------------------- |
+| `GPC_SERVICE_ACCOUNT` | Service account JSON string or file path | —                             |
+| `GPC_APP`             | Default package name                     | —                             |
+| `GPC_PROFILE`         | Auth profile name                        | —                             |
+| `GPC_OUTPUT`          | Default output format                    | `table` (TTY) / `json` (pipe) |
+| `GPC_NO_COLOR`        | Disable color output                     | —                             |
+| `GPC_NO_INTERACTIVE`  | Disable prompts (auto in CI)             | —                             |
+| `GPC_MAX_RETRIES`     | Max retry attempts                       | `3`                           |
+| `GPC_TIMEOUT`         | Request timeout (ms)                     | `30000`                       |
 
 ---
 
@@ -380,15 +380,15 @@ Or drop a `.gpcrc.json` in your project:
 
 GPC is a TypeScript monorepo. Each package is independently publishable — use the CLI from your terminal, or import the SDK into your own projects:
 
-| Package | Description |
-| --- | --- |
-| [`@gpc-cli/cli`](https://www.npmjs.com/package/@gpc-cli/cli) | CLI entry point — the `gpc` command you run |
-| [`@gpc-cli/core`](https://www.npmjs.com/package/@gpc-cli/core) | Business logic and command orchestration |
-| [`@gpc-cli/api`](https://www.npmjs.com/package/@gpc-cli/api) | Typed Google Play Developer API v3 client |
-| [`@gpc-cli/auth`](https://www.npmjs.com/package/@gpc-cli/auth) | Authentication strategies (service account, OAuth, ADC) |
-| [`@gpc-cli/config`](https://www.npmjs.com/package/@gpc-cli/config) | Configuration loading and validation |
-| [`@gpc-cli/plugin-sdk`](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface for third-party extensions |
-| [`@gpc-cli/plugin-ci`](https://www.npmjs.com/package/@gpc-cli/plugin-ci) | CI/CD helpers and GitHub Actions step summaries |
+| Package                                                                    | Description                                             |
+| -------------------------------------------------------------------------- | ------------------------------------------------------- |
+| [`@gpc-cli/cli`](https://www.npmjs.com/package/@gpc-cli/cli)               | CLI entry point — the `gpc` command you run             |
+| [`@gpc-cli/core`](https://www.npmjs.com/package/@gpc-cli/core)             | Business logic and command orchestration                |
+| [`@gpc-cli/api`](https://www.npmjs.com/package/@gpc-cli/api)               | Typed Google Play Developer API v3 client               |
+| [`@gpc-cli/auth`](https://www.npmjs.com/package/@gpc-cli/auth)             | Authentication strategies (service account, OAuth, ADC) |
+| [`@gpc-cli/config`](https://www.npmjs.com/package/@gpc-cli/config)         | Configuration loading and validation                    |
+| [`@gpc-cli/plugin-sdk`](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface for third-party extensions             |
+| [`@gpc-cli/plugin-ci`](https://www.npmjs.com/package/@gpc-cli/plugin-ci)   | CI/CD helpers and GitHub Actions step summaries         |
 
 Build custom dashboards, Slack bots, or internal tools on top of the same API client GPC uses:
 
@@ -413,16 +413,16 @@ CLI for your terminal. SDK for everything else.
 
 Your CI can distinguish "auth expired" from "crash rate too high" and react differently:
 
-| Code | Meaning |
-|------|---------|
-| `0` | Success |
-| `1` | General error |
-| `2` | Usage error (bad arguments) |
-| `3` | Authentication error |
-| `4` | API error (rate limit, permission) |
-| `5` | Network error |
-| `6` | Threshold breach (vitals CI alerting) |
-| `10` | Plugin error |
+| Code | Meaning                               |
+| ---- | ------------------------------------- |
+| `0`  | Success                               |
+| `1`  | General error                         |
+| `2`  | Usage error (bad arguments)           |
+| `3`  | Authentication error                  |
+| `4`  | API error (rate limit, permission)    |
+| `5`  | Network error                         |
+| `6`  | Threshold breach (vitals CI alerting) |
+| `10` | Plugin error                          |
 
 ---
 

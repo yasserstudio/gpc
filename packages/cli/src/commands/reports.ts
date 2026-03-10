@@ -32,9 +32,7 @@ async function getClient(config: GpcConfig) {
 }
 
 export function registerReportsCommands(program: Command): void {
-  const reports = program
-    .command("reports")
-    .description("Download financial and stats reports");
+  const reports = program.command("reports").description("Download financial and stats reports");
 
   reports
     .command("list <report-type>")
@@ -45,23 +43,36 @@ export function registerReportsCommands(program: Command): void {
       const now = new Date();
       const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-      options.month = await requireOption("month", options.month, {
-        message: "Report month (YYYY-MM):",
-        default: defaultMonth,
-      }, interactive);
+      options.month = await requireOption(
+        "month",
+        options.month,
+        {
+          message: "Report month (YYYY-MM):",
+          default: defaultMonth,
+        },
+        interactive,
+      );
 
       if (!isValidReportType(reportType)) {
-        console.error(`Error: Invalid report type "${reportType}". Valid types: earnings, sales, estimated_sales, installs, crashes, ratings, reviews, store_performance, subscriptions, play_balance`);
+        console.error(
+          `Error: Invalid report type "${reportType}". Valid types: earnings, sales, estimated_sales, installs, crashes, ratings, reviews, store_performance, subscriptions, play_balance`,
+        );
         process.exit(2);
       }
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
       try {
         const { year, month } = parseMonth(options.month);
-        const result = await listReports(client, packageName, reportType as ReportType, year, month);
+        const result = await listReports(
+          client,
+          packageName,
+          reportType as ReportType,
+          year,
+          month,
+        );
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -69,9 +80,7 @@ export function registerReportsCommands(program: Command): void {
       }
     });
 
-  const download = reports
-    .command("download")
-    .description("Download a report");
+  const download = reports.command("download").description("Download a report");
 
   download
     .command("financial")
@@ -84,22 +93,35 @@ export function registerReportsCommands(program: Command): void {
       const now = new Date();
       const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
-      options.month = await requireOption("month", options.month, {
-        message: "Report month (YYYY-MM):",
-        default: defaultMonth,
-      }, interactive);
+      options.month = await requireOption(
+        "month",
+        options.month,
+        {
+          message: "Report month (YYYY-MM):",
+          default: defaultMonth,
+        },
+        interactive,
+      );
 
       if (!isFinancialReportType(options.type)) {
-        console.error(`Error: Invalid financial report type "${options.type}". Valid types: earnings, sales, estimated_sales, play_balance`);
+        console.error(
+          `Error: Invalid financial report type "${options.type}". Valid types: earnings, sales, estimated_sales, play_balance`,
+        );
         process.exit(2);
       }
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
 
       try {
         const { year, month } = parseMonth(options.month);
-        const csv = await downloadReport(client, packageName, options.type as ReportType, year, month);
+        const csv = await downloadReport(
+          client,
+          packageName,
+          options.type as ReportType,
+          year,
+          month,
+        );
         if (options.outputFile) {
           await writeFile(options.outputFile, csv, "utf-8");
           console.log(`Report saved to ${options.outputFile}`);
@@ -116,35 +138,63 @@ export function registerReportsCommands(program: Command): void {
     .command("stats")
     .description("Download a stats report")
     .option("--month <YYYY-MM>", "Report month (e.g., 2026-03)")
-    .option("--type <report-type>", "Report type (installs, crashes, ratings, reviews, store_performance, subscriptions)")
+    .option(
+      "--type <report-type>",
+      "Report type (installs, crashes, ratings, reviews, store_performance, subscriptions)",
+    )
     .option("--output-file <path>", "Save to file instead of stdout")
     .action(async (options) => {
       const interactive = isInteractive(program);
       const now = new Date();
       const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-      const statsTypes = ["installs", "crashes", "ratings", "reviews", "store_performance", "subscriptions"];
+      const statsTypes = [
+        "installs",
+        "crashes",
+        "ratings",
+        "reviews",
+        "store_performance",
+        "subscriptions",
+      ];
 
-      options.month = await requireOption("month", options.month, {
-        message: "Report month (YYYY-MM):",
-        default: defaultMonth,
-      }, interactive);
+      options.month = await requireOption(
+        "month",
+        options.month,
+        {
+          message: "Report month (YYYY-MM):",
+          default: defaultMonth,
+        },
+        interactive,
+      );
 
-      options.type = await requireOption("type", options.type, {
-        message: "Stats report type:",
-        choices: statsTypes,
-      }, interactive);
+      options.type = await requireOption(
+        "type",
+        options.type,
+        {
+          message: "Stats report type:",
+          choices: statsTypes,
+        },
+        interactive,
+      );
 
       if (!isStatsReportType(options.type)) {
-        console.error(`Error: Invalid stats report type "${options.type}". Valid types: installs, crashes, ratings, reviews, store_performance, subscriptions`);
+        console.error(
+          `Error: Invalid stats report type "${options.type}". Valid types: installs, crashes, ratings, reviews, store_performance, subscriptions`,
+        );
         process.exit(2);
       }
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
 
       try {
         const { year, month } = parseMonth(options.month);
-        const csv = await downloadReport(client, packageName, options.type as ReportType, year, month);
+        const csv = await downloadReport(
+          client,
+          packageName,
+          options.type as ReportType,
+          year,
+          month,
+        );
         if (options.outputFile) {
           await writeFile(options.outputFile, csv, "utf-8");
           console.log(`Report saved to ${options.outputFile}`);

@@ -60,14 +60,14 @@ if (ci.hasStepSummary) {
 
 ## CI Detection
 
-| Provider | Detected By |
-|----------|-------------|
+| Provider       | Detected By      |
+| -------------- | ---------------- |
 | GitHub Actions | `GITHUB_ACTIONS` |
-| GitLab CI | `GITLAB_CI` |
-| Jenkins | `JENKINS_URL` |
-| CircleCI | `CIRCLECI` |
-| Bitrise | `BITRISE_IO` |
-| Generic CI | `CI` |
+| GitLab CI      | `GITLAB_CI`      |
+| Jenkins        | `JENKINS_URL`    |
+| CircleCI       | `CIRCLECI`       |
+| Bitrise        | `BITRISE_IO`     |
+| Generic CI     | `CI`             |
 
 ## Part of the GPC Monorepo
 

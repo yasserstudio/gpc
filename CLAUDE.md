@@ -65,6 +65,7 @@ VitePress docs site: https://yasserstudio.github.io/gpc/
 Source: `apps/docs/` — 37+ pages across guide, commands, CI/CD, advanced, migration, reference
 
 Legacy markdown docs in `docs/` — read before making architectural changes:
+
 - `docs/ARCHITECTURE.md` — system design, package graph
 - `docs/COMMANDS.md` — CLI command reference
 - `docs/API_REFERENCE.md` — Google Play API deep dive
@@ -72,6 +73,7 @@ Legacy markdown docs in `docs/` — read before making architectural changes:
 - `docs/ROADMAP.md` — phased implementation plan
 
 Private strategy docs in `.dev/` (gitignored):
+
 - `.dev/marketing/` — branding, launch, content, pricing
 - `.dev/engineering/` — implementation strategy
 - `.dev/HONEST_ASSESSMENT.md`, `.dev/COMPARISON_WITH_ASC_CLI.md`
@@ -80,21 +82,21 @@ Private strategy docs in `.dev/` (gitignored):
 
 Agent skills for GPC workflows are in `.agents/skills/gpc-*`:
 
-| Skill | When to Use |
-|-------|-------------|
-| `gpc-setup` | Auth (service account, OAuth, ADC), config, profiles, `gpc doctor` |
-| `gpc-release-flow` | Upload AAB, releases, rollouts, promote, `gpc publish` |
-| `gpc-metadata-sync` | Store listings, images, Fastlane metadata compat, pull/push |
-| `gpc-vitals-monitoring` | Crashes, ANR, vitals thresholds, reviews, reports |
-| `gpc-ci-integration` | GitHub Actions, GitLab CI, env vars, JSON output, exit codes |
-| `gpc-monetization` | Subscriptions, IAP, base plans, offers, purchases, pricing, regional conversion |
-| `gpc-user-management` | Developer account users, permissions, grants, testers, CSV import |
-| `gpc-migrate-fastlane` | Fastlane-to-GPC migration, command mapping, CI migration |
-| `gpc-plugin-development` | Plugin SDK, lifecycle hooks, permissions, custom commands |
-| `gpc-troubleshooting` | Exit codes, error catalog, debug mode, common fixes |
-| `gpc-sdk-usage` | @gpc-cli/api and @gpc-cli/auth as standalone TypeScript SDK |
-| `gpc-multi-app` | Multiple apps, profiles, batch operations, monorepo patterns |
-| `gpc-security` | Credential storage, key rotation, audit logging, incident response |
+| Skill                    | When to Use                                                                     |
+| ------------------------ | ------------------------------------------------------------------------------- |
+| `gpc-setup`              | Auth (service account, OAuth, ADC), config, profiles, `gpc doctor`              |
+| `gpc-release-flow`       | Upload AAB, releases, rollouts, promote, `gpc publish`                          |
+| `gpc-metadata-sync`      | Store listings, images, Fastlane metadata compat, pull/push                     |
+| `gpc-vitals-monitoring`  | Crashes, ANR, vitals thresholds, reviews, reports                               |
+| `gpc-ci-integration`     | GitHub Actions, GitLab CI, env vars, JSON output, exit codes                    |
+| `gpc-monetization`       | Subscriptions, IAP, base plans, offers, purchases, pricing, regional conversion |
+| `gpc-user-management`    | Developer account users, permissions, grants, testers, CSV import               |
+| `gpc-migrate-fastlane`   | Fastlane-to-GPC migration, command mapping, CI migration                        |
+| `gpc-plugin-development` | Plugin SDK, lifecycle hooks, permissions, custom commands                       |
+| `gpc-troubleshooting`    | Exit codes, error catalog, debug mode, common fixes                             |
+| `gpc-sdk-usage`          | @gpc-cli/api and @gpc-cli/auth as standalone TypeScript SDK                     |
+| `gpc-multi-app`          | Multiple apps, profiles, batch operations, monorepo patterns                    |
+| `gpc-security`           | Credential storage, key rotation, audit logging, incident response              |
 
 Read the relevant `SKILL.md` and its `references/` when working on these workflows.
 

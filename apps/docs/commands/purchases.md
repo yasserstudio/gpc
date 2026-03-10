@@ -8,17 +8,17 @@ Manage purchases, subscription purchases, voided purchases, and order refunds.
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`purchases get`](#purchases-get) | Get a product purchase |
-| [`purchases acknowledge`](#purchases-acknowledge) | Acknowledge a product purchase |
-| [`purchases consume`](#purchases-consume) | Consume a consumable purchase |
-| [`purchases subscription get`](#purchases-subscription-get) | Get a subscription purchase (v2 API) |
-| [`purchases subscription cancel`](#purchases-subscription-cancel) | Cancel a subscription (v1 API) |
-| [`purchases subscription defer`](#purchases-subscription-defer) | Defer a subscription expiry |
-| [`purchases subscription revoke`](#purchases-subscription-revoke) | Revoke a subscription (v2 API) |
-| [`purchases voided`](#purchases-voided) | List voided purchases |
-| [`purchases orders refund`](#purchases-orders-refund) | Refund an order |
+| Command                                                           | Description                          |
+| ----------------------------------------------------------------- | ------------------------------------ |
+| [`purchases get`](#purchases-get)                                 | Get a product purchase               |
+| [`purchases acknowledge`](#purchases-acknowledge)                 | Acknowledge a product purchase       |
+| [`purchases consume`](#purchases-consume)                         | Consume a consumable purchase        |
+| [`purchases subscription get`](#purchases-subscription-get)       | Get a subscription purchase (v2 API) |
+| [`purchases subscription cancel`](#purchases-subscription-cancel) | Cancel a subscription (v1 API)       |
+| [`purchases subscription defer`](#purchases-subscription-defer)   | Defer a subscription expiry          |
+| [`purchases subscription revoke`](#purchases-subscription-revoke) | Revoke a subscription (v2 API)       |
+| [`purchases voided`](#purchases-voided)                           | List voided purchases                |
+| [`purchases orders refund`](#purchases-orders-refund)             | Refund an order                      |
 
 ## `purchases get`
 
@@ -68,9 +68,9 @@ gpc purchases acknowledge <product-id> <token> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--payload` | | `string` | | Developer payload string |
+| Flag        | Short | Type     | Default | Description              |
+| ----------- | ----- | -------- | ------- | ------------------------ |
+| `--payload` |       | `string` |         | Developer payload string |
 
 ### Example
 
@@ -195,9 +195,9 @@ gpc purchases subscription defer <subscription-id> <token> --expiry <iso-date>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--expiry` | | `string` | **(required)** | Desired new expiry date (ISO 8601) |
+| Flag       | Short | Type     | Default        | Description                        |
+| ---------- | ----- | -------- | -------------- | ---------------------------------- |
+| `--expiry` |       | `string` | **(required)** | Desired new expiry date (ISO 8601) |
 
 ### Example
 
@@ -250,13 +250,13 @@ gpc purchases voided [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--start-time` | | `string` | | Start time in milliseconds since epoch |
-| `--end-time` | | `string` | | End time in milliseconds since epoch |
-| `--max-results` | | `number` | | Maximum results per page |
-| `--limit` | | `number` | | Maximum total results |
-| `--next-page` | | `string` | | Resume from pagination token |
+| Flag            | Short | Type     | Default | Description                            |
+| --------------- | ----- | -------- | ------- | -------------------------------------- |
+| `--start-time`  |       | `string` |         | Start time in milliseconds since epoch |
+| `--end-time`    |       | `string` |         | End time in milliseconds since epoch   |
+| `--max-results` |       | `number` |         | Maximum results per page               |
+| `--limit`       |       | `number` |         | Maximum total results                  |
+| `--next-page`   |       | `string` |         | Resume from pagination token           |
 
 ::: info Rate Limit
 The voided purchases API is limited to 6,000 requests per day and 30 requests per 30 seconds.
@@ -294,10 +294,10 @@ gpc purchases orders refund <order-id> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--full-refund` | | `boolean` | `false` | Issue a full refund |
-| `--prorated-refund` | | `boolean` | `false` | Issue a prorated refund |
+| Flag                | Short | Type      | Default | Description             |
+| ------------------- | ----- | --------- | ------- | ----------------------- |
+| `--full-refund`     |       | `boolean` | `false` | Issue a full refund     |
+| `--prorated-refund` |       | `boolean` | `false` | Issue a prorated refund |
 
 ### Example
 

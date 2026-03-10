@@ -8,29 +8,29 @@ GPC is designed for automation. Every command returns structured output, uses de
 
 ## Why GPC Is CI-Native
 
-| Feature | How It Helps in CI |
-|---------|-------------------|
-| JSON output | Parse results with `jq`, store in variables, pass between steps |
-| Exit codes 0-6 | Branch pipeline logic on success, auth failure, threshold breach, etc. |
-| Env var config | `GPC_SERVICE_ACCOUNT`, `GPC_APP` -- no config files needed |
-| `--dry-run` | Validate changes in PR checks without modifying Play Console state |
-| `--no-interactive` | Auto-set when `CI=true` is detected; never blocks on prompts |
-| Markdown output | Write directly to `$GITHUB_STEP_SUMMARY` with `--output markdown` |
+| Feature            | How It Helps in CI                                                     |
+| ------------------ | ---------------------------------------------------------------------- |
+| JSON output        | Parse results with `jq`, store in variables, pass between steps        |
+| Exit codes 0-6     | Branch pipeline logic on success, auth failure, threshold breach, etc. |
+| Env var config     | `GPC_SERVICE_ACCOUNT`, `GPC_APP` -- no config files needed             |
+| `--dry-run`        | Validate changes in PR checks without modifying Play Console state     |
+| `--no-interactive` | Auto-set when `CI=true` is detected; never blocks on prompts           |
+| Markdown output    | Write directly to `$GITHUB_STEP_SUMMARY` with `--output markdown`      |
 
 ## Exit Codes
 
 Every GPC command exits with a code that CI systems can act on.
 
-| Code | Meaning | CI Action |
-|------|---------|-----------|
-| `0` | Success | Continue pipeline |
-| `1` | General error | Fail the job |
-| `2` | Usage error (bad arguments) | Fix the command invocation |
-| `3` | Authentication error | Check `GPC_SERVICE_ACCOUNT` secret |
-| `4` | API error (rate limit, permission denied) | Retry or check permissions |
-| `5` | Network error | Retry the step |
-| `6` | Threshold breach (vitals gating) | Halt rollout, alert team |
-| `10` | Plugin error | Check plugin configuration |
+| Code | Meaning                                   | CI Action                          |
+| ---- | ----------------------------------------- | ---------------------------------- |
+| `0`  | Success                                   | Continue pipeline                  |
+| `1`  | General error                             | Fail the job                       |
+| `2`  | Usage error (bad arguments)               | Fix the command invocation         |
+| `3`  | Authentication error                      | Check `GPC_SERVICE_ACCOUNT` secret |
+| `4`  | API error (rate limit, permission denied) | Retry or check permissions         |
+| `5`  | Network error                             | Retry the step                     |
+| `6`  | Threshold breach (vitals gating)          | Halt rollout, alert team           |
+| `10` | Plugin error                              | Check plugin configuration         |
 
 ```bash
 # Branch on exit code in a CI script
@@ -86,35 +86,35 @@ When running in GitHub Actions with `$GITHUB_STEP_SUMMARY` available, the plugin
 
 ### Detected CI Providers
 
-| Provider | Detection Variable | Build ID | Branch Variable |
-|----------|-------------------|----------|----------------|
-| GitHub Actions | `GITHUB_ACTIONS=true` | `GITHUB_RUN_ID` | `GITHUB_REF_NAME` |
-| GitLab CI | `GITLAB_CI=true` | `CI_JOB_ID` | `CI_COMMIT_BRANCH` |
-| Jenkins | `JENKINS_URL` | `BUILD_NUMBER` | `BRANCH_NAME` |
-| CircleCI | `CIRCLECI=true` | `CIRCLE_BUILD_NUM` | `CIRCLE_BRANCH` |
-| Bitrise | `BITRISE_IO=true` | `BITRISE_BUILD_NUMBER` | `BITRISE_GIT_BRANCH` |
-| Generic | `CI=true` | -- | -- |
+| Provider       | Detection Variable    | Build ID               | Branch Variable      |
+| -------------- | --------------------- | ---------------------- | -------------------- |
+| GitHub Actions | `GITHUB_ACTIONS=true` | `GITHUB_RUN_ID`        | `GITHUB_REF_NAME`    |
+| GitLab CI      | `GITLAB_CI=true`      | `CI_JOB_ID`            | `CI_COMMIT_BRANCH`   |
+| Jenkins        | `JENKINS_URL`         | `BUILD_NUMBER`         | `BRANCH_NAME`        |
+| CircleCI       | `CIRCLECI=true`       | `CIRCLE_BUILD_NUM`     | `CIRCLE_BRANCH`      |
+| Bitrise        | `BITRISE_IO=true`     | `BITRISE_BUILD_NUMBER` | `BITRISE_GIT_BRANCH` |
+| Generic        | `CI=true`             | --                     | --                   |
 
 ## Environment Variables
 
 Configure GPC entirely through environment variables. No config files needed in CI.
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `GPC_SERVICE_ACCOUNT` | Service account JSON string or file path | Yes (CI) | -- |
-| `GPC_APP` | Default package name | Recommended | -- |
-| `GPC_DEVELOPER_ID` | Developer account ID (for user/permission commands) | No | -- |
-| `GPC_PROFILE` | Auth profile name | No | -- |
-| `GPC_OUTPUT` | Default output format | No | `json` (non-TTY) |
-| `GPC_NO_COLOR` | Disable color output | No | Auto in CI |
-| `GPC_NO_INTERACTIVE` | Disable interactive prompts | No | Auto when `CI=true` |
-| `GPC_MAX_RETRIES` | Max retry attempts on transient errors | No | `3` |
-| `GPC_TIMEOUT` | Request timeout in milliseconds | No | `30000` |
-| `GPC_BASE_DELAY` | Base retry delay in milliseconds | No | `1000` |
-| `GPC_MAX_DELAY` | Max retry delay in milliseconds | No | `60000` |
-| `GPC_RATE_LIMIT` | Requests per second | No | `50` |
-| `GPC_CA_CERT` | Custom CA certificate path | No | -- |
-| `HTTPS_PROXY` | HTTP proxy URL | No | -- |
+| Variable              | Description                                         | Required    | Default             |
+| --------------------- | --------------------------------------------------- | ----------- | ------------------- |
+| `GPC_SERVICE_ACCOUNT` | Service account JSON string or file path            | Yes (CI)    | --                  |
+| `GPC_APP`             | Default package name                                | Recommended | --                  |
+| `GPC_DEVELOPER_ID`    | Developer account ID (for user/permission commands) | No          | --                  |
+| `GPC_PROFILE`         | Auth profile name                                   | No          | --                  |
+| `GPC_OUTPUT`          | Default output format                               | No          | `json` (non-TTY)    |
+| `GPC_NO_COLOR`        | Disable color output                                | No          | Auto in CI          |
+| `GPC_NO_INTERACTIVE`  | Disable interactive prompts                         | No          | Auto when `CI=true` |
+| `GPC_MAX_RETRIES`     | Max retry attempts on transient errors              | No          | `3`                 |
+| `GPC_TIMEOUT`         | Request timeout in milliseconds                     | No          | `30000`             |
+| `GPC_BASE_DELAY`      | Base retry delay in milliseconds                    | No          | `1000`              |
+| `GPC_MAX_DELAY`       | Max retry delay in milliseconds                     | No          | `60000`             |
+| `GPC_RATE_LIMIT`      | Requests per second                                 | No          | `50`                |
+| `GPC_CA_CERT`         | Custom CA certificate path                          | No          | --                  |
+| `HTTPS_PROXY`         | HTTP proxy URL                                      | No          | --                  |
 
 ### Secrets Management
 
@@ -148,7 +148,7 @@ All GPC commands in CI default to JSON output (auto-detected when stdout is not 
 ```json
 {
   "success": true,
-  "data": { },
+  "data": {},
   "metadata": {
     "command": "releases upload",
     "timestamp": "2026-03-09T12:00:00Z",

@@ -5,15 +5,9 @@ import { tmpdir } from "node:os";
 
 const { mockGetAccessToken, mockGetClient, mockGetProjectId, jwtOverride, adcOverride } =
   vi.hoisted(() => {
-    const mockGetAccessToken = vi
-      .fn()
-      .mockResolvedValue({ token: "mock-token" });
-    const mockGetClient = vi
-      .fn()
-      .mockRejectedValue(new Error("No ADC"));
-    const mockGetProjectId = vi
-      .fn()
-      .mockRejectedValue(new Error("No ADC"));
+    const mockGetAccessToken = vi.fn().mockResolvedValue({ token: "mock-token" });
+    const mockGetClient = vi.fn().mockRejectedValue(new Error("No ADC"));
+    const mockGetProjectId = vi.fn().mockRejectedValue(new Error("No ADC"));
     // Allow per-test overrides via a mutable ref
     const jwtOverride: { fn: (() => unknown) | null } = { fn: null };
     const adcOverride: { fn: (() => unknown) | null } = { fn: null };
@@ -53,8 +47,7 @@ const MOCK_SERVICE_ACCOUNT = {
   type: "service_account",
   project_id: "test-project",
   private_key_id: "key-id-123",
-  private_key:
-    "-----BEGIN RSA PRIVATE KEY-----\nMIIE...\n-----END RSA PRIVATE KEY-----\n",
+  private_key: "-----BEGIN RSA PRIVATE KEY-----\nMIIE...\n-----END RSA PRIVATE KEY-----\n",
   client_email: "test@test-project.iam.gserviceaccount.com",
   client_id: "123456789",
   auth_uri: "https://accounts.google.com/o/oauth2/auth",
@@ -62,10 +55,7 @@ const MOCK_SERVICE_ACCOUNT = {
 };
 
 import { AuthError } from "../src/errors";
-import {
-  loadServiceAccountKey,
-  createServiceAccountAuth,
-} from "../src/service-account";
+import { loadServiceAccountKey, createServiceAccountAuth } from "../src/service-account";
 import { resolveAuth } from "../src/resolve";
 
 let tempDir: string;
@@ -130,26 +120,17 @@ describe("error hierarchy", () => {
 // ---------------------------------------------------------------------------
 describe("loadServiceAccountKey", () => {
   it("loads from a valid JSON file", async () => {
-    const filePath = await writeTempFile(
-      "sa.json",
-      JSON.stringify(MOCK_SERVICE_ACCOUNT),
-    );
+    const filePath = await writeTempFile("sa.json", JSON.stringify(MOCK_SERVICE_ACCOUNT));
     const key = await loadServiceAccountKey(filePath);
     expect(key.type).toBe("service_account");
-    expect(key.client_email).toBe(
-      "test@test-project.iam.gserviceaccount.com",
-    );
+    expect(key.client_email).toBe("test@test-project.iam.gserviceaccount.com");
     expect(key.project_id).toBe("test-project");
   });
 
   it("loads from a raw JSON string", async () => {
-    const key = await loadServiceAccountKey(
-      JSON.stringify(MOCK_SERVICE_ACCOUNT),
-    );
+    const key = await loadServiceAccountKey(JSON.stringify(MOCK_SERVICE_ACCOUNT));
     expect(key.type).toBe("service_account");
-    expect(key.client_email).toBe(
-      "test@test-project.iam.gserviceaccount.com",
-    );
+    expect(key.client_email).toBe("test@test-project.iam.gserviceaccount.com");
   });
 
   it("throws AUTH_FILE_NOT_FOUND for a missing file", async () => {
@@ -204,9 +185,7 @@ describe("loadServiceAccountKey", () => {
 describe("createServiceAccountAuth", () => {
   it("returns an AuthClient with getClientEmail() returning the email", () => {
     const client = createServiceAccountAuth(MOCK_SERVICE_ACCOUNT);
-    expect(client.getClientEmail()).toBe(
-      "test@test-project.iam.gserviceaccount.com",
-    );
+    expect(client.getClientEmail()).toBe("test@test-project.iam.gserviceaccount.com");
   });
 
   it("returns an AuthClient with getProjectId() returning the project_id", () => {
@@ -230,31 +209,22 @@ describe("resolveAuth", () => {
   });
 
   it("uses serviceAccountPath from options when provided", async () => {
-    const filePath = await writeTempFile(
-      "sa-resolve.json",
-      JSON.stringify(MOCK_SERVICE_ACCOUNT),
-    );
+    const filePath = await writeTempFile("sa-resolve.json", JSON.stringify(MOCK_SERVICE_ACCOUNT));
     const client = await resolveAuth({ serviceAccountPath: filePath });
-    expect(client.getClientEmail()).toBe(
-      "test@test-project.iam.gserviceaccount.com",
-    );
+    expect(client.getClientEmail()).toBe("test@test-project.iam.gserviceaccount.com");
   });
 
   it("uses serviceAccountJson from options when provided", async () => {
     const client = await resolveAuth({
       serviceAccountJson: JSON.stringify(MOCK_SERVICE_ACCOUNT),
     });
-    expect(client.getClientEmail()).toBe(
-      "test@test-project.iam.gserviceaccount.com",
-    );
+    expect(client.getClientEmail()).toBe("test@test-project.iam.gserviceaccount.com");
   });
 
   it("uses GPC_SERVICE_ACCOUNT env var when no options provided", async () => {
     process.env["GPC_SERVICE_ACCOUNT"] = JSON.stringify(MOCK_SERVICE_ACCOUNT);
     const client = await resolveAuth();
-    expect(client.getClientEmail()).toBe(
-      "test@test-project.iam.gserviceaccount.com",
-    );
+    expect(client.getClientEmail()).toBe("test@test-project.iam.gserviceaccount.com");
   });
 
   it("throws AUTH_NO_CREDENTIALS when nothing is configured", async () => {
@@ -277,9 +247,7 @@ describe("resolveAuth", () => {
     const client = await resolveAuth({
       serviceAccountJson: JSON.stringify(altAccount),
     });
-    expect(client.getClientEmail()).toBe(
-      "json-option@test-project.iam.gserviceaccount.com",
-    );
+    expect(client.getClientEmail()).toBe("json-option@test-project.iam.gserviceaccount.com");
   });
 
   it("falls back to ADC when no service account options or env var are set", async () => {
@@ -407,9 +375,7 @@ describe("createServiceAccountAuth – token and project", () => {
 
   it("getAccessToken throws AUTH_TOKEN_FAILED when JWT rejects", async () => {
     jwtOverride.fn = () => ({
-      getAccessToken: vi
-        .fn()
-        .mockRejectedValue(new Error("private key is invalid")),
+      getAccessToken: vi.fn().mockRejectedValue(new Error("private key is invalid")),
     });
 
     const client = createServiceAccountAuth(MOCK_SERVICE_ACCOUNT);

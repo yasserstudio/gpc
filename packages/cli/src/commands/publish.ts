@@ -37,7 +37,7 @@ export function registerPublishCommand(program: Command): void {
       }
 
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const format = detectOutputFormat();
 
       // Interactive mode: prompt for missing options
@@ -48,7 +48,10 @@ export function registerPublishCommand(program: Command): void {
         }
 
         if (!options.rollout && options.track === "production") {
-          const rolloutStr = await promptInput("Staged rollout percentage (1-100, blank for full)", "100");
+          const rolloutStr = await promptInput(
+            "Staged rollout percentage (1-100, blank for full)",
+            "100",
+          );
           if (rolloutStr && rolloutStr !== "100") {
             options.rollout = rolloutStr;
           }
@@ -61,20 +64,28 @@ export function registerPublishCommand(program: Command): void {
       }
 
       if (isDryRun(program)) {
-        printDryRun({
-          command: "publish",
-          action: "publish",
-          target: file,
-          details: { track: options.track, rollout: options.rollout },
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "publish",
+            action: "publish",
+            target: file,
+            details: { track: options.track, rollout: options.rollout },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
-      const auditEntry = createAuditEntry("publish", {
-        file,
-        track: options.track,
-        rollout: options.rollout,
-      }, packageName);
+      const auditEntry = createAuditEntry(
+        "publish",
+        {
+          file,
+          track: options.track,
+          rollout: options.rollout,
+        },
+        packageName,
+      );
 
       let onRetry: ((entry: RetryLogEntry) => void) | undefined;
       if (options.retryLog) {

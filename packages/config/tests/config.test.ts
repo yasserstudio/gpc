@@ -49,12 +49,7 @@ function saveEnv(...keys: string[]) {
 // loadEnvConfig
 // ---------------------------------------------------------------------------
 describe("loadEnvConfig", () => {
-  const ENV_KEYS = [
-    "GPC_APP",
-    "GPC_OUTPUT",
-    "GPC_PROFILE",
-    "GPC_SERVICE_ACCOUNT",
-  ] as const;
+  const ENV_KEYS = ["GPC_APP", "GPC_OUTPUT", "GPC_PROFILE", "GPC_SERVICE_ACCOUNT"] as const;
 
   let envBackup: ReturnType<typeof saveEnv>;
 
@@ -428,7 +423,10 @@ describe("setProfileConfig / deleteProfile / listProfiles", () => {
 
   it("creates multiple profiles", async () => {
     await setProfileConfig("staging", { auth: { serviceAccount: "/staging.json" } });
-    await setProfileConfig("production", { auth: { serviceAccount: "/prod.json" }, app: "com.prod" });
+    await setProfileConfig("production", {
+      auth: { serviceAccount: "/prod.json" },
+      app: "com.prod",
+    });
 
     const profiles = await listProfiles();
     expect(profiles).toContain("staging");
@@ -464,7 +462,13 @@ describe("loadConfig with profiles", () => {
 
   beforeEach(async () => {
     tmpDir = await mkdtemp(join(tmpdir(), "gpc-test-"));
-    envBackup = saveEnv("GPC_APP", "GPC_OUTPUT", "GPC_PROFILE", "GPC_SERVICE_ACCOUNT", "XDG_CONFIG_HOME");
+    envBackup = saveEnv(
+      "GPC_APP",
+      "GPC_OUTPUT",
+      "GPC_PROFILE",
+      "GPC_SERVICE_ACCOUNT",
+      "XDG_CONFIG_HOME",
+    );
     for (const k of ["GPC_APP", "GPC_OUTPUT", "GPC_PROFILE", "GPC_SERVICE_ACCOUNT"]) {
       delete process.env[k];
     }
@@ -482,13 +486,16 @@ describe("loadConfig with profiles", () => {
   it("resolves profile auth from config file", async () => {
     const configDir = join(tmpDir, "xdg-config", "gpc");
     await mkdir(configDir, { recursive: true });
-    await writeFile(join(configDir, "config.json"), JSON.stringify({
-      app: "default-app",
-      auth: { serviceAccount: "/default.json" },
-      profiles: {
-        staging: { auth: { serviceAccount: "/staging.json" }, app: "staging-app" },
-      },
-    }));
+    await writeFile(
+      join(configDir, "config.json"),
+      JSON.stringify({
+        app: "default-app",
+        auth: { serviceAccount: "/default.json" },
+        profiles: {
+          staging: { auth: { serviceAccount: "/staging.json" }, app: "staging-app" },
+        },
+      }),
+    );
 
     const config = await loadConfig({ profile: "staging" });
 
@@ -499,9 +506,12 @@ describe("loadConfig with profiles", () => {
   it("throws when profile does not exist", async () => {
     const configDir = join(tmpDir, "xdg-config", "gpc");
     await mkdir(configDir, { recursive: true });
-    await writeFile(join(configDir, "config.json"), JSON.stringify({
-      profiles: { prod: { app: "com.prod" } },
-    }));
+    await writeFile(
+      join(configDir, "config.json"),
+      JSON.stringify({
+        profiles: { prod: { app: "com.prod" } },
+      }),
+    );
 
     await expect(loadConfig({ profile: "nope" })).rejects.toThrow(/Profile "nope" not found/);
   });
@@ -515,11 +525,14 @@ describe("loadConfig with profiles", () => {
   it("profile from GPC_PROFILE env var is resolved", async () => {
     const configDir = join(tmpDir, "xdg-config", "gpc");
     await mkdir(configDir, { recursive: true });
-    await writeFile(join(configDir, "config.json"), JSON.stringify({
-      profiles: {
-        ci: { auth: { serviceAccount: "/ci.json" } },
-      },
-    }));
+    await writeFile(
+      join(configDir, "config.json"),
+      JSON.stringify({
+        profiles: {
+          ci: { auth: { serviceAccount: "/ci.json" } },
+        },
+      }),
+    );
 
     process.env["GPC_PROFILE"] = "ci";
     const config = await loadConfig();
@@ -602,10 +615,13 @@ describe("prototype pollution protection", () => {
 
   it("strips __proto__ from config file", async () => {
     const configPath = join(tmpDir, "config.json");
-    await writeFile(configPath, JSON.stringify({
-      app: "com.safe",
-      "__proto__": { "polluted": true },
-    }));
+    await writeFile(
+      configPath,
+      JSON.stringify({
+        app: "com.safe",
+        __proto__: { polluted: true },
+      }),
+    );
 
     const config = await readConfigFile(configPath);
     expect((config as any).__proto__?.polluted).toBeUndefined();
@@ -614,10 +630,13 @@ describe("prototype pollution protection", () => {
 
   it("strips constructor from config file", async () => {
     const configPath = join(tmpDir, "config.json");
-    await writeFile(configPath, JSON.stringify({
-      app: "com.safe",
-      "constructor": { "polluted": true },
-    }));
+    await writeFile(
+      configPath,
+      JSON.stringify({
+        app: "com.safe",
+        constructor: { polluted: true },
+      }),
+    );
 
     const config = await readConfigFile(configPath);
     expect((config as any).constructor?.polluted).toBeUndefined();
@@ -626,12 +645,15 @@ describe("prototype pollution protection", () => {
 
   it("strips nested __proto__ keys", async () => {
     const configPath = join(tmpDir, "config.json");
-    await writeFile(configPath, JSON.stringify({
-      auth: {
-        serviceAccount: "/safe.json",
-        "__proto__": { "admin": true },
-      },
-    }));
+    await writeFile(
+      configPath,
+      JSON.stringify({
+        auth: {
+          serviceAccount: "/safe.json",
+          __proto__: { admin: true },
+        },
+      }),
+    );
 
     const config = await readConfigFile(configPath);
     expect((config.auth as any)?.__proto__?.admin).toBeUndefined();

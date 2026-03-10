@@ -44,7 +44,7 @@ describe("scaffoldPlugin", () => {
     await scaffoldPlugin({ name: "notify", dir });
 
     const content = await readFile(join(dir, "src", "index.ts"), "utf-8");
-    expect(content).toContain('import { definePlugin }');
+    expect(content).toContain("import { definePlugin }");
     expect(content).toContain('"gpc-plugin-notify"');
     expect(content).toContain("hooks.beforeCommand");
     expect(content).toContain("hooks.afterCommand");

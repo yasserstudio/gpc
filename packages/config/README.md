@@ -44,23 +44,19 @@ Configuration is merged in priority order:
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
+| Variable              | Description                              |
+| --------------------- | ---------------------------------------- |
 | `GPC_SERVICE_ACCOUNT` | Service account JSON string or file path |
-| `GPC_APP` | Default package name |
-| `GPC_PROFILE` | Auth profile name |
-| `GPC_OUTPUT` | Default output format |
-| `GPC_NO_COLOR` | Disable color output |
-| `GPC_NO_INTERACTIVE` | Disable prompts |
+| `GPC_APP`             | Default package name                     |
+| `GPC_PROFILE`         | Auth profile name                        |
+| `GPC_OUTPUT`          | Default output format                    |
+| `GPC_NO_COLOR`        | Disable color output                     |
+| `GPC_NO_INTERACTIVE`  | Disable prompts                          |
 
 ## Profiles
 
 ```typescript
-import {
-  setProfileConfig,
-  listProfiles,
-  deleteProfile,
-} from "@gpc-cli/config";
+import { setProfileConfig, listProfiles, deleteProfile } from "@gpc-cli/config";
 
 // Create a profile
 await setProfileConfig("production", {
@@ -76,21 +72,21 @@ await deleteProfile("staging");
 
 ## API
 
-| Function | Description |
-|----------|-------------|
-| `loadConfig()` | Load merged config from all sources |
-| `findConfigFile()` | Find `.gpcrc.json` in cwd or parent directories |
-| `loadEnvConfig()` | Load config from `GPC_*` env vars |
-| `initConfig()` | Create initial `.gpcrc.json` |
-| `setConfigValue()` | Set a config key/value |
-| `getConfigDir()` | XDG config directory (`~/.config/gpc`) |
-| `getDataDir()` | XDG data directory (`~/.local/share/gpc`) |
-| `getCacheDir()` | XDG cache directory (`~/.cache/gpc`) |
-| `listProfiles()` | List saved auth profiles |
-| `setProfileConfig()` | Create or update a profile |
-| `deleteProfile()` | Delete a profile |
-| `approvePlugin()` | Approve a third-party plugin |
-| `revokePluginApproval()` | Revoke plugin approval |
+| Function                 | Description                                     |
+| ------------------------ | ----------------------------------------------- |
+| `loadConfig()`           | Load merged config from all sources             |
+| `findConfigFile()`       | Find `.gpcrc.json` in cwd or parent directories |
+| `loadEnvConfig()`        | Load config from `GPC_*` env vars               |
+| `initConfig()`           | Create initial `.gpcrc.json`                    |
+| `setConfigValue()`       | Set a config key/value                          |
+| `getConfigDir()`         | XDG config directory (`~/.config/gpc`)          |
+| `getDataDir()`           | XDG data directory (`~/.local/share/gpc`)       |
+| `getCacheDir()`          | XDG cache directory (`~/.cache/gpc`)            |
+| `listProfiles()`         | List saved auth profiles                        |
+| `setProfileConfig()`     | Create or update a profile                      |
+| `deleteProfile()`        | Delete a profile                                |
+| `approvePlugin()`        | Approve a third-party plugin                    |
+| `revokePluginApproval()` | Revoke plugin approval                          |
 
 ## Part of the GPC Monorepo
 

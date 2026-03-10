@@ -8,8 +8,8 @@ Regional price conversion using Google Play's pricing templates.
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
+| Command                               | Description                            |
+| ------------------------------------- | -------------------------------------- |
 | [`pricing convert`](#pricing-convert) | Convert a price to all regional prices |
 
 ## `pricing convert`
@@ -24,10 +24,10 @@ gpc pricing convert --from <currency> --amount <number>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--from` | | `string` | **(required)** | Source currency code (ISO 4217, e.g., `USD`, `EUR`, `GBP`) |
-| `--amount` | | `string` | **(required)** | Price amount (e.g., `9.99`, `4.99`) |
+| Flag       | Short | Type     | Default        | Description                                                |
+| ---------- | ----- | -------- | -------------- | ---------------------------------------------------------- |
+| `--from`   |       | `string` | **(required)** | Source currency code (ISO 4217, e.g., `USD`, `EUR`, `GBP`) |
+| `--amount` |       | `string` | **(required)** | Price amount (e.g., `9.99`, `4.99`)                        |
 
 ### Example
 

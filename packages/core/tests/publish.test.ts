@@ -106,7 +106,10 @@ describe("publish", () => {
     });
 
     expect(client.deobfuscation.upload).toHaveBeenCalledWith(
-      "com.example", "edit-1", 42, mappingPath,
+      "com.example",
+      "edit-1",
+      42,
+      mappingPath,
     );
   });
 
@@ -127,7 +130,9 @@ describe("publish", () => {
     });
 
     expect(client.tracks.update).toHaveBeenCalledWith(
-      "com.example", "edit-1", "production",
+      "com.example",
+      "edit-1",
+      "production",
       expect.objectContaining({ userFraction: 0.1 }),
     );
   });

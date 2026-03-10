@@ -5,9 +5,7 @@ import { detectOutputFormat, formatOutput, writeAuditLog, createAuditEntry } fro
 import { isInteractive, promptInput, promptSelect } from "../prompt.js";
 
 export function registerConfigCommands(program: Command): void {
-  const config = program
-    .command("config")
-    .description("Manage configuration");
+  const config = program.command("config").description("Manage configuration");
 
   config
     .command("init")
@@ -20,7 +18,11 @@ export function registerConfigCommands(program: Command): void {
         const app = await promptInput("Default package name (e.g. com.example.app, blank to skip)");
         if (app) initialConfig["app"] = app;
 
-        const output = await promptSelect("Default output format:", ["table", "json", "yaml", "markdown"], "table");
+        const output = await promptSelect(
+          "Default output format:",
+          ["table", "json", "yaml", "markdown"],
+          "table",
+        );
         if (output !== "table") initialConfig["output"] = output;
 
         const sa = await promptInput("Service account JSON path (blank to skip)");

@@ -41,21 +41,21 @@ console.log(formatOutput(vitals, "table"));
 
 ## Command Groups
 
-| Group | Functions |
-|-------|-----------|
-| **Releases** | `uploadRelease`, `promoteRelease`, `updateRollout`, `getReleasesStatus`, `listTracks` |
-| **Listings** | `getListings`, `updateListing`, `pullListings`, `pushListings`, `diffListings` |
-| **Images** | `listImages`, `uploadImage`, `deleteImage` |
-| **Reviews** | `listReviews`, `getReview`, `replyToReview`, `exportReviews` |
-| **Vitals** | `getVitalsOverview`, `getVitalsCrashes`, `getVitalsAnr`, `getVitalsStartup`, `compareVitalsTrend`, `checkThreshold` |
-| **Subscriptions** | `listSubscriptions`, `createSubscription`, `updateSubscription`, `deleteSubscription`, `listOffers`, `createOffer` |
-| **IAP** | `listInAppProducts`, `createInAppProduct`, `syncInAppProducts` |
-| **Purchases** | `getProductPurchase`, `acknowledgeProductPurchase`, `refundOrder` |
-| **Reports** | `listReports`, `downloadReport` |
-| **Users** | `listUsers`, `inviteUser`, `updateUser`, `removeUser` |
-| **Testers** | `listTesters`, `addTesters`, `removeTesters`, `importTestersFromCsv` |
-| **Publishing** | `publish` (end-to-end: upload + track + notes + commit) |
-| **Validation** | `validateUploadFile`, `validateImage`, `validatePreSubmission` |
+| Group             | Functions                                                                                                           |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Releases**      | `uploadRelease`, `promoteRelease`, `updateRollout`, `getReleasesStatus`, `listTracks`                               |
+| **Listings**      | `getListings`, `updateListing`, `pullListings`, `pushListings`, `diffListings`                                      |
+| **Images**        | `listImages`, `uploadImage`, `deleteImage`                                                                          |
+| **Reviews**       | `listReviews`, `getReview`, `replyToReview`, `exportReviews`                                                        |
+| **Vitals**        | `getVitalsOverview`, `getVitalsCrashes`, `getVitalsAnr`, `getVitalsStartup`, `compareVitalsTrend`, `checkThreshold` |
+| **Subscriptions** | `listSubscriptions`, `createSubscription`, `updateSubscription`, `deleteSubscription`, `listOffers`, `createOffer`  |
+| **IAP**           | `listInAppProducts`, `createInAppProduct`, `syncInAppProducts`                                                      |
+| **Purchases**     | `getProductPurchase`, `acknowledgeProductPurchase`, `refundOrder`                                                   |
+| **Reports**       | `listReports`, `downloadReport`                                                                                     |
+| **Users**         | `listUsers`, `inviteUser`, `updateUser`, `removeUser`                                                               |
+| **Testers**       | `listTesters`, `addTesters`, `removeTesters`, `importTestersFromCsv`                                                |
+| **Publishing**    | `publish` (end-to-end: upload + track + notes + commit)                                                             |
+| **Validation**    | `validateUploadFile`, `validateImage`, `validatePreSubmission`                                                      |
 
 ## Utilities
 

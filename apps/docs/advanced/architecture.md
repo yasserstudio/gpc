@@ -8,24 +8,24 @@ GPC is a TypeScript monorepo with a layered architecture. Each package has a sin
 
 ## Tech Stack
 
-| Layer | Technology | Rationale |
-|-------|-----------|-----------|
-| Language | TypeScript 5.x | Type safety, ecosystem, npm distribution |
-| Runtime | Node.js 20+ LTS / Bun (binary) | Stability, `npx` support, broad adoption |
-| Distribution | npm, Homebrew, standalone binary | Multiple install paths, no lock-in |
-| Monorepo | Turborepo | Fast builds, caching, task orchestration |
-| Package Manager | pnpm | Strict dependency resolution, disk efficiency |
-| CLI Framework | Commander.js | Mature, composable, low overhead |
-| API Client | Native fetch + typed wrappers | Zero-dependency HTTP client with retry + rate limiting |
-| Auth | google-auth-library | Service accounts, OAuth 2.0, ADC |
-| Output | Built-in formatters | Human-friendly tables with `--json` machine output |
-| Config | Custom loader | `.gpcrc.json` discovery, env vars, profiles |
-| Testing | Vitest | Fast, TypeScript-native, ESM-first |
-| Linting | ESLint 9 (flat config) + Prettier | Consistent code style |
-| Bundling | tsup | Fast, zero-config TypeScript bundling |
-| Docs | VitePress | Lightweight, markdown-driven |
-| CI/CD | GitHub Actions | Standard, free for open source |
-| Releases | Changesets | Monorepo-aware versioning and changelogs |
+| Layer           | Technology                        | Rationale                                              |
+| --------------- | --------------------------------- | ------------------------------------------------------ |
+| Language        | TypeScript 5.x                    | Type safety, ecosystem, npm distribution               |
+| Runtime         | Node.js 20+ LTS / Bun (binary)    | Stability, `npx` support, broad adoption               |
+| Distribution    | npm, Homebrew, standalone binary  | Multiple install paths, no lock-in                     |
+| Monorepo        | Turborepo                         | Fast builds, caching, task orchestration               |
+| Package Manager | pnpm                              | Strict dependency resolution, disk efficiency          |
+| CLI Framework   | Commander.js                      | Mature, composable, low overhead                       |
+| API Client      | Native fetch + typed wrappers     | Zero-dependency HTTP client with retry + rate limiting |
+| Auth            | google-auth-library               | Service accounts, OAuth 2.0, ADC                       |
+| Output          | Built-in formatters               | Human-friendly tables with `--json` machine output     |
+| Config          | Custom loader                     | `.gpcrc.json` discovery, env vars, profiles            |
+| Testing         | Vitest                            | Fast, TypeScript-native, ESM-first                     |
+| Linting         | ESLint 9 (flat config) + Prettier | Consistent code style                                  |
+| Bundling        | tsup                              | Fast, zero-config TypeScript bundling                  |
+| Docs            | VitePress                         | Lightweight, markdown-driven                           |
+| CI/CD           | GitHub Actions                    | Standard, free for open source                         |
+| Releases        | Changesets                        | Monorepo-aware versioning and changelogs               |
 
 ## Monorepo Structure
 
@@ -74,6 +74,7 @@ gpc/
 ```
 
 **Dependency rules:**
+
 - `cli` depends on `core` only. Never imports `api`, `auth`, or `config` directly.
 - `core` depends on `api`, `auth`, and `config`. Contains all orchestration logic.
 - `api`, `auth`, and `config` are leaf packages. They do not depend on each other.
@@ -195,12 +196,12 @@ GpcError (base)
 
 Every error includes:
 
-| Field | Description |
-|-------|-------------|
-| `code` | Unique string identifier (e.g., `AUTH_TOKEN_EXPIRED`) |
-| `message` | Human-readable description |
+| Field        | Description                                                      |
+| ------------ | ---------------------------------------------------------------- |
+| `code`       | Unique string identifier (e.g., `AUTH_TOKEN_EXPIRED`)            |
+| `message`    | Human-readable description                                       |
 | `suggestion` | Actionable fix (e.g., "Run `gpc auth login` to re-authenticate") |
-| `exitCode` | Process exit code (1-6, 10) |
+| `exitCode`   | Process exit code (1-6, 10)                                      |
 
 ## Authentication Flow
 
@@ -252,6 +253,7 @@ User runs command
 ```
 
 **Plugin lifecycle:**
+
 1. Plugins discovered via config, `node_modules`, or local file path
 2. `PluginManager.load()` validates permissions and calls `plugin.register(hooks)`
 3. Before each command: `runBeforeCommand(event)` fires all registered hooks
@@ -259,6 +261,7 @@ User runs command
 5. On error: `runOnError(event, error)` fires all registered hooks (errors in handlers are swallowed)
 
 **Trust model:**
+
 - First-party plugins (`@gpc-cli/plugin-*`): auto-trusted, no permission checks
 - Third-party plugins (`gpc-plugin-*`): permissions validated against declared manifest
 - Unknown permissions throw `PLUGIN_INVALID_PERMISSION` (exit code 10)
@@ -267,9 +270,9 @@ User runs command
 
 GPC communicates with two separate Google APIs:
 
-| API | Base URL | Purpose |
-|-----|----------|---------|
-| Android Publisher API v3 | `androidpublisher.googleapis.com` | Publishing, monetization, reviews, purchases, users |
-| Play Developer Reporting API v1beta1 | `playdeveloperreporting.googleapis.com` | Vitals, crash rates, ANR, performance metrics |
+| API                                  | Base URL                                | Purpose                                             |
+| ------------------------------------ | --------------------------------------- | --------------------------------------------------- |
+| Android Publisher API v3             | `androidpublisher.googleapis.com`       | Publishing, monetization, reviews, purchases, users |
+| Play Developer Reporting API v1beta1 | `playdeveloperreporting.googleapis.com` | Vitals, crash rates, ANR, performance metrics       |
 
 Both APIs require separate enablement in Google Cloud Console but share the same service account credentials. Internally, `@gpc-cli/api` maintains two separate client instances with independent rate limiters and retry configurations.

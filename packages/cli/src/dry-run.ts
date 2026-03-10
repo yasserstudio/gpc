@@ -12,10 +12,14 @@ export function isDryRun(program: { opts(): Record<string, unknown> }): boolean 
   while (cmd.parent) {
     cmd = cmd.parent as typeof cmd;
   }
-  return !!cmd.opts()['dryRun'];
+  return !!cmd.opts()["dryRun"];
 }
 
-export function printDryRun(preview: DryRunPreview, format: OutputFormat, formatOutput: (data: unknown, format: OutputFormat, redact?: boolean) => string): void {
+export function printDryRun(
+  preview: DryRunPreview,
+  format: OutputFormat,
+  formatOutput: (data: unknown, format: OutputFormat, redact?: boolean) => string,
+): void {
   const output = {
     dryRun: true,
     ...preview,

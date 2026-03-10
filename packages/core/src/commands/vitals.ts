@@ -168,11 +168,7 @@ export async function searchVitalsErrors(
   packageName: string,
   options?: { filter?: string; maxResults?: number },
 ): Promise<ErrorIssuesResponse> {
-  return reporting.searchErrorIssues(
-    packageName,
-    options?.filter,
-    options?.maxResults,
-  );
+  return reporting.searchErrorIssues(packageName, options?.filter, options?.maxResults);
 }
 
 export interface VitalsTrendComparison {
@@ -254,10 +250,7 @@ export async function compareVitalsTrend(
   };
 }
 
-export function checkThreshold(
-  value: number | undefined,
-  threshold: number,
-): ThresholdResult {
+export function checkThreshold(value: number | undefined, threshold: number): ThresholdResult {
   return {
     breached: value !== undefined && value > threshold,
     value,

@@ -9,8 +9,7 @@ vi.mock("node:fs/promises", () => ({
   readFile: vi.fn().mockResolvedValue(Buffer.from("fake-aab-content")),
 }));
 
-const BASE_URL =
-  "https://androidpublisher.googleapis.com/androidpublisher/v3/applications";
+const BASE_URL = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications";
 
 function mockResponse(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
@@ -507,7 +506,12 @@ describe("createApiClient", () => {
     });
 
     it("listings.get calls GET with language", async () => {
-      const listing = { language: "en-US", title: "App", shortDescription: "s", fullDescription: "f" };
+      const listing = {
+        language: "en-US",
+        title: "App",
+        shortDescription: "s",
+        fullDescription: "f",
+      };
       mockFetch.mockResolvedValueOnce(mockResponse(listing));
 
       const client = makeClient();
@@ -519,11 +523,20 @@ describe("createApiClient", () => {
     });
 
     it("listings.update calls PUT with listing body", async () => {
-      const listing = { language: "en-US", title: "New", shortDescription: "s", fullDescription: "f" };
+      const listing = {
+        language: "en-US",
+        title: "New",
+        shortDescription: "s",
+        fullDescription: "f",
+      };
       mockFetch.mockResolvedValueOnce(mockResponse(listing));
 
       const client = makeClient();
-      const result = await client.listings.update(PKG, EDIT_ID, "en-US", { title: "New", shortDescription: "s", fullDescription: "f" });
+      const result = await client.listings.update(PKG, EDIT_ID, "en-US", {
+        title: "New",
+        shortDescription: "s",
+        fullDescription: "f",
+      });
 
       expect(result).toEqual(listing);
       const [url, init] = mockFetch.mock.calls[0];
@@ -532,7 +545,12 @@ describe("createApiClient", () => {
     });
 
     it("listings.patch calls PATCH with partial body", async () => {
-      const listing = { language: "en-US", title: "Patched", shortDescription: "s", fullDescription: "f" };
+      const listing = {
+        language: "en-US",
+        title: "Patched",
+        shortDescription: "s",
+        fullDescription: "f",
+      };
       mockFetch.mockResolvedValueOnce(mockResponse(listing));
 
       const client = makeClient();
@@ -607,7 +625,9 @@ describe("createApiClient", () => {
 
   describe("countryAvailability", () => {
     it("countryAvailability.get calls GET with track", async () => {
-      const availability = { countryTargeting: { countries: ["US", "GB"], includeRestOfWorld: true } };
+      const availability = {
+        countryTargeting: { countries: ["US", "GB"], includeRestOfWorld: true },
+      };
       mockFetch.mockResolvedValueOnce(mockResponse(availability));
 
       const client = makeClient();
@@ -659,7 +679,9 @@ describe("createApiClient", () => {
     });
 
     it("reviews.get passes translationLanguage param", async () => {
-      mockFetch.mockResolvedValueOnce(mockResponse({ reviewId: "r1", authorName: "U", comments: [] }));
+      mockFetch.mockResolvedValueOnce(
+        mockResponse({ reviewId: "r1", authorName: "U", comments: [] }),
+      );
 
       const client = makeClient();
       await client.reviews.get(PKG, "r1", "ja");
@@ -710,7 +732,9 @@ describe("createReportingClient", () => {
     mockFetch.mockResolvedValueOnce(mockResponse({ rows: [] }));
 
     const client = makeClient();
-    const result = await client.queryMetricSet(PKG, "vitals.crashrate", { metrics: ["errorReportCount"] });
+    const result = await client.queryMetricSet(PKG, "vitals.crashrate", {
+      metrics: ["errorReportCount"],
+    });
 
     expect(result).toEqual({ rows: [] });
     const [url, init] = mockFetch.mock.calls[0];
@@ -841,7 +865,9 @@ describe("monetization API endpoints", () => {
       const client = makeClient();
       await client.subscriptions.deactivateBasePlan(PKG, "sub1", "bp1");
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1:deactivate`);
+      expect(url).toBe(
+        `${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1:deactivate`,
+      );
       expect(init.method).toBe("POST");
     });
 
@@ -855,7 +881,13 @@ describe("monetization API endpoints", () => {
     });
 
     it("createOffer calls POST .../offers", async () => {
-      const offer = { productId: "sub1", basePlanId: "bp1", offerId: "o1", state: "DRAFT", phases: [] };
+      const offer = {
+        productId: "sub1",
+        basePlanId: "bp1",
+        offerId: "o1",
+        state: "DRAFT",
+        phases: [],
+      };
       mockFetch.mockResolvedValueOnce(mockResponse(offer));
       const client = makeClient();
       await client.subscriptions.createOffer(PKG, "sub1", "bp1", offer as any);
@@ -869,7 +901,9 @@ describe("monetization API endpoints", () => {
       const client = makeClient();
       await client.subscriptions.activateOffer(PKG, "sub1", "bp1", "o1");
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers/o1:activate`);
+      expect(url).toBe(
+        `${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers/o1:activate`,
+      );
       expect(init.method).toBe("POST");
     });
   });
@@ -980,7 +1014,9 @@ describe("monetization API endpoints", () => {
     it("deferSubscription calls POST .../:defer with body", async () => {
       mockFetch.mockResolvedValueOnce(mockResponse({ newExpiryTimeMillis: "999999" }));
       const client = makeClient();
-      const body = { deferralInfo: { expectedExpiryTimeMillis: "100", desiredExpiryTimeMillis: "200" } };
+      const body = {
+        deferralInfo: { expectedExpiryTimeMillis: "100", desiredExpiryTimeMillis: "200" },
+      };
       const result = await client.purchases.deferSubscription(PKG, "sub1", "tok789", body);
       expect(result).toEqual({ newExpiryTimeMillis: "999999" });
       const [url, init] = mockFetch.mock.calls[0];
@@ -1025,10 +1061,20 @@ describe("monetization API endpoints", () => {
 
   describe("monetization", () => {
     it("convertRegionPrices calls POST /{pkg}/monetization/convertRegionPrices", async () => {
-      const response = { convertedRegionPrices: { US: { regionCode: "US", price: { currencyCode: "USD", units: "4" }, taxAmount: { currencyCode: "USD" } } } };
+      const response = {
+        convertedRegionPrices: {
+          US: {
+            regionCode: "US",
+            price: { currencyCode: "USD", units: "4" },
+            taxAmount: { currencyCode: "USD" },
+          },
+        },
+      };
       mockFetch.mockResolvedValueOnce(mockResponse(response));
       const client = makeClient();
-      const result = await client.monetization.convertRegionPrices(PKG, { price: { currencyCode: "USD", units: "4", nanos: 990000000 } });
+      const result = await client.monetization.convertRegionPrices(PKG, {
+        price: { currencyCode: "USD", units: "4", nanos: 990000000 },
+      });
       expect(result).toEqual(response);
       const [url, init] = mockFetch.mock.calls[0];
       expect(url).toBe(`${BASE_URL}/${PKG}/monetization/convertRegionPrices`);
@@ -1051,10 +1097,16 @@ describe("monetization API endpoints", () => {
 
   describe("reports", () => {
     it("reports.list calls GET /{pkg}/reports/{type}/{year}/{month}", async () => {
-      mockFetch.mockResolvedValueOnce(mockResponse({ reports: [{ bucketId: "b1", uri: "https://storage.googleapis.com/report.csv" }] }));
+      mockFetch.mockResolvedValueOnce(
+        mockResponse({
+          reports: [{ bucketId: "b1", uri: "https://storage.googleapis.com/report.csv" }],
+        }),
+      );
       const client = makeClient();
       const result = await client.reports.list(PKG, "earnings", 2026, 3);
-      expect(result).toEqual({ reports: [{ bucketId: "b1", uri: "https://storage.googleapis.com/report.csv" }] });
+      expect(result).toEqual({
+        reports: [{ bucketId: "b1", uri: "https://storage.googleapis.com/report.csv" }],
+      });
       const [url, init] = mockFetch.mock.calls[0];
       expect(url).toBe(`${BASE_URL}/${PKG}/reports/earnings/2026/03`);
       expect(init.method).toBe("GET");
@@ -1075,7 +1127,9 @@ describe("monetization API endpoints", () => {
     const EDIT_ID = "edit-123";
 
     it("testers.get calls GET /{pkg}/edits/{editId}/testers/{track}", async () => {
-      mockFetch.mockResolvedValueOnce(mockResponse({ googleGroups: ["g@example.com"], googleGroupsCount: 1 }));
+      mockFetch.mockResolvedValueOnce(
+        mockResponse({ googleGroups: ["g@example.com"], googleGroupsCount: 1 }),
+      );
       const client = makeClient();
       const result = await client.testers.get(PKG, EDIT_ID, "internal");
       expect(result).toEqual({ googleGroups: ["g@example.com"], googleGroupsCount: 1 });
@@ -1088,7 +1142,9 @@ describe("monetization API endpoints", () => {
       const updated = { googleGroups: ["a@example.com", "b@example.com"], googleGroupsCount: 2 };
       mockFetch.mockResolvedValueOnce(mockResponse(updated));
       const client = makeClient();
-      const result = await client.testers.update(PKG, EDIT_ID, "beta", { googleGroups: ["a@example.com", "b@example.com"] });
+      const result = await client.testers.update(PKG, EDIT_ID, "beta", {
+        googleGroups: ["a@example.com", "b@example.com"],
+      });
       expect(result).toEqual(updated);
       const [url, init] = mockFetch.mock.calls[0];
       expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/testers/beta`);
@@ -1160,7 +1216,12 @@ describe("createUsersClient", () => {
   it("update calls PATCH /developers/{id}/users/{userId}", async () => {
     mockFetch.mockResolvedValueOnce(mockResponse({ email: "a@b.com" }));
     const client = makeClient();
-    await client.update(DEV_ID, "a@b.com", { developerAccountPermission: ["ADMIN"] }, "developerAccountPermission");
+    await client.update(
+      DEV_ID,
+      "a@b.com",
+      { developerAccountPermission: ["ADMIN"] },
+      "developerAccountPermission",
+    );
     const [url, init] = mockFetch.mock.calls[0];
     expect(url).toBe(`${USERS_BASE}/${DEV_ID}/users/a@b.com?updateMask=developerAccountPermission`);
     expect(init.method).toBe("PATCH");
@@ -1260,7 +1321,11 @@ describe("HTTP error paths and methods", () => {
       .mockResolvedValueOnce(new Response("error", { status: 500 }))
       .mockResolvedValueOnce(mockResponse({ bundle: { versionCode: 42 } }));
     const http = createHttpClient({ auth: mockAuth(), maxRetries: 2, baseDelay: 1, maxDelay: 1 });
-    const result = await http.upload("/com.example/edits/1/bundles", "/fake/path.aab", "application/octet-stream");
+    const result = await http.upload(
+      "/com.example/edits/1/bundles",
+      "/fake/path.aab",
+      "application/octet-stream",
+    );
     expect(result.data).toEqual({ bundle: { versionCode: 42 } });
     expect(mockFetch).toHaveBeenCalledTimes(3);
   });
@@ -1271,7 +1336,11 @@ describe("HTTP error paths and methods", () => {
     mockFetch.mockRejectedValueOnce(abortErr);
     const http = makeHttp();
     try {
-      await http.upload("/com.example/edits/1/bundles", "/fake/path.aab", "application/octet-stream");
+      await http.upload(
+        "/com.example/edits/1/bundles",
+        "/fake/path.aab",
+        "application/octet-stream",
+      );
     } catch (err: any) {
       expect(err).toBeInstanceOf(ApiError);
       expect(err.code).toBe("API_TIMEOUT");
@@ -1284,7 +1353,11 @@ describe("HTTP error paths and methods", () => {
     mockFetch.mockRejectedValueOnce(new TypeError("network down"));
     const http = makeHttp();
     try {
-      await http.upload("/com.example/edits/1/bundles", "/fake/path.aab", "application/octet-stream");
+      await http.upload(
+        "/com.example/edits/1/bundles",
+        "/fake/path.aab",
+        "application/octet-stream",
+      );
     } catch (err: any) {
       expect(err).toBeInstanceOf(ApiError);
       expect(err.code).toBe("API_NETWORK_ERROR");
@@ -1299,7 +1372,11 @@ describe("HTTP error paths and methods", () => {
       .mockRejectedValueOnce(abortErr)
       .mockResolvedValueOnce(mockResponse({ bundle: { versionCode: 1 } }));
     const http = createHttpClient({ auth: mockAuth(), maxRetries: 1, baseDelay: 1, maxDelay: 1 });
-    const result = await http.upload("/com.example/edits/1/bundles", "/fake/path.aab", "application/octet-stream");
+    const result = await http.upload(
+      "/com.example/edits/1/bundles",
+      "/fake/path.aab",
+      "application/octet-stream",
+    );
     expect(result.data).toEqual({ bundle: { versionCode: 1 } });
     expect(mockFetch).toHaveBeenCalledTimes(2);
   });
@@ -1310,7 +1387,11 @@ describe("HTTP error paths and methods", () => {
       .mockRejectedValueOnce(new TypeError("network down"))
       .mockResolvedValueOnce(mockResponse({ bundle: { versionCode: 2 } }));
     const http = createHttpClient({ auth: mockAuth(), maxRetries: 1, baseDelay: 1, maxDelay: 1 });
-    const result = await http.upload("/com.example/edits/1/bundles", "/fake/path.aab", "application/octet-stream");
+    const result = await http.upload(
+      "/com.example/edits/1/bundles",
+      "/fake/path.aab",
+      "application/octet-stream",
+    );
     expect(result.data).toEqual({ bundle: { versionCode: 2 } });
     expect(mockFetch).toHaveBeenCalledTimes(2);
   });
@@ -1369,13 +1450,19 @@ describe("client coverage gaps", () => {
     const result = await client.subscriptions.deactivateOffer(PKG, "sub1", "bp1", "o1");
     expect(result).toEqual({ offerId: "o1", state: "INACTIVE" });
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers/o1:deactivate`);
+    expect(url).toBe(
+      `${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers/o1:deactivate`,
+    );
     expect(init.method).toBe("POST");
   });
 
   // 10. getSubscriptionV1
   it("getSubscriptionV1 calls GET /{pkg}/purchases/subscriptions/{id}/tokens/{token}", async () => {
-    const sub = { kind: "androidpublisher#subscriptionPurchase", startTimeMillis: "1000", expiryTimeMillis: "2000" };
+    const sub = {
+      kind: "androidpublisher#subscriptionPurchase",
+      startTimeMillis: "1000",
+      expiryTimeMillis: "2000",
+    };
     mockFetch.mockResolvedValueOnce(mockResponse(sub));
     const client = makeClient();
     const result = await client.purchases.getSubscriptionV1(PKG, "sub1", "tok999");

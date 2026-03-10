@@ -85,17 +85,17 @@ export type { ClientOptions, ApiResponse } from "./types.js";
 
 ## Naming Conventions
 
-| Entity | Convention | Example |
-|--------|-----------|---------|
-| Files | kebab-case | `rate-limiter.ts` |
-| Classes | PascalCase | `ApiClient` |
-| Interfaces | PascalCase (no `I` prefix) | `AuthStrategy` |
-| Types | PascalCase | `TrackRelease` |
-| Functions | camelCase | `uploadBundle()` |
-| Constants | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` |
-| Env vars | UPPER_SNAKE_CASE with `GPC_` prefix | `GPC_SERVICE_ACCOUNT` |
-| CLI flags | kebab-case | `--service-account` |
-| npm packages | `@gpc-cli/<name>` | `@gpc-cli/core` |
+| Entity       | Convention                          | Example               |
+| ------------ | ----------------------------------- | --------------------- |
+| Files        | kebab-case                          | `rate-limiter.ts`     |
+| Classes      | PascalCase                          | `ApiClient`           |
+| Interfaces   | PascalCase (no `I` prefix)          | `AuthStrategy`        |
+| Types        | PascalCase                          | `TrackRelease`        |
+| Functions    | camelCase                           | `uploadBundle()`      |
+| Constants    | UPPER_SNAKE_CASE                    | `MAX_RETRY_COUNT`     |
+| Env vars     | UPPER*SNAKE_CASE with `GPC*` prefix | `GPC_SERVICE_ACCOUNT` |
+| CLI flags    | kebab-case                          | `--service-account`   |
+| npm packages | `@gpc-cli/<name>`                   | `@gpc-cli/core`       |
 
 ## Import Order
 
@@ -192,13 +192,13 @@ packages/api/
 
 ### Coverage Targets
 
-| Package | Target |
-|---------|--------|
-| `@gpc-cli/api` | 90% |
-| `@gpc-cli/auth` | 90% |
-| `@gpc-cli/config` | 95% |
-| `@gpc-cli/core` | 85% |
-| `@gpc-cli/cli` | 80% |
+| Package           | Target |
+| ----------------- | ------ |
+| `@gpc-cli/api`    | 90%    |
+| `@gpc-cli/auth`   | 90%    |
+| `@gpc-cli/config` | 95%    |
+| `@gpc-cli/core`   | 85%    |
+| `@gpc-cli/cli`    | 80%    |
 
 ### Mock External APIs
 
@@ -215,7 +215,7 @@ describe("PlayApiClient", () => {
         ok: true,
         status: 200,
         json: async () => ({ apps: [] }),
-      })
+      }),
     );
   });
 
@@ -252,6 +252,7 @@ plugin-sdk (zero deps)
 ```
 
 **Enforced rules:**
+
 - `cli` imports from `core` only -- never directly from `api`, `auth`, or `config`
 - `core` imports from `api`, `auth`, and `config`
 - `api`, `auth`, and `config` do not import from each other

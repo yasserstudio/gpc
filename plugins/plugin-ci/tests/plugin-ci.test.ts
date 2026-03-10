@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  PLUGIN_CI_VERSION,
-  detectCIEnvironment,
-  ciPlugin,
-} from "../src/index";
+import { PLUGIN_CI_VERSION, detectCIEnvironment, ciPlugin } from "../src/index";
 
 describe("plugin-ci", () => {
   it("exports PLUGIN_CI_VERSION", () => {

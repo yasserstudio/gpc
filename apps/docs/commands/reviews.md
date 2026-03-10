@@ -8,12 +8,12 @@ Manage user reviews and ratings. List, filter, reply to, and export reviews.
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`reviews list`](#reviews-list) | List user reviews with filters |
-| [`reviews get`](#reviews-get) | Get a single review by ID |
-| [`reviews reply`](#reviews-reply) | Reply to a review |
-| [`reviews export`](#reviews-export) | Export reviews to JSON or CSV |
+| Command                             | Description                    |
+| ----------------------------------- | ------------------------------ |
+| [`reviews list`](#reviews-list)     | List user reviews with filters |
+| [`reviews get`](#reviews-get)       | Get a single review by ID      |
+| [`reviews reply`](#reviews-reply)   | Reply to a review              |
+| [`reviews export`](#reviews-export) | Export reviews to JSON or CSV  |
 
 ## `reviews list`
 
@@ -27,15 +27,15 @@ gpc reviews list [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--stars` | | `number` | | Filter by star rating (1-5) |
-| `--lang` | | `string` | | Filter by reviewer language code |
-| `--since` | | `string` | | Filter reviews after date (ISO 8601) |
-| `--translate-to` | | `string` | | Translate reviews to this language |
-| `--max` | | `number` | | Maximum results per page |
-| `--limit` | | `number` | | Maximum total results |
-| `--next-page` | | `string` | | Resume from pagination token |
+| Flag             | Short | Type     | Default | Description                          |
+| ---------------- | ----- | -------- | ------- | ------------------------------------ |
+| `--stars`        |       | `number` |         | Filter by star rating (1-5)          |
+| `--lang`         |       | `string` |         | Filter by reviewer language code     |
+| `--since`        |       | `string` |         | Filter reviews after date (ISO 8601) |
+| `--translate-to` |       | `string` |         | Translate reviews to this language   |
+| `--max`          |       | `number` |         | Maximum results per page             |
+| `--limit`        |       | `number` |         | Maximum total results                |
+| `--next-page`    |       | `string` |         | Resume from pagination token         |
 
 ### Example
 
@@ -107,9 +107,9 @@ gpc reviews get <review-id> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--translate-to` | | `string` | | Translate review to this language |
+| Flag             | Short | Type     | Default | Description                       |
+| ---------------- | ----- | -------- | ------- | --------------------------------- |
+| `--translate-to` |       | `string` |         | Translate review to this language |
 
 ### Example
 
@@ -139,9 +139,9 @@ gpc reviews reply <review-id> --text <text>
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--text` | | `string` | **(required)** | Reply text (max 350 characters) |
+| Flag     | Short | Type     | Default        | Description                     |
+| -------- | ----- | -------- | -------------- | ------------------------------- |
+| `--text` |       | `string` | **(required)** | Reply text (max 350 characters) |
 
 ### Example
 
@@ -174,14 +174,14 @@ gpc reviews export [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--format` | | `string` | `json` | Export format: `json` or `csv` |
-| `--stars` | | `number` | | Filter by star rating (1-5) |
-| `--lang` | | `string` | | Filter by reviewer language code |
-| `--since` | | `string` | | Filter reviews after date (ISO 8601) |
-| `--translate-to` | | `string` | | Translate reviews to this language |
-| `--output` | | `string` | | Write output to file instead of stdout |
+| Flag             | Short | Type     | Default | Description                            |
+| ---------------- | ----- | -------- | ------- | -------------------------------------- |
+| `--format`       |       | `string` | `json`  | Export format: `json` or `csv`         |
+| `--stars`        |       | `number` |         | Filter by star rating (1-5)            |
+| `--lang`         |       | `string` |         | Filter by reviewer language code       |
+| `--since`        |       | `string` |         | Filter reviews after date (ISO 8601)   |
+| `--translate-to` |       | `string` |         | Translate reviews to this language     |
+| `--output`       |       | `string` |         | Write output to file instead of stdout |
 
 ### Example
 

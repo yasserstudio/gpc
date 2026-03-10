@@ -23,11 +23,11 @@ Instead, use [GitHub's private vulnerability reporting](https://github.com/yasse
 
 ## Supported Versions
 
-| Version | Supported |
-| --- | --- |
-| Latest | Yes |
+| Version        | Supported           |
+| -------------- | ------------------- |
+| Latest         | Yes                 |
 | Previous minor | Security fixes only |
-| Older | No |
+| Older          | No                  |
 
 ## Security Practices
 

@@ -68,12 +68,12 @@ GPC_INSTALL_DIR=~/.local/bin curl -fsSL https://raw.githubusercontent.com/yasser
 
 ### Supported Platforms
 
-| Platform | Architecture | Asset |
-|----------|-------------|-------|
-| macOS | Apple Silicon (arm64) | `gpc-darwin-arm64` |
-| macOS | Intel (x64) | `gpc-darwin-x64` |
-| Linux | x64 | `gpc-linux-x64` |
-| Windows | x64 | `gpc-windows-x64.exe` |
+| Platform | Architecture          | Asset                 |
+| -------- | --------------------- | --------------------- |
+| macOS    | Apple Silicon (arm64) | `gpc-darwin-arm64`    |
+| macOS    | Intel (x64)           | `gpc-darwin-x64`      |
+| Linux    | x64                   | `gpc-linux-x64`       |
+| Windows  | x64                   | `gpc-windows-x64.exe` |
 
 The install script auto-detects your OS and architecture. On Windows, download the `.exe` directly from the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
@@ -158,13 +158,13 @@ Binaries are output to `dist/bin/` with a `checksums.txt` file.
 
 ## Comparison
 
-| | Homebrew | npm | Standalone Binary | From Source |
-|---|---|---|---|---|
-| **Platforms** | macOS, Linux | Any (Node.js) | macOS, Linux, Windows | Any |
-| **Dependencies** | None | Node.js 20+ | None | Node.js 20+, pnpm 9+ |
-| **Plugin support** | No | Yes | No | Yes |
-| **Auto-update** | `brew upgrade` | `npm update -g` | Re-run install script | `git pull && pnpm build` |
-| **Best for** | Local dev (macOS) | Node.js projects, plugins | CI/CD, Docker, minimal environments | Contributing, bleeding edge |
+|                    | Homebrew          | npm                       | Standalone Binary                   | From Source                 |
+| ------------------ | ----------------- | ------------------------- | ----------------------------------- | --------------------------- |
+| **Platforms**      | macOS, Linux      | Any (Node.js)             | macOS, Linux, Windows               | Any                         |
+| **Dependencies**   | None              | Node.js 20+               | None                                | Node.js 20+, pnpm 9+        |
+| **Plugin support** | No                | Yes                       | No                                  | Yes                         |
+| **Auto-update**    | `brew upgrade`    | `npm update -g`           | Re-run install script               | `git pull && pnpm build`    |
+| **Best for**       | Local dev (macOS) | Node.js projects, plugins | CI/CD, Docker, minimal environments | Contributing, bleeding edge |
 
 ---
 

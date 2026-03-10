@@ -8,12 +8,12 @@ Manage CLI configuration. GPC looks for `.gpcrc.json` in the current directory, 
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`config init`](#config-init) | Create a configuration file |
+| Command                       | Description                    |
+| ----------------------------- | ------------------------------ |
+| [`config init`](#config-init) | Create a configuration file    |
 | [`config show`](#config-show) | Display resolved configuration |
-| [`config set`](#config-set) | Set a configuration value |
-| [`config path`](#config-path) | Show configuration file path |
+| [`config set`](#config-set)   | Set a configuration value      |
+| [`config path`](#config-path) | Show configuration file path   |
 
 ## `config init`
 
@@ -27,9 +27,9 @@ gpc config init [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--global` | | `boolean` | `false` | Create in user config directory (`~/.config/gpc/`) |
+| Flag       | Short | Type      | Default | Description                                        |
+| ---------- | ----- | --------- | ------- | -------------------------------------------------- |
+| `--global` |       | `boolean` | `false` | Create in user config directory (`~/.config/gpc/`) |
 
 ### Example
 
@@ -126,13 +126,13 @@ No command-specific options. The key and value are positional arguments.
 
 Common keys:
 
-| Key | Description | Example |
-|-----|-------------|---------|
-| `app` | Default package name | `com.example.myapp` |
-| `profile` | Default auth profile | `production` |
-| `output` | Default output format | `json` |
-| `auth.serviceAccount` | Service account path | `./key.json` |
-| `developerId` | Developer account ID | `1234567890` |
+| Key                   | Description           | Example             |
+| --------------------- | --------------------- | ------------------- |
+| `app`                 | Default package name  | `com.example.myapp` |
+| `profile`             | Default auth profile  | `production`        |
+| `output`              | Default output format | `json`              |
+| `auth.serviceAccount` | Service account path  | `./key.json`        |
+| `developerId`         | Developer account ID  | `1234567890`        |
 
 ### Example
 
@@ -197,12 +197,8 @@ The `.gpcrc.json` file supports these fields:
   "auth": {
     "serviceAccount": "./service-account-key.json"
   },
-  "plugins": [
-    "@gpc-cli/plugin-ci"
-  ],
-  "approvedPlugins": [
-    "gpc-plugin-slack"
-  ],
+  "plugins": ["@gpc-cli/plugin-ci"],
+  "approvedPlugins": ["gpc-plugin-slack"],
   "profiles": {
     "production": {
       "auth": {

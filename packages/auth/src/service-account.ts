@@ -5,8 +5,7 @@ import { AuthError } from "./errors.js";
 import { getCachedToken, setCachedToken } from "./token-cache.js";
 import type { AuthClient, ServiceAccountKey } from "./types.js";
 
-const ANDROID_PUBLISHER_SCOPE =
-  "https://www.googleapis.com/auth/androidpublisher";
+const ANDROID_PUBLISHER_SCOPE = "https://www.googleapis.com/auth/androidpublisher";
 
 const REQUIRED_FIELDS: readonly (keyof ServiceAccountKey)[] = [
   "type",
@@ -14,9 +13,7 @@ const REQUIRED_FIELDS: readonly (keyof ServiceAccountKey)[] = [
   "client_email",
 ];
 
-function validateServiceAccountKey(
-  data: unknown,
-): asserts data is ServiceAccountKey {
+function validateServiceAccountKey(data: unknown): asserts data is ServiceAccountKey {
   if (typeof data !== "object" || data === null) {
     throw new AuthError(
       "Service account key must be a JSON object.",
@@ -46,9 +43,7 @@ function validateServiceAccountKey(
   }
 }
 
-export async function loadServiceAccountKey(
-  pathOrJson: string,
-): Promise<ServiceAccountKey> {
+export async function loadServiceAccountKey(pathOrJson: string): Promise<ServiceAccountKey> {
   let raw: string;
 
   const trimmed = pathOrJson.trim();
@@ -115,7 +110,9 @@ export function createServiceAccountAuth(key: ServiceAccountKey, cachePath?: str
 
         // Cache the token
         if (cachePath) {
-          await setCachedToken(cachePath, key.client_email, token, TOKEN_EXPIRY_SECONDS).catch(() => {});
+          await setCachedToken(cachePath, key.client_email, token, TOKEN_EXPIRY_SECONDS).catch(
+            () => {},
+          );
         }
 
         return token;

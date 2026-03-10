@@ -8,28 +8,28 @@ Monitor app vitals, crash rates, ANR, startup times, rendering performance, batt
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`vitals overview`](#vitals-overview) | Dashboard summary of all vital metrics |
-| [`vitals crashes`](#vitals-crashes) | Query crash rate metrics |
-| [`vitals anr`](#vitals-anr) | Query ANR rate metrics |
-| [`vitals startup`](#vitals-startup) | Query slow startup metrics |
-| [`vitals rendering`](#vitals-rendering) | Query slow rendering metrics |
-| [`vitals battery`](#vitals-battery) | Query excessive wakeup metrics |
-| [`vitals memory`](#vitals-memory) | Query stuck wakelock metrics |
-| [`vitals anomalies`](#vitals-anomalies) | Detect anomalies in app vitals |
-| [`vitals errors search`](#vitals-errors-search) | Search error issues and reports |
-| [`vitals compare`](#vitals-compare) | Compare metric trend across periods |
+| Command                                         | Description                            |
+| ----------------------------------------------- | -------------------------------------- |
+| [`vitals overview`](#vitals-overview)           | Dashboard summary of all vital metrics |
+| [`vitals crashes`](#vitals-crashes)             | Query crash rate metrics               |
+| [`vitals anr`](#vitals-anr)                     | Query ANR rate metrics                 |
+| [`vitals startup`](#vitals-startup)             | Query slow startup metrics             |
+| [`vitals rendering`](#vitals-rendering)         | Query slow rendering metrics           |
+| [`vitals battery`](#vitals-battery)             | Query excessive wakeup metrics         |
+| [`vitals memory`](#vitals-memory)               | Query stuck wakelock metrics           |
+| [`vitals anomalies`](#vitals-anomalies)         | Detect anomalies in app vitals         |
+| [`vitals errors search`](#vitals-errors-search) | Search error issues and reports        |
+| [`vitals compare`](#vitals-compare)             | Compare metric trend across periods    |
 
 ## Shared Options
 
 The metric commands (`crashes`, `anr`, `startup`, `rendering`, `battery`, `memory`) share these options:
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--dim` | | `string` | | Group by dimension |
-| `--days` | | `number` | | Number of days to query |
-| `--threshold` | | `number` | | Threshold value for CI alerting (exit code 6 if breached) |
+| Flag          | Short | Type     | Default | Description                                               |
+| ------------- | ----- | -------- | ------- | --------------------------------------------------------- |
+| `--dim`       |       | `string` |         | Group by dimension                                        |
+| `--days`      |       | `number` |         | Number of days to query                                   |
+| `--threshold` |       | `number` |         | Threshold value for CI alerting (exit code 6 if breached) |
 
 Valid dimensions: `apiLevel`, `versionCode`, `deviceModel`, `deviceType`, `countryCode`, `deviceRamBucket`, `deviceSocName`, `deviceCpuMakeModel`, `deviceGlEsVersion`, `deviceVulkanVersion`, `deviceOpenGlVersion`, `deviceBrand`.
 
@@ -78,11 +78,11 @@ gpc vitals crashes [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--dim` | | `string` | | Group by dimension |
-| `--days` | | `number` | | Number of days to query |
-| `--threshold` | | `number` | | Crash rate threshold (exit code 6 if breached) |
+| Flag          | Short | Type     | Default | Description                                    |
+| ------------- | ----- | -------- | ------- | ---------------------------------------------- |
+| `--dim`       |       | `string` |         | Group by dimension                             |
+| `--days`      |       | `number` |         | Number of days to query                        |
+| `--threshold` |       | `number` |         | Crash rate threshold (exit code 6 if breached) |
 
 ### Example
 
@@ -131,11 +131,11 @@ gpc vitals anr [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--dim` | | `string` | | Group by dimension |
-| `--days` | | `number` | | Number of days to query |
-| `--threshold` | | `number` | | ANR rate threshold (exit code 6 if breached) |
+| Flag          | Short | Type     | Default | Description                                  |
+| ------------- | ----- | -------- | ------- | -------------------------------------------- |
+| `--dim`       |       | `string` |         | Group by dimension                           |
+| `--days`      |       | `number` |         | Number of days to query                      |
+| `--threshold` |       | `number` |         | ANR rate threshold (exit code 6 if breached) |
 
 ### Example
 
@@ -163,11 +163,11 @@ gpc vitals startup [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--dim` | | `string` | | Group by dimension |
-| `--days` | | `number` | | Number of days to query |
-| `--threshold` | | `number` | | Slow start rate threshold (exit code 6 if breached) |
+| Flag          | Short | Type     | Default | Description                                         |
+| ------------- | ----- | -------- | ------- | --------------------------------------------------- |
+| `--dim`       |       | `string` |         | Group by dimension                                  |
+| `--days`      |       | `number` |         | Number of days to query                             |
+| `--threshold` |       | `number` |         | Slow start rate threshold (exit code 6 if breached) |
 
 ### Example
 
@@ -189,11 +189,11 @@ gpc vitals rendering [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--dim` | | `string` | | Group by dimension |
-| `--days` | | `number` | | Number of days to query |
-| `--threshold` | | `number` | | Slow rendering rate threshold (exit code 6 if breached) |
+| Flag          | Short | Type     | Default | Description                                             |
+| ------------- | ----- | -------- | ------- | ------------------------------------------------------- |
+| `--dim`       |       | `string` |         | Group by dimension                                      |
+| `--days`      |       | `number` |         | Number of days to query                                 |
+| `--threshold` |       | `number` |         | Slow rendering rate threshold (exit code 6 if breached) |
 
 ### Example
 
@@ -215,11 +215,11 @@ gpc vitals battery [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--dim` | | `string` | | Group by dimension |
-| `--days` | | `number` | | Number of days to query |
-| `--threshold` | | `number` | | Excessive wakeup rate threshold (exit code 6 if breached) |
+| Flag          | Short | Type     | Default | Description                                               |
+| ------------- | ----- | -------- | ------- | --------------------------------------------------------- |
+| `--dim`       |       | `string` |         | Group by dimension                                        |
+| `--days`      |       | `number` |         | Number of days to query                                   |
+| `--threshold` |       | `number` |         | Excessive wakeup rate threshold (exit code 6 if breached) |
 
 ### Example
 
@@ -241,11 +241,11 @@ gpc vitals memory [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--dim` | | `string` | | Group by dimension |
-| `--days` | | `number` | | Number of days to query |
-| `--threshold` | | `number` | | Stuck wakelock rate threshold (exit code 6 if breached) |
+| Flag          | Short | Type     | Default | Description                                             |
+| ------------- | ----- | -------- | ------- | ------------------------------------------------------- |
+| `--dim`       |       | `string` |         | Group by dimension                                      |
+| `--days`      |       | `number` |         | Number of days to query                                 |
+| `--threshold` |       | `number` |         | Stuck wakelock rate threshold (exit code 6 if breached) |
 
 ### Example
 
@@ -304,10 +304,10 @@ gpc vitals errors search [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--filter` | | `string` | | Filter expression |
-| `--max` | | `number` | | Maximum results |
+| Flag       | Short | Type     | Default | Description       |
+| ---------- | ----- | -------- | ------- | ----------------- |
+| `--filter` |       | `string` |         | Filter expression |
+| `--max`    |       | `number` |         | Maximum results   |
 
 ### Example
 
@@ -342,9 +342,9 @@ The `<metric>` argument accepts: `crashes`, `anr`, `startup`, `rendering`, `batt
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--days` | | `number` | `7` | Period length in days |
+| Flag     | Short | Type     | Default | Description           |
+| -------- | ----- | -------- | ------- | --------------------- |
+| `--days` |       | `number` | `7`     | Period length in days |
 
 ### Example
 

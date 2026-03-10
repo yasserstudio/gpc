@@ -84,36 +84,36 @@ When contributors join or after stable release:
 
 ### Package Labels
 
-| Label | Color | Description |
-| --- | --- | --- |
-| `pkg:cli` | `#1d76db` | @gpc-cli/cli |
-| `pkg:core` | `#1d76db` | @gpc-cli/core |
-| `pkg:api` | `#1d76db` | @gpc-cli/api |
-| `pkg:auth` | `#1d76db` | @gpc-cli/auth |
-| `pkg:config` | `#1d76db` | @gpc-cli/config |
+| Label            | Color     | Description         |
+| ---------------- | --------- | ------------------- |
+| `pkg:cli`        | `#1d76db` | @gpc-cli/cli        |
+| `pkg:core`       | `#1d76db` | @gpc-cli/core       |
+| `pkg:api`        | `#1d76db` | @gpc-cli/api        |
+| `pkg:auth`       | `#1d76db` | @gpc-cli/auth       |
+| `pkg:config`     | `#1d76db` | @gpc-cli/config     |
 | `pkg:plugin-sdk` | `#1d76db` | @gpc-cli/plugin-sdk |
-| `pkg:plugin-ci` | `#1d76db` | @gpc-cli/plugin-ci |
+| `pkg:plugin-ci`  | `#1d76db` | @gpc-cli/plugin-ci  |
 
 ### Type Labels
 
-| Label | Color | Description |
-| --- | --- | --- |
-| `bug` | `#d73a4a` | Something isn't working |
-| `enhancement` | `#a2eeef` | New feature or improvement |
-| `docs` | `#0075ca` | Documentation only |
-| `good first issue` | `#7057ff` | Good for newcomers |
-| `help wanted` | `#008672` | Extra attention needed |
-| `wontfix` | `#ffffff` | Will not be worked on |
-| `duplicate` | `#cfd3d7` | Already exists |
+| Label              | Color     | Description                |
+| ------------------ | --------- | -------------------------- |
+| `bug`              | `#d73a4a` | Something isn't working    |
+| `enhancement`      | `#a2eeef` | New feature or improvement |
+| `docs`             | `#0075ca` | Documentation only         |
+| `good first issue` | `#7057ff` | Good for newcomers         |
+| `help wanted`      | `#008672` | Extra attention needed     |
+| `wontfix`          | `#ffffff` | Will not be worked on      |
+| `duplicate`        | `#cfd3d7` | Already exists             |
 
 ### Priority Labels
 
-| Label | Color | Description |
-| --- | --- | --- |
+| Label         | Color     | Description          |
+| ------------- | --------- | -------------------- |
 | `p0:critical` | `#b60205` | Must fix immediately |
-| `p1:high` | `#d93f0b` | Fix this release |
-| `p2:medium` | `#fbca04` | Fix soon |
-| `p3:low` | `#0e8a16` | Nice to have |
+| `p1:high`     | `#d93f0b` | Fix this release     |
+| `p2:medium`   | `#fbca04` | Fix soon             |
+| `p3:low`      | `#0e8a16` | Nice to have         |
 
 ### Create All Labels
 
@@ -479,6 +479,7 @@ The formula (`Formula/gpc.rb`) downloads pre-built binaries from GitHub Releases
 ### Update Process
 
 On each GitHub Release:
+
 1. `binary.yml` builds and uploads platform binaries + `checksums.txt`
 2. A workflow in `homebrew-tap` updates the formula version and SHA256 values
 3. Users get the update on next `brew update && brew upgrade`

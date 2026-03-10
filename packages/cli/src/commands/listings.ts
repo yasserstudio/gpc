@@ -35,8 +35,14 @@ async function getClient(config: GpcConfig) {
 }
 
 const VALID_IMAGE_TYPES: ImageType[] = [
-  "phoneScreenshots", "sevenInchScreenshots", "tenInchScreenshots",
-  "tvScreenshots", "wearScreenshots", "icon", "featureGraphic", "tvBanner",
+  "phoneScreenshots",
+  "sevenInchScreenshots",
+  "tenInchScreenshots",
+  "tvScreenshots",
+  "wearScreenshots",
+  "icon",
+  "featureGraphic",
+  "tvBanner",
 ];
 
 function validateImageType(type: string): ImageType {
@@ -49,9 +55,7 @@ function validateImageType(type: string): ImageType {
 }
 
 export function registerListingsCommands(program: Command): void {
-  const listings = program
-    .command("listings")
-    .description("Manage store listings and metadata");
+  const listings = program.command("listings").description("Manage store listings and metadata");
 
   // Get
   listings
@@ -60,7 +64,7 @@ export function registerListingsCommands(program: Command): void {
     .option("--lang <language>", "Language code (BCP 47)")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -85,38 +89,49 @@ export function registerListingsCommands(program: Command): void {
     .option("--video <url>", "Video URL")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const interactive = isInteractive(program);
 
-      options.lang = await requireOption("lang", options.lang, {
-        message: "Language code (BCP 47):",
-        default: "en-US",
-      }, interactive);
+      options.lang = await requireOption(
+        "lang",
+        options.lang,
+        {
+          message: "Language code (BCP 47):",
+          default: "en-US",
+        },
+        interactive,
+      );
       const format = detectOutputFormat();
 
       try {
         const data: Record<string, string> = {};
-        if (options['title']) data['title'] = options['title'];
-        if (options['short']) data['shortDescription'] = options['short'];
-        if (options['full']) data['fullDescription'] = options['full'];
-        if (options['fullFile']) {
+        if (options["title"]) data["title"] = options["title"];
+        if (options["short"]) data["shortDescription"] = options["short"];
+        if (options["full"]) data["fullDescription"] = options["full"];
+        if (options["fullFile"]) {
           const { readFile } = await import("node:fs/promises");
-          data['fullDescription'] = (await readFile(options['fullFile'], "utf-8")).trimEnd();
+          data["fullDescription"] = (await readFile(options["fullFile"], "utf-8")).trimEnd();
         }
-        if (options['video']) data['video'] = options['video'];
+        if (options["video"]) data["video"] = options["video"];
 
         if (Object.keys(data).length === 0) {
-          console.error("Error: Provide at least one field to update (--title, --short, --full, --full-file, --video).");
+          console.error(
+            "Error: Provide at least one field to update (--title, --short, --full, --full-file, --video).",
+          );
           process.exit(2);
         }
 
         if (isDryRun(program)) {
-          printDryRun({
-            command: "listings update",
-            action: "update listing for",
-            target: options.lang,
-            details: data,
-          }, format, formatOutput);
+          printDryRun(
+            {
+              command: "listings update",
+              action: "update listing for",
+              target: options.lang,
+              details: data,
+            },
+            format,
+            formatOutput,
+          );
           return;
         }
 
@@ -136,22 +151,31 @@ export function registerListingsCommands(program: Command): void {
     .option("--lang <language>", "Language code (BCP 47)")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const interactive = isInteractive(program);
 
-      options.lang = await requireOption("lang", options.lang, {
-        message: "Language code (BCP 47):",
-      }, interactive);
+      options.lang = await requireOption(
+        "lang",
+        options.lang,
+        {
+          message: "Language code (BCP 47):",
+        },
+        interactive,
+      );
 
       await requireConfirm(`Delete listing for "${options.lang}"?`, program);
 
       if (isDryRun(program)) {
         const format = detectOutputFormat();
-        printDryRun({
-          command: "listings delete",
-          action: "delete listing for",
-          target: options.lang,
-        }, format, formatOutput);
+        printDryRun(
+          {
+            command: "listings delete",
+            action: "delete listing for",
+            target: options.lang,
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
@@ -173,17 +197,22 @@ export function registerListingsCommands(program: Command): void {
     .option("--dir <path>", "Output directory", "metadata")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
       try {
         const result = await pullListings(client, packageName, options.dir);
-        console.log(formatOutput({
-          directory: options.dir,
-          languages: result.listings.map((l) => l.language),
-          count: result.listings.length,
-        }, format));
+        console.log(
+          formatOutput(
+            {
+              directory: options.dir,
+              languages: result.listings.map((l) => l.language),
+              count: result.listings.length,
+            },
+            format,
+          ),
+        );
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
@@ -198,7 +227,7 @@ export function registerListingsCommands(program: Command): void {
     .option("--dry-run", "Preview changes without applying")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -214,9 +243,7 @@ export function registerListingsCommands(program: Command): void {
     });
 
   // Images subcommand
-  const images = listings
-    .command("images")
-    .description("Manage listing images");
+  const images = listings.command("images").description("Manage listing images");
 
   // Images list
   images
@@ -226,18 +253,28 @@ export function registerListingsCommands(program: Command): void {
     .option("--type <type>", "Image type")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const interactive = isInteractive(program);
 
-      options.lang = await requireOption("lang", options.lang, {
-        message: "Language code (BCP 47):",
-        default: "en-US",
-      }, interactive);
+      options.lang = await requireOption(
+        "lang",
+        options.lang,
+        {
+          message: "Language code (BCP 47):",
+          default: "en-US",
+        },
+        interactive,
+      );
 
-      options.type = await requireOption("type", options.type, {
-        message: "Image type:",
-        choices: VALID_IMAGE_TYPES as unknown as string[],
-      }, interactive);
+      options.type = await requireOption(
+        "type",
+        options.type,
+        {
+          message: "Image type:",
+          choices: VALID_IMAGE_TYPES as unknown as string[],
+        },
+        interactive,
+      );
 
       const client = await getClient(config);
       const format = detectOutputFormat();
@@ -260,18 +297,28 @@ export function registerListingsCommands(program: Command): void {
     .option("--type <type>", "Image type")
     .action(async (file: string, options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const interactive = isInteractive(program);
 
-      options.lang = await requireOption("lang", options.lang, {
-        message: "Language code (BCP 47):",
-        default: "en-US",
-      }, interactive);
+      options.lang = await requireOption(
+        "lang",
+        options.lang,
+        {
+          message: "Language code (BCP 47):",
+          default: "en-US",
+        },
+        interactive,
+      );
 
-      options.type = await requireOption("type", options.type, {
-        message: "Image type:",
-        choices: VALID_IMAGE_TYPES as unknown as string[],
-      }, interactive);
+      options.type = await requireOption(
+        "type",
+        options.type,
+        {
+          message: "Image type:",
+          choices: VALID_IMAGE_TYPES as unknown as string[],
+        },
+        interactive,
+      );
 
       const client = await getClient(config);
       const format = detectOutputFormat();
@@ -295,21 +342,36 @@ export function registerListingsCommands(program: Command): void {
     .option("--id <imageId>", "Image ID to delete")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const interactive = isInteractive(program);
 
-      options.lang = await requireOption("lang", options.lang, {
-        message: "Language code (BCP 47):",
-      }, interactive);
+      options.lang = await requireOption(
+        "lang",
+        options.lang,
+        {
+          message: "Language code (BCP 47):",
+        },
+        interactive,
+      );
 
-      options.type = await requireOption("type", options.type, {
-        message: "Image type:",
-        choices: VALID_IMAGE_TYPES as unknown as string[],
-      }, interactive);
+      options.type = await requireOption(
+        "type",
+        options.type,
+        {
+          message: "Image type:",
+          choices: VALID_IMAGE_TYPES as unknown as string[],
+        },
+        interactive,
+      );
 
-      options.id = await requireOption("id", options.id, {
-        message: "Image ID to delete:",
-      }, interactive);
+      options.id = await requireOption(
+        "id",
+        options.id,
+        {
+          message: "Image ID to delete:",
+        },
+        interactive,
+      );
 
       await requireConfirm(`Delete image "${options.id}"?`, program);
 
@@ -332,7 +394,7 @@ export function registerListingsCommands(program: Command): void {
     .option("--track <track>", "Track name", "production")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 

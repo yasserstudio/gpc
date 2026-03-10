@@ -50,9 +50,7 @@ export interface ParsedMonth {
 export function parseMonth(monthStr: string): ParsedMonth {
   const match = /^(\d{4})-(\d{2})$/.exec(monthStr);
   if (!match) {
-    throw new Error(
-      `Invalid month format "${monthStr}". Expected YYYY-MM (e.g., 2026-03).`,
-    );
+    throw new Error(`Invalid month format "${monthStr}". Expected YYYY-MM (e.g., 2026-03).`);
   }
   const year = Number(match[1]);
   const month = Number(match[2]);
@@ -99,9 +97,7 @@ export async function downloadReport(
   const response = await fetch(uri);
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to download report from signed URI: HTTP ${response.status}`,
-    );
+    throw new Error(`Failed to download report from signed URI: HTTP ${response.status}`);
   }
 
   return response.text();

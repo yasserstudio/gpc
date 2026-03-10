@@ -75,9 +75,7 @@ describe("validateReleaseNotes", () => {
   });
 
   it("fails for notes over 500 chars", () => {
-    const result = validateReleaseNotes([
-      { language: "en-US", text: "a".repeat(501) },
-    ]);
+    const result = validateReleaseNotes([{ language: "en-US", text: "a".repeat(501) }]);
 
     expect(result.valid).toBe(false);
     expect(result.errors[0]).toContain("exceed 500 chars");
@@ -94,9 +92,7 @@ describe("validateReleaseNotes", () => {
   });
 
   it("passes for exactly 500 chars", () => {
-    const result = validateReleaseNotes([
-      { language: "en-US", text: "a".repeat(500) },
-    ]);
+    const result = validateReleaseNotes([{ language: "en-US", text: "a".repeat(500) }]);
 
     expect(result.valid).toBe(true);
   });

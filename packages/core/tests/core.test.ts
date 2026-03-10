@@ -41,12 +41,7 @@ import {
   getCountryAvailability,
   updateAppDetails,
 } from "../src/commands/listings.js";
-import {
-  listReviews,
-  getReview,
-  replyToReview,
-  exportReviews,
-} from "../src/commands/reviews.js";
+import { listReviews, getReview, replyToReview, exportReviews } from "../src/commands/reviews.js";
 import {
   getVitalsOverview,
   getVitalsCrashes,
@@ -327,17 +322,26 @@ function mockClient() {
     },
     images: {
       list: vi.fn().mockResolvedValue([]),
-      upload: vi.fn().mockResolvedValue({ id: "img-1", url: "https://example.com/img.png", sha1: "a", sha256: "b" }),
+      upload: vi.fn().mockResolvedValue({
+        id: "img-1",
+        url: "https://example.com/img.png",
+        sha1: "a",
+        sha256: "b",
+      }),
       delete: vi.fn().mockResolvedValue(undefined),
       deleteAll: vi.fn(),
     },
     countryAvailability: {
-      get: vi.fn().mockResolvedValue({ countryTargeting: { countries: ["US"], includeRestOfWorld: false } }),
+      get: vi
+        .fn()
+        .mockResolvedValue({ countryTargeting: { countries: ["US"], includeRestOfWorld: false } }),
     },
     reviews: {
       list: vi.fn().mockResolvedValue({ reviews: [] }),
       get: vi.fn().mockResolvedValue({ reviewId: "r1", authorName: "User", comments: [] }),
-      reply: vi.fn().mockResolvedValue({ result: { replyText: "Thanks!", lastEdited: { seconds: "123" } } }),
+      reply: vi
+        .fn()
+        .mockResolvedValue({ result: { replyText: "Thanks!", lastEdited: { seconds: "123" } } }),
     },
   } as any;
 }
@@ -355,10 +359,15 @@ describe("uploadRelease", () => {
 
     expect(client.edits.insert).toHaveBeenCalledWith(PKG);
     expect(client.bundles.upload).toHaveBeenCalledWith(PKG, "edit-1", "/tmp/app.aab");
-    expect(client.tracks.update).toHaveBeenCalledWith(PKG, "edit-1", "internal", expect.objectContaining({
-      versionCodes: ["42"],
-      status: "completed",
-    }));
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "internal",
+      expect.objectContaining({
+        versionCodes: ["42"],
+        status: "completed",
+      }),
+    );
     expect(client.edits.validate).toHaveBeenCalledWith(PKG, "edit-1");
     expect(client.edits.commit).toHaveBeenCalledWith(PKG, "edit-1");
     expect(client.edits.delete).not.toHaveBeenCalled();
@@ -387,10 +396,15 @@ describe("uploadRelease", () => {
     });
 
     expect(result.status).toBe("inProgress");
-    expect(client.tracks.update).toHaveBeenCalledWith(PKG, "edit-1", "production", expect.objectContaining({
-      status: "inProgress",
-      userFraction: 0.1,
-    }));
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "production",
+      expect.objectContaining({
+        status: "inProgress",
+        userFraction: 0.1,
+      }),
+    );
   });
 
   it("passes releaseNotes and releaseName to the track update", async () => {
@@ -402,18 +416,24 @@ describe("uploadRelease", () => {
       releaseName: "v2.0",
     });
 
-    expect(client.tracks.update).toHaveBeenCalledWith(PKG, "edit-1", "beta", expect.objectContaining({
-      releaseNotes: notes,
-      name: "v2.0",
-    }));
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "beta",
+      expect.objectContaining({
+        releaseNotes: notes,
+        name: "v2.0",
+      }),
+    );
   });
 
   it("deletes edit on error and rethrows", async () => {
     const client = mockClient();
     client.bundles.upload.mockRejectedValue(new Error("upload failed"));
 
-    await expect(uploadRelease(client, PKG, "/tmp/app.aab", { track: "internal" }))
-      .rejects.toThrow("upload failed");
+    await expect(uploadRelease(client, PKG, "/tmp/app.aab", { track: "internal" })).rejects.toThrow(
+      "upload failed",
+    );
 
     expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
   });
@@ -423,8 +443,9 @@ describe("uploadRelease", () => {
     client.bundles.upload.mockRejectedValue(new Error("upload failed"));
     client.edits.delete.mockRejectedValue(new Error("delete also failed"));
 
-    await expect(uploadRelease(client, PKG, "/tmp/app.aab", { track: "internal" }))
-      .rejects.toThrow("upload failed");
+    await expect(uploadRelease(client, PKG, "/tmp/app.aab", { track: "internal" })).rejects.toThrow(
+      "upload failed",
+    );
   });
 });
 
@@ -437,9 +458,7 @@ describe("getReleasesStatus", () => {
     client.tracks.list.mockResolvedValue([
       {
         track: "internal",
-        releases: [
-          { versionCodes: ["10"], status: "completed" },
-        ],
+        releases: [{ versionCodes: ["10"], status: "completed" }],
       },
       {
         track: "production",
@@ -489,10 +508,7 @@ describe("getReleasesStatus", () => {
 
   it("handles tracks with empty or undefined releases", async () => {
     const client = mockClient();
-    client.tracks.list.mockResolvedValue([
-      { track: "internal", releases: [] },
-      { track: "alpha" },
-    ]);
+    client.tracks.list.mockResolvedValue([{ track: "internal", releases: [] }, { track: "alpha" }]);
 
     const results = await getReleasesStatus(client, PKG);
     expect(results).toHaveLength(0);
@@ -516,18 +532,27 @@ describe("promoteRelease", () => {
     client.tracks.get.mockResolvedValue({
       track: "internal",
       releases: [
-        { versionCodes: ["42"], status: "completed", releaseNotes: [{ language: "en-US", text: "notes" }] },
+        {
+          versionCodes: ["42"],
+          status: "completed",
+          releaseNotes: [{ language: "en-US", text: "notes" }],
+        },
       ],
     });
 
     const result = await promoteRelease(client, PKG, "internal", "production");
 
     expect(client.tracks.get).toHaveBeenCalledWith(PKG, "edit-1", "internal");
-    expect(client.tracks.update).toHaveBeenCalledWith(PKG, "edit-1", "production", expect.objectContaining({
-      versionCodes: ["42"],
-      status: "completed",
-      releaseNotes: [{ language: "en-US", text: "notes" }],
-    }));
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "production",
+      expect.objectContaining({
+        versionCodes: ["42"],
+        status: "completed",
+        releaseNotes: [{ language: "en-US", text: "notes" }],
+      }),
+    );
     expect(client.edits.validate).toHaveBeenCalled();
     expect(client.edits.commit).toHaveBeenCalled();
     expect(result).toEqual({
@@ -545,8 +570,9 @@ describe("promoteRelease", () => {
       releases: [{ versionCodes: ["1"], status: "draft" }],
     });
 
-    await expect(promoteRelease(client, PKG, "internal", "production"))
-      .rejects.toThrow('No active release found on track "internal"');
+    await expect(promoteRelease(client, PKG, "internal", "production")).rejects.toThrow(
+      'No active release found on track "internal"',
+    );
     expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
   });
 
@@ -554,8 +580,9 @@ describe("promoteRelease", () => {
     const client = mockClient();
     client.tracks.get.mockResolvedValue({ track: "internal" });
 
-    await expect(promoteRelease(client, PKG, "internal", "production"))
-      .rejects.toThrow('No active release found on track "internal"');
+    await expect(promoteRelease(client, PKG, "internal", "production")).rejects.toThrow(
+      'No active release found on track "internal"',
+    );
   });
 
   it("handles userFraction – sets status to inProgress", async () => {
@@ -571,10 +598,15 @@ describe("promoteRelease", () => {
 
     expect(result.status).toBe("inProgress");
     expect(result.userFraction).toBe(0.25);
-    expect(client.tracks.update).toHaveBeenCalledWith(PKG, "edit-1", "production", expect.objectContaining({
-      status: "inProgress",
-      userFraction: 0.25,
-    }));
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "production",
+      expect.objectContaining({
+        status: "inProgress",
+        userFraction: 0.25,
+      }),
+    );
   });
 
   it("uses provided releaseNotes over source release notes", async () => {
@@ -582,16 +614,25 @@ describe("promoteRelease", () => {
     client.tracks.get.mockResolvedValue({
       track: "internal",
       releases: [
-        { versionCodes: ["42"], status: "completed", releaseNotes: [{ language: "en-US", text: "old" }] },
+        {
+          versionCodes: ["42"],
+          status: "completed",
+          releaseNotes: [{ language: "en-US", text: "old" }],
+        },
       ],
     });
 
     const newNotes = [{ language: "en-US", text: "new notes" }];
     await promoteRelease(client, PKG, "internal", "production", { releaseNotes: newNotes });
 
-    expect(client.tracks.update).toHaveBeenCalledWith(PKG, "edit-1", "production", expect.objectContaining({
-      releaseNotes: newNotes,
-    }));
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "production",
+      expect.objectContaining({
+        releaseNotes: newNotes,
+      }),
+    );
   });
 
   it("picks inProgress release as active source", async () => {
@@ -628,10 +669,15 @@ describe("updateRollout", () => {
       versionCodes: ["42"],
       userFraction: 0.5,
     });
-    expect(client.tracks.update).toHaveBeenCalledWith(PKG, "edit-1", "production", expect.objectContaining({
-      status: "inProgress",
-      userFraction: 0.5,
-    }));
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "production",
+      expect.objectContaining({
+        status: "inProgress",
+        userFraction: 0.5,
+      }),
+    );
     expect(client.edits.validate).toHaveBeenCalled();
     expect(client.edits.commit).toHaveBeenCalled();
   });
@@ -643,8 +689,9 @@ describe("updateRollout", () => {
       releases: [{ versionCodes: ["42"], status: "inProgress", userFraction: 0.1 }],
     });
 
-    await expect(updateRollout(client, PKG, "production", "increase"))
-      .rejects.toThrow("--to <percentage> is required for rollout increase");
+    await expect(updateRollout(client, PKG, "production", "increase")).rejects.toThrow(
+      "--to <percentage> is required for rollout increase",
+    );
   });
 
   it("halt: sets halted with existing fraction", async () => {
@@ -658,10 +705,15 @@ describe("updateRollout", () => {
 
     expect(result.status).toBe("halted");
     expect(result.userFraction).toBe(0.3);
-    expect(client.tracks.update).toHaveBeenCalledWith(PKG, "edit-1", "production", expect.objectContaining({
-      status: "halted",
-      userFraction: 0.3,
-    }));
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "production",
+      expect.objectContaining({
+        status: "halted",
+        userFraction: 0.3,
+      }),
+    );
   });
 
   it("resume: sets inProgress with existing fraction from halted release", async () => {
@@ -675,10 +727,15 @@ describe("updateRollout", () => {
 
     expect(result.status).toBe("inProgress");
     expect(result.userFraction).toBe(0.3);
-    expect(client.tracks.update).toHaveBeenCalledWith(PKG, "edit-1", "production", expect.objectContaining({
-      status: "inProgress",
-      userFraction: 0.3,
-    }));
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "production",
+      expect.objectContaining({
+        status: "inProgress",
+        userFraction: 0.3,
+      }),
+    );
   });
 
   it("complete: sets completed without fraction", async () => {
@@ -692,9 +749,14 @@ describe("updateRollout", () => {
 
     expect(result.status).toBe("completed");
     expect(result.userFraction).toBeUndefined();
-    expect(client.tracks.update).toHaveBeenCalledWith(PKG, "edit-1", "production", expect.objectContaining({
-      status: "completed",
-    }));
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "production",
+      expect.objectContaining({
+        status: "completed",
+      }),
+    );
     // Should NOT have userFraction in the release
     const updateCall = client.tracks.update.mock.calls[0][3];
     expect(updateCall).not.toHaveProperty("userFraction");
@@ -707,8 +769,9 @@ describe("updateRollout", () => {
       releases: [{ versionCodes: ["42"], status: "completed" }],
     });
 
-    await expect(updateRollout(client, PKG, "production", "halt"))
-      .rejects.toThrow('No active rollout found on track "production"');
+    await expect(updateRollout(client, PKG, "production", "halt")).rejects.toThrow(
+      'No active rollout found on track "production"',
+    );
     expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
   });
 
@@ -716,8 +779,9 @@ describe("updateRollout", () => {
     const client = mockClient();
     client.tracks.get.mockResolvedValue({ track: "production" });
 
-    await expect(updateRollout(client, PKG, "production", "halt"))
-      .rejects.toThrow('No active rollout found on track "production"');
+    await expect(updateRollout(client, PKG, "production", "halt")).rejects.toThrow(
+      'No active rollout found on track "production"',
+    );
   });
 
   it("preserves releaseNotes from current release", async () => {
@@ -725,14 +789,21 @@ describe("updateRollout", () => {
     const notes = [{ language: "en-US", text: "fixes" }];
     client.tracks.get.mockResolvedValue({
       track: "production",
-      releases: [{ versionCodes: ["42"], status: "inProgress", userFraction: 0.2, releaseNotes: notes }],
+      releases: [
+        { versionCodes: ["42"], status: "inProgress", userFraction: 0.2, releaseNotes: notes },
+      ],
     });
 
     await updateRollout(client, PKG, "production", "increase", 0.5);
 
-    expect(client.tracks.update).toHaveBeenCalledWith(PKG, "edit-1", "production", expect.objectContaining({
-      releaseNotes: notes,
-    }));
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "production",
+      expect.objectContaining({
+        releaseNotes: notes,
+      }),
+    );
   });
 });
 
@@ -802,8 +873,12 @@ describe("isValidBcp47", () => {
 // ---------------------------------------------------------------------------
 describe("diffListings", () => {
   it("detects field differences between local and remote", () => {
-    const local = [{ language: "en-US", title: "New Title", shortDescription: "short", fullDescription: "full" }];
-    const remote = [{ language: "en-US", title: "Old Title", shortDescription: "short", fullDescription: "full" }];
+    const local = [
+      { language: "en-US", title: "New Title", shortDescription: "short", fullDescription: "full" },
+    ];
+    const remote = [
+      { language: "en-US", title: "Old Title", shortDescription: "short", fullDescription: "full" },
+    ];
 
     const diffs = diffListings(local, remote);
 
@@ -814,7 +889,9 @@ describe("diffListings", () => {
   });
 
   it("detects new languages (local only)", () => {
-    const local = [{ language: "fr-FR", title: "Bonjour", shortDescription: "s", fullDescription: "f" }];
+    const local = [
+      { language: "fr-FR", title: "Bonjour", shortDescription: "s", fullDescription: "f" },
+    ];
     const remote: any[] = [];
 
     const diffs = diffListings(local, remote);
@@ -826,7 +903,9 @@ describe("diffListings", () => {
 
   it("detects remote-only languages", () => {
     const local: any[] = [];
-    const remote = [{ language: "de-DE", title: "Hallo", shortDescription: "s", fullDescription: "f" }];
+    const remote = [
+      { language: "de-DE", title: "Hallo", shortDescription: "s", fullDescription: "f" },
+    ];
 
     const diffs = diffListings(local, remote);
 
@@ -836,7 +915,12 @@ describe("diffListings", () => {
   });
 
   it("returns empty array when local and remote match", () => {
-    const listing = { language: "en-US", title: "Same", shortDescription: "same", fullDescription: "same" };
+    const listing = {
+      language: "en-US",
+      title: "Same",
+      shortDescription: "same",
+      fullDescription: "same",
+    };
     const diffs = diffListings([listing], [{ ...listing }]);
 
     expect(diffs).toHaveLength(0);
@@ -848,8 +932,18 @@ describe("writeListingsToDir / readListingsFromDir", () => {
     const dir = await mkdtemp(join(tmpdir(), "gpc-test-"));
     try {
       const listings = [
-        { language: "en-US", title: "My App", shortDescription: "Short", fullDescription: "Full desc" },
-        { language: "ja-JP", title: "My App JP", shortDescription: "Short JP", fullDescription: "Full JP" },
+        {
+          language: "en-US",
+          title: "My App",
+          shortDescription: "Short",
+          fullDescription: "Full desc",
+        },
+        {
+          language: "ja-JP",
+          title: "My App JP",
+          shortDescription: "Short JP",
+          fullDescription: "Full JP",
+        },
       ];
 
       await writeListingsToDir(dir, listings);
@@ -895,7 +989,12 @@ describe("getListings", () => {
 
   it("returns single listing when language specified", async () => {
     const client = mockClient();
-    const listing = { language: "en-US", title: "App", shortDescription: "s", fullDescription: "f" };
+    const listing = {
+      language: "en-US",
+      title: "App",
+      shortDescription: "s",
+      fullDescription: "f",
+    };
     client.listings.get.mockResolvedValue(listing);
 
     const result = await getListings(client, PKG, "en-US");
@@ -925,7 +1024,12 @@ describe("getListings", () => {
 describe("updateListing", () => {
   it("patches listing, validates, and commits", async () => {
     const client = mockClient();
-    const updated = { language: "en-US", title: "New", shortDescription: "s", fullDescription: "f" };
+    const updated = {
+      language: "en-US",
+      title: "New",
+      shortDescription: "s",
+      fullDescription: "f",
+    };
     client.listings.patch.mockResolvedValue(updated);
 
     const result = await updateListing(client, PKG, "en-US", { title: "New" });
@@ -938,7 +1042,9 @@ describe("updateListing", () => {
 
   it("throws on invalid language code", async () => {
     const client = mockClient();
-    await expect(updateListing(client, PKG, "bad", { title: "X" })).rejects.toThrow("Invalid language tag");
+    await expect(updateListing(client, PKG, "bad", { title: "X" })).rejects.toThrow(
+      "Invalid language tag",
+    );
   });
 
   it("deletes edit on error", async () => {
@@ -1074,7 +1180,13 @@ describe("uploadImage", () => {
 
     const result = await uploadImage(client, PKG, "en-US", "icon", "/tmp/icon.png");
 
-    expect(client.images.upload).toHaveBeenCalledWith(PKG, "edit-1", "en-US", "icon", "/tmp/icon.png");
+    expect(client.images.upload).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "en-US",
+      "icon",
+      "/tmp/icon.png",
+    );
     expect(client.edits.validate).toHaveBeenCalled();
     expect(client.edits.commit).toHaveBeenCalled();
     expect(result).toHaveProperty("id");
@@ -1084,7 +1196,9 @@ describe("uploadImage", () => {
     const client = mockClient();
     client.images.upload.mockRejectedValue(new Error("upload fail"));
 
-    await expect(uploadImage(client, PKG, "en-US", "icon", "/tmp/icon.png")).rejects.toThrow("upload fail");
+    await expect(uploadImage(client, PKG, "en-US", "icon", "/tmp/icon.png")).rejects.toThrow(
+      "upload fail",
+    );
     expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
   });
 });
@@ -1098,7 +1212,13 @@ describe("deleteImage", () => {
 
     await deleteImage(client, PKG, "en-US", "phoneScreenshots", "img-1");
 
-    expect(client.images.delete).toHaveBeenCalledWith(PKG, "edit-1", "en-US", "phoneScreenshots", "img-1");
+    expect(client.images.delete).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "en-US",
+      "phoneScreenshots",
+      "img-1",
+    );
     expect(client.edits.validate).toHaveBeenCalled();
     expect(client.edits.commit).toHaveBeenCalled();
   });
@@ -1146,7 +1266,9 @@ describe("updateAppDetails", () => {
     const result = await updateAppDetails(client, PKG, { contactEmail: "test@example.com" });
 
     expect(result).toEqual({ defaultLanguage: "en-US", title: "My App" });
-    expect(client.details.patch).toHaveBeenCalledWith(PKG, "edit-1", { contactEmail: "test@example.com" });
+    expect(client.details.patch).toHaveBeenCalledWith(PKG, "edit-1", {
+      contactEmail: "test@example.com",
+    });
     expect(client.edits.validate).toHaveBeenCalled();
     expect(client.edits.commit).toHaveBeenCalled();
   });
@@ -1155,7 +1277,9 @@ describe("updateAppDetails", () => {
     const client = mockClient();
     client.details.patch.mockRejectedValue(new Error("details fail"));
 
-    await expect(updateAppDetails(client, PKG, { contactEmail: "x" })).rejects.toThrow("details fail");
+    await expect(updateAppDetails(client, PKG, { contactEmail: "x" })).rejects.toThrow(
+      "details fail",
+    );
     expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
   });
 });
@@ -1164,24 +1288,28 @@ describe("updateAppDetails", () => {
 // Phase 5 – Reviews
 // ---------------------------------------------------------------------------
 
-function makeReview(overrides: {
-  reviewId?: string;
-  starRating?: number;
-  language?: string;
-  seconds?: string;
-  text?: string;
-} = {}) {
+function makeReview(
+  overrides: {
+    reviewId?: string;
+    starRating?: number;
+    language?: string;
+    seconds?: string;
+    text?: string;
+  } = {},
+) {
   return {
     reviewId: overrides.reviewId ?? "r1",
     authorName: "User",
-    comments: [{
-      userComment: {
-        text: overrides.text ?? "Great app!",
-        lastModified: { seconds: overrides.seconds ?? "1700000000" },
-        starRating: overrides.starRating ?? 5,
-        reviewerLanguage: overrides.language ?? "en",
+    comments: [
+      {
+        userComment: {
+          text: overrides.text ?? "Great app!",
+          lastModified: { seconds: overrides.seconds ?? "1700000000" },
+          starRating: overrides.starRating ?? 5,
+          reviewerLanguage: overrides.language ?? "en",
+        },
       },
-    }],
+    ],
   };
 }
 
@@ -1237,9 +1365,12 @@ describe("listReviews", () => {
 
     await listReviews(client, PKG, { translationLanguage: "fr" });
 
-    expect(client.reviews.list).toHaveBeenCalledWith(PKG, expect.objectContaining({
-      translationLanguage: "fr",
-    }));
+    expect(client.reviews.list).toHaveBeenCalledWith(
+      PKG,
+      expect.objectContaining({
+        translationLanguage: "fr",
+      }),
+    );
   });
 });
 
@@ -1272,14 +1403,14 @@ describe("replyToReview", () => {
   it("throws when reply exceeds 350 characters", async () => {
     const client = mockClient();
     const longText = "a".repeat(351);
-    await expect(replyToReview(client, PKG, "r1", longText))
-      .rejects.toThrow("exceeds 350 characters");
+    await expect(replyToReview(client, PKG, "r1", longText)).rejects.toThrow(
+      "exceeds 350 characters",
+    );
   });
 
   it("throws when reply is empty", async () => {
     const client = mockClient();
-    await expect(replyToReview(client, PKG, "r1", ""))
-      .rejects.toThrow("cannot be empty");
+    await expect(replyToReview(client, PKG, "r1", "")).rejects.toThrow("cannot be empty");
   });
 });
 
@@ -1303,7 +1434,9 @@ describe("exportReviews", () => {
 
     const result = await exportReviews(client, PKG, { format: "csv" });
     const lines = result.split("\n");
-    expect(lines[0]).toBe("reviewId,authorName,starRating,text,language,date,device,appVersionName");
+    expect(lines[0]).toBe(
+      "reviewId,authorName,starRating,text,language,date,device,appVersionName",
+    );
     expect(lines[1]).toContain("r1");
     expect(lines[1]).toContain("Great app!");
   });
@@ -1397,25 +1530,37 @@ describe("getVitalsCrashes", () => {
   it("queries vitals.crashrate", async () => {
     const reporting = mockReportingClient();
     await getVitalsCrashes(reporting, PKG);
-    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.crashrate", expect.any(Object));
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(
+      PKG,
+      "vitals.crashrate",
+      expect.any(Object),
+    );
   });
 
   it("passes dimension option", async () => {
     const reporting = mockReportingClient();
     await getVitalsCrashes(reporting, PKG, { dimension: "versionCode" });
-    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.crashrate", expect.objectContaining({
-      dimensions: ["versionCode"],
-    }));
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(
+      PKG,
+      "vitals.crashrate",
+      expect.objectContaining({
+        dimensions: ["versionCode"],
+      }),
+    );
   });
 
   it("passes days option as timeline spec", async () => {
     const reporting = mockReportingClient();
     await getVitalsCrashes(reporting, PKG, { days: 7 });
-    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.crashrate", expect.objectContaining({
-      timelineSpec: expect.objectContaining({
-        aggregationPeriod: "DAILY",
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(
+      PKG,
+      "vitals.crashrate",
+      expect.objectContaining({
+        timelineSpec: expect.objectContaining({
+          aggregationPeriod: "DAILY",
+        }),
       }),
-    }));
+    );
   });
 });
 
@@ -1423,7 +1568,11 @@ describe("getVitalsAnr", () => {
   it("queries vitals.anrrate", async () => {
     const reporting = mockReportingClient();
     await getVitalsAnr(reporting, PKG);
-    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.anrrate", expect.any(Object));
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(
+      PKG,
+      "vitals.anrrate",
+      expect.any(Object),
+    );
   });
 });
 
@@ -1431,7 +1580,11 @@ describe("getVitalsStartup", () => {
   it("queries vitals.slowstartrate", async () => {
     const reporting = mockReportingClient();
     await getVitalsStartup(reporting, PKG);
-    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.slowstartrate", expect.any(Object));
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(
+      PKG,
+      "vitals.slowstartrate",
+      expect.any(Object),
+    );
   });
 });
 
@@ -1439,7 +1592,11 @@ describe("getVitalsRendering", () => {
   it("queries vitals.slowrenderingrate", async () => {
     const reporting = mockReportingClient();
     await getVitalsRendering(reporting, PKG);
-    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.slowrenderingrate", expect.any(Object));
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(
+      PKG,
+      "vitals.slowrenderingrate",
+      expect.any(Object),
+    );
   });
 });
 
@@ -1447,7 +1604,11 @@ describe("getVitalsBattery", () => {
   it("queries vitals.excessivewakeuprate", async () => {
     const reporting = mockReportingClient();
     await getVitalsBattery(reporting, PKG);
-    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.excessivewakeuprate", expect.any(Object));
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(
+      PKG,
+      "vitals.excessivewakeuprate",
+      expect.any(Object),
+    );
   });
 });
 
@@ -1455,7 +1616,11 @@ describe("getVitalsMemory", () => {
   it("queries vitals.stuckbackgroundwakelockrate", async () => {
     const reporting = mockReportingClient();
     await getVitalsMemory(reporting, PKG);
-    expect(reporting.queryMetricSet).toHaveBeenCalledWith(PKG, "vitals.stuckbackgroundwakelockrate", expect.any(Object));
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(
+      PKG,
+      "vitals.stuckbackgroundwakelockrate",
+      expect.any(Object),
+    );
   });
 });
 
@@ -1557,7 +1722,10 @@ describe("subscriptions commands", () => {
   it("listSubscriptions calls client.subscriptions.list", async () => {
     const client = mockClient();
     const result = await listSubscriptions(client, "com.example");
-    expect(client.subscriptions.list).toHaveBeenCalledWith("com.example", { pageToken: undefined, pageSize: undefined });
+    expect(client.subscriptions.list).toHaveBeenCalledWith("com.example", {
+      pageToken: undefined,
+      pageSize: undefined,
+    });
     expect(result.subscriptions).toHaveLength(1);
   });
 
@@ -1579,7 +1747,12 @@ describe("subscriptions commands", () => {
     const client = mockClient();
     const data = { productId: "sub1" } as any;
     await updateSubscription(client, "com.example", "sub1", data, "listings");
-    expect(client.subscriptions.update).toHaveBeenCalledWith("com.example", "sub1", data, "listings");
+    expect(client.subscriptions.update).toHaveBeenCalledWith(
+      "com.example",
+      "sub1",
+      data,
+      "listings",
+    );
   });
 
   it("deleteSubscription calls client.subscriptions.delete", async () => {
@@ -1591,13 +1764,21 @@ describe("subscriptions commands", () => {
   it("activateBasePlan calls client.subscriptions.activateBasePlan", async () => {
     const client = mockClient();
     await activateBasePlan(client, "com.example", "sub1", "bp1");
-    expect(client.subscriptions.activateBasePlan).toHaveBeenCalledWith("com.example", "sub1", "bp1");
+    expect(client.subscriptions.activateBasePlan).toHaveBeenCalledWith(
+      "com.example",
+      "sub1",
+      "bp1",
+    );
   });
 
   it("deactivateBasePlan calls client.subscriptions.deactivateBasePlan", async () => {
     const client = mockClient();
     await deactivateBasePlan(client, "com.example", "sub1", "bp1");
-    expect(client.subscriptions.deactivateBasePlan).toHaveBeenCalledWith("com.example", "sub1", "bp1");
+    expect(client.subscriptions.deactivateBasePlan).toHaveBeenCalledWith(
+      "com.example",
+      "sub1",
+      "bp1",
+    );
   });
 
   it("deleteBasePlan calls client.subscriptions.deleteBasePlan", async () => {
@@ -1617,19 +1798,34 @@ describe("subscriptions commands", () => {
     const client = mockClient();
     const data = { offerId: "o1" } as any;
     await createOffer(client, "com.example", "sub1", "bp1", data);
-    expect(client.subscriptions.createOffer).toHaveBeenCalledWith("com.example", "sub1", "bp1", data);
+    expect(client.subscriptions.createOffer).toHaveBeenCalledWith(
+      "com.example",
+      "sub1",
+      "bp1",
+      data,
+    );
   });
 
   it("deleteOffer calls client.subscriptions.deleteOffer", async () => {
     const client = mockClient();
     await deleteOffer(client, "com.example", "sub1", "bp1", "o1");
-    expect(client.subscriptions.deleteOffer).toHaveBeenCalledWith("com.example", "sub1", "bp1", "o1");
+    expect(client.subscriptions.deleteOffer).toHaveBeenCalledWith(
+      "com.example",
+      "sub1",
+      "bp1",
+      "o1",
+    );
   });
 
   it("activateOffer calls client.subscriptions.activateOffer", async () => {
     const client = mockClient();
     await activateOffer(client, "com.example", "sub1", "bp1", "o1");
-    expect(client.subscriptions.activateOffer).toHaveBeenCalledWith("com.example", "sub1", "bp1", "o1");
+    expect(client.subscriptions.activateOffer).toHaveBeenCalledWith(
+      "com.example",
+      "sub1",
+      "bp1",
+      "o1",
+    );
   });
 });
 
@@ -1663,7 +1859,10 @@ describe("iap commands", () => {
   it("listInAppProducts calls client.inappproducts.list", async () => {
     const client = mockClient();
     const result = await listInAppProducts(client, "com.example");
-    expect(client.inappproducts.list).toHaveBeenCalledWith("com.example", { token: undefined, maxResults: undefined });
+    expect(client.inappproducts.list).toHaveBeenCalledWith("com.example", {
+      token: undefined,
+      maxResults: undefined,
+    });
     expect(result.inappproduct).toEqual([]);
   });
 
@@ -1696,8 +1895,24 @@ describe("iap commands", () => {
 
   it("syncInAppProducts creates new products and updates existing ones", async () => {
     const dir = await mkdtemp(join(tmpdir(), "gpc-iap-"));
-    await writeFile(join(dir, "coins100.json"), JSON.stringify({ sku: "coins100", status: "active", purchaseType: "managedUser", defaultPrice: { currencyCode: "USD", units: "1" } }));
-    await writeFile(join(dir, "gems50.json"), JSON.stringify({ sku: "gems50", status: "active", purchaseType: "managedUser", defaultPrice: { currencyCode: "USD", units: "2" } }));
+    await writeFile(
+      join(dir, "coins100.json"),
+      JSON.stringify({
+        sku: "coins100",
+        status: "active",
+        purchaseType: "managedUser",
+        defaultPrice: { currencyCode: "USD", units: "1" },
+      }),
+    );
+    await writeFile(
+      join(dir, "gems50.json"),
+      JSON.stringify({
+        sku: "gems50",
+        status: "active",
+        purchaseType: "managedUser",
+        defaultPrice: { currencyCode: "USD", units: "2" },
+      }),
+    );
 
     const client = mockClient();
     client.inappproducts.list.mockResolvedValue({ inappproduct: [{ sku: "coins100" }] });
@@ -1765,8 +1980,15 @@ describe("purchases commands", () => {
         getProduct: vi.fn().mockResolvedValue({ purchaseState: 0, orderId: "o1" }),
         acknowledgeProduct: vi.fn().mockResolvedValue(undefined),
         consumeProduct: vi.fn().mockResolvedValue(undefined),
-        getSubscriptionV2: vi.fn().mockResolvedValue({ subscriptionState: "ACTIVE", lineItems: [] }),
-        getSubscriptionV1: vi.fn().mockResolvedValue({ expiryTimeMillis: "100000", orderId: "o1", autoRenewing: true, startTimeMillis: "1" }),
+        getSubscriptionV2: vi
+          .fn()
+          .mockResolvedValue({ subscriptionState: "ACTIVE", lineItems: [] }),
+        getSubscriptionV1: vi.fn().mockResolvedValue({
+          expiryTimeMillis: "100000",
+          orderId: "o1",
+          autoRenewing: true,
+          startTimeMillis: "1",
+        }),
         cancelSubscription: vi.fn().mockResolvedValue(undefined),
         deferSubscription: vi.fn().mockResolvedValue({ newExpiryTimeMillis: "200000" }),
         revokeSubscriptionV2: vi.fn().mockResolvedValue(undefined),
@@ -1788,7 +2010,12 @@ describe("purchases commands", () => {
   it("acknowledgeProductPurchase calls with payload", async () => {
     const client = mockClient();
     await acknowledgeProductPurchase(client, "com.example", "coins100", "tok", "payload1");
-    expect(client.purchases.acknowledgeProduct).toHaveBeenCalledWith("com.example", "coins100", "tok", { developerPayload: "payload1" });
+    expect(client.purchases.acknowledgeProduct).toHaveBeenCalledWith(
+      "com.example",
+      "coins100",
+      "tok",
+      { developerPayload: "payload1" },
+    );
   });
 
   it("consumeProductPurchase calls client.purchases.consumeProduct", async () => {
@@ -1812,7 +2039,13 @@ describe("purchases commands", () => {
 
   it("deferSubscriptionPurchase reads v1 expiry then defers", async () => {
     const client = mockClient();
-    const result = await deferSubscriptionPurchase(client, "com.example", "sub1", "tok", "2025-12-31T00:00:00Z");
+    const result = await deferSubscriptionPurchase(
+      client,
+      "com.example",
+      "sub1",
+      "tok",
+      "2025-12-31T00:00:00Z",
+    );
     expect(client.purchases.getSubscriptionV1).toHaveBeenCalledWith("com.example", "sub1", "tok");
     expect(client.purchases.deferSubscription).toHaveBeenCalled();
     const deferCall = client.purchases.deferSubscription.mock.calls[0];
@@ -1836,7 +2069,9 @@ describe("purchases commands", () => {
   it("refundOrder calls client.orders.refund", async () => {
     const client = mockClient();
     await refundOrder(client, "com.example", "GPA.1234", { fullRefund: true });
-    expect(client.orders.refund).toHaveBeenCalledWith("com.example", "GPA.1234", { fullRefund: true });
+    expect(client.orders.refund).toHaveBeenCalledWith("com.example", "GPA.1234", {
+      fullRefund: true,
+    });
   });
 });
 
@@ -1940,11 +2175,15 @@ describe("report commands", () => {
   it("downloadReport fetches CSV from signed URI", async () => {
     const client: any = {
       reports: {
-        list: vi.fn().mockResolvedValue({ reports: [{ bucketId: "b1", uri: "https://storage.example.com/r.csv" }] }),
+        list: vi.fn().mockResolvedValue({
+          reports: [{ bucketId: "b1", uri: "https://storage.example.com/r.csv" }],
+        }),
       },
     };
     const originalFetch = globalThis.fetch;
-    const mockFetch = vi.fn().mockResolvedValue(new Response("col1,col2\nval1,val2", { status: 200 }));
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue(new Response("col1,col2\nval1,val2", { status: 200 }));
     vi.stubGlobal("fetch", mockFetch);
 
     try {
@@ -1960,7 +2199,9 @@ describe("report commands", () => {
     const client: any = {
       reports: { list: vi.fn().mockResolvedValue({ reports: [] }) },
     };
-    await expect(downloadReport(client, "com.example", "earnings", 2026, 3)).rejects.toThrow("No earnings reports found");
+    await expect(downloadReport(client, "com.example", "earnings", 2026, 3)).rejects.toThrow(
+      "No earnings reports found",
+    );
   });
 });
 
@@ -2021,7 +2262,9 @@ describe("user commands", () => {
 
   it("inviteUser passes grants when provided", async () => {
     const client = mockUsersClient();
-    const grants = [{ packageName: "com.example", appLevelPermissions: ["CAN_MANAGE_PUBLIC_APKS" as const] }];
+    const grants = [
+      { packageName: "com.example", appLevelPermissions: ["CAN_MANAGE_PUBLIC_APKS" as const] },
+    ];
     await inviteUser(client, "12345", "new@b.com", undefined, grants);
     const call = client.create.mock.calls[0];
     expect(call[1].grants).toEqual(grants);
@@ -2030,14 +2273,21 @@ describe("user commands", () => {
   it("updateUser sends updateMask with changed fields", async () => {
     const client = mockUsersClient();
     await updateUser(client, "12345", "a@b.com", ["CAN_VIEW_FINANCIAL_DATA"]);
-    expect(client.update).toHaveBeenCalledWith("12345", "a@b.com", { developerAccountPermission: ["CAN_VIEW_FINANCIAL_DATA"] }, "developerAccountPermission");
+    expect(client.update).toHaveBeenCalledWith(
+      "12345",
+      "a@b.com",
+      { developerAccountPermission: ["CAN_VIEW_FINANCIAL_DATA"] },
+      "developerAccountPermission",
+    );
   });
 
   it("updateUser includes grants in updateMask", async () => {
     const client = mockUsersClient();
     const grants = [{ packageName: "com.example", appLevelPermissions: ["ADMIN" as const] }];
     await updateUser(client, "12345", "a@b.com", ["ADMIN"], grants);
-    expect(client.update).toHaveBeenCalledWith("12345", "a@b.com",
+    expect(client.update).toHaveBeenCalledWith(
+      "12345",
+      "a@b.com",
       { developerAccountPermission: ["ADMIN"], grants },
       "developerAccountPermission,grants",
     );
@@ -2085,7 +2335,9 @@ describe("tester commands", () => {
         delete: vi.fn().mockResolvedValue(undefined),
       },
       testers: {
-        get: vi.fn().mockResolvedValue({ googleGroups: ["existing@example.com"], googleGroupsCount: 1 }),
+        get: vi
+          .fn()
+          .mockResolvedValue({ googleGroups: ["existing@example.com"], googleGroupsCount: 1 }),
         update: vi.fn().mockImplementation((_pkg, _editId, _track, data) => Promise.resolve(data)),
       },
     };
@@ -2131,7 +2383,9 @@ describe("tester commands", () => {
   it("addTesters cleans up edit on error", async () => {
     const client = mockClient();
     client.testers.get.mockRejectedValue(new Error("API error"));
-    await expect(addTesters(client, "com.example", "internal", ["a@b.com"])).rejects.toThrow("API error");
+    await expect(addTesters(client, "com.example", "internal", ["a@b.com"])).rejects.toThrow(
+      "API error",
+    );
     expect(client.edits.delete).toHaveBeenCalled();
   });
 
@@ -2161,7 +2415,9 @@ describe("tester commands", () => {
     await writeFile(csvPath, "not-an-email\nanother-bad");
 
     try {
-      await expect(importTestersFromCsv(client, "com.example", "internal", csvPath)).rejects.toThrow("No valid email addresses");
+      await expect(
+        importTestersFromCsv(client, "com.example", "internal", csvPath),
+      ).rejects.toThrow("No valid email addresses");
     } finally {
       await rm(dir, { recursive: true });
     }
@@ -2217,14 +2473,18 @@ describe("PluginManager", () => {
       name: "p1",
       version: "1.0.0",
       register(hooks) {
-        hooks.beforeCommand(async () => { order.push(1); });
+        hooks.beforeCommand(async () => {
+          order.push(1);
+        });
       },
     });
     await manager.load({
       name: "p2",
       version: "1.0.0",
       register(hooks) {
-        hooks.beforeCommand(async () => { order.push(2); });
+        hooks.beforeCommand(async () => {
+          order.push(2);
+        });
       },
     });
 
@@ -2243,7 +2503,9 @@ describe("PluginManager", () => {
       name: "p1",
       version: "1.0.0",
       register(hooks) {
-        hooks.afterCommand(async (_ctx, result) => { receivedResult = result; });
+        hooks.afterCommand(async (_ctx, result) => {
+          receivedResult = result;
+        });
       },
     });
 
@@ -2260,14 +2522,18 @@ describe("PluginManager", () => {
       name: "crash-handler",
       version: "1.0.0",
       register(hooks) {
-        hooks.onError(async () => { throw new Error("handler crashed"); });
+        hooks.onError(async () => {
+          throw new Error("handler crashed");
+        });
       },
     });
     await manager.load({
       name: "good-handler",
       version: "1.0.0",
       register(hooks) {
-        hooks.onError(async (_ctx, err) => { receivedError = err; });
+        hooks.onError(async (_ctx, err) => {
+          receivedError = err;
+        });
       },
     });
 
@@ -2312,7 +2578,9 @@ describe("PluginManager", () => {
       version: "1.0.0",
       register(hooks) {
         hooks.beforeCommand(async () => {});
-        hooks.registerCommands((r) => r.add({ name: "x", description: "x", action: async () => {} }));
+        hooks.registerCommands((r) =>
+          r.add({ name: "x", description: "x", action: async () => {} }),
+        );
       },
     });
 
@@ -2541,20 +2809,39 @@ describe("subscriptions commands – additional coverage", () => {
     const client = subMockClient();
     const data = { offerId: "o1" } as any;
     await updateOffer(client, "com.example", "sub1", "bp1", "o1", data, "phases");
-    expect(client.subscriptions.updateOffer).toHaveBeenCalledWith("com.example", "sub1", "bp1", "o1", data, "phases");
+    expect(client.subscriptions.updateOffer).toHaveBeenCalledWith(
+      "com.example",
+      "sub1",
+      "bp1",
+      "o1",
+      data,
+      "phases",
+    );
   });
 
   it("updateOffer works without updateMask", async () => {
     const client = subMockClient();
     const data = { offerId: "o1" } as any;
     await updateOffer(client, "com.example", "sub1", "bp1", "o1", data);
-    expect(client.subscriptions.updateOffer).toHaveBeenCalledWith("com.example", "sub1", "bp1", "o1", data, undefined);
+    expect(client.subscriptions.updateOffer).toHaveBeenCalledWith(
+      "com.example",
+      "sub1",
+      "bp1",
+      "o1",
+      data,
+      undefined,
+    );
   });
 
   it("deactivateOffer calls client.subscriptions.deactivateOffer", async () => {
     const client = subMockClient();
     const result = await deactivateOffer(client, "com.example", "sub1", "bp1", "o1");
-    expect(client.subscriptions.deactivateOffer).toHaveBeenCalledWith("com.example", "sub1", "bp1", "o1");
+    expect(client.subscriptions.deactivateOffer).toHaveBeenCalledWith(
+      "com.example",
+      "sub1",
+      "bp1",
+      "o1",
+    );
     expect(result.offerId).toBe("o1");
   });
 
@@ -2562,7 +2849,12 @@ describe("subscriptions commands – additional coverage", () => {
     const client = subMockClient();
     const data = { regionalPriceMigrations: [] } as any;
     const result = await migratePrices(client, "com.example", "sub1", "bp1", data);
-    expect(client.subscriptions.migratePrices).toHaveBeenCalledWith("com.example", "sub1", "bp1", data);
+    expect(client.subscriptions.migratePrices).toHaveBeenCalledWith(
+      "com.example",
+      "sub1",
+      "bp1",
+      data,
+    );
     expect(result.productId).toBe("sub1");
   });
 });
@@ -2585,16 +2877,18 @@ describe("exportReviews – additional filters", () => {
     return {
       reviewId: overrides.reviewId ?? "r1",
       authorName: "User",
-      comments: [{
-        userComment: {
-          text: overrides.text ?? "Great app!",
-          lastModified: { seconds: overrides.seconds ?? "1700000000" },
-          starRating: overrides.starRating ?? 5,
-          reviewerLanguage: overrides.language ?? "en",
-          device: overrides.device ?? "Pixel",
-          appVersionName: overrides.appVersionName ?? "1.0.0",
+      comments: [
+        {
+          userComment: {
+            text: overrides.text ?? "Great app!",
+            lastModified: { seconds: overrides.seconds ?? "1700000000" },
+            starRating: overrides.starRating ?? 5,
+            reviewerLanguage: overrides.language ?? "en",
+            device: overrides.device ?? "Pixel",
+            appVersionName: overrides.appVersionName ?? "1.0.0",
+          },
         },
-      }],
+      ],
     };
   }
 
@@ -2625,7 +2919,9 @@ describe("exportReviews – additional filters", () => {
     });
 
     // 1700000000 = 2023-11-14T22:13:20Z — filter to only reviews on or after this time
-    const result = await exportReviews(client, "com.example.app", { since: "2023-11-14T22:13:20Z" });
+    const result = await exportReviews(client, "com.example.app", {
+      since: "2023-11-14T22:13:20Z",
+    });
     const parsed = JSON.parse(result);
     expect(parsed).toHaveLength(2);
     expect(parsed.map((r: any) => r.reviewId).sort()).toEqual(["r1", "r3"]);
@@ -2726,7 +3022,9 @@ describe("PluginManager – lifecycle edge cases", () => {
       name: "p1",
       version: "1.0.0",
       register(hooks) {
-        hooks.registerCommands((r) => r.add({ name: "cmd1", description: "d", action: async () => {} }));
+        hooks.registerCommands((r) =>
+          r.add({ name: "cmd1", description: "d", action: async () => {} }),
+        );
       },
     });
     const cmds1 = manager.getRegisteredCommands();
@@ -2741,14 +3039,18 @@ describe("PluginManager – lifecycle edge cases", () => {
       name: "p1",
       version: "1.0.0",
       register(hooks) {
-        hooks.registerCommands((r) => r.add({ name: "cmd-a", description: "A", action: async () => {} }));
+        hooks.registerCommands((r) =>
+          r.add({ name: "cmd-a", description: "A", action: async () => {} }),
+        );
       },
     });
     await manager.load({
       name: "p2",
       version: "1.0.0",
       register(hooks) {
-        hooks.registerCommands((r) => r.add({ name: "cmd-b", description: "B", action: async () => {} }));
+        hooks.registerCommands((r) =>
+          r.add({ name: "cmd-b", description: "B", action: async () => {} }),
+        );
       },
     });
     const cmds = manager.getRegisteredCommands();
@@ -2805,7 +3107,9 @@ describe("PluginManager – request/response hooks", () => {
       name: "bad-req",
       version: "1.0.0",
       register(hooks) {
-        hooks.beforeRequest(async () => { throw new Error("boom"); });
+        hooks.beforeRequest(async () => {
+          throw new Error("boom");
+        });
       },
     });
 
@@ -2820,7 +3124,9 @@ describe("PluginManager – request/response hooks", () => {
       name: "bad-res",
       version: "1.0.0",
       register(hooks) {
-        hooks.afterResponse(async () => { throw new Error("boom"); });
+        hooks.afterResponse(async () => {
+          throw new Error("boom");
+        });
       },
     });
 
@@ -2867,7 +3173,9 @@ describe("PluginManager – request/response hooks", () => {
       name: "first",
       version: "1.0.0",
       register(hooks) {
-        hooks.beforeRequest(async () => { order.push(1); });
+        hooks.beforeRequest(async () => {
+          order.push(1);
+        });
       },
     });
 
@@ -2875,7 +3183,9 @@ describe("PluginManager – request/response hooks", () => {
       name: "second",
       version: "1.0.0",
       register(hooks) {
-        hooks.beforeRequest(async () => { order.push(2); });
+        hooks.beforeRequest(async () => {
+          order.push(2);
+        });
       },
     });
 

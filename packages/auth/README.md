@@ -11,11 +11,7 @@ npm install @gpc-cli/auth
 ## Usage
 
 ```typescript
-import {
-  resolveAuth,
-  createServiceAccountAuth,
-  loadServiceAccountKey,
-} from "@gpc-cli/auth";
+import { resolveAuth, createServiceAccountAuth, loadServiceAccountKey } from "@gpc-cli/auth";
 
 // Auto-resolve from config
 const auth = await resolveAuth({
@@ -33,12 +29,12 @@ const client = createApiClient({ auth });
 
 ## Auth Methods
 
-| Method | Best For | Config |
-|--------|----------|--------|
-| Service account | CI/CD, automation | `serviceAccount` path or JSON string |
-| OAuth 2.0 | Local development | Interactive login flow |
-| ADC | GCP-hosted runners | `GPC_USE_ADC=1` or `--adc` flag |
-| Env var | Docker, ephemeral | `GPC_SERVICE_ACCOUNT` env var |
+| Method          | Best For           | Config                               |
+| --------------- | ------------------ | ------------------------------------ |
+| Service account | CI/CD, automation  | `serviceAccount` path or JSON string |
+| OAuth 2.0       | Local development  | Interactive login flow               |
+| ADC             | GCP-hosted runners | `GPC_USE_ADC=1` or `--adc` flag      |
+| Env var         | Docker, ephemeral  | `GPC_SERVICE_ACCOUNT` env var        |
 
 ## API
 

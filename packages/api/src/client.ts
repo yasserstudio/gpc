@@ -74,17 +74,49 @@ export interface PlayApiClient {
   listings: {
     list(packageName: string, editId: string): Promise<Listing[]>;
     get(packageName: string, editId: string, language: string): Promise<Listing>;
-    update(packageName: string, editId: string, language: string, listing: Omit<Listing, "language">): Promise<Listing>;
-    patch(packageName: string, editId: string, language: string, partial: Partial<Omit<Listing, "language">>): Promise<Listing>;
+    update(
+      packageName: string,
+      editId: string,
+      language: string,
+      listing: Omit<Listing, "language">,
+    ): Promise<Listing>;
+    patch(
+      packageName: string,
+      editId: string,
+      language: string,
+      partial: Partial<Omit<Listing, "language">>,
+    ): Promise<Listing>;
     delete(packageName: string, editId: string, language: string): Promise<void>;
     deleteAll(packageName: string, editId: string): Promise<void>;
   };
 
   images: {
-    list(packageName: string, editId: string, language: string, imageType: ImageType): Promise<Image[]>;
-    upload(packageName: string, editId: string, language: string, imageType: ImageType, filePath: string): Promise<Image>;
-    delete(packageName: string, editId: string, language: string, imageType: ImageType, imageId: string): Promise<void>;
-    deleteAll(packageName: string, editId: string, language: string, imageType: ImageType): Promise<Image[]>;
+    list(
+      packageName: string,
+      editId: string,
+      language: string,
+      imageType: ImageType,
+    ): Promise<Image[]>;
+    upload(
+      packageName: string,
+      editId: string,
+      language: string,
+      imageType: ImageType,
+      filePath: string,
+    ): Promise<Image>;
+    delete(
+      packageName: string,
+      editId: string,
+      language: string,
+      imageType: ImageType,
+      imageId: string,
+    ): Promise<void>;
+    deleteAll(
+      packageName: string,
+      editId: string,
+      language: string,
+      imageType: ImageType,
+    ): Promise<Image[]>;
   };
 
   countryAvailability: {
@@ -98,26 +130,86 @@ export interface PlayApiClient {
   };
 
   subscriptions: {
-    list(packageName: string, options?: { pageToken?: string; pageSize?: number }): Promise<SubscriptionsListResponse>;
+    list(
+      packageName: string,
+      options?: { pageToken?: string; pageSize?: number },
+    ): Promise<SubscriptionsListResponse>;
     get(packageName: string, productId: string): Promise<Subscription>;
     create(packageName: string, data: Subscription): Promise<Subscription>;
-    update(packageName: string, productId: string, data: Subscription, updateMask?: string): Promise<Subscription>;
+    update(
+      packageName: string,
+      productId: string,
+      data: Subscription,
+      updateMask?: string,
+    ): Promise<Subscription>;
     delete(packageName: string, productId: string): Promise<void>;
-    activateBasePlan(packageName: string, productId: string, basePlanId: string): Promise<Subscription>;
-    deactivateBasePlan(packageName: string, productId: string, basePlanId: string): Promise<Subscription>;
+    activateBasePlan(
+      packageName: string,
+      productId: string,
+      basePlanId: string,
+    ): Promise<Subscription>;
+    deactivateBasePlan(
+      packageName: string,
+      productId: string,
+      basePlanId: string,
+    ): Promise<Subscription>;
     deleteBasePlan(packageName: string, productId: string, basePlanId: string): Promise<void>;
-    migratePrices(packageName: string, productId: string, basePlanId: string, body: BasePlanMigratePricesRequest): Promise<Subscription>;
-    listOffers(packageName: string, productId: string, basePlanId: string): Promise<OffersListResponse>;
-    getOffer(packageName: string, productId: string, basePlanId: string, offerId: string): Promise<SubscriptionOffer>;
-    createOffer(packageName: string, productId: string, basePlanId: string, data: SubscriptionOffer): Promise<SubscriptionOffer>;
-    updateOffer(packageName: string, productId: string, basePlanId: string, offerId: string, data: SubscriptionOffer, updateMask?: string): Promise<SubscriptionOffer>;
-    deleteOffer(packageName: string, productId: string, basePlanId: string, offerId: string): Promise<void>;
-    activateOffer(packageName: string, productId: string, basePlanId: string, offerId: string): Promise<SubscriptionOffer>;
-    deactivateOffer(packageName: string, productId: string, basePlanId: string, offerId: string): Promise<SubscriptionOffer>;
+    migratePrices(
+      packageName: string,
+      productId: string,
+      basePlanId: string,
+      body: BasePlanMigratePricesRequest,
+    ): Promise<Subscription>;
+    listOffers(
+      packageName: string,
+      productId: string,
+      basePlanId: string,
+    ): Promise<OffersListResponse>;
+    getOffer(
+      packageName: string,
+      productId: string,
+      basePlanId: string,
+      offerId: string,
+    ): Promise<SubscriptionOffer>;
+    createOffer(
+      packageName: string,
+      productId: string,
+      basePlanId: string,
+      data: SubscriptionOffer,
+    ): Promise<SubscriptionOffer>;
+    updateOffer(
+      packageName: string,
+      productId: string,
+      basePlanId: string,
+      offerId: string,
+      data: SubscriptionOffer,
+      updateMask?: string,
+    ): Promise<SubscriptionOffer>;
+    deleteOffer(
+      packageName: string,
+      productId: string,
+      basePlanId: string,
+      offerId: string,
+    ): Promise<void>;
+    activateOffer(
+      packageName: string,
+      productId: string,
+      basePlanId: string,
+      offerId: string,
+    ): Promise<SubscriptionOffer>;
+    deactivateOffer(
+      packageName: string,
+      productId: string,
+      basePlanId: string,
+      offerId: string,
+    ): Promise<SubscriptionOffer>;
   };
 
   inappproducts: {
-    list(packageName: string, options?: { token?: string; maxResults?: number }): Promise<InAppProductsListResponse>;
+    list(
+      packageName: string,
+      options?: { token?: string; maxResults?: number },
+    ): Promise<InAppProductsListResponse>;
     get(packageName: string, sku: string): Promise<InAppProduct>;
     create(packageName: string, data: InAppProduct): Promise<InAppProduct>;
     update(packageName: string, sku: string, data: InAppProduct): Promise<InAppProduct>;
@@ -126,26 +218,55 @@ export interface PlayApiClient {
 
   purchases: {
     getProduct(packageName: string, productId: string, token: string): Promise<ProductPurchase>;
-    acknowledgeProduct(packageName: string, productId: string, token: string, body?: { developerPayload?: string }): Promise<void>;
+    acknowledgeProduct(
+      packageName: string,
+      productId: string,
+      token: string,
+      body?: { developerPayload?: string },
+    ): Promise<void>;
     consumeProduct(packageName: string, productId: string, token: string): Promise<void>;
     getSubscriptionV2(packageName: string, token: string): Promise<SubscriptionPurchaseV2>;
-    getSubscriptionV1(packageName: string, subscriptionId: string, token: string): Promise<SubscriptionPurchase>;
+    getSubscriptionV1(
+      packageName: string,
+      subscriptionId: string,
+      token: string,
+    ): Promise<SubscriptionPurchase>;
     cancelSubscription(packageName: string, subscriptionId: string, token: string): Promise<void>;
-    deferSubscription(packageName: string, subscriptionId: string, token: string, body: SubscriptionDeferRequest): Promise<SubscriptionDeferResponse>;
+    deferSubscription(
+      packageName: string,
+      subscriptionId: string,
+      token: string,
+      body: SubscriptionDeferRequest,
+    ): Promise<SubscriptionDeferResponse>;
     revokeSubscriptionV2(packageName: string, token: string): Promise<void>;
-    listVoided(packageName: string, options?: { startTime?: string; endTime?: string; maxResults?: number; token?: string }): Promise<VoidedPurchasesListResponse>;
+    listVoided(
+      packageName: string,
+      options?: { startTime?: string; endTime?: string; maxResults?: number; token?: string },
+    ): Promise<VoidedPurchasesListResponse>;
   };
 
   orders: {
-    refund(packageName: string, orderId: string, body?: { fullRefund?: boolean; proratedRefund?: boolean }): Promise<void>;
+    refund(
+      packageName: string,
+      orderId: string,
+      body?: { fullRefund?: boolean; proratedRefund?: boolean },
+    ): Promise<void>;
   };
 
   monetization: {
-    convertRegionPrices(packageName: string, price: ConvertRegionPricesRequest): Promise<ConvertRegionPricesResponse>;
+    convertRegionPrices(
+      packageName: string,
+      price: ConvertRegionPricesRequest,
+    ): Promise<ConvertRegionPricesResponse>;
   };
 
   reports: {
-    list(packageName: string, reportType: ReportType, year: number, month: number): Promise<ReportsListResponse>;
+    list(
+      packageName: string,
+      reportType: ReportType,
+      year: number,
+      month: number,
+    ): Promise<ReportsListResponse>;
   };
 
   testers: {
@@ -154,7 +275,12 @@ export interface PlayApiClient {
   };
 
   deobfuscation: {
-    upload(packageName: string, editId: string, versionCode: number, filePath: string): Promise<DeobfuscationFile>;
+    upload(
+      packageName: string,
+      editId: string,
+      versionCode: number,
+      filePath: string,
+    ): Promise<DeobfuscationFile>;
   };
 }
 
@@ -174,23 +300,17 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async get(packageName, editId) {
-        const { data } = await http.get<AppEdit>(
-          `/${packageName}/edits/${editId}`,
-        );
+        const { data } = await http.get<AppEdit>(`/${packageName}/edits/${editId}`);
         return data;
       },
 
       async validate(packageName, editId) {
-        const { data } = await http.post<AppEdit>(
-          `/${packageName}/edits/${editId}:validate`,
-        );
+        const { data } = await http.post<AppEdit>(`/${packageName}/edits/${editId}:validate`);
         return data;
       },
 
       async commit(packageName, editId) {
-        const { data } = await http.post<AppEdit>(
-          `/${packageName}/edits/${editId}:commit`,
-        );
+        const { data } = await http.post<AppEdit>(`/${packageName}/edits/${editId}:commit`);
         return data;
       },
 
@@ -201,9 +321,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
     details: {
       async get(packageName, editId) {
-        const { data } = await http.get<AppDetails>(
-          `/${packageName}/edits/${editId}/details`,
-        );
+        const { data } = await http.get<AppDetails>(`/${packageName}/edits/${editId}/details`);
         return data;
       },
 
@@ -254,17 +372,15 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async get(packageName, editId, track) {
-        const { data } = await http.get<Track>(
-          `/${packageName}/edits/${editId}/tracks/${track}`,
-        );
+        const { data } = await http.get<Track>(`/${packageName}/edits/${editId}/tracks/${track}`);
         return data;
       },
 
       async update(packageName, editId, track, release) {
-        const { data } = await http.put<Track>(
-          `/${packageName}/edits/${editId}/tracks/${track}`,
-          { track, releases: [release] },
-        );
+        const { data } = await http.put<Track>(`/${packageName}/edits/${editId}/tracks/${track}`, {
+          track,
+          releases: [release],
+        });
         return data;
       },
     },
@@ -355,7 +471,8 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const params: Record<string, string> = {};
         if (options?.token) params["token"] = options.token;
         if (options?.maxResults) params["maxResults"] = String(options.maxResults);
-        if (options?.translationLanguage) params["translationLanguage"] = options.translationLanguage;
+        if (options?.translationLanguage)
+          params["translationLanguage"] = options.translationLanguage;
         const hasParams = Object.keys(params).length > 0;
         const { data } = await http.get<ReviewsListResponse>(
           `/${packageName}/reviews`,
@@ -522,25 +639,17 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async get(packageName, sku) {
-        const { data } = await http.get<InAppProduct>(
-          `/${packageName}/inappproducts/${sku}`,
-        );
+        const { data } = await http.get<InAppProduct>(`/${packageName}/inappproducts/${sku}`);
         return data;
       },
 
       async create(packageName, body) {
-        const { data } = await http.post<InAppProduct>(
-          `/${packageName}/inappproducts`,
-          body,
-        );
+        const { data } = await http.post<InAppProduct>(`/${packageName}/inappproducts`, body);
         return data;
       },
 
       async update(packageName, sku, body) {
-        const { data } = await http.put<InAppProduct>(
-          `/${packageName}/inappproducts/${sku}`,
-          body,
-        );
+        const { data } = await http.put<InAppProduct>(`/${packageName}/inappproducts/${sku}`, body);
         return data;
       },
 
@@ -565,9 +674,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async consumeProduct(packageName, productId, token) {
-        await http.post(
-          `/${packageName}/purchases/products/${productId}/tokens/${token}:consume`,
-        );
+        await http.post(`/${packageName}/purchases/products/${productId}/tokens/${token}:consume`);
       },
 
       async getSubscriptionV2(packageName, token) {
@@ -599,9 +706,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async revokeSubscriptionV2(packageName, token) {
-        await http.post(
-          `/${packageName}/purchases/subscriptionsv2/tokens/${token}:revoke`,
-        );
+        await http.post(`/${packageName}/purchases/subscriptionsv2/tokens/${token}:revoke`);
       },
 
       async listVoided(packageName, options?) {
@@ -623,10 +728,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
     orders: {
       async refund(packageName, orderId, body?) {
-        await http.post(
-          `/${packageName}/orders/${orderId}:refund`,
-          body,
-        );
+        await http.post(`/${packageName}/orders/${orderId}:refund`, body);
       },
     },
 

@@ -133,7 +133,7 @@ jobs:
 name: Staged Rollout
 on:
   schedule:
-    - cron: "0 10 * * 1-5"  # Weekdays at 10am UTC
+    - cron: "0 10 * * 1-5" # Weekdays at 10am UTC
   workflow_dispatch:
 
 env:
@@ -184,7 +184,7 @@ jobs:
 name: Vitals Check
 on:
   schedule:
-    - cron: "0 */6 * * *"  # Every 6 hours
+    - cron: "0 */6 * * *" # Every 6 hours
 
 env:
   GPC_SERVICE_ACCOUNT: ${{ secrets.GPC_SERVICE_ACCOUNT }}
@@ -294,7 +294,7 @@ pipelines:
           script:
             - npm install -g @gpc-cli/cli
             - gpc releases upload build/app-release.aab
-                --track internal --json
+              --track internal --json
           deployment: production
 ```
 
@@ -388,15 +388,15 @@ gpc reviews list \
 
 ## Environment Variables Reference
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `GPC_SERVICE_ACCOUNT` | Service account JSON string or file path | Yes (CI) |
-| `GPC_APP` | Default package name | Recommended |
-| `GPC_DEVELOPER_ID` | Developer account ID (for user management) | No |
-| `GPC_PROFILE` | Auth profile name | No |
-| `GPC_OUTPUT` | Default output format (`human`/`json`/`yaml`) | No |
-| `GPC_NO_COLOR` | Disable color output | No |
-| `GPC_NO_INTERACTIVE` | Disable interactive prompts | Auto in CI |
-| `GPC_RATE_LIMIT` | Requests per second | No (default: 10) |
-| `GPC_CA_CERT` | Custom CA certificate path | No |
-| `HTTPS_PROXY` | HTTP proxy URL | No |
+| Variable              | Description                                   | Required         |
+| --------------------- | --------------------------------------------- | ---------------- |
+| `GPC_SERVICE_ACCOUNT` | Service account JSON string or file path      | Yes (CI)         |
+| `GPC_APP`             | Default package name                          | Recommended      |
+| `GPC_DEVELOPER_ID`    | Developer account ID (for user management)    | No               |
+| `GPC_PROFILE`         | Auth profile name                             | No               |
+| `GPC_OUTPUT`          | Default output format (`human`/`json`/`yaml`) | No               |
+| `GPC_NO_COLOR`        | Disable color output                          | No               |
+| `GPC_NO_INTERACTIVE`  | Disable interactive prompts                   | Auto in CI       |
+| `GPC_RATE_LIMIT`      | Requests per second                           | No (default: 10) |
+| `GPC_CA_CERT`         | Custom CA certificate path                    | No               |
+| `HTTPS_PROXY`         | HTTP proxy URL                                | No               |

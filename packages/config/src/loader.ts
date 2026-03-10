@@ -6,12 +6,7 @@ import { DEFAULT_CONFIG } from "./defaults.js";
 import { getUserConfigPath } from "./paths.js";
 import type { GpcConfig, OutputFormat, ResolvedConfig } from "./types.js";
 
-const VALID_OUTPUT_FORMATS: ReadonlySet<string> = new Set([
-  "table",
-  "json",
-  "yaml",
-  "markdown",
-]);
+const VALID_OUTPUT_FORMATS: ReadonlySet<string> = new Set(["table", "json", "yaml", "markdown"]);
 
 function isValidOutputFormat(value: string): value is OutputFormat {
   return VALID_OUTPUT_FORMATS.has(value);
@@ -100,9 +95,7 @@ function sanitizeObject(obj: unknown): void {
   }
 }
 
-export async function loadConfig(
-  overrides?: Partial<GpcConfig>,
-): Promise<ResolvedConfig> {
+export async function loadConfig(overrides?: Partial<GpcConfig>): Promise<ResolvedConfig> {
   // Layer 5: defaults
   const result: ResolvedConfig = { ...DEFAULT_CONFIG };
 

@@ -8,11 +8,11 @@ Manage application information and details.
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`apps list`](#apps-list) | List configured applications |
-| [`apps info`](#apps-info) | Show app details |
-| [`apps update`](#apps-update) | Update app details |
+| Command                       | Description                  |
+| ----------------------------- | ---------------------------- |
+| [`apps list`](#apps-list)     | List configured applications |
+| [`apps info`](#apps-info)     | Show app details             |
+| [`apps update`](#apps-update) | Update app details           |
 
 ## `apps list`
 
@@ -35,9 +35,7 @@ gpc apps list
 ```
 
 ```json
-[
-  { "packageName": "com.example.myapp", "source": "config" }
-]
+[{ "packageName": "com.example.myapp", "source": "config" }]
 ```
 
 When no app is configured:
@@ -127,12 +125,12 @@ gpc apps update [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--email` | | `string` | | Contact email address |
-| `--phone` | | `string` | | Contact phone number |
-| `--website` | | `string` | | Contact website URL |
-| `--default-lang` | | `string` | | Default language (BCP 47) |
+| Flag             | Short | Type     | Default | Description               |
+| ---------------- | ----- | -------- | ------- | ------------------------- |
+| `--email`        |       | `string` |         | Contact email address     |
+| `--phone`        |       | `string` |         | Contact phone number      |
+| `--website`      |       | `string` |         | Contact website URL       |
+| `--default-lang` |       | `string` |         | Default language (BCP 47) |
 
 At least one field must be provided.
 

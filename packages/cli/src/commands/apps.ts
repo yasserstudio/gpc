@@ -6,9 +6,7 @@ import { getAppInfo, updateAppDetails } from "@gpc-cli/core";
 import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
 
 export function registerAppsCommands(program: Command): void {
-  const apps = program
-    .command("apps")
-    .description("Manage applications");
+  const apps = program.command("apps").description("Manage applications");
 
   apps
     .command("info [package]")
@@ -47,7 +45,7 @@ export function registerAppsCommands(program: Command): void {
     .option("--default-lang <lang>", "Default language")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = options['app'] || program.opts()['app'] || config.app;
+      const packageName = options["app"] || program.opts()["app"] || config.app;
 
       if (!packageName) {
         console.error("Error: No package name provided.");
@@ -56,13 +54,15 @@ export function registerAppsCommands(program: Command): void {
       }
 
       const data: Record<string, string> = {};
-      if (options['email']) data['contactEmail'] = options['email'];
-      if (options['phone']) data['contactPhone'] = options['phone'];
-      if (options['website']) data['contactWebsite'] = options['website'];
-      if (options['defaultLang']) data['defaultLanguage'] = options['defaultLang'];
+      if (options["email"]) data["contactEmail"] = options["email"];
+      if (options["phone"]) data["contactPhone"] = options["phone"];
+      if (options["website"]) data["contactWebsite"] = options["website"];
+      if (options["defaultLang"]) data["defaultLanguage"] = options["defaultLang"];
 
       if (Object.keys(data).length === 0) {
-        console.error("Error: Provide at least one field to update (--email, --phone, --website, --default-lang).");
+        console.error(
+          "Error: Provide at least one field to update (--email, --phone, --website, --default-lang).",
+        );
         process.exit(2);
       }
 

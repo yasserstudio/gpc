@@ -8,12 +8,12 @@ Manage GPC plugins. Plugins extend the CLI with custom commands and lifecycle ho
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`plugins list`](#plugins-list) | List loaded plugins |
-| [`plugins init`](#plugins-init) | Scaffold a new plugin project |
+| Command                               | Description                              |
+| ------------------------------------- | ---------------------------------------- |
+| [`plugins list`](#plugins-list)       | List loaded plugins                      |
+| [`plugins init`](#plugins-init)       | Scaffold a new plugin project            |
 | [`plugins approve`](#plugins-approve) | Approve a third-party plugin for loading |
-| [`plugins revoke`](#plugins-revoke) | Revoke approval for a third-party plugin |
+| [`plugins revoke`](#plugins-revoke)   | Revoke approval for a third-party plugin |
 
 ## Plugin Trust Model
 
@@ -88,10 +88,10 @@ gpc plugins init <name> [options]
 
 ### Options
 
-| Flag | Short | Type | Default | Description |
-|------|-------|------|---------|-------------|
-| `--dir` | `-d` | `string` | `./gpc-plugin-<name>` | Output directory |
-| `--description` | | `string` | | Plugin description |
+| Flag            | Short | Type     | Default               | Description        |
+| --------------- | ----- | -------- | --------------------- | ------------------ |
+| `--dir`         | `-d`  | `string` | `./gpc-plugin-<name>` | Output directory   |
+| `--description` |       | `string` |                       | Plugin description |
 
 ### Example
 
@@ -198,17 +198,13 @@ Plugins are configured in `.gpcrc.json`:
 
 ```json
 {
-  "plugins": [
-    "@gpc-cli/plugin-ci",
-    "gpc-plugin-slack"
-  ],
-  "approvedPlugins": [
-    "gpc-plugin-slack"
-  ]
+  "plugins": ["@gpc-cli/plugin-ci", "gpc-plugin-slack"],
+  "approvedPlugins": ["gpc-plugin-slack"]
 }
 ```
 
 GPC discovers plugins from:
+
 1. The `plugins` array in config
 2. `node_modules` packages matching `gpc-plugin-*` or `@*/gpc-plugin-*`
 3. Local file paths in the `plugins` array

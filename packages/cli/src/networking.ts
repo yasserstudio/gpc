@@ -12,7 +12,11 @@ export async function setupNetworking(): Promise<void> {
   // In standalone binary mode, Bun handles HTTPS_PROXY/HTTP_PROXY natively
   if (process.env["__GPC_BINARY"] === "1") return;
 
-  const proxyUrl = process.env["HTTPS_PROXY"] || process.env["https_proxy"] || process.env["HTTP_PROXY"] || process.env["http_proxy"];
+  const proxyUrl =
+    process.env["HTTPS_PROXY"] ||
+    process.env["https_proxy"] ||
+    process.env["HTTP_PROXY"] ||
+    process.env["http_proxy"];
   if (proxyUrl) {
     try {
       // @ts-expect-error undici types not available in all environments

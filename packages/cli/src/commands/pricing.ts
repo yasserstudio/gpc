@@ -3,11 +3,7 @@ import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
-import {
-  convertRegionPrices,
-  detectOutputFormat,
-  formatOutput,
-} from "@gpc-cli/core";
+import { convertRegionPrices, detectOutputFormat, formatOutput } from "@gpc-cli/core";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -24,9 +20,7 @@ async function getClient(config: GpcConfig) {
 }
 
 export function registerPricingCommands(program: Command): void {
-  const pricing = program
-    .command("pricing")
-    .description("Pricing and regional price conversion");
+  const pricing = program.command("pricing").description("Pricing and regional price conversion");
 
   pricing
     .command("convert")
@@ -35,18 +29,28 @@ export function registerPricingCommands(program: Command): void {
     .option("--amount <number>", "Price amount (e.g. 4.99)")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()['app'], config);
+      const packageName = resolvePackageName(program.opts()["app"], config);
       const { isInteractive, requireOption } = await import("../prompt.js");
       const interactive = isInteractive(program);
 
-      options.from = await requireOption("from", options.from, {
-        message: "Source currency code (e.g. USD):",
-        default: "USD",
-      }, interactive);
+      options.from = await requireOption(
+        "from",
+        options.from,
+        {
+          message: "Source currency code (e.g. USD):",
+          default: "USD",
+        },
+        interactive,
+      );
 
-      options.amount = await requireOption("amount", options.amount, {
-        message: "Price amount (e.g. 4.99):",
-      }, interactive);
+      options.amount = await requireOption(
+        "amount",
+        options.amount,
+        {
+          message: "Price amount (e.g. 4.99):",
+        },
+        interactive,
+      );
       const client = await getClient(config);
       const format = detectOutputFormat();
 

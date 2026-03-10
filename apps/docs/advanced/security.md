@@ -10,24 +10,24 @@ GPC handles sensitive credentials (service account keys, OAuth tokens) and inter
 
 ### Assets to Protect
 
-| Asset | Sensitivity | Risk if Compromised |
-|-------|------------|---------------------|
-| Service account keys | Critical | Full API access to all apps in the account |
-| OAuth tokens | High | User-scoped access, time-limited |
-| API responses | Medium | May contain PII (reviews, user emails) |
-| Upload artifacts | Medium | AAB/APK files (intellectual property) |
-| Configuration files | Low | May reference credential paths |
+| Asset                | Sensitivity | Risk if Compromised                        |
+| -------------------- | ----------- | ------------------------------------------ |
+| Service account keys | Critical    | Full API access to all apps in the account |
+| OAuth tokens         | High        | User-scoped access, time-limited           |
+| API responses        | Medium      | May contain PII (reviews, user emails)     |
+| Upload artifacts     | Medium      | AAB/APK files (intellectual property)      |
+| Configuration files  | Low         | May reference credential paths             |
 
 ### Attack Vectors
 
-| Vector | Risk | Mitigation |
-|--------|------|------------|
-| Credential committed to repo | High | `.gitignore` templates, `gpc doctor` warnings |
-| Credential leaked in logs | High | Redaction in verbose/debug output |
-| Token theft from disk | Medium | OS keychain storage, file permissions (0600) |
-| Man-in-the-middle | Low | TLS-only, custom CA certificate support |
-| Malicious plugin | Medium | Plugin permission scoping, approval flow |
-| Dependency supply chain | Medium | Lockfile, audit, minimal dependencies |
+| Vector                       | Risk   | Mitigation                                    |
+| ---------------------------- | ------ | --------------------------------------------- |
+| Credential committed to repo | High   | `.gitignore` templates, `gpc doctor` warnings |
+| Credential leaked in logs    | High   | Redaction in verbose/debug output             |
+| Token theft from disk        | Medium | OS keychain storage, file permissions (0600)  |
+| Man-in-the-middle            | Low    | TLS-only, custom CA certificate support       |
+| Malicious plugin             | Medium | Plugin permission scoping, approval flow      |
+| Dependency supply chain      | Medium | Lockfile, audit, minimal dependencies         |
 
 ## Credential Storage
 
@@ -35,29 +35,31 @@ GPC handles sensitive credentials (service account keys, OAuth tokens) and inter
 
 Service account keys grant full API access and are long-lived. GPC never copies, moves, or embeds key content.
 
-| Environment | Storage Method | Notes |
-|------------|---------------|-------|
-| CI/CD | Environment variable or mounted secret | `GPC_SERVICE_ACCOUNT` (JSON string or file path) |
-| Local dev | File path reference in config | Never copied into GPC storage |
-| Docker | Mounted volume or env var | Never baked into image |
+| Environment | Storage Method                         | Notes                                            |
+| ----------- | -------------------------------------- | ------------------------------------------------ |
+| CI/CD       | Environment variable or mounted secret | `GPC_SERVICE_ACCOUNT` (JSON string or file path) |
+| Local dev   | File path reference in config          | Never copied into GPC storage                    |
+| Docker      | Mounted volume or env var              | Never baked into image                           |
 
 **Rules enforced by GPC:**
-- Config stores only the *path* to the key file, never the key content
+
+- Config stores only the _path_ to the key file, never the key content
 - `gpc doctor` warns if the key file has overly permissive permissions (>0600)
 - `gpc doctor` warns if the key file is inside a git repository
 
 ### OAuth Tokens
 
-| Platform | Storage Location |
-|----------|-----------------|
-| macOS | Keychain (`security` CLI) |
-| Linux | `libsecret` / `gnome-keyring` / encrypted file fallback |
-| Windows | Windows Credential Manager |
-| CI/headless | Not applicable -- use service account |
+| Platform    | Storage Location                                        |
+| ----------- | ------------------------------------------------------- |
+| macOS       | Keychain (`security` CLI)                               |
+| Linux       | `libsecret` / `gnome-keyring` / encrypted file fallback |
+| Windows     | Windows Credential Manager                              |
+| CI/headless | Not applicable -- use service account                   |
 
 **Fallback:** If no OS keychain is available, tokens are stored in `~/.config/gpc/credentials.json` with `0600` permissions and a warning on first use.
 
 **Token lifecycle:**
+
 1. OAuth device flow produces access + refresh tokens
 2. Access token cached (1-hour TTL)
 3. On expiry, auto-refreshed using refresh token
@@ -70,14 +72,14 @@ All output layers (human, JSON, YAML, debug logs) pass through a redaction filte
 
 ### Redacted Patterns
 
-| Pattern | Example Input | Redacted Output |
-|---------|--------------|----------------|
-| Service account key ID | `"private_key_id": "abc123..."` | `"private_key_id": "[REDACTED]"` |
-| Private key content | `-----BEGIN PRIVATE KEY-----` | `[REDACTED_KEY]` |
-| OAuth access tokens | `ya29.a0AfH6SM...` | `ya29.[REDACTED]` |
-| Refresh tokens | `1//0eXy...` | `1//[REDACTED]` |
-| Client secret | `"client_secret": "GOCSPX-..."` | `"client_secret": "[REDACTED]"` |
-| Client email | `"client_email": "sa@proj.iam..."` | Shown (needed for debugging) |
+| Pattern                | Example Input                      | Redacted Output                  |
+| ---------------------- | ---------------------------------- | -------------------------------- |
+| Service account key ID | `"private_key_id": "abc123..."`    | `"private_key_id": "[REDACTED]"` |
+| Private key content    | `-----BEGIN PRIVATE KEY-----`      | `[REDACTED_KEY]`                 |
+| OAuth access tokens    | `ya29.a0AfH6SM...`                 | `ya29.[REDACTED]`                |
+| Refresh tokens         | `1//0eXy...`                       | `1//[REDACTED]`                  |
+| Client secret          | `"client_secret": "GOCSPX-..."`    | `"client_secret": "[REDACTED]"`  |
+| Client email           | `"client_email": "sa@proj.iam..."` | Shown (needed for debugging)     |
 
 ### Redaction Architecture
 
@@ -108,20 +110,20 @@ Redaction is applied before formatting and cannot be disabled.
 
 ### Files Created by GPC
 
-| File | Permissions | Contents |
-|------|------------|----------|
-| `~/.config/gpc/config.json` | `0644` | Non-sensitive configuration |
-| `~/.config/gpc/credentials.json` | `0600` | OAuth tokens (keychain fallback) |
-| `~/.config/gpc/profiles/` | `0700` | Profile directories |
-| `~/.config/gpc/audit.log` | `0600` | Audit log (JSON Lines) |
+| File                             | Permissions | Contents                         |
+| -------------------------------- | ----------- | -------------------------------- |
+| `~/.config/gpc/config.json`      | `0644`      | Non-sensitive configuration      |
+| `~/.config/gpc/credentials.json` | `0600`      | OAuth tokens (keychain fallback) |
+| `~/.config/gpc/profiles/`        | `0700`      | Profile directories              |
+| `~/.config/gpc/audit.log`        | `0600`      | Audit log (JSON Lines)           |
 
 ### Files Validated by GPC
 
-| File | Expected Permissions | Action if Wrong |
-|------|---------------------|----------------|
-| Service account key | `0600` | Warning via `gpc doctor` |
-| Credentials file | `0600` | Auto-fix + warning |
-| Config directory | `0700` | Warning via `gpc doctor` |
+| File                | Expected Permissions | Action if Wrong          |
+| ------------------- | -------------------- | ------------------------ |
+| Service account key | `0600`               | Warning via `gpc doctor` |
+| Credentials file    | `0600`               | Auto-fix + warning       |
+| Config directory    | `0700`               | Warning via `gpc doctor` |
 
 ## Network Security
 
@@ -133,41 +135,41 @@ Redaction is applied before formatting and cannot be disabled.
 
 ### Proxy Support
 
-| Configuration | Method |
-|--------------|--------|
-| Environment variable | `HTTPS_PROXY` or `https_proxy` |
-| Exclusions | `NO_PROXY` for bypass rules |
-| Config file | `proxy: "https://proxy.corp:8080"` |
-| With authentication | `https://user:pass@proxy:8080` |
+| Configuration        | Method                             |
+| -------------------- | ---------------------------------- |
+| Environment variable | `HTTPS_PROXY` or `https_proxy`     |
+| Exclusions           | `NO_PROXY` for bypass rules        |
+| Config file          | `proxy: "https://proxy.corp:8080"` |
+| With authentication  | `https://user:pass@proxy:8080`     |
 
 ### Client-Side Rate Limiting
 
-| Bucket | Default Limit | Protects Against |
-|--------|--------------|-----------------|
-| General API | 50 req/s | Exceeding 3,000/min quota |
-| Reviews GET | 3 req/s | Exceeding 200/hour quota |
-| Reviews POST | 1 req/s | Exceeding 2,000/day quota |
-| Voided purchases | 1 req/s | Exceeding 30/30s burst quota |
+| Bucket           | Default Limit | Protects Against             |
+| ---------------- | ------------- | ---------------------------- |
+| General API      | 50 req/s      | Exceeding 3,000/min quota    |
+| Reviews GET      | 3 req/s       | Exceeding 200/hour quota     |
+| Reviews POST     | 1 req/s       | Exceeding 2,000/day quota    |
+| Voided purchases | 1 req/s       | Exceeding 30/30s burst quota |
 
 ## Input Validation
 
 ### CLI Arguments
 
-| Input | Validation | Reject Example |
-|-------|-----------|----------------|
-| Package names | Android format: `[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+` | `invalid` |
-| File paths | Existence and type check before upload | `/nonexistent/file.aab` |
-| Track names | Known tracks + custom track format | `unknown-track` |
-| Language codes | BCP 47 validation | `xx-YY` |
-| Arguments | No shell expansion passed to API | -- |
+| Input          | Validation                                                        | Reject Example          |
+| -------------- | ----------------------------------------------------------------- | ----------------------- |
+| Package names  | Android format: `[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+` | `invalid`               |
+| File paths     | Existence and type check before upload                            | `/nonexistent/file.aab` |
+| Track names    | Known tracks + custom track format                                | `unknown-track`         |
+| Language codes | BCP 47 validation                                                 | `xx-YY`                 |
+| Arguments      | No shell expansion passed to API                                  | --                      |
 
 ### File Uploads
 
-| Check | Validation | Limit |
-|-------|-----------|-------|
-| File type | Magic bytes validation (AAB/APK) | -- |
-| File size | Size check against Play Console limits | 150MB (APK/AAB) |
-| Mapping files | ProGuard/R8 format validation | -- |
+| Check         | Validation                             | Limit           |
+| ------------- | -------------------------------------- | --------------- |
+| File type     | Magic bytes validation (AAB/APK)       | --              |
+| File size     | Size check against Play Console limits | 150MB (APK/AAB) |
+| Mapping files | ProGuard/R8 format validation          | --              |
 
 ### Config Files
 
@@ -179,10 +181,10 @@ Redaction is applied before formatting and cannot be disabled.
 
 ### Trust Model
 
-| Plugin Type | Pattern | Trust Level |
-|-------------|---------|-------------|
-| First-party | `@gpc-cli/plugin-*` | Auto-trusted, no permission checks |
-| Third-party | `gpc-plugin-*` or config path | Untrusted, permissions validated |
+| Plugin Type | Pattern                       | Trust Level                        |
+| ----------- | ----------------------------- | ---------------------------------- |
+| First-party | `@gpc-cli/plugin-*`           | Auto-trusted, no permission checks |
+| Third-party | `gpc-plugin-*` or config path | Untrusted, permissions validated   |
 
 ### Permission Enforcement
 
@@ -204,6 +206,7 @@ type PluginPermission =
 ```
 
 **Rules:**
+
 1. Plugins cannot access credentials directly
 2. Third-party plugins require explicit user approval on first run
 3. Unknown permissions throw `PLUGIN_INVALID_PERMISSION` (exit code 10)
@@ -221,11 +224,12 @@ env:
 ```
 
 ::: danger Do NOT
+
 - Hardcode credentials in workflow files
 - Echo or print credential values in CI logs
 - Store credentials as build artifacts
 - Use credentials from forks in pull request workflows
-:::
+  :::
 
 ### Least Privilege
 
@@ -253,13 +257,13 @@ env:
 
 ### Approved External Dependencies
 
-| Package | Purpose | Justification |
-|---------|---------|--------------|
-| `google-auth-library` | Auth strategies | Official Google library |
-| `commander` | CLI framework | Industry standard, battle-tested |
-| `chalk` | Terminal colors | Cross-platform color support |
-| `ora` | Spinners | Terminal animation handling |
-| `cli-table3` | Table output | Column alignment, wrapping |
+| Package               | Purpose         | Justification                    |
+| --------------------- | --------------- | -------------------------------- |
+| `google-auth-library` | Auth strategies | Official Google library          |
+| `commander`           | CLI framework   | Industry standard, battle-tested |
+| `chalk`               | Terminal colors | Cross-platform color support     |
+| `ora`                 | Spinners        | Terminal animation handling      |
+| `cli-table3`          | Table output    | Column alignment, wrapping       |
 
 New dependencies are reviewed for: maintenance status, download count, transitive dependency count, and license compatibility (MIT, Apache-2.0, BSD preferred).
 

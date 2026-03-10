@@ -52,7 +52,8 @@ export async function uploadRelease(
     // Create release and assign to track
     const release: Release = {
       versionCodes: [String(bundle.versionCode)],
-      status: (options.status || (options.userFraction ? "inProgress" : "completed")) as Release["status"],
+      status: (options.status ||
+        (options.userFraction ? "inProgress" : "completed")) as Release["status"],
       ...(options.userFraction && { userFraction: options.userFraction }),
       ...(options.releaseNotes && { releaseNotes: options.releaseNotes }),
       ...(options.releaseName && { name: options.releaseName }),
@@ -214,10 +215,7 @@ export async function updateRollout(
   }
 }
 
-export async function listTracks(
-  client: PlayApiClient,
-  packageName: string,
-): Promise<Track[]> {
+export async function listTracks(client: PlayApiClient, packageName: string): Promise<Track[]> {
   const edit = await client.edits.insert(packageName);
   try {
     const tracks = await client.tracks.list(packageName, edit.id);

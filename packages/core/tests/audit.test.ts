@@ -19,7 +19,11 @@ describe("audit logging", () => {
   it("writes audit log entry as JSONL", async () => {
     initAudit(testDir);
 
-    const entry = createAuditEntry("releases upload", { file: "app.aab", track: "internal" }, "com.example.app");
+    const entry = createAuditEntry(
+      "releases upload",
+      { file: "app.aab", track: "internal" },
+      "com.example.app",
+    );
     entry.success = true;
     entry.durationMs = 1234;
 

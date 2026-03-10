@@ -5,7 +5,13 @@ export { PluginManager, discoverPlugins } from "./plugins.js";
 export type { LoadedPlugin, DiscoverPluginsOptions } from "./plugins.js";
 export { getAppInfo } from "./commands/apps.js";
 export type { AppInfo } from "./commands/apps.js";
-export { uploadRelease, getReleasesStatus, promoteRelease, updateRollout, listTracks } from "./commands/releases.js";
+export {
+  uploadRelease,
+  getReleasesStatus,
+  promoteRelease,
+  updateRollout,
+  listTracks,
+} from "./commands/releases.js";
 export type { UploadResult, ReleaseStatusResult } from "./commands/releases.js";
 export {
   getListings,
@@ -31,12 +37,7 @@ export { publish } from "./commands/publish.js";
 export type { PublishOptions, PublishResult } from "./commands/publish.js";
 export { readListingsFromDir, writeListingsToDir, diffListings } from "./utils/fastlane.js";
 export type { ListingDiff } from "./utils/fastlane.js";
-export {
-  listReviews,
-  getReview,
-  replyToReview,
-  exportReviews,
-} from "./commands/reviews.js";
+export { listReviews, getReview, replyToReview, exportReviews } from "./commands/reviews.js";
 export type { ReviewsFilterOptions, ReviewExportOptions } from "./commands/reviews.js";
 export type { ListSubscriptionsOptions } from "./commands/subscriptions.js";
 export type { ListIapOptions } from "./commands/iap.js";
@@ -55,7 +56,12 @@ export {
   compareVitalsTrend,
   checkThreshold,
 } from "./commands/vitals.js";
-export type { VitalsQueryOptions, VitalsOverview, VitalsTrendComparison, ThresholdResult } from "./commands/vitals.js";
+export type {
+  VitalsQueryOptions,
+  VitalsOverview,
+  VitalsTrendComparison,
+  ThresholdResult,
+} from "./commands/vitals.js";
 export { validateImage } from "./utils/image-validation.js";
 export type { ImageValidationResult } from "./utils/image-validation.js";
 export {

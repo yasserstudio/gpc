@@ -68,10 +68,10 @@ Passed to `beforeCommand`, `afterCommand`, and `onError` handlers.
 
 ```typescript
 interface CommandEvent {
-  command: string;                    // e.g., "releases upload"
-  args: Record<string, unknown>;     // Resolved arguments
-  app?: string;                      // Package name (if available)
-  startedAt: Date;                   // When the command started
+  command: string; // e.g., "releases upload"
+  args: Record<string, unknown>; // Resolved arguments
+  app?: string; // Package name (if available)
+  startedAt: Date; // When the command started
 }
 ```
 
@@ -139,10 +139,7 @@ interface PluginCommand {
   description: string;
   options?: PluginCommandOption[];
   arguments?: PluginCommandArgument[];
-  action: (
-    args: Record<string, unknown>,
-    options: Record<string, unknown>
-  ) => void | Promise<void>;
+  action: (args: Record<string, unknown>, options: Record<string, unknown>) => void | Promise<void>;
 }
 ```
 
@@ -159,7 +156,7 @@ hooks.registerCommands((registry) => {
     ],
     action: async (args, options) => {
       const channel = options.channel as string;
-      const message = options.message as string || "New release published";
+      const message = (options.message as string) || "New release published";
       await sendSlackMessage(channel, message);
     },
   });
@@ -174,25 +171,25 @@ Third-party plugins must declare required permissions in their `PluginManifest`.
 
 ```typescript
 type PluginPermission =
-  | "read:config"            // Read configuration values
-  | "write:config"           // Modify configuration
-  | "read:auth"              // Read authentication state
-  | "api:read"               // Read data from Google Play API
-  | "api:write"              // Write data to Google Play API
-  | "commands:register"      // Register new CLI commands
-  | "hooks:beforeCommand"    // Hook into pre-command execution
-  | "hooks:afterCommand"     // Hook into post-command execution
-  | "hooks:onError"          // Hook into error handling
-  | "hooks:beforeRequest"    // Hook into pre-API-request
-  | "hooks:afterResponse";   // Hook into post-API-response
+  | "read:config" // Read configuration values
+  | "write:config" // Modify configuration
+  | "read:auth" // Read authentication state
+  | "api:read" // Read data from Google Play API
+  | "api:write" // Write data to Google Play API
+  | "commands:register" // Register new CLI commands
+  | "hooks:beforeCommand" // Hook into pre-command execution
+  | "hooks:afterCommand" // Hook into post-command execution
+  | "hooks:onError" // Hook into error handling
+  | "hooks:beforeRequest" // Hook into pre-API-request
+  | "hooks:afterResponse"; // Hook into post-API-response
 ```
 
 ### Trust Model
 
-| Plugin Type | Name Pattern | Trust Level | Permission Check |
-|-------------|-------------|-------------|-----------------|
-| First-party | `@gpc-cli/plugin-*` | Auto-trusted | No checks |
-| Third-party | `gpc-plugin-*` | Untrusted | Validated against manifest |
+| Plugin Type | Name Pattern        | Trust Level  | Permission Check           |
+| ----------- | ------------------- | ------------ | -------------------------- |
+| First-party | `@gpc-cli/plugin-*` | Auto-trusted | No checks                  |
+| Third-party | `gpc-plugin-*`      | Untrusted    | Validated against manifest |
 
 Third-party plugins that use hooks or APIs without declaring the corresponding permission throw `PLUGIN_INVALID_PERMISSION` (exit code 10).
 
@@ -203,7 +200,7 @@ interface PluginManifest {
   name: string;
   version: string;
   permissions?: PluginPermission[];
-  trusted?: boolean;  // Only true for @gpc-cli/* packages
+  trusted?: boolean; // Only true for @gpc-cli/* packages
 }
 ```
 
@@ -268,14 +265,14 @@ The built-in CI/CD plugin. Detects CI environments and writes GitHub Actions ste
 
 ### CI Detection
 
-| Provider | Detection | Build ID | Branch | Step Summary |
-|----------|-----------|----------|--------|-------------|
-| GitHub Actions | `GITHUB_ACTIONS=true` | `GITHUB_RUN_ID` | `GITHUB_REF_NAME` | Yes |
-| GitLab CI | `GITLAB_CI=true` | `CI_JOB_ID` | `CI_COMMIT_BRANCH` | No |
-| Jenkins | `JENKINS_URL` set | `BUILD_NUMBER` | `BRANCH_NAME` | No |
-| CircleCI | `CIRCLECI=true` | `CIRCLE_BUILD_NUM` | `CIRCLE_BRANCH` | No |
-| Bitrise | `BITRISE_IO=true` | `BITRISE_BUILD_NUMBER` | `BITRISE_GIT_BRANCH` | No |
-| Generic | `CI=true` | -- | -- | No |
+| Provider       | Detection             | Build ID               | Branch               | Step Summary |
+| -------------- | --------------------- | ---------------------- | -------------------- | ------------ |
+| GitHub Actions | `GITHUB_ACTIONS=true` | `GITHUB_RUN_ID`        | `GITHUB_REF_NAME`    | Yes          |
+| GitLab CI      | `GITLAB_CI=true`      | `CI_JOB_ID`            | `CI_COMMIT_BRANCH`   | No           |
+| Jenkins        | `JENKINS_URL` set     | `BUILD_NUMBER`         | `BRANCH_NAME`        | No           |
+| CircleCI       | `CIRCLECI=true`       | `CIRCLE_BUILD_NUM`     | `CIRCLE_BRANCH`      | No           |
+| Bitrise        | `BITRISE_IO=true`     | `BITRISE_BUILD_NUMBER` | `BITRISE_GIT_BRANCH` | No           |
+| Generic        | `CI=true`             | --                     | --                   | No           |
 
 ### GitHub Actions Step Summary
 
@@ -343,10 +340,7 @@ export const plugin = definePlugin({
   "name": "gpc-plugin-slack",
   "version": "1.0.0",
   "gpc": {
-    "permissions": [
-      "hooks:afterCommand",
-      "hooks:onError"
-    ]
+    "permissions": ["hooks:afterCommand", "hooks:onError"]
   }
 }
 ```
@@ -411,7 +405,7 @@ export type { CommandEvent, CommandResult, PluginError, RequestEvent, ResponseEv
 export type { CommandRegistry, PluginCommand, PluginCommandOption, PluginCommandArgument };
 
 // Helpers
-export { definePlugin };  // Type-safe plugin factory
+export { definePlugin }; // Type-safe plugin factory
 ```
 
 ## Scaffolding a New Plugin
@@ -423,6 +417,7 @@ gpc plugins init my-plugin
 ```
 
 This creates a directory with:
+
 - `package.json` with `@gpc-cli/plugin-sdk` peer dependency
 - `tsconfig.json` configured for ESM
 - `src/index.ts` with a plugin skeleton using `definePlugin()`

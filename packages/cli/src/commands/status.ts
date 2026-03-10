@@ -11,9 +11,11 @@ export function registerStatusCommand(program: Command): void {
     .description("Cross-track release overview")
     .action(async () => {
       const config = await loadConfig();
-      const packageName = program.opts()['app'] || config.app;
+      const packageName = program.opts()["app"] || config.app;
       if (!packageName) {
-        console.error("Error: No package name. Use --app <package> or gpc config set app <package>");
+        console.error(
+          "Error: No package name. Use --app <package> or gpc config set app <package>",
+        );
         process.exit(2);
       }
 

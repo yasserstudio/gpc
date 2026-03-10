@@ -34,9 +34,7 @@ export const myPlugin: GpcPlugin = definePlugin({
       registry.addCommand({
         name: "slack:notify",
         description: "Send a Slack notification",
-        options: [
-          { flags: "--channel <channel>", description: "Slack channel" },
-        ],
+        options: [{ flags: "--channel <channel>", description: "Slack channel" }],
         action: async (opts) => {
           await postToSlack(opts.channel, "Manual notification from GPC");
         },
@@ -48,14 +46,14 @@ export const myPlugin: GpcPlugin = definePlugin({
 
 ## Lifecycle Hooks
 
-| Hook | When | Use Case |
-|------|------|----------|
-| `beforeCommand` | Before any CLI command | Logging, validation, feature flags |
-| `afterCommand` | After command completes | Notifications, metrics, summaries |
-| `onError` | When a command fails | Error reporting, alerting |
-| `beforeRequest` | Before each API call | Request logging, headers |
-| `afterResponse` | After each API response | Response logging, metrics |
-| `registerCommands` | Plugin initialization | Add custom commands to the CLI |
+| Hook               | When                    | Use Case                           |
+| ------------------ | ----------------------- | ---------------------------------- |
+| `beforeCommand`    | Before any CLI command  | Logging, validation, feature flags |
+| `afterCommand`     | After command completes | Notifications, metrics, summaries  |
+| `onError`          | When a command fails    | Error reporting, alerting          |
+| `beforeRequest`    | Before each API call    | Request logging, headers           |
+| `afterResponse`    | After each API response | Response logging, metrics          |
+| `registerCommands` | Plugin initialization   | Add custom commands to the CLI     |
 
 ## Permissions
 
@@ -72,15 +70,15 @@ const plugin: GpcPlugin = {
 };
 ```
 
-| Permission | Grants |
-|-----------|--------|
-| `read:config` | Read GPC configuration |
-| `write:config` | Modify GPC configuration |
-| `read:auth` | Access auth credentials |
-| `api:read` | Read-only API access |
-| `api:write` | Write API access |
-| `commands:register` | Register custom commands |
-| `hooks:*` | Subscribe to specific hooks |
+| Permission          | Grants                      |
+| ------------------- | --------------------------- |
+| `read:config`       | Read GPC configuration      |
+| `write:config`      | Modify GPC configuration    |
+| `read:auth`         | Access auth credentials     |
+| `api:read`          | Read-only API access        |
+| `api:write`         | Write API access            |
+| `commands:register` | Register custom commands    |
+| `hooks:*`           | Subscribe to specific hooks |
 
 Third-party plugins require user approval before loading:
 

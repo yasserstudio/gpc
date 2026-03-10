@@ -28,22 +28,18 @@ const tracks = await client.tracks.list("com.example.app");
 
 // Upload a bundle
 const edit = await client.edits.insert("com.example.app");
-const upload = await client.edits.bundles.upload(
-  "com.example.app",
-  edit.id,
-  buffer,
-);
+const upload = await client.edits.bundles.upload("com.example.app", edit.id, buffer);
 await client.edits.commit("com.example.app", edit.id);
 ```
 
 ## Clients
 
-| Factory | Base URL | Purpose |
-|---------|----------|---------|
-| `createApiClient()` | `androidpublisher.googleapis.com` | Core Play API (apps, releases, listings, monetization) |
-| `createReportingClient()` | `playdeveloperreporting.googleapis.com` | Vitals, crashes, ANR, errors |
-| `createUsersClient()` | `androidpublisher.googleapis.com` | Developer account users and grants |
-| `createHttpClient()` | Custom | Low-level HTTP with auth, retry, rate limiting |
+| Factory                   | Base URL                                | Purpose                                                |
+| ------------------------- | --------------------------------------- | ------------------------------------------------------ |
+| `createApiClient()`       | `androidpublisher.googleapis.com`       | Core Play API (apps, releases, listings, monetization) |
+| `createReportingClient()` | `playdeveloperreporting.googleapis.com` | Vitals, crashes, ANR, errors                           |
+| `createUsersClient()`     | `androidpublisher.googleapis.com`       | Developer account users and grants                     |
+| `createHttpClient()`      | Custom                                  | Low-level HTTP with auth, retry, rate limiting         |
 
 ## Features
 
