@@ -28,5 +28,6 @@
     "plugin",
     "sdk"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": { "access": "public" }
 }

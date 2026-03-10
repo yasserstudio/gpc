@@ -29,6 +29,9 @@
     "service-account"
   ],
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@types/node": "^25.3.5"
   },
