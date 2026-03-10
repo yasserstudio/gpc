@@ -9,6 +9,26 @@ describe("plugin-ci", () => {
   describe("detectCIEnvironment", () => {
     const originalEnv = { ...process.env };
 
+    beforeEach(() => {
+      // Clear all CI-related env vars so each test controls its own environment
+      delete process.env["CI"];
+      delete process.env["GITHUB_ACTIONS"];
+      delete process.env["GITHUB_RUN_ID"];
+      delete process.env["GITHUB_REF_NAME"];
+      delete process.env["GITHUB_SHA"];
+      delete process.env["GITHUB_STEP_SUMMARY"];
+      delete process.env["GITLAB_CI"];
+      delete process.env["CI_JOB_ID"];
+      delete process.env["CI_COMMIT_BRANCH"];
+      delete process.env["CI_COMMIT_SHA"];
+      delete process.env["JENKINS_URL"];
+      delete process.env["BUILD_NUMBER"];
+      delete process.env["CIRCLECI"];
+      delete process.env["CIRCLE_BUILD_NUM"];
+      delete process.env["BITRISE_IO"];
+      delete process.env["BITRISE_BUILD_NUMBER"];
+    });
+
     afterEach(() => {
       process.env = { ...originalEnv };
     });
