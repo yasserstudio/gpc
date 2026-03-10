@@ -1,5 +1,11 @@
 # @gpc-cli/config
 
+## 0.1.3
+
+### Patch Changes
+
+- b46f1d1: Replace synchronous config discovery with async, cache homedir(), and exclude web-streams-polyfill from binary bundle (~207 KB savings).
+
 ## 0.1.2
 
 ### Patch Changes
