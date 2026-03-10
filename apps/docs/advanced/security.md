@@ -47,6 +47,20 @@ Service account keys grant full API access and are long-lived. GPC never copies,
 - `gpc doctor` warns if the key file has overly permissive permissions (>0600)
 - `gpc doctor` warns if the key file is inside a git repository
 
+### Token Cache Security
+
+Service account access tokens are cached in two layers:
+
+1. **In-memory cache** -- fastest lookup, cleared when the process exits
+2. **Filesystem cache** -- `~/.cache/gpc/token-cache.json` with `0600` permissions in a `0700` directory
+
+Security properties:
+
+- Atomic writes via temp file + rename (no partial reads)
+- Promise-based mutex prevents race conditions in concurrent requests
+- Cache key validation enforces email format only -- prevents path traversal
+- 5-minute safety margin before expiry triggers proactive refresh
+
 ### OAuth Tokens
 
 | Platform    | Storage Location                                        |

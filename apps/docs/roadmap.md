@@ -29,6 +29,10 @@ Production hardening and stable release.
 - [x] Audit logging
 - [x] Proxy and custom CA support (`GPC_CA_CERT`, `HTTPS_PROXY`)
 - [x] Performance optimization (lazy command loading)
+- [x] In-memory token cache with mutex deduplication
+- [x] HTTP compression and connection keep-alive
+- [x] Parallel pagination helper
+- [x] Async config file discovery
 - [x] Unified error hierarchy (exitCode + toJSON on all error types)
 - [x] 90%+ test coverage on core packages
 - [x] Standalone binary (esbuild bundle + Bun compile, cross-platform)
@@ -36,7 +40,7 @@ Production hardening and stable release.
 - [x] README and docs final polish
 - [x] CHANGELOG complete
 - [x] VitePress documentation site
-- [ ] Homebrew tap (`yasserstudio/homebrew-tap`)
+- [x] Homebrew tap (`yasserstudio/homebrew-tap`)
 - [ ] Wall of Apps community showcase
 
 ## Version Map

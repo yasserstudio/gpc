@@ -276,6 +276,24 @@ const allReviews = await paginate((token) => client.reviews.list({ maxResults: 1
 console.log(`Total reviews: ${allReviews.length}`);
 ```
 
+### Parallel Pagination
+
+When you already know multiple page tokens (e.g., from a previous listing), fetch them concurrently:
+
+```typescript
+import { paginateParallel } from "@gpc-cli/api";
+
+const result = await paginateParallel(
+  (token) => client.reviews.list({ maxResults: 100, token }),
+  ["token1", "token2", "token3", "token4"],
+  4, // concurrency limit (default: 4)
+);
+
+console.log(`Total reviews: ${result.items.length}`);
+```
+
+Parallel pagination respects a concurrency limit to avoid hitting rate limits while significantly reducing total fetch time for large datasets.
+
 ## Rate Limiting
 
 The API client includes a built-in rate limiter. By default, requests are limited to 50 per second (well under Google's 3,000/minute quota).
@@ -317,9 +335,10 @@ const client = new PlayApiClient({
 });
 ```
 
+- **401 (Unauthorized):** Token is refreshed and the request is retried
 - **429 (Rate Limited):** Retried with exponential backoff, respecting `Retry-After` headers
 - **5xx (Server Error):** Retried up to `maxRetries` times
-- **4xx (Client Error):** Not retried (except 429)
+- **4xx (Client Error):** Not retried (except 401, 429)
 
 ## Error Handling
 

@@ -44,6 +44,17 @@ Priority: highest security — grants full API access
 - `gpc doctor` warns if key file has overly permissive file permissions (>0600)
 - `gpc doctor` warns if key file is inside a git repository
 
+### Token Cache Security
+
+Service account access tokens are cached in two layers:
+
+1. **In-memory cache** — fastest lookup, cleared when the process exits
+2. **Filesystem cache** — `~/.cache/gpc/token-cache.json` with `0600` permissions in a `0700` directory
+
+Token writes use atomic rename (`write tmp → rename`) to prevent partial reads. A promise-based mutex ensures only one JWT signing operation runs at a time per service account, preventing race conditions in concurrent requests.
+
+Cache key validation enforces email-format-only keys (`/^[a-zA-Z0-9._%+@-]+$/`) to prevent path traversal attacks via malicious cache keys.
+
 ### OAuth Tokens
 
 ```
