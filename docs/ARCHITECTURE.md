@@ -72,8 +72,11 @@ gpc/
 #### `@gpc-cli/api`
 
 - Typed wrappers around Google Play Developer API v3
-- Request/response models auto-generated from API discovery docs
-- Rate limiting, retry logic, pagination helpers
+- Request/response models matching the API specification
+- Rate limiting (token bucket per quota bucket)
+- Retry logic (exponential backoff with jitter on 429/5xx)
+- Pagination helpers (sequential and parallel)
+- HTTP compression and connection keep-alive
 - Zero business logic — pure API surface
 
 #### `@gpc-cli/auth`
@@ -81,15 +84,17 @@ gpc/
 - Service account JSON key file authentication
 - OAuth 2.0 device flow for interactive login
 - Application Default Credentials (ADC) support
-- Token caching, refresh, and revocation
+- Token caching with in-memory layer and filesystem persistence
+- Promise-based mutex to deduplicate concurrent token refreshes
 - Multi-account profile management
 
 #### `@gpc-cli/config`
 
-- Config file discovery (`.gpcrc.json`, user config dir)
+- Async config file discovery (`.gpcrc.json`, user config dir)
 - Profile-based configuration (dev, staging, production)
 - Environment variable overrides (`GPC_*` prefix)
 - Schema validation with clear error messages
+- Cached XDG path resolution
 
 #### `@gpc-cli/core`
 

@@ -106,7 +106,9 @@ gpc/
 - Request/response models matching the API specification
 - Rate limiting (token bucket per quota bucket)
 - Retry logic (exponential backoff with jitter on 429/5xx)
-- Pagination helpers (auto-follow `nextPageToken`)
+- Pagination helpers (sequential and parallel with configurable concurrency)
+- HTTP compression (`Accept-Encoding: gzip`) and connection keep-alive
+- Smart 401-specific token refresh (re-authenticates only on auth failures)
 - Zero business logic -- pure API surface
 
 ### @gpc-cli/auth
@@ -114,15 +116,17 @@ gpc/
 - Service account JSON key file authentication
 - OAuth 2.0 device flow for interactive login
 - Application Default Credentials (ADC) support
-- Token caching, refresh, and revocation
+- Two-tier token caching: in-memory (zero I/O) with filesystem persistence
+- Promise-based mutex to deduplicate concurrent token refreshes
 - Multi-account profile management
 
 ### @gpc-cli/config
 
-- Config file discovery (`.gpcrc.json`, user config dir)
+- Async config file discovery (`.gpcrc.json`, user config dir)
 - Profile-based configuration (dev, staging, production)
 - Environment variable overrides (`GPC_*` prefix)
 - Schema validation with clear error messages
+- Cached XDG path resolution (avoids repeated `homedir()` syscalls)
 
 ### @gpc-cli/plugin-sdk
 

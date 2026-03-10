@@ -114,8 +114,14 @@ When using a service account, GPC:
 1. Reads the private key from the JSON key file
 2. Signs a JWT with the `androidpublisher` scope
 3. Exchanges the JWT for an access token (valid for 1 hour)
-4. Caches the access token in the profile
+4. Caches the access token in memory and on disk
 5. Automatically refreshes the token when it expires (within 5 minutes of expiry)
+
+**Performance optimizations:**
+
+- **In-memory cache** -- subsequent requests skip filesystem I/O entirely
+- **Mutex deduplication** -- concurrent requests share a single token refresh instead of racing to sign multiple JWTs
+- **Smart 401 refresh** -- tokens are only re-fetched on authentication failures, not on rate limit or server errors
 
 Tokens are never written to logs or command output. The `--verbose` flag shows token exchange timing but redacts the token value.
 

@@ -244,9 +244,13 @@
 - [x] Audit logging
 - [x] Proxy and custom CA support (`GPC_CA_CERT`, `HTTPS_PROXY`)
 - [x] Performance optimization (lazy command loading)
+- [x] In-memory token cache with mutex deduplication
+- [x] HTTP compression and connection keep-alive
+- [x] Parallel pagination helper
+- [x] Async config file discovery
 - [x] Unified error hierarchy (exitCode + toJSON on all error types)
 - [x] 90%+ test coverage on core packages
-- [ ] VitePress documentation site complete
+- [x] VitePress documentation site
 - [x] Standalone binary (esbuild bundle + Bun compile, cross-platform)
 - [x] Homebrew tap (`yasserstudio/homebrew-tap`) for `brew install` distribution
 - [x] Security audit

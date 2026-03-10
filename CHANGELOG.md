@@ -4,6 +4,17 @@ All notable changes to GPC are documented here.
 
 ---
 
+## v0.1.4 — Performance Optimizations
+
+- **perf(auth):** In-memory token cache with promise-based mutex — eliminates redundant JWT signing and filesystem I/O on concurrent requests
+- **perf(auth):** Smart 401-specific token refresh — only re-fetches token on auth failures, not on 429/5xx retries
+- **perf(api):** HTTP compression (`Accept-Encoding: gzip`) and connection keep-alive headers on all requests
+- **perf(api):** Parallel pagination helper (`paginateParallel`) for fetching multiple pages concurrently
+- **perf(config):** Async config file discovery — non-blocking `stat()` replaces synchronous `statSync()`
+- **perf(config):** Cached `homedir()` at module level — avoids repeated syscalls on XDG path resolution
+- **perf(build):** Excluded `web-streams-polyfill` from standalone binary bundle (provided by Bun runtime)
+- **fix(ci):** Fixed plugin-ci tests failing on GitHub Actions due to leaked `GITHUB_ACTIONS` env var
+
 ## v0.1.2 — First npm Publish
 
 - **feat:** Published all 7 packages to npm under `@gpc-cli` scope
