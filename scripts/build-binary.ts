@@ -109,6 +109,9 @@ async function bundle(): Promise<void> {
       "util",
       "zlib",
       "undici",
+      // Node 20+ has native streams — polyfill is unnecessary (207 KB savings)
+      "web-streams-polyfill",
+      "web-streams-polyfill/ponyfill/es2018",
     ],
     // Resolve workspace packages
     conditions: ["import"],
