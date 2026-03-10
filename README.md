@@ -491,5 +491,5 @@ pnpm test    # 597 tests across 7 packages
 ---
 
 <p align="center">
-  <sub>This project is an independent, unofficial tool and is not affiliated with, endorsed by, or sponsored by Google LLC. Google Play, Android, and Google are trademarks of Google LLC.</sub>
+  <sub>This project is an independent, unofficial tool and is not affiliated with, endorsed by, or sponsored by Google LLC. "Google Play" and the Google Play logo are trademarks of Google LLC. The "Android" name, the Android logo, and "Google" are trademarks of Google LLC.</sub>
 </p>
