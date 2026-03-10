@@ -44,7 +44,7 @@ export function registerIapCommands(program: Command): void {
     .option("--next-page <token>", "Resume from page token")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -66,7 +66,7 @@ export function registerIapCommands(program: Command): void {
     .description("Get an in-app product")
     .action(async (sku: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -85,7 +85,7 @@ export function registerIapCommands(program: Command): void {
     .requiredOption("--file <path>", "JSON file with product data")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
 
       if (isDryRun(program)) {
@@ -115,7 +115,7 @@ export function registerIapCommands(program: Command): void {
     .requiredOption("--file <path>", "JSON file with product data")
     .action(async (sku: string, options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
 
       if (isDryRun(program)) {
@@ -145,7 +145,7 @@ export function registerIapCommands(program: Command): void {
     .description("Delete an in-app product")
     .action(async (sku: string) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
 
       await requireConfirm(`Delete in-app product "${sku}"?`, program);
 
@@ -177,7 +177,7 @@ export function registerIapCommands(program: Command): void {
     .option("--dry-run", "Preview changes without applying")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 

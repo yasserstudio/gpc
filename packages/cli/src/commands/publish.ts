@@ -37,7 +37,7 @@ export function registerPublishCommand(program: Command): void {
       }
 
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
 
       // Interactive mode: prompt for missing options

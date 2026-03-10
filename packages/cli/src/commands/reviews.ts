@@ -45,7 +45,7 @@ export function registerReviewsCommands(program: Command): void {
     .option("--next-page <token>", "Resume from page token")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -72,7 +72,7 @@ export function registerReviewsCommands(program: Command): void {
     .option("--translate-to <lang>", "Translate review to language")
     .action(async (reviewId: string, options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -91,7 +91,7 @@ export function registerReviewsCommands(program: Command): void {
     .option("--text <text>", "Reply text (max 350 chars)")
     .action(async (reviewId: string, options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
       const interactive = isInteractive(program);
 
@@ -131,7 +131,7 @@ export function registerReviewsCommands(program: Command): void {
     .option("--output <file>", "Write output to file instead of stdout")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
 
       try {

@@ -54,7 +54,7 @@ export function registerReleasesCommands(program: Command): void {
         process.exit(2);
       }
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
 
       // Interactive mode: prompt for missing options
@@ -130,7 +130,7 @@ export function registerReleasesCommands(program: Command): void {
     .option("--track <track>", "Filter by track")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -153,7 +153,7 @@ export function registerReleasesCommands(program: Command): void {
     .option("--notes <text>", "Release notes")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
       const interactive = isInteractive(program);
       const tracks = ["internal", "alpha", "beta", "production"];
@@ -209,7 +209,7 @@ export function registerReleasesCommands(program: Command): void {
 
     cmd.action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const format = detectOutputFormat();
       const interactive = isInteractive(program);
       const tracks = ["internal", "alpha", "beta", "production"];

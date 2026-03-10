@@ -60,7 +60,7 @@ export function registerListingsCommands(program: Command): void {
     .option("--lang <language>", "Language code (BCP 47)")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -85,7 +85,7 @@ export function registerListingsCommands(program: Command): void {
     .option("--video <url>", "Video URL")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const interactive = isInteractive(program);
 
       options.lang = await requireOption("lang", options.lang, {
@@ -96,14 +96,14 @@ export function registerListingsCommands(program: Command): void {
 
       try {
         const data: Record<string, string> = {};
-        if (options.title) data.title = options.title;
-        if (options.short) data.shortDescription = options.short;
-        if (options.full) data.fullDescription = options.full;
-        if (options.fullFile) {
+        if (options['title']) data['title'] = options['title'];
+        if (options['short']) data['shortDescription'] = options['short'];
+        if (options['full']) data['fullDescription'] = options['full'];
+        if (options['fullFile']) {
           const { readFile } = await import("node:fs/promises");
-          data.fullDescription = (await readFile(options.fullFile, "utf-8")).trimEnd();
+          data['fullDescription'] = (await readFile(options['fullFile'], "utf-8")).trimEnd();
         }
-        if (options.video) data.video = options.video;
+        if (options['video']) data['video'] = options['video'];
 
         if (Object.keys(data).length === 0) {
           console.error("Error: Provide at least one field to update (--title, --short, --full, --full-file, --video).");
@@ -136,7 +136,7 @@ export function registerListingsCommands(program: Command): void {
     .option("--lang <language>", "Language code (BCP 47)")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const interactive = isInteractive(program);
 
       options.lang = await requireOption("lang", options.lang, {
@@ -173,7 +173,7 @@ export function registerListingsCommands(program: Command): void {
     .option("--dir <path>", "Output directory", "metadata")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -198,7 +198,7 @@ export function registerListingsCommands(program: Command): void {
     .option("--dry-run", "Preview changes without applying")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
@@ -226,7 +226,7 @@ export function registerListingsCommands(program: Command): void {
     .option("--type <type>", "Image type")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const interactive = isInteractive(program);
 
       options.lang = await requireOption("lang", options.lang, {
@@ -260,7 +260,7 @@ export function registerListingsCommands(program: Command): void {
     .option("--type <type>", "Image type")
     .action(async (file: string, options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const interactive = isInteractive(program);
 
       options.lang = await requireOption("lang", options.lang, {
@@ -295,7 +295,7 @@ export function registerListingsCommands(program: Command): void {
     .option("--id <imageId>", "Image ID to delete")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const interactive = isInteractive(program);
 
       options.lang = await requireOption("lang", options.lang, {
@@ -332,7 +332,7 @@ export function registerListingsCommands(program: Command): void {
     .option("--track <track>", "Track name", "production")
     .action(async (options) => {
       const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts().app, config);
+      const packageName = resolvePackageName(program.opts()['app'], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
