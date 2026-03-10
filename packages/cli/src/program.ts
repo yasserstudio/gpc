@@ -1,6 +1,6 @@
 import { Command } from "commander";
 import type { PluginManager } from "@gpc-cli/core";
-import type { CommandEvent, CommandResult, PluginError } from "@gpc-cli/plugin-sdk";
+import type { CommandEvent, CommandResult } from "@gpc-cli/plugin-sdk";
 import { registerPluginCommands } from "./plugins.js";
 
 export async function createProgram(pluginManager?: PluginManager): Promise<Command> {
@@ -47,8 +47,9 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
 
   const target = process.argv[2];
 
-  if (target && target in commandLoaders) {
-    await commandLoaders[target]!();
+  const loader = target ? commandLoaders[target] : undefined;
+  if (loader) {
+    await loader();
   } else {
     await Promise.all(Object.values(commandLoaders).map((loader) => loader()));
   }
@@ -165,13 +166,13 @@ function wrapCommandHooks(program: Command, manager: PluginManager): void {
     };
 
     // Store on the command for afterCommand/onError
-    (thisCommand as any).__pluginEvent = event;
+    (thisCommand as unknown as Record<string, unknown>)["__pluginEvent"] = event;
 
     await manager.runBeforeCommand(event);
   });
 
   program.hook("postAction", async (thisCommand) => {
-    const event: CommandEvent = (thisCommand as any).__pluginEvent;
+    const event: CommandEvent = (thisCommand as unknown as Record<string, unknown>)["__pluginEvent"] as CommandEvent;
     if (!event) return;
 
     const result: CommandResult = {

@@ -1,4 +1,5 @@
 import type { Command } from "commander";
+import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createUsersClient } from "@gpc-cli/api";
@@ -17,7 +18,7 @@ import {
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
 
-function resolveDeveloperId(devIdArg: string | undefined, config: any): string {
+function resolveDeveloperId(devIdArg: string | undefined, config: GpcConfig): string {
   const id = devIdArg || config.developerId;
   if (!id) {
     console.error("Error: No developer ID. Use --developer-id <id> or gpc config set developerId <id>");
@@ -26,7 +27,7 @@ function resolveDeveloperId(devIdArg: string | undefined, config: any): string {
   return id;
 }
 
-async function getUsersClient(config: any) {
+async function getUsersClient(config: GpcConfig) {
   const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
   return createUsersClient({ auth });
 }

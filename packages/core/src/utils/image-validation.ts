@@ -36,7 +36,7 @@ export async function validateImage(
   }
 
   // Check file exists and size
-  let sizeBytes = 0;
+  let sizeBytes: number;
   try {
     const stats = await stat(filePath);
     sizeBytes = stats.size;

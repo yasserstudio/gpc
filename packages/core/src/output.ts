@@ -122,18 +122,20 @@ function formatTable(data: unknown): string {
   const rows = toRows(data);
   if (rows.length === 0) return "";
 
-  const keys = Object.keys(rows[0]!);
+  const firstRow = rows[0];
+  if (!firstRow) return "";
+  const keys = Object.keys(firstRow);
   if (keys.length === 0) return "";
 
   const widths = keys.map((key) =>
     Math.max(key.length, ...rows.map((row) => String(row[key] ?? "").length)),
   );
 
-  const header = keys.map((key, i) => key.padEnd(widths[i]!)).join("  ");
+  const header = keys.map((key, i) => key.padEnd(widths[i] ?? 0)).join("  ");
   const separator = widths.map((w) => "-".repeat(w)).join("  ");
   const body = rows
     .map((row) =>
-      keys.map((key, i) => String(row[key] ?? "").padEnd(widths[i]!)).join("  "),
+      keys.map((key, i) => String(row[key] ?? "").padEnd(widths[i] ?? 0)).join("  "),
     )
     .join("\n");
 
@@ -144,19 +146,21 @@ function formatMarkdown(data: unknown): string {
   const rows = toRows(data);
   if (rows.length === 0) return "";
 
-  const keys = Object.keys(rows[0]!);
+  const firstRow = rows[0];
+  if (!firstRow) return "";
+  const keys = Object.keys(firstRow);
   if (keys.length === 0) return "";
 
   const widths = keys.map((key) =>
     Math.max(key.length, ...rows.map((row) => String(row[key] ?? "").length)),
   );
 
-  const header = `| ${keys.map((key, i) => key.padEnd(widths[i]!)).join(" | ")} |`;
+  const header = `| ${keys.map((key, i) => key.padEnd(widths[i] ?? 0)).join(" | ")} |`;
   const separator = `| ${widths.map((w) => "-".repeat(w)).join(" | ")} |`;
   const body = rows
     .map(
       (row) =>
-        `| ${keys.map((key, i) => String(row[key] ?? "").padEnd(widths[i]!)).join(" | ")} |`,
+        `| ${keys.map((key, i) => String(row[key] ?? "").padEnd(widths[i] ?? 0)).join(" | ")} |`,
     )
     .join("\n");
 

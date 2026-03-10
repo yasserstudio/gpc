@@ -12,7 +12,7 @@ export function registerDoctorCommand(program: Command): void {
 
       // Check Node.js version
       const nodeVersion = process.versions.node;
-      const major = parseInt(nodeVersion.split(".")[0]!, 10);
+      const major = parseInt(nodeVersion.split(".")[0] ?? "0", 10);
       if (major >= 20) {
         console.log(`  \u2713 Node.js ${nodeVersion}`);
       } else {

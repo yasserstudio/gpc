@@ -6,9 +6,9 @@ export interface DryRunPreview {
 }
 
 export function isDryRun(program: { opts(): Record<string, unknown> }): boolean {
-  let cmd = program as any;
+  let cmd: { parent?: unknown; opts(): Record<string, unknown> } = program;
   while (cmd.parent) {
-    cmd = cmd.parent;
+    cmd = cmd.parent as typeof cmd;
   }
   return !!cmd.opts().dryRun;
 }

@@ -95,9 +95,11 @@ export async function getVitalsOverview(
 
   const overview: VitalsOverview = {};
   for (let i = 0; i < metricSets.length; i++) {
-    const entry = metricSets[i]!;
+    const entry = metricSets[i];
+    if (!entry) continue;
     const key = entry[1];
-    const result = results[i]!;
+    const result = results[i];
+    if (!result) continue;
     if (result.status === "fulfilled") {
       overview[key] = result.value.rows || [];
     }

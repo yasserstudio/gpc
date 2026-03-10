@@ -1,4 +1,5 @@
 import { appendFile } from "node:fs/promises";
+import type { GpcConfig } from "@gpc-cli/config";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
@@ -7,9 +8,9 @@ import type { RetryLogEntry } from "@gpc-cli/api";
 import { uploadRelease, getReleasesStatus, promoteRelease, updateRollout, readReleaseNotesFromDir, writeAuditLog, createAuditEntry } from "@gpc-cli/core";
 import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
-import { isInteractive, promptSelect, promptInput, promptConfirm, requireOption, requireConfirm } from "../prompt.js";
+import { isInteractive, promptSelect, promptInput, requireOption } from "../prompt.js";
 
-function resolvePackageName(packageArg: string | undefined, config: any): string {
+function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
   if (!name) {
     console.error("Error: No package name. Use --app <package> or gpc config set app <package>");
@@ -26,7 +27,7 @@ function createRetryLogger(retryLogPath?: string): ((entry: RetryLogEntry) => vo
   };
 }
 
-async function getClient(config: any, retryLogPath?: string) {
+async function getClient(config: GpcConfig, retryLogPath?: string) {
   const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
   return createApiClient({ auth, onRetry: createRetryLogger(retryLogPath) });
 }

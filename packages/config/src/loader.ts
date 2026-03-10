@@ -47,7 +47,6 @@ export function loadEnvConfig(): Partial<GpcConfig> {
 export function findConfigFile(startDir?: string): string | undefined {
   let dir = startDir || process.cwd();
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   while (true) {
     const candidate = join(dir, ".gpcrc.json");
     try {
@@ -94,7 +93,7 @@ function sanitizeObject(obj: unknown): void {
   const record = obj as Record<string, unknown>;
   for (const key of Object.keys(record)) {
     if (DANGEROUS_KEYS.has(key)) {
-      delete record[key];
+      record[key] = undefined;
     } else if (typeof record[key] === "object" && record[key] !== null) {
       sanitizeObject(record[key]);
     }
@@ -138,10 +137,10 @@ export async function loadConfig(
 
   // Resolve profile overrides
   if (result.profile && result.profiles?.[result.profile]) {
-    const p = result.profiles[result.profile]!;
-    if (p.auth) result.auth = p.auth;
-    if (p.app) result.app = p.app;
-    if (p.developerId) result.developerId = p.developerId;
+    const p = result.profiles[result.profile];
+    if (p?.auth) result.auth = p.auth;
+    if (p?.app) result.app = p.app;
+    if (p?.developerId) result.developerId = p.developerId;
   } else if (result.profile && result.profiles && !(result.profile in result.profiles)) {
     const available = Object.keys(result.profiles).join(", ");
     throw new Error(

@@ -7,8 +7,8 @@ import { createInterface } from "node:readline";
 export function isInteractive(program?: { opts(): Record<string, unknown> }): boolean {
   // Commander's --no-interactive sets interactive = false
   if (program) {
-    let root = program as any;
-    while (root.parent) root = root.parent;
+    let root: { parent?: unknown; opts(): Record<string, unknown> } = program;
+    while (root.parent) root = root.parent as typeof root;
     if (root.opts().interactive === false) return false;
   }
 
@@ -28,8 +28,8 @@ export function isInteractive(program?: { opts(): Record<string, unknown> }): bo
  */
 export function skipConfirm(program?: { opts(): Record<string, unknown> }): boolean {
   if (!program) return false;
-  let root = program as any;
-  while (root.parent) root = root.parent;
+  let root: { parent?: unknown; opts(): Record<string, unknown> } = program;
+  while (root.parent) root = root.parent as typeof root;
   return root.opts().yes === true;
 }
 
@@ -106,7 +106,7 @@ export async function promptSelect(message: string, choices: string[], defaultVa
       // Accept number
       const num = Number(trimmed);
       if (num >= 1 && num <= choices.length) {
-        resolve(choices[num - 1]!);
+        resolve(choices[num - 1] ?? "");
         return;
       }
 
@@ -117,7 +117,7 @@ export async function promptSelect(message: string, choices: string[], defaultVa
       }
 
       // Default
-      resolve(defaultValue || choices[0]!);
+      resolve(defaultValue ?? choices[0] ?? "");
     });
   });
 }

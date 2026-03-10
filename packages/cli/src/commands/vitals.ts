@@ -1,4 +1,5 @@
 import type { Command } from "commander";
+import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createReportingClient } from "@gpc-cli/api";
@@ -20,7 +21,7 @@ import {
   formatOutput,
 } from "@gpc-cli/core";
 
-function resolvePackageName(packageArg: string | undefined, config: any): string {
+function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
   if (!name) {
     console.error("Error: No package name. Use --app <package> or gpc config set app <package>");
@@ -29,7 +30,7 @@ function resolvePackageName(packageArg: string | undefined, config: any): string
   return name;
 }
 
-async function getReportingClient(config: any) {
+async function getReportingClient(config: GpcConfig) {
   const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
   return createReportingClient({ auth });
 }
