@@ -1,5 +1,17 @@
 # @gpc-cli/cli
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies [b46f1d1]
+- Updated dependencies [74636b6]
+- Updated dependencies [71d71ef]
+  - @gpc-cli/config@0.1.3
+  - @gpc-cli/api@1.0.3
+  - @gpc-cli/auth@0.1.3
+  - @gpc-cli/core@0.1.3
+
 ## 0.1.3
 
 ### Patch Changes
