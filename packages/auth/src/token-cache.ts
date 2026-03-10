@@ -90,8 +90,10 @@ export async function clearTokenCache(
 ): Promise<void> {
   if (email) {
     const cache = await readCache(cacheDir);
-    delete cache[email];
-    await writeCache(cacheDir, cache);
+    const updated = Object.fromEntries(
+      Object.entries(cache).filter(([key]) => key !== email),
+    );
+    await writeCache(cacheDir, updated);
   } else {
     try {
       await unlink(getCachePath(cacheDir));

@@ -51,7 +51,7 @@ export async function readListingsFromDir(dir: string): Promise<Listing[]> {
       const filePath = join(langDir, fileName);
       if (await exists(filePath)) {
         const content = await readFile(filePath, "utf-8");
-        (listing as any)[field] = content.trimEnd();
+        (listing as unknown as Record<string, string>)[field] = content.trimEnd();
       }
     }
 
@@ -67,7 +67,7 @@ export async function writeListingsToDir(dir: string, listings: Listing[]): Prom
     await mkdir(langDir, { recursive: true });
 
     for (const [field, fileName] of Object.entries(FIELD_TO_FILE)) {
-      const value = (listing as any)[field];
+      const value = (listing as unknown as Record<string, string>)[field];
       if (value !== undefined && value !== "") {
         await writeFile(join(langDir, fileName), value + "\n", "utf-8");
       }
@@ -83,9 +83,9 @@ export function diffListings(local: Listing[], remote: Listing[]): ListingDiff[]
   // Check all local listings against remote
   for (const localListing of local) {
     const remoteListing = remoteMap.get(localListing.language);
-    for (const [field, fileName] of Object.entries(FIELD_TO_FILE)) {
-      const localVal = ((localListing as any)[field] ?? "").toString();
-      const remoteVal = remoteListing ? ((remoteListing as any)[field] ?? "").toString() : "";
+    for (const [field] of Object.entries(FIELD_TO_FILE)) {
+      const localVal = ((localListing as unknown as Record<string, string>)[field] ?? "").toString();
+      const remoteVal = remoteListing ? ((remoteListing as unknown as Record<string, string>)[field] ?? "").toString() : "";
       if (localVal !== remoteVal) {
         diffs.push({
           language: localListing.language,
@@ -101,7 +101,7 @@ export function diffListings(local: Listing[], remote: Listing[]): ListingDiff[]
   for (const remoteListing of remote) {
     if (!localMap.has(remoteListing.language)) {
       for (const [field] of Object.entries(FIELD_TO_FILE)) {
-        const remoteVal = ((remoteListing as any)[field] ?? "").toString();
+        const remoteVal = ((remoteListing as unknown as Record<string, string>)[field] ?? "").toString();
         if (remoteVal) {
           diffs.push({
             language: remoteListing.language,

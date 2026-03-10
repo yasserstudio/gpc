@@ -33,7 +33,7 @@ export async function validateUploadFile(filePath: string): Promise<FileValidati
   }
 
   // Check file exists and get size
-  let sizeBytes = 0;
+  let sizeBytes: number;
   try {
     const stats = await stat(filePath);
     sizeBytes = stats.size;

@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import type { GpcConfig } from "@gpc-cli/config";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
@@ -26,7 +27,7 @@ import {
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
 
-function resolvePackageName(packageArg: string | undefined, config: any): string {
+function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
   if (!name) {
     console.error("Error: No package name. Use --app <package> or gpc config set app <package>");
@@ -35,7 +36,7 @@ function resolvePackageName(packageArg: string | undefined, config: any): string
   return name;
 }
 
-async function getClient(config: any) {
+async function getClient(config: GpcConfig) {
   const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
   return createApiClient({ auth });
 }
@@ -277,7 +278,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .command("migrate-prices <product-id> <base-plan-id>")
     .description("Migrate base plan prices")
     .requiredOption("--file <path>", "JSON file with migration data")
-    .action(async (productId: string, basePlanId: string, options: any) => {
+    .action(async (productId: string, basePlanId: string, options: { file: string; updateMask?: string }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
       const format = detectOutputFormat();
@@ -349,7 +350,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .command("create <product-id> <base-plan-id>")
     .description("Create an offer from JSON file")
     .requiredOption("--file <path>", "JSON file with offer data")
-    .action(async (productId: string, basePlanId: string, options: any) => {
+    .action(async (productId: string, basePlanId: string, options: { file: string; updateMask?: string }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
       const format = detectOutputFormat();
@@ -381,7 +382,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .description("Update an offer from JSON file")
     .requiredOption("--file <path>", "JSON file with offer data")
     .option("--update-mask <fields>", "Comma-separated field mask")
-    .action(async (productId: string, basePlanId: string, offerId: string, options: any) => {
+    .action(async (productId: string, basePlanId: string, offerId: string, options: { file: string; updateMask?: string }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts().app, config);
       const format = detectOutputFormat();

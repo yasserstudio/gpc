@@ -1,4 +1,5 @@
 import { appendFile } from "node:fs/promises";
+import type { GpcConfig } from "@gpc-cli/config";
 import type { Command } from "commander";
 import { loadConfig, getCacheDir } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
@@ -9,7 +10,7 @@ import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, promptSelect, promptInput } from "../prompt.js";
 
-function resolvePackageName(packageArg: string | undefined, config: any): string {
+function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
   if (!name) {
     console.error("Error: No package name. Use --app <package> or gpc config set app <package>");

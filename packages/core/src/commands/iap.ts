@@ -3,7 +3,6 @@ import { join } from "node:path";
 import type {
   PlayApiClient,
   InAppProduct,
-  InAppProductsListResponse,
 } from "@gpc-cli/api";
 import { paginateAll } from "@gpc-cli/api";
 
@@ -96,7 +95,7 @@ export async function syncInAppProducts(
 
   let created = 0;
   let updated = 0;
-  let unchanged = 0;
+  const unchanged = 0;
   const skus: string[] = [];
 
   for (const product of localProducts) {

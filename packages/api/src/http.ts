@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { resolve, isAbsolute } from "node:path";
 import { ApiError } from "./errors.js";
-import type { ApiClientOptions, ApiResponse, RetryLogEntry } from "./types.js";
+import type { ApiClientOptions, ApiResponse } from "./types.js";
 
 /** Extract a short, safe error summary from API response body (no tokens/secrets). */
 function sanitizeErrorBody(body: string): string {
@@ -62,7 +62,7 @@ function resolveOption(
 
 function mapStatusToError(
   status: number,
-  body: string,
+  _body: string,
 ): { code: string; suggestion?: string } {
   switch (status) {
     case 401:

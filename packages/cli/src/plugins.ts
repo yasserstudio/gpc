@@ -1,5 +1,4 @@
 import { PluginManager, discoverPlugins } from "@gpc-cli/core";
-import type { GpcPlugin } from "@gpc-cli/plugin-sdk";
 import type { Command } from "commander";
 
 /**

@@ -6,7 +6,6 @@ import type {
   ErrorHandler,
   BeforeRequestHandler,
   AfterResponseHandler,
-  CommandRegistrar,
   CommandEvent,
   CommandResult,
   PluginError,

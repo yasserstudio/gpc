@@ -27,13 +27,14 @@ export async function setConfigValue(
   const keys = key.split(".");
   let target = existing;
   for (let i = 0; i < keys.length - 1; i++) {
-    const k = keys[i]!;
+    const k = keys[i] as string;
     if (typeof target[k] !== "object" || target[k] === null) {
       target[k] = {};
     }
     target = target[k] as Record<string, unknown>;
   }
-  target[keys[keys.length - 1]!] = value;
+  const lastKey = keys[keys.length - 1] as string;
+  target[lastKey] = value;
 
   await mkdir(dirname(configPath), { recursive: true, mode: 0o700 });
   await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
@@ -65,7 +66,7 @@ export async function setProfileConfig(
 export async function deleteProfile(profileName: string): Promise<boolean> {
   const configPath = join(getConfigDir(), "config.json");
 
-  let existing: Record<string, unknown> = {};
+  let existing: Record<string, unknown>;
   try {
     const content = await readFile(configPath, "utf-8");
     existing = JSON.parse(content) as Record<string, unknown>;
@@ -76,7 +77,9 @@ export async function deleteProfile(profileName: string): Promise<boolean> {
   const profiles = existing["profiles"] as Record<string, unknown> | undefined;
   if (!profiles || !(profileName in profiles)) return false;
 
-  delete profiles[profileName];
+  existing["profiles"] = Object.fromEntries(
+    Object.entries(profiles).filter(([key]) => key !== profileName),
+  );
   await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
   return true;
 }
@@ -118,7 +121,7 @@ export async function approvePlugin(pluginName: string): Promise<void> {
 export async function revokePluginApproval(pluginName: string): Promise<boolean> {
   const configPath = join(getConfigDir(), "config.json");
 
-  let existing: Record<string, unknown> = {};
+  let existing: Record<string, unknown>;
   try {
     const content = await readFile(configPath, "utf-8");
     existing = JSON.parse(content) as Record<string, unknown>;

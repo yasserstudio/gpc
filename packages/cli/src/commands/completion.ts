@@ -102,12 +102,12 @@ _gpc() {
     '2: :->subcommand' \\
     '*::arg:->args'
 
-  case "\$state" in
+  case "$state" in
     command)
       _describe -t commands 'gpc commands' commands
       ;;
     subcommand)
-      case "\$words[2]" in
+      case "$words[2]" in
         auth)
           _describe -t auth_commands 'auth commands' auth_commands
           ;;
@@ -122,7 +122,7 @@ _gpc() {
   esac
 }
 
-_gpc "\$@"`;
+_gpc "$@"`;
 }
 
 function generateFishCompletions(): string {

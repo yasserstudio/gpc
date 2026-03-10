@@ -1,3 +1,5 @@
+import type { RateLimiter } from "./rate-limiter.js";
+
 export interface RetryLogEntry {
   attempt: number;
   method: string;
@@ -18,7 +20,7 @@ export interface ApiClientOptions {
   maxDelay?: number;
   rateLimitPerSecond?: number;
   baseUrl?: string;
-  rateLimiter?: import("./rate-limiter.js").RateLimiter;
+  rateLimiter?: RateLimiter;
   onRetry?: (entry: RetryLogEntry) => void;
 }
 

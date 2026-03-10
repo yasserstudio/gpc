@@ -1,4 +1,4 @@
-import type { PlayApiClient, AppDetails, AppEdit } from "@gpc-cli/api";
+import type { PlayApiClient } from "@gpc-cli/api";
 
 export interface AppInfo {
   packageName: string;

@@ -238,7 +238,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           filePath,
           "application/octet-stream",
         );
-        return data.bundle!;
+        if (!data.bundle) {
+          throw new Error("Upload succeeded but no bundle data returned");
+        }
+        return data.bundle;
       },
     },
 
