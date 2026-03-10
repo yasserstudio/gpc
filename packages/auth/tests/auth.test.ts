@@ -57,11 +57,13 @@ const MOCK_SERVICE_ACCOUNT = {
 import { AuthError } from "../src/errors";
 import { loadServiceAccountKey, createServiceAccountAuth } from "../src/service-account";
 import { resolveAuth } from "../src/resolve";
+import { _resetMemoryCache } from "../src/token-cache";
 
 let tempDir: string;
 const tempFiles: string[] = [];
 
 beforeEach(async () => {
+  _resetMemoryCache();
   tempDir = await mkdtemp(join(tmpdir(), "auth-test-"));
 });
 
