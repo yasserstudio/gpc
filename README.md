@@ -382,24 +382,26 @@ GPC is a TypeScript monorepo. Each package is independently publishable — use 
 
 | Package | Description |
 | --- | --- |
-| [`gpc`](./packages/cli) | CLI entry point — the command you run |
-| [`@gpc-cli/core`](./packages/core) | Business logic and command orchestration |
-| [`@gpc-cli/api`](./packages/api) | Typed Google Play Developer API v3 client |
-| [`@gpc-cli/auth`](./packages/auth) | Authentication strategies (service account, OAuth, ADC) |
-| [`@gpc-cli/config`](./packages/config) | Configuration loading and validation |
-| [`@gpc-cli/plugin-sdk`](./packages/plugin-sdk) | Plugin interface for third-party extensions |
+| [`@gpc-cli/cli`](https://www.npmjs.com/package/@gpc-cli/cli) | CLI entry point — the `gpc` command you run |
+| [`@gpc-cli/core`](https://www.npmjs.com/package/@gpc-cli/core) | Business logic and command orchestration |
+| [`@gpc-cli/api`](https://www.npmjs.com/package/@gpc-cli/api) | Typed Google Play Developer API v3 client |
+| [`@gpc-cli/auth`](https://www.npmjs.com/package/@gpc-cli/auth) | Authentication strategies (service account, OAuth, ADC) |
+| [`@gpc-cli/config`](https://www.npmjs.com/package/@gpc-cli/config) | Configuration loading and validation |
+| [`@gpc-cli/plugin-sdk`](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface for third-party extensions |
+| [`@gpc-cli/plugin-ci`](https://www.npmjs.com/package/@gpc-cli/plugin-ci) | CI/CD helpers and GitHub Actions step summaries |
 
 Build custom dashboards, Slack bots, or internal tools on top of the same API client GPC uses:
 
 ```typescript
-import { createClient } from "@gpc-cli/api";
-import { serviceAccount } from "@gpc-cli/auth";
+import { createApiClient } from "@gpc-cli/api";
+import { resolveAuth } from "@gpc-cli/auth";
 
-const client = createClient({
-  auth: serviceAccount("./key.json"),
+const auth = await resolveAuth({
+  serviceAccount: "./service-account.json",
 });
+const client = createApiClient({ auth });
 
-const releases = await client.tracks.get("com.example.app", "production");
+const releases = await client.tracks.list("com.example.app");
 const vitals = await client.vitals.overview("com.example.app");
 ```
 
