@@ -1,5 +1,11 @@
 # @gpc-cli/auth
 
+## 0.1.3
+
+### Patch Changes
+
+- 71d71ef: Add in-memory token cache with mutex to prevent concurrent refresh races. Move token fetch outside the HTTP retry loop so transient failures no longer trigger redundant token generations.
+
 ## 0.1.2
 
 ### Patch Changes
