@@ -116,7 +116,7 @@ describe("findConfigFile", () => {
     const configPath = join(tmpDir, ".gpcrc.json");
     await writeFile(configPath, JSON.stringify({ app: "test" }));
 
-    const found = findConfigFile(tmpDir);
+    const found = await findConfigFile(tmpDir);
     expect(found).toBe(configPath);
   });
 
@@ -127,12 +127,12 @@ describe("findConfigFile", () => {
     const childDir = join(tmpDir, "a", "b", "c");
     await mkdir(childDir, { recursive: true });
 
-    const found = findConfigFile(childDir);
+    const found = await findConfigFile(childDir);
     expect(found).toBe(configPath);
   });
 
-  it("returns undefined when no config file exists", () => {
-    const found = findConfigFile(tmpDir);
+  it("returns undefined when no config file exists", async () => {
+    const found = await findConfigFile(tmpDir);
     expect(found).toBeUndefined();
   });
 });
