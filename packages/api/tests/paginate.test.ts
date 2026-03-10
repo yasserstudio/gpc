@@ -146,12 +146,11 @@ describe("paginateAll", () => {
 
 describe("paginateParallel", () => {
   it("fetches multiple pages in parallel", async () => {
-    const fetchPage = vi.fn()
-      .mockImplementation(async (token: string) => {
-        if (token === "page2") return { items: [3, 4], nextPageToken: "page3" };
-        if (token === "page3") return { items: [5, 6], nextPageToken: undefined };
-        return { items: [], nextPageToken: undefined };
-      });
+    const fetchPage = vi.fn().mockImplementation(async (token: string) => {
+      if (token === "page2") return { items: [3, 4], nextPageToken: "page3" };
+      if (token === "page3") return { items: [5, 6], nextPageToken: undefined };
+      return { items: [], nextPageToken: undefined };
+    });
 
     const result = await paginateParallel(fetchPage, ["page2", "page3"]);
 
@@ -178,7 +177,8 @@ describe("paginateParallel", () => {
   });
 
   it("returns last nextPageToken", async () => {
-    const fetchPage = vi.fn()
+    const fetchPage = vi
+      .fn()
       .mockResolvedValueOnce({ items: [1], nextPageToken: undefined })
       .mockResolvedValueOnce({ items: [2], nextPageToken: "page4" });
 
