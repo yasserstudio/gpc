@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { JWT } from "google-auth-library";
 import { AuthError } from "./errors.js";
-import { getCachedToken, setCachedToken } from "./token-cache.js";
+import { acquireToken } from "./token-cache.js";
 import type { AuthClient, ServiceAccountKey } from "./types.js";
 
 const ANDROID_PUBLISHER_SCOPE = "https://www.googleapis.com/auth/androidpublisher";
@@ -96,27 +96,16 @@ export function createServiceAccountAuth(key: ServiceAccountKey, cachePath?: str
 
   return {
     async getAccessToken(): Promise<string> {
-      // Check cache first
-      if (cachePath) {
-        const cached = await getCachedToken(cachePath, key.client_email);
-        if (cached) return cached;
-      }
-
       try {
-        const { token } = await jwtClient.getAccessToken();
-        if (!token) {
-          throw new Error("Token response was empty.");
-        }
-
-        // Cache the token
-        if (cachePath) {
-          await setCachedToken(cachePath, key.client_email, token, TOKEN_EXPIRY_SECONDS).catch(
-            () => {},
-          );
-        }
-
-        return token;
+        return await acquireToken(key.client_email, cachePath, async () => {
+          const { token } = await jwtClient.getAccessToken();
+          if (!token) {
+            throw new Error("Token response was empty.");
+          }
+          return { token, expiresInSeconds: TOKEN_EXPIRY_SECONDS };
+        });
       } catch (err) {
+        if (err instanceof AuthError) throw err;
         const rawMsg = err instanceof Error ? err.message : String(err);
         const safeMsg = rawMsg.length > 150 ? rawMsg.slice(0, 150) + "..." : rawMsg;
         throw new AuthError(

@@ -129,6 +129,8 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
       url += `?${search.toString()}`;
     }
 
+    // Fetch token once before retries — the auth layer handles its own caching and mutex
+    let token = await options.auth.getAccessToken();
     let lastError: Error | undefined;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -141,8 +143,6 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
       const timer = setTimeout(() => controller.abort(), timeout);
 
       try {
-        const token = await options.auth.getAccessToken();
-
         const headers: Record<string, string> = {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -188,6 +188,13 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
             delayMs: Math.round(delay),
             timestamp: new Date().toISOString(),
           });
+          continue;
+        }
+
+        // On 401, refresh token once before giving up
+        if (response.status === 401 && attempt < maxRetries) {
+          token = await options.auth.getAccessToken();
+          lastError = err;
           continue;
         }
 
@@ -256,6 +263,8 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     const safeFilePath = validateFilePath(filePath);
     const fileBuffer = await readFile(safeFilePath);
 
+    // Fetch token once before retries
+    let token = await options.auth.getAccessToken();
     let lastError: Error | undefined;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -268,8 +277,6 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
       const timer = setTimeout(() => controller.abort(), timeout);
 
       try {
-        const token = await options.auth.getAccessToken();
-
         const headers: Record<string, string> = {
           Authorization: `Bearer ${token}`,
           "Content-Type": contentType,
@@ -310,6 +317,13 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
             delayMs: Math.round(delay),
             timestamp: new Date().toISOString(),
           });
+          continue;
+        }
+
+        // On 401, refresh token once before giving up
+        if (response.status === 401 && attempt < maxRetries) {
+          token = await options.auth.getAccessToken();
+          lastError = err;
           continue;
         }
 
