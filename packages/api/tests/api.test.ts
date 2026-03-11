@@ -1151,6 +1151,205 @@ describe("monetization API endpoints", () => {
       expect(init.method).toBe("PUT");
     });
   });
+
+  // --- Device Tiers ---
+
+  describe("deviceTiers", () => {
+    it("deviceTiers.list calls GET /{pkg}/deviceTierConfigs", async () => {
+      const configs = {
+        deviceTierConfigs: [
+          { deviceTierConfigId: "tier-1", deviceGroups: [{ name: "high", deviceSelectors: [] }] },
+        ],
+      };
+      mockFetch.mockResolvedValueOnce(mockResponse(configs));
+      const client = makeClient();
+      const result = await client.deviceTiers.list(PKG);
+      expect(result).toEqual(configs.deviceTierConfigs);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/deviceTierConfigs`);
+      expect(init.method).toBe("GET");
+    });
+
+    it("deviceTiers.list returns empty array when no configs", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      const result = await client.deviceTiers.list(PKG);
+      expect(result).toEqual([]);
+    });
+
+    it("deviceTiers.get calls GET /{pkg}/deviceTierConfigs/{configId}", async () => {
+      const config = {
+        deviceTierConfigId: "tier-1",
+        deviceGroups: [{ name: "high", deviceSelectors: [] }],
+      };
+      mockFetch.mockResolvedValueOnce(mockResponse(config));
+      const client = makeClient();
+      const result = await client.deviceTiers.get(PKG, "tier-1");
+      expect(result).toEqual(config);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/deviceTierConfigs/tier-1`);
+      expect(init.method).toBe("GET");
+    });
+
+    it("deviceTiers.create calls POST /{pkg}/deviceTierConfigs", async () => {
+      const config = {
+        deviceTierConfigId: "tier-new",
+        deviceGroups: [{ name: "mid", deviceSelectors: [{ deviceRam: { minBytes: "4000000000" } }] }],
+      };
+      mockFetch.mockResolvedValueOnce(mockResponse(config));
+      const client = makeClient();
+      const result = await client.deviceTiers.create(PKG, config);
+      expect(result).toEqual(config);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/deviceTierConfigs`);
+      expect(init.method).toBe("POST");
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.7: appRecovery, dataSafety, externalTransactions
+// ---------------------------------------------------------------------------
+
+describe("appRecovery API endpoints", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("appRecovery.list calls POST /{pkg}/appRecoveries", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ recoveryActions: [{ id: "r1" }] }));
+    const client = makeClient();
+    const result = await client.appRecovery.list(PKG);
+    expect(result).toEqual([{ id: "r1" }]);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/appRecoveries`);
+    expect(init.method).toBe("POST");
+  });
+
+  it("appRecovery.cancel calls POST /{pkg}/appRecovery/{id}:cancel", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+    const client = makeClient();
+    await client.appRecovery.cancel(PKG, "r1");
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/appRecovery/r1:cancel`);
+    expect(init.method).toBe("POST");
+  });
+
+  it("appRecovery.deploy calls POST /{pkg}/appRecovery/{id}:deploy", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+    const client = makeClient();
+    await client.appRecovery.deploy(PKG, "r1");
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/appRecovery/r1:deploy`);
+    expect(init.method).toBe("POST");
+  });
+});
+
+describe("dataSafety API endpoints", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+  const EDIT_ID = "edit-123";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("dataSafety.get calls GET /{pkg}/edits/{editId}/dataSafety", async () => {
+    const safety = { dataTypes: [], purposes: [] };
+    mockFetch.mockResolvedValueOnce(mockResponse(safety));
+    const client = makeClient();
+    const result = await client.dataSafety.get(PKG, EDIT_ID);
+    expect(result).toEqual(safety);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/dataSafety`);
+    expect(init.method).toBe("GET");
+  });
+
+  it("dataSafety.update calls PUT /{pkg}/edits/{editId}/dataSafety", async () => {
+    const safety = { dataTypes: ["location"], purposes: ["app_functionality"] };
+    mockFetch.mockResolvedValueOnce(mockResponse(safety));
+    const client = makeClient();
+    const result = await client.dataSafety.update(PKG, EDIT_ID, safety as any);
+    expect(result).toEqual(safety);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/dataSafety`);
+    expect(init.method).toBe("PUT");
+  });
+});
+
+describe("externalTransactions API endpoints", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("externalTransactions.create calls POST /{pkg}/externalTransactions", async () => {
+    const txn = { externalTransactionId: "txn1", originalPreTaxAmount: {} };
+    mockFetch.mockResolvedValueOnce(mockResponse(txn));
+    const client = makeClient();
+    const result = await client.externalTransactions.create(PKG, txn as any);
+    expect(result).toEqual(txn);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/externalTransactions`);
+    expect(init.method).toBe("POST");
+  });
+
+  it("externalTransactions.get calls GET /{pkg}/externalTransactions/{id}", async () => {
+    const txn = { externalTransactionId: "txn1", transactionState: "COMPLETED" };
+    mockFetch.mockResolvedValueOnce(mockResponse(txn));
+    const client = makeClient();
+    const result = await client.externalTransactions.get(PKG, "txn1");
+    expect(result).toEqual(txn);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/externalTransactions/txn1`);
+    expect(init.method).toBe("GET");
+  });
+
+  it("externalTransactions.refund calls POST /{pkg}/externalTransactions/{id}:refund", async () => {
+    const refundResult = { externalTransactionId: "txn1", transactionState: "REFUNDED" };
+    mockFetch.mockResolvedValueOnce(mockResponse(refundResult));
+    const client = makeClient();
+    const result = await client.externalTransactions.refund(PKG, "txn1", { partialRefund: {} } as any);
+    expect(result).toEqual(refundResult);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/externalTransactions/txn1:refund`);
+    expect(init.method).toBe("POST");
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -1532,6 +1731,34 @@ describe("client coverage gaps", () => {
     expect(url).toContain("maxResults=50");
     expect(url).toContain("token=page2");
   });
+
+  // 13. appRecovery.create
+  it("appRecovery.create calls POST /{packageName}/appRecoveries with body", async () => {
+    const created = { appRecoveryId: "rec-new", status: "DRAFT" };
+    mockFetch.mockResolvedValueOnce(mockResponse(created));
+    const client = makeClient();
+    const request = { remoteInAppUpdateData: {}, appRecoveryAction: { status: "DRAFT" } };
+    const result = await client.appRecovery.create(PKG, request);
+    expect(result).toEqual(created);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/appRecoveries`);
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body)).toEqual(request);
+  });
+
+  // 14. appRecovery.addTargeting
+  it("appRecovery.addTargeting calls POST /{packageName}/appRecoveries/{id}:addTargeting", async () => {
+    const updated = { appRecoveryId: "rec1", targeting: { versionList: { versionCodes: ["100"] } } };
+    mockFetch.mockResolvedValueOnce(mockResponse(updated));
+    const client = makeClient();
+    const targeting = { versionList: { versionCodes: ["100"] } };
+    const result = await client.appRecovery.addTargeting(PKG, "rec1", targeting);
+    expect(result).toEqual(updated);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/appRecoveries/rec1:addTargeting`);
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body)).toEqual(targeting);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -1760,5 +1987,223 @@ describe("HTTP error response edge cases", () => {
       expect((err as ApiError).code).toBe("API_FORBIDDEN");
       expect((err as ApiError).statusCode).toBe(403);
     }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// One-Time Products (OTP)
+// ---------------------------------------------------------------------------
+describe("oneTimeProducts", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("list calls GET /{pkg}/oneTimeProducts", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProducts: [] }));
+    const client = makeClient();
+    const result = await client.oneTimeProducts.list(PKG);
+    expect(result).toEqual({ oneTimeProducts: [] });
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts`);
+    expect(init.method).toBe("GET");
+  });
+
+  it("get calls GET /{pkg}/oneTimeProducts/{id}", async () => {
+    const product = { productId: "otp1", packageName: PKG };
+    mockFetch.mockResolvedValueOnce(mockResponse(product));
+    const client = makeClient();
+    const result = await client.oneTimeProducts.get(PKG, "otp1");
+    expect(result).toEqual(product);
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1`);
+  });
+
+  it("create calls POST /{pkg}/oneTimeProducts", async () => {
+    const product = { productId: "otp1", packageName: PKG };
+    mockFetch.mockResolvedValueOnce(mockResponse(product));
+    const client = makeClient();
+    const result = await client.oneTimeProducts.create(PKG, product as any);
+    expect(result).toEqual(product);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts`);
+    expect(init.method).toBe("POST");
+  });
+
+  it("update calls PATCH /{pkg}/oneTimeProducts/{id}", async () => {
+    const product = { productId: "otp1", packageName: PKG };
+    mockFetch.mockResolvedValueOnce(mockResponse(product));
+    const client = makeClient();
+    await client.oneTimeProducts.update(PKG, "otp1", product as any);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1`);
+    expect(init.method).toBe("PATCH");
+  });
+
+  it("delete calls DELETE /{pkg}/oneTimeProducts/{id}", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+    const client = makeClient();
+    await client.oneTimeProducts.delete(PKG, "otp1");
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1`);
+    expect(init.method).toBe("DELETE");
+  });
+
+  it("listOffers calls GET /{pkg}/oneTimeProducts/{id}/offers", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeOffers: [] }));
+    const client = makeClient();
+    const result = await client.oneTimeProducts.listOffers(PKG, "otp1");
+    expect(result).toEqual({ oneTimeOffers: [] });
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/offers`);
+  });
+
+  it("createOffer calls POST /{pkg}/oneTimeProducts/{id}/offers", async () => {
+    const offer = { productId: "otp1", offerId: "offer1" };
+    mockFetch.mockResolvedValueOnce(mockResponse(offer));
+    const client = makeClient();
+    await client.oneTimeProducts.createOffer(PKG, "otp1", offer as any);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/offers`);
+    expect(init.method).toBe("POST");
+  });
+
+  it("deleteOffer calls DELETE /{pkg}/oneTimeProducts/{id}/offers/{offerId}", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+    const client = makeClient();
+    await client.oneTimeProducts.deleteOffer(PKG, "otp1", "offer1");
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/offers/offer1`);
+    expect(init.method).toBe("DELETE");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Internal App Sharing
+// ---------------------------------------------------------------------------
+const INTERNAL_UPLOAD_BASE =
+  "https://androidpublisher.googleapis.com/upload/internalappsharing/v3/applications";
+
+describe("internalAppSharing", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("uploadBundle calls POST to internal sharing bundle endpoint", async () => {
+    const artifact = {
+      certificateFingerprint: "AA:BB:CC",
+      downloadUrl: "https://play.google.com/apps/test/com.example.app/1",
+      sha256: "abc123",
+    };
+    mockFetch.mockResolvedValueOnce(mockResponse(artifact));
+    const client = makeClient();
+    const result = await client.internalAppSharing.uploadBundle(PKG, "/path/to/app.aab");
+    expect(result).toEqual(artifact);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${INTERNAL_UPLOAD_BASE}/${PKG}/artifacts/bundle`);
+    expect(init.method).toBe("POST");
+  });
+
+  it("uploadApk calls POST to internal sharing APK endpoint", async () => {
+    const artifact = {
+      certificateFingerprint: "DD:EE:FF",
+      downloadUrl: "https://play.google.com/apps/test/com.example.app/2",
+      sha256: "def456",
+    };
+    mockFetch.mockResolvedValueOnce(mockResponse(artifact));
+    const client = makeClient();
+    const result = await client.internalAppSharing.uploadApk(PKG, "/path/to/app.apk");
+    expect(result).toEqual(artifact);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${INTERNAL_UPLOAD_BASE}/${PKG}/artifacts/apk`);
+    expect(init.method).toBe("POST");
+  });
+
+  it("uploadBundle sends application/octet-stream content type", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ certificateFingerprint: "", downloadUrl: "", sha256: "" }));
+    const client = makeClient();
+    await client.internalAppSharing.uploadBundle(PKG, "/path/to/app.aab");
+    const [, init] = mockFetch.mock.calls[0];
+    expect(init.headers["Content-Type"]).toBe("application/octet-stream");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Generated APKs
+// ---------------------------------------------------------------------------
+describe("generatedApks", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("list calls GET /{pkg}/generatedApks/{versionCode}", async () => {
+    const apks = [
+      { generatedApkId: "apk-1", variantId: 1, moduleName: "base", certificateSha256Fingerprint: "AA" },
+    ];
+    mockFetch.mockResolvedValueOnce(mockResponse({ generatedApks: apks }));
+    const client = makeClient();
+    const result = await client.generatedApks.list(PKG, 42);
+    expect(result).toEqual(apks);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/generatedApks/42`);
+    expect(init.method).toBe("GET");
+  });
+
+  it("list returns empty array when generatedApks is absent", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+    const client = makeClient();
+    const result = await client.generatedApks.list(PKG, 100);
+    expect(result).toEqual([]);
+  });
+
+  it("download calls GET /{pkg}/generatedApks/{versionCode}/download/{id}", async () => {
+    const buffer = new ArrayBuffer(512);
+    mockFetch.mockResolvedValueOnce(
+      new Response(buffer, { status: 200, headers: { "Content-Type": "application/octet-stream" } }),
+    );
+    const client = makeClient();
+    const result = await client.generatedApks.download(PKG, 42, "apk-1");
+    expect(result).toBeInstanceOf(ArrayBuffer);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/generatedApks/42/download/apk-1`);
+    expect(init.method).toBe("GET");
   });
 });

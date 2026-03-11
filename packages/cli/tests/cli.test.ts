@@ -128,6 +128,8 @@ vi.mock("@gpc-cli/core", () => {
     listRecoveryActions: vi.fn().mockResolvedValue([]),
     cancelRecoveryAction: vi.fn().mockResolvedValue({}),
     deployRecoveryAction: vi.fn().mockResolvedValue({}),
+    createRecoveryAction: vi.fn().mockResolvedValue({}),
+    addRecoveryTargeting: vi.fn().mockResolvedValue({}),
     // v0.9.7 – data safety
     getDataSafety: vi.fn().mockResolvedValue({}),
     updateDataSafety: vi.fn().mockResolvedValue({}),
@@ -139,6 +141,10 @@ vi.mock("@gpc-cli/core", () => {
     refundExternalTransaction: vi.fn().mockResolvedValue({}),
     // v0.9.7 – git-based release notes
     generateNotesFromGit: vi.fn().mockResolvedValue({ language: "en-US", text: "notes", commitCount: 1, since: "v1.0.0" }),
+    // device tiers
+    listDeviceTiers: vi.fn().mockResolvedValue([]),
+    getDeviceTier: vi.fn().mockResolvedValue({}),
+    createDeviceTier: vi.fn().mockResolvedValue({}),
     // v0.9.7 – webhooks
     sendWebhook: vi.fn().mockResolvedValue(undefined),
     formatSlackPayload: vi.fn().mockReturnValue({}),
@@ -148,6 +154,21 @@ vi.mock("@gpc-cli/core", () => {
     writeAuditLog: vi.fn().mockResolvedValue(undefined),
     createAuditEntry: vi.fn().mockReturnValue({}),
     initAudit: vi.fn().mockResolvedValue(undefined),
+    // one-time products (OTP)
+    listOneTimeProducts: vi.fn().mockResolvedValue({ oneTimeProducts: [] }),
+    getOneTimeProduct: vi.fn().mockResolvedValue({}),
+    createOneTimeProduct: vi.fn().mockResolvedValue({}),
+    updateOneTimeProduct: vi.fn().mockResolvedValue({}),
+    deleteOneTimeProduct: vi.fn().mockResolvedValue(undefined),
+    listOneTimeOffers: vi.fn().mockResolvedValue({ oneTimeOffers: [] }),
+    getOneTimeOffer: vi.fn().mockResolvedValue({}),
+    createOneTimeOffer: vi.fn().mockResolvedValue({}),
+    updateOneTimeOffer: vi.fn().mockResolvedValue({}),
+    deleteOneTimeOffer: vi.fn().mockResolvedValue(undefined),
+    // internal sharing & generated APKs
+    uploadInternalSharing: vi.fn().mockResolvedValue({ downloadUrl: "", sha256: "", certificateFingerprint: "", fileType: "bundle" }),
+    listGeneratedApks: vi.fn().mockResolvedValue([]),
+    downloadGeneratedApk: vi.fn().mockResolvedValue({ path: "/tmp/out.apk", sizeBytes: 1024 }),
   };
 });
 
@@ -207,6 +228,9 @@ describe("createProgram", () => {
     expect(commandNames).toContain("iap");
     expect(commandNames).toContain("purchases");
     expect(commandNames).toContain("pricing");
+    expect(commandNames).toContain("recovery");
+    expect(commandNames).toContain("data-safety");
+    expect(commandNames).toContain("external-transactions");
   });
 
   it("has all expected global options", () => {
@@ -935,5 +959,77 @@ describe("plugins subcommands structure", () => {
     expect(subcommandNames).toContain("init");
     expect(subcommandNames).toContain("approve");
     expect(subcommandNames).toContain("revoke");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.7 – recovery subcommands
+// ---------------------------------------------------------------------------
+describe("recovery subcommands", () => {
+  let program: Command;
+
+  beforeEach(async () => {
+    program = await createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("recovery command has list, cancel, deploy subcommands", () => {
+    const recoveryCmd = program.commands.find((cmd) => cmd.name() === "recovery");
+    expect(recoveryCmd).toBeDefined();
+    const subcommandNames = recoveryCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("list");
+    expect(subcommandNames).toContain("cancel");
+    expect(subcommandNames).toContain("deploy");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.7 – data-safety subcommands
+// ---------------------------------------------------------------------------
+describe("data-safety subcommands", () => {
+  let program: Command;
+
+  beforeEach(async () => {
+    program = await createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("data-safety command has get, update, export subcommands", () => {
+    const dataSafetyCmd = program.commands.find((cmd) => cmd.name() === "data-safety");
+    expect(dataSafetyCmd).toBeDefined();
+    const subcommandNames = dataSafetyCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("get");
+    expect(subcommandNames).toContain("update");
+    expect(subcommandNames).toContain("export");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.7 – external-transactions subcommands
+// ---------------------------------------------------------------------------
+describe("external-transactions subcommands", () => {
+  let program: Command;
+
+  beforeEach(async () => {
+    program = await createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("external-transactions command has create, get, refund subcommands", () => {
+    const extTxnCmd = program.commands.find((cmd) => cmd.name() === "external-transactions");
+    expect(extTxnCmd).toBeDefined();
+    const subcommandNames = extTxnCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("create");
+    expect(subcommandNames).toContain("get");
+    expect(subcommandNames).toContain("refund");
   });
 });

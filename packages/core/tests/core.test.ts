@@ -2183,6 +2183,8 @@ import {
   listRecoveryActions,
   cancelRecoveryAction,
   deployRecoveryAction,
+  createRecoveryAction,
+  addRecoveryTargeting,
 } from "../src/commands/app-recovery.js";
 
 describe("app recovery commands", () => {
@@ -2195,6 +2197,16 @@ describe("app recovery commands", () => {
         ]),
         cancel: vi.fn().mockResolvedValue(undefined),
         deploy: vi.fn().mockResolvedValue(undefined),
+        create: vi.fn().mockResolvedValue({
+          appRecoveryId: "rec3",
+          status: "DRAFT",
+          createTime: "2026-03-01T00:00:00Z",
+        }),
+        addTargeting: vi.fn().mockResolvedValue({
+          appRecoveryId: "rec1",
+          status: "DRAFT",
+          targeting: { versionList: { versionCodes: ["100", "101"] } },
+        }),
       },
     };
   }
@@ -2218,6 +2230,39 @@ describe("app recovery commands", () => {
     const client = mockClient();
     await deployRecoveryAction(client, "com.example", "rec2");
     expect(client.appRecovery.deploy).toHaveBeenCalledWith("com.example", "rec2");
+  });
+
+  it("createRecoveryAction calls client.appRecovery.create", async () => {
+    const client = mockClient();
+    const request = {
+      remoteInAppUpdateData: {},
+      appRecoveryAction: { targeting: { versionList: { versionCodes: ["100"] } }, status: "DRAFT" },
+    };
+    const result = await createRecoveryAction(client, "com.example", request);
+    expect(client.appRecovery.create).toHaveBeenCalledWith("com.example", request);
+    expect(result.appRecoveryId).toBe("rec3");
+    expect(result.status).toBe("DRAFT");
+  });
+
+  it("createRecoveryAction returns the created action with createTime", async () => {
+    const client = mockClient();
+    const result = await createRecoveryAction(client, "com.example", {});
+    expect(result.createTime).toBe("2026-03-01T00:00:00Z");
+  });
+
+  it("addRecoveryTargeting calls client.appRecovery.addTargeting", async () => {
+    const client = mockClient();
+    const targeting = { versionList: { versionCodes: ["100", "101"] } };
+    const result = await addRecoveryTargeting(client, "com.example", "rec1", targeting);
+    expect(client.appRecovery.addTargeting).toHaveBeenCalledWith("com.example", "rec1", targeting);
+    expect(result.appRecoveryId).toBe("rec1");
+  });
+
+  it("addRecoveryTargeting returns updated targeting in the result", async () => {
+    const client = mockClient();
+    const targeting = { regions: { regionCodes: ["US", "CA"] } };
+    const result = await addRecoveryTargeting(client, "com.example", "rec1", targeting);
+    expect(result.targeting?.versionList?.versionCodes).toEqual(["100", "101"]);
   });
 });
 
@@ -4027,5 +4072,368 @@ describe("external transactions commands", () => {
       refundData,
     );
     expect(result.transactionState).toBe("TRANSACTION_STATE_REFUNDED");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Device Tiers
+// ---------------------------------------------------------------------------
+
+import {
+  listDeviceTiers,
+  getDeviceTier,
+  createDeviceTier,
+} from "../src/commands/device-tiers.js";
+
+describe("device tiers commands", () => {
+  function mockClient(): any {
+    return {
+      deviceTiers: {
+        list: vi.fn().mockResolvedValue([
+          {
+            deviceTierConfigId: "tier-1",
+            deviceGroups: [{ name: "high-end", deviceSelectors: [{ deviceRam: { minBytes: "6000000000" } }] }],
+          },
+          {
+            deviceTierConfigId: "tier-2",
+            deviceGroups: [{ name: "low-end", deviceSelectors: [{ deviceRam: { maxBytes: "3000000000" } }] }],
+          },
+        ]),
+        get: vi.fn().mockResolvedValue({
+          deviceTierConfigId: "tier-1",
+          deviceGroups: [{ name: "high-end", deviceSelectors: [{ deviceRam: { minBytes: "6000000000" } }] }],
+        }),
+        create: vi.fn().mockResolvedValue({
+          deviceTierConfigId: "tier-new",
+          deviceGroups: [{ name: "mid-range", deviceSelectors: [{ deviceRam: { minBytes: "4000000000", maxBytes: "6000000000" } }] }],
+        }),
+      },
+    };
+  }
+
+  it("listDeviceTiers calls client.deviceTiers.list", async () => {
+    const client = mockClient();
+    const result = await listDeviceTiers(client, "com.example");
+    expect(client.deviceTiers.list).toHaveBeenCalledWith("com.example");
+    expect(result).toHaveLength(2);
+    expect(result[0].deviceTierConfigId).toBe("tier-1");
+    expect(result[1].deviceTierConfigId).toBe("tier-2");
+  });
+
+  it("getDeviceTier calls client.deviceTiers.get", async () => {
+    const client = mockClient();
+    const result = await getDeviceTier(client, "com.example", "tier-1");
+    expect(client.deviceTiers.get).toHaveBeenCalledWith("com.example", "tier-1");
+    expect(result.deviceTierConfigId).toBe("tier-1");
+    expect(result.deviceGroups[0].name).toBe("high-end");
+  });
+
+  it("createDeviceTier calls client.deviceTiers.create", async () => {
+    const client = mockClient();
+    const config = {
+      deviceTierConfigId: "",
+      deviceGroups: [{ name: "mid-range", deviceSelectors: [{ deviceRam: { minBytes: "4000000000", maxBytes: "6000000000" } }] }],
+    };
+    const result = await createDeviceTier(client, "com.example", config);
+    expect(client.deviceTiers.create).toHaveBeenCalledWith("com.example", config);
+    expect(result.deviceTierConfigId).toBe("tier-new");
+  });
+
+  it("listDeviceTiers throws when packageName is empty", async () => {
+    const client = mockClient();
+    await expect(listDeviceTiers(client, "")).rejects.toThrow("Package name is required");
+  });
+
+  it("getDeviceTier throws when configId is empty", async () => {
+    const client = mockClient();
+    await expect(getDeviceTier(client, "com.example", "")).rejects.toThrow("Config ID is required");
+  });
+
+  it("createDeviceTier throws when config has no device groups", async () => {
+    const client = mockClient();
+    const config = { deviceTierConfigId: "", deviceGroups: [] };
+    await expect(createDeviceTier(client, "com.example", config)).rejects.toThrow(
+      "Device tier config must include at least one device group",
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Internal App Sharing
+// ---------------------------------------------------------------------------
+
+import { uploadInternalSharing } from "../src/commands/internal-sharing.js";
+
+describe("internal sharing commands", () => {
+  function mockClient(): any {
+    return {
+      internalAppSharing: {
+        uploadBundle: vi.fn().mockResolvedValue({
+          certificateFingerprint: "AA:BB:CC",
+          downloadUrl: "https://play.google.com/apps/test/com.example/1",
+          sha256: "abc123",
+        }),
+        uploadApk: vi.fn().mockResolvedValue({
+          certificateFingerprint: "DD:EE:FF",
+          downloadUrl: "https://play.google.com/apps/test/com.example/2",
+          sha256: "def456",
+        }),
+      },
+    };
+  }
+
+  it("uploads a bundle for internal sharing", async () => {
+    const client = mockClient();
+    const result = await uploadInternalSharing(client, "com.example", "/path/to/app.aab", "bundle");
+    expect(client.internalAppSharing.uploadBundle).toHaveBeenCalledWith("com.example", "/path/to/app.aab");
+    expect(result.downloadUrl).toBe("https://play.google.com/apps/test/com.example/1");
+    expect(result.fileType).toBe("bundle");
+  });
+
+  it("uploads an APK for internal sharing", async () => {
+    const client = mockClient();
+    const result = await uploadInternalSharing(client, "com.example", "/path/to/app.apk", "apk");
+    expect(client.internalAppSharing.uploadApk).toHaveBeenCalledWith("com.example", "/path/to/app.apk");
+    expect(result.downloadUrl).toBe("https://play.google.com/apps/test/com.example/2");
+    expect(result.fileType).toBe("apk");
+  });
+
+  it("auto-detects bundle type from .aab extension", async () => {
+    const client = mockClient();
+    const result = await uploadInternalSharing(client, "com.example", "/path/to/app.aab");
+    expect(client.internalAppSharing.uploadBundle).toHaveBeenCalled();
+    expect(result.fileType).toBe("bundle");
+  });
+
+  it("auto-detects apk type from .apk extension", async () => {
+    const client = mockClient();
+    const result = await uploadInternalSharing(client, "com.example", "/path/to/app.apk");
+    expect(client.internalAppSharing.uploadApk).toHaveBeenCalled();
+    expect(result.fileType).toBe("apk");
+  });
+
+  it("throws on unknown file extension without explicit type", async () => {
+    const client = mockClient();
+    await expect(
+      uploadInternalSharing(client, "com.example", "/path/to/file.zip"),
+    ).rejects.toThrow("Cannot detect file type");
+  });
+
+  it("returns certificate fingerprint and sha256", async () => {
+    const client = mockClient();
+    const result = await uploadInternalSharing(client, "com.example", "/path/to/app.aab", "bundle");
+    expect(result.certificateFingerprint).toBe("AA:BB:CC");
+    expect(result.sha256).toBe("abc123");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Generated APKs
+// ---------------------------------------------------------------------------
+
+import { listGeneratedApks, downloadGeneratedApk } from "../src/commands/generated-apks.js";
+
+describe("generated APKs commands", () => {
+  function mockClient(): any {
+    return {
+      generatedApks: {
+        list: vi.fn().mockResolvedValue([
+          {
+            generatedApkId: "apk-1",
+            variantId: 1,
+            moduleName: "base",
+            certificateSha256Fingerprint: "AA:BB",
+          },
+          {
+            generatedApkId: "apk-2",
+            variantId: 2,
+            moduleName: "feature",
+            certificateSha256Fingerprint: "CC:DD",
+          },
+        ]),
+        download: vi.fn().mockResolvedValue(new ArrayBuffer(1024)),
+      },
+    };
+  }
+
+  it("lists generated APKs for a version code", async () => {
+    const client = mockClient();
+    const result = await listGeneratedApks(client, "com.example", 42);
+    expect(client.generatedApks.list).toHaveBeenCalledWith("com.example", 42);
+    expect(result).toHaveLength(2);
+    expect(result[0].generatedApkId).toBe("apk-1");
+  });
+
+  it("throws on invalid version code for list", async () => {
+    const client = mockClient();
+    await expect(listGeneratedApks(client, "com.example", -1)).rejects.toThrow("Invalid version code");
+  });
+
+  it("downloads a generated APK to a file", async () => {
+    const client = mockClient();
+    const dir = await mkdtemp(join(tmpdir(), "gpc-gen-apk-"));
+    const outPath = join(dir, "out.apk");
+    try {
+      const result = await downloadGeneratedApk(client, "com.example", 42, "apk-1", outPath);
+      expect(client.generatedApks.download).toHaveBeenCalledWith("com.example", 42, "apk-1");
+      expect(result.path).toBe(outPath);
+      expect(result.sizeBytes).toBe(1024);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("throws on invalid version code for download", async () => {
+    const client = mockClient();
+    await expect(
+      downloadGeneratedApk(client, "com.example", 0, "apk-1", "/tmp/out.apk"),
+    ).rejects.toThrow("Invalid version code");
+  });
+
+  it("throws on empty APK ID for download", async () => {
+    const client = mockClient();
+    await expect(
+      downloadGeneratedApk(client, "com.example", 42, "", "/tmp/out.apk"),
+    ).rejects.toThrow("APK ID is required");
+  });
+
+  it("throws on non-integer version code", async () => {
+    const client = mockClient();
+    await expect(listGeneratedApks(client, "com.example", 1.5)).rejects.toThrow("Invalid version code");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// One-Time Products (OTP)
+// ---------------------------------------------------------------------------
+
+import {
+  listOneTimeProducts,
+  getOneTimeProduct,
+  createOneTimeProduct,
+  updateOneTimeProduct,
+  deleteOneTimeProduct,
+  listOneTimeOffers,
+  getOneTimeOffer,
+  createOneTimeOffer,
+  updateOneTimeOffer,
+  deleteOneTimeOffer,
+} from "../src/commands/one-time-products.js";
+
+describe("one-time products commands", () => {
+  function mockClient(): any {
+    return {
+      oneTimeProducts: {
+        list: vi.fn().mockResolvedValue({ oneTimeProducts: [{ productId: "otp1" }] }),
+        get: vi.fn().mockResolvedValue({ productId: "otp1" }),
+        create: vi.fn().mockResolvedValue({ productId: "otp1" }),
+        update: vi.fn().mockResolvedValue({ productId: "otp1" }),
+        delete: vi.fn().mockResolvedValue(undefined),
+        listOffers: vi.fn().mockResolvedValue({ oneTimeOffers: [{ offerId: "offer1" }] }),
+        getOffer: vi.fn().mockResolvedValue({ offerId: "offer1" }),
+        createOffer: vi.fn().mockResolvedValue({ offerId: "offer1" }),
+        updateOffer: vi.fn().mockResolvedValue({ offerId: "offer1" }),
+        deleteOffer: vi.fn().mockResolvedValue(undefined),
+      },
+    };
+  }
+
+  it("listOneTimeProducts calls client.oneTimeProducts.list", async () => {
+    const client = mockClient();
+    const result = await listOneTimeProducts(client, "com.example");
+    expect(client.oneTimeProducts.list).toHaveBeenCalledWith("com.example");
+    expect(result.oneTimeProducts).toHaveLength(1);
+  });
+
+  it("getOneTimeProduct calls client.oneTimeProducts.get", async () => {
+    const client = mockClient();
+    const result = await getOneTimeProduct(client, "com.example", "otp1");
+    expect(client.oneTimeProducts.get).toHaveBeenCalledWith("com.example", "otp1");
+    expect(result.productId).toBe("otp1");
+  });
+
+  it("createOneTimeProduct calls client.oneTimeProducts.create", async () => {
+    const client = mockClient();
+    const data = { productId: "otp1" } as any;
+    await createOneTimeProduct(client, "com.example", data);
+    expect(client.oneTimeProducts.create).toHaveBeenCalledWith("com.example", data);
+  });
+
+  it("updateOneTimeProduct calls client.oneTimeProducts.update", async () => {
+    const client = mockClient();
+    const data = { productId: "otp1" } as any;
+    await updateOneTimeProduct(client, "com.example", "otp1", data);
+    expect(client.oneTimeProducts.update).toHaveBeenCalledWith("com.example", "otp1", data);
+  });
+
+  it("deleteOneTimeProduct calls client.oneTimeProducts.delete", async () => {
+    const client = mockClient();
+    await deleteOneTimeProduct(client, "com.example", "otp1");
+    expect(client.oneTimeProducts.delete).toHaveBeenCalledWith("com.example", "otp1");
+  });
+
+  it("listOneTimeOffers calls client.oneTimeProducts.listOffers", async () => {
+    const client = mockClient();
+    const result = await listOneTimeOffers(client, "com.example", "otp1");
+    expect(client.oneTimeProducts.listOffers).toHaveBeenCalledWith("com.example", "otp1");
+    expect(result.oneTimeOffers).toHaveLength(1);
+  });
+
+  it("getOneTimeOffer calls client.oneTimeProducts.getOffer", async () => {
+    const client = mockClient();
+    const result = await getOneTimeOffer(client, "com.example", "otp1", "offer1");
+    expect(client.oneTimeProducts.getOffer).toHaveBeenCalledWith("com.example", "otp1", "offer1");
+    expect(result.offerId).toBe("offer1");
+  });
+
+  it("createOneTimeOffer calls client.oneTimeProducts.createOffer", async () => {
+    const client = mockClient();
+    const data = { offerId: "offer1" } as any;
+    await createOneTimeOffer(client, "com.example", "otp1", data);
+    expect(client.oneTimeProducts.createOffer).toHaveBeenCalledWith("com.example", "otp1", data);
+  });
+
+  it("updateOneTimeOffer calls client.oneTimeProducts.updateOffer", async () => {
+    const client = mockClient();
+    const data = { offerId: "offer1" } as any;
+    await updateOneTimeOffer(client, "com.example", "otp1", "offer1", data);
+    expect(client.oneTimeProducts.updateOffer).toHaveBeenCalledWith(
+      "com.example",
+      "otp1",
+      "offer1",
+      data,
+    );
+  });
+
+  it("deleteOneTimeOffer calls client.oneTimeProducts.deleteOffer", async () => {
+    const client = mockClient();
+    await deleteOneTimeOffer(client, "com.example", "otp1", "offer1");
+    expect(client.oneTimeProducts.deleteOffer).toHaveBeenCalledWith(
+      "com.example",
+      "otp1",
+      "offer1",
+    );
+  });
+
+  it("listOneTimeProducts wraps errors with GpcError", async () => {
+    const client = {
+      oneTimeProducts: {
+        list: vi.fn().mockRejectedValue(new Error("network error")),
+      },
+    };
+    await expect(listOneTimeProducts(client as any, "com.example")).rejects.toThrow(
+      "Failed to list one-time products",
+    );
+  });
+
+  it("getOneTimeOffer wraps errors with GpcError", async () => {
+    const client = {
+      oneTimeProducts: {
+        getOffer: vi.fn().mockRejectedValue(new Error("not found")),
+      },
+    };
+    await expect(getOneTimeOffer(client as any, "com.example", "otp1", "offer1")).rejects.toThrow(
+      "Failed to get offer",
+    );
   });
 });

@@ -37,6 +37,8 @@ export function registerTestersCommands(program: Command): void {
     .description("List testers for a track")
     .option("--track <track>", "Track name (e.g., internal, alpha, beta)")
     .option("--sort <field>", "Sort by field (prefix with - for descending, e.g., email or -email)")
+    .option("--limit <n>", "Maximum results to return")
+    .option("--next-page <token>", "Pagination token for next page")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);

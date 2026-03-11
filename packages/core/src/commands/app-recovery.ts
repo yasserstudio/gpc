@@ -1,4 +1,9 @@
-import type { PlayApiClient, AppRecoveryAction } from "@gpc-cli/api";
+import type {
+  PlayApiClient,
+  AppRecoveryAction,
+  AppRecoveryTargeting,
+  CreateAppRecoveryActionRequest,
+} from "@gpc-cli/api";
 
 export async function listRecoveryActions(
   client: PlayApiClient,
@@ -21,4 +26,21 @@ export async function deployRecoveryAction(
   recoveryId: string,
 ): Promise<void> {
   return client.appRecovery.deploy(packageName, recoveryId);
+}
+
+export async function createRecoveryAction(
+  client: PlayApiClient,
+  packageName: string,
+  request: CreateAppRecoveryActionRequest,
+): Promise<AppRecoveryAction> {
+  return client.appRecovery.create(packageName, request);
+}
+
+export async function addRecoveryTargeting(
+  client: PlayApiClient,
+  packageName: string,
+  actionId: string,
+  targeting: AppRecoveryTargeting,
+): Promise<AppRecoveryAction> {
+  return client.appRecovery.addTargeting(packageName, actionId, targeting);
 }

@@ -574,6 +574,21 @@ export interface AppRecoveriesListResponse {
   recoveryActions: AppRecoveryAction[];
 }
 
+export interface AppRecoveryTargeting {
+  allUsers?: { inScopeVersionCodes?: string[] };
+  androidSdks?: { sdkLevels: string[] };
+  regions?: { regionCodes: string[] };
+  versionList?: { versionCodes: string[] };
+}
+
+export interface CreateAppRecoveryActionRequest {
+  remoteInAppUpdateData?: Record<string, unknown>;
+  appRecoveryAction?: {
+    targeting?: AppRecoveryTargeting;
+    status?: string;
+  };
+}
+
 // --- External Transactions ---
 
 export interface ExternalTransactionAmount {
@@ -640,4 +655,101 @@ export interface DataSafetyPurpose {
 export interface Testers {
   googleGroups?: string[];
   googleGroupsCount?: number;
+}
+
+// --- Device Tiers ---
+
+export interface DeviceTier {
+  deviceTierConfigId: string;
+  deviceGroups: DeviceGroup[];
+}
+
+export interface DeviceGroup {
+  name: string;
+  deviceSelectors: DeviceSelector[];
+}
+
+export interface DeviceSelector {
+  deviceRam?: { minBytes?: string; maxBytes?: string };
+  includedDeviceIds?: { buildBrand: string; buildDevice: string }[];
+  excludedDeviceIds?: { buildBrand: string; buildDevice: string }[];
+  requiredSystemFeatures?: { name: string }[];
+  forbiddenSystemFeatures?: { name: string }[];
+}
+
+export interface DeviceTierConfig {
+  deviceTierConfigId: string;
+  deviceGroups: DeviceGroup[];
+  userCountryTargeting?: { countryCodes: string[]; exclude?: boolean };
+}
+
+export interface DeviceTierConfigsListResponse {
+  deviceTierConfigs: DeviceTierConfig[];
+}
+
+// --- Internal App Sharing ---
+
+export interface InternalAppSharingArtifact {
+  certificateFingerprint: string;
+  downloadUrl: string;
+  sha256: string;
+}
+
+// --- Generated APKs ---
+
+export interface GeneratedApk {
+  generatedApkId: string;
+  variantId: number;
+  moduleName: string;
+  apkDescription?: string;
+  certificateSha256Fingerprint: string;
+}
+
+export interface GeneratedApksPerVersion {
+  generatedApks: GeneratedApk[];
+}
+
+// --- One-Time Products (OTP) ---
+
+export interface OneTimeProduct {
+  packageName: string;
+  productId: string;
+  purchaseType: "managedUser" | "subscription";
+  listings: Record<string, OneTimeProductListing>;
+  taxAndComplianceSettings?: TaxAndComplianceSettings;
+}
+
+export interface OneTimeProductListing {
+  title: string;
+  description?: string;
+  benefits?: string[];
+}
+
+export interface TaxAndComplianceSettings {
+  eeaWithdrawalRightType?: "WITHDRAWAL_RIGHT_DIGITAL_CONTENT" | "WITHDRAWAL_RIGHT_SERVICE";
+  taxRateInfoByRegionCode?: Record<string, { streamingTaxType?: string; taxTier?: string }>;
+  isTokenizedDigitalAsset?: boolean;
+}
+
+export interface OneTimeOffer {
+  packageName: string;
+  productId: string;
+  offerId: string;
+  regionalConfigs: Record<string, OneTimeOfferRegionalConfig>;
+  otherRegionsConfig?: { usdPrice: { units: string; nanos?: number } };
+}
+
+export interface OneTimeOfferRegionalConfig {
+  price: { currencyCode: string; units: string; nanos?: number };
+  newSubscriberAvailability?: boolean;
+}
+
+export interface OneTimeProductsListResponse {
+  oneTimeProducts: OneTimeProduct[];
+  nextPageToken?: string;
+}
+
+export interface OneTimeOffersListResponse {
+  oneTimeOffers: OneTimeOffer[];
+  nextPageToken?: string;
 }

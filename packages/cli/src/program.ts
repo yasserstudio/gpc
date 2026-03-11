@@ -96,6 +96,18 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
         program,
       );
     },
+    "device-tiers": async () => {
+      (await import("./commands/device-tiers.js")).registerDeviceTiersCommands(program);
+    },
+    "one-time-products": async () => {
+      (await import("./commands/one-time-products.js")).registerOneTimeProductsCommands(program);
+    },
+    "internal-sharing": async () => {
+      (await import("./commands/internal-sharing.js")).registerInternalSharingCommands(program);
+    },
+    "generated-apks": async () => {
+      (await import("./commands/generated-apks.js")).registerGeneratedApksCommands(program);
+    },
     plugins: async () => {
       registerPluginsCommand(program, pluginManager);
     },
@@ -104,6 +116,7 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
   // Resolve command aliases for lazy loading
   const commandAliases: Record<string, string> = {
     "ext-txn": "external-transactions",
+    otp: "one-time-products",
   };
 
   const rawTarget = process.argv[2];

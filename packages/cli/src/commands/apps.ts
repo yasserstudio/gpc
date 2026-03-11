@@ -4,6 +4,7 @@ import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
 import { getAppInfo, updateAppDetails } from "@gpc-cli/core";
 import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
+import { isDryRun, printDryRun } from "../dry-run.js";
 
 export function registerAppsCommands(program: Command): void {
   const apps = program.command("apps").description("Manage applications");
@@ -66,13 +67,28 @@ export function registerAppsCommands(program: Command): void {
         process.exit(2);
       }
 
+      const format = detectOutputFormat();
+
+      if (isDryRun(program)) {
+        printDryRun(
+          {
+            command: "apps update",
+            action: "update app details for",
+            target: packageName,
+            details: data,
+          },
+          format,
+          formatOutput,
+        );
+        return;
+      }
+
       try {
         const auth = await resolveAuth({
           serviceAccountPath: config.auth?.serviceAccount,
         });
         const client = createApiClient({ auth });
         const result = await updateAppDetails(client, packageName, data);
-        const format = detectOutputFormat();
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -83,7 +99,9 @@ export function registerAppsCommands(program: Command): void {
   apps
     .command("list")
     .description("List configured applications")
-    .action(async () => {
+    .option("--limit <n>", "Maximum results to return")
+    .option("--next-page <token>", "Pagination token for next page")
+    .action(async (options) => {
       const config = await loadConfig();
       const format = detectOutputFormat();
 

@@ -74,6 +74,13 @@ describe.skipIf(!hasBundledCli)("bundled CLI", () => {
       "validate",
       "publish",
       "plugins",
+      "recovery",
+      "data-safety",
+      "external-transactions",
+      "device-tiers",
+      "internal-sharing",
+      "generated-apks",
+      "one-time-products",
     ];
     for (const cmd of commands) {
       expect(output).toContain(cmd);

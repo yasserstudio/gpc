@@ -1,0 +1,86 @@
+import type { Command } from "commander";
+import type { GpcConfig } from "@gpc-cli/config";
+import { loadConfig } from "@gpc-cli/config";
+import { resolveAuth } from "@gpc-cli/auth";
+import { createApiClient } from "@gpc-cli/api";
+import {
+  listGeneratedApks,
+  downloadGeneratedApk,
+  detectOutputFormat,
+  formatOutput,
+} from "@gpc-cli/core";
+
+function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
+  const name = packageArg || config.app;
+  if (!name) {
+    console.error("Error: No package name. Use --app <package> or gpc config set app <package>");
+    process.exit(2);
+  }
+  return name;
+}
+
+async function getClient(config: GpcConfig) {
+  const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
+  return createApiClient({ auth });
+}
+
+export function registerGeneratedApksCommands(program: Command): void {
+  const cmd = program
+    .command("generated-apks")
+    .description("Manage generated (device-specific) APKs");
+
+  cmd
+    .command("list <version-code>")
+    .description("List generated APKs for a version code")
+    .action(async (versionCodeStr: string) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = detectOutputFormat();
+
+      const versionCode = parseInt(versionCodeStr, 10);
+      if (isNaN(versionCode)) {
+        console.error("Error: version-code must be a number");
+        process.exit(2);
+      }
+
+      try {
+        const result = await listGeneratedApks(client, packageName, versionCode);
+        console.log(formatOutput(result, format));
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  cmd
+    .command("download <version-code> <apk-id>")
+    .description("Download a generated APK")
+    .requiredOption("--output <path>", "Output file path")
+    .action(async (versionCodeStr: string, apkId: string, opts: { output: string }) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = detectOutputFormat();
+
+      const versionCode = parseInt(versionCodeStr, 10);
+      if (isNaN(versionCode)) {
+        console.error("Error: version-code must be a number");
+        process.exit(2);
+      }
+
+      try {
+        const result = await downloadGeneratedApk(
+          client,
+          packageName,
+          versionCode,
+          apkId,
+          opts.output,
+        );
+        console.log(formatOutput(result, format));
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+}
