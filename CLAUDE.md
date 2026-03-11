@@ -43,7 +43,7 @@ e2e/               → End-to-end tests
 - Phase 8 ✓ — Plugin SDK, plugin manager, lifecycle hooks, plugin-ci
 - Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, Homebrew tap, npm publish, README/CHANGELOG
 - Published to npm: `npm install -g @gpc-cli/cli`
-- Current version: v0.9.4 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- Current version: v0.9.5 — pre-release series (`0.9.x` → `1.0.0` public launch)
 - 597 total tests, 7 packages building, 90%+ line coverage on all core packages
 - GitHub Releases: umbrella `v*` tags only, user-facing notes (see `docs/CONVENTIONS.md` for template)
 
