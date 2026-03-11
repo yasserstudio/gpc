@@ -135,6 +135,8 @@ export {
   listRecoveryActions,
   cancelRecoveryAction,
   deployRecoveryAction,
+  createRecoveryAction,
+  addRecoveryTargeting,
 } from "./commands/app-recovery.js";
 export {
   getDataSafety,
@@ -147,6 +149,23 @@ export {
   getExternalTransaction,
   refundExternalTransaction,
 } from "./commands/external-transactions.js";
+export {
+  listDeviceTiers,
+  getDeviceTier,
+  createDeviceTier,
+} from "./commands/device-tiers.js";
+export {
+  listOneTimeProducts,
+  getOneTimeProduct,
+  createOneTimeProduct,
+  updateOneTimeProduct,
+  deleteOneTimeProduct,
+  listOneTimeOffers,
+  getOneTimeOffer,
+  createOneTimeOffer,
+  updateOneTimeOffer,
+  deleteOneTimeOffer,
+} from "./commands/one-time-products.js";
 export { safePath, safePathWithin } from "./utils/safe-path.js";
 export { sortResults } from "./utils/sort.js";
 export { scaffoldPlugin } from "./commands/plugin-scaffold.js";
@@ -160,3 +179,6 @@ export {
   formatCustomPayload,
 } from "./utils/webhooks.js";
 export type { WebhookPayload } from "./utils/webhooks.js";
+export { uploadInternalSharing } from "./commands/internal-sharing.js";
+export type { InternalSharingUploadResult } from "./commands/internal-sharing.js";
+export { listGeneratedApks, downloadGeneratedApk } from "./commands/generated-apks.js";

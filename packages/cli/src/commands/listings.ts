@@ -289,6 +289,8 @@ export function registerListingsCommands(program: Command): void {
     .description("List images for a language and type")
     .option("--lang <language>", "Language code (BCP 47)")
     .option("--type <type>", "Image type")
+    .option("--limit <n>", "Maximum results to return")
+    .option("--next-page <token>", "Pagination token for next page")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);

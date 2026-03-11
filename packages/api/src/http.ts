@@ -42,6 +42,9 @@ const BASE_URL = "https://androidpublisher.googleapis.com/androidpublisher/v3/ap
 const UPLOAD_BASE_URL =
   "https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications";
 
+const INTERNAL_SHARING_UPLOAD_BASE_URL =
+  "https://androidpublisher.googleapis.com/upload/internalappsharing/v3/applications";
+
 export interface HttpClient {
   get<T>(path: string, params?: Record<string, string>): Promise<ApiResponse<T>>;
   post<T>(path: string, body?: unknown): Promise<ApiResponse<T>>;
@@ -49,6 +52,8 @@ export interface HttpClient {
   patch<T>(path: string, body?: unknown): Promise<ApiResponse<T>>;
   delete<T>(path: string): Promise<ApiResponse<T>>;
   upload<T>(path: string, filePath: string, contentType: string): Promise<ApiResponse<T>>;
+  uploadInternal<T>(path: string, filePath: string, contentType: string): Promise<ApiResponse<T>>;
+  download(path: string): Promise<ArrayBuffer>;
 }
 
 function envInt(name: string): number | undefined {
@@ -261,8 +266,9 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     path: string,
     filePath: string,
     contentType: string,
+    baseUrl: string = UPLOAD_BASE_URL,
   ): Promise<ApiResponse<T>> {
-    const url = `${UPLOAD_BASE_URL}${path}`;
+    const url = `${baseUrl}${path}`;
     const safeFilePath = validateFilePath(filePath);
     const fileBuffer = await readFile(safeFilePath);
 
@@ -406,6 +412,43 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     },
     upload<T>(path: string, filePath: string, contentType: string) {
       return uploadRequest<T>(path, filePath, contentType);
+    },
+    uploadInternal<T>(path: string, filePath: string, contentType: string) {
+      return uploadRequest<T>(path, filePath, contentType, INTERNAL_SHARING_UPLOAD_BASE_URL);
+    },
+    async download(path: string): Promise<ArrayBuffer> {
+      const url = `${options.baseUrl ?? BASE_URL}${path}`;
+      const token = await options.auth.getAccessToken();
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeout);
+
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Accept-Encoding": "gzip, deflate",
+            Connection: "keep-alive",
+          },
+          signal: controller.signal,
+          keepalive: true,
+        });
+
+        if (!response.ok) {
+          const errorBody = await response.text();
+          const { code, suggestion } = mapStatusToError(response.status, errorBody);
+          throw new ApiError(
+            `GET ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
+            code,
+            response.status,
+            suggestion,
+          );
+        }
+
+        return await response.arrayBuffer();
+      } finally {
+        clearTimeout(timer);
+      }
     },
   };
 }

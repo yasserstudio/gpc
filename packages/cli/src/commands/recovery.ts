@@ -7,11 +7,14 @@ import {
   listRecoveryActions,
   cancelRecoveryAction,
   deployRecoveryAction,
+  createRecoveryAction,
+  addRecoveryTargeting,
   detectOutputFormat,
   formatOutput,
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
+import { readFileSync } from "node:fs";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -33,7 +36,9 @@ export function registerRecoveryCommands(program: Command): void {
   recovery
     .command("list")
     .description("List app recovery actions")
-    .action(async () => {
+    .option("--limit <n>", "Maximum results to return")
+    .option("--next-page <token>", "Pagination token for next page")
+    .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
@@ -69,14 +74,7 @@ export function registerRecoveryCommands(program: Command): void {
         return;
       }
 
-      const confirmed = await requireConfirm(
-        `Cancel recovery action ${id}?`,
-        program.opts()["yes"],
-      );
-      if (!confirmed) {
-        console.log("Cancelled.");
-        return;
-      }
+      await requireConfirm(`Cancel recovery action ${id}?`, program);
 
       const client = await getClient(config);
 
@@ -110,20 +108,101 @@ export function registerRecoveryCommands(program: Command): void {
         return;
       }
 
-      const confirmed = await requireConfirm(
-        `Deploy recovery action ${id}?`,
-        program.opts()["yes"],
-      );
-      if (!confirmed) {
-        console.log("Cancelled.");
-        return;
-      }
+      await requireConfirm(`Deploy recovery action ${id}?`, program);
 
       const client = await getClient(config);
 
       try {
         await deployRecoveryAction(client, packageName, id);
         console.log(formatOutput({ success: true, appRecoveryId: id, action: "deployed" }, format));
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  recovery
+    .command("create")
+    .description("Create a new app recovery action")
+    .requiredOption("--file <path>", "Path to JSON file with recovery action data")
+    .action(async (options) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const format = detectOutputFormat();
+
+      let data: Record<string, unknown>;
+      try {
+        data = JSON.parse(readFileSync(options.file, "utf-8"));
+      } catch (err) {
+        console.error(
+          `Error: Could not read recovery action data from ${options.file}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        process.exit(2);
+      }
+
+      if (isDryRun(program)) {
+        printDryRun(
+          {
+            command: "recovery create",
+            action: "create recovery action",
+            target: packageName,
+            details: data,
+          },
+          format,
+          formatOutput,
+        );
+        return;
+      }
+
+      const client = await getClient(config);
+
+      try {
+        const result = await createRecoveryAction(client, packageName, data);
+        console.log(formatOutput(result, format));
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  recovery
+    .command("add-targeting <action-id>")
+    .description("Add targeting rules to an existing recovery action")
+    .requiredOption("--file <path>", "Path to JSON file with targeting data")
+    .action(async (actionId: string, options) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const format = detectOutputFormat();
+
+      let targeting: Record<string, unknown>;
+      try {
+        targeting = JSON.parse(readFileSync(options.file, "utf-8"));
+      } catch (err) {
+        console.error(
+          `Error: Could not read targeting data from ${options.file}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        process.exit(2);
+      }
+
+      if (isDryRun(program)) {
+        printDryRun(
+          {
+            command: "recovery add-targeting",
+            action: "add targeting to recovery action",
+            target: actionId,
+            details: targeting,
+          },
+          format,
+          formatOutput,
+        );
+        return;
+      }
+
+      const client = await getClient(config);
+
+      try {
+        const result = await addRecoveryTargeting(client, packageName, actionId, targeting);
+        console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

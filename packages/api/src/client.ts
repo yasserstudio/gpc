@@ -7,6 +7,8 @@ import type {
   AppEdit,
   AppRecoveriesListResponse,
   AppRecoveryAction,
+  AppRecoveryTargeting,
+  CreateAppRecoveryActionRequest,
   BasePlanMigratePricesRequest,
   Bundle,
   BundleListResponse,
@@ -16,6 +18,8 @@ import type {
   DataSafety,
   DeobfuscationFile,
   DeobfuscationUploadResponse,
+  DeviceTierConfig,
+  DeviceTierConfigsListResponse,
   ExternalTransaction,
   ExternalTransactionRefund,
   Image,
@@ -49,6 +53,13 @@ import type {
   TrackListResponse,
   UploadResponse,
   VoidedPurchasesListResponse,
+  OneTimeProduct,
+  OneTimeProductsListResponse,
+  OneTimeOffer,
+  OneTimeOffersListResponse,
+  InternalAppSharingArtifact,
+  GeneratedApk,
+  GeneratedApksPerVersion,
 } from "./types.js";
 
 export interface PlayApiClient {
@@ -298,6 +309,8 @@ export interface PlayApiClient {
     list(packageName: string): Promise<AppRecoveryAction[]>;
     cancel(packageName: string, appRecoveryId: string): Promise<void>;
     deploy(packageName: string, appRecoveryId: string): Promise<void>;
+    create(packageName: string, request: CreateAppRecoveryActionRequest): Promise<AppRecoveryAction>;
+    addTargeting(packageName: string, appRecoveryId: string, targeting: AppRecoveryTargeting): Promise<AppRecoveryAction>;
   };
 
   externalTransactions: {
@@ -308,6 +321,56 @@ export interface PlayApiClient {
       transactionId: string,
       refundData: ExternalTransactionRefund,
     ): Promise<ExternalTransaction>;
+  };
+
+  deviceTiers: {
+    list(packageName: string): Promise<DeviceTierConfig[]>;
+    get(packageName: string, configId: string): Promise<DeviceTierConfig>;
+    create(packageName: string, config: DeviceTierConfig): Promise<DeviceTierConfig>;
+  };
+
+  oneTimeProducts: {
+    list(packageName: string): Promise<OneTimeProductsListResponse>;
+    get(packageName: string, productId: string): Promise<OneTimeProduct>;
+    create(packageName: string, product: OneTimeProduct): Promise<OneTimeProduct>;
+    update(
+      packageName: string,
+      productId: string,
+      product: Partial<OneTimeProduct>,
+    ): Promise<OneTimeProduct>;
+    delete(packageName: string, productId: string): Promise<void>;
+    listOffers(packageName: string, productId: string): Promise<OneTimeOffersListResponse>;
+    getOffer(
+      packageName: string,
+      productId: string,
+      offerId: string,
+    ): Promise<OneTimeOffer>;
+    createOffer(
+      packageName: string,
+      productId: string,
+      offer: OneTimeOffer,
+    ): Promise<OneTimeOffer>;
+    updateOffer(
+      packageName: string,
+      productId: string,
+      offerId: string,
+      offer: Partial<OneTimeOffer>,
+    ): Promise<OneTimeOffer>;
+    deleteOffer(
+      packageName: string,
+      productId: string,
+      offerId: string,
+    ): Promise<void>;
+  };
+
+  internalAppSharing: {
+    uploadBundle(packageName: string, bundlePath: string): Promise<InternalAppSharingArtifact>;
+    uploadApk(packageName: string, apkPath: string): Promise<InternalAppSharingArtifact>;
+  };
+
+  generatedApks: {
+    list(packageName: string, versionCode: number): Promise<GeneratedApk[]>;
+    download(packageName: string, versionCode: number, id: string): Promise<ArrayBuffer>;
   };
 }
 
@@ -860,6 +923,22 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async deploy(packageName, appRecoveryId) {
         await http.post(`/${packageName}/appRecovery/${appRecoveryId}:deploy`);
       },
+
+      async create(packageName, request) {
+        const { data } = await http.post<AppRecoveryAction>(
+          `/${packageName}/appRecoveries`,
+          request,
+        );
+        return data;
+      },
+
+      async addTargeting(packageName, appRecoveryId, targeting) {
+        const { data } = await http.post<AppRecoveryAction>(
+          `/${packageName}/appRecoveries/${appRecoveryId}:addTargeting`,
+          targeting,
+        );
+        return data;
+      },
     },
 
     externalTransactions: {
@@ -884,6 +963,135 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           refundData,
         );
         return data;
+      },
+    },
+
+    deviceTiers: {
+      async list(packageName) {
+        const { data } = await http.get<DeviceTierConfigsListResponse>(
+          `/${packageName}/deviceTierConfigs`,
+        );
+        return data.deviceTierConfigs || [];
+      },
+
+      async get(packageName, configId) {
+        const { data } = await http.get<DeviceTierConfig>(
+          `/${packageName}/deviceTierConfigs/${configId}`,
+        );
+        return data;
+      },
+
+      async create(packageName, config) {
+        const { data } = await http.post<DeviceTierConfig>(
+          `/${packageName}/deviceTierConfigs`,
+          config,
+        );
+        return data;
+      },
+    },
+
+    oneTimeProducts: {
+      async list(packageName) {
+        const { data } = await http.get<OneTimeProductsListResponse>(
+          `/${packageName}/oneTimeProducts`,
+        );
+        return data;
+      },
+
+      async get(packageName, productId) {
+        const { data } = await http.get<OneTimeProduct>(
+          `/${packageName}/oneTimeProducts/${productId}`,
+        );
+        return data;
+      },
+
+      async create(packageName, body) {
+        const { data } = await http.post<OneTimeProduct>(
+          `/${packageName}/oneTimeProducts`,
+          body,
+        );
+        return data;
+      },
+
+      async update(packageName, productId, body) {
+        const { data } = await http.patch<OneTimeProduct>(
+          `/${packageName}/oneTimeProducts/${productId}`,
+          body,
+        );
+        return data;
+      },
+
+      async delete(packageName, productId) {
+        await http.delete(`/${packageName}/oneTimeProducts/${productId}`);
+      },
+
+      async listOffers(packageName, productId) {
+        const { data } = await http.get<OneTimeOffersListResponse>(
+          `/${packageName}/oneTimeProducts/${productId}/offers`,
+        );
+        return data;
+      },
+
+      async getOffer(packageName, productId, offerId) {
+        const { data } = await http.get<OneTimeOffer>(
+          `/${packageName}/oneTimeProducts/${productId}/offers/${offerId}`,
+        );
+        return data;
+      },
+
+      async createOffer(packageName, productId, body) {
+        const { data } = await http.post<OneTimeOffer>(
+          `/${packageName}/oneTimeProducts/${productId}/offers`,
+          body,
+        );
+        return data;
+      },
+
+      async updateOffer(packageName, productId, offerId, body) {
+        const { data } = await http.patch<OneTimeOffer>(
+          `/${packageName}/oneTimeProducts/${productId}/offers/${offerId}`,
+          body,
+        );
+        return data;
+      },
+
+      async deleteOffer(packageName, productId, offerId) {
+        await http.delete(`/${packageName}/oneTimeProducts/${productId}/offers/${offerId}`);
+      },
+    },
+
+    internalAppSharing: {
+      async uploadBundle(packageName, bundlePath) {
+        const { data } = await http.uploadInternal<InternalAppSharingArtifact>(
+          `/${packageName}/artifacts/bundle`,
+          bundlePath,
+          "application/octet-stream",
+        );
+        return data;
+      },
+
+      async uploadApk(packageName, apkPath) {
+        const { data } = await http.uploadInternal<InternalAppSharingArtifact>(
+          `/${packageName}/artifacts/apk`,
+          apkPath,
+          "application/vnd.android.package-archive",
+        );
+        return data;
+      },
+    },
+
+    generatedApks: {
+      async list(packageName, versionCode) {
+        const { data } = await http.get<GeneratedApksPerVersion>(
+          `/${packageName}/generatedApks/${versionCode}`,
+        );
+        return data.generatedApks || [];
+      },
+
+      async download(packageName, versionCode, id) {
+        return http.download(
+          `/${packageName}/generatedApks/${versionCode}/download/${id}`,
+        );
       },
     },
   };

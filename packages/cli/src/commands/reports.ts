@@ -38,6 +38,8 @@ export function registerReportsCommands(program: Command): void {
     .command("list <report-type>")
     .description("List available report buckets")
     .option("--month <YYYY-MM>", "Report month (e.g., 2026-03)")
+    .option("--limit <n>", "Maximum results to return")
+    .option("--next-page <token>", "Pagination token for next page")
     .action(async (reportType: string, options) => {
       const interactive = isInteractive(program);
       const now = new Date();
