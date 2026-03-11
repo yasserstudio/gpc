@@ -414,3 +414,114 @@ describe("createServiceAccountAuth – token and project", () => {
     expect(client.getProjectId()).toBeUndefined();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Token cache edge cases
+// ---------------------------------------------------------------------------
+import {
+  getCachedToken,
+  setCachedToken,
+  clearTokenCache,
+  acquireToken,
+} from "../src/token-cache";
+
+describe("token cache – edge cases", () => {
+  let cacheDir: string;
+
+  beforeEach(async () => {
+    _resetMemoryCache();
+    cacheDir = await mkdtemp(join(tmpdir(), "auth-cache-"));
+  });
+
+  afterEach(async () => {
+    await unlink(join(cacheDir, "token-cache.json")).catch(() => {});
+    await unlink(join(cacheDir, "token-cache.json.tmp")).catch(() => {});
+  });
+
+  it("getCachedToken returns null for missing email", async () => {
+    const result = await getCachedToken(cacheDir, "nobody@example.com");
+    expect(result).toBeNull();
+  });
+
+  it("setCachedToken and getCachedToken round-trip", async () => {
+    await setCachedToken(cacheDir, "test@example.com", "tok123", 3600);
+    const result = await getCachedToken(cacheDir, "test@example.com");
+    expect(result).toBe("tok123");
+  });
+
+  it("getCachedToken returns null for expired token", async () => {
+    // Set token that expires immediately (negative margin)
+    await setCachedToken(cacheDir, "expired@example.com", "old-token", -1);
+    const result = await getCachedToken(cacheDir, "expired@example.com");
+    expect(result).toBeNull();
+  });
+
+  it("clearTokenCache removes specific email", async () => {
+    await setCachedToken(cacheDir, "a@example.com", "tok-a", 3600);
+    await setCachedToken(cacheDir, "b@example.com", "tok-b", 3600);
+    await clearTokenCache(cacheDir, "a@example.com");
+    const a = await getCachedToken(cacheDir, "a@example.com");
+    const b = await getCachedToken(cacheDir, "b@example.com");
+    expect(a).toBeNull();
+    expect(b).toBe("tok-b");
+  });
+
+  it("clearTokenCache without email clears everything", async () => {
+    await setCachedToken(cacheDir, "x@example.com", "tok-x", 3600);
+    await clearTokenCache(cacheDir);
+    const result = await getCachedToken(cacheDir, "x@example.com");
+    expect(result).toBeNull();
+  });
+
+  it("acquireToken deduplicates concurrent refresh calls", async () => {
+    _resetMemoryCache();
+    let callCount = 0;
+    const refresh = async () => {
+      callCount++;
+      await new Promise((r) => setTimeout(r, 20));
+      return { token: "dedup-token", expiresInSeconds: 3600 };
+    };
+
+    // Fire two concurrent acquireToken calls for the same email
+    const [tok1, tok2] = await Promise.all([
+      acquireToken("concurrent@example.com", cacheDir, refresh),
+      acquireToken("concurrent@example.com", cacheDir, refresh),
+    ]);
+
+    expect(tok1).toBe("dedup-token");
+    expect(tok2).toBe("dedup-token");
+    // Should only have called refresh once due to mutex
+    expect(callCount).toBe(1);
+  });
+
+  it("acquireToken returns cached token on second call", async () => {
+    _resetMemoryCache();
+    let callCount = 0;
+    const refresh = async () => {
+      callCount++;
+      return { token: "cached-token", expiresInSeconds: 3600 };
+    };
+
+    const tok1 = await acquireToken("cached@example.com", cacheDir, refresh);
+    const tok2 = await acquireToken("cached@example.com", cacheDir, refresh);
+
+    expect(tok1).toBe("cached-token");
+    expect(tok2).toBe("cached-token");
+    expect(callCount).toBe(1);
+  });
+
+  it("acquireToken works without cacheDir", async () => {
+    _resetMemoryCache();
+    const refresh = async () => ({ token: "no-disk-token", expiresInSeconds: 3600 });
+    const tok = await acquireToken("nodisk@example.com", undefined, refresh);
+    expect(tok).toBe("no-disk-token");
+  });
+
+  it("getCachedToken throws on invalid cache key", async () => {
+    await expect(getCachedToken(cacheDir, "../traversal")).rejects.toThrow("Invalid cache key");
+  });
+
+  it("setCachedToken throws on invalid cache key", async () => {
+    await expect(setCachedToken(cacheDir, "bad/key", "tok", 3600)).rejects.toThrow("Invalid cache key");
+  });
+});

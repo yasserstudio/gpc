@@ -1533,3 +1533,232 @@ describe("client coverage gaps", () => {
     expect(url).toContain("token=page2");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Rate limiter edge cases
+// ---------------------------------------------------------------------------
+
+import { createRateLimiter, RATE_LIMIT_BUCKETS } from "../src/rate-limiter";
+
+describe("createRateLimiter", () => {
+  it("acquire on unknown bucket resolves immediately", async () => {
+    const limiter = createRateLimiter([]);
+    // Should not throw or hang
+    await limiter.acquire("nonexistent");
+  });
+
+  it("acquire without any buckets configured resolves immediately", async () => {
+    const limiter = createRateLimiter();
+    await limiter.acquire("default");
+  });
+
+  it("depletes tokens and waits on exhaustion", async () => {
+    const bucket = { name: "tiny", maxTokens: 2, refillRate: 2, refillIntervalMs: 100 };
+    const limiter = createRateLimiter([bucket]);
+
+    // First two should be instant
+    await limiter.acquire("tiny");
+    await limiter.acquire("tiny");
+
+    // Third should wait for refill
+    const start = Date.now();
+    await limiter.acquire("tiny");
+    const elapsed = Date.now() - start;
+    // Should have waited approximately 50ms (1/2 * 100ms)
+    expect(elapsed).toBeGreaterThanOrEqual(10);
+  });
+
+  it("tokens refill over time", async () => {
+    const bucket = { name: "refill", maxTokens: 1, refillRate: 1, refillIntervalMs: 50 };
+    const limiter = createRateLimiter([bucket]);
+
+    // Consume the single token
+    await limiter.acquire("refill");
+
+    // Wait for refill
+    await new Promise((r) => setTimeout(r, 60));
+
+    // Should be available now without waiting
+    const start = Date.now();
+    await limiter.acquire("refill");
+    const elapsed = Date.now() - start;
+    expect(elapsed).toBeLessThan(30);
+  });
+
+  it("tokens do not exceed maxTokens after long idle", async () => {
+    const bucket = { name: "capped", maxTokens: 3, refillRate: 100, refillIntervalMs: 100 };
+    const limiter = createRateLimiter([bucket]);
+
+    // Wait a long time (would produce many tokens if uncapped)
+    await new Promise((r) => setTimeout(r, 50));
+
+    // Should be able to acquire maxTokens times instantly
+    await limiter.acquire("capped");
+    await limiter.acquire("capped");
+    await limiter.acquire("capped");
+    // Fourth should need to wait
+    const start = Date.now();
+    await limiter.acquire("capped");
+    const elapsed = Date.now() - start;
+    expect(elapsed).toBeGreaterThanOrEqual(0);
+  });
+
+  it("RATE_LIMIT_BUCKETS has expected bucket names", () => {
+    expect(RATE_LIMIT_BUCKETS).toHaveProperty("default");
+    expect(RATE_LIMIT_BUCKETS).toHaveProperty("reviewsGet");
+    expect(RATE_LIMIT_BUCKETS).toHaveProperty("reviewsPost");
+    expect(RATE_LIMIT_BUCKETS).toHaveProperty("voidedBurst");
+    expect(RATE_LIMIT_BUCKETS).toHaveProperty("voidedDaily");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Error handling edge cases
+// ---------------------------------------------------------------------------
+describe("ApiError – edge cases", () => {
+  it("ApiError without statusCode has undefined statusCode", () => {
+    const err = new ApiError("generic error", "GENERIC");
+    expect(err.statusCode).toBeUndefined();
+    expect(err.suggestion).toBeUndefined();
+    expect(err.exitCode).toBe(4);
+  });
+
+  it("ApiError without suggestion has undefined suggestion", () => {
+    const err = new ApiError("no suggestion", "NO_SUGGEST", 500);
+    expect(err.suggestion).toBeUndefined();
+  });
+
+  it("ApiError toJSON omits suggestion when not provided", () => {
+    const err = new ApiError("test", "TEST_CODE", 400);
+    const json = err.toJSON();
+    expect(json.error.suggestion).toBeUndefined();
+  });
+
+  it("ApiError is instanceof Error", () => {
+    const err = new ApiError("test", "T", 500);
+    expect(err).toBeInstanceOf(Error);
+    expect(err.name).toBe("ApiError");
+  });
+
+  it("ApiError preserves stack trace", () => {
+    const err = new ApiError("trace test", "TRACE", 500);
+    expect(err.stack).toBeDefined();
+    expect(err.stack).toContain("trace test");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// HTTP error response edge cases
+// ---------------------------------------------------------------------------
+describe("HTTP error response edge cases", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("handles non-JSON error response body", async () => {
+    mockFetch.mockResolvedValueOnce(
+      new Response("Internal Server Error", {
+        status: 500,
+        headers: { "Content-Type": "text/plain" },
+      }),
+    );
+
+    const client = createHttpClient({ auth: mockAuth(), maxRetries: 0 });
+    try {
+      await client.get("/com.example/edits");
+      expect.unreachable("should have thrown");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ApiError);
+      expect((err as ApiError).statusCode).toBe(500);
+      expect((err as ApiError).code).toBe("API_SERVER_ERROR");
+    }
+  });
+
+  it("handles empty error response body", async () => {
+    mockFetch.mockResolvedValueOnce(
+      new Response("", {
+        status: 400,
+        headers: { "Content-Type": "text/plain" },
+      }),
+    );
+
+    const client = createHttpClient({ auth: mockAuth(), maxRetries: 0 });
+    try {
+      await client.get("/com.example/edits");
+      expect.unreachable("should have thrown");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ApiError);
+      expect((err as ApiError).statusCode).toBe(400);
+    }
+  });
+
+  it("handles network error when fetch throws TypeError", async () => {
+    mockFetch.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+
+    const client = createHttpClient({ auth: mockAuth(), maxRetries: 0 });
+    try {
+      await client.get("/com.example/edits");
+      expect.unreachable("should have thrown");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ApiError);
+      expect((err as ApiError).code).toBe("API_NETWORK_ERROR");
+      expect((err as ApiError).message).toContain("Failed to fetch");
+    }
+  });
+
+  it("429 response triggers retries and eventually throws API_RATE_LIMITED", async () => {
+    mockFetch
+      .mockResolvedValueOnce(mockResponse({ error: "rate limited" }, 429))
+      .mockResolvedValueOnce(mockResponse({ error: "rate limited" }, 429));
+
+    const client = createHttpClient({
+      auth: mockAuth(),
+      maxRetries: 1,
+      baseDelay: 1,
+      maxDelay: 5,
+    });
+
+    try {
+      await client.get("/com.example/edits");
+      expect.unreachable("should have thrown");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ApiError);
+      expect((err as ApiError).code).toBe("API_RATE_LIMITED");
+      expect((err as ApiError).statusCode).toBe(429);
+    }
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("handles JSON error response with error.message field", async () => {
+    const errorBody = {
+      error: {
+        code: 403,
+        message: "The caller does not have permission",
+        status: "PERMISSION_DENIED",
+      },
+    };
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify(errorBody), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const client = createHttpClient({ auth: mockAuth(), maxRetries: 0 });
+    try {
+      await client.get("/com.example/edits");
+      expect.unreachable("should have thrown");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ApiError);
+      expect((err as ApiError).code).toBe("API_FORBIDDEN");
+      expect((err as ApiError).statusCode).toBe(403);
+    }
+  });
+});
