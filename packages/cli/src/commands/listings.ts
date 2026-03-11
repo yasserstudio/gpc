@@ -14,9 +14,11 @@ import {
   listImages,
   uploadImage,
   deleteImage,
+  exportImages,
   getCountryAvailability,
   detectOutputFormat,
   formatOutput,
+  createSpinner,
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, requireOption, requireConfirm } from "../prompt.js";
@@ -231,12 +233,17 @@ export function registerListingsCommands(program: Command): void {
       const client = await getClient(config);
       const format = detectOutputFormat();
 
+      const spinner = createSpinner("Pushing listings...");
+      if (!program.opts()["quiet"] && process.stderr.isTTY) spinner.start();
+
       try {
         const result = await pushListings(client, packageName, options.dir, {
           dryRun: isDryRun(program),
         });
+        spinner.stop("Listings pushed");
         console.log(formatOutput(result, format));
       } catch (error) {
+        spinner.fail("Push failed");
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
       }
@@ -364,10 +371,15 @@ export function registerListingsCommands(program: Command): void {
       const format = detectOutputFormat();
       const imageType = validateImageType(options.type);
 
+      const spinner = createSpinner("Uploading image...");
+      if (!program.opts()["quiet"] && process.stderr.isTTY) spinner.start();
+
       try {
         const result = await uploadImage(client, packageName, options.lang, imageType, file);
+        spinner.stop("Image uploaded");
         console.log(formatOutput(result, format));
       } catch (error) {
+        spinner.fail("Image upload failed");
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
       }
@@ -422,6 +434,39 @@ export function registerListingsCommands(program: Command): void {
         await deleteImage(client, packageName, options.lang, imageType, options.id);
         console.log(`Image "${options.id}" deleted.`);
       } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  // Images export
+  images
+    .command("export")
+    .description("Export all images to a local directory")
+    .option("--dir <path>", "Output directory", "images")
+    .option("--lang <language>", "Language code (BCP 47) — export only this language")
+    .option("--type <type>", "Image type — export only this type")
+    .action(async (options) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = detectOutputFormat();
+
+      const exportOpts: { lang?: string; type?: ImageType } = {};
+      if (options.lang) exportOpts.lang = options.lang;
+      if (options.type) {
+        exportOpts.type = validateImageType(options.type);
+      }
+
+      const spinner = createSpinner("Exporting images...");
+      if (!program.opts()["quiet"] && process.stderr.isTTY) spinner.start();
+
+      try {
+        const result = await exportImages(client, packageName, options.dir, exportOpts);
+        spinner.stop("Images exported");
+        console.log(formatOutput(result, format));
+      } catch (error) {
+        spinner.fail("Image export failed");
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
       }

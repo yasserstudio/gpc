@@ -61,6 +61,9 @@ vi.mock("@gpc-cli/core", () => {
     promoteRelease: vi.fn().mockResolvedValue({}),
     updateRollout: vi.fn().mockResolvedValue({}),
     listTracks: vi.fn().mockResolvedValue([]),
+    createTrack: vi.fn().mockResolvedValue({ track: "custom", releases: [] }),
+    updateTrackConfig: vi.fn().mockResolvedValue({ track: "beta", releases: [] }),
+    uploadExternallyHosted: vi.fn().mockResolvedValue({ externallyHostedApk: { versionCode: 1 } }),
     getListings: vi.fn().mockResolvedValue([]),
     updateListing: vi.fn().mockResolvedValue({}),
     deleteListing: vi.fn().mockResolvedValue(undefined),
@@ -69,6 +72,7 @@ vi.mock("@gpc-cli/core", () => {
     listImages: vi.fn().mockResolvedValue([]),
     uploadImage: vi.fn().mockResolvedValue({}),
     deleteImage: vi.fn().mockResolvedValue(undefined),
+    exportImages: vi.fn().mockResolvedValue({ languages: 1, images: 5, totalSize: 50000 }),
     getCountryAvailability: vi.fn().mockResolvedValue({}),
     updateAppDetails: vi.fn().mockResolvedValue({}),
     getAppInfo: vi.fn().mockResolvedValue({}),
@@ -169,6 +173,10 @@ vi.mock("@gpc-cli/core", () => {
     uploadInternalSharing: vi.fn().mockResolvedValue({ downloadUrl: "", sha256: "", certificateFingerprint: "", fileType: "bundle" }),
     listGeneratedApks: vi.fn().mockResolvedValue([]),
     downloadGeneratedApk: vi.fn().mockResolvedValue({ path: "/tmp/out.apk", sizeBytes: 1024 }),
+    // migrate
+    detectFastlane: vi.fn().mockResolvedValue({ hasFastfile: false, hasAppfile: false, hasMetadata: false, hasGemfile: false, lanes: [], metadataLanguages: [] }),
+    generateMigrationPlan: vi.fn().mockReturnValue({ config: {}, checklist: [], warnings: [] }),
+    writeMigrationOutput: vi.fn().mockResolvedValue([]),
   };
 });
 
@@ -242,6 +250,9 @@ describe("createProgram", () => {
     expect(optionFlags).toContain("--profile");
     expect(optionFlags).toContain("--no-color");
     expect(optionFlags).toContain("--no-interactive");
+    expect(optionFlags).toContain("--notify");
+    expect(optionFlags).toContain("--ci");
+    expect(optionFlags).toContain("--json");
   });
 });
 
@@ -390,6 +401,16 @@ describe("releases subcommands", () => {
     expect(subcommandNames).toContain("promote");
     expect(subcommandNames).toContain("rollout");
     expect(subcommandNames).toContain("notes");
+    expect(subcommandNames).toContain("upload-external");
+  });
+
+  it("releases upload-external has --url and --file options", () => {
+    const releasesCmd = program.commands.find((cmd) => cmd.name() === "releases");
+    const uploadExtCmd = releasesCmd!.commands.find((cmd) => cmd.name() === "upload-external");
+    expect(uploadExtCmd).toBeDefined();
+    const optionFlags = uploadExtCmd!.options.map((opt) => opt.long ?? opt.short);
+    expect(optionFlags).toContain("--url");
+    expect(optionFlags).toContain("--file");
   });
 });
 
@@ -404,11 +425,21 @@ describe("tracks subcommands", () => {
     vi.restoreAllMocks();
   });
 
-  it("tracks command has list subcommand", () => {
+  it("tracks command has list, create, update subcommands", () => {
     const tracksCmd = program.commands.find((cmd) => cmd.name() === "tracks");
     expect(tracksCmd).toBeDefined();
     const subcommandNames = tracksCmd!.commands.map((cmd) => cmd.name());
     expect(subcommandNames).toContain("list");
+    expect(subcommandNames).toContain("create");
+    expect(subcommandNames).toContain("update");
+  });
+
+  it("tracks update has --file required option", () => {
+    const tracksCmd = program.commands.find((cmd) => cmd.name() === "tracks");
+    const updateCmd = tracksCmd!.commands.find((cmd) => cmd.name() === "update");
+    expect(updateCmd).toBeDefined();
+    const optionFlags = updateCmd!.options.map((opt) => opt.long ?? opt.short);
+    expect(optionFlags).toContain("--file");
   });
 });
 
@@ -463,13 +494,14 @@ describe("listings subcommands", () => {
     expect(subcommandNames).toContain("availability");
   });
 
-  it("listings images command has list/upload/delete subcommands", () => {
+  it("listings images command has list/upload/delete/export subcommands", () => {
     const listingsCmd = program.commands.find((cmd) => cmd.name() === "listings");
     const imagesCmd = listingsCmd!.commands.find((cmd) => cmd.name() === "images");
     expect(imagesCmd).toBeDefined();
     const subcommandNames = imagesCmd!.commands.map((cmd) => cmd.name());
     expect(subcommandNames).toContain("list");
     expect(subcommandNames).toContain("upload");
+    expect(subcommandNames).toContain("export");
     expect(subcommandNames).toContain("delete");
   });
 
@@ -487,6 +519,37 @@ describe("listings subcommands", () => {
 
     const output = stdoutSpy.mock.calls.map((call) => String(call[0])).join("");
     expect(output).toContain("Manage store listings");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// migrate subcommands
+// ---------------------------------------------------------------------------
+describe("migrate subcommands", () => {
+  let program: Command;
+
+  beforeEach(async () => {
+    program = await createProgram();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("migrate command has fastlane subcommand", () => {
+    const migrateCmd = program.commands.find((cmd) => cmd.name() === "migrate");
+    expect(migrateCmd).toBeDefined();
+    const subcommandNames = migrateCmd!.commands.map((cmd) => cmd.name());
+    expect(subcommandNames).toContain("fastlane");
+  });
+
+  it("migrate fastlane has --dir and --output options", () => {
+    const migrateCmd = program.commands.find((cmd) => cmd.name() === "migrate");
+    const fastlaneCmd = migrateCmd!.commands.find((cmd) => cmd.name() === "fastlane");
+    expect(fastlaneCmd).toBeDefined();
+    const optionFlags = fastlaneCmd!.options.map((opt) => opt.long ?? opt.short);
+    expect(optionFlags).toContain("--dir");
+    expect(optionFlags).toContain("--output");
   });
 });
 

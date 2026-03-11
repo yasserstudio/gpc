@@ -1,5 +1,5 @@
 export { GpcError, ConfigError, ApiError, NetworkError } from "./errors.js";
-export { detectOutputFormat, formatOutput, redactSensitive } from "./output.js";
+export { detectOutputFormat, formatOutput, formatJunit, redactSensitive } from "./output.js";
 export type { CommandContext } from "./context.js";
 export { PluginManager, discoverPlugins } from "./plugins.js";
 export type { LoadedPlugin, DiscoverPluginsOptions } from "./plugins.js";
@@ -11,6 +11,9 @@ export {
   promoteRelease,
   updateRollout,
   listTracks,
+  createTrack,
+  updateTrackConfig,
+  uploadExternallyHosted,
 } from "./commands/releases.js";
 export type { UploadResult, ReleaseStatusResult, DryRunUploadResult } from "./commands/releases.js";
 export {
@@ -25,8 +28,17 @@ export {
   deleteImage,
   getCountryAvailability,
   updateAppDetails,
+  exportImages,
 } from "./commands/listings.js";
-export type { ListingsResult, PushResult, DryRunResult } from "./commands/listings.js";
+export type { ListingsResult, PushResult, DryRunResult, ExportImagesOptions, ExportImagesSummary } from "./commands/listings.js";
+export {
+  detectFastlane,
+  parseFastfile,
+  parseAppfile,
+  generateMigrationPlan,
+  writeMigrationOutput,
+} from "./commands/migrate.js";
+export type { FastlaneDetection, FastlaneLane, MigrationResult } from "./commands/migrate.js";
 export { isValidBcp47, GOOGLE_PLAY_LANGUAGES } from "./utils/bcp47.js";
 export { validateUploadFile } from "./utils/file-validation.js";
 export type { FileValidationResult } from "./utils/file-validation.js";
@@ -166,6 +178,8 @@ export {
   updateOneTimeOffer,
   deleteOneTimeOffer,
 } from "./commands/one-time-products.js";
+export { createSpinner } from "./utils/spinner.js";
+export type { Spinner } from "./utils/spinner.js";
 export { safePath, safePathWithin } from "./utils/safe-path.js";
 export { sortResults } from "./utils/sort.js";
 export { scaffoldPlugin } from "./commands/plugin-scaffold.js";
@@ -182,3 +196,12 @@ export type { WebhookPayload } from "./utils/webhooks.js";
 export { uploadInternalSharing } from "./commands/internal-sharing.js";
 export type { InternalSharingUploadResult } from "./commands/internal-sharing.js";
 export { listGeneratedApks, downloadGeneratedApk } from "./commands/generated-apks.js";
+export {
+  listPurchaseOptions,
+  getPurchaseOption,
+  createPurchaseOption,
+  activatePurchaseOption,
+  deactivatePurchaseOption,
+} from "./commands/purchase-options.js";
+export { batchSyncInAppProducts } from "./commands/iap.js";
+export type { BatchSyncResult } from "./commands/iap.js";

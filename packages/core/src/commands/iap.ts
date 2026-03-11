@@ -1,6 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { PlayApiClient, InAppProduct } from "@gpc-cli/api";
+import type { PlayApiClient, InAppProduct, InAppProductsBatchUpdateRequest } from "@gpc-cli/api";
 import { paginateAll } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
 
@@ -84,13 +84,72 @@ export async function syncInAppProducts(
   dir: string,
   options?: { dryRun?: boolean },
 ): Promise<SyncResult> {
-  const files = await readdir(dir);
-  const jsonFiles = files.filter((f) => f.endsWith(".json"));
+  const localProducts = await readProductsFromDir(dir);
 
-  if (jsonFiles.length === 0) {
+  if (localProducts.length === 0) {
     return { created: 0, updated: 0, unchanged: 0, skus: [] };
   }
 
+  const response = await client.inappproducts.list(packageName);
+  const remoteSkus = new Set((response.inappproduct || []).map((p) => p.sku));
+
+  const toUpdate = localProducts.filter((p) => remoteSkus.has(p.sku));
+  const toCreate = localProducts.filter((p) => !remoteSkus.has(p.sku));
+  const skus = localProducts.map((p) => p.sku);
+
+  if (options?.dryRun) {
+    return { created: toCreate.length, updated: toUpdate.length, unchanged: 0, skus };
+  }
+
+  // Attempt batch update for products that need updating (multiple items)
+  if (toUpdate.length > 1) {
+    try {
+      await batchUpdateProducts(client, packageName, toUpdate);
+    } catch {
+      // Fallback to serial updates
+      for (const product of toUpdate) {
+        await client.inappproducts.update(packageName, product.sku, product);
+      }
+    }
+  } else {
+    for (const product of toUpdate) {
+      await client.inappproducts.update(packageName, product.sku, product);
+    }
+  }
+
+  for (const product of toCreate) {
+    await client.inappproducts.create(packageName, product);
+  }
+
+  return { created: toCreate.length, updated: toUpdate.length, unchanged: 0, skus };
+}
+
+const BATCH_CHUNK_SIZE = 100;
+
+async function batchUpdateProducts(
+  client: PlayApiClient,
+  packageName: string,
+  products: InAppProduct[],
+): Promise<InAppProduct[]> {
+  const results: InAppProduct[] = [];
+  for (let i = 0; i < products.length; i += BATCH_CHUNK_SIZE) {
+    const chunk = products.slice(i, i + BATCH_CHUNK_SIZE);
+    const request: InAppProductsBatchUpdateRequest = {
+      requests: chunk.map((p) => ({
+        inappproduct: p,
+        packageName,
+        sku: p.sku,
+      })),
+    };
+    const response = await client.inappproducts.batchUpdate(packageName, request);
+    results.push(...(response.inappproducts || []));
+  }
+  return results;
+}
+
+async function readProductsFromDir(dir: string): Promise<InAppProduct[]> {
+  const files = await readdir(dir);
+  const jsonFiles = files.filter((f) => f.endsWith(".json"));
   const localProducts: InAppProduct[] = [];
   for (const file of jsonFiles) {
     const content = await readFile(join(dir, file), "utf-8");
@@ -105,29 +164,74 @@ export async function syncInAppProducts(
       );
     }
   }
+  return localProducts;
+}
+
+export interface BatchSyncResult extends SyncResult {
+  batchUsed: boolean;
+  batchErrors: number;
+}
+
+export async function batchSyncInAppProducts(
+  client: PlayApiClient,
+  packageName: string,
+  dir: string,
+  options?: { dryRun?: boolean },
+): Promise<BatchSyncResult> {
+  const localProducts = await readProductsFromDir(dir);
+
+  if (localProducts.length === 0) {
+    return { created: 0, updated: 0, unchanged: 0, skus: [], batchUsed: false, batchErrors: 0 };
+  }
 
   const response = await client.inappproducts.list(packageName);
   const remoteSkus = new Set((response.inappproduct || []).map((p) => p.sku));
 
-  let created = 0;
-  let updated = 0;
-  const unchanged = 0;
-  const skus: string[] = [];
+  const toUpdate = localProducts.filter((p) => remoteSkus.has(p.sku));
+  const toCreate = localProducts.filter((p) => !remoteSkus.has(p.sku));
+  const skus = localProducts.map((p) => p.sku);
 
-  for (const product of localProducts) {
-    skus.push(product.sku);
-    if (remoteSkus.has(product.sku)) {
-      if (!options?.dryRun) {
+  if (options?.dryRun) {
+    return {
+      created: toCreate.length,
+      updated: toUpdate.length,
+      unchanged: 0,
+      skus,
+      batchUsed: toUpdate.length > 1,
+      batchErrors: 0,
+    };
+  }
+
+  let batchUsed = false;
+  let batchErrors = 0;
+
+  if (toUpdate.length > 1) {
+    batchUsed = true;
+    try {
+      await batchUpdateProducts(client, packageName, toUpdate);
+    } catch {
+      batchErrors++;
+      // Fallback to serial updates
+      for (const product of toUpdate) {
         await client.inappproducts.update(packageName, product.sku, product);
       }
-      updated++;
-    } else {
-      if (!options?.dryRun) {
-        await client.inappproducts.create(packageName, product);
-      }
-      created++;
+    }
+  } else {
+    for (const product of toUpdate) {
+      await client.inappproducts.update(packageName, product.sku, product);
     }
   }
 
-  return { created, updated, unchanged, skus };
+  for (const product of toCreate) {
+    await client.inappproducts.create(packageName, product);
+  }
+
+  return {
+    created: toCreate.length,
+    updated: toUpdate.length,
+    unchanged: 0,
+    skus,
+    batchUsed,
+    batchErrors,
+  };
 }

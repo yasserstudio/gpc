@@ -31,6 +31,13 @@ describe("getCommandTree", () => {
       "reports",
       "users",
       "testers",
+      "recovery",
+      "data-safety",
+      "external-transactions",
+      "device-tiers",
+      "one-time-products",
+      "internal-sharing",
+      "generated-apks",
       "doctor",
       "docs",
       "validate",
@@ -65,6 +72,56 @@ describe("getCommandTree", () => {
     expect(completionSubs).toContain("fish");
     expect(completionSubs).toContain("bash");
     expect(completionSubs).toContain("zsh");
+  });
+
+  it("includes subcommands for recovery", () => {
+    const tree = getCommandTree();
+    const subs = Object.keys(tree["recovery"]?.subcommands ?? {});
+    expect(subs).toEqual(["list", "cancel", "deploy", "create", "add-targeting"]);
+  });
+
+  it("includes subcommands for data-safety", () => {
+    const tree = getCommandTree();
+    const subs = Object.keys(tree["data-safety"]?.subcommands ?? {});
+    expect(subs).toEqual(["get", "update", "export"]);
+  });
+
+  it("includes subcommands for external-transactions", () => {
+    const tree = getCommandTree();
+    const subs = Object.keys(tree["external-transactions"]?.subcommands ?? {});
+    expect(subs).toEqual(["create", "get", "refund"]);
+  });
+
+  it("includes subcommands for device-tiers", () => {
+    const tree = getCommandTree();
+    const subs = Object.keys(tree["device-tiers"]?.subcommands ?? {});
+    expect(subs).toEqual(["list", "get", "create"]);
+  });
+
+  it("includes subcommands for one-time-products", () => {
+    const tree = getCommandTree();
+    const subs = Object.keys(tree["one-time-products"]?.subcommands ?? {});
+    expect(subs).toEqual(["list", "get", "create", "update", "delete", "offers"]);
+  });
+
+  it("includes nested offers subcommands for one-time-products", () => {
+    const tree = getCommandTree();
+    const offersSubs = Object.keys(
+      tree["one-time-products"]?.subcommands?.["offers"]?.subcommands ?? {},
+    );
+    expect(offersSubs).toEqual(["list", "get", "create", "update", "delete"]);
+  });
+
+  it("includes subcommands for internal-sharing", () => {
+    const tree = getCommandTree();
+    const subs = Object.keys(tree["internal-sharing"]?.subcommands ?? {});
+    expect(subs).toEqual(["upload"]);
+  });
+
+  it("includes subcommands for generated-apks", () => {
+    const tree = getCommandTree();
+    const subs = Object.keys(tree["generated-apks"]?.subcommands ?? {});
+    expect(subs).toEqual(["list", "download"]);
   });
 
   it("every entry has a description", () => {
@@ -120,6 +177,20 @@ describe("generateBashCompletions", () => {
     expect(output).toContain("rollout)");
     expect(output).toContain("increase halt resume complete");
   });
+
+  it("includes new v0.9.7/v0.9.8 commands", () => {
+    expect(output).toContain("recovery)");
+    expect(output).toContain("data-safety)");
+    expect(output).toContain("external-transactions)");
+    expect(output).toContain("device-tiers)");
+    expect(output).toContain("one-time-products)");
+    expect(output).toContain("internal-sharing)");
+    expect(output).toContain("generated-apks)");
+  });
+
+  it("includes level-3 completions for one-time-products offers", () => {
+    expect(output).toContain("offers)");
+  });
 });
 
 describe("generateZshCompletions", () => {
@@ -164,6 +235,20 @@ describe("generateZshCompletions", () => {
   it("handles subsubcommand state", () => {
     expect(output).toContain("subsubcommand)");
   });
+
+  it("includes new v0.9.7/v0.9.8 command arrays", () => {
+    expect(output).toContain("recovery_commands=(");
+    expect(output).toContain("data_safety_commands=(");
+    expect(output).toContain("external_transactions_commands=(");
+    expect(output).toContain("device_tiers_commands=(");
+    expect(output).toContain("one_time_products_commands=(");
+    expect(output).toContain("internal_sharing_commands=(");
+    expect(output).toContain("generated_apks_commands=(");
+  });
+
+  it("includes level-3 array for one-time-products offers", () => {
+    expect(output).toContain("one_time_products_offers_commands=(");
+  });
 });
 
 describe("generateFishCompletions", () => {
@@ -204,6 +289,20 @@ describe("generateFishCompletions", () => {
   it("includes level-3 subcommands", () => {
     expect(output).toContain("# releases rollout subcommands");
     expect(output).toContain("__fish_seen_subcommand_from rollout");
+  });
+
+  it("includes new v0.9.7/v0.9.8 commands", () => {
+    expect(output).toContain("# recovery subcommands");
+    expect(output).toContain("# data-safety subcommands");
+    expect(output).toContain("# external-transactions subcommands");
+    expect(output).toContain("# device-tiers subcommands");
+    expect(output).toContain("# one-time-products subcommands");
+    expect(output).toContain("# internal-sharing subcommands");
+    expect(output).toContain("# generated-apks subcommands");
+  });
+
+  it("includes level-3 subcommands for one-time-products offers", () => {
+    expect(output).toContain("# one-time-products offers subcommands");
   });
 });
 
@@ -249,6 +348,23 @@ describe("generatePowerShellCompletions", () => {
     expect(output).toContain("'rollout' {");
     expect(output).toContain(
       "[CompletionResult]::new('increase', 'increase', [CompletionResultType]::ParameterValue, 'Increase a staged rollout')",
+    );
+  });
+
+  it("includes new v0.9.7/v0.9.8 command switch cases", () => {
+    expect(output).toContain("'recovery' {");
+    expect(output).toContain("'data-safety' {");
+    expect(output).toContain("'external-transactions' {");
+    expect(output).toContain("'device-tiers' {");
+    expect(output).toContain("'one-time-products' {");
+    expect(output).toContain("'internal-sharing' {");
+    expect(output).toContain("'generated-apks' {");
+  });
+
+  it("includes level-3 switch case for one-time-products offers", () => {
+    expect(output).toContain("'offers' {");
+    expect(output).toContain(
+      "[CompletionResult]::new('list', 'list', [CompletionResultType]::ParameterValue, 'List offers for a one-time product')",
     );
   });
 

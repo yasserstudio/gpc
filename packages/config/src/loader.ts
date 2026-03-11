@@ -6,7 +6,7 @@ import { ConfigError } from "./errors.js";
 import { getUserConfigPath } from "./paths.js";
 import type { GpcConfig, OutputFormat, ResolvedConfig } from "./types.js";
 
-const VALID_OUTPUT_FORMATS: ReadonlySet<string> = new Set(["table", "json", "yaml", "markdown"]);
+const VALID_OUTPUT_FORMATS: ReadonlySet<string> = new Set(["table", "json", "yaml", "markdown", "junit"]);
 
 function isValidOutputFormat(value: string): value is OutputFormat {
   return VALID_OUTPUT_FORMATS.has(value);

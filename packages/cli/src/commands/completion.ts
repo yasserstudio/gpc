@@ -218,6 +218,73 @@ export function getCommandTree(): Record<string, CommandDef> {
         import: { description: "Import testers from a CSV file" },
       },
     },
+    recovery: {
+      description: "Manage app recovery actions",
+      subcommands: {
+        list: { description: "List app recovery actions" },
+        cancel: { description: "Cancel a recovery action" },
+        deploy: { description: "Deploy a recovery action" },
+        create: { description: "Create a recovery action" },
+        "add-targeting": { description: "Add targeting to a recovery action" },
+      },
+    },
+    "data-safety": {
+      description: "Manage data safety declarations",
+      subcommands: {
+        get: { description: "Get data safety declaration" },
+        update: { description: "Update data safety declaration" },
+        export: { description: "Export data safety declaration" },
+      },
+    },
+    "external-transactions": {
+      description: "Manage external transactions",
+      subcommands: {
+        create: { description: "Create an external transaction" },
+        get: { description: "Get an external transaction" },
+        refund: { description: "Refund an external transaction" },
+      },
+    },
+    "device-tiers": {
+      description: "Manage device tier configurations",
+      subcommands: {
+        list: { description: "List device tier configurations" },
+        get: { description: "Get a device tier configuration" },
+        create: { description: "Create a device tier configuration" },
+      },
+    },
+    "one-time-products": {
+      description: "Manage one-time products",
+      subcommands: {
+        list: { description: "List one-time products" },
+        get: { description: "Get a one-time product" },
+        create: { description: "Create a one-time product" },
+        update: { description: "Update a one-time product" },
+        delete: { description: "Delete a one-time product" },
+        offers: {
+          description: "Manage one-time product offers",
+          subcommands: {
+            list: { description: "List offers for a one-time product" },
+            get: { description: "Get a one-time product offer" },
+            create: { description: "Create a one-time product offer" },
+            update: { description: "Update a one-time product offer" },
+            delete: { description: "Delete a one-time product offer" },
+          },
+        },
+      },
+    },
+    "internal-sharing": {
+      description: "Manage internal app sharing",
+      subcommands: {
+        upload: { description: "Upload an artifact for internal sharing" },
+      },
+    },
+    "generated-apks": {
+      description: "Manage generated APKs from app bundles",
+      subcommands: {
+        list: { description: "List generated APKs for a version" },
+        download: { description: "Download a generated APK" },
+      },
+    },
     doctor: { description: "Verify setup and connectivity" },
     docs: { description: "Open documentation in browser" },
     validate: { description: "Pre-submission validation checks" },

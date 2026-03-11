@@ -15,6 +15,26 @@ const currentVersion = process.env["__GPC_VERSION"] || "0.0.0";
 // Start update check before command execution (non-blocking)
 const updateCheckPromise = checkForUpdate(currentVersion);
 
+// Handle --ci and --json flags early (before command parsing)
+if (process.argv.includes("--ci")) {
+  process.env["CI"] = "1";
+  // --ci implies --output json --no-interactive --no-color
+  if (!process.argv.some((a) => a.startsWith("--output") || a.startsWith("-o"))) {
+    process.argv.push("--output", "json");
+  }
+  if (!process.argv.includes("--no-interactive")) {
+    process.argv.push("--no-interactive");
+  }
+  if (!process.argv.includes("--no-color")) {
+    process.argv.push("--no-color");
+  }
+}
+if (process.argv.includes("--json") || process.argv.includes("-j")) {
+  if (!process.argv.some((a) => a.startsWith("--output") || a.startsWith("-o"))) {
+    process.argv.push("--output", "json");
+  }
+}
+
 const pluginManager = await loadPlugins();
 const program = await createProgram(pluginManager);
 

@@ -22,6 +22,8 @@ import type {
   DeviceTierConfigsListResponse,
   ExternalTransaction,
   ExternalTransactionRefund,
+  ExternallyHostedApk,
+  ExternallyHostedApkResponse,
   Image,
   ImageType,
   ImageUploadResponse,
@@ -60,6 +62,10 @@ import type {
   InternalAppSharingArtifact,
   GeneratedApk,
   GeneratedApksPerVersion,
+  PurchaseOption,
+  PurchaseOptionsListResponse,
+  InAppProductsBatchUpdateRequest,
+  InAppProductsBatchUpdateResponse,
 } from "./types.js";
 
 export interface PlayApiClient {
@@ -85,7 +91,16 @@ export interface PlayApiClient {
   tracks: {
     list(packageName: string, editId: string): Promise<Track[]>;
     get(packageName: string, editId: string, track: string): Promise<Track>;
+    create(packageName: string, editId: string, trackName: string): Promise<Track>;
     update(packageName: string, editId: string, track: string, release: Release): Promise<Track>;
+  };
+
+  apks: {
+    addExternallyHosted(
+      packageName: string,
+      editId: string,
+      data: ExternallyHostedApk,
+    ): Promise<ExternallyHostedApkResponse>;
   };
 
   listings: {
@@ -236,6 +251,11 @@ export interface PlayApiClient {
     create(packageName: string, data: InAppProduct): Promise<InAppProduct>;
     update(packageName: string, sku: string, data: InAppProduct): Promise<InAppProduct>;
     delete(packageName: string, sku: string): Promise<void>;
+    batchUpdate(
+      packageName: string,
+      requests: InAppProductsBatchUpdateRequest,
+    ): Promise<InAppProductsBatchUpdateResponse>;
+    batchGet(packageName: string, skus: string[]): Promise<InAppProduct[]>;
   };
 
   purchases: {
@@ -363,6 +383,14 @@ export interface PlayApiClient {
     ): Promise<void>;
   };
 
+  purchaseOptions: {
+    list(packageName: string): Promise<PurchaseOptionsListResponse>;
+    get(packageName: string, purchaseOptionId: string): Promise<PurchaseOption>;
+    create(packageName: string, data: PurchaseOption): Promise<PurchaseOption>;
+    activate(packageName: string, purchaseOptionId: string): Promise<PurchaseOption>;
+    deactivate(packageName: string, purchaseOptionId: string): Promise<PurchaseOption>;
+  };
+
   internalAppSharing: {
     uploadBundle(packageName: string, bundlePath: string): Promise<InternalAppSharingArtifact>;
     uploadApk(packageName: string, apkPath: string): Promise<InternalAppSharingArtifact>;
@@ -471,11 +499,28 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
+      async create(packageName, editId, trackName) {
+        const { data } = await http.post<Track>(`/${packageName}/edits/${editId}/tracks`, {
+          track: trackName,
+        });
+        return data;
+      },
+
       async update(packageName, editId, track, release) {
         const { data } = await http.put<Track>(`/${packageName}/edits/${editId}/tracks/${track}`, {
           track,
           releases: [release],
         });
+        return data;
+      },
+    },
+
+    apks: {
+      async addExternallyHosted(packageName, editId, apkData) {
+        const { data } = await http.post<ExternallyHostedApkResponse>(
+          `/${packageName}/edits/${editId}/apks/externallyHosted`,
+          { externallyHostedApk: apkData },
+        );
         return data;
       },
     },
@@ -776,6 +821,26 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async delete(packageName, sku) {
         await http.delete(`/${packageName}/inappproducts/${sku}`);
       },
+
+      async batchUpdate(packageName, requests) {
+        const { data } = await http.post<InAppProductsBatchUpdateResponse>(
+          `/${packageName}/inappproducts:batchUpdate`,
+          requests,
+        );
+        return data;
+      },
+
+      async batchGet(packageName, skus) {
+        const params: Record<string, string> = {};
+        if (skus.length > 0) {
+          params["sku"] = skus.join(",");
+        }
+        const { data } = await http.get<{ inappproduct: InAppProduct[] }>(
+          `/${packageName}/inappproducts:batchGet`,
+          Object.keys(params).length > 0 ? params : undefined,
+        );
+        return data.inappproduct || [];
+      },
     },
 
     purchases: {
@@ -1057,6 +1122,44 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
       async deleteOffer(packageName, productId, offerId) {
         await http.delete(`/${packageName}/oneTimeProducts/${productId}/offers/${offerId}`);
+      },
+    },
+
+    purchaseOptions: {
+      async list(packageName) {
+        const { data } = await http.get<PurchaseOptionsListResponse>(
+          `/${packageName}/purchaseOptions`,
+        );
+        return data;
+      },
+
+      async get(packageName, purchaseOptionId) {
+        const { data } = await http.get<PurchaseOption>(
+          `/${packageName}/purchaseOptions/${purchaseOptionId}`,
+        );
+        return data;
+      },
+
+      async create(packageName, body) {
+        const { data } = await http.post<PurchaseOption>(
+          `/${packageName}/purchaseOptions`,
+          body,
+        );
+        return data;
+      },
+
+      async activate(packageName, purchaseOptionId) {
+        const { data } = await http.post<PurchaseOption>(
+          `/${packageName}/purchaseOptions/${purchaseOptionId}:activate`,
+        );
+        return data;
+      },
+
+      async deactivate(packageName, purchaseOptionId) {
+        const { data } = await http.post<PurchaseOption>(
+          `/${packageName}/purchaseOptions/${purchaseOptionId}:deactivate`,
+        );
+        return data;
       },
     },
 

@@ -10,7 +10,7 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     .name("gpc")
     .description("The complete Google Play CLI")
     .version(process.env["__GPC_VERSION"] || "0.0.0", "-V, --version")
-    .option("-o, --output <format>", "Output format: table, json, yaml, markdown")
+    .option("-o, --output <format>", "Output format: table, json, yaml, markdown, junit")
     .option("-v, --verbose", "Enable debug logging")
     .option("-q, --quiet", "Suppress non-essential output")
     .option("-a, --app <package>", "App package name")
@@ -19,7 +19,10 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     .option("--no-interactive", "Disable interactive prompts")
     .option("-y, --yes", "Skip confirmation prompts")
     .option("--dry-run", "Preview changes without executing")
-    .option("--notify [target]", "Send webhook notification on completion (slack, discord, custom)");
+    .option("--notify [target]", "Send webhook notification on completion (slack, discord, custom)")
+    .option("--ci", "Force CI mode (JSON output, no prompts, strict exit codes)")
+    .option("-j, --json", "Shorthand for --output json")
+    .showSuggestionAfterError(true);
 
   const commandLoaders: Record<string, () => Promise<void>> = {
     auth: async () => {
@@ -107,6 +110,12 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     },
     "generated-apks": async () => {
       (await import("./commands/generated-apks.js")).registerGeneratedApksCommands(program);
+    },
+    "purchase-options": async () => {
+      (await import("./commands/purchase-options.js")).registerPurchaseOptionsCommands(program);
+    },
+    migrate: async () => {
+      (await import("./commands/migrate.js")).registerMigrateCommands(program);
     },
     plugins: async () => {
       registerPluginsCommand(program, pluginManager);

@@ -709,6 +709,29 @@ export interface GeneratedApksPerVersion {
   generatedApks: GeneratedApk[];
 }
 
+// --- Externally Hosted APKs ---
+
+export interface ExternallyHostedApk {
+  applicationLabel: string;
+  externallyHostedUrl: string;
+  fileSha256Base64: string;
+  fileSize: string;
+  iconBase64?: string;
+  certificateBase64s: string[];
+  maximumSdk?: number;
+  minimumSdk: number;
+  nativeCodes?: string[];
+  packageName: string;
+  usesFeatures?: string[];
+  usesPermissions?: { name: string; maxSdkVersion?: number }[];
+  versionCode: number;
+  versionName: string;
+}
+
+export interface ExternallyHostedApkResponse {
+  externallyHostedApk: ExternallyHostedApk;
+}
+
 // --- One-Time Products (OTP) ---
 
 export interface OneTimeProduct {
@@ -752,4 +775,34 @@ export interface OneTimeProductsListResponse {
 export interface OneTimeOffersListResponse {
   oneTimeOffers: OneTimeOffer[];
   nextPageToken?: string;
+}
+
+// --- Purchase Options ---
+
+export interface PurchaseOption {
+  packageName: string;
+  productId: string;
+  purchaseOptionId: string;
+  stateInfo?: { activeState?: Record<string, unknown>; inactiveState?: Record<string, unknown> };
+  listings?: Record<string, { title: string; description?: string }>;
+}
+
+export interface PurchaseOptionsListResponse {
+  purchaseOptions: PurchaseOption[];
+  nextPageToken?: string;
+}
+
+// --- IAP Batch Operations ---
+
+export interface InAppProductsBatchUpdateRequest {
+  requests: { inappproduct: InAppProduct; packageName: string; sku: string }[];
+}
+
+export interface InAppProductsBatchUpdateResponse {
+  inappproducts: InAppProduct[];
+}
+
+export interface InAppProductsBatchGetRequest {
+  packageName: string;
+  sku: string[];
 }

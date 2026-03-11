@@ -2207,3 +2207,208 @@ describe("generatedApks", () => {
     expect(init.method).toBe("GET");
   });
 });
+
+// ---------------------------------------------------------------------------
+// Purchase Options
+// ---------------------------------------------------------------------------
+describe("purchaseOptions", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("list calls GET /{pkg}/purchaseOptions", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ purchaseOptions: [] }));
+    const client = makeClient();
+    const result = await client.purchaseOptions.list(PKG);
+    expect(result).toEqual({ purchaseOptions: [] });
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/purchaseOptions`);
+    expect(init.method).toBe("GET");
+  });
+
+  it("get calls GET /{pkg}/purchaseOptions/{id}", async () => {
+    const option = { purchaseOptionId: "po-1", packageName: PKG, productId: "prod1" };
+    mockFetch.mockResolvedValueOnce(mockResponse(option));
+    const client = makeClient();
+    const result = await client.purchaseOptions.get(PKG, "po-1");
+    expect(result).toEqual(option);
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/purchaseOptions/po-1`);
+  });
+
+  it("create calls POST /{pkg}/purchaseOptions", async () => {
+    const option = { purchaseOptionId: "po-1", packageName: PKG, productId: "prod1" };
+    mockFetch.mockResolvedValueOnce(mockResponse(option));
+    const client = makeClient();
+    await client.purchaseOptions.create(PKG, option as any);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/purchaseOptions`);
+    expect(init.method).toBe("POST");
+  });
+
+  it("activate calls POST /{pkg}/purchaseOptions/{id}:activate", async () => {
+    const option = { purchaseOptionId: "po-1", packageName: PKG, productId: "prod1" };
+    mockFetch.mockResolvedValueOnce(mockResponse(option));
+    const client = makeClient();
+    await client.purchaseOptions.activate(PKG, "po-1");
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/purchaseOptions/po-1:activate`);
+    expect(init.method).toBe("POST");
+  });
+
+  it("deactivate calls POST /{pkg}/purchaseOptions/{id}:deactivate", async () => {
+    const option = { purchaseOptionId: "po-1", packageName: PKG, productId: "prod1" };
+    mockFetch.mockResolvedValueOnce(mockResponse(option));
+    const client = makeClient();
+    await client.purchaseOptions.deactivate(PKG, "po-1");
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/purchaseOptions/po-1:deactivate`);
+    expect(init.method).toBe("POST");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// IAP Batch Operations
+// ---------------------------------------------------------------------------
+describe("inappproducts batch", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("batchUpdate calls POST /{pkg}/inappproducts:batchUpdate", async () => {
+    const response = { inappproducts: [{ sku: "coins100" }] };
+    mockFetch.mockResolvedValueOnce(mockResponse(response));
+    const client = makeClient();
+    const result = await client.inappproducts.batchUpdate(PKG, {
+      requests: [{ inappproduct: { sku: "coins100" } as any, packageName: PKG, sku: "coins100" }],
+    });
+    expect(result).toEqual(response);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/inappproducts:batchUpdate`);
+    expect(init.method).toBe("POST");
+  });
+
+  it("batchGet calls GET /{pkg}/inappproducts:batchGet", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ inappproduct: [{ sku: "coins100" }] }));
+    const client = makeClient();
+    const result = await client.inappproducts.batchGet(PKG, ["coins100"]);
+    expect(result).toEqual([{ sku: "coins100" }]);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toContain(`${BASE_URL}/${PKG}/inappproducts:batchGet`);
+    expect(init.method).toBe("GET");
+  });
+
+  it("batchGet returns empty array when no products", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+    const client = makeClient();
+    const result = await client.inappproducts.batchGet(PKG, ["coins100"]);
+    expect(result).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Track create
+// ---------------------------------------------------------------------------
+describe("tracks.create", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+  const EDIT_ID = "edit-abc";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("tracks.create calls POST /{pkg}/edits/{editId}/tracks with track name", async () => {
+    const track = { track: "my-qa-track", releases: [] };
+    mockFetch.mockResolvedValueOnce(mockResponse(track));
+    const client = makeClient();
+    const result = await client.tracks.create(PKG, EDIT_ID, "my-qa-track");
+    expect(result).toEqual(track);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/tracks`);
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body)).toEqual({ track: "my-qa-track" });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Externally hosted APKs
+// ---------------------------------------------------------------------------
+describe("apks.addExternallyHosted", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+  const EDIT_ID = "edit-abc";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("addExternallyHosted calls POST /{pkg}/edits/{editId}/apks/externallyHosted", async () => {
+    const apkData = {
+      applicationLabel: "Test",
+      externallyHostedUrl: "https://cdn.example.com/app.apk",
+      fileSha256Base64: "abc",
+      fileSize: "1024",
+      certificateBase64s: ["cert"],
+      minimumSdk: 21,
+      packageName: PKG,
+      versionCode: 1,
+      versionName: "1.0",
+    };
+    const responseData = { externallyHostedApk: apkData };
+    mockFetch.mockResolvedValueOnce(mockResponse(responseData));
+    const client = makeClient();
+    const result = await client.apks.addExternallyHosted(PKG, EDIT_ID, apkData);
+    expect(result).toEqual(responseData);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/apks/externallyHosted`);
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body)).toEqual({ externallyHostedApk: apkData });
+  });
+});

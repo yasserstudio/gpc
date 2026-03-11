@@ -116,4 +116,11 @@ export type {
   InternalAppSharingArtifact,
   GeneratedApk,
   GeneratedApksPerVersion,
+  ExternallyHostedApk,
+  ExternallyHostedApkResponse,
+  PurchaseOption,
+  PurchaseOptionsListResponse,
+  InAppProductsBatchUpdateRequest,
+  InAppProductsBatchUpdateResponse,
+  InAppProductsBatchGetRequest,
 } from "./types.js";
