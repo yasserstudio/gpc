@@ -1,5 +1,14 @@
 # @gpc-cli/core
 
+## 0.9.6
+
+### Patch Changes
+
+- Enhanced dry-run for releases, auto-update checker, and 88 new edge case tests
+- Updated dependencies
+  - @gpc-cli/api@1.0.5
+  - @gpc-cli/auth@0.9.6
+
 ## 0.9.5
 
 ### Patch Changes
