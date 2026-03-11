@@ -120,6 +120,34 @@ vi.mock("@gpc-cli/core", () => {
     listVoidedPurchases: vi.fn().mockResolvedValue({ voidedPurchases: [] }),
     refundOrder: vi.fn().mockResolvedValue(undefined),
     convertRegionPrices: vi.fn().mockResolvedValue({ convertedRegionPrices: {} }),
+    // v0.9.7 – listings diff
+    diffListingsCommand: vi.fn().mockResolvedValue({ diffs: [] }),
+    // v0.9.7 – sort utility
+    sortResults: vi.fn().mockImplementation((data: unknown[]) => data),
+    // v0.9.7 – app recovery
+    listRecoveryActions: vi.fn().mockResolvedValue([]),
+    cancelRecoveryAction: vi.fn().mockResolvedValue({}),
+    deployRecoveryAction: vi.fn().mockResolvedValue({}),
+    // v0.9.7 – data safety
+    getDataSafety: vi.fn().mockResolvedValue({}),
+    updateDataSafety: vi.fn().mockResolvedValue({}),
+    exportDataSafety: vi.fn().mockResolvedValue({}),
+    importDataSafety: vi.fn().mockResolvedValue({}),
+    // v0.9.7 – external transactions
+    createExternalTransaction: vi.fn().mockResolvedValue({}),
+    getExternalTransaction: vi.fn().mockResolvedValue({}),
+    refundExternalTransaction: vi.fn().mockResolvedValue({}),
+    // v0.9.7 – git-based release notes
+    generateNotesFromGit: vi.fn().mockResolvedValue({ language: "en-US", text: "notes", commitCount: 1, since: "v1.0.0" }),
+    // v0.9.7 – webhooks
+    sendWebhook: vi.fn().mockResolvedValue(undefined),
+    formatSlackPayload: vi.fn().mockReturnValue({}),
+    formatDiscordPayload: vi.fn().mockReturnValue({}),
+    formatCustomPayload: vi.fn().mockReturnValue({}),
+    // v0.9.7 – audit
+    writeAuditLog: vi.fn().mockResolvedValue(undefined),
+    createAuditEntry: vi.fn().mockReturnValue({}),
+    initAudit: vi.fn().mockResolvedValue(undefined),
   };
 });
 

@@ -5,7 +5,7 @@ import { loadConfig, getCacheDir } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
 import type { RetryLogEntry } from "@gpc-cli/api";
-import { publish, writeAuditLog, createAuditEntry } from "@gpc-cli/core";
+import { publish, generateNotesFromGit, writeAuditLog, createAuditEntry } from "@gpc-cli/core";
 import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
 import { isDryRun } from "../dry-run.js";
 import { isInteractive, promptSelect, promptInput } from "../prompt.js";
@@ -27,12 +27,15 @@ export function registerPublishCommand(program: Command): void {
     .option("--rollout <percent>", "Staged rollout percentage (1-100)")
     .option("--notes <text>", "Release notes (en-US)")
     .option("--notes-dir <dir>", "Read release notes from directory (<dir>/<lang>.txt)")
+    .option("--notes-from-git", "Generate release notes from git commit history")
+    .option("--since <ref>", "Git ref to start from (tag, SHA) — used with --notes-from-git")
     .option("--name <name>", "Release name")
     .option("--mapping <file>", "ProGuard/R8 mapping file for deobfuscation")
     .option("--retry-log <path>", "Write retry log entries to file (JSONL)")
     .action(async (file: string, options) => {
-      if (options.notes && options.notesDir) {
-        console.error("Error: Cannot use both --notes and --notes-dir");
+      const noteSources = [options.notes, options.notesDir, options.notesFromGit].filter(Boolean);
+      if (noteSources.length > 1) {
+        console.error("Error: Cannot combine --notes, --notes-dir, and --notes-from-git. Use only one.");
         process.exit(2);
       }
 
@@ -57,10 +60,16 @@ export function registerPublishCommand(program: Command): void {
           }
         }
 
-        if (!options.notes && !options.notesDir) {
+        if (!options.notes && !options.notesDir && !options.notesFromGit) {
           const notes = await promptInput("Release notes (en-US, blank to skip)");
           if (notes) options.notes = notes;
         }
+      }
+
+      // Resolve git-based release notes before calling publish
+      if (options.notesFromGit) {
+        const gitNotes = await generateNotesFromGit({ since: options.since });
+        options.notes = gitNotes.text;
       }
 
       let onRetry: ((entry: RetryLogEntry) => void) | undefined;

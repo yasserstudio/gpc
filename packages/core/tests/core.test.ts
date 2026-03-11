@@ -1150,6 +1150,106 @@ describe("pushListings", () => {
 });
 
 // ---------------------------------------------------------------------------
+// diffListingsCommand
+// ---------------------------------------------------------------------------
+describe("diffListingsCommand", () => {
+  it("returns diffs when local and remote differ", async () => {
+    const client = mockClient();
+    client.listings.list.mockResolvedValue([
+      { language: "en-US", title: "Remote Title", shortDescription: "s", fullDescription: "f" },
+    ]);
+
+    const dir = await mkdtemp(join(tmpdir(), "gpc-diff-"));
+
+    try {
+      await writeListingsToDir(dir, [
+        { language: "en-US", title: "Local Title", shortDescription: "s", fullDescription: "f" },
+      ]);
+
+      const { diffListingsCommand } = await import("../src/commands/listings.js");
+      const diffs = await diffListingsCommand(client, PKG, dir);
+
+      expect(diffs).toHaveLength(1);
+      expect(diffs[0]).toEqual({
+        language: "en-US",
+        field: "title",
+        local: "Local Title",
+        remote: "Remote Title",
+      });
+      expect(client.edits.insert).toHaveBeenCalledWith(PKG);
+      expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+    } finally {
+      await rm(dir, { recursive: true });
+    }
+  });
+
+  it("returns empty array when no differences", async () => {
+    const client = mockClient();
+    client.listings.list.mockResolvedValue([
+      { language: "en-US", title: "Same", shortDescription: "s", fullDescription: "f" },
+    ]);
+
+    const dir = await mkdtemp(join(tmpdir(), "gpc-diff-"));
+
+    try {
+      await writeListingsToDir(dir, [
+        { language: "en-US", title: "Same", shortDescription: "s", fullDescription: "f" },
+      ]);
+
+      const { diffListingsCommand } = await import("../src/commands/listings.js");
+      const diffs = await diffListingsCommand(client, PKG, dir);
+
+      expect(diffs).toHaveLength(0);
+    } finally {
+      await rm(dir, { recursive: true });
+    }
+  });
+
+  it("detects remote-only language", async () => {
+    const client = mockClient();
+    client.listings.list.mockResolvedValue([
+      { language: "ja-JP", title: "Japanese", shortDescription: "jp-s", fullDescription: "jp-f" },
+    ]);
+
+    const dir = await mkdtemp(join(tmpdir(), "gpc-diff-"));
+
+    try {
+      // Write no local listings — empty dir
+      const { diffListingsCommand } = await import("../src/commands/listings.js");
+      const diffs = await diffListingsCommand(client, PKG, dir);
+
+      expect(diffs.length).toBeGreaterThan(0);
+      expect(diffs.every((d) => d.language === "ja-JP")).toBe(true);
+      expect(diffs.every((d) => d.local === "")).toBe(true);
+    } finally {
+      await rm(dir, { recursive: true });
+    }
+  });
+
+  it("detects local-only language", async () => {
+    const client = mockClient();
+    client.listings.list.mockResolvedValue([]);
+
+    const dir = await mkdtemp(join(tmpdir(), "gpc-diff-"));
+
+    try {
+      await writeListingsToDir(dir, [
+        { language: "fr-FR", title: "Titre", shortDescription: "court", fullDescription: "complet" },
+      ]);
+
+      const { diffListingsCommand } = await import("../src/commands/listings.js");
+      const diffs = await diffListingsCommand(client, PKG, dir);
+
+      expect(diffs.length).toBeGreaterThan(0);
+      expect(diffs.every((d) => d.language === "fr-FR")).toBe(true);
+      expect(diffs.every((d) => d.remote === "")).toBe(true);
+    } finally {
+      await rm(dir, { recursive: true });
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Phase 4 – listImages
 // ---------------------------------------------------------------------------
 describe("listImages", () => {
@@ -2072,6 +2172,52 @@ describe("purchases commands", () => {
     expect(client.orders.refund).toHaveBeenCalledWith("com.example", "GPA.1234", {
       fullRefund: true,
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// App Recovery
+// ---------------------------------------------------------------------------
+
+import {
+  listRecoveryActions,
+  cancelRecoveryAction,
+  deployRecoveryAction,
+} from "../src/commands/app-recovery.js";
+
+describe("app recovery commands", () => {
+  function mockClient(): any {
+    return {
+      appRecovery: {
+        list: vi.fn().mockResolvedValue([
+          { appRecoveryId: "rec1", status: "DRAFT", createTime: "2026-01-01T00:00:00Z" },
+          { appRecoveryId: "rec2", status: "DEPLOYED", deployTime: "2026-02-01T00:00:00Z" },
+        ]),
+        cancel: vi.fn().mockResolvedValue(undefined),
+        deploy: vi.fn().mockResolvedValue(undefined),
+      },
+    };
+  }
+
+  it("listRecoveryActions calls client.appRecovery.list", async () => {
+    const client = mockClient();
+    const result = await listRecoveryActions(client, "com.example");
+    expect(client.appRecovery.list).toHaveBeenCalledWith("com.example");
+    expect(result).toHaveLength(2);
+    expect(result[0].appRecoveryId).toBe("rec1");
+    expect(result[1].status).toBe("DEPLOYED");
+  });
+
+  it("cancelRecoveryAction calls client.appRecovery.cancel", async () => {
+    const client = mockClient();
+    await cancelRecoveryAction(client, "com.example", "rec1");
+    expect(client.appRecovery.cancel).toHaveBeenCalledWith("com.example", "rec1");
+  });
+
+  it("deployRecoveryAction calls client.appRecovery.deploy", async () => {
+    const client = mockClient();
+    await deployRecoveryAction(client, "com.example", "rec2");
+    expect(client.appRecovery.deploy).toHaveBeenCalledWith("com.example", "rec2");
   });
 });
 
@@ -3684,5 +3830,202 @@ describe("diffListings – edge cases", () => {
     const diffs = diffListings(local, remote);
     expect(diffs).toHaveLength(2);
     expect(diffs.map((d) => d.field).sort()).toEqual(["shortDescription", "title"]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Data Safety
+// ---------------------------------------------------------------------------
+import {
+  getDataSafety,
+  updateDataSafety,
+  exportDataSafety,
+  importDataSafety,
+} from "../src/commands/data-safety.js";
+
+describe("data-safety commands", () => {
+
+  const sampleDataSafety = {
+    dataTypes: [
+      {
+        dataType: "location",
+        dataCategory: "Location",
+        collected: true,
+        shared: false,
+        ephemeral: false,
+        required: true,
+        purposes: ["App functionality"],
+      },
+    ],
+    purposes: [{ purpose: "App functionality" }],
+    securityPractices: {
+      dataEncryptedInTransit: true,
+      dataDeleteable: true,
+      independentSecurityReview: false,
+    },
+  };
+
+  function mockClient(): any {
+    return {
+      edits: {
+        insert: vi.fn().mockResolvedValue({ id: "edit-1" }),
+        validate: vi.fn().mockResolvedValue({}),
+        commit: vi.fn().mockResolvedValue({}),
+        delete: vi.fn().mockResolvedValue(undefined),
+      },
+      dataSafety: {
+        get: vi.fn().mockResolvedValue(sampleDataSafety),
+        update: vi.fn().mockResolvedValue(sampleDataSafety),
+      },
+    };
+  }
+
+  it("getDataSafety opens edit, reads data safety, deletes edit", async () => {
+    const client = mockClient();
+    const result = await getDataSafety(client, "com.example");
+    expect(client.edits.insert).toHaveBeenCalledWith("com.example");
+    expect(client.dataSafety.get).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(client.edits.delete).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(result.securityPractices?.dataEncryptedInTransit).toBe(true);
+    expect(result.dataTypes).toHaveLength(1);
+  });
+
+  it("updateDataSafety opens edit, updates, validates, commits", async () => {
+    const client = mockClient();
+    const result = await updateDataSafety(client, "com.example", sampleDataSafety);
+    expect(client.edits.insert).toHaveBeenCalledWith("com.example");
+    expect(client.dataSafety.update).toHaveBeenCalledWith("com.example", "edit-1", sampleDataSafety);
+    expect(client.edits.validate).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(client.edits.commit).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(result).toEqual(sampleDataSafety);
+  });
+
+  it("exportDataSafety writes JSON to file", async () => {
+    const client = mockClient();
+    const tmpDir = await mkdtemp(join(tmpdir(), "gpc-ds-"));
+    const outPath = join(tmpDir, "data-safety.json");
+    const result = await exportDataSafety(client, "com.example", outPath);
+    expect(result).toEqual(sampleDataSafety);
+
+    const { readFile } = await import("node:fs/promises");
+    const written = JSON.parse(await readFile(outPath, "utf-8"));
+    expect(written).toEqual(sampleDataSafety);
+
+    await rm(tmpDir, { recursive: true });
+  });
+
+  it("importDataSafety reads JSON from file and updates", async () => {
+    const client = mockClient();
+    const tmpDir = await mkdtemp(join(tmpdir(), "gpc-ds-"));
+    const filePath = join(tmpDir, "data-safety.json");
+
+    const { writeFile } = await import("node:fs/promises");
+    await writeFile(filePath, JSON.stringify(sampleDataSafety), "utf-8");
+
+    const result = await importDataSafety(client, "com.example", filePath);
+    expect(client.dataSafety.update).toHaveBeenCalledWith("com.example", "edit-1", sampleDataSafety);
+    expect(result).toEqual(sampleDataSafety);
+
+    await rm(tmpDir, { recursive: true });
+  });
+
+  it("getDataSafety cleans up edit on error", async () => {
+    const client = mockClient();
+    client.dataSafety.get.mockRejectedValue(new Error("API error"));
+    await expect(getDataSafety(client, "com.example")).rejects.toThrow("API error");
+    expect(client.edits.delete).toHaveBeenCalledWith("com.example", "edit-1");
+  });
+
+  it("updateDataSafety cleans up edit on error", async () => {
+    const client = mockClient();
+    client.dataSafety.update.mockRejectedValue(new Error("API error"));
+    await expect(updateDataSafety(client, "com.example", sampleDataSafety)).rejects.toThrow("API error");
+    expect(client.edits.delete).toHaveBeenCalledWith("com.example", "edit-1");
+  });
+
+  it("importDataSafety throws on invalid JSON", async () => {
+    const client = mockClient();
+    const tmpDir = await mkdtemp(join(tmpdir(), "gpc-ds-"));
+    const filePath = join(tmpDir, "bad.json");
+
+    const { writeFile } = await import("node:fs/promises");
+    await writeFile(filePath, "not valid json{{{", "utf-8");
+
+    await expect(importDataSafety(client, "com.example", filePath)).rejects.toThrow(
+      "Failed to parse data safety JSON",
+    );
+
+    await rm(tmpDir, { recursive: true });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// External Transactions
+// ---------------------------------------------------------------------------
+
+import {
+  createExternalTransaction,
+  getExternalTransaction,
+  refundExternalTransaction,
+} from "../src/commands/external-transactions.js";
+
+describe("external transactions commands", () => {
+  function mockClient(): any {
+    return {
+      externalTransactions: {
+        create: vi.fn().mockResolvedValue({
+          externalTransactionId: "ext-txn-1",
+          transactionState: "TRANSACTION_STATE_COMPLETED",
+          createTime: "2026-01-15T10:00:00Z",
+        }),
+        get: vi.fn().mockResolvedValue({
+          externalTransactionId: "ext-txn-1",
+          transactionState: "TRANSACTION_STATE_COMPLETED",
+          originalPreTaxAmount: { priceMicros: "1990000", currency: "USD" },
+        }),
+        refund: vi.fn().mockResolvedValue({
+          externalTransactionId: "ext-txn-1",
+          transactionState: "TRANSACTION_STATE_REFUNDED",
+        }),
+      },
+    };
+  }
+
+  it("createExternalTransaction calls client.externalTransactions.create", async () => {
+    const client = mockClient();
+    const txnData = {
+      originalPreTaxAmount: { priceMicros: "1990000", currency: "USD" },
+      originalTaxAmount: { priceMicros: "0", currency: "USD" },
+      oneTimeTransaction: { externalTransactionToken: "tok-abc" },
+    };
+    const result = await createExternalTransaction(client, "com.example", txnData);
+    expect(client.externalTransactions.create).toHaveBeenCalledWith("com.example", txnData);
+    expect(result.externalTransactionId).toBe("ext-txn-1");
+    expect(result.transactionState).toBe("TRANSACTION_STATE_COMPLETED");
+  });
+
+  it("getExternalTransaction calls client.externalTransactions.get", async () => {
+    const client = mockClient();
+    const result = await getExternalTransaction(client, "com.example", "ext-txn-1");
+    expect(client.externalTransactions.get).toHaveBeenCalledWith("com.example", "ext-txn-1");
+    expect(result.externalTransactionId).toBe("ext-txn-1");
+    expect(result.originalPreTaxAmount?.priceMicros).toBe("1990000");
+  });
+
+  it("refundExternalTransaction calls client.externalTransactions.refund", async () => {
+    const client = mockClient();
+    const refundData = { fullRefund: {} };
+    const result = await refundExternalTransaction(
+      client,
+      "com.example",
+      "ext-txn-1",
+      refundData,
+    );
+    expect(client.externalTransactions.refund).toHaveBeenCalledWith(
+      "com.example",
+      "ext-txn-1",
+      refundData,
+    );
+    expect(result.transactionState).toBe("TRANSACTION_STATE_REFUNDED");
   });
 });

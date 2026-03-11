@@ -11,10 +11,11 @@ import {
   promoteRelease,
   updateRollout,
   readReleaseNotesFromDir,
+  generateNotesFromGit,
   writeAuditLog,
   createAuditEntry,
 } from "@gpc-cli/core";
-import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
+import { detectOutputFormat, formatOutput, sortResults } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, promptSelect, promptInput, requireOption } from "../prompt.js";
 
@@ -53,10 +54,13 @@ export function registerReleasesCommands(program: Command): void {
     .option("--name <name>", "Release name")
     .option("--mapping <file>", "ProGuard/R8 mapping file for deobfuscation")
     .option("--notes-dir <dir>", "Read release notes from directory (<dir>/<lang>.txt)")
+    .option("--notes-from-git", "Generate release notes from git commit history")
+    .option("--since <ref>", "Git ref to start from (tag, SHA) — used with --notes-from-git")
     .option("--retry-log <path>", "Write retry log entries to file (JSONL)")
     .action(async (file: string, options) => {
-      if (options.notes && options.notesDir) {
-        console.error("Error: Cannot use both --notes and --notes-dir");
+      const noteSources = [options.notes, options.notesDir, options.notesFromGit].filter(Boolean);
+      if (noteSources.length > 1) {
+        console.error("Error: Cannot combine --notes, --notes-dir, and --notes-from-git. Use only one.");
         process.exit(2);
       }
       const config = await loadConfig();
@@ -115,7 +119,10 @@ export function registerReleasesCommands(program: Command): void {
 
       try {
         let releaseNotes: { language: string; text: string }[] | undefined;
-        if (options.notesDir) {
+        if (options.notesFromGit) {
+          const gitNotes = await generateNotesFromGit({ since: options.since });
+          releaseNotes = [{ language: gitNotes.language, text: gitNotes.text }];
+        } else if (options.notesDir) {
           releaseNotes = await readReleaseNotesFromDir(options.notesDir);
         } else if (options.notes) {
           releaseNotes = [{ language: "en-US", text: options.notes }];
@@ -146,6 +153,7 @@ export function registerReleasesCommands(program: Command): void {
     .command("status")
     .description("Show current release status across tracks")
     .option("--track <track>", "Filter by track")
+    .option("--sort <field>", "Sort by field (prefix with - for descending)")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -154,7 +162,8 @@ export function registerReleasesCommands(program: Command): void {
 
       try {
         const statuses = await getReleasesStatus(client, packageName, options.track);
-        console.log(formatOutput(statuses, format));
+        const sorted = Array.isArray(statuses) ? sortResults(statuses, options.sort) : statuses;
+        console.log(formatOutput(sorted, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

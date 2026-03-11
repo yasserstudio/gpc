@@ -1,4 +1,5 @@
 import { resolve, normalize } from "node:path";
+import { GpcError } from "../errors.js";
 
 /**
  * Normalize and resolve a user-supplied path.
@@ -17,7 +18,12 @@ export function safePathWithin(userPath: string, baseDir: string): string {
   const base = safePath(baseDir);
 
   if (!resolved.startsWith(base + "/") && resolved !== base) {
-    throw new Error(`Path "${userPath}" resolves outside the expected directory "${baseDir}"`);
+    throw new GpcError(
+      `Path "${userPath}" resolves outside the expected directory "${baseDir}"`,
+      "PATH_TRAVERSAL",
+      2,
+      "The path must stay within the target directory. Remove any ../ segments or use an absolute path within the expected directory.",
+    );
   }
 
   return resolved;

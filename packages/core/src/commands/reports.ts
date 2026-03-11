@@ -1,4 +1,5 @@
 import type { PlayApiClient, ReportBucket, ReportType, StatsDimension } from "@gpc-cli/api";
+import { GpcError, NetworkError } from "../errors.js";
 
 const FINANCIAL_REPORT_TYPES: ReadonlySet<string> = new Set([
   "earnings",
@@ -50,12 +51,22 @@ export interface ParsedMonth {
 export function parseMonth(monthStr: string): ParsedMonth {
   const match = /^(\d{4})-(\d{2})$/.exec(monthStr);
   if (!match) {
-    throw new Error(`Invalid month format "${monthStr}". Expected YYYY-MM (e.g., 2026-03).`);
+    throw new GpcError(
+      `Invalid month format "${monthStr}". Expected YYYY-MM (e.g., 2026-03).`,
+      "REPORT_INVALID_MONTH",
+      2,
+      "Use the format YYYY-MM, for example: --month 2026-03",
+    );
   }
   const year = Number(match[1]);
   const month = Number(match[2]);
   if (month < 1 || month > 12) {
-    throw new Error(`Invalid month "${month}". Must be between 01 and 12.`);
+    throw new GpcError(
+      `Invalid month "${month}". Must be between 01 and 12.`,
+      "REPORT_INVALID_MONTH",
+      2,
+      "The month value must be between 01 and 12.",
+    );
   }
   return { year, month };
 }
@@ -80,24 +91,34 @@ export async function downloadReport(
 ): Promise<string> {
   const reports = await listReports(client, packageName, reportType, year, month);
 
+  const monthPadded = String(month).padStart(2, "0");
   if (reports.length === 0) {
-    throw new Error(
-      `No ${reportType} reports found for ${year}-${String(month).padStart(2, "0")}.`,
+    throw new GpcError(
+      `No ${reportType} reports found for ${year}-${monthPadded}.`,
+      "REPORT_NOT_FOUND",
+      1,
+      `Reports may not be available yet for this period. Financial reports are typically available a few days after the month ends. Try a different month or report type.`,
     );
   }
 
   // Download the first report bucket (signed URI — no auth needed)
   const bucket = reports[0];
   if (!bucket) {
-    throw new Error(
-      `No ${reportType} reports found for ${year}-${String(month).padStart(2, "0")}.`,
+    throw new GpcError(
+      `No ${reportType} reports found for ${year}-${monthPadded}.`,
+      "REPORT_NOT_FOUND",
+      1,
+      `Reports may not be available yet for this period. Try a different month or report type.`,
     );
   }
   const uri = bucket.uri;
   const response = await fetch(uri);
 
   if (!response.ok) {
-    throw new Error(`Failed to download report from signed URI: HTTP ${response.status}`);
+    throw new NetworkError(
+      `Failed to download report from signed URI: HTTP ${response.status}`,
+      "The signed download URL may have expired. Retry the command to generate a fresh URL.",
+    );
   }
 
   return response.text();

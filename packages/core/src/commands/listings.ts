@@ -6,6 +6,7 @@ import type {
   AppDetails,
   CountryAvailability,
 } from "@gpc-cli/api";
+import { GpcError } from "../errors.js";
 import { isValidBcp47 } from "../utils/bcp47.js";
 import { validateImage } from "../utils/image-validation.js";
 import { readListingsFromDir, writeListingsToDir, diffListings } from "../utils/fastlane.js";
@@ -26,7 +27,12 @@ export interface DryRunResult {
 
 function validateLanguage(lang: string): void {
   if (!isValidBcp47(lang)) {
-    throw new Error(`Invalid language tag "${lang}". Must be a valid Google Play BCP 47 code.`);
+    throw new GpcError(
+      `Invalid language tag "${lang}". Must be a valid Google Play BCP 47 code.`,
+      "LISTING_INVALID_LANGUAGE",
+      2,
+      "Use a valid BCP 47 language code such as en-US, de-DE, or ja-JP. See the Google Play Console for supported language codes.",
+    );
   }
 }
 
@@ -115,7 +121,12 @@ export async function pushListings(
   const localListings = await readListingsFromDir(dir);
 
   if (localListings.length === 0) {
-    throw new Error(`No listings found in directory "${dir}"`);
+    throw new GpcError(
+      `No listings found in directory "${dir}"`,
+      "LISTING_DIR_EMPTY",
+      1,
+      `The directory must contain subdirectories named by language code (e.g., en-US/) with listing metadata files. Pull existing listings first with: gpc listings pull --dir "${dir}"`,
+    );
   }
 
   // Validate all languages
@@ -180,7 +191,12 @@ export async function uploadImage(
   // Validate image before upload
   const imageCheck = await validateImage(filePath, imageType);
   if (!imageCheck.valid) {
-    throw new Error(`Image validation failed: ${imageCheck.errors.join("; ")}`);
+    throw new GpcError(
+      `Image validation failed: ${imageCheck.errors.join("; ")}`,
+      "IMAGE_INVALID",
+      2,
+      "Check image dimensions, file size, and format. Google Play requires PNG or JPEG images within specific size limits per image type.",
+    );
   }
   if (imageCheck.warnings.length > 0) {
     for (const w of imageCheck.warnings) {
@@ -213,6 +229,24 @@ export async function deleteImage(
     await client.images.delete(packageName, edit.id, language, imageType, imageId);
     await client.edits.validate(packageName, edit.id);
     await client.edits.commit(packageName, edit.id);
+  } catch (error) {
+    await client.edits.delete(packageName, edit.id).catch(() => {});
+    throw error;
+  }
+}
+
+export async function diffListingsCommand(
+  client: PlayApiClient,
+  packageName: string,
+  dir: string,
+): Promise<ListingDiff[]> {
+  const localListings = await readListingsFromDir(dir);
+
+  const edit = await client.edits.insert(packageName);
+  try {
+    const remoteListings = await client.listings.list(packageName, edit.id);
+    await client.edits.delete(packageName, edit.id);
+    return diffListings(localListings, remoteListings);
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});
     throw error;

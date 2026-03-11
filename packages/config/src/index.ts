@@ -1,3 +1,4 @@
+export { ConfigError } from "./errors.js";
 export { loadConfig, findConfigFile, loadEnvConfig } from "./loader.js";
 export { getConfigDir, getUserConfigPath, getDataDir, getCacheDir } from "./paths.js";
 export {
@@ -16,4 +17,5 @@ export type {
   ProfileConfig,
   ResolvedConfig,
   OutputFormat,
+  WebhookConfig,
 } from "./types.js";

@@ -14,6 +14,7 @@ import {
   PERMISSION_PROPAGATION_WARNING,
   detectOutputFormat,
   formatOutput,
+  sortResults,
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
@@ -45,6 +46,7 @@ export function registerUsersCommands(program: Command): void {
     .description("List all users in the developer account")
     .option("--limit <n>", "Maximum total results", parseInt)
     .option("--next-page <token>", "Resume from page token")
+    .option("--sort <field>", "Sort by field (prefix with - for descending)")
     .action(async (options) => {
       const config = await loadConfig();
       const developerId = resolveDeveloperId(users.opts()["developerId"], config);
@@ -56,6 +58,9 @@ export function registerUsersCommands(program: Command): void {
           limit: options.limit,
           nextPage: options.nextPage,
         });
+        if (options.sort) {
+          result.users = sortResults(result.users, options.sort);
+        }
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);

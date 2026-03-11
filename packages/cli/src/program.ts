@@ -18,7 +18,8 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     .option("--no-color", "Disable colored output")
     .option("--no-interactive", "Disable interactive prompts")
     .option("-y, --yes", "Skip confirmation prompts")
-    .option("--dry-run", "Preview changes without executing");
+    .option("--dry-run", "Preview changes without executing")
+    .option("--notify [target]", "Send webhook notification on completion (slack, discord, custom)");
 
   const commandLoaders: Record<string, () => Promise<void>> = {
     auth: async () => {
@@ -84,12 +85,29 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     publish: async () => {
       (await import("./commands/publish.js")).registerPublishCommand(program);
     },
+    recovery: async () => {
+      (await import("./commands/recovery.js")).registerRecoveryCommands(program);
+    },
+    "data-safety": async () => {
+      (await import("./commands/data-safety.js")).registerDataSafetyCommands(program);
+    },
+    "external-transactions": async () => {
+      (await import("./commands/external-transactions.js")).registerExternalTransactionsCommands(
+        program,
+      );
+    },
     plugins: async () => {
       registerPluginsCommand(program, pluginManager);
     },
   };
 
-  const target = process.argv[2];
+  // Resolve command aliases for lazy loading
+  const commandAliases: Record<string, string> = {
+    "ext-txn": "external-transactions",
+  };
+
+  const rawTarget = process.argv[2];
+  const target = rawTarget ? (commandAliases[rawTarget] ?? rawTarget) : undefined;
 
   const loader = target ? commandLoaders[target] : undefined;
   if (loader) {

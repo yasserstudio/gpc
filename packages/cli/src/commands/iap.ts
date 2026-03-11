@@ -13,6 +13,7 @@ import {
   syncInAppProducts,
   detectOutputFormat,
   formatOutput,
+  sortResults,
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
@@ -40,6 +41,7 @@ export function registerIapCommands(program: Command): void {
     .option("--max <n>", "Maximum results per page", parseInt)
     .option("--limit <n>", "Maximum total results", parseInt)
     .option("--next-page <token>", "Resume from page token")
+    .option("--sort <field>", "Sort by field (prefix with - for descending)")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -52,6 +54,9 @@ export function registerIapCommands(program: Command): void {
           limit: options.limit,
           nextPage: options.nextPage,
         });
+        if (options.sort) {
+          result.inappproduct = sortResults(result.inappproduct, options.sort);
+        }
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);

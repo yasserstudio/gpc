@@ -1,5 +1,6 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { extname, basename, join } from "node:path";
+import { GpcError } from "../errors.js";
 
 export interface ReleaseNote {
   language: string;
@@ -19,7 +20,12 @@ export async function readReleaseNotesFromDir(dir: string): Promise<ReleaseNote[
   try {
     entries = await readdir(dir);
   } catch {
-    throw new Error(`Release notes directory not found: ${dir}`);
+    throw new GpcError(
+      `Release notes directory not found: ${dir}`,
+      "RELEASE_NOTES_DIR_NOT_FOUND",
+      1,
+      `Create the directory and add .txt files named by language code (e.g., en-US.txt). Path: ${dir}`,
+    );
   }
 
   const notes: ReleaseNote[] = [];

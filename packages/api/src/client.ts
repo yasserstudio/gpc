@@ -1,17 +1,23 @@
+import { ApiError } from "./errors.js";
 import { createHttpClient } from "./http.js";
 import type { RateLimiter } from "./rate-limiter.js";
 import type {
   ApiClientOptions,
   AppDetails,
   AppEdit,
+  AppRecoveriesListResponse,
+  AppRecoveryAction,
   BasePlanMigratePricesRequest,
   Bundle,
   BundleListResponse,
   ConvertRegionPricesRequest,
   ConvertRegionPricesResponse,
   CountryAvailability,
+  DataSafety,
   DeobfuscationFile,
   DeobfuscationUploadResponse,
+  ExternalTransaction,
+  ExternalTransactionRefund,
   Image,
   ImageType,
   ImageUploadResponse,
@@ -121,6 +127,11 @@ export interface PlayApiClient {
 
   countryAvailability: {
     get(packageName: string, editId: string, track: string): Promise<CountryAvailability>;
+  };
+
+  dataSafety: {
+    get(packageName: string, editId: string): Promise<DataSafety>;
+    update(packageName: string, editId: string, data: DataSafety): Promise<DataSafety>;
   };
 
   reviews: {
@@ -282,6 +293,22 @@ export interface PlayApiClient {
       filePath: string,
     ): Promise<DeobfuscationFile>;
   };
+
+  appRecovery: {
+    list(packageName: string): Promise<AppRecoveryAction[]>;
+    cancel(packageName: string, appRecoveryId: string): Promise<void>;
+    deploy(packageName: string, appRecoveryId: string): Promise<void>;
+  };
+
+  externalTransactions: {
+    create(packageName: string, data: ExternalTransaction): Promise<ExternalTransaction>;
+    get(packageName: string, transactionId: string): Promise<ExternalTransaction>;
+    refund(
+      packageName: string,
+      transactionId: string,
+      refundData: ExternalTransactionRefund,
+    ): Promise<ExternalTransaction>;
+  };
 }
 
 async function rateLimit(limiter: RateLimiter | undefined, bucket: string): Promise<void> {
@@ -357,7 +384,12 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           "application/octet-stream",
         );
         if (!data.bundle) {
-          throw new Error("Upload succeeded but no bundle data returned");
+          throw new ApiError(
+            "Upload succeeded but no bundle data returned",
+            "API_EMPTY_RESPONSE",
+            200,
+            "This is unexpected. Retry the upload or contact Google Play support if the issue persists.",
+          );
         }
         return data.bundle;
       },
@@ -440,7 +472,12 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           filePath.endsWith(".png") ? "image/png" : "image/jpeg",
         );
         if (!data.image) {
-          throw new Error("Upload succeeded but no image data returned");
+          throw new ApiError(
+            "Upload succeeded but no image data returned",
+            "API_EMPTY_RESPONSE",
+            200,
+            "This is unexpected. Retry the upload or contact Google Play support if the issue persists.",
+          );
         }
         return data.image;
       },
@@ -463,6 +500,23 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async get(packageName, editId, track) {
         const { data } = await http.get<CountryAvailability>(
           `/${packageName}/edits/${editId}/countryAvailability/${track}`,
+        );
+        return data;
+      },
+    },
+
+    dataSafety: {
+      async get(packageName, editId) {
+        const { data } = await http.get<DataSafety>(
+          `/${packageName}/edits/${editId}/dataSafety`,
+        );
+        return data;
+      },
+
+      async update(packageName, editId, body) {
+        const { data } = await http.put<DataSafety>(
+          `/${packageName}/edits/${editId}/dataSafety`,
+          body,
         );
         return data;
       },
@@ -780,9 +834,56 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           "application/octet-stream",
         );
         if (!data.deobfuscationFile) {
-          throw new Error("Upload succeeded but no deobfuscation file data returned");
+          throw new ApiError(
+            "Upload succeeded but no deobfuscation file data returned",
+            "API_EMPTY_RESPONSE",
+            200,
+            "This is unexpected. Retry the upload or contact Google Play support if the issue persists.",
+          );
         }
         return data.deobfuscationFile;
+      },
+    },
+
+    appRecovery: {
+      async list(packageName) {
+        const { data } = await http.post<AppRecoveriesListResponse>(
+          `/${packageName}/appRecoveries`,
+        );
+        return data.recoveryActions || [];
+      },
+
+      async cancel(packageName, appRecoveryId) {
+        await http.post(`/${packageName}/appRecovery/${appRecoveryId}:cancel`);
+      },
+
+      async deploy(packageName, appRecoveryId) {
+        await http.post(`/${packageName}/appRecovery/${appRecoveryId}:deploy`);
+      },
+    },
+
+    externalTransactions: {
+      async create(packageName, body) {
+        const { data } = await http.post<ExternalTransaction>(
+          `/${packageName}/externalTransactions`,
+          body,
+        );
+        return data;
+      },
+
+      async get(packageName, transactionId) {
+        const { data } = await http.get<ExternalTransaction>(
+          `/${packageName}/externalTransactions/${transactionId}`,
+        );
+        return data;
+      },
+
+      async refund(packageName, transactionId, refundData) {
+        const { data } = await http.post<ExternalTransaction>(
+          `/${packageName}/externalTransactions/${transactionId}:refund`,
+          refundData,
+        );
+        return data;
       },
     },
   };

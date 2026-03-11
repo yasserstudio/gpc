@@ -1,3 +1,9 @@
+export interface WebhookConfig {
+  slack?: string;
+  discord?: string;
+  custom?: string;
+}
+
 export interface GpcConfig {
   app?: string;
   output?: OutputFormat;
@@ -7,6 +13,7 @@ export interface GpcConfig {
   plugins?: string[];
   profiles?: Record<string, ProfileConfig>;
   approvedPlugins?: string[];
+  webhooks?: WebhookConfig;
 }
 
 export interface AuthConfig {
@@ -30,4 +37,5 @@ export interface ResolvedConfig extends Required<Pick<GpcConfig, "output">> {
   plugins?: string[];
   profiles?: Record<string, ProfileConfig>;
   approvedPlugins?: string[];
+  webhooks?: WebhookConfig;
 }

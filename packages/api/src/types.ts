@@ -552,6 +552,89 @@ export interface UsersListResponse {
   nextPageToken?: string;
 }
 
+// --- App Recovery ---
+
+export interface AppRecoveryAction {
+  appRecoveryId?: string;
+  status?: string;
+  targeting?: {
+    versionList?: { versionCodes?: string[] };
+    regions?: { regionCode?: string[] };
+  };
+  remoteInAppUpdateData?: {
+    remoteInAppUpdateDataPerBundle?: unknown[];
+  };
+  createTime?: string;
+  deployTime?: string;
+  cancelTime?: string;
+  lastUpdateTime?: string;
+}
+
+export interface AppRecoveriesListResponse {
+  recoveryActions: AppRecoveryAction[];
+}
+
+// --- External Transactions ---
+
+export interface ExternalTransactionAmount {
+  priceMicros?: string;
+  currency?: string;
+}
+
+export interface ExternalTransaction {
+  externalTransactionId?: string;
+  originalPreTaxAmount?: ExternalTransactionAmount;
+  originalTaxAmount?: ExternalTransactionAmount;
+  currentPreTaxAmount?: ExternalTransactionAmount;
+  currentTaxAmount?: ExternalTransactionAmount;
+  testPurchase?: Record<string, unknown>;
+  transactionTime?: string;
+  createTime?: string;
+  transactionState?: string;
+  userTaxAddress?: { regionCode?: string };
+  externalTransactionToken?: string;
+  packageName?: string;
+  oneTimeTransaction?: { externalTransactionToken?: string };
+  recurringTransaction?: {
+    externalTransactionId?: string;
+    externalSubscription?: { subscriptionType?: string };
+  };
+}
+
+export interface ExternalTransactionRefund {
+  refundTime?: string;
+  partialRefund?: {
+    refundPreTaxAmount?: ExternalTransactionAmount;
+  };
+  fullRefund?: Record<string, unknown>;
+}
+
+// --- Data Safety ---
+
+export interface DataSafety {
+  dataTypes?: DataSafetyDataType[];
+  purposes?: DataSafetyPurpose[];
+  securityPractices?: {
+    dataEncryptedInTransit?: boolean;
+    dataDeleteable?: boolean;
+    independentSecurityReview?: boolean;
+  };
+}
+
+export interface DataSafetyDataType {
+  dataType?: string;
+  dataCategory?: string;
+  collected?: boolean;
+  shared?: boolean;
+  ephemeral?: boolean;
+  required?: boolean;
+  purposes?: string[];
+}
+
+export interface DataSafetyPurpose {
+  purpose?: string;
+}
+
 // --- Testers ---
 
 export interface Testers {

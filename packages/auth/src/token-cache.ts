@@ -1,5 +1,6 @@
 import { chmod, mkdir, readFile, writeFile, rename, unlink } from "node:fs/promises";
 import { dirname, join, isAbsolute } from "node:path";
+import { AuthError } from "./errors.js";
 
 export interface TokenCacheEntry {
   token: string;
@@ -22,14 +23,22 @@ const inflightRefresh = new Map<string, Promise<string>>();
 
 function getCachePath(cacheDir: string): string {
   if (!isAbsolute(cacheDir)) {
-    throw new Error("Cache directory must be an absolute path");
+    throw new AuthError(
+      "Cache directory must be an absolute path",
+      "AUTH_CACHE_INVALID",
+      "Provide an absolute path for the token cache directory (e.g., /home/user/.cache/gpc).",
+    );
   }
   return join(cacheDir, CACHE_FILE);
 }
 
 function validateCacheKey(email: string): void {
   if (!SAFE_CACHE_KEY.test(email)) {
-    throw new Error("Invalid cache key: must be a valid email address");
+    throw new AuthError(
+      "Invalid cache key: must be a valid email address",
+      "AUTH_CACHE_INVALID",
+      "The cache key must be a valid service account email address (e.g., my-sa@project.iam.gserviceaccount.com).",
+    );
   }
 }
 

@@ -100,7 +100,11 @@ export function createServiceAccountAuth(key: ServiceAccountKey, cachePath?: str
         return await acquireToken(key.client_email, cachePath, async () => {
           const { token } = await jwtClient.getAccessToken();
           if (!token) {
-            throw new Error("Token response was empty.");
+            throw new AuthError(
+              "Token response was empty.",
+              "AUTH_TOKEN_FAILED",
+              "Verify that the service account key is valid and not expired. Check that the private key has not been revoked.",
+            );
           }
           return { token, expiresInSeconds: TOKEN_EXPIRY_SECONDS };
         });
