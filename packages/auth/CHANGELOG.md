@@ -1,5 +1,11 @@
 # @gpc-cli/auth
 
+## 0.9.4
+
+### Minor Changes
+
+- Align package version with umbrella release v0.9.4
+
 ## 0.1.3
 
 ### Patch Changes

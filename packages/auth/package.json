@@ -1,6 +1,6 @@
 {
   "name": "@gpc-cli/auth",
-  "version": "0.1.3",
+  "version": "0.9.4",
   "description": "Authentication strategies for Google Play Developer API",
   "type": "module",
   "main": "./dist/index.js",

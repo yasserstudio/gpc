@@ -1,5 +1,12 @@
 # @gpc-cli/cli
 
+## 0.9.4
+
+### Minor Changes
+
+- Align package version with umbrella release v0.9.4
+- All packages (except @gpc-cli/api) now share the 0.9.x version series
+
 ## 0.1.4
 
 ### Patch Changes
