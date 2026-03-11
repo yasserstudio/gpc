@@ -2,195 +2,210 @@
 
 All notable changes to GPC are documented here.
 
+Format: [Conventional Commits](https://www.conventionalcommits.org/) with user-facing language.
+Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
+
 ---
 
-## v0.1.4 — Performance Optimizations
+## v0.9.4
 
-- **perf(auth):** In-memory token cache with promise-based mutex — eliminates redundant JWT signing and filesystem I/O on concurrent requests
-- **perf(auth):** Smart 401-specific token refresh — only re-fetches token on auth failures, not on 429/5xx retries
-- **perf(api):** HTTP compression (`Accept-Encoding: gzip`) and connection keep-alive headers on all requests
-- **perf(api):** Parallel pagination helper (`paginateParallel`) for fetching multiple pages concurrently
-- **perf(config):** Async config file discovery — non-blocking `stat()` replaces synchronous `statSync()`
-- **perf(config):** Cached `homedir()` at module level — avoids repeated syscalls on XDG path resolution
-- **perf(build):** Excluded `web-streams-polyfill` from standalone binary bundle (provided by Bun runtime)
-- **fix(ci):** Fixed plugin-ci tests failing on GitHub Actions due to leaked `GITHUB_ACTIONS` env var
+First release published to npm. Install with `npm install -g @gpc-cli/cli`.
 
-## v0.1.2 — First npm Publish
+- perf: in-memory token caching with mutex — eliminates redundant JWT signing on concurrent requests
+- perf: smart 401-specific token refresh — only re-fetches on auth failures, not on retries
+- perf: HTTP compression (`gzip`) and connection keep-alive for faster API calls
+- perf: parallel pagination — fetch multiple pages concurrently
+- perf: async config discovery and cached `homedir()` — faster CLI startup
+- fix: resolved all lint and typecheck errors across all packages
+- docs: README files for all 7 npm packages
+- ci: changesets-based release workflow for automated npm publishing
 
-- **feat:** Published all 7 packages to npm under `@gpc-cli` scope
-- **feat:** `npm install -g @gpc-cli/cli` now works
-- **fix:** Added `publishConfig: { access: "public" }` to all packages
-- **fix(ci):** Pass `NODE_AUTH_TOKEN` for npm publish in release workflow
-- Packages: `@gpc-cli/cli`, `@gpc-cli/core`, `@gpc-cli/api`, `@gpc-cli/auth`, `@gpc-cli/config`, `@gpc-cli/plugin-sdk`, `@gpc-cli/plugin-ci`
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.3...v0.9.4
 
-## v0.9.7 — Homebrew Tap
+## v0.9.3
 
-- **feat(ci):** Homebrew tap at `yasserstudio/homebrew-tap` — `brew install yasserstudio/tap/gpc`
-- **feat(ci):** Auto-update formula on release via `repository_dispatch`
-- **feat(ci):** Platform-specific formula with SHA256 checksums (macOS arm64/x64, Linux x64)
+- perf: replaced `googleapis` (194 MB) with `google-auth-library` (776 KB) — **250x smaller install**
+- feat: standalone binaries — no Node.js required (macOS, Linux, Windows)
+- feat: install script with SHA256 checksum verification
+- feat: GitHub Actions workflow builds and attaches binaries to every release
 
-## v0.9.6 — Phase 9 Complete
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.2...v0.9.3
 
-- **feat(cli):** Interactive mode — guided prompts for all commands with missing required options
-- **feat(cli):** `--yes` / `-y` flag to skip confirmation prompts (CI-safe)
-- **feat(cli):** Confirmation prompts on destructive operations (delete, remove, refund)
-- **feat(cli):** `requireOption` / `requireConfirm` shared helpers
-- **fix(core,api,auth,config):** Security audit — 12 findings fixed (credentials, paths, output)
-- **feat(cli):** Standalone binary: linux-arm64 target (5 platforms total)
-- **feat(cli):** Binary version injection from package.json
-- **fix(cli):** Binary-mode networking (Bun handles proxy natively)
-- **feat(cli):** Binary build metafile output for bundle analysis
-- **docs:** VitePress documentation site (37+ pages, AI-optimized with llms.txt)
-- **docs:** GitHub Actions deployment workflow for docs
-- **docs:** Expanded migration guides (from Fastlane, from Console UI)
-- 597 total tests
+## v0.9.2
 
-## v0.9.3 — Standalone Binary & Dependency Optimization
+- feat: **interactive mode** — `gpc publish`, `gpc releases upload`, and `gpc config init` now prompt for missing options in a terminal
+- feat: respects `--no-interactive`, `GPC_NO_INTERACTIVE`, and CI environment detection
+- feat: **audit logging** — all write operations logged to `~/.config/gpc/audit.log` (JSONL)
 
-- **refactor(auth):** Replace `googleapis` (194MB) with `google-auth-library` (776KB) — 250x size reduction
-- **feat(cli):** Standalone binary build via esbuild bundle + Bun compile
-- **feat(cli):** Cross-platform targets: macOS (arm64/x64), Linux (x64), Windows (x64)
-- **feat(ci):** GitHub Actions workflow to build and attach binaries to releases
-- **feat(cli):** Install script (`curl | sh`) with SHA256 checksum verification
-- **feat(cli):** Binary mode disables plugin loading (plugins require npm install)
-- **test(e2e):** 8 smoke tests for bundled CLI (version, help, commands, flags)
-- 584 total tests
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.1...v0.9.2
 
-## v0.9.2 — Interactive Mode & Audit Logging
+## v0.9.1
 
-- **feat(cli):** Interactive prompts for `releases upload`, `publish`, and `config init` when flags are missing
-- **feat(cli):** Prompt utilities (select, input, confirm) with TTY/CI detection
-- **feat(cli):** `--no-interactive` flag and `GPC_NO_INTERACTIVE` env var respected
-- **feat(core):** Audit logging — all write operations logged to `~/.config/gpc/audit.log` (JSONL)
-- **feat(core):** `initAudit`, `writeAuditLog`, `createAuditEntry` utilities
-- 576 total tests
+- docs: expanded README with plugin system, vitals thresholds, purchases, pricing, and dry-run sections
+- docs: complete CHANGELOG covering all versions from v0.1.0 through v0.9.0
 
-## v0.9.0 — Security Audit & Hardening
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.0...v0.9.1
 
-- **fix(cli):** Replace `exec()` with `execFile()` in `gpc docs` to prevent command injection
-- **fix(config):** Add prototype pollution protection to config file parsing
-- **feat(core):** Add output redaction for sensitive fields (tokens, keys, secrets)
-- **fix(auth):** Set cache directory permissions to `0o700` (owner-only)
-- **feat(core):** Add `safePath`/`safePathWithin` utilities for path validation
-- 564 total tests
+## v0.9.0
 
-## v0.8.7 — Plugin Scaffold & Permission Approval
+Full security audit across all packages.
 
-- **feat(cli):** `gpc plugins init <name>` scaffolds a new plugin project
-- **feat(cli):** `gpc plugins approve/revoke <name>` for third-party plugin trust
-- **feat(cli):** Unapproved third-party plugins blocked from loading
-- **feat(config):** Plugin approval persisted in config (`approvedPlugins` array)
-- Phase 8 complete
+- fix: **command injection** — replaced `exec()` with `execFile()` in `gpc docs`
+- fix: **prototype pollution** — config parser now strips `__proto__`, `constructor`, `prototype` keys
+- feat: **output redaction** — sensitive fields (`private_key`, `accessToken`, `password`, etc.) automatically redacted
+- fix: **cache permissions** — token cache directory set to `0o700` (owner-only)
+- feat: **path validation** — `safePath()` and `safePathWithin()` prevent directory traversal
 
-## v0.8.6 — Plugin Integration & Lifecycle Hooks
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.8.7...v0.9.0
 
-- **feat(cli):** Wire `PluginManager` into CLI execution (beforeCommand/afterCommand hooks)
-- **feat(plugin-sdk):** Add `beforeRequest`/`afterResponse` hooks
-- **feat(cli):** Register plugin-defined commands with Commander
-- **feat(cli):** `gpc plugins list` command (table + JSON output)
+## v0.8.7
 
-## v0.8.5 — Advanced Features
+- feat: `gpc plugins init <name>` — scaffold a new plugin project with tests
+- feat: `gpc plugins approve/revoke <name>` — control which third-party plugins can load
+- feat: first-party plugins (`@gpc-cli/*`) auto-trusted, third-party require explicit approval
 
-- **feat(core):** Image validation with per-type size limits and optimization warnings
-- **feat(core):** Vitals trend comparison (`gpc vitals compare`)
-- **feat(core):** Form factor tracks (wear, automotive, tv, android_xr)
-- **feat(core):** Custom closed testing track support
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.8.6...v0.8.7
 
-## v0.8.4 — Convenience Commands
+## v0.8.6
 
-- **feat(core):** `gpc publish` — end-to-end upload + track + notes + commit
-- **feat(core):** `gpc validate` — pre-submission validation checks
-- **feat(core):** Release notes from directory (`--notes-dir`)
+- feat: plugins can now register custom CLI commands — they show up in `gpc --help`
+- feat: `beforeRequest` / `afterResponse` hooks — observe or modify every HTTP call
+- feat: `gpc plugins list` — shows loaded plugins with name, version, and trust status
+- fix: hook failures never block API calls or crash the CLI
 
-## v0.8.3 — Auth Hardening
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.8.5...v0.8.6
 
-- **feat(auth):** File-based JWT token caching (atomic writes, 0o600 permissions, 5-min safety margin)
-- **feat(auth):** `GOOGLE_APPLICATION_CREDENTIALS` env var support
-- **feat(config):** Multi-profile support (`profiles` map in config)
-- **feat(cli):** `gpc auth switch`, `gpc auth profiles` commands
+## v0.8.5
 
-## v0.8.2 — Upload Hardening
+- feat: image validation on upload — checks format (PNG/JPEG), dimensions, and size limits per type
+- feat: `gpc vitals compare <metric>` — compare current vs previous period, with trend detection
+- feat: track validation now supports wear, automotive, tv, and android_xr form factors
 
-- **feat(core):** File validation (ZIP magic bytes, extension check, size limits)
-- **feat(api):** Deobfuscation/mapping file upload
-- **feat(api):** `onRetry` callback for retry logging
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.8.4...v0.8.5
 
-## v0.8.1 — Pagination & Rate Limiting
+## v0.8.4
 
-- **fix(api):** Pagination edge case fixes
-- **fix(api):** Rate limiter per-bucket improvements
+- feat: `gpc publish <file>` — one command to validate, upload, set track, add notes, and commit
+- feat: `gpc validate <file>` — pre-flight checks without uploading
+- feat: `--notes-dir <dir>` — read multi-language release notes from a directory of `<lang>.txt` files
 
-## v0.8.0 — Plugin System
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.8.3...v0.8.4
 
-- **feat(plugin-sdk):** Full plugin interface with lifecycle hooks
-- **feat(core):** Plugin manager with discovery, loading, and trust model
-- **feat(plugin-ci):** CI/CD plugin with GitHub Actions step summaries
-- Phase 8 started
+## v0.8.3
 
-## v0.7.0 — Reports & Users
+- feat: token caching — avoids re-signing JWTs on every command
+- feat: `GOOGLE_APPLICATION_CREDENTIALS` support — works with gcloud's default credentials
+- feat: named auth profiles — store multiple service accounts and switch between them
+- feat: `gpc auth login --profile <name>`, `gpc auth switch <name>`, `gpc auth profiles`
 
-- **feat(core):** `gpc reports list/download` (financial + stats reports)
-- **feat(core):** `gpc users list/get/invite/update/remove`
-- **feat(core):** `gpc testers list/add/remove/import`
-- **feat(core):** Grant management (per-app permissions)
-- **feat(core):** Bulk tester import from CSV
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.8.2...v0.8.3
 
-## v0.6.0 — Monetization
+## v0.8.2
 
-- **feat(core):** Subscriptions CRUD (list, get, create, update, delete)
-- **feat(core):** Base plans (activate, deactivate, delete, migrate prices)
-- **feat(core):** Subscription offers CRUD
-- **feat(core):** In-app products CRUD + bulk sync from directory
-- **feat(core):** Purchase verification (product + subscription, v1 + v2)
-- **feat(core):** Voided purchases listing
-- **feat(core):** Order refunds
-- **feat(core):** Regional price conversion
+- feat: file validation before upload — checks magic bytes, extension, and size limits
+- feat: `--mapping <file>` on `gpc releases upload` — upload ProGuard/R8 deobfuscation files
+- feat: `--retry-log <path>` — write retry attempts to a JSONL file for debugging
 
-## v0.5.0 — Reviews & Vitals
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.8.1...v0.8.2
 
-- **feat(core):** `gpc reviews list/get/reply/export`
-- **feat(core):** Review filtering (stars, language, time)
-- **feat(core):** Reporting API client (vitals)
-- **feat(core):** `gpc vitals overview/crashes/anr/startup/rendering/battery/memory`
-- **feat(core):** Anomaly detection and error search
-- **feat(core):** Threshold-based exit codes for CI alerting
-- **feat(api):** Separate rate limiting for Reviews API
+## v0.8.1
 
-## v0.4.0 — Listings & Metadata
+- feat: pagination helpers for all list endpoints — no more manual page handling
+- feat: rate limiting — automatic request throttling based on Google Play API quotas
+- feat: `--limit` and `--next-page` flags on reviews, subscriptions, IAP, purchases, and users
 
-- **feat(core):** `gpc listings get/update/delete`
-- **feat(core):** `gpc listings pull/push` (bidirectional sync)
-- **feat(core):** `gpc listings push --dry-run` (diff preview)
-- **feat(core):** `gpc listings images list/upload/delete`
-- **feat(core):** Country availability
-- **feat(core):** `gpc apps update` (contact email, default language)
-- **feat(core):** Fastlane metadata format compatibility
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.8.0...v0.8.1
 
-## v0.3.0 — Releases & Tracks
+## v0.8.0
 
-- **feat(core):** `gpc releases upload` (AAB/APK with progress)
-- **feat(core):** `gpc releases status/promote`
-- **feat(core):** `gpc releases rollout increase/halt/resume/complete`
-- **feat(core):** `gpc releases notes set`
-- **feat(core):** `gpc tracks list/get`
-- **feat(core):** `gpc status` (cross-track overview)
+GPC now covers the **entire Google Play Developer API v3** — 162 endpoints, 50+ commands.
 
-## v0.2.0 — API Client & Apps
+- feat: plugin system — extend GPC with custom commands and lifecycle hooks
+- feat: `gpc plugins list` — see loaded plugins and their trust status
+- feat: `@gpc-cli/plugin-ci` — built-in CI plugin (GitHub Actions, GitLab CI, Jenkins, CircleCI, Bitrise)
 
-- **feat(api):** Base API client (native fetch with bearer auth)
-- **feat(api):** Rate limiter (per-bucket token bucket)
-- **feat(api):** Retry logic (exponential backoff with jitter)
-- **feat(api):** Pagination helper (auto-follow nextPageToken)
-- **feat(api):** Edit lifecycle manager
-- **feat(cli):** `gpc apps list/info`
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.7.0...v0.8.0
 
-## v0.1.0 — Auth & Config
+## v0.7.0
 
-- **feat(auth):** Service account authentication + OAuth2 token generation
-- **feat(config):** Config file discovery (`.gpcrc.json`)
-- **feat(config):** Environment variable overrides
-- **feat(cli):** `gpc auth login/logout/status/whoami`
-- **feat(cli):** `gpc config init/show/set/path`
-- **feat(cli):** `gpc doctor`, `gpc docs`
-- **feat(cli):** Shell completions (bash, zsh, fish)
-- **feat(cli):** TTY detection, output formats, global flags
+- feat: `gpc reports list/download` — financial and stats reports
+- feat: `gpc users list/get/invite/update/remove` — manage developer account users
+- feat: `gpc testers list/add/remove` — manage testers on testing tracks
+- feat: grant management — assign per-app permissions to users
+- feat: bulk tester import from CSV
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.6.0...v0.7.0
+
+## v0.6.0
+
+- feat: `gpc subscriptions list/get/create/update/delete` — full subscription management
+- feat: `gpc subscriptions base-plans` — activate, deactivate, delete, and migrate prices
+- feat: `gpc subscriptions offers` — create and manage subscription offers
+- feat: `gpc iap list/get/create/update/delete` — in-app product management
+- feat: `gpc iap sync --dir products/` — bulk sync products from local files
+- feat: `gpc purchases get <token>` — look up a purchase (v1 + v2 API)
+- feat: `gpc purchases acknowledge/consume` and `gpc purchases subscription get/cancel/defer/revoke`
+- feat: `gpc orders refund` and `gpc purchases voided list`
+- feat: `gpc pricing convert` — convert prices across regions
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.5.0...v0.6.0
+
+## v0.5.0
+
+- feat: `gpc reviews list` — filter by star rating, language, or date
+- feat: `gpc reviews get` and `gpc reviews reply` — read and respond to user reviews
+- feat: `gpc vitals overview` — crash rate, ANR rate, and startup time at a glance
+- feat: `gpc vitals crashes/anr/startup/rendering/battery/memory` — deep dive into each metric
+- feat: `gpc vitals anomalies` — surface detected anomalies
+- feat: dimension filtering — slice vitals by app version, OS level, or device
+- feat: threshold-based exit codes for CI — fail your pipeline if crash rate exceeds a limit
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.4.0...v0.5.0
+
+## v0.4.0
+
+- feat: `gpc listings get` — fetch store listings for one or all languages
+- feat: `gpc listings update` — update title, description, and other listing fields
+- feat: `gpc listings pull/push` — sync store listings between local files and Play Console
+- feat: `gpc listings push --dry-run` — preview what would change before pushing
+- feat: `gpc listings images list/upload/delete` — manage screenshots, icons, and feature graphics
+- feat: `gpc listings availability` — check country availability
+- feat: Fastlane metadata directory format compatibility — drop-in replacement for `fastlane supply`
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.3.0...v0.4.0
+
+## v0.3.0
+
+- feat: `gpc releases upload <file>` — upload AAB or APK with a progress bar
+- feat: `gpc releases status` — see the current release on every track
+- feat: `gpc releases promote` — move a release from one track to another
+- feat: `gpc releases rollout increase/halt/resume/complete` — control staged rollouts
+- feat: `gpc releases notes set` — set release notes inline or from a file
+- feat: `gpc tracks list` and `gpc tracks get` — inspect available tracks
+- feat: `gpc status` — one-line overview of releases across all tracks
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.2.0...v0.3.0
+
+## v0.2.0
+
+- feat: typed API client for Google Play Developer API v3
+- feat: automatic retry with exponential backoff on 429 and 5xx errors
+- feat: edit lifecycle management — insert, modify, validate, commit (with auto-cleanup on failure)
+- feat: `gpc apps list` — see all apps on your developer account
+- feat: `gpc apps info <package>` — app details at a glance
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.1.0...v0.2.0
+
+## v0.1.0
+
+- feat: service account authentication with JSON key files
+- feat: OAuth2 token generation for local development
+- feat: config file discovery — searches for `.gpcrc.json` up the directory tree
+- feat: environment variable overrides (`GPC_APP`, `GPC_PROFILE`, `GPC_OUTPUT`, etc.)
+- feat: `gpc auth login/logout/status/whoami` commands
+- feat: `gpc config init/show/set` commands
+- feat: `gpc doctor` — validates connectivity and auth in one check
+- feat: shell completions for bash, zsh, and fish
+- feat: output formats — table, JSON, YAML, markdown
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/commits/v0.1.0
