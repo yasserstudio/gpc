@@ -252,9 +252,10 @@ gh run download <run-id>
 
 ### Versioning
 
-- Pre-1.0: `0.PHASE.PATCH` (e.g., `0.8.0` = Phase 8)
+- Current series: `0.9.x` pre-release → `1.0.0` public launch
 - Post-1.0: standard semver
 - All packages versioned independently via Changesets
+- GitHub Releases use umbrella `v*` tags only — no per-package releases
 
 ### Release Workflow
 
@@ -272,43 +273,60 @@ gh pr list --search "Version Packages"
 # 4. Review and merge
 gh pr merge <pr-number> --squash
 
-# 5. Verify the release was published
-gh release list --limit 5
-gh release view v0.8.0
-```
+# 5. Create umbrella GitHub Release with user-facing notes
+gh release create v0.9.5 --notes "$(cat <<'EOF'
+## What's Changed
 
-### Manual Release (when needed)
+- feat: user-facing description of feature
+- fix: user-facing description of fix
+- perf: user-facing description of improvement
 
-```bash
-# Create release with auto-generated notes from commits
-gh release create v0.8.0 --generate-notes
-
-# Create release with custom notes
-gh release create v0.8.0 --notes "$(cat <<'EOF'
-## Highlights
-- Plugin system with lifecycle hooks
-- CI/CD plugin for GitHub Actions
-
-## Breaking Changes
-None
-
-## Full Changelog
-https://github.com/yasserstudio/gpc/compare/v0.7.0...v0.8.0
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.4...v0.9.5
 EOF
 )"
 
-# Create a draft release for review
-gh release create v0.8.0 --draft --generate-notes
-
-# Attach binary assets (future)
-gh release upload v0.8.0 dist/gpc-linux-x64 dist/gpc-darwin-arm64
+# 6. Verify
+gh release list --limit 5
 ```
 
-### GitHub Releases
+### Release Notes Format
 
-- Auto-generated from changeset summaries
-- Tag format: `@gpc-cli/core@0.8.0` (standard monorepo convention)
-- Attach notable highlights in release notes
+**One release per version.** Per-package changesets releases (`@gpc-cli/core@x.y.z`) are not created on GitHub — only umbrella `v*` releases that users see.
+
+**Title**: version number only (e.g., `v0.9.5`) — no subtitles.
+
+**Template:**
+```markdown
+## What's Changed
+
+- feat: user-facing description of feature
+- fix: user-facing description of fix
+- perf: user-facing description of improvement
+- breaking: description of breaking change
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/vPREV...vNEW
+```
+
+**Rules:**
+- Prefixes: `feat:`, `fix:`, `perf:`, `breaking:`, `docs:`, `ci:`
+- Write for users, not contributors ("faster CLI startup", not "cached homedir at module level")
+- No package scopes (`feat:` not `feat(core):`)
+- No internal jargon, no test counts, no LOC stats
+- Always include Full Changelog link
+- Attach binaries when applicable
+
+### Attach Binaries
+
+```bash
+# Upload binaries from the binary build
+gh release upload v0.9.5 \
+  dist/bin/gpc-darwin-arm64 \
+  dist/bin/gpc-darwin-x64 \
+  dist/bin/gpc-linux-arm64 \
+  dist/bin/gpc-linux-x64 \
+  dist/bin/gpc-windows-x64.exe \
+  dist/bin/checksums.txt
+```
 
 ---
 

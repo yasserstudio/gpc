@@ -119,6 +119,7 @@ pnpm test:e2e                # End-to-end tests
 - **Semantic versioning** (semver)
 - All packages versioned independently
 - `@gpc-cli/cli` version displayed as the "GPC version" to users
+- Current series: `0.9.x` pre-release → `1.0.0` public launch
 - Pre-1.0: breaking changes bump minor, features/fixes bump patch
 - Post-1.0: standard semver rules
 
@@ -128,6 +129,34 @@ pnpm test:e2e                # End-to-end tests
 2. PR merges to `main`
 3. Changesets bot creates "Version Packages" PR
 4. Merge version PR → publishes to npm
+5. Create umbrella GitHub Release with user-facing notes (see template below)
+
+### GitHub Release Notes Template
+
+One release per version. Per-package changesets releases are **not** created — only umbrella `v*` releases.
+
+Titles use version number only (e.g., `v0.9.5`). No subtitles.
+
+```markdown
+## What's Changed
+
+- feat: user-facing description of feature
+- fix: user-facing description of fix
+- perf: user-facing description of improvement
+- breaking: description of breaking change
+- docs: description of docs change
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.4...v0.9.5
+```
+
+**Rules:**
+- Use `feat:`, `fix:`, `perf:`, `breaking:`, `docs:`, `ci:` prefixes
+- Write for users, not contributors ("faster CLI startup", not "cached homedir at module level")
+- No package scopes in prefixes (`feat:` not `feat(core):`)
+- No internal jargon (no "mutex", "token bucket", "barrel exports")
+- No test counts or LOC stats
+- Always include Full Changelog link
+- Attach binaries when applicable
 
 ## Error Handling
 
