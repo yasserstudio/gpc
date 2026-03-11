@@ -14,8 +14,8 @@ packages/auth      → @gpc-cli/auth — service account, OAuth, ADC
 packages/config    → @gpc-cli/config — config loading, env vars, profiles
 packages/plugin-sdk → @gpc-cli/plugin-sdk — plugin interface
 plugins/plugin-ci  → @gpc-cli/plugin-ci — CI/CD helpers
-docs/              → Public documentation (architecture, commands, CI/CD, etc.)
-.dev/              → Private docs (marketing, strategy, competitive analysis) — gitignored
+apps/docs/         → VitePress docs site (single source of truth for all documentation)
+.dev/              → Private docs (marketing, strategy, engineering, competitive) — gitignored
 e2e/               → End-to-end tests
 ```
 
@@ -45,7 +45,7 @@ e2e/               → End-to-end tests
 - Published to npm: `npm install -g @gpc-cli/cli`
 - Current version: v0.9.6 — pre-release series (`0.9.x` → `1.0.0` public launch)
 - 685 total tests, 7 packages building, 90%+ line coverage on all core packages
-- GitHub Releases: umbrella `v*` tags only, user-facing notes (see `docs/CONVENTIONS.md` for template)
+- GitHub Releases: umbrella `v*` tags only, user-facing notes (see `apps/docs/advanced/conventions.md` for template)
 
 ## Testing
 
@@ -64,20 +64,18 @@ e2e/               → End-to-end tests
 ## Documentation
 
 VitePress docs site: https://yasserstudio.github.io/gpc/
-Source: `apps/docs/` — 37+ pages across guide, commands, CI/CD, advanced, migration, reference
+Source: `apps/docs/` — single source of truth for all documentation (guide, commands, CI/CD, advanced, migration, reference)
 
-Legacy markdown docs in `docs/` — read before making architectural changes:
+Key pages for contributors:
+- `apps/docs/advanced/architecture.md` — system design, package graph
+- `apps/docs/advanced/conventions.md` — code style, git, testing
+- `apps/docs/advanced/security.md` — credential handling, threat model
+- `apps/docs/roadmap.md` — phased implementation plan
 
-- `docs/ARCHITECTURE.md` — system design, package graph
-- `docs/COMMANDS.md` — CLI command reference
-- `docs/API_REFERENCE.md` — Google Play API deep dive
-- `docs/CONVENTIONS.md` — code style, git, testing
-- `docs/ROADMAP.md` — phased implementation plan
-
-Private strategy docs in `.dev/` (gitignored):
+Private docs in `.dev/` (gitignored):
 
 - `.dev/marketing/` — branding, launch, content, pricing
-- `.dev/engineering/` — implementation strategy
+- `.dev/engineering/` — implementation strategy, GitHub automation, agent skills
 - `.dev/HONEST_ASSESSMENT.md`, `.dev/COMPARISON_WITH_ASC_CLI.md`
 
 ## GPC Skills

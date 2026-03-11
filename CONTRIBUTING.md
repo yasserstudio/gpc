@@ -109,10 +109,10 @@ pnpm test -- --watch                # Watch mode
 - TypeScript strict mode
 - ESM modules
 - Named exports only (no default exports)
-- See [CONVENTIONS.md](./docs/CONVENTIONS.md) for full details
+- See [Conventions](https://yasserstudio.github.io/gpc/advanced/conventions) for full details
 
 ## Need Help?
 
 - Open a [Discussion](https://github.com/yasserstudio/gpc/discussions) for questions
 - Check existing [Issues](https://github.com/yasserstudio/gpc/issues) before filing new ones
-- See the [architecture docs](./docs/ARCHITECTURE.md) for design decisions
+- See the [Architecture docs](https://yasserstudio.github.io/gpc/advanced/architecture) for design decisions
