@@ -104,6 +104,10 @@ export default defineConfig({
             { text: "recovery", link: "/commands/recovery" },
             { text: "data-safety", link: "/commands/data-safety" },
             { text: "external-transactions", link: "/commands/external-transactions" },
+            { text: "device-tiers", link: "/commands/device-tiers" },
+            { text: "internal-sharing", link: "/commands/internal-sharing" },
+            { text: "generated-apks", link: "/commands/generated-apks" },
+            { text: "one-time-products", link: "/commands/one-time-products" },
           ],
         },
         {

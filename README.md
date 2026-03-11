@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-778_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-843_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
@@ -88,7 +88,7 @@ GPC covers the **entire Google Play Developer API** in one CLI. No Ruby. No brow
 | Cold start          | <500ms                       | 2-3s            | 3-5s                  | 5-10s        |
 | Plugin system       | Yes                          | No              | No                    | No           |
 | Interactive mode    | Yes (guided prompts)         | No              | No                    | N/A          |
-| Test suite          | 778 tests, 90%+ coverage     | —               | —                     | —            |
+| Test suite          | 843 tests, 90%+ coverage     | —               | —                     | —            |
 
 See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 162 endpoints.
 
@@ -185,6 +185,7 @@ gpc users invite dev@company.com --developer-id <id> --role ADMIN
 
 ```bash
 gpc recovery list                          # List recovery actions
+gpc recovery create --file action.json    # Create a recovery action
 gpc recovery deploy <action-id>           # Deploy a recovery action
 gpc data-safety get                       # View data safety declarations
 gpc data-safety update --file safety.json # Update declarations
@@ -196,6 +197,24 @@ gpc data-safety update --file safety.json # Update declarations
 gpc external-transactions create --token <token> --amount 9.99 --currency USD
 gpc ext-txn get <id>                      # Alias for external-transactions
 gpc ext-txn refund <id>
+```
+
+### Device Tiers & Internal Sharing
+
+```bash
+gpc device-tiers list                     # List device tier configs
+gpc device-tiers create --file tiers.json # Create device targeting
+gpc internal-sharing upload app.aab       # Upload for review-free distribution
+gpc generated-apks list 142              # List device-specific APKs
+gpc generated-apks download 142 <id>     # Download a specific APK
+```
+
+### One-Time Products
+
+```bash
+gpc one-time-products list               # List one-time products (alias: otp)
+gpc otp create --file product.json       # Create a product
+gpc otp offers list <product-id>         # List offers for a product
 ```
 
 ### Plugins
@@ -475,7 +494,7 @@ git clone https://github.com/yasserstudio/gpc.git
 cd gpc
 pnpm install
 pnpm build
-pnpm test    # 778 tests across 7 packages
+pnpm test    # 843 tests across 7 packages
 ```
 
 ---
@@ -502,7 +521,7 @@ pnpm test    # 778 tests across 7 packages
 
 <p align="center">
   GPC was built entirely with <a href="https://claude.ai/claude-code">Claude Code</a> — from architecture design through implementation, testing, and documentation.<br>
-  778 tests, 7 packages, 90%+ coverage, all written through AI-assisted development.
+  843 tests, 7 packages, 90%+ coverage, all written through AI-assisted development.
 </p>
 
 ---

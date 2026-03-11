@@ -7,6 +7,22 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.8
+
+Complete API coverage and production readiness — the last feature release before 1.0.0.
+
+- feat: device tier targeting — create, list, and inspect device capability configs
+- feat: internal app sharing — upload builds for review-free QA distribution
+- feat: download device-specific APKs from app bundles
+- feat: one-time products API (alias `otp`) — the modern replacement for legacy in-app products, with offers support
+- feat: create recovery actions and add targeting rules (completes the recovery module)
+- feat: pagination (`--limit`, `--next-page`) on all list commands
+- feat: `--dry-run` on `apps update`
+- fix: `--yes` flag now works correctly on recovery cancel and deploy
+- test: 843 tests (up from 778)
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.7...v0.9.8
+
 ## v0.9.7
 
 New API coverage, webhooks, and developer experience improvements.

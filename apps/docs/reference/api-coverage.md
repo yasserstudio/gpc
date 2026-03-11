@@ -236,6 +236,43 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 | `externaltransactions.getExternalTransaction`    | GET    | `gpc ext-txn get`          |
 | `externaltransactions.refundExternalTransaction` | POST   | `gpc ext-txn refund`       |
 
+## Device Tiers
+
+| API Endpoint                         | Method | GPC Command                          |
+| ------------------------------------ | ------ | ------------------------------------ |
+| `deviceTierConfigs.list`             | GET    | `gpc device-tiers list`              |
+| `deviceTierConfigs.get`              | GET    | `gpc device-tiers get <config-id>`   |
+| `deviceTierConfigs.create`           | POST   | `gpc device-tiers create --file`     |
+
+## Internal App Sharing
+
+| API Endpoint                                | Method | GPC Command                            |
+| ------------------------------------------- | ------ | -------------------------------------- |
+| `internalappsharing.artifacts.uploadbundle`  | POST   | `gpc internal-sharing upload <file>`   |
+| `internalappsharing.artifacts.uploadapk`     | POST   | `gpc internal-sharing upload <file>`   |
+
+## Generated APKs
+
+| API Endpoint                   | Method | GPC Command                                  |
+| ------------------------------ | ------ | -------------------------------------------- |
+| `generatedapks.list`           | GET    | `gpc generated-apks list <version-code>`     |
+| `generatedapks.download`       | GET    | `gpc generated-apks download <vc> <apk-id>`  |
+
+## One-Time Products
+
+| API Endpoint                            | Method | GPC Command                   |
+| --------------------------------------- | ------ | ----------------------------- |
+| `monetization.oneTimeProducts.list`     | GET    | `gpc otp list`                |
+| `monetization.oneTimeProducts.get`      | GET    | `gpc otp get <id>`            |
+| `monetization.oneTimeProducts.create`   | POST   | `gpc otp create`              |
+| `monetization.oneTimeProducts.patch`    | PATCH  | `gpc otp update <id>`         |
+| `monetization.oneTimeProducts.delete`   | DELETE | `gpc otp delete <id>`         |
+| `oneTimeProducts.offers.list`           | GET    | `gpc otp offers list`         |
+| `oneTimeProducts.offers.get`            | GET    | `gpc otp offers get`          |
+| `oneTimeProducts.offers.create`         | POST   | `gpc otp offers create`       |
+| `oneTimeProducts.offers.patch`          | PATCH  | `gpc otp offers update`       |
+| `oneTimeProducts.offers.delete`         | DELETE | `gpc otp offers delete`       |
+
 ## Coverage Summary
 
 | Domain                                      | Endpoints | API       |
@@ -255,6 +292,10 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 | App Recovery                                | 3         | Publisher |
 | Data Safety                                 | 2         | Publisher |
 | External Transactions                       | 3         | Publisher |
-| Other (device tiers, system APKs)           | 6         | Publisher |
+| Device Tiers                                | 3         | Publisher |
+| Internal App Sharing                        | 2         | Publisher |
+| Generated APKs                              | 2         | Publisher |
+| One-Time Products + Offers                  | 10        | Publisher |
+| Other (system APKs)                         | 3         | Publisher |
 | Error Issues + Reports                      | 2         | Reporting |
-| **Total**                                   | **~170**  |           |
+| **Total**                                   | **~187**  |           |
