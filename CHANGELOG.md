@@ -9,19 +9,18 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ## v0.9.7
 
-New API coverage, developer experience improvements, and SDK polish.
+New API coverage, webhooks, and developer experience improvements.
 
-- feat: `gpc recovery list|cancel|deploy` — manage app recovery actions
-- feat: `gpc data-safety get|update|export` — data safety declarations
-- feat: `gpc external-transactions create|get|refund` (alias `ext-txn`) — alternative billing support
-- feat: `gpc listings diff` — compare local metadata against Play Store
-- feat: `--sort <field>` flag on list commands (releases, reviews, iap, subscriptions, users, testers)
-- feat: `--notes-from-git` and `--since <ref>` — generate release notes from conventional commits
-- feat: `--notify [target]` — webhook notifications on command completion (Slack, Discord, custom)
-- feat: shell completions for fish and PowerShell (in addition to bash/zsh)
-- feat: typed error hierarchy with codes and suggestions across all packages
-- docs: SDK-focused READMEs for `@gpc-cli/api` and `@gpc-cli/auth`
-- test: 778 tests (up from 685)
+- feat: app recovery actions — list, cancel, and deploy recovery actions
+- feat: data safety declarations — view, update, and export data safety info
+- feat: external transactions for alternative billing — create, get, and refund
+- feat: listings diff — compare local metadata against the Play Store
+- feat: sort any list command with `--sort <field>`
+- feat: generate release notes from git history with `--notes-from-git`
+- feat: webhook notifications on command completion with `--notify` (Slack, Discord, custom)
+- feat: fish and PowerShell shell completions
+- feat: clearer error messages with actionable fix suggestions across all commands
+- docs: standalone SDK usage guides for the API and auth packages
 
 **Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.6...v0.9.7
 
