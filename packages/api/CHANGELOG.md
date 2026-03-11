@@ -1,5 +1,13 @@
 # @gpc-cli/api
 
+## 1.0.4
+
+### Patch Changes
+
+- Security hardening, input validation, and bug fixes across all packages
+- Updated dependencies
+  - @gpc-cli/auth@0.9.5
+
 ## 1.0.3
 
 ### Patch Changes
