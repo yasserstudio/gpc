@@ -1,5 +1,11 @@
 # @gpc-cli/config
 
+## 0.9.6
+
+### Patch Changes
+
+- c27752c: New API coverage (recovery, data safety, external transactions), DX improvements (--sort, --notify, git-based release notes, fish/PowerShell completions), typed error audit, and SDK READMEs.
+
 ## 0.9.5
 
 ### Patch Changes
