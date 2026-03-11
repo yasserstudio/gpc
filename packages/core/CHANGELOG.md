@@ -1,5 +1,15 @@
 # @gpc-cli/core
 
+## 0.9.7
+
+### Patch Changes
+
+- c27752c: New API coverage (recovery, data safety, external transactions), DX improvements (--sort, --notify, git-based release notes, fish/PowerShell completions), typed error audit, and SDK READMEs.
+- Updated dependencies [c27752c]
+  - @gpc-cli/api@1.0.6
+  - @gpc-cli/auth@0.9.7
+  - @gpc-cli/config@0.9.6
+
 ## 0.9.6
 
 ### Patch Changes
