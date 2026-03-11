@@ -1,5 +1,16 @@
 # @gpc-cli/config
 
+## 0.9.7
+
+### Patch Changes
+
+- a87f244: v0.9.9 — Final pre-launch release with full API coverage, CLI polish, and migration tooling.
+
+  New: track CRUD, externally hosted APKs, purchase options, IAP batch sync,
+  JUnit XML output, progress spinners, bulk image export, Fastlane migration wizard,
+  full shell completion, --ci mode, --json shorthand, typo suggestions.
+  932 tests passing.
+
 ## 0.9.6
 
 ### Patch Changes
