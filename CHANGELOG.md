@@ -7,6 +7,27 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.9
+
+The final pre-launch release — full API coverage, CLI polish, and migration tooling.
+
+- feat: custom track management — create and update tracks with `gpc tracks create/update`
+- feat: externally hosted APKs — `gpc releases upload-external` for self-hosted distribution
+- feat: purchase options — list, create, activate, and deactivate purchase options
+- feat: IAP batch sync — batch update in-app products with automatic chunking and serial fallback
+- feat: JUnit XML output — `--output junit` for CI test result integration
+- feat: progress spinners on uploads, sync, and push operations
+- feat: bulk image export — `gpc listings images export` downloads all screenshots by language
+- feat: Fastlane migration wizard — `gpc migrate fastlane` detects your setup and generates a migration plan
+- feat: shell completion for all 30+ command groups including nested subcommands
+- feat: `--ci` flag for CI mode (JSON output, no prompts, no color)
+- feat: `--json` shorthand for `--output json`
+- feat: "did you mean?" typo suggestions on unknown commands
+- fix: typed errors with actionable suggestions across all commands
+- test: 932 tests (up from 843)
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.8...v0.9.9
+
 ## v0.9.8
 
 Complete API coverage and production readiness — the last feature release before 1.0.0.

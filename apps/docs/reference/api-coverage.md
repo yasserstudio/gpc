@@ -273,6 +273,16 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 | `oneTimeProducts.offers.patch`          | PATCH  | `gpc otp offers update`       |
 | `oneTimeProducts.offers.delete`         | DELETE | `gpc otp offers delete`       |
 
+## Purchase Options
+
+| API Endpoint                           | Method | GPC Command                              |
+| -------------------------------------- | ------ | ---------------------------------------- |
+| `purchaseOptions.list`                 | GET    | `gpc purchase-options list`              |
+| `purchaseOptions.get`                  | GET    | `gpc purchase-options get <id>`          |
+| `purchaseOptions.create`               | POST   | `gpc purchase-options create`            |
+| `purchaseOptions.activate`             | POST   | `gpc purchase-options activate <id>`     |
+| `purchaseOptions.deactivate`           | POST   | `gpc purchase-options deactivate <id>`   |
+
 ## Coverage Summary
 
 | Domain                                      | Endpoints | API       |
@@ -296,6 +306,7 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 | Internal App Sharing                        | 2         | Publisher |
 | Generated APKs                              | 2         | Publisher |
 | One-Time Products + Offers                  | 10        | Publisher |
+| Purchase Options                            | 5         | Publisher |
 | Other (system APKs)                         | 3         | Publisher |
 | Error Issues + Reports                      | 2         | Reporting |
-| **Total**                                   | **~187**  |           |
+| **Total**                                   | **~197**  |           |
