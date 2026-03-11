@@ -86,17 +86,20 @@ export function registerReleasesCommands(program: Command): void {
         }
       }
 
+      const client = await getClient(config, options.retryLog);
+
       if (isDryRun(program)) {
-        printDryRun(
-          {
-            command: "releases upload",
-            action: "upload",
-            target: file,
-            details: { track: options.track, rollout: options.rollout },
-          },
-          format,
-          formatOutput,
-        );
+        try {
+          const result = await uploadRelease(client, packageName, file, {
+            track: options.track,
+            userFraction: options.rollout ? Number(options.rollout) / 100 : undefined,
+            dryRun: true,
+          });
+          console.log(formatOutput(result, format));
+        } catch (error) {
+          console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+          process.exit(4);
+        }
         return;
       }
 
@@ -109,8 +112,6 @@ export function registerReleasesCommands(program: Command): void {
         },
         packageName,
       );
-
-      const client = await getClient(config, options.retryLog);
 
       try {
         let releaseNotes: { language: string; text: string }[] | undefined;

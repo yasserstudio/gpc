@@ -12,7 +12,7 @@ export {
   updateRollout,
   listTracks,
 } from "./commands/releases.js";
-export type { UploadResult, ReleaseStatusResult } from "./commands/releases.js";
+export type { UploadResult, ReleaseStatusResult, DryRunUploadResult } from "./commands/releases.js";
 export {
   getListings,
   updateListing,
@@ -34,7 +34,7 @@ export type { ReleaseNotesValidation } from "./utils/release-notes.js";
 export { validatePreSubmission } from "./commands/validate.js";
 export type { ValidateOptions, ValidateCheck, ValidateResult } from "./commands/validate.js";
 export { publish } from "./commands/publish.js";
-export type { PublishOptions, PublishResult } from "./commands/publish.js";
+export type { PublishOptions, PublishResult, DryRunPublishResult } from "./commands/publish.js";
 export { readListingsFromDir, writeListingsToDir, diffListings } from "./utils/fastlane.js";
 export type { ListingDiff } from "./utils/fastlane.js";
 export { listReviews, getReview, replyToReview, exportReviews } from "./commands/reviews.js";

@@ -7,7 +7,7 @@ import { createApiClient } from "@gpc-cli/api";
 import type { RetryLogEntry } from "@gpc-cli/api";
 import { publish, writeAuditLog, createAuditEntry } from "@gpc-cli/core";
 import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
-import { isDryRun, printDryRun } from "../dry-run.js";
+import { isDryRun } from "../dry-run.js";
 import { isInteractive, promptSelect, promptInput } from "../prompt.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
@@ -63,30 +63,6 @@ export function registerPublishCommand(program: Command): void {
         }
       }
 
-      if (isDryRun(program)) {
-        printDryRun(
-          {
-            command: "publish",
-            action: "publish",
-            target: file,
-            details: { track: options.track, rollout: options.rollout },
-          },
-          format,
-          formatOutput,
-        );
-        return;
-      }
-
-      const auditEntry = createAuditEntry(
-        "publish",
-        {
-          file,
-          track: options.track,
-          rollout: options.rollout,
-        },
-        packageName,
-      );
-
       let onRetry: ((entry: RetryLogEntry) => void) | undefined;
       if (options.retryLog) {
         onRetry = (entry: RetryLogEntry) => {
@@ -99,6 +75,35 @@ export function registerPublishCommand(program: Command): void {
         cachePath: getCacheDir(),
       });
       const client = createApiClient({ auth, onRetry });
+
+      if (isDryRun(program)) {
+        try {
+          const result = await publish(client, packageName, file, {
+            track: options.track,
+            rolloutPercent: options.rollout ? Number(options.rollout) : undefined,
+            notes: options.notes,
+            notesDir: options.notesDir,
+            releaseName: options.name,
+            mappingFile: options.mapping,
+            dryRun: true,
+          });
+          console.log(formatOutput(result, format));
+        } catch (error) {
+          console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+          process.exit(4);
+        }
+        return;
+      }
+
+      const auditEntry = createAuditEntry(
+        "publish",
+        {
+          file,
+          track: options.track,
+          rollout: options.rollout,
+        },
+        packageName,
+      );
 
       try {
         const result = await publish(client, packageName, file, {
