@@ -7,6 +7,24 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.5
+
+Security hardening, input validation, and bug fixes across all packages.
+
+- fix: prevent prototype pollution in config writer — validates keys against `__proto__`, `constructor`, `prototype`
+- fix: path traversal protection for Fastlane directory reads
+- fix: rate limiter token count recalculates based on actual elapsed time after wait
+- fix: image and deobfuscation uploads now verify API returned valid data
+- fix: `updateMask` URL encoding uses `URLSearchParams` for spec compliance
+- fix: user cancellation exits with code 1 instead of 0
+- fix: removed duplicate `--dry-run` options shadowing global flag in `listings push` and `iap sync`
+- fix: IAP sync produces clear error on invalid JSON files
+- fix: ADC tokens now cached via `acquireToken` for consistency with service accounts
+- fix: rollout percentage validation in `promote` and `rollout update` (must be 0–1)
+- fix: config loader properly deletes unsafe keys instead of setting to `undefined`
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.4...v0.9.5
+
 ## v0.9.4
 
 First release published to npm. Install with `npm install -g @gpc-cli/cli`.

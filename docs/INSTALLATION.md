@@ -81,7 +81,7 @@ The install script auto-detects your OS and architecture. On Windows, download t
 
 ```bash
 # Download specific version
-VERSION="v0.9.4"
+VERSION="v0.9.5"
 curl -fsSL -o gpc "https://github.com/yasserstudio/gpc/releases/download/${VERSION}/gpc-darwin-arm64"
 chmod +x gpc
 sudo mv gpc /usr/local/bin/
