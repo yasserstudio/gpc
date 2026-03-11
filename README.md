@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-685_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-778_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
@@ -88,7 +88,7 @@ GPC covers the **entire Google Play Developer API** in one CLI. No Ruby. No brow
 | Cold start          | <500ms                       | 2-3s            | 3-5s                  | 5-10s        |
 | Plugin system       | Yes                          | No              | No                    | No           |
 | Interactive mode    | Yes (guided prompts)         | No              | No                    | N/A          |
-| Test suite          | 685 tests, 90%+ coverage     | —               | —                     | —            |
+| Test suite          | 778 tests, 90%+ coverage     | —               | —                     | —            |
 
 See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 162 endpoints.
 
@@ -179,6 +179,23 @@ gpc testers add user@example.com --track internal
 gpc testers import --track beta --file testers.csv
 gpc users list --developer-id <id>
 gpc users invite dev@company.com --developer-id <id> --role ADMIN
+```
+
+### App Recovery & Data Safety
+
+```bash
+gpc recovery list                          # List recovery actions
+gpc recovery deploy <action-id>           # Deploy a recovery action
+gpc data-safety get                       # View data safety declarations
+gpc data-safety update --file safety.json # Update declarations
+```
+
+### External Transactions
+
+```bash
+gpc external-transactions create --token <token> --amount 9.99 --currency USD
+gpc ext-txn get <id>                      # Alias for external-transactions
+gpc ext-txn refund <id>
 ```
 
 ### Plugins
@@ -458,7 +475,7 @@ git clone https://github.com/yasserstudio/gpc.git
 cd gpc
 pnpm install
 pnpm build
-pnpm test    # 685 tests across 7 packages
+pnpm test    # 778 tests across 7 packages
 ```
 
 ---
@@ -485,7 +502,7 @@ pnpm test    # 685 tests across 7 packages
 
 <p align="center">
   GPC was built entirely with <a href="https://claude.ai/claude-code">Claude Code</a> — from architecture design through implementation, testing, and documentation.<br>
-  685 tests, 7 packages, 90%+ coverage, all written through AI-assisted development.
+  778 tests, 7 packages, 90%+ coverage, all written through AI-assisted development.
 </p>
 
 ---

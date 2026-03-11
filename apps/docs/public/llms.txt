@@ -13,7 +13,7 @@ GPC is a TypeScript CLI that covers 162 Google Play Developer API endpoints. It 
 - Output: JSON (default in CI/pipe), table (default in TTY), YAML, Markdown
 - Exit codes: 0 success, 1 error, 2 usage, 3 auth, 4 API, 5 network, 6 threshold breach, 10 plugin
 - Config: `.gpcrc.json` (project), `~/.config/gpc/config.json` (user), `GPC_*` env vars
-- Tests: 685+, 90%+ coverage
+- Tests: 778+, 90%+ coverage
 
 ## Documentation
 

@@ -213,6 +213,29 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 | `errorIssues.search`                     | GET    | `gpc vitals errors search`       |
 | `errorReports.search`                    | GET    | `gpc vitals errors reports`      |
 
+## App Recovery Actions
+
+| API Endpoint                  | Method | GPC Command              |
+| ----------------------------- | ------ | ------------------------ |
+| `apprecovery.list`            | GET    | `gpc recovery list`      |
+| `apprecovery.cancel`          | POST   | `gpc recovery cancel`    |
+| `apprecovery.deploy`          | POST   | `gpc recovery deploy`    |
+
+## Data Safety
+
+| API Endpoint                  | Method | GPC Command              |
+| ----------------------------- | ------ | ------------------------ |
+| `dataSafety.get`              | GET    | `gpc data-safety get`    |
+| `dataSafety.update`           | PUT    | `gpc data-safety update` |
+
+## External Transactions
+
+| API Endpoint                        | Method | GPC Command                |
+| ----------------------------------- | ------ | -------------------------- |
+| `externaltransactions.createExternalTransaction` | POST   | `gpc ext-txn create`       |
+| `externaltransactions.getExternalTransaction`    | GET    | `gpc ext-txn get`          |
+| `externaltransactions.refundExternalTransaction` | POST   | `gpc ext-txn refund`       |
+
 ## Coverage Summary
 
 | Domain                                      | Endpoints | API       |
@@ -229,6 +252,9 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 | Monetization (pricing)                      | 1         | Publisher |
 | Users + Grants                              | 8         | Publisher |
 | Reports                                     | 3         | Publisher |
-| Other (recovery, device tiers, system APKs) | 14        | Publisher |
+| App Recovery                                | 3         | Publisher |
+| Data Safety                                 | 2         | Publisher |
+| External Transactions                       | 3         | Publisher |
+| Other (device tiers, system APKs)           | 6         | Publisher |
 | Error Issues + Reports                      | 2         | Reporting |
-| **Total**                                   | **~162**  |           |
+| **Total**                                   | **~170**  |           |

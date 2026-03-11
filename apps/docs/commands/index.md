@@ -36,6 +36,9 @@ All commands accept global flags, produce structured output, and return predicta
 | [`apps`](./apps)                              | App info and configuration                            |
 | [`config`](./config)                          | CLI configuration                                     |
 | [`plugins`](./plugins)                        | Plugin management                                     |
+| [`recovery`](./recovery)                      | App recovery actions                                  |
+| [`data-safety`](./data-safety)                | Data safety declarations                              |
+| [`external-transactions`](./external-transactions) | External transactions (alternative billing)      |
 | [`doctor` / `docs` / `completion`](./utility) | Utilities                                             |
 
 ## Global Flags
@@ -56,6 +59,8 @@ Every command accepts these flags:
 | `--next-page`      |       | `string`  |         | Pagination token for next page                     |
 | `--retry-log`      |       | `string`  |         | Log retry attempts to file (JSONL)                 |
 | `--config`         |       | `string`  |         | Path to config file                                |
+| `--notify`         |       | `string`  |         | Send webhook on completion (`slack`, `discord`, `custom`) |
+| `--sort`           |       | `string`  |         | Sort results by field (prefix with `-` for descending)    |
 | `--version`        | `-V`  | `boolean` |         | Show version                                       |
 | `--help`           | `-h`  | `boolean` |         | Show help                                          |
 
