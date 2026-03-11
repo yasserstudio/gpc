@@ -1,5 +1,11 @@
 # @gpc-cli/auth
 
+## 0.9.5
+
+### Patch Changes
+
+- Security hardening, input validation, and bug fixes across all packages
+
 ## 0.9.4
 
 ### Minor Changes

@@ -1,5 +1,13 @@
 # @gpc-cli/plugin-ci
 
+## 0.9.5
+
+### Patch Changes
+
+- Security hardening, input validation, and bug fixes across all packages
+- Updated dependencies
+  - @gpc-cli/plugin-sdk@0.9.5
+
 ## 0.9.4
 
 ### Minor Changes
