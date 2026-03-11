@@ -1,6 +1,6 @@
 import type { PlayApiClient } from "@gpc-cli/api";
 import { uploadRelease } from "./releases.js";
-import type { UploadResult } from "./releases.js";
+import type { UploadResult, DryRunUploadResult } from "./releases.js";
 import { validatePreSubmission } from "./validate.js";
 import type { ValidateResult } from "./validate.js";
 import { readReleaseNotesFromDir } from "../utils/release-notes.js";
@@ -12,6 +12,7 @@ export interface PublishOptions {
   notesDir?: string;
   releaseName?: string;
   mappingFile?: string;
+  dryRun?: boolean;
 }
 
 export interface PublishResult {
@@ -19,12 +20,18 @@ export interface PublishResult {
   upload?: UploadResult;
 }
 
+export interface DryRunPublishResult {
+  dryRun: true;
+  validation: ValidateResult;
+  upload: DryRunUploadResult;
+}
+
 export async function publish(
   client: PlayApiClient,
   packageName: string,
   filePath: string,
   options: PublishOptions,
-): Promise<PublishResult> {
+): Promise<PublishResult | DryRunPublishResult> {
   // Resolve release notes
   let releaseNotes: { language: string; text: string }[] | undefined;
   if (options.notesDir) {
@@ -41,6 +48,16 @@ export async function publish(
     notes: releaseNotes,
   });
 
+  if (options.dryRun) {
+    const upload = await uploadRelease(client, packageName, filePath, {
+      track: options.track || "internal",
+      userFraction: options.rolloutPercent ? options.rolloutPercent / 100 : undefined,
+      dryRun: true,
+    }) as DryRunUploadResult;
+
+    return { dryRun: true, validation, upload };
+  }
+
   if (!validation.valid) {
     return { validation };
   }
@@ -54,5 +71,5 @@ export async function publish(
     mappingFile: options.mappingFile,
   });
 
-  return { validation, upload };
+  return { validation, upload } as PublishResult;
 }

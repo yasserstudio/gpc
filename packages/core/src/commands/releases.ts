@@ -15,6 +15,14 @@ export interface ReleaseStatusResult {
   releaseNotes?: { language: string; text: string }[];
 }
 
+export interface DryRunUploadResult {
+  dryRun: true;
+  file: { path: string; valid: boolean; errors: string[]; warnings: string[] };
+  track: string;
+  currentReleases: { versionCodes: string[]; status: string; userFraction?: number }[];
+  plannedRelease: { status: string; userFraction?: number };
+}
+
 export async function uploadRelease(
   client: PlayApiClient,
   packageName: string,
@@ -26,10 +34,49 @@ export async function uploadRelease(
     releaseNotes?: { language: string; text: string }[];
     releaseName?: string;
     mappingFile?: string;
+    dryRun?: boolean;
   },
-): Promise<UploadResult> {
+): Promise<UploadResult | DryRunUploadResult> {
   // Validate file before upload
   const validation = await validateUploadFile(filePath);
+
+  if (options.dryRun) {
+    const plannedStatus = options.status ||
+      (options.userFraction ? "inProgress" : "completed");
+
+    // Fetch current track state without modifying anything
+    let currentReleases: DryRunUploadResult["currentReleases"] = [];
+    const edit = await client.edits.insert(packageName);
+    try {
+      const trackData = await client.tracks.get(packageName, edit.id, options.track);
+      currentReleases = (trackData.releases || []).map((r) => ({
+        versionCodes: r.versionCodes || [],
+        status: r.status,
+        ...(r.userFraction !== undefined && { userFraction: r.userFraction }),
+      }));
+    } catch {
+      // Track may not exist yet — that's fine for dry-run
+    } finally {
+      await client.edits.delete(packageName, edit.id).catch(() => {});
+    }
+
+    return {
+      dryRun: true,
+      file: {
+        path: filePath,
+        valid: validation.valid,
+        errors: validation.errors,
+        warnings: validation.warnings,
+      },
+      track: options.track,
+      currentReleases,
+      plannedRelease: {
+        status: plannedStatus,
+        ...(options.userFraction !== undefined && { userFraction: options.userFraction }),
+      },
+    };
+  }
+
   if (!validation.valid) {
     throw new Error(`File validation failed:\n${validation.errors.join("\n")}`);
   }
