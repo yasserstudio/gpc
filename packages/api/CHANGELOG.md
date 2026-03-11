@@ -1,5 +1,11 @@
 # @gpc-cli/api
 
+## 1.0.7
+
+### Patch Changes
+
+- be026d0: Complete API coverage: device tiers, internal app sharing, generated APKs, one-time products, app recovery create + targeting. Pagination on all list commands, dry-run on apps update, requireConfirm bug fix.
+
 ## 1.0.6
 
 ### Patch Changes
