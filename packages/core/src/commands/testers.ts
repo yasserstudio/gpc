@@ -1,5 +1,6 @@
 import type { PlayApiClient, Testers } from "@gpc-cli/api";
 import { readFile } from "node:fs/promises";
+import { GpcError } from "../errors.js";
 
 export async function listTesters(
   client: PlayApiClient,
@@ -76,7 +77,12 @@ export async function importTestersFromCsv(
     .filter((e) => e.length > 0 && e.includes("@"));
 
   if (emails.length === 0) {
-    throw new Error(`No valid email addresses found in ${csvPath}.`);
+    throw new GpcError(
+      `No valid email addresses found in ${csvPath}.`,
+      "TESTER_NO_EMAILS",
+      1,
+      "The CSV file must contain email addresses separated by commas or newlines. Each email must contain an @ symbol.",
+    );
   }
 
   const testers = await addTesters(client, packageName, track, emails);

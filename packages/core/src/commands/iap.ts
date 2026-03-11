@@ -2,6 +2,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { PlayApiClient, InAppProduct } from "@gpc-cli/api";
 import { paginateAll } from "@gpc-cli/api";
+import { GpcError } from "../errors.js";
 
 export interface ListIapOptions {
   token?: string;
@@ -96,7 +97,12 @@ export async function syncInAppProducts(
     try {
       localProducts.push(JSON.parse(content) as InAppProduct);
     } catch {
-      throw new Error(`Failed to parse ${file}: invalid JSON`);
+      throw new GpcError(
+        `Failed to parse ${file}: invalid JSON`,
+        "IAP_INVALID_JSON",
+        1,
+        `Check that "${file}" contains valid JSON. You can validate it with: cat "${file}" | jq .`,
+      );
     }
   }
 

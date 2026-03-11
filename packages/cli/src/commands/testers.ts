@@ -10,6 +10,7 @@ import {
   importTestersFromCsv,
   detectOutputFormat,
   formatOutput,
+  sortResults,
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, requireOption, requireConfirm } from "../prompt.js";
@@ -35,6 +36,7 @@ export function registerTestersCommands(program: Command): void {
     .command("list")
     .description("List testers for a track")
     .option("--track <track>", "Track name (e.g., internal, alpha, beta)")
+    .option("--sort <field>", "Sort by field (prefix with - for descending, e.g., email or -email)")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -55,6 +57,12 @@ export function registerTestersCommands(program: Command): void {
 
       try {
         const result = await listTesters(client, packageName, options.track);
+        if (options.sort && result.googleGroups) {
+          const descending = options.sort.startsWith("-");
+          result.googleGroups = [...result.googleGroups].sort((a: string, b: string) =>
+            descending ? b.localeCompare(a) : a.localeCompare(b),
+          );
+        }
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);

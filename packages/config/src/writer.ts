@@ -1,6 +1,7 @@
 import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
+import { ConfigError } from "./errors.js";
 import { getConfigDir } from "./paths.js";
 import type { GpcConfig, ProfileConfig } from "./types.js";
 
@@ -13,12 +14,20 @@ const DANGEROUS_KEYS = new Set(["__proto__", "constructor", "prototype"]);
 
 function validateConfigKey(key: string): void {
   if (!key || key.startsWith(".") || key.endsWith(".") || key.includes("..")) {
-    throw new Error(`Invalid config key: "${key}"`);
+    throw new ConfigError(
+      `Invalid config key: "${key}"`,
+      "CONFIG_INVALID_KEY",
+      "Config keys must be non-empty, cannot start or end with a dot, and cannot contain consecutive dots. Example: auth.serviceAccount",
+    );
   }
   const parts = key.split(".");
   for (const part of parts) {
     if (DANGEROUS_KEYS.has(part)) {
-      throw new Error(`Unsafe config key: "${key}" contains forbidden key "${part}"`);
+      throw new ConfigError(
+        `Unsafe config key: "${key}" contains forbidden key "${part}"`,
+        "CONFIG_INVALID_KEY",
+        `The key "${part}" is reserved and cannot be used in config paths.`,
+      );
     }
   }
 }

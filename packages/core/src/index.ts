@@ -19,6 +19,7 @@ export {
   deleteListing,
   pullListings,
   pushListings,
+  diffListingsCommand,
   listImages,
   uploadImage,
   deleteImage,
@@ -128,8 +129,34 @@ export {
   removeTesters,
   importTestersFromCsv,
 } from "./commands/testers.js";
+export { generateNotesFromGit } from "./utils/git-notes.js";
+export type { GitNotesOptions, GitReleaseNotes } from "./utils/git-notes.js";
+export {
+  listRecoveryActions,
+  cancelRecoveryAction,
+  deployRecoveryAction,
+} from "./commands/app-recovery.js";
+export {
+  getDataSafety,
+  updateDataSafety,
+  exportDataSafety,
+  importDataSafety,
+} from "./commands/data-safety.js";
+export {
+  createExternalTransaction,
+  getExternalTransaction,
+  refundExternalTransaction,
+} from "./commands/external-transactions.js";
 export { safePath, safePathWithin } from "./utils/safe-path.js";
+export { sortResults } from "./utils/sort.js";
 export { scaffoldPlugin } from "./commands/plugin-scaffold.js";
 export type { ScaffoldOptions, ScaffoldResult } from "./commands/plugin-scaffold.js";
 export { initAudit, writeAuditLog, createAuditEntry } from "./audit.js";
 export type { AuditEntry } from "./audit.js";
+export {
+  sendWebhook,
+  formatSlackPayload,
+  formatDiscordPayload,
+  formatCustomPayload,
+} from "./utils/webhooks.js";
+export type { WebhookPayload } from "./utils/webhooks.js";

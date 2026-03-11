@@ -1,4 +1,5 @@
 import type { PlayApiClient, Release, Track } from "@gpc-cli/api";
+import { GpcError } from "../errors.js";
 import { validateUploadFile } from "../utils/file-validation.js";
 
 export interface UploadResult {
@@ -78,7 +79,12 @@ export async function uploadRelease(
   }
 
   if (!validation.valid) {
-    throw new Error(`File validation failed:\n${validation.errors.join("\n")}`);
+    throw new GpcError(
+      `File validation failed:\n${validation.errors.join("\n")}`,
+      "RELEASE_INVALID_FILE",
+      2,
+      "Check that the file is a valid AAB or APK and is not corrupted.",
+    );
   }
 
   const edit = await client.edits.insert(packageName);
@@ -171,12 +177,22 @@ export async function promoteRelease(
     );
 
     if (!currentRelease) {
-      throw new Error(`No active release found on track "${fromTrack}"`);
+      throw new GpcError(
+        `No active release found on track "${fromTrack}"`,
+        "RELEASE_NOT_FOUND",
+        1,
+        `Ensure there is a completed or in-progress release on the "${fromTrack}" track before promoting.`,
+      );
     }
 
     // Create release on target track
     if (options?.userFraction && (options.userFraction <= 0 || options.userFraction > 1)) {
-      throw new Error("Rollout percentage must be between 0 and 1 (e.g., 0.1 for 10%)");
+      throw new GpcError(
+        "Rollout percentage must be between 0 and 1 (e.g., 0.1 for 10%)",
+        "RELEASE_INVALID_FRACTION",
+        2,
+        "Use a decimal value like 0.1 for 10%, 0.5 for 50%, or 1.0 for 100%.",
+      );
     }
     const release: Release = {
       versionCodes: currentRelease.versionCodes,
@@ -216,7 +232,12 @@ export async function updateRollout(
     );
 
     if (!currentRelease) {
-      throw new Error(`No active rollout found on track "${track}"`);
+      throw new GpcError(
+        `No active rollout found on track "${track}"`,
+        "ROLLOUT_NOT_FOUND",
+        1,
+        `There is no in-progress or halted rollout on the "${track}" track. Start a staged rollout first with: gpc releases upload --track ${track} --status inProgress --fraction 0.1`,
+      );
     }
 
     let newStatus: string;
@@ -224,9 +245,19 @@ export async function updateRollout(
 
     switch (action) {
       case "increase":
-        if (!userFraction) throw new Error("--to <percentage> is required for rollout increase");
+        if (!userFraction) throw new GpcError(
+          "--to <percentage> is required for rollout increase",
+          "ROLLOUT_MISSING_FRACTION",
+          2,
+          "Specify the target rollout percentage with --to, e.g.: gpc rollout increase --to 0.5",
+        );
         if (userFraction <= 0 || userFraction > 1) {
-          throw new Error("Rollout percentage must be between 0 and 1 (e.g., 0.1 for 10%)");
+          throw new GpcError(
+            "Rollout percentage must be between 0 and 1 (e.g., 0.1 for 10%)",
+            "RELEASE_INVALID_FRACTION",
+            2,
+            "Use a decimal value like 0.1 for 10%, 0.5 for 50%, or 1.0 for 100%.",
+          );
         }
         newStatus = "inProgress";
         newFraction = userFraction;

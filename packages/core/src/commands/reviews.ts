@@ -1,5 +1,6 @@
 import type { PlayApiClient, Review, ReviewsListOptions, ReviewReplyResponse } from "@gpc-cli/api";
 import { paginateAll } from "@gpc-cli/api";
+import { GpcError } from "../errors.js";
 
 export interface ReviewsFilterOptions {
   stars?: number;
@@ -71,12 +72,20 @@ export async function replyToReview(
   replyText: string,
 ): Promise<ReviewReplyResponse> {
   if (replyText.length > MAX_REPLY_LENGTH) {
-    throw new Error(
+    throw new GpcError(
       `Reply text exceeds ${MAX_REPLY_LENGTH} characters (${replyText.length}). Google Play limits replies to ${MAX_REPLY_LENGTH} characters.`,
+      "REVIEW_REPLY_TOO_LONG",
+      2,
+      `Shorten your reply to ${MAX_REPLY_LENGTH} characters or fewer. Current length: ${replyText.length}.`,
     );
   }
   if (replyText.length === 0) {
-    throw new Error("Reply text cannot be empty.");
+    throw new GpcError(
+      "Reply text cannot be empty.",
+      "REVIEW_REPLY_EMPTY",
+      2,
+      "Provide a non-empty reply text with --text or -t.",
+    );
   }
   return client.reviews.reply(packageName, reviewId, replyText);
 }

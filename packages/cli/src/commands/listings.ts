@@ -10,6 +10,7 @@ import {
   deleteListing,
   pullListings,
   pushListings,
+  diffListingsCommand,
   listImages,
   uploadImage,
   deleteImage,
@@ -235,6 +236,44 @@ export function registerListingsCommands(program: Command): void {
           dryRun: isDryRun(program),
         });
         console.log(formatOutput(result, format));
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  // Diff
+  listings
+    .command("diff")
+    .description("Compare local Fastlane-format metadata against remote listings")
+    .option("--dir <path>", "Local metadata directory", "metadata")
+    .action(async (options) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = detectOutputFormat();
+
+      try {
+        const diffs = await diffListingsCommand(client, packageName, options.dir);
+
+        if (diffs.length === 0) {
+          if (format === "json") {
+            console.log(formatOutput([], format));
+          } else {
+            console.log("No differences found.");
+          }
+          return;
+        }
+
+        if (format === "json") {
+          console.log(formatOutput(diffs, format));
+        } else {
+          for (const diff of diffs) {
+            console.log(`[${diff.language}] ${diff.field}:`);
+            console.log(`  local:  ${diff.local || "(empty)"}`);
+            console.log(`  remote: ${diff.remote || "(empty)"}`);
+          }
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

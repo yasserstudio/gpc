@@ -1,5 +1,6 @@
 import type { UsersApiClient, User, DeveloperPermission, Grant } from "@gpc-cli/api";
 import { paginateAll } from "@gpc-cli/api";
+import { GpcError } from "../errors.js";
 
 export const PERMISSION_PROPAGATION_WARNING =
   "Note: Permission changes may take up to 48 hours to propagate.";
@@ -85,8 +86,11 @@ export async function removeUser(
 export function parseGrantArg(grantStr: string): Grant {
   const colonIdx = grantStr.indexOf(":");
   if (colonIdx === -1) {
-    throw new Error(
+    throw new GpcError(
       `Invalid grant format "${grantStr}". Expected <packageName>:<PERMISSION>[,<PERMISSION>...]`,
+      "USER_INVALID_GRANT",
+      2,
+      "Use the format: com.example.app:VIEW_APP_INFORMATION,MANAGE_STORE_LISTING",
     );
   }
   const packageName = grantStr.slice(0, colonIdx);

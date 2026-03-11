@@ -10,6 +10,7 @@ import {
   exportReviews,
   detectOutputFormat,
   formatOutput,
+  sortResults,
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, requireOption } from "../prompt.js";
@@ -41,6 +42,7 @@ export function registerReviewsCommands(program: Command): void {
     .option("--max <n>", "Maximum number of reviews per page", parseInt)
     .option("--limit <n>", "Maximum total results", parseInt)
     .option("--next-page <token>", "Resume from page token")
+    .option("--sort <field>", "Sort by field (prefix with - for descending)")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -57,7 +59,8 @@ export function registerReviewsCommands(program: Command): void {
           limit: options.limit,
           nextPage: options.nextPage,
         });
-        console.log(formatOutput(result, format));
+        const sorted = sortResults(result, options.sort);
+        console.log(formatOutput(sorted, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

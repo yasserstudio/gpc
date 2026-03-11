@@ -2,6 +2,7 @@ import { readFile, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 import { DEFAULT_CONFIG } from "./defaults.js";
+import { ConfigError } from "./errors.js";
 import { getUserConfigPath } from "./paths.js";
 import type { GpcConfig, OutputFormat, ResolvedConfig } from "./types.js";
 
@@ -67,8 +68,10 @@ export async function readConfigFile(filePath: string): Promise<GpcConfig> {
 
   // Validate output format if present
   if (parsed.output !== undefined && !isValidOutputFormat(parsed.output)) {
-    throw new Error(
+    throw new ConfigError(
       `Invalid output format "${String(parsed.output)}" in ${filePath}. Must be one of: ${[...VALID_OUTPUT_FORMATS].join(", ")}`,
+      "CONFIG_INVALID_VALUE",
+      `Set the "output" field to one of: ${[...VALID_OUTPUT_FORMATS].join(", ")}.`,
     );
   }
 
@@ -135,8 +138,10 @@ export async function loadConfig(overrides?: Partial<GpcConfig>): Promise<Resolv
     if (p?.developerId) result.developerId = p.developerId;
   } else if (result.profile && result.profiles && !(result.profile in result.profiles)) {
     const available = Object.keys(result.profiles).join(", ");
-    throw new Error(
+    throw new ConfigError(
       `Profile "${result.profile}" not found. Available profiles: ${available || "(none)"}`,
+      "CONFIG_PROFILE_NOT_FOUND",
+      `Check the profile name in your config or use one of: ${available || "none defined yet. Create one with: gpc config profile set <name>"}`,
     );
   }
 
