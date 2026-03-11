@@ -14,7 +14,7 @@ import type {
 
 describe("plugin-sdk", () => {
   it("exports PLUGIN_SDK_VERSION", () => {
-    expect(PLUGIN_SDK_VERSION).toBe("0.8.0");
+    expect(PLUGIN_SDK_VERSION).toBe("0.9.4");
   });
 
   it("definePlugin returns the same plugin object", () => {

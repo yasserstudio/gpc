@@ -73,8 +73,14 @@ export function createRateLimiter(buckets?: RateLimitBucket[]): RateLimiter {
       );
       await new Promise((r) => setTimeout(r, waitMs));
 
-      state.tokens = state.config.refillRate - 1;
-      state.lastRefillTime = Date.now();
+      // Recalculate refill based on actual elapsed time since last refill
+      const afterWait = Date.now();
+      const totalElapsed = afterWait - state.lastRefillTime;
+      const newTokens = Math.floor(
+        (totalElapsed / state.config.refillIntervalMs) * state.config.refillRate,
+      );
+      state.tokens = Math.min(state.config.maxTokens, newTokens) - 1;
+      state.lastRefillTime = afterWait;
     },
   };
 }

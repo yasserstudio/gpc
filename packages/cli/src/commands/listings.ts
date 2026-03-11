@@ -224,7 +224,6 @@ export function registerListingsCommands(program: Command): void {
     .command("push")
     .description("Upload listings from Fastlane-format directory")
     .option("--dir <path>", "Source directory", "metadata")
-    .option("--dry-run", "Preview changes without applying")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -233,7 +232,7 @@ export function registerListingsCommands(program: Command): void {
 
       try {
         const result = await pushListings(client, packageName, options.dir, {
-          dryRun: options.dryRun,
+          dryRun: isDryRun(program),
         });
         console.log(formatOutput(result, format));
       } catch (error) {

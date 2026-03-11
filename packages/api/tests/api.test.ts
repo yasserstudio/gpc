@@ -838,7 +838,7 @@ describe("monetization API endpoints", () => {
       const client = makeClient();
       await client.subscriptions.update(PKG, "sub1", sub as any, "listings,basePlans");
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toContain(`/monetization/subscriptions/sub1?updateMask=listings,basePlans`);
+      expect(url).toContain(`/monetization/subscriptions/sub1?updateMask=listings%2CbasePlans`);
       expect(init.method).toBe("PATCH");
     });
 

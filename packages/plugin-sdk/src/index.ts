@@ -1,4 +1,4 @@
-export const PLUGIN_SDK_VERSION = "0.8.0";
+export const PLUGIN_SDK_VERSION = "0.9.4";
 
 // ---------------------------------------------------------------------------
 // Plugin interface

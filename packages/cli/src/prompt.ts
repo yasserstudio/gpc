@@ -69,7 +69,7 @@ export async function requireConfirm(
   const confirmed = await promptConfirm(message, false);
   if (!confirmed) {
     console.log("Aborted.");
-    process.exit(0);
+    process.exit(1);
   }
 }
 

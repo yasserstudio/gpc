@@ -9,7 +9,22 @@ async function writeSecureFile(filePath: string, content: string): Promise<void>
   await chmod(filePath, 0o600).catch(() => {});
 }
 
+const DANGEROUS_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
+function validateConfigKey(key: string): void {
+  if (!key || key.startsWith(".") || key.endsWith(".") || key.includes("..")) {
+    throw new Error(`Invalid config key: "${key}"`);
+  }
+  const parts = key.split(".");
+  for (const part of parts) {
+    if (DANGEROUS_KEYS.has(part)) {
+      throw new Error(`Unsafe config key: "${key}" contains forbidden key "${part}"`);
+    }
+  }
+}
+
 export async function setConfigValue(key: string, value: string): Promise<void> {
+  validateConfigKey(key);
   const configPath = join(getConfigDir(), "config.json");
 
   let existing: Record<string, unknown> = {};

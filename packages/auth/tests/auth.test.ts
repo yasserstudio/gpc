@@ -311,7 +311,7 @@ describe("resolveAuth", () => {
     });
 
     const client = await resolveAuth();
-    expect(client.getClientEmail()).toBe("unknown");
+    expect(client.getClientEmail()).toBe("adc-default");
     expect(client.getProjectId()).toBeUndefined();
   });
 });

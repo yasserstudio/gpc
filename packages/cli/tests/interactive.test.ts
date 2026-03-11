@@ -171,7 +171,7 @@ describe("requireConfirm", () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
     await expect(requireConfirm("Delete?", program)).rejects.toThrow("process.exit");
-    expect(exitSpy).toHaveBeenCalledWith(0);
+    expect(exitSpy).toHaveBeenCalledWith(1);
     expect(logSpy).toHaveBeenCalledWith("Aborted.");
 
     exitSpy.mockRestore();
