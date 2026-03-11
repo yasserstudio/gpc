@@ -1,5 +1,6 @@
 import type { PlayApiClient, DataSafety } from "@gpc-cli/api";
 import { readFile, writeFile } from "node:fs/promises";
+import { GpcError } from "../errors.js";
 
 export async function getDataSafety(
   client: PlayApiClient,
@@ -53,7 +54,12 @@ export async function importDataSafety(
   try {
     data = JSON.parse(content) as DataSafety;
   } catch {
-    throw new Error(`Failed to parse data safety JSON from "${filePath}"`);
+    throw new GpcError(
+      `Failed to parse data safety JSON from "${filePath}"`,
+      "INVALID_JSON",
+      1,
+      "Ensure the file contains valid JSON matching the data safety schema.",
+    );
   }
   return updateDataSafety(client, packageName, data);
 }

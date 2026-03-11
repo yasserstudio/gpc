@@ -21,13 +21,16 @@ vi.mock("../src/utils/image-validation.js", () => ({
 }));
 
 import { GpcError, ConfigError, ApiError, NetworkError } from "../src/errors";
-import { detectOutputFormat, formatOutput } from "../src/output";
+import { detectOutputFormat, formatOutput, formatJunit } from "../src/output";
 import {
   uploadRelease,
   getReleasesStatus,
   promoteRelease,
   updateRollout,
   listTracks,
+  createTrack,
+  updateTrackConfig,
+  uploadExternallyHosted,
 } from "../src/commands/releases.js";
 import {
   getListings,
@@ -38,6 +41,7 @@ import {
   listImages,
   uploadImage,
   deleteImage,
+  exportImages,
   getCountryAvailability,
   updateAppDetails,
 } from "../src/commands/listings.js";
@@ -280,6 +284,81 @@ describe("formatOutput – markdown", () => {
     const lines = result.split("\n");
     // second line should be the separator with dashes
     expect(lines[1]).toMatch(/^\|\s*-+\s*\|\s*-+\s*\|$/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// formatOutput – JUnit
+// ---------------------------------------------------------------------------
+describe("formatOutput – junit", () => {
+  it("formats array of items as multiple test cases", () => {
+    const data = [
+      { name: "app-v1", status: "ok" },
+      { name: "app-v2", status: "ok" },
+    ];
+    const result = formatOutput(data, "junit");
+    expect(result).toContain('<?xml version="1.0" encoding="UTF-8"?>');
+    expect(result).toContain('tests="2"');
+    expect(result).toContain('failures="0"');
+    expect(result).toContain('name="app-v1"');
+    expect(result).toContain('name="app-v2"');
+  });
+
+  it("formats empty array as empty test suite", () => {
+    const result = formatOutput([], "junit");
+    expect(result).toContain('tests="0"');
+    expect(result).toContain('failures="0"');
+    expect(result).not.toContain("<testcase");
+  });
+
+  it("formats threshold breach as failure element", () => {
+    const data = {
+      name: "crash-rate",
+      breached: true,
+      message: "crash rate exceeded",
+      metric: "2.5%",
+    };
+    const result = formatOutput(data, "junit");
+    expect(result).toContain('failures="1"');
+    expect(result).toContain("<failure");
+    expect(result).toContain('message="crash rate exceeded"');
+    expect(result).toContain("2.5%");
+  });
+
+  it("formats single object as single test case", () => {
+    const data = { name: "my-app", version: "1.0" };
+    const result = formatOutput(data, "junit");
+    expect(result).toContain('tests="1"');
+    expect(result).toContain('name="my-app"');
+  });
+
+  it("formats string as single test case", () => {
+    const result = formatJunit("all checks passed", "vitals");
+    expect(result).toContain('tests="1"');
+    expect(result).toContain('name="all checks passed"');
+    expect(result).toContain('classname="gpc.vitals"');
+  });
+
+  it("escapes XML special characters", () => {
+    const data = { name: 'app <"beta">&test' };
+    const result = formatOutput(data, "junit");
+    expect(result).toContain("&lt;");
+    expect(result).toContain("&quot;");
+    expect(result).toContain("&amp;");
+  });
+
+  it("uses custom command name when provided via formatJunit", () => {
+    const data = [{ name: "item" }];
+    const result = formatJunit(data, "releases-upload");
+    expect(result).toContain('name="releases-upload"');
+    expect(result).toContain('classname="gpc.releases-upload"');
+  });
+
+  it("handles non-breached threshold as success", () => {
+    const data = { name: "anr-rate", breached: false, metric: "0.1%" };
+    const result = formatOutput(data, "junit");
+    expect(result).toContain('failures="0"');
+    expect(result).not.toContain("<failure");
   });
 });
 
@@ -1328,6 +1407,90 @@ describe("deleteImage", () => {
     client.images.delete.mockRejectedValue(new Error("delete fail"));
 
     await expect(deleteImage(client, PKG, "en-US", "icon", "img-1")).rejects.toThrow("delete fail");
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// exportImages
+// ---------------------------------------------------------------------------
+describe("exportImages", () => {
+  let tmpDir: string;
+
+  beforeEach(async () => {
+    const { mkdtemp } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    tmpDir = await mkdtemp(join(tmpdir(), "gpc-export-test-"));
+  });
+
+  afterEach(async () => {
+    const { rm } = await import("node:fs/promises");
+    await rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it("exports images for all languages and types", async () => {
+    const client = mockClient();
+    const listings = [
+      { language: "en-US", title: "App", shortDescription: "s", fullDescription: "f" },
+    ];
+    client.listings.list.mockResolvedValue(listings);
+
+    const imgData = [{ id: "1", url: "https://example.com/1.png", sha1: "a", sha256: "b" }];
+    // Return images only for phoneScreenshots, empty for others
+    client.images.list.mockImplementation((_pkg: string, _edit: string, _lang: string, type: string) => {
+      if (type === "phoneScreenshots") return Promise.resolve(imgData);
+      return Promise.resolve([]);
+    });
+
+    // Mock fetch
+    const mockFetch = vi.fn().mockResolvedValue({
+      arrayBuffer: () => Promise.resolve(new ArrayBuffer(100)),
+    });
+    vi.stubGlobal("fetch", mockFetch);
+
+    const result = await exportImages(client, PKG, tmpDir);
+
+    expect(result.languages).toBe(1);
+    expect(result.images).toBe(1);
+    expect(result.totalSize).toBe(100);
+    expect(mockFetch).toHaveBeenCalledWith("https://example.com/1.png");
+
+    vi.unstubAllGlobals();
+  });
+
+  it("filters by language when specified", async () => {
+    const client = mockClient();
+    client.images.list.mockResolvedValue([]);
+
+    const result = await exportImages(client, PKG, tmpDir, { lang: "en-US" });
+
+    expect(result.languages).toBe(1);
+    expect(result.images).toBe(0);
+    // Should not call listings.list when language is specified
+    expect(client.listings.list).not.toHaveBeenCalled();
+  });
+
+  it("filters by image type when specified", async () => {
+    const client = mockClient();
+    const listings = [
+      { language: "en-US", title: "App", shortDescription: "s", fullDescription: "f" },
+    ];
+    client.listings.list.mockResolvedValue(listings);
+    client.images.list.mockResolvedValue([]);
+
+    await exportImages(client, PKG, tmpDir, { type: "icon" });
+
+    // Should only call images.list for the "icon" type
+    expect(client.images.list).toHaveBeenCalledTimes(1);
+    expect(client.images.list).toHaveBeenCalledWith(PKG, "edit-1", "en-US", "icon");
+  });
+
+  it("cleans up edit on error", async () => {
+    const client = mockClient();
+    client.listings.list.mockRejectedValue(new Error("list fail"));
+
+    await expect(exportImages(client, PKG, tmpDir)).rejects.toThrow("list fail");
     expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
   });
 });
@@ -4435,5 +4598,359 @@ describe("one-time products commands", () => {
     await expect(getOneTimeOffer(client as any, "com.example", "otp1", "offer1")).rejects.toThrow(
       "Failed to get offer",
     );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Track create/update
+// ---------------------------------------------------------------------------
+describe("createTrack", () => {
+  function mockClient(): any {
+    return {
+      edits: {
+        insert: vi.fn().mockResolvedValue({ id: "edit-1", expiryTimeSeconds: "9999" }),
+        validate: vi.fn().mockResolvedValue({ id: "edit-1" }),
+        commit: vi.fn().mockResolvedValue({ id: "edit-1" }),
+        delete: vi.fn().mockResolvedValue(undefined),
+      },
+      tracks: {
+        create: vi.fn().mockResolvedValue({ track: "my-qa-track", releases: [] }),
+        update: vi.fn().mockResolvedValue({ track: "my-qa-track", releases: [] }),
+      },
+    };
+  }
+
+  it("creates a custom track via edit lifecycle", async () => {
+    const client = mockClient();
+    const result = await createTrack(client, "com.example", "my-qa-track");
+    expect(client.edits.insert).toHaveBeenCalledWith("com.example");
+    expect(client.tracks.create).toHaveBeenCalledWith("com.example", "edit-1", "my-qa-track");
+    expect(client.edits.validate).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(client.edits.commit).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(result.track).toBe("my-qa-track");
+  });
+
+  it("throws GpcError for empty track name", async () => {
+    const client = mockClient();
+    await expect(createTrack(client, "com.example", "")).rejects.toThrow(
+      "Track name must not be empty",
+    );
+  });
+});
+
+describe("updateTrackConfig", () => {
+  function mockClient(): any {
+    return {
+      edits: {
+        insert: vi.fn().mockResolvedValue({ id: "edit-1", expiryTimeSeconds: "9999" }),
+        validate: vi.fn().mockResolvedValue({ id: "edit-1" }),
+        commit: vi.fn().mockResolvedValue({ id: "edit-1" }),
+        delete: vi.fn().mockResolvedValue(undefined),
+      },
+      tracks: {
+        update: vi.fn().mockResolvedValue({ track: "beta", releases: [{ status: "completed", versionCodes: ["100"] }] }),
+      },
+    };
+  }
+
+  it("updates track config via edit lifecycle", async () => {
+    const client = mockClient();
+    const config = { versionCodes: ["100"], status: "completed" };
+    const result = await updateTrackConfig(client, "com.example", "beta", config);
+    expect(client.edits.insert).toHaveBeenCalledWith("com.example");
+    expect(client.tracks.update).toHaveBeenCalledWith("com.example", "edit-1", "beta", expect.objectContaining({ status: "completed" }));
+    expect(client.edits.validate).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(client.edits.commit).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(result.track).toBe("beta");
+  });
+
+  it("throws GpcError for empty track name", async () => {
+    const client = mockClient();
+    await expect(updateTrackConfig(client, "com.example", "", {})).rejects.toThrow(
+      "Track name must not be empty",
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Externally hosted APKs
+// ---------------------------------------------------------------------------
+describe("uploadExternallyHosted", () => {
+  function mockClient(): any {
+    return {
+      edits: {
+        insert: vi.fn().mockResolvedValue({ id: "edit-1", expiryTimeSeconds: "9999" }),
+        validate: vi.fn().mockResolvedValue({ id: "edit-1" }),
+        commit: vi.fn().mockResolvedValue({ id: "edit-1" }),
+        delete: vi.fn().mockResolvedValue(undefined),
+      },
+      apks: {
+        addExternallyHosted: vi.fn().mockResolvedValue({
+          externallyHostedApk: {
+            packageName: "com.example",
+            versionCode: 42,
+            externallyHostedUrl: "https://cdn.example.com/app.apk",
+          },
+        }),
+      },
+    };
+  }
+
+  it("uploads externally hosted APK via edit lifecycle", async () => {
+    const client = mockClient();
+    const data = {
+      applicationLabel: "My App",
+      externallyHostedUrl: "https://cdn.example.com/app.apk",
+      fileSha256Base64: "abc123",
+      fileSize: "10485760",
+      certificateBase64s: ["cert1"],
+      minimumSdk: 21,
+      packageName: "com.example",
+      versionCode: 42,
+      versionName: "1.0.0",
+    } as any;
+    const result = await uploadExternallyHosted(client, "com.example", data);
+    expect(client.edits.insert).toHaveBeenCalledWith("com.example");
+    expect(client.apks.addExternallyHosted).toHaveBeenCalledWith("com.example", "edit-1", data);
+    expect(client.edits.validate).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(client.edits.commit).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(result.externallyHostedApk.versionCode).toBe(42);
+  });
+
+  it("throws GpcError when externallyHostedUrl is missing", async () => {
+    const client = mockClient();
+    const data = { packageName: "com.example" } as any;
+    await expect(uploadExternallyHosted(client, "com.example", data)).rejects.toThrow(
+      "externallyHostedUrl is required",
+    );
+  });
+
+  it("throws GpcError when packageName is missing", async () => {
+    const client = mockClient();
+    const data = { externallyHostedUrl: "https://cdn.example.com/app.apk" } as any;
+    await expect(uploadExternallyHosted(client, "com.example", data)).rejects.toThrow(
+      "packageName is required",
+    );
+  });
+
+  it("cleans up edit on API error", async () => {
+    const client = mockClient();
+    client.apks.addExternallyHosted.mockRejectedValue(new Error("API failure"));
+    const data = {
+      applicationLabel: "My App",
+      externallyHostedUrl: "https://cdn.example.com/app.apk",
+      fileSha256Base64: "abc123",
+      fileSize: "10485760",
+      certificateBase64s: ["cert1"],
+      minimumSdk: 21,
+      packageName: "com.example",
+      versionCode: 42,
+      versionName: "1.0.0",
+    } as any;
+    await expect(uploadExternallyHosted(client, "com.example", data)).rejects.toThrow("API failure");
+    expect(client.edits.delete).toHaveBeenCalledWith("com.example", "edit-1");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Purchase Options
+// ---------------------------------------------------------------------------
+
+import {
+  listPurchaseOptions,
+  getPurchaseOption,
+  createPurchaseOption,
+  activatePurchaseOption,
+  deactivatePurchaseOption,
+} from "../src/commands/purchase-options.js";
+
+describe("purchase-options commands", () => {
+  function mockClient(): any {
+    return {
+      purchaseOptions: {
+        list: vi.fn().mockResolvedValue({ purchaseOptions: [] }),
+        get: vi.fn().mockResolvedValue({ purchaseOptionId: "po-1", packageName: "com.example", productId: "prod1" }),
+        create: vi.fn().mockResolvedValue({ purchaseOptionId: "po-1" }),
+        activate: vi.fn().mockResolvedValue({ purchaseOptionId: "po-1" }),
+        deactivate: vi.fn().mockResolvedValue({ purchaseOptionId: "po-1" }),
+      },
+    };
+  }
+
+  it("listPurchaseOptions calls client.purchaseOptions.list", async () => {
+    const client = mockClient();
+    const result = await listPurchaseOptions(client, "com.example");
+    expect(client.purchaseOptions.list).toHaveBeenCalledWith("com.example");
+    expect(result.purchaseOptions).toEqual([]);
+  });
+
+  it("getPurchaseOption calls client.purchaseOptions.get", async () => {
+    const client = mockClient();
+    const result = await getPurchaseOption(client, "com.example", "po-1");
+    expect(client.purchaseOptions.get).toHaveBeenCalledWith("com.example", "po-1");
+    expect(result.purchaseOptionId).toBe("po-1");
+  });
+
+  it("createPurchaseOption calls client.purchaseOptions.create", async () => {
+    const client = mockClient();
+    const data = { packageName: "com.example", productId: "prod1", purchaseOptionId: "po-1" } as any;
+    await createPurchaseOption(client, "com.example", data);
+    expect(client.purchaseOptions.create).toHaveBeenCalledWith("com.example", data);
+  });
+
+  it("activatePurchaseOption calls client.purchaseOptions.activate", async () => {
+    const client = mockClient();
+    await activatePurchaseOption(client, "com.example", "po-1");
+    expect(client.purchaseOptions.activate).toHaveBeenCalledWith("com.example", "po-1");
+  });
+
+  it("deactivatePurchaseOption calls client.purchaseOptions.deactivate", async () => {
+    const client = mockClient();
+    await deactivatePurchaseOption(client, "com.example", "po-1");
+    expect(client.purchaseOptions.deactivate).toHaveBeenCalledWith("com.example", "po-1");
+  });
+
+  it("listPurchaseOptions wraps errors with GpcError", async () => {
+    const client = {
+      purchaseOptions: {
+        list: vi.fn().mockRejectedValue(new Error("network error")),
+      },
+    };
+    await expect(listPurchaseOptions(client as any, "com.example")).rejects.toThrow(
+      "Failed to list purchase options",
+    );
+  });
+
+  it("getPurchaseOption wraps errors with GpcError", async () => {
+    const client = {
+      purchaseOptions: {
+        get: vi.fn().mockRejectedValue(new Error("not found")),
+      },
+    };
+    await expect(getPurchaseOption(client as any, "com.example", "po-1")).rejects.toThrow(
+      "Failed to get purchase option",
+    );
+  });
+
+  it("createPurchaseOption wraps errors with GpcError", async () => {
+    const client = {
+      purchaseOptions: {
+        create: vi.fn().mockRejectedValue(new Error("bad request")),
+      },
+    };
+    await expect(
+      createPurchaseOption(client as any, "com.example", {} as any),
+    ).rejects.toThrow("Failed to create purchase option");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// IAP Batch Sync
+// ---------------------------------------------------------------------------
+
+import { batchSyncInAppProducts } from "../src/commands/iap.js";
+
+describe("iap batch sync", () => {
+  function mockClient(): any {
+    return {
+      inappproducts: {
+        list: vi.fn().mockResolvedValue({ inappproduct: [] }),
+        get: vi.fn().mockResolvedValue({ sku: "coins100" }),
+        create: vi.fn().mockResolvedValue({ sku: "coins100" }),
+        update: vi.fn().mockResolvedValue({ sku: "coins100" }),
+        delete: vi.fn().mockResolvedValue(undefined),
+        batchUpdate: vi.fn().mockResolvedValue({ inappproducts: [{ sku: "coins100" }, { sku: "gems50" }] }),
+        batchGet: vi.fn().mockResolvedValue([{ sku: "coins100" }]),
+      },
+    };
+  }
+
+  it("batchSyncInAppProducts uses batch API for multiple updates", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "gpc-batch-"));
+    await writeFile(
+      join(dir, "coins100.json"),
+      JSON.stringify({
+        sku: "coins100",
+        status: "active",
+        purchaseType: "managedUser",
+        defaultPrice: { currencyCode: "USD", units: "1" },
+      }),
+    );
+    await writeFile(
+      join(dir, "gems50.json"),
+      JSON.stringify({
+        sku: "gems50",
+        status: "active",
+        purchaseType: "managedUser",
+        defaultPrice: { currencyCode: "USD", units: "2" },
+      }),
+    );
+
+    const client = mockClient();
+    client.inappproducts.list.mockResolvedValue({
+      inappproduct: [{ sku: "coins100" }, { sku: "gems50" }],
+    });
+
+    const result = await batchSyncInAppProducts(client, "com.example", dir);
+
+    expect(result.updated).toBe(2);
+    expect(result.created).toBe(0);
+    expect(result.batchUsed).toBe(true);
+    expect(client.inappproducts.batchUpdate).toHaveBeenCalledTimes(1);
+    expect(client.inappproducts.update).not.toHaveBeenCalled();
+
+    await rm(dir, { recursive: true });
+  });
+
+  it("batchSyncInAppProducts falls back to serial on batch failure", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "gpc-batch-"));
+    await writeFile(
+      join(dir, "coins100.json"),
+      JSON.stringify({ sku: "coins100", status: "active", purchaseType: "managedUser", defaultPrice: { currencyCode: "USD", units: "1" } }),
+    );
+    await writeFile(
+      join(dir, "gems50.json"),
+      JSON.stringify({ sku: "gems50", status: "active", purchaseType: "managedUser", defaultPrice: { currencyCode: "USD", units: "2" } }),
+    );
+
+    const client = mockClient();
+    client.inappproducts.list.mockResolvedValue({
+      inappproduct: [{ sku: "coins100" }, { sku: "gems50" }],
+    });
+    client.inappproducts.batchUpdate.mockRejectedValue(new Error("batch not supported"));
+
+    const result = await batchSyncInAppProducts(client, "com.example", dir);
+
+    expect(result.updated).toBe(2);
+    expect(result.batchErrors).toBe(1);
+    expect(client.inappproducts.update).toHaveBeenCalledTimes(2);
+
+    await rm(dir, { recursive: true });
+  });
+
+  it("batchSyncInAppProducts dry-run does not call API", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "gpc-batch-"));
+    await writeFile(join(dir, "coins100.json"), JSON.stringify({ sku: "coins100" }));
+
+    const client = mockClient();
+    const result = await batchSyncInAppProducts(client, "com.example", dir, { dryRun: true });
+
+    expect(result.created).toBe(1);
+    expect(client.inappproducts.create).not.toHaveBeenCalled();
+    expect(client.inappproducts.batchUpdate).not.toHaveBeenCalled();
+
+    await rm(dir, { recursive: true });
+  });
+
+  it("batchSyncInAppProducts returns empty for empty directory", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "gpc-batch-"));
+    const client = mockClient();
+    const result = await batchSyncInAppProducts(client, "com.example", dir);
+
+    expect(result.created).toBe(0);
+    expect(result.updated).toBe(0);
+    expect(result.batchUsed).toBe(false);
+
+    await rm(dir, { recursive: true });
   });
 });

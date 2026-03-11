@@ -16,6 +16,8 @@ export function formatOutput(data: unknown, format: OutputFormat, redact = true)
       return formatMarkdown(safe);
     case "table":
       return formatTable(safe);
+    case "junit":
+      return formatJunit(safe);
     default:
       return formatJson(safe);
   }
@@ -183,4 +185,93 @@ function toRows(data: unknown): Record<string, unknown>[] {
     return [data as Record<string, unknown>];
   }
   return [];
+}
+
+// ---------------------------------------------------------------------------
+// JUnit XML output
+// ---------------------------------------------------------------------------
+
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+function toTestCases(data: unknown, commandName: string): { cases: string[]; failures: number } {
+  const cases: string[] = [];
+  let failures = 0;
+
+  if (Array.isArray(data)) {
+    for (const item of data) {
+      const tc = buildTestCase(item, commandName);
+      cases.push(tc.xml);
+      if (tc.failed) failures++;
+    }
+  } else if (typeof data === "object" && data !== null) {
+    const tc = buildTestCase(data, commandName);
+    cases.push(tc.xml);
+    if (tc.failed) failures++;
+  } else if (typeof data === "string") {
+    cases.push(
+      `    <testcase name="${escapeXml(data)}" classname="gpc.${escapeXml(commandName)}" />`,
+    );
+  }
+
+  return { cases, failures };
+}
+
+function buildTestCase(
+  item: unknown,
+  commandName: string,
+): { xml: string; failed: boolean } {
+  if (typeof item !== "object" || item === null) {
+    const text = String(item);
+    return {
+      xml: `    <testcase name="${escapeXml(text)}" classname="gpc.${escapeXml(commandName)}" />`,
+      failed: false,
+    };
+  }
+
+  const record = item as Record<string, unknown>;
+  const name = escapeXml(
+    String(record["name"] ?? record["title"] ?? record["sku"] ?? record["id"] ?? JSON.stringify(item)),
+  );
+  const classname = `gpc.${escapeXml(commandName)}`;
+
+  // Detect threshold breach (vitals)
+  const breached = record["breached"];
+  if (breached === true) {
+    const message = escapeXml(String(record["message"] ?? "threshold breached"));
+    const details = escapeXml(
+      String(record["details"] ?? record["metric"] ?? JSON.stringify(item)),
+    );
+    return {
+      xml: `    <testcase name="${name}" classname="${classname}">\n      <failure message="${message}">${details}</failure>\n    </testcase>`,
+      failed: true,
+    };
+  }
+
+  return {
+    xml: `    <testcase name="${name}" classname="${classname}" />`,
+    failed: false,
+  };
+}
+
+export function formatJunit(data: unknown, commandName = "command"): string {
+  const { cases, failures } = toTestCases(data, commandName);
+  const tests = cases.length;
+
+  const lines = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    `<testsuites name="gpc" tests="${tests}" failures="${failures}" time="0">`,
+    `  <testsuite name="${escapeXml(commandName)}" tests="${tests}" failures="${failures}">`,
+    ...cases,
+    "  </testsuite>",
+    "</testsuites>",
+  ];
+
+  return lines.join("\n");
 }

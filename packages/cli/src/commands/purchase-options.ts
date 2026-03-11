@@ -5,19 +5,16 @@ import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
 import {
-  listInAppProducts,
-  getInAppProduct,
-  createInAppProduct,
-  updateInAppProduct,
-  deleteInAppProduct,
-  syncInAppProducts,
+  listPurchaseOptions,
+  getPurchaseOption,
+  createPurchaseOption,
+  activatePurchaseOption,
+  deactivatePurchaseOption,
   detectOutputFormat,
   formatOutput,
   sortResults,
-  createSpinner,
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
-import { requireConfirm } from "../prompt.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -33,15 +30,13 @@ async function getClient(config: GpcConfig) {
   return createApiClient({ auth });
 }
 
-export function registerIapCommands(program: Command): void {
-  const iap = program.command("iap").description("Manage in-app products");
+export function registerPurchaseOptionsCommands(program: Command): void {
+  const po = program
+    .command("purchase-options")
+    .description("Manage purchase options");
 
-  iap
-    .command("list")
-    .description("List in-app products")
-    .option("--max <n>", "Maximum results per page", parseInt)
-    .option("--limit <n>", "Maximum total results", parseInt)
-    .option("--next-page <token>", "Resume from page token")
+  po.command("list")
+    .description("List purchase options")
     .option("--sort <field>", "Sort by field (prefix with - for descending)")
     .action(async (options) => {
       const config = await loadConfig();
@@ -50,13 +45,9 @@ export function registerIapCommands(program: Command): void {
       const format = detectOutputFormat();
 
       try {
-        const result = await listInAppProducts(client, packageName, {
-          maxResults: options.max,
-          limit: options.limit,
-          nextPage: options.nextPage,
-        });
+        const result = await listPurchaseOptions(client, packageName);
         if (options.sort) {
-          result.inappproduct = sortResults(result.inappproduct, options.sort);
+          result.purchaseOptions = sortResults(result.purchaseOptions, options.sort);
         }
         console.log(formatOutput(result, format));
       } catch (error) {
@@ -65,17 +56,16 @@ export function registerIapCommands(program: Command): void {
       }
     });
 
-  iap
-    .command("get <sku>")
-    .description("Get an in-app product")
-    .action(async (sku: string) => {
+  po.command("get <id>")
+    .description("Get a purchase option")
+    .action(async (id: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
 
       try {
-        const result = await getInAppProduct(client, packageName, sku);
+        const result = await getPurchaseOption(client, packageName, id);
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -83,10 +73,9 @@ export function registerIapCommands(program: Command): void {
       }
     });
 
-  iap
-    .command("create")
-    .description("Create an in-app product from JSON file")
-    .requiredOption("--file <path>", "JSON file with product data")
+  po.command("create")
+    .description("Create a purchase option from JSON file")
+    .requiredOption("--file <path>", "JSON file with purchase option data")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -95,9 +84,9 @@ export function registerIapCommands(program: Command): void {
       if (isDryRun(program)) {
         printDryRun(
           {
-            command: "iap create",
+            command: "purchase-options create",
             action: "create",
-            target: `in-app product from ${options.file}`,
+            target: `purchase option from ${options.file}`,
           },
           format,
           formatOutput,
@@ -109,7 +98,7 @@ export function registerIapCommands(program: Command): void {
 
       try {
         const data = JSON.parse(await readFile(options.file, "utf-8"));
-        const result = await createInAppProduct(client, packageName, data);
+        const result = await createPurchaseOption(client, packageName, data);
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -117,11 +106,9 @@ export function registerIapCommands(program: Command): void {
       }
     });
 
-  iap
-    .command("update <sku>")
-    .description("Update an in-app product from JSON file")
-    .requiredOption("--file <path>", "JSON file with product data")
-    .action(async (sku: string, options) => {
+  po.command("activate <id>")
+    .description("Activate a purchase option")
+    .action(async (id: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const format = detectOutputFormat();
@@ -129,10 +116,9 @@ export function registerIapCommands(program: Command): void {
       if (isDryRun(program)) {
         printDryRun(
           {
-            command: "iap update",
-            action: "update",
-            target: sku,
-            details: { file: options.file },
+            command: "purchase-options activate",
+            action: "activate",
+            target: id,
           },
           format,
           formatOutput,
@@ -143,8 +129,7 @@ export function registerIapCommands(program: Command): void {
       const client = await getClient(config);
 
       try {
-        const data = JSON.parse(await readFile(options.file, "utf-8"));
-        const result = await updateInAppProduct(client, packageName, sku, data);
+        const result = await activatePurchaseOption(client, packageName, id);
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -152,22 +137,19 @@ export function registerIapCommands(program: Command): void {
       }
     });
 
-  iap
-    .command("delete <sku>")
-    .description("Delete an in-app product")
-    .action(async (sku: string) => {
+  po.command("deactivate <id>")
+    .description("Deactivate a purchase option")
+    .action(async (id: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-
-      await requireConfirm(`Delete in-app product "${sku}"?`, program);
+      const format = detectOutputFormat();
 
       if (isDryRun(program)) {
-        const format = detectOutputFormat();
         printDryRun(
           {
-            command: "iap delete",
-            action: "delete",
-            target: sku,
+            command: "purchase-options deactivate",
+            action: "deactivate",
+            target: id,
           },
           format,
           formatOutput,
@@ -178,39 +160,9 @@ export function registerIapCommands(program: Command): void {
       const client = await getClient(config);
 
       try {
-        await deleteInAppProduct(client, packageName, sku);
-        console.log(`In-app product ${sku} deleted.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
-    });
-
-  iap
-    .command("sync")
-    .description("Sync in-app products from a directory of JSON files")
-    .requiredOption("--dir <path>", "Directory containing product JSON files")
-    .action(async (options) => {
-      const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()["app"], config);
-      const client = await getClient(config);
-      const format = detectOutputFormat();
-      const dryRun = isDryRun(program);
-
-      const spinner = createSpinner("Syncing in-app products...");
-      if (!program.opts()["quiet"] && process.stderr.isTTY) spinner.start();
-
-      try {
-        const result = await syncInAppProducts(client, packageName, options.dir, {
-          dryRun,
-        });
-        spinner.stop("Sync complete");
-        if (dryRun) {
-          console.log(`[dry-run] Would create: ${result.created}, update: ${result.updated}`);
-        }
+        const result = await deactivatePurchaseOption(client, packageName, id);
         console.log(formatOutput(result, format));
       } catch (error) {
-        spinner.fail("Sync failed");
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
       }

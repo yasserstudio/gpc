@@ -1,4 +1,4 @@
-import type { PlayApiClient, Release, Track } from "@gpc-cli/api";
+import type { PlayApiClient, Release, Track, ExternallyHostedApk, ExternallyHostedApkResponse } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
 import { validateUploadFile } from "../utils/file-validation.js";
 
@@ -305,6 +305,108 @@ export async function listTracks(client: PlayApiClient, packageName: string): Pr
     const tracks = await client.tracks.list(packageName, edit.id);
     await client.edits.delete(packageName, edit.id);
     return tracks;
+  } catch (error) {
+    await client.edits.delete(packageName, edit.id).catch(() => {});
+    throw error;
+  }
+}
+
+export async function createTrack(
+  client: PlayApiClient,
+  packageName: string,
+  trackName: string,
+): Promise<Track> {
+  if (!trackName || trackName.trim().length === 0) {
+    throw new GpcError(
+      "Track name must not be empty",
+      "TRACK_INVALID_NAME",
+      2,
+      "Provide a valid custom track name, e.g.: gpc tracks create my-qa-track",
+    );
+  }
+
+  const edit = await client.edits.insert(packageName);
+  try {
+    const track = await client.tracks.create(packageName, edit.id, trackName);
+    await client.edits.validate(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id);
+    return track;
+  } catch (error) {
+    await client.edits.delete(packageName, edit.id).catch(() => {});
+    throw error;
+  }
+}
+
+export async function updateTrackConfig(
+  client: PlayApiClient,
+  packageName: string,
+  trackName: string,
+  config: Record<string, unknown>,
+): Promise<Track> {
+  if (!trackName || trackName.trim().length === 0) {
+    throw new GpcError(
+      "Track name must not be empty",
+      "TRACK_INVALID_NAME",
+      2,
+      "Provide a valid track name.",
+    );
+  }
+
+  const edit = await client.edits.insert(packageName);
+  try {
+    const release: Release = {
+      versionCodes: (config["versionCodes"] as string[]) || [],
+      status: ((config["status"] as string) || "completed") as Release["status"],
+    };
+    if (config["userFraction"] !== undefined) {
+      release.userFraction = config["userFraction"] as number;
+    }
+    if (config["releaseNotes"]) {
+      release.releaseNotes = config["releaseNotes"] as { language: string; text: string }[];
+    }
+    if (config["name"]) {
+      release.name = config["name"] as string;
+    }
+
+    const track = await client.tracks.update(packageName, edit.id, trackName, release);
+    await client.edits.validate(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id);
+    return track;
+  } catch (error) {
+    await client.edits.delete(packageName, edit.id).catch(() => {});
+    throw error;
+  }
+}
+
+export async function uploadExternallyHosted(
+  client: PlayApiClient,
+  packageName: string,
+  data: ExternallyHostedApk,
+): Promise<ExternallyHostedApkResponse> {
+  if (!data.externallyHostedUrl) {
+    throw new GpcError(
+      "externallyHostedUrl is required",
+      "EXTERNAL_APK_MISSING_URL",
+      2,
+      "Provide a valid URL for the externally hosted APK.",
+    );
+  }
+
+  if (!data.packageName) {
+    throw new GpcError(
+      "packageName is required in externally hosted APK data",
+      "EXTERNAL_APK_MISSING_PACKAGE",
+      2,
+      "Include the packageName field in the APK configuration.",
+    );
+  }
+
+  const edit = await client.edits.insert(packageName);
+  try {
+    const result = await client.apks.addExternallyHosted(packageName, edit.id, data);
+    await client.edits.validate(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id);
+    return result;
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});
     throw error;

@@ -269,6 +269,106 @@ export async function getCountryAvailability(
   }
 }
 
+export interface ExportImagesOptions {
+  lang?: string;
+  type?: ImageType;
+}
+
+export interface ExportImagesSummary {
+  languages: number;
+  images: number;
+  totalSize: number;
+}
+
+const ALL_IMAGE_TYPES: ImageType[] = [
+  "phoneScreenshots",
+  "sevenInchScreenshots",
+  "tenInchScreenshots",
+  "tvScreenshots",
+  "wearScreenshots",
+  "icon",
+  "featureGraphic",
+  "tvBanner",
+];
+
+export async function exportImages(
+  client: PlayApiClient,
+  packageName: string,
+  dir: string,
+  options?: ExportImagesOptions,
+): Promise<ExportImagesSummary> {
+  const { mkdir, writeFile } = await import("node:fs/promises");
+  const { join } = await import("node:path");
+
+  const edit = await client.edits.insert(packageName);
+  try {
+    // Determine languages
+    let languages: string[];
+    if (options?.lang) {
+      validateLanguage(options.lang);
+      languages = [options.lang];
+    } else {
+      const listings = await client.listings.list(packageName, edit.id);
+      languages = listings.map((l) => l.language);
+    }
+
+    const imageTypes: ImageType[] = options?.type ? [options.type] : ALL_IMAGE_TYPES;
+
+    let totalImages = 0;
+    let totalSize = 0;
+
+    // Collect all download tasks
+    const tasks: Array<{ language: string; imageType: ImageType; url: string; index: number }> = [];
+
+    for (const language of languages) {
+      for (const imageType of imageTypes) {
+        const images = await client.images.list(packageName, edit.id, language, imageType);
+        for (let i = 0; i < images.length; i++) {
+          const img = images[i];
+          if (img && img.url) {
+            tasks.push({ language, imageType, url: img.url, index: i + 1 });
+          }
+        }
+      }
+    }
+
+    // Process downloads with concurrency limit of 5
+    const concurrency = 5;
+    for (let i = 0; i < tasks.length; i += concurrency) {
+      const batch = tasks.slice(i, i + concurrency);
+      const results = await Promise.all(
+        batch.map(async (task) => {
+          const dirPath = join(dir, task.language, task.imageType);
+          await mkdir(dirPath, { recursive: true });
+
+          const response = await fetch(task.url);
+          const buffer = Buffer.from(await response.arrayBuffer());
+          const filePath = join(dirPath, `${task.index}.png`);
+          await writeFile(filePath, buffer);
+
+          return buffer.length;
+        }),
+      );
+
+      for (const size of results) {
+        totalImages++;
+        totalSize += size;
+      }
+    }
+
+    await client.edits.delete(packageName, edit.id);
+
+    return {
+      languages: languages.length,
+      images: totalImages,
+      totalSize,
+    };
+  } catch (error) {
+    await client.edits.delete(packageName, edit.id).catch(() => {});
+    throw error;
+  }
+}
+
 export async function updateAppDetails(
   client: PlayApiClient,
   packageName: string,

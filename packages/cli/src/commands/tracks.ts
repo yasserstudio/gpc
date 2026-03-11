@@ -1,8 +1,9 @@
+import { readFile } from "node:fs/promises";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
-import { listTracks } from "@gpc-cli/core";
+import { listTracks, createTrack, updateTrackConfig } from "@gpc-cli/core";
 import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
 
 export function registerTracksCommands(program: Command): void {
@@ -37,6 +38,60 @@ export function registerTracksCommands(program: Command): void {
         }));
 
         console.log(formatOutput(summary, format));
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  tracks
+    .command("create <name>")
+    .description("Create a custom track")
+    .action(async (name: string) => {
+      const config = await loadConfig();
+      const packageName = program.opts()["app"] || config.app;
+      if (!packageName) {
+        console.error(
+          "Error: No package name. Use --app <package> or gpc config set app <package>",
+        );
+        process.exit(2);
+      }
+
+      try {
+        const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
+        const client = createApiClient({ auth });
+        const track = await createTrack(client, packageName, name);
+        const format = detectOutputFormat();
+        console.log(formatOutput(track, format));
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  tracks
+    .command("update <name>")
+    .description("Update track configuration from a JSON file")
+    .requiredOption("--file <path>", "Path to JSON config file")
+    .action(async (name: string, options: { file: string }) => {
+      const config = await loadConfig();
+      const packageName = program.opts()["app"] || config.app;
+      if (!packageName) {
+        console.error(
+          "Error: No package name. Use --app <package> or gpc config set app <package>",
+        );
+        process.exit(2);
+      }
+
+      try {
+        const raw = await readFile(options.file, "utf-8");
+        const trackConfig = JSON.parse(raw) as Record<string, unknown>;
+
+        const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
+        const client = createApiClient({ auth });
+        const track = await updateTrackConfig(client, packageName, name, trackConfig);
+        const format = detectOutputFormat();
+        console.log(formatOutput(track, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

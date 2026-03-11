@@ -14,8 +14,9 @@ import {
   generateNotesFromGit,
   writeAuditLog,
   createAuditEntry,
+  uploadExternallyHosted,
 } from "@gpc-cli/core";
-import { detectOutputFormat, formatOutput, sortResults } from "@gpc-cli/core";
+import { detectOutputFormat, formatOutput, sortResults, createSpinner } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, promptSelect, promptInput, requireOption } from "../prompt.js";
 
@@ -117,6 +118,9 @@ export function registerReleasesCommands(program: Command): void {
         packageName,
       );
 
+      const spinner = createSpinner("Uploading bundle...");
+      if (!program.opts()["quiet"] && process.stderr.isTTY) spinner.start();
+
       try {
         let releaseNotes: { language: string; text: string }[] | undefined;
         if (options.notesFromGit) {
@@ -135,9 +139,11 @@ export function registerReleasesCommands(program: Command): void {
           releaseName: options.name,
           mappingFile: options.mapping,
         });
+        spinner.stop("Upload complete");
         console.log(formatOutput(result, format));
         auditEntry.success = true;
       } catch (error) {
+        spinner.fail("Upload failed");
         auditEntry.success = false;
         auditEntry.error = error instanceof Error ? error.message : String(error);
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -350,5 +356,38 @@ export function registerReleasesCommands(program: Command): void {
       }
 
       console.log(`Release notes set for ${options.track} (${options.lang})`);
+    });
+
+  // Upload externally hosted APK
+  releases
+    .command("upload-external")
+    .description("Upload an externally hosted APK configuration")
+    .requiredOption("--url <url>", "External URL where the APK is hosted")
+    .requiredOption("--file <config>", "Path to JSON config file with APK metadata")
+    .action(async (options: { url: string; file: string }) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const format = detectOutputFormat();
+
+      try {
+        const { readFile } = await import("node:fs/promises");
+        const raw = await readFile(options.file, "utf-8");
+        const apkConfig = JSON.parse(raw) as Record<string, unknown>;
+
+        // Override with CLI-provided URL
+        apkConfig["externallyHostedUrl"] = options.url;
+
+        const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
+        const client = createApiClient({ auth });
+        const result = await uploadExternallyHosted(
+          client,
+          packageName,
+          apkConfig as import("@gpc-cli/api").ExternallyHostedApk,
+        );
+        console.log(formatOutput(result, format));
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
     });
 }

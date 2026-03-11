@@ -7,6 +7,7 @@ import {
   uploadInternalSharing,
   detectOutputFormat,
   formatOutput,
+  createSpinner,
 } from "@gpc-cli/core";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
@@ -40,10 +41,15 @@ export function registerInternalSharingCommands(program: Command): void {
 
       const fileType = opts.type as "bundle" | "apk" | undefined;
 
+      const spinner = createSpinner("Uploading for internal sharing...");
+      if (!program.opts()["quiet"] && process.stderr.isTTY) spinner.start();
+
       try {
         const result = await uploadInternalSharing(client, packageName, file, fileType);
+        spinner.stop("Upload complete");
         console.log(formatOutput(result, format));
       } catch (error) {
+        spinner.fail("Upload failed");
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
       }
