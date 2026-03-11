@@ -205,7 +205,7 @@ Runs on: push to `main`, pull requests
 # 1. pnpm install (cached)
 # 2. pnpm lint
 # 3. pnpm build (all packages in dependency order)
-# 4. pnpm test (597 tests across 7 packages)
+# 4. pnpm test (685 tests across 7 packages)
 # Matrix: Node.js 20.x, 22.x
 ```
 
