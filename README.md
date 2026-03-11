@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-597_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-685_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
@@ -88,7 +88,7 @@ GPC covers the **entire Google Play Developer API** in one CLI. No Ruby. No brow
 | Cold start          | <500ms                       | 2-3s            | 3-5s                  | 5-10s        |
 | Plugin system       | Yes                          | No              | No                    | No           |
 | Interactive mode    | Yes (guided prompts)         | No              | No                    | N/A          |
-| Test suite          | 597 tests, 90%+ coverage     | —               | —                     | —            |
+| Test suite          | 685 tests, 90%+ coverage     | —               | —                     | —            |
 
 See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 162 endpoints.
 
@@ -458,7 +458,7 @@ git clone https://github.com/yasserstudio/gpc.git
 cd gpc
 pnpm install
 pnpm build
-pnpm test    # 597 tests across 7 packages
+pnpm test    # 685 tests across 7 packages
 ```
 
 ---
@@ -485,7 +485,7 @@ pnpm test    # 597 tests across 7 packages
 
 <p align="center">
   GPC was built entirely with <a href="https://claude.ai/claude-code">Claude Code</a> — from architecture design through implementation, testing, and documentation.<br>
-  597 tests, 7 packages, 90%+ coverage, all written through AI-assisted development.
+  685 tests, 7 packages, 90%+ coverage, all written through AI-assisted development.
 </p>
 
 ---

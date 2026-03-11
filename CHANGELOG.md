@@ -7,6 +7,16 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.6
+
+Enhanced developer experience and testing stability.
+
+- feat: enhanced `--dry-run` for `releases upload` and `publish` — validates file, queries current track state, shows planned changes
+- feat: auto-update checker — non-blocking npm registry check on startup with 24h cache
+- test: 88 new edge case tests (597 → 685) across core, api, and auth packages
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.5...v0.9.6
+
 ## v0.9.5
 
 Security hardening, input validation, and bug fixes across all packages.
