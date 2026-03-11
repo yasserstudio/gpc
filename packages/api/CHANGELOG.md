@@ -1,5 +1,13 @@
 # @gpc-cli/api
 
+## 1.0.5
+
+### Patch Changes
+
+- Enhanced dry-run for releases, auto-update checker, and 88 new edge case tests
+- Updated dependencies
+  - @gpc-cli/auth@0.9.6
+
 ## 1.0.4
 
 ### Patch Changes

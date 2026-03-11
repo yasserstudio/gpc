@@ -1,5 +1,11 @@
 # @gpc-cli/auth
 
+## 0.9.6
+
+### Patch Changes
+
+- Enhanced dry-run for releases, auto-update checker, and 88 new edge case tests
+
 ## 0.9.5
 
 ### Patch Changes
