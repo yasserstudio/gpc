@@ -31,7 +31,7 @@ Instead, use [GitHub's private vulnerability reporting](https://github.com/yasse
 
 ## Security Practices
 
-See [docs/SECURITY.md](./docs/SECURITY.md) for details on:
+See [Security documentation](https://yasserstudio.github.io/gpc/advanced/security) for details on:
 
 - Credential storage and handling
 - Secrets redaction in output

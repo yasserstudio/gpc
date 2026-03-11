@@ -290,5 +290,37 @@ Settings are resolved in this order (highest priority first):
 - **Semantic versioning** (semver)
 - All packages versioned independently
 - `@gpc-cli/cli` version displayed as the "GPC version" to users
+- Current series: `0.9.x` pre-release → `1.0.0` public launch
 - Pre-1.0: breaking changes bump minor, features/fixes bump patch
 - Post-1.0: standard semver rules
+
+### Release Process
+
+1. Create changeset: `pnpm changeset`
+2. PR merges to `main`
+3. Changesets bot creates "Version Packages" PR
+4. Merge version PR → publishes to npm
+5. Create umbrella GitHub Release with user-facing notes (see template below)
+
+### GitHub Release Notes Template
+
+One release per version. Per-package changesets releases are **not** created — only umbrella `v*` releases.
+
+```markdown
+## What's Changed
+
+- feat: user-facing description of feature
+- fix: user-facing description of fix
+- perf: user-facing description of improvement
+- breaking: description of breaking change
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/vPREVIOUS...vCURRENT
+```
+
+**Rules:**
+- Use `feat:`, `fix:`, `perf:`, `breaking:`, `docs:`, `ci:` prefixes
+- Write for users, not contributors ("faster CLI startup", not "cached homedir at module level")
+- No package scopes in prefixes (`feat:` not `feat(core):`)
+- No internal jargon (no "mutex", "token bucket", "barrel exports")
+- Always include Full Changelog link
+- Attach binaries when applicable
