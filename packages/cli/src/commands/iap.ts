@@ -184,18 +184,18 @@ export function registerIapCommands(program: Command): void {
     .command("sync")
     .description("Sync in-app products from a directory of JSON files")
     .requiredOption("--dir <path>", "Directory containing product JSON files")
-    .option("--dry-run", "Preview changes without applying")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
       const format = detectOutputFormat();
+      const dryRun = isDryRun(program);
 
       try {
         const result = await syncInAppProducts(client, packageName, options.dir, {
-          dryRun: options.dryRun,
+          dryRun,
         });
-        if (options.dryRun) {
+        if (dryRun) {
           console.log(`[dry-run] Would create: ${result.created}, update: ${result.updated}`);
         }
         console.log(formatOutput(result, format));

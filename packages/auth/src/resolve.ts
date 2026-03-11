@@ -1,11 +1,14 @@
 import { GoogleAuth } from "google-auth-library";
 import { AuthError } from "./errors.js";
 import { createServiceAccountAuth, loadServiceAccountKey } from "./service-account.js";
+import { acquireToken } from "./token-cache.js";
 import type { AuthClient, AuthOptions } from "./types.js";
 
 const ANDROID_PUBLISHER_SCOPE = "https://www.googleapis.com/auth/androidpublisher";
 
-async function tryApplicationDefaultCredentials(): Promise<AuthClient | null> {
+async function tryApplicationDefaultCredentials(
+  cachePath?: string,
+): Promise<AuthClient | null> {
   try {
     const auth = new GoogleAuth({
       scopes: [ANDROID_PUBLISHER_SCOPE],
@@ -13,19 +16,21 @@ async function tryApplicationDefaultCredentials(): Promise<AuthClient | null> {
 
     const client = await auth.getClient();
     const projectId = await auth.getProjectId().catch(() => undefined);
-    const email = (client as { email?: string }).email;
+    const email = (client as { email?: string }).email ?? "adc-default";
 
     return {
       async getAccessToken(): Promise<string> {
-        const { token } = await client.getAccessToken();
-        if (!token) {
-          throw new AuthError(
-            "Application Default Credentials returned an empty token.",
-            "AUTH_TOKEN_FAILED",
-            "Verify your ADC configuration with: gcloud auth application-default print-access-token",
-          );
-        }
-        return token;
+        return acquireToken(email, cachePath, async () => {
+          const { token } = await client.getAccessToken();
+          if (!token) {
+            throw new AuthError(
+              "Application Default Credentials returned an empty token.",
+              "AUTH_TOKEN_FAILED",
+              "Verify your ADC configuration with: gcloud auth application-default print-access-token",
+            );
+          }
+          return { token, expiresInSeconds: 3600 };
+        });
       },
 
       getProjectId(): string | undefined {
@@ -33,7 +38,7 @@ async function tryApplicationDefaultCredentials(): Promise<AuthClient | null> {
       },
 
       getClientEmail(): string {
-        return email ?? "unknown";
+        return email;
       },
     };
   } catch {
@@ -72,7 +77,7 @@ export async function resolveAuth(options?: AuthOptions): Promise<AuthClient> {
   }
 
   // 4. Application Default Credentials
-  const adcClient = await tryApplicationDefaultCredentials();
+  const adcClient = await tryApplicationDefaultCredentials(options?.cachePath);
   if (adcClient) {
     return adcClient;
   }

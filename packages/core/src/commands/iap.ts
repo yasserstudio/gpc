@@ -93,7 +93,11 @@ export async function syncInAppProducts(
   const localProducts: InAppProduct[] = [];
   for (const file of jsonFiles) {
     const content = await readFile(join(dir, file), "utf-8");
-    localProducts.push(JSON.parse(content) as InAppProduct);
+    try {
+      localProducts.push(JSON.parse(content) as InAppProduct);
+    } catch {
+      throw new Error(`Failed to parse ${file}: invalid JSON`);
+    }
   }
 
   const response = await client.inappproducts.list(packageName);

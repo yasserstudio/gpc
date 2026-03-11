@@ -128,6 +128,9 @@ export async function promoteRelease(
     }
 
     // Create release on target track
+    if (options?.userFraction && (options.userFraction <= 0 || options.userFraction > 1)) {
+      throw new Error("Rollout percentage must be between 0 and 1 (e.g., 0.1 for 10%)");
+    }
     const release: Release = {
       versionCodes: currentRelease.versionCodes,
       status: (options?.userFraction ? "inProgress" : "completed") as Release["status"],
@@ -175,6 +178,9 @@ export async function updateRollout(
     switch (action) {
       case "increase":
         if (!userFraction) throw new Error("--to <percentage> is required for rollout increase");
+        if (userFraction <= 0 || userFraction > 1) {
+          throw new Error("Rollout percentage must be between 0 and 1 (e.g., 0.1 for 10%)");
+        }
         newStatus = "inProgress";
         newFraction = userFraction;
         break;

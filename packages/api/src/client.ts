@@ -439,6 +439,9 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           filePath,
           filePath.endsWith(".png") ? "image/png" : "image/jpeg",
         );
+        if (!data.image) {
+          throw new Error("Upload succeeded but no image data returned");
+        }
         return data.image;
       },
 
@@ -535,7 +538,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async update(packageName, productId, body, updateMask?) {
         let path = `/${packageName}/monetization/subscriptions/${productId}`;
         if (updateMask) {
-          path += `?updateMask=${encodeURIComponent(updateMask).replace(/%2C/gi, ",")}`;
+          path += `?${new URLSearchParams({ updateMask }).toString()}`;
         }
         const { data } = await http.patch<Subscription>(path, body);
         return data;
@@ -598,7 +601,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async updateOffer(packageName, productId, basePlanId, offerId, body, updateMask?) {
         let path = `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}`;
         if (updateMask) {
-          path += `?updateMask=${encodeURIComponent(updateMask).replace(/%2C/gi, ",")}`;
+          path += `?${new URLSearchParams({ updateMask }).toString()}`;
         }
         const { data } = await http.patch<SubscriptionOffer>(path, body);
         return data;
@@ -776,6 +779,9 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           filePath,
           "application/octet-stream",
         );
+        if (!data.deobfuscationFile) {
+          throw new Error("Upload succeeded but no deobfuscation file data returned");
+        }
         return data.deobfuscationFile;
       },
     },

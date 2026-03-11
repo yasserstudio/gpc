@@ -87,7 +87,7 @@ function sanitizeObject(obj: unknown): void {
   const record = obj as Record<string, unknown>;
   for (const key of Object.keys(record)) {
     if (DANGEROUS_KEYS.has(key)) {
-      record[key] = undefined;
+      delete record[key];
     } else if (typeof record[key] === "object" && record[key] !== null) {
       sanitizeObject(record[key]);
     }

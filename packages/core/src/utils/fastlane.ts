@@ -35,7 +35,10 @@ export async function readListingsFromDir(dir: string): Promise<Listing[]> {
   if (!(await exists(dir))) return listings;
 
   const entries = await readdir(dir);
+  // Validate directory names to prevent path traversal
+  const SAFE_LANG = /^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$/;
   for (const lang of entries) {
+    if (!SAFE_LANG.test(lang)) continue;
     const langDir = join(dir, lang);
     const langStat = await stat(langDir);
     if (!langStat.isDirectory()) continue;

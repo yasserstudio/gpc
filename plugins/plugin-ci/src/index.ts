@@ -1,7 +1,7 @@
 import { definePlugin } from "@gpc-cli/plugin-sdk";
 import type { CommandEvent, CommandResult, PluginError } from "@gpc-cli/plugin-sdk";
 
-export const PLUGIN_CI_VERSION = "0.8.0";
+export const PLUGIN_CI_VERSION = "0.9.4";
 
 // ---------------------------------------------------------------------------
 // CI environment detection

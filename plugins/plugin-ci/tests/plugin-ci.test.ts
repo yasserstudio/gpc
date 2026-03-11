@@ -3,7 +3,7 @@ import { PLUGIN_CI_VERSION, detectCIEnvironment, ciPlugin } from "../src/index";
 
 describe("plugin-ci", () => {
   it("exports PLUGIN_CI_VERSION", () => {
-    expect(PLUGIN_CI_VERSION).toBe("0.8.0");
+    expect(PLUGIN_CI_VERSION).toBe("0.9.4");
   });
 
   describe("detectCIEnvironment", () => {
