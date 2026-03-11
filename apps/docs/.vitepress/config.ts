@@ -99,6 +99,14 @@ export default defineConfig({
           ],
         },
         {
+          text: "App Management",
+          items: [
+            { text: "recovery", link: "/commands/recovery" },
+            { text: "data-safety", link: "/commands/data-safety" },
+            { text: "external-transactions", link: "/commands/external-transactions" },
+          ],
+        },
+        {
           text: "System",
           items: [
             { text: "auth", link: "/commands/auth" },
