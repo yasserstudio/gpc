@@ -190,6 +190,13 @@ Redaction is applied before formatting and cannot be disabled.
 - Schema validation on load with clear error messages
 - Unknown keys trigger warnings (not errors) for forward compatibility
 - Environment variable values are validated the same as config values
+- Prototype pollution prevention -- `__proto__`, `constructor`, and `prototype` are rejected as config keys
+- Unsafe keys are fully deleted from parsed config (not set to `undefined`)
+
+### Filesystem Operations
+
+- Fastlane metadata directory reads validate language folder names against `^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$` to prevent path traversal
+- Upload responses are validated before use -- null/missing data from the API triggers a clear error
 
 ## Plugin Security
 

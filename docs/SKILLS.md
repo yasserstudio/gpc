@@ -187,6 +187,13 @@ All GPC commands and workflows are covered by skills.
 - Added **gpc-user-management** skill — users, permissions, testers
 - Added 5 new reference docs to existing skills (release notes, image specs, GitLab CI, Bitbucket, OAuth)
 
+### v0.9.5 (2026-03-11)
+
+- Security hardening: prototype pollution prevention in config writer, path traversal protection in Fastlane reader
+- Input validation: rollout percentage bounds checking, IAP sync JSON parse error handling
+- Bug fixes: rate limiter accuracy, upload response validation, URL encoding, exit codes, dry-run flag consistency
+- ADC token caching now uses shared `acquireToken` for consistency with service accounts
+
 ### v0.9.4 (2026-03-09)
 
 - Improved skill descriptions for better AI triggering

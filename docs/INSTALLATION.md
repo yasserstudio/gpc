@@ -131,7 +131,7 @@ pnpm link --global
 Run tests to verify:
 
 ```bash
-pnpm test    # 584 tests across 7 packages
+pnpm test    # 597 tests across 7 packages
 ```
 
 ### Building the Standalone Binary Locally
