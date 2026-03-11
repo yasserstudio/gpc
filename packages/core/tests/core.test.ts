@@ -3221,3 +3221,468 @@ describe("PluginManager – request/response hooks", () => {
     expect(manager.hasRequestHooks()).toBe(false);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Edge case tests – uploadRelease
+// ---------------------------------------------------------------------------
+describe("uploadRelease – edge cases", () => {
+  it("throws when file validation fails", async () => {
+    const { validateUploadFile } = await import("../src/utils/file-validation.js");
+    (validateUploadFile as any).mockResolvedValueOnce({
+      valid: false,
+      fileType: "aab",
+      sizeBytes: 0,
+      errors: ["File is empty", "Invalid signature"],
+      warnings: [],
+    });
+
+    const client = mockClient();
+    await expect(
+      uploadRelease(client, PKG, "/tmp/bad.aab", { track: "internal" }),
+    ).rejects.toThrow("File validation failed");
+    // Should NOT have called edits.insert since validation happens first
+  });
+
+  it("cleans up edit when bundle upload throws", async () => {
+    const client = mockClient();
+    client.bundles.upload.mockRejectedValue(new Error("bundle upload error"));
+
+    await expect(
+      uploadRelease(client, PKG, "/tmp/app.aab", { track: "internal" }),
+    ).rejects.toThrow("bundle upload error");
+
+    expect(client.edits.insert).toHaveBeenCalled();
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+  });
+
+  it("uploads mapping file when provided", async () => {
+    const client = mockClient();
+    client.deobfuscation = {
+      upload: vi.fn().mockResolvedValue({}),
+    };
+
+    await uploadRelease(client, PKG, "/tmp/app.aab", {
+      track: "production",
+      mappingFile: "/tmp/mapping.txt",
+    });
+
+    expect(client.deobfuscation.upload).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      42,
+      "/tmp/mapping.txt",
+    );
+  });
+
+  it("cleans up edit when mapping file upload fails", async () => {
+    const client = mockClient();
+    client.deobfuscation = {
+      upload: vi.fn().mockRejectedValue(new Error("mapping upload failed")),
+    };
+
+    await expect(
+      uploadRelease(client, PKG, "/tmp/app.aab", {
+        track: "production",
+        mappingFile: "/tmp/mapping.txt",
+      }),
+    ).rejects.toThrow("mapping upload failed");
+
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+  });
+
+  it("includes releaseNotes and releaseName in the release object", async () => {
+    const client = mockClient();
+    const notes = [
+      { language: "en-US", text: "Fixed bugs" },
+      { language: "ja-JP", text: "Corrected errors" },
+    ];
+    await uploadRelease(client, PKG, "/tmp/app.aab", {
+      track: "beta",
+      releaseNotes: notes,
+      releaseName: "Release 3.0",
+    });
+
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "beta",
+      expect.objectContaining({
+        releaseNotes: notes,
+        name: "Release 3.0",
+      }),
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Edge case tests – promoteRelease
+// ---------------------------------------------------------------------------
+describe("promoteRelease – edge cases", () => {
+  it("throws when source track has empty releases array", async () => {
+    const client = mockClient();
+    client.tracks.get.mockResolvedValue({
+      track: "alpha",
+      releases: [],
+    });
+
+    await expect(
+      promoteRelease(client, PKG, "alpha", "production"),
+    ).rejects.toThrow('No active release found on track "alpha"');
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+  });
+
+  it("userFraction 0 is treated as no rollout (completed status)", async () => {
+    const client = mockClient();
+    client.tracks.get.mockResolvedValue({
+      track: "beta",
+      releases: [{ versionCodes: ["10"], status: "completed" }],
+    });
+
+    const result = await promoteRelease(client, PKG, "beta", "production", { userFraction: 0 });
+    // 0 is falsy, so it's treated as "no fraction" => completed
+    expect(result.status).toBe("completed");
+    expect(result.userFraction).toBeUndefined();
+  });
+
+  it("throws when userFraction is greater than 1", async () => {
+    const client = mockClient();
+    client.tracks.get.mockResolvedValue({
+      track: "beta",
+      releases: [{ versionCodes: ["10"], status: "completed" }],
+    });
+
+    await expect(
+      promoteRelease(client, PKG, "beta", "production", { userFraction: 1.5 }),
+    ).rejects.toThrow("Rollout percentage must be between 0 and 1");
+  });
+
+  it("uses source release notes when no releaseNotes option provided", async () => {
+    const client = mockClient();
+    const sourceNotes = [{ language: "en-US", text: "source notes" }];
+    client.tracks.get.mockResolvedValue({
+      track: "internal",
+      releases: [
+        {
+          versionCodes: ["42"],
+          status: "completed",
+          releaseNotes: sourceNotes,
+        },
+      ],
+    });
+
+    await promoteRelease(client, PKG, "internal", "production");
+
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "production",
+      expect.objectContaining({
+        releaseNotes: sourceNotes,
+      }),
+    );
+  });
+
+  it("uses empty array for releaseNotes when source has none", async () => {
+    const client = mockClient();
+    client.tracks.get.mockResolvedValue({
+      track: "internal",
+      releases: [{ versionCodes: ["42"], status: "completed" }],
+    });
+
+    await promoteRelease(client, PKG, "internal", "production");
+
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "production",
+      expect.objectContaining({
+        releaseNotes: [],
+      }),
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Edge case tests – updateRollout
+// ---------------------------------------------------------------------------
+describe("updateRollout – edge cases", () => {
+  it("increase throws when userFraction is 0", async () => {
+    const client = mockClient();
+    client.tracks.get.mockResolvedValue({
+      track: "production",
+      releases: [{ versionCodes: ["42"], status: "inProgress", userFraction: 0.1 }],
+    });
+
+    await expect(
+      updateRollout(client, PKG, "production", "increase", 0),
+    ).rejects.toThrow("--to <percentage> is required for rollout increase");
+  });
+
+  it("increase throws when userFraction exceeds 1", async () => {
+    const client = mockClient();
+    client.tracks.get.mockResolvedValue({
+      track: "production",
+      releases: [{ versionCodes: ["42"], status: "inProgress", userFraction: 0.1 }],
+    });
+
+    await expect(
+      updateRollout(client, PKG, "production", "increase", 1.5),
+    ).rejects.toThrow("Rollout percentage must be between 0 and 1");
+  });
+
+  it("halt preserves current userFraction from inProgress release", async () => {
+    const client = mockClient();
+    client.tracks.get.mockResolvedValue({
+      track: "production",
+      releases: [{ versionCodes: ["42"], status: "inProgress", userFraction: 0.7 }],
+    });
+
+    const result = await updateRollout(client, PKG, "production", "halt");
+
+    expect(result.status).toBe("halted");
+    expect(result.userFraction).toBe(0.7);
+  });
+
+  it("resume preserves current userFraction from halted release", async () => {
+    const client = mockClient();
+    client.tracks.get.mockResolvedValue({
+      track: "production",
+      releases: [{ versionCodes: ["42"], status: "halted", userFraction: 0.4 }],
+    });
+
+    const result = await updateRollout(client, PKG, "production", "resume");
+
+    expect(result.status).toBe("inProgress");
+    expect(result.userFraction).toBe(0.4);
+  });
+
+  it("complete removes userFraction from the release", async () => {
+    const client = mockClient();
+    client.tracks.get.mockResolvedValue({
+      track: "production",
+      releases: [{ versionCodes: ["42"], status: "inProgress", userFraction: 0.8 }],
+    });
+
+    const result = await updateRollout(client, PKG, "production", "complete");
+
+    expect(result.status).toBe("completed");
+    expect(result.userFraction).toBeUndefined();
+    const updateCall = client.tracks.update.mock.calls[0][3];
+    expect(updateCall).not.toHaveProperty("userFraction");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Edge case tests – reports
+// ---------------------------------------------------------------------------
+describe("report commands – edge cases", () => {
+  it("parseMonth accepts boundary months (01 and 12)", () => {
+    expect(parseMonth("2026-01")).toEqual({ year: 2026, month: 1 });
+    expect(parseMonth("2026-12")).toEqual({ year: 2026, month: 12 });
+  });
+
+  it("parseMonth throws on month 00", () => {
+    expect(() => parseMonth("2026-00")).toThrow("Invalid month");
+  });
+
+  it("parseMonth throws on month 13", () => {
+    expect(() => parseMonth("2026-13")).toThrow("Invalid month");
+  });
+
+  it("parseMonth throws on alphabetic input", () => {
+    expect(() => parseMonth("abcd-ef")).toThrow("Invalid month format");
+  });
+
+  it("parseMonth throws on empty string", () => {
+    expect(() => parseMonth("")).toThrow("Invalid month format");
+  });
+
+  it("downloadReport throws when report download HTTP fails", async () => {
+    const client: any = {
+      reports: {
+        list: vi.fn().mockResolvedValue({
+          reports: [{ bucketId: "b1", uri: "https://storage.example.com/r.csv" }],
+        }),
+      },
+    };
+    const originalFetch = globalThis.fetch;
+    const mockFetch = vi.fn().mockResolvedValue(new Response("forbidden", { status: 403 }));
+    vi.stubGlobal("fetch", mockFetch);
+
+    try {
+      await expect(
+        downloadReport(client, "com.example", "earnings", 2026, 3),
+      ).rejects.toThrow("Failed to download report from signed URI: HTTP 403");
+    } finally {
+      vi.stubGlobal("fetch", originalFetch);
+    }
+  });
+
+  it("isValidReportType rejects empty string", () => {
+    expect(isValidReportType("")).toBe(false);
+  });
+
+  it("isValidStatsDimension accepts all valid dimensions", () => {
+    for (const dim of ["country", "language", "os_version", "device", "app_version", "carrier", "overview"]) {
+      expect(isValidStatsDimension(dim)).toBe(true);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Edge case tests – users
+// ---------------------------------------------------------------------------
+describe("user commands – edge cases", () => {
+  function mockUsersClient(): any {
+    return {
+      list: vi.fn().mockResolvedValue({ users: [{ email: "a@b.com" }] }),
+      get: vi.fn().mockResolvedValue({ email: "a@b.com", name: "Alice" }),
+      create: vi.fn().mockResolvedValue({ email: "new@b.com" }),
+      update: vi.fn().mockResolvedValue({ email: "a@b.com" }),
+      delete: vi.fn().mockResolvedValue(undefined),
+    };
+  }
+
+  it("inviteUser creates user with email only (no permissions)", async () => {
+    const client = mockUsersClient();
+    await inviteUser(client, "12345", "new@b.com");
+    const call = client.create.mock.calls[0];
+    expect(call[1]).toEqual({ email: "new@b.com" });
+    expect(call[1].developerAccountPermission).toBeUndefined();
+    expect(call[1].grants).toBeUndefined();
+  });
+
+  it("updateUser with only grants sends grants mask", async () => {
+    const client = mockUsersClient();
+    const grants = [{ packageName: "com.example", appLevelPermissions: ["ADMIN" as const] }];
+    await updateUser(client, "12345", "a@b.com", undefined, grants);
+    expect(client.update).toHaveBeenCalledWith(
+      "12345",
+      "a@b.com",
+      { grants },
+      "grants",
+    );
+  });
+
+  it("updateUser with no changes sends undefined updateMask", async () => {
+    const client = mockUsersClient();
+    await updateUser(client, "12345", "a@b.com");
+    expect(client.update).toHaveBeenCalledWith("12345", "a@b.com", {}, undefined);
+  });
+
+  it("parseGrantArg handles multiple permissions", () => {
+    const grant = parseGrantArg("com.example:PERM_A,PERM_B,PERM_C");
+    expect(grant.packageName).toBe("com.example");
+    expect(grant.appLevelPermissions).toEqual(["PERM_A", "PERM_B", "PERM_C"]);
+  });
+
+  it("parseGrantArg handles package with dots and single permission", () => {
+    const grant = parseGrantArg("com.example.app:VIEW");
+    expect(grant.packageName).toBe("com.example.app");
+    expect(grant.appLevelPermissions).toEqual(["VIEW"]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Edge case tests – testers
+// ---------------------------------------------------------------------------
+describe("tester commands – edge cases", () => {
+  function mockTesterClient(): any {
+    return {
+      edits: {
+        insert: vi.fn().mockResolvedValue({ id: "edit-1" }),
+        validate: vi.fn().mockResolvedValue({}),
+        commit: vi.fn().mockResolvedValue({}),
+        delete: vi.fn().mockResolvedValue(undefined),
+      },
+      testers: {
+        get: vi.fn().mockResolvedValue({ googleGroups: [], googleGroupsCount: 0 }),
+        update: vi.fn().mockImplementation((_pkg, _editId, _track, data) => Promise.resolve(data)),
+      },
+    };
+  }
+
+  it("addTesters to empty group list creates new list", async () => {
+    const client = mockTesterClient();
+    const result = await addTesters(client, "com.example", "beta", [
+      "new1@example.com",
+      "new2@example.com",
+    ]);
+    expect(result.googleGroups).toContain("new1@example.com");
+    expect(result.googleGroups).toContain("new2@example.com");
+  });
+
+  it("removeTesters from empty list returns empty", async () => {
+    const client = mockTesterClient();
+    const result = await removeTesters(client, "com.example", "beta", ["a@example.com"]);
+    expect(result.googleGroups).toEqual([]);
+  });
+
+  it("removeTesters cleans up edit on API error", async () => {
+    const client = mockTesterClient();
+    client.testers.get.mockRejectedValue(new Error("API fail"));
+
+    await expect(
+      removeTesters(client, "com.example", "internal", ["a@b.com"]),
+    ).rejects.toThrow("API fail");
+    expect(client.edits.delete).toHaveBeenCalled();
+  });
+
+  it("importTestersFromCsv with whitespace-only entries filters them out", async () => {
+    const client = mockTesterClient();
+    const fsModule = await import("node:fs/promises");
+    const dir = await mkdtemp(join(tmpdir(), "gpc-testers-edge-"));
+    const csvPath = join(dir, "testers.csv");
+    await fsModule.writeFile(csvPath, "  ,  ,test@example.com, ,\n  ");
+
+    try {
+      const result = await importTestersFromCsv(client, "com.example", "internal", csvPath);
+      expect(result.added).toBe(1);
+    } finally {
+      await rm(dir, { recursive: true });
+    }
+  });
+
+  it("listTesters always deletes edit even on success", async () => {
+    const client = mockTesterClient();
+    await listTesters(client, "com.example", "internal");
+    expect(client.edits.delete).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(client.edits.commit).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Edge case tests – diffListings
+// ---------------------------------------------------------------------------
+describe("diffListings – edge cases", () => {
+  it("remote-only language with empty fields produces no diffs", () => {
+    const local: any[] = [];
+    const remote = [
+      { language: "ko-KR", title: "", shortDescription: "", fullDescription: "" },
+    ];
+    const diffs = diffListings(local, remote);
+    expect(diffs).toHaveLength(0);
+  });
+
+  it("handles missing optional fields gracefully", () => {
+    const local = [{ language: "en-US", title: "App", shortDescription: "s", fullDescription: "f" }];
+    const remote = [{ language: "en-US", title: "App", shortDescription: "s", fullDescription: "f" }];
+    // Add a video field only to remote
+    (remote[0] as any).video = "https://youtube.com/v/123";
+    const diffs = diffListings(local, remote);
+    // Should detect the video field difference
+    expect(diffs.some((d) => d.field === "video")).toBe(true);
+  });
+
+  it("detects multiple field differences in same language", () => {
+    const local = [
+      { language: "en-US", title: "New Title", shortDescription: "New Short", fullDescription: "f" },
+    ];
+    const remote = [
+      { language: "en-US", title: "Old Title", shortDescription: "Old Short", fullDescription: "f" },
+    ];
+    const diffs = diffListings(local, remote);
+    expect(diffs).toHaveLength(2);
+    expect(diffs.map((d) => d.field).sort()).toEqual(["shortDescription", "title"]);
+  });
+});
