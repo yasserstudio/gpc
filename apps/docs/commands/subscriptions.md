@@ -113,9 +113,14 @@ gpc subscriptions create --file <path>
 
 ### Options
 
-| Flag     | Short | Type     | Default        | Description                              |
-| -------- | ----- | -------- | -------------- | ---------------------------------------- |
-| `--file` |       | `string` | **(required)** | Path to JSON file with subscription data |
+| Flag         | Short | Type      | Default        | Description                                  |
+| ------------ | ----- | --------- | -------------- | -------------------------------------------- |
+| `--file`     |       | `string`  | **(required)** | Path to JSON file with subscription data     |
+| `--activate` |       | `boolean` | `false`        | Activate all base plans after creation       |
+
+The `--activate` flag creates the subscription and then activates all draft base plans in a single step, so you don't need a separate `subscriptions base-plans activate` call.
+
+Client-side validation runs before the API call: the subscription JSON is checked for required fields, and `prorationMode` values are auto-fixed if they lack the expected prefix.
 
 ### Example
 
@@ -154,6 +159,15 @@ Run the command:
 gpc subscriptions create \
   --app com.example.myapp \
   --file subscription.json
+```
+
+Create and activate base plans in one step:
+
+```bash
+gpc subscriptions create \
+  --app com.example.myapp \
+  --file subscription.json \
+  --activate
 ```
 
 Preview without creating:
