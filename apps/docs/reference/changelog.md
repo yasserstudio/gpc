@@ -6,7 +6,14 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.17 <Badge type="tip" text="latest" />
+## v0.9.18 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **Fix: regionsVersion on subscription update** — `subscriptions update` and `offers update` now always include the `regionsVersion.version=2022/02` query param, matching the existing create behavior
+- **Fix: table/markdown [object Object]** — table and markdown output formatters now render nested objects as JSON instead of displaying `[object Object]`
+
+## v0.9.17
 
 _March 2026_
 

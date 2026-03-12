@@ -265,6 +265,21 @@ export GPC_NO_INTERACTIVE=1
 - Check that the step has write permissions to the summary file
 - Verify the `--json` flag is set for structured output
 
+### Output Formatting
+
+#### Table or markdown output shows `[object Object]`
+
+**Symptom:** When using `--output table` or `--output markdown`, columns containing nested objects display `[object Object]` instead of actual values.
+
+**Cause:** Fixed in v0.9.18. Earlier versions did not serialize nested objects before rendering them in table or markdown format.
+
+**Fix:** Update to v0.9.18 or later:
+```bash
+npm install -g @gpc-cli/cli@latest
+```
+
+---
+
 ## Getting More Help
 
 - [Error Codes Reference](./error-codes) -- full catalog of error codes and meanings
