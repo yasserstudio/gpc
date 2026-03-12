@@ -11,10 +11,10 @@ Extend GPC with custom commands, lifecycle hooks, and integrations -- without fo
 GPC also ships agent skills that teach AI coding assistants (Claude Code, Cursor, Copilot, Windsurf, and others) how to use GPC. These are not plugins — they're structured guides that help AI assistants run the right GPC commands for your task.
 
 ```bash
-npx skills add yasserstudio/gpc-skills
+gpc install-skills
 ```
 
-13 skills are available, covering setup, releases, metadata, CI/CD, monetization, and more. See the [gpc-skills repo](https://github.com/yasserstudio/gpc-skills) for details.
+The interactive wizard lets you pick from 13 available skills covering setup, releases, metadata, CI/CD, monetization, and more. See the [Agent Skills](./skills) page for the full list.
 
 ## Getting Started
 

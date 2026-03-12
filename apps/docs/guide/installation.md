@@ -80,10 +80,10 @@ npm uninstall -g @gpc-cli/cli
 If you use [Claude Code](https://claude.ai/claude-code) or another AI coding assistant, install the GPC agent skills to get guided help with Google Play workflows:
 
 ```bash
-npx skills add yasserstudio/gpc-skills
+gpc install-skills
 ```
 
-This installs 13 skills covering setup, releases, metadata, vitals, CI/CD, monetization, and more. See the [gpc-skills repo](https://github.com/yasserstudio/gpc-skills) for the full list.
+The interactive wizard lets you select from 13 skills covering setup, releases, metadata, vitals, CI/CD, monetization, and more. See the [Agent Skills](../advanced/skills) page for the full list.
 
 ## Standalone Binary
 

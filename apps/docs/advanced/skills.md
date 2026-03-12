@@ -18,7 +18,13 @@ Agent skills work with any AI coding assistant that supports skill files:
 
 ## Installation
 
-Install the GPC skills into your project:
+Install the GPC skills using the built-in wizard:
+
+```bash
+gpc install-skills
+```
+
+The wizard lets you pick which skills to install and which AI agents to configure. You can also install directly:
 
 ```bash
 npx skills add yasserstudio/gpc-skills
@@ -91,7 +97,7 @@ cd .agents/skills && git pull
 Or reinstall from scratch:
 
 ```bash
-npx skills add yasserstudio/gpc-skills
+gpc install-skills
 ```
 
 ## Source Repository
