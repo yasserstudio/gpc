@@ -56,7 +56,7 @@ export async function createSubscription(
   data: Subscription,
 ): Promise<Subscription> {
   validatePackageName(packageName);
-  return client.subscriptions.create(packageName, data);
+  return client.subscriptions.create(packageName, data, data.productId);
 }
 
 export async function updateSubscription(
@@ -158,7 +158,7 @@ export async function createOffer(
 ): Promise<SubscriptionOffer> {
   validatePackageName(packageName);
   validateSku(productId);
-  return client.subscriptions.createOffer(packageName, productId, basePlanId, data);
+  return client.subscriptions.createOffer(packageName, productId, basePlanId, data, data.offerId);
 }
 
 export async function updateOffer(

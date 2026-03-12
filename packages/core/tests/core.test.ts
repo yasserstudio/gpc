@@ -2003,7 +2003,7 @@ describe("subscriptions commands", () => {
     const client = mockClient();
     const data = { productId: "sub1" } as any;
     await createSubscription(client, "com.example", data);
-    expect(client.subscriptions.create).toHaveBeenCalledWith("com.example", data);
+    expect(client.subscriptions.create).toHaveBeenCalledWith("com.example", data, "sub1");
   });
 
   it("updateSubscription passes updateMask", async () => {
@@ -2066,6 +2066,7 @@ describe("subscriptions commands", () => {
       "sub1",
       "bp1",
       data,
+      "o1",
     );
   });
 
