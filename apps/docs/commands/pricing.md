@@ -83,6 +83,60 @@ gpc pricing convert --from USD --amount 9.99 --output json \
   | jq '.convertedRegionPrices | to_entries[] | "\(.key): \(.value.currencyCode) \(.value.priceMicros)"'
 ```
 
+## Supported Currencies
+
+Google Play supports the following ISO 4217 currencies for regional pricing. This is a reference of the most common codes:
+
+| Code  | Currency                | Regions                  |
+| ----- | ----------------------- | ------------------------ |
+| `USD` | US Dollar               | US, EC, SV, PA, PR       |
+| `EUR` | Euro                    | DE, FR, ES, IT, NL + 15  |
+| `GBP` | British Pound           | GB                       |
+| `JPY` | Japanese Yen            | JP                       |
+| `KRW` | South Korean Won        | KR                       |
+| `BRL` | Brazilian Real          | BR                       |
+| `INR` | Indian Rupee            | IN                       |
+| `RUB` | Russian Ruble           | RU                       |
+| `TRY` | Turkish Lira            | TR                       |
+| `AUD` | Australian Dollar       | AU                       |
+| `CAD` | Canadian Dollar         | CA                       |
+| `MXN` | Mexican Peso            | MX                       |
+| `IDR` | Indonesian Rupiah       | ID                       |
+| `PLN` | Polish Zloty            | PL                       |
+| `ZAR` | South African Rand      | ZA                       |
+| `SEK` | Swedish Krona           | SE                       |
+| `SGD` | Singapore Dollar        | SG                       |
+| `HKD` | Hong Kong Dollar        | HK                       |
+| `TWD` | New Taiwan Dollar       | TW                       |
+| `SAR` | Saudi Riyal             | SA                       |
+
+For the full list of supported regions and currencies, see the [Google Play Console help center](https://support.google.com/googleplay/android-developer/answer/9306917).
+
+## More Conversion Examples
+
+Convert from Japanese Yen (zero-decimal currency):
+
+```bash
+gpc pricing convert --app com.example.myapp --from JPY --amount 1500
+```
+
+Convert from British Pounds and save to a file for use in offer payloads:
+
+```bash
+gpc pricing convert --app com.example.myapp --from GBP --amount 6.99 --output json > regional-prices.json
+```
+
+Use in CI to validate regional pricing stays within a range:
+
+```bash
+PRICES=$(gpc pricing convert --from USD --amount 9.99 --output json)
+JP_PRICE=$(echo "$PRICES" | jq -r '.convertedRegionPrices.JP.priceMicros')
+if [ "$JP_PRICE" -gt 2000000000 ]; then
+  echo "Warning: JP price exceeds 2000 JPY"
+  exit 1
+fi
+```
+
 ## Related
 
 - [subscriptions](./subscriptions) -- Subscription pricing and base plans

@@ -42,6 +42,37 @@ All `GPC_*` environment variables and external variables that GPC respects.
 | `HTTPS_PROXY`     | `string`  | HTTP proxy URL (e.g., `https://proxy.corp:8080`). Also respected: `https_proxy`. | —       |
 | `NO_PROXY`        | `string`  | Comma-separated list of hosts to bypass proxy.                                   | —       |
 
+## Debug & Logging
+
+| Variable      | Type      | Description                                                                                           | Default |
+| ------------- | --------- | ----------------------------------------------------------------------------------------------------- | ------- |
+| `GPC_DEBUG`   | `boolean` | Enable debug logging. Prints internal state, request/response details, and timing info to stderr.     | `false` |
+| `GPC_VERBOSE` | `boolean` | Enable verbose output. Shows additional context such as full API URLs, retry attempts, and rate-limit headers. | `false` |
+
+```bash
+# Diagnose auth issues
+GPC_DEBUG=true gpc auth status
+
+# Verbose upload with retry visibility
+GPC_VERBOSE=true gpc releases upload app.aab --track internal
+```
+
+## Plugins
+
+| Variable         | Type     | Description                                                                                       | Default                  |
+| ---------------- | -------- | ------------------------------------------------------------------------------------------------- | ------------------------ |
+| `GPC_PLUGIN_DIR` | `string` | Custom directory for plugin discovery. GPC scans this path for installed plugins at startup.       | `~/.config/gpc/plugins`  |
+| `GPC_AUDIT_LOG`  | `string` | File path for the audit log. When set, GPC appends a JSON line for each command invocation.       | —                        |
+
+```bash
+# Use a project-local plugin directory
+export GPC_PLUGIN_DIR="./my-plugins"
+
+# Enable audit logging for compliance
+export GPC_AUDIT_LOG="/var/log/gpc-audit.jsonl"
+gpc releases list
+```
+
 ## CI Provider Detection
 
 GPC auto-detects CI environments. These variables are read but not set by GPC:
