@@ -849,10 +849,11 @@ describe("monetization API endpoints", () => {
       await client.subscriptions.update(PKG, "sub1", sub as any, "listings,basePlans");
       const [url, init] = mockFetch.mock.calls[0];
       expect(url).toContain(`/subscriptions/sub1?updateMask=listings%2CbasePlans`);
+      expect(url).toContain("regionsVersion.version=2022%2F02");
       expect(init.method).toBe("PATCH");
     });
 
-    it("update passes regionsVersion as query param", async () => {
+    it("update passes explicit regionsVersion as query param", async () => {
       const sub = { productId: "sub1", packageName: PKG };
       mockFetch.mockResolvedValueOnce(mockResponse(sub));
       const client = makeClient();
@@ -1747,10 +1748,11 @@ describe("client coverage gaps", () => {
     await client.subscriptions.updateOffer(PKG, "sub1", "bp1", "o1", offer as any, "phases");
     const [url, init] = mockFetch.mock.calls[0];
     expect(url).toContain("/offers/o1?updateMask=phases");
+    expect(url).toContain("regionsVersion.version=2022%2F02");
     expect(init.method).toBe("PATCH");
   });
 
-  it("updateOffer passes regionsVersion as query param", async () => {
+  it("updateOffer passes explicit regionsVersion as query param", async () => {
     const offer = { offerId: "o1", state: "ACTIVE" };
     mockFetch.mockResolvedValueOnce(mockResponse(offer));
     const client = makeClient();

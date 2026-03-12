@@ -704,12 +704,8 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async update(packageName, productId, body, updateMask?, regionsVersion?) {
         const params: Record<string, string> = {};
         if (updateMask) params["updateMask"] = updateMask;
-        if (regionsVersion) params["regionsVersion.version"] = regionsVersion;
-        const hasParams = Object.keys(params).length > 0;
-        let path = `/${packageName}/subscriptions/${productId}`;
-        if (hasParams) {
-          path += `?${new URLSearchParams(params).toString()}`;
-        }
+        params["regionsVersion.version"] = regionsVersion || "2022/02";
+        let path = `/${packageName}/subscriptions/${productId}?${new URLSearchParams(params).toString()}`;
         const { data } = await http.patch<Subscription>(path, body);
         return data;
       },
@@ -772,12 +768,8 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async updateOffer(packageName, productId, basePlanId, offerId, body, updateMask?, regionsVersion?) {
         const params: Record<string, string> = {};
         if (updateMask) params["updateMask"] = updateMask;
-        if (regionsVersion) params["regionsVersion.version"] = regionsVersion;
-        const hasParams = Object.keys(params).length > 0;
-        let path = `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}`;
-        if (hasParams) {
-          path += `?${new URLSearchParams(params).toString()}`;
-        }
+        params["regionsVersion.version"] = regionsVersion || "2022/02";
+        let path = `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}?${new URLSearchParams(params).toString()}`;
         const { data } = await http.patch<SubscriptionOffer>(path, body);
         return data;
       },
