@@ -378,6 +378,46 @@ export async function updateTrackConfig(
   }
 }
 
+export interface ReleaseDiff {
+  field: string;
+  track1Value: string;
+  track2Value: string;
+}
+
+export async function diffReleases(
+  client: PlayApiClient,
+  packageName: string,
+  fromTrack: string,
+  toTrack: string,
+): Promise<{ fromTrack: string; toTrack: string; diffs: ReleaseDiff[] }> {
+  const edit = await client.edits.insert(packageName);
+  try {
+    const [fromData, toData] = await Promise.all([
+      client.tracks.get(packageName, edit.id, fromTrack),
+      client.tracks.get(packageName, edit.id, toTrack),
+    ]);
+    await client.edits.delete(packageName, edit.id);
+
+    const fromRelease = fromData.releases?.[0];
+    const toRelease = toData.releases?.[0];
+    const diffs: ReleaseDiff[] = [];
+
+    const fields = ["versionCodes", "status", "userFraction", "releaseNotes", "name"] as const;
+    for (const field of fields) {
+      const v1 = fromRelease ? JSON.stringify(fromRelease[field] ?? null) : "null";
+      const v2 = toRelease ? JSON.stringify(toRelease[field] ?? null) : "null";
+      if (v1 !== v2) {
+        diffs.push({ field, track1Value: v1, track2Value: v2 });
+      }
+    }
+
+    return { fromTrack, toTrack, diffs };
+  } catch (error) {
+    await client.edits.delete(packageName, edit.id).catch(() => {});
+    throw error;
+  }
+}
+
 export async function uploadExternallyHosted(
   client: PlayApiClient,
   packageName: string,

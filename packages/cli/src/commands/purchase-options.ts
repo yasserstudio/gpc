@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import type { GpcConfig } from "@gpc-cli/config";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
@@ -15,6 +14,7 @@ import {
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { getOutputFormat } from "../format.js";
+import { readJsonFile } from "../json.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -97,8 +97,8 @@ export function registerPurchaseOptionsCommands(program: Command): void {
       const client = await getClient(config);
 
       try {
-        const data = JSON.parse(await readFile(options.file, "utf-8"));
-        const result = await createPurchaseOption(client, packageName, data);
+        const data = await readJsonFile(options.file);
+        const result = await createPurchaseOption(client, packageName, data as any);
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);

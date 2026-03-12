@@ -350,6 +350,34 @@ export async function activateOffer(
   return client.subscriptions.activateOffer(packageName, productId, basePlanId, offerId);
 }
 
+export interface SubscriptionDiff {
+  field: string;
+  local: string;
+  remote: string;
+}
+
+export async function diffSubscription(
+  client: PlayApiClient,
+  packageName: string,
+  productId: string,
+  localData: Subscription,
+): Promise<SubscriptionDiff[]> {
+  validatePackageName(packageName);
+  validateSku(productId);
+  const remote = await client.subscriptions.get(packageName, productId);
+  const diffs: SubscriptionDiff[] = [];
+  const fieldsToCompare = ["listings", "basePlans", "taxAndComplianceSettings"];
+
+  for (const field of fieldsToCompare) {
+    const localVal = JSON.stringify((localData as unknown as Record<string, unknown>)[field] ?? null);
+    const remoteVal = JSON.stringify((remote as unknown as Record<string, unknown>)[field] ?? null);
+    if (localVal !== remoteVal) {
+      diffs.push({ field, local: localVal, remote: remoteVal });
+    }
+  }
+  return diffs;
+}
+
 export async function deactivateOffer(
   client: PlayApiClient,
   packageName: string,

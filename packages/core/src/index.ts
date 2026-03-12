@@ -14,8 +14,9 @@ export {
   createTrack,
   updateTrackConfig,
   uploadExternallyHosted,
+  diffReleases,
 } from "./commands/releases.js";
-export type { UploadResult, ReleaseStatusResult, DryRunUploadResult } from "./commands/releases.js";
+export type { UploadResult, ReleaseStatusResult, DryRunUploadResult, ReleaseDiff } from "./commands/releases.js";
 export {
   getListings,
   updateListing,
@@ -101,7 +102,9 @@ export {
   deleteOffer,
   activateOffer,
   deactivateOffer,
+  diffSubscription,
 } from "./commands/subscriptions.js";
+export type { SubscriptionDiff } from "./commands/subscriptions.js";
 export {
   listInAppProducts,
   getInAppProduct,
@@ -184,7 +187,9 @@ export {
   createOneTimeOffer,
   updateOneTimeOffer,
   deleteOneTimeOffer,
+  diffOneTimeProduct,
 } from "./commands/one-time-products.js";
+export type { OneTimeProductDiff } from "./commands/one-time-products.js";
 export { createSpinner } from "./utils/spinner.js";
 export type { Spinner } from "./utils/spinner.js";
 export { safePath, safePathWithin } from "./utils/safe-path.js";

@@ -1,10 +1,10 @@
-import { readFile } from "node:fs/promises";
 import type { GpcConfig } from "@gpc-cli/config";
 import type { Command } from "commander";
 import { Option } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
+import type { Subscription } from "@gpc-cli/api";
 import {
   listSubscriptions,
   getSubscription,
@@ -22,12 +22,14 @@ import {
   deleteOffer,
   activateOffer,
   deactivateOffer,
+  diffSubscription,
   formatOutput,
   sortResults,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
+import { readJsonFile } from "../json.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -70,7 +72,17 @@ export function registerSubscriptionsCommands(program: Command): void {
         if (options.sort) {
           result.subscriptions = sortResults(result.subscriptions, options.sort);
         }
-        console.log(formatOutput(result, format));
+        if (format !== "json") {
+          const summary = (result.subscriptions || []).map((s: Subscription) => ({
+            productId: s.productId,
+            basePlans: s.basePlans?.length || 0,
+            listings: s.listings ? Object.keys(s.listings).length : 0,
+            firstBasePlanState: s.basePlans?.[0]?.state || "-",
+          }));
+          console.log(formatOutput(summary, format));
+        } else {
+          console.log(formatOutput(result, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
@@ -122,8 +134,8 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
 
       try {
-        const data = JSON.parse(await readFile(options.file, "utf-8"));
-        const result = await createSubscription(client, packageName, data);
+        const data = await readJsonFile(options.file);
+        const result = await createSubscription(client, packageName, data as any);
 
         if (options.activate && result.basePlans) {
           for (const bp of result.basePlans) {
@@ -171,12 +183,12 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
 
       try {
-        const data = JSON.parse(await readFile(options.file, "utf-8"));
+        const data = await readJsonFile(options.file);
         const result = await updateSubscription(
           client,
           packageName,
           productId,
-          data,
+          data as any,
           options.updateMask,
         );
         console.log(formatOutput(result, format));
@@ -355,8 +367,8 @@ export function registerSubscriptionsCommands(program: Command): void {
         const client = await getClient(config);
 
         try {
-          const data = JSON.parse(await readFile(options.file, "utf-8"));
-          const result = await migratePrices(client, packageName, productId, basePlanId, data);
+          const data = await readJsonFile(options.file);
+          const result = await migratePrices(client, packageName, productId, basePlanId, data as any);
           console.log(formatOutput(result, format));
         } catch (error) {
           console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -435,8 +447,8 @@ export function registerSubscriptionsCommands(program: Command): void {
         const client = await getClient(config);
 
         try {
-          const data = JSON.parse(await readFile(options.file, "utf-8"));
-          const result = await createOffer(client, packageName, productId, basePlanId, data);
+          const data = await readJsonFile(options.file);
+          const result = await createOffer(client, packageName, productId, basePlanId, data as any);
           console.log(formatOutput(result, format));
         } catch (error) {
           console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -478,14 +490,14 @@ export function registerSubscriptionsCommands(program: Command): void {
         const client = await getClient(config);
 
         try {
-          const data = JSON.parse(await readFile(options.file, "utf-8"));
+          const data = await readJsonFile(options.file);
           const result = await updateOffer(
             client,
             packageName,
             productId,
             basePlanId,
             offerId,
-            data,
+            data as any,
             options.updateMask,
           );
           console.log(formatOutput(result, format));
@@ -588,6 +600,31 @@ export function registerSubscriptionsCommands(program: Command): void {
       try {
         const result = await deactivateOffer(client, packageName, productId, basePlanId, offerId);
         console.log(formatOutput(result, format));
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  // --- Diff ---
+  subs
+    .command("diff <product-id>")
+    .description("Compare local JSON file against remote subscription")
+    .requiredOption("--file <path>", "Local JSON file to compare against remote")
+    .action(async (productId: string, options: { file: string }) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = getOutputFormat(program, config);
+
+      try {
+        const localData = await readJsonFile(options.file) as Subscription;
+        const diffs = await diffSubscription(client, packageName, productId, localData);
+        if (diffs.length === 0) {
+          console.log("No differences found.");
+        } else {
+          console.log(formatOutput(diffs, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

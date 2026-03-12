@@ -360,6 +360,8 @@ export interface PlayApiClient {
       packageName: string,
       productId: string,
       product: Partial<OneTimeProduct>,
+      updateMask?: string,
+      regionsVersion?: string,
     ): Promise<OneTimeProduct>;
     delete(packageName: string, productId: string): Promise<void>;
     listOffers(packageName: string, productId: string): Promise<OneTimeOffersListResponse>;
@@ -378,6 +380,8 @@ export interface PlayApiClient {
       productId: string,
       offerId: string,
       offer: Partial<OneTimeOffer>,
+      updateMask?: string,
+      regionsVersion?: string,
     ): Promise<OneTimeOffer>;
     deleteOffer(
       packageName: string,
@@ -1101,11 +1105,12 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async update(packageName, productId, body) {
-        const { data } = await http.patch<OneTimeProduct>(
-          `/${packageName}/oneTimeProducts/${productId}`,
-          body,
-        );
+      async update(packageName, productId, body, updateMask?, regionsVersion?) {
+        const params: Record<string, string> = {};
+        if (updateMask) params["updateMask"] = updateMask;
+        params["regionsVersion.version"] = regionsVersion || "2022/02";
+        const path = `/${packageName}/oneTimeProducts/${productId}?${new URLSearchParams(params).toString()}`;
+        const { data } = await http.patch<OneTimeProduct>(path, body);
         return data;
       },
 
@@ -1135,11 +1140,12 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async updateOffer(packageName, productId, offerId, body) {
-        const { data } = await http.patch<OneTimeOffer>(
-          `/${packageName}/oneTimeProducts/${productId}/offers/${offerId}`,
-          body,
-        );
+      async updateOffer(packageName, productId, offerId, body, updateMask?, regionsVersion?) {
+        const params: Record<string, string> = {};
+        if (updateMask) params["updateMask"] = updateMask;
+        params["regionsVersion.version"] = regionsVersion || "2022/02";
+        const path = `/${packageName}/oneTimeProducts/${productId}/offers/${offerId}?${new URLSearchParams(params).toString()}`;
+        const { data } = await http.patch<OneTimeOffer>(path, body);
         return data;
       },
 

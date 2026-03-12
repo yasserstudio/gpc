@@ -15,6 +15,7 @@ import {
   writeAuditLog,
   createAuditEntry,
   uploadExternallyHosted,
+  diffReleases,
 } from "@gpc-cli/core";
 import { formatOutput, sortResults, createSpinner } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
@@ -386,6 +387,36 @@ export function registerReleasesCommands(program: Command): void {
           apkConfig as import("@gpc-cli/api").ExternallyHostedApk,
         );
         console.log(formatOutput(result, format));
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  // Diff
+  releases
+    .command("diff")
+    .description("Compare releases between two tracks")
+    .option("--from <track>", "Source track", "internal")
+    .option("--to <track>", "Target track", "production")
+    .action(async (options) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = getOutputFormat(program, config);
+
+      try {
+        const result = await diffReleases(client, packageName, options.from, options.to);
+        if (result.diffs.length === 0) {
+          console.log(`No differences between ${result.fromTrack} and ${result.toTrack}.`);
+        } else {
+          if (format === "json") {
+            console.log(formatOutput(result, format));
+          } else {
+            console.log(`Differences: ${result.fromTrack} vs ${result.toTrack}\n`);
+            console.log(formatOutput(result.diffs, format));
+          }
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
