@@ -181,6 +181,14 @@ export async function createSubscription(
   return client.subscriptions.create(packageName, sanitized, data.productId);
 }
 
+const SUBSCRIPTION_ID_FIELDS = new Set(["productId", "packageName"]);
+
+function deriveSubscriptionUpdateMask(data: Subscription): string {
+  return Object.keys(data)
+    .filter((k) => !SUBSCRIPTION_ID_FIELDS.has(k))
+    .join(",");
+}
+
 export async function updateSubscription(
   client: PlayApiClient,
   packageName: string,
@@ -192,7 +200,8 @@ export async function updateSubscription(
   validateSku(productId);
   validateSubscriptionData(data);
   const sanitized = sanitizeSubscription(data);
-  return client.subscriptions.update(packageName, productId, sanitized, updateMask);
+  const mask = updateMask || deriveSubscriptionUpdateMask(data);
+  return client.subscriptions.update(packageName, productId, sanitized, mask);
 }
 
 export async function deleteSubscription(
@@ -286,6 +295,14 @@ export async function createOffer(
   return client.subscriptions.createOffer(packageName, productId, basePlanId, sanitized, data.offerId);
 }
 
+const OFFER_ID_FIELDS = new Set(["productId", "basePlanId", "offerId"]);
+
+function deriveOfferUpdateMask(data: SubscriptionOffer): string {
+  return Object.keys(data)
+    .filter((k) => !OFFER_ID_FIELDS.has(k))
+    .join(",");
+}
+
 export async function updateOffer(
   client: PlayApiClient,
   packageName: string,
@@ -298,13 +315,14 @@ export async function updateOffer(
   validatePackageName(packageName);
   validateSku(productId);
   const sanitized = sanitizeOffer(data);
+  const mask = updateMask || deriveOfferUpdateMask(data);
   return client.subscriptions.updateOffer(
     packageName,
     productId,
     basePlanId,
     offerId,
     sanitized,
-    updateMask,
+    mask,
   );
 }
 

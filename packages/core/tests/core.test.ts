@@ -3174,9 +3174,9 @@ describe("subscriptions commands – additional coverage", () => {
     );
   });
 
-  it("updateOffer works without updateMask", async () => {
+  it("updateOffer auto-derives updateMask from data keys", async () => {
     const client = subMockClient();
-    const data = { offerId: "o1" } as any;
+    const data = { offerId: "o1", phases: [], offerTags: [] } as any;
     await updateOffer(client, "com.example", "sub1", "bp1", "o1", data);
     expect(client.subscriptions.updateOffer).toHaveBeenCalledWith(
       "com.example",
@@ -3184,7 +3184,7 @@ describe("subscriptions commands – additional coverage", () => {
       "bp1",
       "o1",
       data,
-      undefined,
+      "phases,offerTags",
     );
   });
 
