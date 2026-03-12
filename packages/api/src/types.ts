@@ -329,8 +329,14 @@ export interface RegionalBasePlanConfig {
 
 export interface BasePlan {
   basePlanId: string;
-  state: "ACTIVE" | "INACTIVE" | "DRAFT";
-  autoRenewingBasePlanType?: { billingPeriodDuration?: string; gracePeriodDuration?: string };
+  state?: "ACTIVE" | "INACTIVE" | "DRAFT";
+  archived?: boolean;
+  autoRenewingBasePlanType?: {
+    billingPeriodDuration?: string;
+    gracePeriodDuration?: string;
+    accountHoldDuration?: string;
+    prorationMode?: string;
+  };
   prepaidBasePlanType?: { billingPeriodDuration?: string };
   regionalConfigs: RegionalBasePlanConfig[];
   offerTags?: { tag: string }[];

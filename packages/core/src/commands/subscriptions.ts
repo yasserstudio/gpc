@@ -4,15 +4,135 @@ import type {
   BasePlanMigratePricesRequest,
   SubscriptionOffer,
   OffersListResponse,
+  Money,
 } from "@gpc-cli/api";
 import { paginateAll } from "@gpc-cli/api";
 import { validatePackageName, validateSku } from "../utils/validation.js";
+import { GpcError } from "../errors.js";
 
 export interface ListSubscriptionsOptions {
   pageToken?: string;
   pageSize?: number;
   limit?: number;
   nextPage?: string;
+}
+
+// --- Sanitization: strip output-only fields, coerce types ---
+
+function coerceMoneyUnits(money: Money): Money {
+  if (money.units !== undefined && typeof money.units !== "string") {
+    return { ...money, units: String(money.units) };
+  }
+  return money;
+}
+
+function sanitizeSubscription(data: Subscription): Subscription {
+  const { ...cleaned } = data;
+  // Strip output-only fields from top level
+  delete (cleaned as Record<string, unknown>)["state"];
+  delete (cleaned as Record<string, unknown>)["archived"];
+
+  if (cleaned.basePlans) {
+    cleaned.basePlans = cleaned.basePlans.map((bp) => {
+      const { state: _s, archived: _a, ...cleanBp } = bp;
+      // Coerce Money.units to string in regional configs
+      if (cleanBp.regionalConfigs) {
+        cleanBp.regionalConfigs = cleanBp.regionalConfigs.map((rc) => ({
+          ...rc,
+          price: coerceMoneyUnits(rc.price),
+        }));
+      }
+      return cleanBp;
+    });
+  }
+  return cleaned;
+}
+
+function sanitizeOffer(data: SubscriptionOffer): SubscriptionOffer {
+  const { state: _s, ...cleaned } = data;
+  delete (cleaned as Record<string, unknown>)["archived"];
+  return cleaned as SubscriptionOffer;
+}
+
+// --- Client-side validation ---
+
+function parseDuration(iso: string): number {
+  const match = iso.match(/^P(\d+)D$/);
+  return match?.[1] ? parseInt(match[1], 10) : 0;
+}
+
+const PRORATION_MODE_PREFIX = "SUBSCRIPTION_PRORATION_MODE_";
+const VALID_PRORATION_MODES = [
+  "SUBSCRIPTION_PRORATION_MODE_CHARGE_ON_NEXT_BILLING_DATE",
+  "SUBSCRIPTION_PRORATION_MODE_CHARGE_FULL_PRICE_IMMEDIATELY",
+];
+
+function autoFixProrationMode(data: Subscription): void {
+  if (!data.basePlans) return;
+  for (const bp of data.basePlans) {
+    const mode = bp.autoRenewingBasePlanType?.prorationMode;
+    if (mode && !mode.startsWith(PRORATION_MODE_PREFIX)) {
+      bp.autoRenewingBasePlanType!.prorationMode = `${PRORATION_MODE_PREFIX}${mode}`;
+    }
+    if (bp.autoRenewingBasePlanType?.prorationMode) {
+      const fullMode = bp.autoRenewingBasePlanType.prorationMode;
+      if (!VALID_PRORATION_MODES.includes(fullMode)) {
+        throw new GpcError(
+          `Invalid prorationMode: "${fullMode}"`,
+          "INVALID_SUBSCRIPTION_DATA",
+          2,
+          `Valid values: ${VALID_PRORATION_MODES.join(", ")}`,
+        );
+      }
+    }
+  }
+}
+
+function validateSubscriptionData(data: Subscription): void {
+  // Auto-fix prorationMode prefix
+  autoFixProrationMode(data);
+
+  // Validate listings
+  if (data.listings) {
+    for (const [lang, listing] of Object.entries(data.listings)) {
+      if (listing.benefits && listing.benefits.length > 4) {
+        throw new GpcError(
+          `Listing "${lang}" has ${listing.benefits.length} benefits (max 4)`,
+          "INVALID_SUBSCRIPTION_DATA",
+          2,
+          "Google Play allows a maximum of 4 benefits per subscription listing",
+        );
+      }
+      if (listing.description && listing.description.length > 80) {
+        throw new GpcError(
+          `Listing "${lang}" description is ${listing.description.length} chars (max 80)`,
+          "INVALID_SUBSCRIPTION_DATA",
+          2,
+          "Google Play limits subscription descriptions to 80 characters",
+        );
+      }
+    }
+  }
+
+  // Validate base plan durations
+  if (data.basePlans) {
+    for (const bp of data.basePlans) {
+      const autoType = bp.autoRenewingBasePlanType;
+      if (autoType?.gracePeriodDuration && autoType?.accountHoldDuration) {
+        const grace = parseDuration(autoType.gracePeriodDuration);
+        const hold = parseDuration(autoType.accountHoldDuration);
+        const sum = grace + hold;
+        if (sum < 30 || sum > 60) {
+          throw new GpcError(
+            `Base plan "${bp.basePlanId}": gracePeriodDuration (${grace}d) + accountHoldDuration (${hold}d) = ${sum}d (must be 30-60)`,
+            "INVALID_SUBSCRIPTION_DATA",
+            2,
+            "gracePeriodDuration + accountHoldDuration must sum to between P30D and P60D",
+          );
+        }
+      }
+    }
+  }
 }
 
 export async function listSubscriptions(
@@ -56,7 +176,9 @@ export async function createSubscription(
   data: Subscription,
 ): Promise<Subscription> {
   validatePackageName(packageName);
-  return client.subscriptions.create(packageName, data, data.productId);
+  validateSubscriptionData(data);
+  const sanitized = sanitizeSubscription(data);
+  return client.subscriptions.create(packageName, sanitized, data.productId);
 }
 
 export async function updateSubscription(
@@ -68,7 +190,9 @@ export async function updateSubscription(
 ): Promise<Subscription> {
   validatePackageName(packageName);
   validateSku(productId);
-  return client.subscriptions.update(packageName, productId, data, updateMask);
+  validateSubscriptionData(data);
+  const sanitized = sanitizeSubscription(data);
+  return client.subscriptions.update(packageName, productId, sanitized, updateMask);
 }
 
 export async function deleteSubscription(
@@ -158,7 +282,8 @@ export async function createOffer(
 ): Promise<SubscriptionOffer> {
   validatePackageName(packageName);
   validateSku(productId);
-  return client.subscriptions.createOffer(packageName, productId, basePlanId, data, data.offerId);
+  const sanitized = sanitizeOffer(data);
+  return client.subscriptions.createOffer(packageName, productId, basePlanId, sanitized, data.offerId);
 }
 
 export async function updateOffer(
@@ -172,12 +297,13 @@ export async function updateOffer(
 ): Promise<SubscriptionOffer> {
   validatePackageName(packageName);
   validateSku(productId);
+  const sanitized = sanitizeOffer(data);
   return client.subscriptions.updateOffer(
     packageName,
     productId,
     basePlanId,
     offerId,
-    data,
+    sanitized,
     updateMask,
   );
 }

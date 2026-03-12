@@ -59,6 +59,10 @@ export function registerReviewsCommands(program: Command): void {
           limit: options.limit,
           nextPage: options.nextPage,
         });
+        if (Array.isArray(result) && result.length === 0 && format !== "json") {
+          console.log("No reviews found.");
+          return;
+        }
         const sorted = sortResults(result, options.sort);
         console.log(formatOutput(sorted, format));
       } catch (error) {
