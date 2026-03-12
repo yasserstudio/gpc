@@ -676,7 +676,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         if (options?.pageSize) params["pageSize"] = String(options.pageSize);
         const hasParams = Object.keys(params).length > 0;
         const { data } = await http.get<SubscriptionsListResponse>(
-          `/${packageName}/monetization/subscriptions`,
+          `/${packageName}/subscriptions`,
           hasParams ? params : undefined,
         );
         return data;
@@ -684,21 +684,21 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
       async get(packageName, productId) {
         const { data } = await http.get<Subscription>(
-          `/${packageName}/monetization/subscriptions/${productId}`,
+          `/${packageName}/subscriptions/${productId}`,
         );
         return data;
       },
 
       async create(packageName, body) {
         const { data } = await http.post<Subscription>(
-          `/${packageName}/monetization/subscriptions`,
+          `/${packageName}/subscriptions`,
           body,
         );
         return data;
       },
 
       async update(packageName, productId, body, updateMask?) {
-        let path = `/${packageName}/monetization/subscriptions/${productId}`;
+        let path = `/${packageName}/subscriptions/${productId}`;
         if (updateMask) {
           path += `?${new URLSearchParams({ updateMask }).toString()}`;
         }
@@ -707,32 +707,32 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async delete(packageName, productId) {
-        await http.delete(`/${packageName}/monetization/subscriptions/${productId}`);
+        await http.delete(`/${packageName}/subscriptions/${productId}`);
       },
 
       async activateBasePlan(packageName, productId, basePlanId) {
         const { data } = await http.post<Subscription>(
-          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}:activate`,
+          `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}:activate`,
         );
         return data;
       },
 
       async deactivateBasePlan(packageName, productId, basePlanId) {
         const { data } = await http.post<Subscription>(
-          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}:deactivate`,
+          `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}:deactivate`,
         );
         return data;
       },
 
       async deleteBasePlan(packageName, productId, basePlanId) {
         await http.delete(
-          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}`,
+          `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}`,
         );
       },
 
       async migratePrices(packageName, productId, basePlanId, body) {
         const { data } = await http.post<Subscription>(
-          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}:migratePrices`,
+          `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}:migratePrices`,
           body,
         );
         return data;
@@ -740,28 +740,28 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
       async listOffers(packageName, productId, basePlanId) {
         const { data } = await http.get<OffersListResponse>(
-          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers`,
+          `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers`,
         );
         return data;
       },
 
       async getOffer(packageName, productId, basePlanId, offerId) {
         const { data } = await http.get<SubscriptionOffer>(
-          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}`,
+          `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}`,
         );
         return data;
       },
 
       async createOffer(packageName, productId, basePlanId, body) {
         const { data } = await http.post<SubscriptionOffer>(
-          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers`,
+          `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers`,
           body,
         );
         return data;
       },
 
       async updateOffer(packageName, productId, basePlanId, offerId, body, updateMask?) {
-        let path = `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}`;
+        let path = `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}`;
         if (updateMask) {
           path += `?${new URLSearchParams({ updateMask }).toString()}`;
         }
@@ -771,20 +771,20 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
       async deleteOffer(packageName, productId, basePlanId, offerId) {
         await http.delete(
-          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}`,
+          `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}`,
         );
       },
 
       async activateOffer(packageName, productId, basePlanId, offerId) {
         const { data } = await http.post<SubscriptionOffer>(
-          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}:activate`,
+          `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}:activate`,
         );
         return data;
       },
 
       async deactivateOffer(packageName, productId, basePlanId, offerId) {
         const { data } = await http.post<SubscriptionOffer>(
-          `/${packageName}/monetization/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}:deactivate`,
+          `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}:deactivate`,
         );
         return data;
       },
@@ -920,7 +920,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
     monetization: {
       async convertRegionPrices(packageName, price) {
         const { data } = await http.post<ConvertRegionPricesResponse>(
-          `/${packageName}/monetization/convertRegionPrices`,
+          `/${packageName}/pricing:convertRegionPrices`,
           price,
         );
         return data;

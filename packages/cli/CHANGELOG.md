@@ -1,5 +1,18 @@
 # @gpc-cli/cli
 
+## 0.9.14
+
+### Patch Changes
+
+- fix: correct API endpoint paths for subscriptions and convertRegionPrices
+  - Remove incorrect `/monetization/` segment from all subscription API paths (list, get, create, update, delete, basePlans, offers)
+  - Fix convertRegionPrices path from `/monetization/convertRegionPrices` to `/pricing:convertRegionPrices`
+  - Add troubleshooting docs for enabling the Play Developer Reporting API for vitals commands
+
+- Updated dependencies
+  - @gpc-cli/api@1.0.11
+  - @gpc-cli/core@0.9.12
+
 ## 0.9.13
 
 ### Patch Changes

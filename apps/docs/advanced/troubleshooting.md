@@ -82,6 +82,21 @@ gpc auth login
 
 ### API Errors
 
+#### 404 on Vitals commands
+
+**Symptom:** `Error [API_004]: 404 Not Found` when running `gpc vitals crashes`, `gpc vitals anr`, or other vitals commands.
+
+**Cause:** The Google Play Developer Reporting API is not enabled in your Google Cloud project. Vitals commands use a separate API from the main Android Publisher API.
+
+**Fix:**
+1. Open the [Google Cloud Console API Library](https://console.cloud.google.com/apis/library)
+2. Search for **"Google Play Developer Reporting API"**
+3. Click **Enable**
+4. Wait a few minutes for the change to propagate
+5. Retry the vitals command
+
+> **Note:** Your service account must also have the "View app quality information" permission in Google Play Console under **Users and permissions**.
+
 #### 404 App not found
 
 **Symptom:** `Error [API_004]: 404 Not Found`
