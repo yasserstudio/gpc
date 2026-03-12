@@ -1,5 +1,11 @@
 # @gpc-cli/cli
 
+## 0.9.11
+
+### Patch Changes
+
+- 191c439: Hide internal pagination options from help output, add service account file, key permissions, and profile validation checks to `gpc doctor`
+
 ## 0.9.10
 
 ### Patch Changes
