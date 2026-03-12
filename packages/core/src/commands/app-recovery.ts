@@ -8,8 +8,9 @@ import type {
 export async function listRecoveryActions(
   client: PlayApiClient,
   packageName: string,
+  versionCode?: number,
 ): Promise<AppRecoveryAction[]> {
-  return client.appRecovery.list(packageName);
+  return client.appRecovery.list(packageName, versionCode);
 }
 
 export async function cancelRecoveryAction(

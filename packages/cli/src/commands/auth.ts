@@ -1,7 +1,8 @@
 import type { Command } from "commander";
 import { resolveAuth, loadServiceAccountKey, clearTokenCache, AuthError } from "@gpc-cli/auth";
 import { loadConfig, getCacheDir } from "@gpc-cli/config";
-import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
+import { formatOutput } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 
 export function registerAuthCommands(program: Command): void {
   const auth = program.command("auth").description("Manage authentication");
@@ -57,13 +58,13 @@ export function registerAuthCommands(program: Command): void {
     .command("status")
     .description("Show current authentication status")
     .action(async () => {
+      const config = await loadConfig();
       try {
-        const config = await loadConfig();
         const client = await resolveAuth({
           serviceAccountPath: config.auth?.serviceAccount,
           cachePath: getCacheDir(),
         });
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
         const data = {
           authenticated: true,
           account: client.getClientEmail(),
@@ -73,7 +74,7 @@ export function registerAuthCommands(program: Command): void {
         console.log(formatOutput(data, format));
       } catch (error) {
         if (error instanceof AuthError) {
-          const format = detectOutputFormat();
+          const format = getOutputFormat(program, config);
           const data = {
             authenticated: false,
             error: error.message,
@@ -139,7 +140,7 @@ export function registerAuthCommands(program: Command): void {
       const { listProfiles } = await import("@gpc-cli/config");
       const config = await loadConfig();
       const profiles = await listProfiles();
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (profiles.length === 0) {
         console.log(

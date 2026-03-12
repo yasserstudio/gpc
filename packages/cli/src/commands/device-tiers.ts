@@ -7,9 +7,9 @@ import {
   listDeviceTiers,
   getDeviceTier,
   createDeviceTier,
-  detectOutputFormat,
   formatOutput,
 } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 import { readFile } from "node:fs/promises";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
@@ -35,7 +35,7 @@ export function registerDeviceTiersCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await listDeviceTiers(client, packageName);
@@ -52,7 +52,7 @@ export function registerDeviceTiersCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await getDeviceTier(client, packageName, configId);
@@ -70,7 +70,7 @@ export function registerDeviceTiersCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const raw = await readFile(opts.file, "utf-8");

@@ -8,10 +8,10 @@ import {
   addTesters,
   removeTesters,
   importTestersFromCsv,
-  detectOutputFormat,
   formatOutput,
   sortResults,
 } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, requireOption, requireConfirm } from "../prompt.js";
 
@@ -55,7 +55,7 @@ export function registerTestersCommands(program: Command): void {
       );
 
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await listTesters(client, packageName, options.track);
@@ -79,7 +79,7 @@ export function registerTestersCommands(program: Command): void {
     .action(async (emails: string[], options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
       const interactive = isInteractive(program);
 
       options.track = await requireOption(
@@ -124,7 +124,7 @@ export function registerTestersCommands(program: Command): void {
     .action(async (emails: string[], options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
       const interactive = isInteractive(program);
 
       options.track = await requireOption(
@@ -172,7 +172,7 @@ export function registerTestersCommands(program: Command): void {
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
       const interactive = isInteractive(program);
 
       options.track = await requireOption(

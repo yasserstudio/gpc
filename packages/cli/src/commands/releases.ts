@@ -16,7 +16,8 @@ import {
   createAuditEntry,
   uploadExternallyHosted,
 } from "@gpc-cli/core";
-import { detectOutputFormat, formatOutput, sortResults, createSpinner } from "@gpc-cli/core";
+import { formatOutput, sortResults, createSpinner } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, promptSelect, promptInput, requireOption } from "../prompt.js";
 
@@ -66,7 +67,7 @@ export function registerReleasesCommands(program: Command): void {
       }
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       // Interactive mode: prompt for missing options
       if (isInteractive(program)) {
@@ -164,7 +165,7 @@ export function registerReleasesCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const statuses = await getReleasesStatus(client, packageName, options.track);
@@ -187,7 +188,7 @@ export function registerReleasesCommands(program: Command): void {
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
       const interactive = isInteractive(program);
       const tracks = ["internal", "alpha", "beta", "production"];
 
@@ -255,7 +256,7 @@ export function registerReleasesCommands(program: Command): void {
     cmd.action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
       const interactive = isInteractive(program);
       const tracks = ["internal", "alpha", "beta", "production"];
 
@@ -367,7 +368,7 @@ export function registerReleasesCommands(program: Command): void {
     .action(async (options: { url: string; file: string }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const { readFile } = await import("node:fs/promises");

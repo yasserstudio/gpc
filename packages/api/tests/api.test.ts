@@ -832,6 +832,15 @@ describe("monetization API endpoints", () => {
       expect(init.method).toBe("POST");
     });
 
+    it("create passes productId as query param", async () => {
+      const sub = { productId: "sub1", packageName: PKG };
+      mockFetch.mockResolvedValueOnce(mockResponse(sub));
+      const client = makeClient();
+      await client.subscriptions.create(PKG, sub as any, "sub1");
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toContain("productId=sub1");
+    });
+
     it("update calls PATCH with updateMask in URL", async () => {
       const sub = { productId: "sub1", packageName: PKG };
       mockFetch.mockResolvedValueOnce(mockResponse(sub));
@@ -840,6 +849,15 @@ describe("monetization API endpoints", () => {
       const [url, init] = mockFetch.mock.calls[0];
       expect(url).toContain(`/subscriptions/sub1?updateMask=listings%2CbasePlans`);
       expect(init.method).toBe("PATCH");
+    });
+
+    it("update passes regionsVersion as query param", async () => {
+      const sub = { productId: "sub1", packageName: PKG };
+      mockFetch.mockResolvedValueOnce(mockResponse(sub));
+      const client = makeClient();
+      await client.subscriptions.update(PKG, "sub1", sub as any, undefined, "2023.1");
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toContain("regionsVersion.version=2023.1");
     });
 
     it("delete calls DELETE /{pkg}/subscriptions/{id}", async () => {
@@ -896,6 +914,15 @@ describe("monetization API endpoints", () => {
       expect(init.method).toBe("POST");
     });
 
+    it("createOffer passes offerId as query param", async () => {
+      const offer = { productId: "sub1", basePlanId: "bp1", offerId: "o1", state: "DRAFT", phases: [] };
+      mockFetch.mockResolvedValueOnce(mockResponse(offer));
+      const client = makeClient();
+      await client.subscriptions.createOffer(PKG, "sub1", "bp1", offer as any, "o1");
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toContain("offerId=o1");
+    });
+
     it("activateOffer calls POST .../offers/{id}:activate", async () => {
       mockFetch.mockResolvedValueOnce(mockResponse({ offerId: "o1" }));
       const client = makeClient();
@@ -941,6 +968,15 @@ describe("monetization API endpoints", () => {
       expect(init.method).toBe("POST");
     });
 
+    it("create passes autoConvertMissingPrices as query param", async () => {
+      const product = { sku: "coins100", status: "active" };
+      mockFetch.mockResolvedValueOnce(mockResponse(product));
+      const client = makeClient();
+      await client.inappproducts.create(PKG, product as any, { autoConvertMissingPrices: true });
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toContain("autoConvertMissingPrices=true");
+    });
+
     it("update calls PUT /{pkg}/inappproducts/{sku}", async () => {
       const product = { sku: "coins100", status: "active" };
       mockFetch.mockResolvedValueOnce(mockResponse(product));
@@ -949,6 +985,16 @@ describe("monetization API endpoints", () => {
       const [url, init] = mockFetch.mock.calls[0];
       expect(url).toBe(`${BASE_URL}/${PKG}/inappproducts/coins100`);
       expect(init.method).toBe("PUT");
+    });
+
+    it("update passes autoConvertMissingPrices and allowMissing as query params", async () => {
+      const product = { sku: "coins100", status: "active" };
+      mockFetch.mockResolvedValueOnce(mockResponse(product));
+      const client = makeClient();
+      await client.inappproducts.update(PKG, "coins100", product as any, { autoConvertMissingPrices: true, allowMissing: true });
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toContain("autoConvertMissingPrices=true");
+      expect(url).toContain("allowMissing=true");
     });
 
     it("delete calls DELETE /{pkg}/inappproducts/{sku}", async () => {
@@ -1229,14 +1275,22 @@ describe("appRecovery API endpoints", () => {
     return createApiClient({ auth: mockAuth(), maxRetries: 0 });
   }
 
-  it("appRecovery.list calls POST /{pkg}/appRecoveries", async () => {
+  it("appRecovery.list calls GET /{pkg}/appRecoveries", async () => {
     mockFetch.mockResolvedValueOnce(mockResponse({ recoveryActions: [{ id: "r1" }] }));
     const client = makeClient();
     const result = await client.appRecovery.list(PKG);
     expect(result).toEqual([{ id: "r1" }]);
     const [url, init] = mockFetch.mock.calls[0];
     expect(url).toBe(`${BASE_URL}/${PKG}/appRecoveries`);
-    expect(init.method).toBe("POST");
+    expect(init.method).toBe("GET");
+  });
+
+  it("appRecovery.list passes versionCode as query param", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ recoveryActions: [] }));
+    const client = makeClient();
+    await client.appRecovery.list(PKG, 22);
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("versionCode=22");
   });
 
   it("appRecovery.cancel calls POST /{pkg}/appRecovery/{id}:cancel", async () => {
@@ -1277,25 +1331,25 @@ describe("dataSafety API endpoints", () => {
     return createApiClient({ auth: mockAuth(), maxRetries: 0 });
   }
 
-  it("dataSafety.get calls GET /{pkg}/edits/{editId}/dataSafety", async () => {
+  it("dataSafety.get calls GET /{pkg}/dataSafety", async () => {
     const safety = { dataTypes: [], purposes: [] };
     mockFetch.mockResolvedValueOnce(mockResponse(safety));
     const client = makeClient();
-    const result = await client.dataSafety.get(PKG, EDIT_ID);
+    const result = await client.dataSafety.get(PKG);
     expect(result).toEqual(safety);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/dataSafety`);
+    expect(url).toBe(`${BASE_URL}/${PKG}/dataSafety`);
     expect(init.method).toBe("GET");
   });
 
-  it("dataSafety.update calls PUT /{pkg}/edits/{editId}/dataSafety", async () => {
+  it("dataSafety.update calls PUT /{pkg}/dataSafety", async () => {
     const safety = { dataTypes: ["location"], purposes: ["app_functionality"] };
     mockFetch.mockResolvedValueOnce(mockResponse(safety));
     const client = makeClient();
-    const result = await client.dataSafety.update(PKG, EDIT_ID, safety as any);
+    const result = await client.dataSafety.update(PKG, safety as any);
     expect(result).toEqual(safety);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/dataSafety`);
+    expect(url).toBe(`${BASE_URL}/${PKG}/dataSafety`);
     expect(init.method).toBe("PUT");
   });
 });
@@ -1692,6 +1746,15 @@ describe("client coverage gaps", () => {
     const [url, init] = mockFetch.mock.calls[0];
     expect(url).toContain("/offers/o1?updateMask=phases");
     expect(init.method).toBe("PATCH");
+  });
+
+  it("updateOffer passes regionsVersion as query param", async () => {
+    const offer = { offerId: "o1", state: "ACTIVE" };
+    mockFetch.mockResolvedValueOnce(mockResponse(offer));
+    const client = makeClient();
+    await client.subscriptions.updateOffer(PKG, "sub1", "bp1", "o1", offer as any, undefined, "2023.1");
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("regionsVersion.version=2023.1");
   });
 
   // 11c. deleteOffer

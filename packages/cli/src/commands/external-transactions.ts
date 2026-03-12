@@ -7,9 +7,9 @@ import {
   createExternalTransaction,
   getExternalTransaction,
   refundExternalTransaction,
-  detectOutputFormat,
   formatOutput,
 } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
 import { readFileSync } from "node:fs";
@@ -41,7 +41,7 @@ export function registerExternalTransactionsCommands(program: Command): void {
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       let data: Record<string, unknown>;
       try {
@@ -85,7 +85,7 @@ export function registerExternalTransactionsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await getExternalTransaction(client, packageName, id);
@@ -108,7 +108,7 @@ export function registerExternalTransactionsCommands(program: Command): void {
     .action(async (id: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       const refundData: Record<string, unknown> = {};
       if (options.full) {

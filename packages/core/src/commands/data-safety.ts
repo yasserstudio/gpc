@@ -6,15 +6,7 @@ export async function getDataSafety(
   client: PlayApiClient,
   packageName: string,
 ): Promise<DataSafety> {
-  const edit = await client.edits.insert(packageName);
-  try {
-    const dataSafety = await client.dataSafety.get(packageName, edit.id);
-    await client.edits.delete(packageName, edit.id);
-    return dataSafety;
-  } catch (error) {
-    await client.edits.delete(packageName, edit.id).catch(() => {});
-    throw error;
-  }
+  return client.dataSafety.get(packageName);
 }
 
 export async function updateDataSafety(
@@ -22,16 +14,7 @@ export async function updateDataSafety(
   packageName: string,
   data: DataSafety,
 ): Promise<DataSafety> {
-  const edit = await client.edits.insert(packageName);
-  try {
-    const result = await client.dataSafety.update(packageName, edit.id, data);
-    await client.edits.validate(packageName, edit.id);
-    await client.edits.commit(packageName, edit.id);
-    return result;
-  } catch (error) {
-    await client.edits.delete(packageName, edit.id).catch(() => {});
-    throw error;
-  }
+  return client.dataSafety.update(packageName, data);
 }
 
 export async function exportDataSafety(

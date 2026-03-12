@@ -156,8 +156,8 @@ export interface PlayApiClient {
   };
 
   dataSafety: {
-    get(packageName: string, editId: string): Promise<DataSafety>;
-    update(packageName: string, editId: string, data: DataSafety): Promise<DataSafety>;
+    get(packageName: string): Promise<DataSafety>;
+    update(packageName: string, data: DataSafety): Promise<DataSafety>;
   };
 
   reviews: {
@@ -172,12 +172,13 @@ export interface PlayApiClient {
       options?: { pageToken?: string; pageSize?: number },
     ): Promise<SubscriptionsListResponse>;
     get(packageName: string, productId: string): Promise<Subscription>;
-    create(packageName: string, data: Subscription): Promise<Subscription>;
+    create(packageName: string, data: Subscription, productId?: string): Promise<Subscription>;
     update(
       packageName: string,
       productId: string,
       data: Subscription,
       updateMask?: string,
+      regionsVersion?: string,
     ): Promise<Subscription>;
     delete(packageName: string, productId: string): Promise<void>;
     activateBasePlan(
@@ -213,6 +214,7 @@ export interface PlayApiClient {
       productId: string,
       basePlanId: string,
       data: SubscriptionOffer,
+      offerId?: string,
     ): Promise<SubscriptionOffer>;
     updateOffer(
       packageName: string,
@@ -221,6 +223,7 @@ export interface PlayApiClient {
       offerId: string,
       data: SubscriptionOffer,
       updateMask?: string,
+      regionsVersion?: string,
     ): Promise<SubscriptionOffer>;
     deleteOffer(
       packageName: string,
@@ -248,8 +251,8 @@ export interface PlayApiClient {
       options?: { token?: string; maxResults?: number },
     ): Promise<InAppProductsListResponse>;
     get(packageName: string, sku: string): Promise<InAppProduct>;
-    create(packageName: string, data: InAppProduct): Promise<InAppProduct>;
-    update(packageName: string, sku: string, data: InAppProduct): Promise<InAppProduct>;
+    create(packageName: string, data: InAppProduct, options?: { autoConvertMissingPrices?: boolean }): Promise<InAppProduct>;
+    update(packageName: string, sku: string, data: InAppProduct, options?: { autoConvertMissingPrices?: boolean; allowMissing?: boolean }): Promise<InAppProduct>;
     delete(packageName: string, sku: string): Promise<void>;
     batchUpdate(
       packageName: string,
@@ -326,7 +329,7 @@ export interface PlayApiClient {
   };
 
   appRecovery: {
-    list(packageName: string): Promise<AppRecoveryAction[]>;
+    list(packageName: string, versionCode?: number): Promise<AppRecoveryAction[]>;
     cancel(packageName: string, appRecoveryId: string): Promise<void>;
     deploy(packageName: string, appRecoveryId: string): Promise<void>;
     create(packageName: string, request: CreateAppRecoveryActionRequest): Promise<AppRecoveryAction>;
@@ -614,16 +617,16 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
     },
 
     dataSafety: {
-      async get(packageName, editId) {
+      async get(packageName) {
         const { data } = await http.get<DataSafety>(
-          `/${packageName}/edits/${editId}/dataSafety`,
+          `/${packageName}/dataSafety`,
         );
         return data;
       },
 
-      async update(packageName, editId, body) {
+      async update(packageName, body) {
         const { data } = await http.put<DataSafety>(
-          `/${packageName}/edits/${editId}/dataSafety`,
+          `/${packageName}/dataSafety`,
           body,
         );
         return data;
@@ -689,18 +692,25 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async create(packageName, body) {
-        const { data } = await http.post<Subscription>(
-          `/${packageName}/subscriptions`,
-          body,
-        );
+      async create(packageName, body, productId?) {
+        const params: Record<string, string> = {};
+        if (productId) params["productId"] = productId;
+        const hasParams = Object.keys(params).length > 0;
+        const path = hasParams
+          ? `/${packageName}/subscriptions?${new URLSearchParams(params).toString()}`
+          : `/${packageName}/subscriptions`;
+        const { data } = await http.post<Subscription>(path, body);
         return data;
       },
 
-      async update(packageName, productId, body, updateMask?) {
+      async update(packageName, productId, body, updateMask?, regionsVersion?) {
+        const params: Record<string, string> = {};
+        if (updateMask) params["updateMask"] = updateMask;
+        if (regionsVersion) params["regionsVersion.version"] = regionsVersion;
+        const hasParams = Object.keys(params).length > 0;
         let path = `/${packageName}/subscriptions/${productId}`;
-        if (updateMask) {
-          path += `?${new URLSearchParams({ updateMask }).toString()}`;
+        if (hasParams) {
+          path += `?${new URLSearchParams(params).toString()}`;
         }
         const { data } = await http.patch<Subscription>(path, body);
         return data;
@@ -752,18 +762,25 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async createOffer(packageName, productId, basePlanId, body) {
-        const { data } = await http.post<SubscriptionOffer>(
-          `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers`,
-          body,
-        );
+      async createOffer(packageName, productId, basePlanId, body, offerId?) {
+        const params: Record<string, string> = {};
+        if (offerId) params["offerId"] = offerId;
+        const hasParams = Object.keys(params).length > 0;
+        const path = hasParams
+          ? `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers?${new URLSearchParams(params).toString()}`
+          : `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers`;
+        const { data } = await http.post<SubscriptionOffer>(path, body);
         return data;
       },
 
-      async updateOffer(packageName, productId, basePlanId, offerId, body, updateMask?) {
+      async updateOffer(packageName, productId, basePlanId, offerId, body, updateMask?, regionsVersion?) {
+        const params: Record<string, string> = {};
+        if (updateMask) params["updateMask"] = updateMask;
+        if (regionsVersion) params["regionsVersion.version"] = regionsVersion;
+        const hasParams = Object.keys(params).length > 0;
         let path = `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}`;
-        if (updateMask) {
-          path += `?${new URLSearchParams({ updateMask }).toString()}`;
+        if (hasParams) {
+          path += `?${new URLSearchParams(params).toString()}`;
         }
         const { data } = await http.patch<SubscriptionOffer>(path, body);
         return data;
@@ -808,13 +825,26 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async create(packageName, body) {
-        const { data } = await http.post<InAppProduct>(`/${packageName}/inappproducts`, body);
+      async create(packageName, body, options?) {
+        const params: Record<string, string> = {};
+        if (options?.autoConvertMissingPrices) params["autoConvertMissingPrices"] = "true";
+        const hasParams = Object.keys(params).length > 0;
+        const path = hasParams
+          ? `/${packageName}/inappproducts?${new URLSearchParams(params).toString()}`
+          : `/${packageName}/inappproducts`;
+        const { data } = await http.post<InAppProduct>(path, body);
         return data;
       },
 
-      async update(packageName, sku, body) {
-        const { data } = await http.put<InAppProduct>(`/${packageName}/inappproducts/${sku}`, body);
+      async update(packageName, sku, body, options?) {
+        const params: Record<string, string> = {};
+        if (options?.autoConvertMissingPrices) params["autoConvertMissingPrices"] = "true";
+        if (options?.allowMissing) params["allowMissing"] = "true";
+        const hasParams = Object.keys(params).length > 0;
+        const path = hasParams
+          ? `/${packageName}/inappproducts/${sku}?${new URLSearchParams(params).toString()}`
+          : `/${packageName}/inappproducts/${sku}`;
+        const { data } = await http.put<InAppProduct>(path, body);
         return data;
       },
 
@@ -974,9 +1004,13 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
     },
 
     appRecovery: {
-      async list(packageName) {
-        const { data } = await http.post<AppRecoveriesListResponse>(
+      async list(packageName, versionCode?) {
+        const params: Record<string, string> = {};
+        if (versionCode !== undefined) params["versionCode"] = String(versionCode);
+        const hasParams = Object.keys(params).length > 0;
+        const { data } = await http.get<AppRecoveriesListResponse>(
           `/${packageName}/appRecoveries`,
+          hasParams ? params : undefined,
         );
         return data.recoveryActions || [];
       },

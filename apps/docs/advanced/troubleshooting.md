@@ -82,6 +82,23 @@ gpc auth login
 
 ### API Errors
 
+#### 403/401 on Vitals or Error Issues commands
+
+**Symptom:** `Error [API_003]: 403 Forbidden` or `401 Unauthorized` when running `gpc vitals errors search`, `gpc vitals anomalies`, or other Reporting API commands.
+
+**Cause:** The Reporting API requires the `playdeveloperreporting` OAuth scope. GPC v0.9.15+ requests both required scopes automatically. If you're using an older cached token, it may only have the `androidpublisher` scope.
+
+**Fix:**
+1. Re-authenticate to obtain a token with both scopes:
+   ```bash
+   gpc auth logout && gpc auth login --service-account /path/to/key.json
+   ```
+2. If using ADC, re-login with both scopes:
+   ```bash
+   gcloud auth application-default login \
+     --scopes=https://www.googleapis.com/auth/androidpublisher,https://www.googleapis.com/auth/playdeveloperreporting
+   ```
+
 #### 404 on Vitals commands
 
 **Symptom:** `Error [API_004]: 404 Not Found` when running `gpc vitals crashes`, `gpc vitals anr`, or other vitals commands.
@@ -89,11 +106,13 @@ gpc auth login
 **Cause:** The Google Play Developer Reporting API is not enabled in your Google Cloud project. Vitals commands use a separate API from the main Android Publisher API.
 
 **Fix:**
-1. Open the [Google Cloud Console API Library](https://console.cloud.google.com/apis/library)
-2. Search for **"Google Play Developer Reporting API"**
-3. Click **Enable**
-4. Wait a few minutes for the change to propagate
-5. Retry the vitals command
+1. Enable the Reporting API:
+   ```bash
+   gcloud services enable playdeveloperreporting.googleapis.com --project YOUR_PROJECT_ID
+   ```
+   Or open the [Google Cloud Console API Library](https://console.cloud.google.com/apis/library), search for **"Google Play Developer Reporting API"**, and click **Enable**.
+2. Wait a few minutes for the change to propagate
+3. Retry the vitals command
 
 > **Note:** Your service account must also have the "View app quality information" permission in Google Play Console under **Users and permissions**.
 

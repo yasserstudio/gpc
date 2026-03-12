@@ -1,5 +1,20 @@
 # @gpc-cli/api
 
+## 1.0.12
+
+### Patch Changes
+
+- fix: resolve 5 bugs found during live testing
+  - Fix --output flag ignored (table/yaml/markdown/junit formats now work)
+  - Fix recovery list using POST instead of GET, add --version-code filter
+  - Fix iap list/get using deprecated inappproducts API (now uses oneTimeProducts)
+  - Fix vitals errors/anomalies missing OAuth scope (playdeveloperreporting)
+  - Fix data-safety get/update incorrectly using edits workflow
+  - Add missing query params for subscriptions and inappproducts create/update
+
+- Updated dependencies
+  - @gpc-cli/auth@0.9.9
+
 ## 1.0.11
 
 ### Patch Changes

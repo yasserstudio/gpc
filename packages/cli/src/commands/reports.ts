@@ -10,9 +10,9 @@ import {
   isValidReportType,
   isFinancialReportType,
   isStatsReportType,
-  detectOutputFormat,
   formatOutput,
 } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 import type { ReportType } from "@gpc-cli/api";
 import { writeFile } from "node:fs/promises";
 import { isInteractive, requireOption } from "../prompt.js";
@@ -64,7 +64,7 @@ export function registerReportsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const { year, month } = parseMonth(options.month);

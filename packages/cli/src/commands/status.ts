@@ -3,7 +3,8 @@ import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
 import { getReleasesStatus } from "@gpc-cli/core";
-import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
+import { formatOutput } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 
 export function registerStatusCommand(program: Command): void {
   program
@@ -23,7 +24,7 @@ export function registerStatusCommand(program: Command): void {
         const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
         const client = createApiClient({ auth });
         const statuses = await getReleasesStatus(client, packageName);
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
         console.log(formatOutput(statuses, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);

@@ -15,10 +15,10 @@ import {
   createOneTimeOffer,
   updateOneTimeOffer,
   deleteOneTimeOffer,
-  detectOutputFormat,
   formatOutput,
   sortResults,
 } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
 
@@ -50,7 +50,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await listOneTimeProducts(client, packageName);
@@ -71,7 +71,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await getOneTimeProduct(client, packageName, productId);
@@ -89,7 +89,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -123,7 +123,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
     .action(async (productId: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -161,7 +161,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
       await requireConfirm(`Delete one-time product "${productId}"?`, program);
 
       if (isDryRun(program)) {
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
         printDryRun(
           {
             command: "one-time-products delete",
@@ -196,7 +196,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await listOneTimeOffers(client, packageName, productId);
@@ -217,7 +217,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await getOneTimeOffer(client, packageName, productId, offerId);
@@ -235,7 +235,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
     .action(async (productId: string, options: { file: string }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -270,7 +270,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
     .action(async (productId: string, offerId: string, options: { file: string }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -308,7 +308,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
       await requireConfirm(`Delete offer "${offerId}" for product "${productId}"?`, program);
 
       if (isDryRun(program)) {
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
         printDryRun(
           {
             command: "one-time-products offers delete",

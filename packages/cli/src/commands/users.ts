@@ -12,10 +12,10 @@ import {
   removeUser,
   parseGrantArg,
   PERMISSION_PROPAGATION_WARNING,
-  detectOutputFormat,
   formatOutput,
   sortResults,
 } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
 
@@ -51,7 +51,7 @@ export function registerUsersCommands(program: Command): void {
       const config = await loadConfig();
       const developerId = resolveDeveloperId(users.opts()["developerId"], config);
       const client = await getUsersClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await listUsers(client, developerId, {
@@ -75,7 +75,7 @@ export function registerUsersCommands(program: Command): void {
       const config = await loadConfig();
       const developerId = resolveDeveloperId(users.opts()["developerId"], config);
       const client = await getUsersClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await getUser(client, developerId, email);
@@ -97,7 +97,7 @@ export function registerUsersCommands(program: Command): void {
     .action(async (email: string, options) => {
       const config = await loadConfig();
       const developerId = resolveDeveloperId(users.opts()["developerId"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -138,7 +138,7 @@ export function registerUsersCommands(program: Command): void {
     .action(async (email: string, options) => {
       const config = await loadConfig();
       const developerId = resolveDeveloperId(users.opts()["developerId"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -178,7 +178,7 @@ export function registerUsersCommands(program: Command): void {
       await requireConfirm(`Remove user "${email}" from developer account?`, program);
 
       if (isDryRun(program)) {
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
         printDryRun(
           {
             command: "users remove",

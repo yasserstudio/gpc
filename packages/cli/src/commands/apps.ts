@@ -3,7 +3,8 @@ import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
 import { getAppInfo, updateAppDetails } from "@gpc-cli/core";
-import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
+import { formatOutput } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 
 export function registerAppsCommands(program: Command): void {
@@ -29,7 +30,7 @@ export function registerAppsCommands(program: Command): void {
         });
         const client = createApiClient({ auth });
         const info = await getAppInfo(client, packageName);
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
         console.log(formatOutput(info, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -67,7 +68,7 @@ export function registerAppsCommands(program: Command): void {
         process.exit(2);
       }
 
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -103,7 +104,7 @@ export function registerAppsCommands(program: Command): void {
     .option("--next-page <token>", "Pagination token for next page")
     .action(async (options) => {
       const config = await loadConfig();
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (config.app) {
         const apps = [{ packageName: config.app, source: "config" }];

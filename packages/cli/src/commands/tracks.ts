@@ -4,7 +4,8 @@ import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
 import { listTracks, createTrack, updateTrackConfig } from "@gpc-cli/core";
-import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
+import { formatOutput } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 
 export function registerTracksCommands(program: Command): void {
   const tracks = program.command("tracks").description("Manage tracks");
@@ -28,7 +29,7 @@ export function registerTracksCommands(program: Command): void {
         const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
         const client = createApiClient({ auth });
         const trackList = await listTracks(client, packageName);
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
 
         const summary = trackList.map((t) => ({
           track: t.track,
@@ -61,7 +62,7 @@ export function registerTracksCommands(program: Command): void {
         const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
         const client = createApiClient({ auth });
         const track = await createTrack(client, packageName, name);
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
         console.log(formatOutput(track, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -90,7 +91,7 @@ export function registerTracksCommands(program: Command): void {
         const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
         const client = createApiClient({ auth });
         const track = await updateTrackConfig(client, packageName, name, trackConfig);
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
         console.log(formatOutput(track, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
