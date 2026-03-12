@@ -821,14 +821,15 @@ describe("monetization API endpoints", () => {
       expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions/sub1`);
     });
 
-    it("create calls POST /{pkg}/subscriptions", async () => {
+    it("create calls POST /{pkg}/subscriptions with regionsVersion", async () => {
       const sub = { productId: "sub1", packageName: PKG };
       mockFetch.mockResolvedValueOnce(mockResponse(sub));
       const client = makeClient();
       const result = await client.subscriptions.create(PKG, sub as any);
       expect(result).toEqual(sub);
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions`);
+      expect(url).toContain(`${BASE_URL}/${PKG}/subscriptions`);
+      expect(url).toContain("regionsVersion.version=2022%2F02");
       expect(init.method).toBe("POST");
     });
 
@@ -898,7 +899,7 @@ describe("monetization API endpoints", () => {
       expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1/offers`);
     });
 
-    it("createOffer calls POST .../offers", async () => {
+    it("createOffer calls POST .../offers with regionsVersion", async () => {
       const offer = {
         productId: "sub1",
         basePlanId: "bp1",
@@ -910,7 +911,8 @@ describe("monetization API endpoints", () => {
       const client = makeClient();
       await client.subscriptions.createOffer(PKG, "sub1", "bp1", offer as any);
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1/offers`);
+      expect(url).toContain(`${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1/offers`);
+      expect(url).toContain("regionsVersion.version=2022%2F02");
       expect(init.method).toBe("POST");
     });
 
@@ -2094,14 +2096,15 @@ describe("oneTimeProducts", () => {
     expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1`);
   });
 
-  it("create calls POST /{pkg}/oneTimeProducts", async () => {
+  it("create calls POST /{pkg}/oneTimeProducts with regionsVersion", async () => {
     const product = { productId: "otp1", packageName: PKG };
     mockFetch.mockResolvedValueOnce(mockResponse(product));
     const client = makeClient();
     const result = await client.oneTimeProducts.create(PKG, product as any);
     expect(result).toEqual(product);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts`);
+    expect(url).toContain(`${BASE_URL}/${PKG}/oneTimeProducts`);
+    expect(url).toContain("regionsVersion.version=2022%2F02");
     expect(init.method).toBe("POST");
   });
 

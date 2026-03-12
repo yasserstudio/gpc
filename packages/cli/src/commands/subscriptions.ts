@@ -99,6 +99,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .command("create")
     .description("Create a subscription from JSON file")
     .requiredOption("--file <path>", "JSON file with subscription data")
+    .option("--activate", "Activate all base plans after creation")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -110,6 +111,7 @@ export function registerSubscriptionsCommands(program: Command): void {
             command: "subscriptions create",
             action: "create",
             target: `subscription from ${options.file}`,
+            details: options.activate ? { activate: true } : undefined,
           },
           format,
           formatOutput,
@@ -122,7 +124,20 @@ export function registerSubscriptionsCommands(program: Command): void {
       try {
         const data = JSON.parse(await readFile(options.file, "utf-8"));
         const result = await createSubscription(client, packageName, data);
-        console.log(formatOutput(result, format));
+
+        if (options.activate && result.basePlans) {
+          for (const bp of result.basePlans) {
+            if (bp.state === "DRAFT") {
+              await activateBasePlan(client, packageName, result.productId, bp.basePlanId);
+              console.error(`Activated base plan: ${bp.basePlanId}`);
+            }
+          }
+          // Re-fetch to get updated state
+          const updated = await getSubscription(client, packageName, result.productId);
+          console.log(formatOutput(updated, format));
+        } else {
+          console.log(formatOutput(result, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

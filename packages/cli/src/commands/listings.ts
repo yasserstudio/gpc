@@ -197,7 +197,7 @@ export function registerListingsCommands(program: Command): void {
   listings
     .command("pull")
     .description("Download listings to Fastlane-format directory")
-    .option("--dir <path>", "Output directory", "metadata")
+    .option("--dir <path>", "Target directory (default: metadata)", "metadata")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -226,7 +226,7 @@ export function registerListingsCommands(program: Command): void {
   listings
     .command("push")
     .description("Upload listings from Fastlane-format directory")
-    .option("--dir <path>", "Source directory", "metadata")
+    .option("--dir <path>", "Source directory (default: metadata)", "metadata")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);

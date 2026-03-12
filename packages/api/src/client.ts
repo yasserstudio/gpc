@@ -695,10 +695,8 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async create(packageName, body, productId?) {
         const params: Record<string, string> = {};
         if (productId) params["productId"] = productId;
-        const hasParams = Object.keys(params).length > 0;
-        const path = hasParams
-          ? `/${packageName}/subscriptions?${new URLSearchParams(params).toString()}`
-          : `/${packageName}/subscriptions`;
+        params["regionsVersion.version"] = "2022/02";
+        const path = `/${packageName}/subscriptions?${new URLSearchParams(params).toString()}`;
         const { data } = await http.post<Subscription>(path, body);
         return data;
       },
@@ -765,10 +763,8 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async createOffer(packageName, productId, basePlanId, body, offerId?) {
         const params: Record<string, string> = {};
         if (offerId) params["offerId"] = offerId;
-        const hasParams = Object.keys(params).length > 0;
-        const path = hasParams
-          ? `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers?${new URLSearchParams(params).toString()}`
-          : `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers`;
+        params["regionsVersion.version"] = "2022/02";
+        const path = `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers?${new URLSearchParams(params).toString()}`;
         const { data } = await http.post<SubscriptionOffer>(path, body);
         return data;
       },
@@ -1105,8 +1101,9 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async create(packageName, body) {
+        const params = new URLSearchParams({ "regionsVersion.version": "2022/02" });
         const { data } = await http.post<OneTimeProduct>(
-          `/${packageName}/oneTimeProducts`,
+          `/${packageName}/oneTimeProducts?${params.toString()}`,
           body,
         );
         return data;

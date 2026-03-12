@@ -169,7 +169,6 @@ export default defineConfig({
           text: "Project",
           items: [
             { text: "Conventions", link: "/advanced/conventions" },
-            { text: "Roadmap", link: "/roadmap" },
           ],
         },
       ],

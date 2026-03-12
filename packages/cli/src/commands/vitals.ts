@@ -123,6 +123,10 @@ export function registerVitalsCommands(program: Command): void {
 
       try {
         const result = await getVitalsOverview(reporting, packageName);
+        if (format !== "json" && Object.keys(result).length === 0) {
+          console.log("No vitals data available.");
+          return;
+        }
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
