@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "GPC"
   text: "Google Play CLI"
-  tagline: "Ship Android apps from your terminal. 162 API endpoints, one tool."
+  tagline: "Ship Android apps from your terminal. 187 API endpoints, one tool."
   actions:
     - theme: brand
       text: Get Started
@@ -20,7 +20,7 @@ features:
   - icon:
       src: /icons/layers.svg
     title: Full API Coverage
-    details: 162 Google Play Developer API endpoints. Releases, rollouts, metadata, vitals, reviews, subscriptions, purchases, reports, users, and more.
+    details: 187 Google Play Developer API endpoints. Releases, rollouts, metadata, vitals, reviews, subscriptions, purchases, reports, users, and more.
   - icon:
       src: /icons/package.svg
     title: Zero Dependencies
@@ -36,7 +36,7 @@ features:
   - icon:
       src: /icons/shield.svg
     title: Battle-Tested
-    details: 843 tests, 90%+ code coverage, security-audited credential handling, automatic secrets redaction.
+    details: 1000+ tests, 90%+ code coverage, security-audited credential handling, automatic secrets redaction.
   - icon:
       src: /icons/activity.svg
     title: Vitals-Gated Releases

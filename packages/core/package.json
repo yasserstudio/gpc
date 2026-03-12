@@ -33,6 +33,9 @@
     "google-play",
     "core"
   ],
+  "engines": {
+    "node": ">=20"
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public"

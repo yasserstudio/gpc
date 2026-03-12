@@ -6,6 +6,7 @@ import type {
   OffersListResponse,
 } from "@gpc-cli/api";
 import { paginateAll } from "@gpc-cli/api";
+import { validatePackageName, validateSku } from "../utils/validation.js";
 
 export interface ListSubscriptionsOptions {
   pageToken?: string;
@@ -19,6 +20,7 @@ export async function listSubscriptions(
   packageName: string,
   options?: ListSubscriptionsOptions,
 ): Promise<{ subscriptions: Subscription[]; nextPageToken?: string }> {
+  validatePackageName(packageName);
   if (options?.limit || options?.nextPage) {
     const result = await paginateAll<Subscription>(
       async (pageToken) => {
@@ -43,6 +45,8 @@ export async function getSubscription(
   packageName: string,
   productId: string,
 ): Promise<Subscription> {
+  validatePackageName(packageName);
+  validateSku(productId);
   return client.subscriptions.get(packageName, productId);
 }
 
@@ -51,6 +55,7 @@ export async function createSubscription(
   packageName: string,
   data: Subscription,
 ): Promise<Subscription> {
+  validatePackageName(packageName);
   return client.subscriptions.create(packageName, data);
 }
 
@@ -61,6 +66,8 @@ export async function updateSubscription(
   data: Subscription,
   updateMask?: string,
 ): Promise<Subscription> {
+  validatePackageName(packageName);
+  validateSku(productId);
   return client.subscriptions.update(packageName, productId, data, updateMask);
 }
 
@@ -69,6 +76,8 @@ export async function deleteSubscription(
   packageName: string,
   productId: string,
 ): Promise<void> {
+  validatePackageName(packageName);
+  validateSku(productId);
   return client.subscriptions.delete(packageName, productId);
 }
 
@@ -78,6 +87,8 @@ export async function activateBasePlan(
   productId: string,
   basePlanId: string,
 ): Promise<Subscription> {
+  validatePackageName(packageName);
+  validateSku(productId);
   return client.subscriptions.activateBasePlan(packageName, productId, basePlanId);
 }
 
@@ -87,6 +98,8 @@ export async function deactivateBasePlan(
   productId: string,
   basePlanId: string,
 ): Promise<Subscription> {
+  validatePackageName(packageName);
+  validateSku(productId);
   return client.subscriptions.deactivateBasePlan(packageName, productId, basePlanId);
 }
 
@@ -96,6 +109,8 @@ export async function deleteBasePlan(
   productId: string,
   basePlanId: string,
 ): Promise<void> {
+  validatePackageName(packageName);
+  validateSku(productId);
   return client.subscriptions.deleteBasePlan(packageName, productId, basePlanId);
 }
 
@@ -106,6 +121,8 @@ export async function migratePrices(
   basePlanId: string,
   data: BasePlanMigratePricesRequest,
 ): Promise<Subscription> {
+  validatePackageName(packageName);
+  validateSku(productId);
   return client.subscriptions.migratePrices(packageName, productId, basePlanId, data);
 }
 
@@ -115,6 +132,8 @@ export async function listOffers(
   productId: string,
   basePlanId: string,
 ): Promise<OffersListResponse> {
+  validatePackageName(packageName);
+  validateSku(productId);
   return client.subscriptions.listOffers(packageName, productId, basePlanId);
 }
 
@@ -125,6 +144,8 @@ export async function getOffer(
   basePlanId: string,
   offerId: string,
 ): Promise<SubscriptionOffer> {
+  validatePackageName(packageName);
+  validateSku(productId);
   return client.subscriptions.getOffer(packageName, productId, basePlanId, offerId);
 }
 
@@ -135,6 +156,8 @@ export async function createOffer(
   basePlanId: string,
   data: SubscriptionOffer,
 ): Promise<SubscriptionOffer> {
+  validatePackageName(packageName);
+  validateSku(productId);
   return client.subscriptions.createOffer(packageName, productId, basePlanId, data);
 }
 
@@ -147,6 +170,8 @@ export async function updateOffer(
   data: SubscriptionOffer,
   updateMask?: string,
 ): Promise<SubscriptionOffer> {
+  validatePackageName(packageName);
+  validateSku(productId);
   return client.subscriptions.updateOffer(
     packageName,
     productId,
@@ -164,6 +189,8 @@ export async function deleteOffer(
   basePlanId: string,
   offerId: string,
 ): Promise<void> {
+  validatePackageName(packageName);
+  validateSku(productId);
   return client.subscriptions.deleteOffer(packageName, productId, basePlanId, offerId);
 }
 
@@ -174,6 +201,8 @@ export async function activateOffer(
   basePlanId: string,
   offerId: string,
 ): Promise<SubscriptionOffer> {
+  validatePackageName(packageName);
+  validateSku(productId);
   return client.subscriptions.activateOffer(packageName, productId, basePlanId, offerId);
 }
 
@@ -184,5 +213,7 @@ export async function deactivateOffer(
   basePlanId: string,
   offerId: string,
 ): Promise<SubscriptionOffer> {
+  validatePackageName(packageName);
+  validateSku(productId);
   return client.subscriptions.deactivateOffer(packageName, productId, basePlanId, offerId);
 }

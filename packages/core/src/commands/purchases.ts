@@ -4,6 +4,7 @@ import type {
   SubscriptionPurchaseV2,
   SubscriptionDeferResponse,
 } from "@gpc-cli/api";
+import { validatePackageName } from "../utils/validation.js";
 
 export async function getProductPurchase(
   client: PlayApiClient,
@@ -11,6 +12,7 @@ export async function getProductPurchase(
   productId: string,
   token: string,
 ): Promise<ProductPurchase> {
+  validatePackageName(packageName);
   return client.purchases.getProduct(packageName, productId, token);
 }
 
@@ -21,6 +23,7 @@ export async function acknowledgeProductPurchase(
   token: string,
   payload?: string,
 ): Promise<void> {
+  validatePackageName(packageName);
   const body = payload ? { developerPayload: payload } : undefined;
   return client.purchases.acknowledgeProduct(packageName, productId, token, body);
 }
@@ -31,6 +34,7 @@ export async function consumeProductPurchase(
   productId: string,
   token: string,
 ): Promise<void> {
+  validatePackageName(packageName);
   return client.purchases.consumeProduct(packageName, productId, token);
 }
 
@@ -39,6 +43,7 @@ export async function getSubscriptionPurchase(
   packageName: string,
   token: string,
 ): Promise<SubscriptionPurchaseV2> {
+  validatePackageName(packageName);
   return client.purchases.getSubscriptionV2(packageName, token);
 }
 
@@ -48,6 +53,7 @@ export async function cancelSubscriptionPurchase(
   subscriptionId: string,
   token: string,
 ): Promise<void> {
+  validatePackageName(packageName);
   return client.purchases.cancelSubscription(packageName, subscriptionId, token);
 }
 
@@ -58,6 +64,7 @@ export async function deferSubscriptionPurchase(
   token: string,
   desiredExpiry: string,
 ): Promise<SubscriptionDeferResponse> {
+  validatePackageName(packageName);
   const sub = await client.purchases.getSubscriptionV1(packageName, subscriptionId, token);
   return client.purchases.deferSubscription(packageName, subscriptionId, token, {
     deferralInfo: {
@@ -72,6 +79,7 @@ export async function revokeSubscriptionPurchase(
   packageName: string,
   token: string,
 ): Promise<void> {
+  validatePackageName(packageName);
   return client.purchases.revokeSubscriptionV2(packageName, token);
 }
 
@@ -91,6 +99,7 @@ export async function listVoidedPurchases(
   packageName: string,
   options?: ListVoidedOptions,
 ): Promise<{ voidedPurchases: VoidedPurchase[]; nextPageToken?: string }> {
+  validatePackageName(packageName);
   if (options?.limit || options?.nextPage) {
     const result = await paginateAll<VoidedPurchase>(
       async (pageToken) => {
@@ -118,5 +127,6 @@ export async function refundOrder(
   orderId: string,
   options?: { fullRefund?: boolean; proratedRefund?: boolean },
 ): Promise<void> {
+  validatePackageName(packageName);
   return client.orders.refund(packageName, orderId, options);
 }

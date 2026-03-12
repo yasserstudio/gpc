@@ -6,6 +6,10 @@ outline: deep
 
 Manage legacy in-app products (one-time purchases, consumables, non-consumables).
 
+::: warning Legacy API
+These commands use the older in-app products API. **For new products, use [`gpc otp`](./one-time-products) instead** — it provides richer features including regional pricing, product tags, and offer management.
+:::
+
 ## Commands
 
 | Command                     | Description                                         |

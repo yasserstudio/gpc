@@ -41,9 +41,8 @@ export async function writeAuditLog(entry: AuditEntry): Promise<void> {
 }
 
 const SENSITIVE_ARG_KEYS = new Set([
-  "key",
   "keyFile",
-  "key-file",
+  "key_file",
   "serviceAccount",
   "service-account",
   "token",
@@ -51,10 +50,29 @@ const SENSITIVE_ARG_KEYS = new Set([
   "secret",
   "credentials",
   "private_key",
+  "privateKey",
+  "private_key_id",
+  "privateKeyId",
   "client_secret",
+  "clientSecret",
+  "accessToken",
+  "access_token",
+  "refreshToken",
+  "refresh_token",
+  "apiKey",
+  "api_key",
+  "auth_token",
+  "bearer",
+  "jwt",
+  "signing_key",
+  "keystore_password",
+  "store_password",
+  "key_password",
 ]);
 
-function redactAuditArgs(entry: AuditEntry): AuditEntry {
+export { SENSITIVE_ARG_KEYS };
+
+export function redactAuditArgs(entry: AuditEntry): AuditEntry {
   const redacted: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(entry.args)) {
     redacted[k] = SENSITIVE_ARG_KEYS.has(k) ? "[REDACTED]" : v;
