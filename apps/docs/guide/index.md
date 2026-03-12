@@ -4,7 +4,7 @@ outline: deep
 
 # What is GPC?
 
-GPC is a TypeScript CLI that wraps the entire Google Play Developer API v3 into a single command-line tool. It covers 162 API endpoints across 10 command groups: releases, listings, reviews, vitals, subscriptions, in-app products, purchases, reports, testers, and user management.
+GPC is a TypeScript CLI that wraps the entire Google Play Developer API v3 into a single command-line tool. It covers 187 API endpoints across 10 command groups: releases, listings, reviews, vitals, subscriptions, in-app products, purchases, reports, testers, and user management.
 
 GPC replaces fragmented tooling (Fastlane supply, gradle-play-publisher, Console UI) with one tool that works identically in your terminal and in CI/CD pipelines.
 
@@ -63,7 +63,7 @@ Dependency flow: `cli` calls `core`, which calls `api`, `auth`, and `config`. Th
 | **Dry run**          | All write operations                                 | None                   | None                  | N/A            |
 | **Auth methods**     | Service account, OAuth, ADC, env var                 | Service account        | Service account       | Google account |
 | **Profiles**         | Multi-profile switching                              | None                   | None                  | N/A            |
-| **API endpoints**    | 162                                                  | ~15                    | ~10                   | All (manual)   |
+| **API endpoints**    | 187                                                  | ~15                    | ~10                   | All (manual)   |
 
 ## Key Design Decisions
 
