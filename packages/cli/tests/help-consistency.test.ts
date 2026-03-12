@@ -204,6 +204,7 @@ const EXPECTED_TOP_LEVEL_COMMANDS = [
   "migrate",
   "docs",
   "completion",
+  "install-skills",
 ];
 
 describe("help text consistency", () => {
