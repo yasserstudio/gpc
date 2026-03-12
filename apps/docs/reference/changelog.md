@@ -6,7 +6,15 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.12 <Badge type="tip" text="latest" />
+## v0.9.13 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **`gpc install-skills`** — interactive wizard for installing agent skills (pick skills, target agents, review security, install)
+- Updated Homebrew formula to v0.9.13 with standalone binaries for all 5 platforms
+- Docs consistency pass — all version, endpoint, and test count references aligned
+
+## v0.9.12
 
 _March 2026_
 
