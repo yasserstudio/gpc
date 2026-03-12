@@ -30,7 +30,7 @@ GPC follows a phased development approach. All nine foundational phases are comp
 - Performance optimization (lazy loading, HTTP compression, connection keep-alive)
 - In-memory token cache with mutex deduplication
 - Parallel pagination helper and async config discovery
-- 90%+ test coverage on all core packages (930+ tests)
+- 90%+ test coverage on all core packages (1,255 tests)
 - Standalone binary (esbuild bundle + Bun compile, 5 platforms)
 - Homebrew tap (`brew install yasserstudio/tap/gpc`)
 - npm publish (`npm install -g @gpc-cli/cli`)
@@ -42,13 +42,13 @@ GPC follows a phased development approach. All nine foundational phases are comp
 
 The remaining items before the stable `1.0.0` release:
 
-- [ ] Final API coverage audit (verify all ~187 endpoints)
+- [x] Final API coverage audit (187 endpoints verified)
+- [x] Performance benchmarks (cold start < 300ms, sub-ms command latency)
+- [x] Security review and credential hardening
+- [x] npm publish automation refinement (provenance, dry-run, verification)
+- [x] Documentation completeness review
 - [ ] End-to-end testing against live apps
-- [ ] Performance benchmarks and optimization pass
-- [ ] Documentation completeness review
 - [ ] Wall of Apps community showcase
-- [ ] Security review and penetration testing
-- [ ] npm publish automation refinement (Changesets workflow)
 
 Once these items are addressed and the CLI has been validated in production workflows, the version will bump from `0.9.x` to `1.0.0`.
 
@@ -67,9 +67,9 @@ Features and directions planned after the stable release:
 ## Current Status
 
 - **Version:** `0.9.x` pre-release series
-- **Tests:** 930+ across 7 packages + e2e
+- **Tests:** 1,255 across 7 packages + e2e
 - **Coverage:** 90%+ line coverage on all core packages
-- **API endpoints:** ~187 (complete coverage)
+- **API endpoints:** 187 (complete coverage)
 - **Packages:** 7 published under `@gpc-cli` scope on npm
 - **Docs:** [yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)
 - **Install:** `npm install -g @gpc-cli/cli` or `brew install yasserstudio/tap/gpc`

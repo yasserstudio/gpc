@@ -6,7 +6,20 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.11 <Badge type="tip" text="latest" />
+## v0.9.12 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **Input validation** at core layer for package names, SKUs, version codes, language codes, and track names
+- **Security hardening** — aligned sensitive key redaction (23 field patterns), error message truncation to prevent key leakage
+- **1,255 tests** (up from 932) — added API coverage, credential security, redaction, error codes, help consistency, e2e tests
+- Performance benchmarks: CLI cold start under 300ms, command latency sub-millisecond
+- License compliance checker for all production dependencies
+- New docs: tracks command page, interactive mode and dry-run guides
+- Release workflow: pre-publish dry-run, npm provenance, post-publish verification
+- `engines.node >= 20` declared on all packages
+
+## v0.9.11
 
 _March 2026_
 

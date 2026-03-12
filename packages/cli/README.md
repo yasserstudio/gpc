@@ -36,7 +36,7 @@ gpc reviews list --stars 1-3 --since 7d
 
 ## What You Get
 
-162 API endpoints across 10 command groups:
+187 API endpoints across 10 command groups:
 
 | Command Group     | Examples                                                       |
 | ----------------- | -------------------------------------------------------------- |

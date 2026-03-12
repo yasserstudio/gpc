@@ -8,14 +8,14 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-932_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-1255_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
 <p align="center"><strong>Ship Android apps from your terminal.</strong></p>
 
 <p align="center">
-The complete CLI for Google Play — 197+ API endpoints, one tool.<br>
+The complete CLI for Google Play — 187 API endpoints, one tool.<br>
 Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.
 </p>
 
@@ -78,7 +78,7 @@ GPC covers the **entire Google Play Developer API** in one CLI. No Ruby. No brow
 
 |                     | **GPC**                      | Fastlane supply | gradle-play-publisher | Console UI   |
 | ------------------- | ---------------------------- | --------------- | --------------------- | ------------ |
-| API coverage        | **162 endpoints**            | ~20             | ~15                   | All (manual) |
+| API coverage        | **187 endpoints**            | ~20             | ~15                   | All (manual) |
 | Standalone CLI      | Yes                          | Yes             | No (Gradle only)      | N/A          |
 | Runtime             | Node.js                      | Ruby + Bundler  | JVM                   | Browser      |
 | JSON output         | Structured + TTY-aware       | Partial         | No                    | No           |
@@ -88,9 +88,9 @@ GPC covers the **entire Google Play Developer API** in one CLI. No Ruby. No brow
 | Cold start          | <500ms                       | 2-3s            | 3-5s                  | 5-10s        |
 | Plugin system       | Yes                          | No              | No                    | No           |
 | Interactive mode    | Yes (guided prompts)         | No              | No                    | N/A          |
-| Test suite          | 843 tests, 90%+ coverage     | —               | —                     | —            |
+| Test suite          | 1,255 tests, 90%+ coverage   | —               | —                     | —            |
 
-See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 162 endpoints.
+See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 187 endpoints.
 
 ---
 
@@ -494,7 +494,7 @@ git clone https://github.com/yasserstudio/gpc.git
 cd gpc
 pnpm install
 pnpm build
-pnpm test    # 843 tests across 7 packages
+pnpm test    # 1,255 tests across 7 packages
 ```
 
 ---
@@ -521,7 +521,7 @@ pnpm test    # 843 tests across 7 packages
 
 <p align="center">
   GPC was built entirely with <a href="https://claude.ai/claude-code">Claude Code</a> — from architecture design through implementation, testing, and documentation.<br>
-  843 tests, 7 packages, 90%+ coverage, all written through AI-assisted development.
+  1,255 tests, 7 packages, 90%+ coverage, all written through AI-assisted development.
 </p>
 
 ---
