@@ -57,14 +57,32 @@ export async function createOneTimeProduct(
   }
 }
 
+const OTP_ID_FIELDS = new Set(["productId", "packageName"]);
+
+function deriveOtpUpdateMask(data: Partial<OneTimeProduct>): string {
+  return Object.keys(data)
+    .filter((k) => !OTP_ID_FIELDS.has(k))
+    .join(",");
+}
+
+const OTP_OFFER_ID_FIELDS = new Set(["productId", "offerId"]);
+
+function deriveOtpOfferUpdateMask(data: Partial<OneTimeOffer>): string {
+  return Object.keys(data)
+    .filter((k) => !OTP_OFFER_ID_FIELDS.has(k))
+    .join(",");
+}
+
 export async function updateOneTimeProduct(
   client: PlayApiClient,
   packageName: string,
   productId: string,
   data: Partial<OneTimeProduct>,
+  updateMask?: string,
 ): Promise<OneTimeProduct> {
   try {
-    return await client.oneTimeProducts.update(packageName, productId, data);
+    const mask = updateMask || deriveOtpUpdateMask(data);
+    return await client.oneTimeProducts.update(packageName, productId, data, mask);
   } catch (error) {
     throw new GpcError(
       `Failed to update one-time product "${productId}": ${error instanceof Error ? error.message : String(error)}`,
@@ -151,9 +169,11 @@ export async function updateOneTimeOffer(
   productId: string,
   offerId: string,
   data: Partial<OneTimeOffer>,
+  updateMask?: string,
 ): Promise<OneTimeOffer> {
   try {
-    return await client.oneTimeProducts.updateOffer(packageName, productId, offerId, data);
+    const mask = updateMask || deriveOtpOfferUpdateMask(data);
+    return await client.oneTimeProducts.updateOffer(packageName, productId, offerId, data, mask);
   } catch (error) {
     throw new GpcError(
       `Failed to update offer "${offerId}" for product "${productId}": ${error instanceof Error ? error.message : String(error)}`,
@@ -162,6 +182,32 @@ export async function updateOneTimeOffer(
       "Check that the product and offer IDs exist and the data is valid.",
     );
   }
+}
+
+export interface OneTimeProductDiff {
+  field: string;
+  local: string;
+  remote: string;
+}
+
+export async function diffOneTimeProduct(
+  client: PlayApiClient,
+  packageName: string,
+  productId: string,
+  localData: OneTimeProduct,
+): Promise<OneTimeProductDiff[]> {
+  const remote = await client.oneTimeProducts.get(packageName, productId);
+  const diffs: OneTimeProductDiff[] = [];
+  const fieldsToCompare = ["listings", "purchaseType", "taxAndComplianceSettings"];
+
+  for (const field of fieldsToCompare) {
+    const localVal = JSON.stringify((localData as unknown as Record<string, unknown>)[field] ?? null);
+    const remoteVal = JSON.stringify((remote as unknown as Record<string, unknown>)[field] ?? null);
+    if (localVal !== remoteVal) {
+      diffs.push({ field, local: localVal, remote: remoteVal });
+    }
+  }
+  return diffs;
 }
 
 export async function deleteOneTimeOffer(

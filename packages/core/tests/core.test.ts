@@ -31,6 +31,7 @@ import {
   createTrack,
   updateTrackConfig,
   uploadExternallyHosted,
+  diffReleases,
 } from "../src/commands/releases.js";
 import {
   getListings,
@@ -1956,6 +1957,7 @@ import {
   deleteOffer,
   activateOffer,
   deactivateOffer,
+  diffSubscription,
 } from "../src/commands/subscriptions.js";
 
 describe("subscriptions commands", () => {
@@ -2090,6 +2092,41 @@ describe("subscriptions commands", () => {
       "bp1",
       "o1",
     );
+  });
+
+  it("diffSubscription returns diffs for changed fields", async () => {
+    const client = {
+      subscriptions: {
+        get: vi.fn().mockResolvedValue({
+          productId: "sub1",
+          listings: { "en-US": { title: "Remote" } },
+          basePlans: [{ basePlanId: "bp1" }],
+        }),
+      },
+    };
+    const localData = {
+      productId: "sub1",
+      listings: { "en-US": { title: "Local" } },
+      basePlans: [{ basePlanId: "bp1" }],
+    } as any;
+    const diffs = await diffSubscription(client as any, "com.example", "sub1", localData);
+    expect(diffs).toHaveLength(1);
+    expect(diffs[0].field).toBe("listings");
+  });
+
+  it("diffSubscription returns empty when identical", async () => {
+    const data = {
+      productId: "sub1",
+      listings: { "en-US": { title: "Same" } },
+      basePlans: [],
+    };
+    const client = {
+      subscriptions: {
+        get: vi.fn().mockResolvedValue(data),
+      },
+    };
+    const diffs = await diffSubscription(client as any, "com.example", "sub1", data as any);
+    expect(diffs).toHaveLength(0);
   });
 });
 
@@ -4469,6 +4506,7 @@ import {
   createOneTimeOffer,
   updateOneTimeOffer,
   deleteOneTimeOffer,
+  diffOneTimeProduct,
 } from "../src/commands/one-time-products.js";
 
 describe("one-time products commands", () => {
@@ -4510,11 +4548,18 @@ describe("one-time products commands", () => {
     expect(client.oneTimeProducts.create).toHaveBeenCalledWith("com.example", data);
   });
 
-  it("updateOneTimeProduct calls client.oneTimeProducts.update", async () => {
+  it("updateOneTimeProduct auto-derives updateMask", async () => {
     const client = mockClient();
-    const data = { productId: "otp1" } as any;
+    const data = { productId: "otp1", listings: {} } as any;
     await updateOneTimeProduct(client, "com.example", "otp1", data);
-    expect(client.oneTimeProducts.update).toHaveBeenCalledWith("com.example", "otp1", data);
+    expect(client.oneTimeProducts.update).toHaveBeenCalledWith("com.example", "otp1", data, "listings");
+  });
+
+  it("updateOneTimeProduct passes explicit updateMask", async () => {
+    const client = mockClient();
+    const data = { productId: "otp1", listings: {} } as any;
+    await updateOneTimeProduct(client, "com.example", "otp1", data, "listings,purchaseType");
+    expect(client.oneTimeProducts.update).toHaveBeenCalledWith("com.example", "otp1", data, "listings,purchaseType");
   });
 
   it("deleteOneTimeProduct calls client.oneTimeProducts.delete", async () => {
@@ -4544,15 +4589,16 @@ describe("one-time products commands", () => {
     expect(client.oneTimeProducts.createOffer).toHaveBeenCalledWith("com.example", "otp1", data);
   });
 
-  it("updateOneTimeOffer calls client.oneTimeProducts.updateOffer", async () => {
+  it("updateOneTimeOffer auto-derives updateMask", async () => {
     const client = mockClient();
-    const data = { offerId: "offer1" } as any;
+    const data = { offerId: "offer1", pricing: {} } as any;
     await updateOneTimeOffer(client, "com.example", "otp1", "offer1", data);
     expect(client.oneTimeProducts.updateOffer).toHaveBeenCalledWith(
       "com.example",
       "otp1",
       "offer1",
       data,
+      "pricing",
     );
   });
 
@@ -4586,6 +4632,37 @@ describe("one-time products commands", () => {
     await expect(getOneTimeOffer(client as any, "com.example", "otp1", "offer1")).rejects.toThrow(
       "Failed to get offer",
     );
+  });
+
+  it("diffOneTimeProduct returns diffs for changed fields", async () => {
+    const client = {
+      oneTimeProducts: {
+        get: vi.fn().mockResolvedValue({
+          productId: "otp1",
+          listings: { "en-US": { title: "Remote Title" } },
+          purchaseType: "managedUser",
+        }),
+      },
+    };
+    const localData = {
+      productId: "otp1",
+      listings: { "en-US": { title: "Local Title" } },
+      purchaseType: "managedUser",
+    } as any;
+    const diffs = await diffOneTimeProduct(client as any, "com.example", "otp1", localData);
+    expect(diffs).toHaveLength(1);
+    expect(diffs[0].field).toBe("listings");
+  });
+
+  it("diffOneTimeProduct returns empty array when identical", async () => {
+    const data = { productId: "otp1", listings: { "en-US": { title: "Same" } } };
+    const client = {
+      oneTimeProducts: {
+        get: vi.fn().mockResolvedValue(data),
+      },
+    };
+    const diffs = await diffOneTimeProduct(client as any, "com.example", "otp1", data as any);
+    expect(diffs).toHaveLength(0);
   });
 });
 
@@ -4737,6 +4814,45 @@ describe("uploadExternallyHosted", () => {
     } as any;
     await expect(uploadExternallyHosted(client, "com.example", data)).rejects.toThrow("API failure");
     expect(client.edits.delete).toHaveBeenCalledWith("com.example", "edit-1");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Releases diff
+// ---------------------------------------------------------------------------
+describe("diffReleases", () => {
+  function mockClient(fromRelease: any, toRelease: any): any {
+    return {
+      edits: {
+        insert: vi.fn().mockResolvedValue({ id: "edit-1", expiryTimeSeconds: "9999" }),
+        delete: vi.fn().mockResolvedValue(undefined),
+      },
+      tracks: {
+        get: vi.fn().mockImplementation((_pkg: string, _edit: string, track: string) => {
+          if (track === "internal") return { track: "internal", releases: fromRelease ? [fromRelease] : [] };
+          return { track: "production", releases: toRelease ? [toRelease] : [] };
+        }),
+      },
+    };
+  }
+
+  it("returns diffs when releases differ", async () => {
+    const client = mockClient(
+      { versionCodes: ["100"], status: "completed", name: "v1.0" },
+      { versionCodes: ["99"], status: "inProgress", userFraction: 0.5, name: "v0.9" },
+    );
+    const result = await diffReleases(client, "com.example", "internal", "production");
+    expect(result.fromTrack).toBe("internal");
+    expect(result.toTrack).toBe("production");
+    expect(result.diffs.length).toBeGreaterThan(0);
+    expect(result.diffs.some((d: any) => d.field === "versionCodes")).toBe(true);
+  });
+
+  it("returns no diffs when releases are identical", async () => {
+    const release = { versionCodes: ["100"], status: "completed", name: "v1.0" };
+    const client = mockClient(release, release);
+    const result = await diffReleases(client, "com.example", "internal", "production");
+    expect(result.diffs).toHaveLength(0);
   });
 });
 

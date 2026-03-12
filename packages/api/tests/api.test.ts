@@ -2110,13 +2110,34 @@ describe("oneTimeProducts", () => {
     expect(init.method).toBe("POST");
   });
 
-  it("update calls PATCH /{pkg}/oneTimeProducts/{id}", async () => {
+  it("update calls PATCH /{pkg}/oneTimeProducts/{id} with regionsVersion", async () => {
     const product = { productId: "otp1", packageName: PKG };
     mockFetch.mockResolvedValueOnce(mockResponse(product));
     const client = makeClient();
     await client.oneTimeProducts.update(PKG, "otp1", product as any);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1`);
+    expect(url).toContain(`${BASE_URL}/${PKG}/oneTimeProducts/otp1`);
+    expect(url).toContain("regionsVersion.version=2022%2F02");
+    expect(init.method).toBe("PATCH");
+  });
+
+  it("update passes updateMask when provided", async () => {
+    const product = { productId: "otp1", packageName: PKG };
+    mockFetch.mockResolvedValueOnce(mockResponse(product));
+    const client = makeClient();
+    await client.oneTimeProducts.update(PKG, "otp1", product as any, "listings");
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("updateMask=listings");
+  });
+
+  it("updateOffer passes regionsVersion and updateMask", async () => {
+    const offer = { productId: "otp1", offerId: "offer1" };
+    mockFetch.mockResolvedValueOnce(mockResponse(offer));
+    const client = makeClient();
+    await client.oneTimeProducts.updateOffer(PKG, "otp1", "offer1", offer as any, "pricing");
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toContain("updateMask=pricing");
+    expect(url).toContain("regionsVersion.version=2022%2F02");
     expect(init.method).toBe("PATCH");
   });
 

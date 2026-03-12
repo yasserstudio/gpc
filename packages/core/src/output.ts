@@ -141,6 +141,13 @@ function formatYaml(data: unknown, indent = 0): string {
   return String(data);
 }
 
+const MAX_CELL_WIDTH = 60;
+
+function truncateCell(value: string): string {
+  if (value.length <= MAX_CELL_WIDTH) return value;
+  return value.slice(0, MAX_CELL_WIDTH - 3) + "...";
+}
+
 function cellValue(val: unknown): string {
   if (val === null || val === undefined) return "";
   if (typeof val === "object") {
@@ -160,13 +167,13 @@ function formatTable(data: unknown): string {
   if (keys.length === 0) return "";
 
   const widths = keys.map((key) =>
-    Math.max(key.length, ...rows.map((row) => cellValue(row[key]).length)),
+    Math.max(key.length, ...rows.map((row) => truncateCell(cellValue(row[key])).length)),
   );
 
   const header = keys.map((key, i) => key.padEnd(widths[i] ?? 0)).join("  ");
   const separator = widths.map((w) => "-".repeat(w)).join("  ");
   const body = rows
-    .map((row) => keys.map((key, i) => cellValue(row[key]).padEnd(widths[i] ?? 0)).join("  "))
+    .map((row) => keys.map((key, i) => truncateCell(cellValue(row[key])).padEnd(widths[i] ?? 0)).join("  "))
     .join("\n");
 
   return `${header}\n${separator}\n${body}`;
@@ -182,7 +189,7 @@ function formatMarkdown(data: unknown): string {
   if (keys.length === 0) return "";
 
   const widths = keys.map((key) =>
-    Math.max(key.length, ...rows.map((row) => cellValue(row[key]).length)),
+    Math.max(key.length, ...rows.map((row) => truncateCell(cellValue(row[key])).length)),
   );
 
   const header = `| ${keys.map((key, i) => key.padEnd(widths[i] ?? 0)).join(" | ")} |`;
@@ -190,7 +197,7 @@ function formatMarkdown(data: unknown): string {
   const body = rows
     .map(
       (row) =>
-        `| ${keys.map((key, i) => cellValue(row[key]).padEnd(widths[i] ?? 0)).join(" | ")} |`,
+        `| ${keys.map((key, i) => truncateCell(cellValue(row[key])).padEnd(widths[i] ?? 0)).join(" | ")} |`,
     )
     .join("\n");
 

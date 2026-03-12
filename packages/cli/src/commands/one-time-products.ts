@@ -1,9 +1,9 @@
-import { readFile } from "node:fs/promises";
 import type { GpcConfig } from "@gpc-cli/config";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
+import type { OneTimeProduct } from "@gpc-cli/api";
 import {
   listOneTimeProducts,
   getOneTimeProduct,
@@ -15,12 +15,14 @@ import {
   createOneTimeOffer,
   updateOneTimeOffer,
   deleteOneTimeOffer,
+  diffOneTimeProduct,
   formatOutput,
   sortResults,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
+import { readJsonFile } from "../json.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -57,7 +59,17 @@ export function registerOneTimeProductsCommands(program: Command): void {
         if (options.sort) {
           result.oneTimeProducts = sortResults(result.oneTimeProducts, options.sort);
         }
-        console.log(formatOutput(result, format));
+        if (format !== "json") {
+          const summary = (result.oneTimeProducts || []).map((p: OneTimeProduct) => ({
+            productId: p.productId,
+            purchaseType: (p as Record<string, unknown>)["purchaseType"] || "-",
+            listings: p.listings ? Object.keys(p.listings).length : 0,
+            firstTitle: p.listings ? Object.values(p.listings)[0]?.title || "-" : "-",
+          }));
+          console.log(formatOutput(summary, format));
+        } else {
+          console.log(formatOutput(result, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
@@ -107,8 +119,8 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const client = await getClient(config);
 
       try {
-        const data = JSON.parse(await readFile(options.file, "utf-8"));
-        const result = await createOneTimeProduct(client, packageName, data);
+        const data = await readJsonFile(options.file);
+        const result = await createOneTimeProduct(client, packageName, data as any);
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -120,6 +132,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
     .command("update <product-id>")
     .description("Update a one-time product from JSON file")
     .requiredOption("--file <path>", "JSON file with product data")
+    .option("--update-mask <fields>", "Comma-separated field mask")
     .action(async (productId: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -142,8 +155,8 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const client = await getClient(config);
 
       try {
-        const data = JSON.parse(await readFile(options.file, "utf-8"));
-        const result = await updateOneTimeProduct(client, packageName, productId, data);
+        const data = await readJsonFile(options.file);
+        const result = await updateOneTimeProduct(client, packageName, productId, data as any, options.updateMask);
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -254,8 +267,8 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const client = await getClient(config);
 
       try {
-        const data = JSON.parse(await readFile(options.file, "utf-8"));
-        const result = await createOneTimeOffer(client, packageName, productId, data);
+        const data = await readJsonFile(options.file);
+        const result = await createOneTimeOffer(client, packageName, productId, data as any);
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -267,7 +280,8 @@ export function registerOneTimeProductsCommands(program: Command): void {
     .command("update <product-id> <offer-id>")
     .description("Update an offer from JSON file")
     .requiredOption("--file <path>", "JSON file with offer data")
-    .action(async (productId: string, offerId: string, options: { file: string }) => {
+    .option("--update-mask <fields>", "Comma-separated field mask")
+    .action(async (productId: string, offerId: string, options: { file: string; updateMask?: string }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const format = getOutputFormat(program, config);
@@ -289,8 +303,8 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const client = await getClient(config);
 
       try {
-        const data = JSON.parse(await readFile(options.file, "utf-8"));
-        const result = await updateOneTimeOffer(client, packageName, productId, offerId, data);
+        const data = await readJsonFile(options.file);
+        const result = await updateOneTimeOffer(client, packageName, productId, offerId, data as any, options.updateMask);
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -326,6 +340,31 @@ export function registerOneTimeProductsCommands(program: Command): void {
       try {
         await deleteOneTimeOffer(client, packageName, productId, offerId);
         console.log(`Offer ${offerId} deleted.`);
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  // --- Diff ---
+  otp
+    .command("diff <product-id>")
+    .description("Compare local JSON file against remote one-time product")
+    .requiredOption("--file <path>", "Local JSON file to compare against remote")
+    .action(async (productId: string, options: { file: string }) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = getOutputFormat(program, config);
+
+      try {
+        const localData = await readJsonFile(options.file) as OneTimeProduct;
+        const diffs = await diffOneTimeProduct(client, packageName, productId, localData);
+        if (diffs.length === 0) {
+          console.log("No differences found.");
+        } else {
+          console.log(formatOutput(diffs, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
