@@ -6,7 +6,15 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.13 <Badge type="tip" text="latest" />
+## v0.9.14 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **Fix: subscriptions API paths** — removed incorrect `/monetization/` segment from all 17 subscription endpoint paths (list, get, create, update, delete, basePlans, offers)
+- **Fix: convertRegionPrices path** — corrected from `/monetization/convertRegionPrices` to `/pricing:convertRegionPrices`
+- Added troubleshooting docs for enabling the Play Developer Reporting API (required for vitals commands)
+
+## v0.9.13
 
 _March 2026_
 

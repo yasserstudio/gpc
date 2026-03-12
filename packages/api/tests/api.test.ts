@@ -801,34 +801,34 @@ describe("monetization API endpoints", () => {
   // --- subscriptions ---
 
   describe("subscriptions", () => {
-    it("list calls GET /{pkg}/monetization/subscriptions", async () => {
+    it("list calls GET /{pkg}/subscriptions", async () => {
       mockFetch.mockResolvedValueOnce(mockResponse({ subscriptions: [] }));
       const client = makeClient();
       const result = await client.subscriptions.list(PKG);
       expect(result).toEqual({ subscriptions: [] });
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions`);
+      expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions`);
       expect(init.method).toBe("GET");
     });
 
-    it("get calls GET /{pkg}/monetization/subscriptions/{id}", async () => {
+    it("get calls GET /{pkg}/subscriptions/{id}", async () => {
       const sub = { productId: "sub1", packageName: PKG };
       mockFetch.mockResolvedValueOnce(mockResponse(sub));
       const client = makeClient();
       const result = await client.subscriptions.get(PKG, "sub1");
       expect(result).toEqual(sub);
       const [url] = mockFetch.mock.calls[0];
-      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1`);
+      expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions/sub1`);
     });
 
-    it("create calls POST /{pkg}/monetization/subscriptions", async () => {
+    it("create calls POST /{pkg}/subscriptions", async () => {
       const sub = { productId: "sub1", packageName: PKG };
       mockFetch.mockResolvedValueOnce(mockResponse(sub));
       const client = makeClient();
       const result = await client.subscriptions.create(PKG, sub as any);
       expect(result).toEqual(sub);
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions`);
+      expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions`);
       expect(init.method).toBe("POST");
     });
 
@@ -838,16 +838,16 @@ describe("monetization API endpoints", () => {
       const client = makeClient();
       await client.subscriptions.update(PKG, "sub1", sub as any, "listings,basePlans");
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toContain(`/monetization/subscriptions/sub1?updateMask=listings%2CbasePlans`);
+      expect(url).toContain(`/subscriptions/sub1?updateMask=listings%2CbasePlans`);
       expect(init.method).toBe("PATCH");
     });
 
-    it("delete calls DELETE /{pkg}/monetization/subscriptions/{id}", async () => {
+    it("delete calls DELETE /{pkg}/subscriptions/{id}", async () => {
       mockFetch.mockResolvedValueOnce(mockResponse({}));
       const client = makeClient();
       await client.subscriptions.delete(PKG, "sub1");
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1`);
+      expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions/sub1`);
       expect(init.method).toBe("DELETE");
     });
 
@@ -856,7 +856,7 @@ describe("monetization API endpoints", () => {
       const client = makeClient();
       await client.subscriptions.activateBasePlan(PKG, "sub1", "bp1");
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1:activate`);
+      expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1:activate`);
       expect(init.method).toBe("POST");
     });
 
@@ -866,7 +866,7 @@ describe("monetization API endpoints", () => {
       await client.subscriptions.deactivateBasePlan(PKG, "sub1", "bp1");
       const [url, init] = mockFetch.mock.calls[0];
       expect(url).toBe(
-        `${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1:deactivate`,
+        `${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1:deactivate`,
       );
       expect(init.method).toBe("POST");
     });
@@ -877,7 +877,7 @@ describe("monetization API endpoints", () => {
       const result = await client.subscriptions.listOffers(PKG, "sub1", "bp1");
       expect(result).toEqual({ subscriptionOffers: [] });
       const [url] = mockFetch.mock.calls[0];
-      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers`);
+      expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1/offers`);
     });
 
     it("createOffer calls POST .../offers", async () => {
@@ -892,7 +892,7 @@ describe("monetization API endpoints", () => {
       const client = makeClient();
       await client.subscriptions.createOffer(PKG, "sub1", "bp1", offer as any);
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers`);
+      expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1/offers`);
       expect(init.method).toBe("POST");
     });
 
@@ -902,7 +902,7 @@ describe("monetization API endpoints", () => {
       await client.subscriptions.activateOffer(PKG, "sub1", "bp1", "o1");
       const [url, init] = mockFetch.mock.calls[0];
       expect(url).toBe(
-        `${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers/o1:activate`,
+        `${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1/offers/o1:activate`,
       );
       expect(init.method).toBe("POST");
     });
@@ -1060,7 +1060,7 @@ describe("monetization API endpoints", () => {
   // --- monetization ---
 
   describe("monetization", () => {
-    it("convertRegionPrices calls POST /{pkg}/monetization/convertRegionPrices", async () => {
+    it("convertRegionPrices calls POST /{pkg}/pricing:convertRegionPrices", async () => {
       const response = {
         convertedRegionPrices: {
           US: {
@@ -1077,7 +1077,7 @@ describe("monetization API endpoints", () => {
       });
       expect(result).toEqual(response);
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toBe(`${BASE_URL}/${PKG}/monetization/convertRegionPrices`);
+      expect(url).toBe(`${BASE_URL}/${PKG}/pricing:convertRegionPrices`);
       expect(init.method).toBe("POST");
     });
   });
@@ -1650,7 +1650,7 @@ describe("client coverage gaps", () => {
     expect(result).toEqual({ offerId: "o1", state: "INACTIVE" });
     const [url, init] = mockFetch.mock.calls[0];
     expect(url).toBe(
-      `${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers/o1:deactivate`,
+      `${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1/offers/o1:deactivate`,
     );
     expect(init.method).toBe("POST");
   });
@@ -1679,7 +1679,7 @@ describe("client coverage gaps", () => {
     const result = await client.subscriptions.getOffer(PKG, "sub1", "bp1", "o1");
     expect(result).toEqual(offer);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers/o1`);
+    expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1/offers/o1`);
     expect(init.method).toBe("GET");
   });
 
@@ -1700,7 +1700,7 @@ describe("client coverage gaps", () => {
     const client = makeClient();
     await client.subscriptions.deleteOffer(PKG, "sub1", "bp1", "o1");
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1/offers/o1`);
+    expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1/offers/o1`);
     expect(init.method).toBe("DELETE");
   });
 
@@ -1710,7 +1710,7 @@ describe("client coverage gaps", () => {
     const client = makeClient();
     await client.subscriptions.deleteBasePlan(PKG, "sub1", "bp1");
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/monetization/subscriptions/sub1/basePlans/bp1`);
+    expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1`);
     expect(init.method).toBe("DELETE");
   });
 
