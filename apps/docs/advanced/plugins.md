@@ -6,6 +6,16 @@ outline: deep
 
 Extend GPC with custom commands, lifecycle hooks, and integrations -- without forking the core. Plugins can react to command execution, register new CLI commands, and intercept API requests.
 
+## Agent Skills
+
+GPC also ships agent skills that teach AI coding assistants (Claude Code, Cursor, Copilot, Windsurf, and others) how to use GPC. These are not plugins — they're structured guides that help AI assistants run the right GPC commands for your task.
+
+```bash
+npx skills add yasserstudio/gpc-skills
+```
+
+13 skills are available, covering setup, releases, metadata, CI/CD, monetization, and more. See the [gpc-skills repo](https://github.com/yasserstudio/gpc-skills) for details.
+
 ## Plugin Interface
 
 Every GPC plugin implements the `GpcPlugin` interface:
