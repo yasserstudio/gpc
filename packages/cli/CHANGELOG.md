@@ -1,5 +1,14 @@
 # @gpc-cli/cli
 
+## 0.9.19
+
+### Patch Changes
+
+- fix: OTP update regionsVersion + updateMask, table cell truncation, flatten list output, readJsonFile helper, releases diff, subscriptions diff, otp diff
+- Updated dependencies
+  - @gpc-cli/api@1.0.15
+  - @gpc-cli/core@0.9.17
+
 ## 0.9.18
 
 ### Patch Changes
