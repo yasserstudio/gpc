@@ -6,7 +6,18 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.16 <Badge type="tip" text="latest" />
+## v0.9.17 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **Fix: subscriptions create validation** — auto-add `regionsVersion.version` query param, strip output-only fields (`state`, `archived`), auto-prefix `prorationMode` enum values
+- **Fix: one-time products create** — add missing `regionsVersion.version` query param
+- **Client-side validation** — benefits max 4, description max 80 chars, `gracePeriodDuration` + `accountHoldDuration` must sum to P30D–P60D, `Money.units` coerced to string
+- **`subscriptions create --activate`** — auto-activate DRAFT base plans after creation
+- **Empty result messages** — `reviews list` and `vitals overview` now show helpful messages when no data is available
+- 1,262 tests
+
+## v0.9.16
 
 _March 2026_
 
