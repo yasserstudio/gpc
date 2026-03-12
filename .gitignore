@@ -8,6 +8,7 @@ dist/
 # Agent skills (installed per-machine)
 .agents/
 .claude/skills
+gpc-skills/
 .windsurf/skills
 skills-lock.json
 

@@ -27,7 +27,7 @@ async function getClient(config: GpcConfig) {
 export function registerInternalSharingCommands(program: Command): void {
   const cmd = program
     .command("internal-sharing")
-    .description("Internal app sharing (upload bundles/APKs for instant sharing)");
+    .description("Upload bundles or APKs for instant internal sharing");
 
   cmd
     .command("upload <file>")
