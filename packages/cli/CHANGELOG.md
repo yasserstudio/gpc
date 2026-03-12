@@ -1,5 +1,11 @@
 # @gpc-cli/cli
 
+## 0.9.13
+
+### Patch Changes
+
+- 9f65b88: Add gpc install-skills command — interactive wizard for installing agent skills
+
 ## 0.9.12
 
 ### Patch Changes
