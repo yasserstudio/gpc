@@ -32,7 +32,7 @@ function validateFilePath(filePath: string): string {
   }
   // Block obvious traversal patterns in the original input
   if (filePath.includes("\0")) {
-    throw new ApiError("Invalid file path: null bytes not allowed", "API_INVALID_PATH");
+    throw new ApiError("Invalid file path: null bytes not allowed", "API_INVALID_PATH", undefined, "Provide a valid file path without null bytes.");
   }
   return resolved;
 }
@@ -259,7 +259,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     }
 
     // Should not reach here, but just in case
-    throw lastError ?? new ApiError("Request failed", "API_NETWORK_ERROR");
+    throw lastError ?? new ApiError("Request failed", "API_NETWORK_ERROR", undefined, "Check your network connection and try again. Use --verbose for details.");
   }
 
   async function uploadRequest<T>(
@@ -391,7 +391,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
       }
     }
 
-    throw lastError ?? new ApiError("Upload request failed", "API_NETWORK_ERROR");
+    throw lastError ?? new ApiError("Upload request failed", "API_NETWORK_ERROR", undefined, "Check your network connection and try again. Use --verbose for details.");
   }
 
   return {

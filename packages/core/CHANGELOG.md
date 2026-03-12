@@ -1,5 +1,12 @@
 # @gpc-cli/core
 
+## 0.9.10
+
+### Patch Changes
+
+- Updated dependencies
+  - @gpc-cli/api@1.0.9
+
 ## 0.9.9
 
 ### Patch Changes

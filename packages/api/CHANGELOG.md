@@ -1,5 +1,15 @@
 # @gpc-cli/api
 
+## 1.0.9
+
+### Patch Changes
+
+- fix: add missing error suggestions and enhance gpc doctor
+  - Added suggestions to 3 API error fallbacks (null-byte path, network retry, upload retry)
+  - Clarified help text for internal-sharing, generated-apks, external-transactions
+  - Enhanced gpc doctor from 4 to 8 checks: config/cache dir permissions, proxy validation, CA cert, DNS resolution
+  - Added --json output mode and severity levels (pass/fail/warn/info) to gpc doctor
+
 ## 1.0.8
 
 ### Patch Changes

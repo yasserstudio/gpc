@@ -102,7 +102,7 @@ export function registerExternalTransactionsCommands(program: Command): void {
     .option("--full", "Full refund")
     .option(
       "--partial-amount <micros>",
-      "Partial refund pre-tax amount in micros (e.g. 1990000)",
+      "Partial refund pre-tax amount in micros (e.g., 1990000)",
     )
     .option("--currency <code>", "Currency code for partial refund (e.g. USD)")
     .action(async (id: string, options) => {
