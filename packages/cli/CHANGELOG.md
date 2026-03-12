@@ -1,5 +1,14 @@
 # @gpc-cli/cli
 
+## 0.9.17
+
+### Patch Changes
+
+- 577b462: Fix subscriptions create/update validation, add regionsVersion query param, and improve empty output messages
+- Updated dependencies [577b462]
+  - @gpc-cli/api@1.0.13
+  - @gpc-cli/core@0.9.15
+
 ## 0.9.15
 
 ### Patch Changes
