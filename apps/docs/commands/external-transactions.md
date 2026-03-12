@@ -208,4 +208,6 @@ External transaction partially refunded
 
 ## Related
 
-- [purchases](./purchases) -- Manage standard Google Play Billing purchases
+- [purchases](./purchases) -- Standard Google Play Billing purchases
+- [subscriptions](./subscriptions) -- Subscription management
+- [one-time-products](./one-time-products) -- One-time product management

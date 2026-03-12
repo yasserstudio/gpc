@@ -18,6 +18,7 @@ Manage releases, uploads, promotions, rollouts, and release notes.
 | [`releases rollout resume`](#releases-rollout-resume)     | Resume a halted rollout              |
 | [`releases rollout complete`](#releases-rollout-complete) | Complete a staged rollout to 100%    |
 | [`releases notes set`](#releases-notes-set)               | Set release notes for a track        |
+| [`releases diff`](#releases-diff)                         | Compare releases between two tracks  |
 
 ## `releases upload`
 
@@ -324,6 +325,52 @@ gpc releases notes set \
   --lang ja-JP \
   --file release-notes/ja-JP.txt
 ```
+
+## `releases diff`
+
+Compare releases between two tracks (e.g., internal vs production). Shows differences in version codes, status, rollout percentage, release notes, and release name.
+
+### Synopsis
+
+```bash
+gpc releases diff [options]
+```
+
+### Options
+
+| Flag     | Short | Type     | Default      | Description  |
+| -------- | ----- | -------- | ------------ | ------------ |
+| `--from` |       | `string` | `internal`   | Source track  |
+| `--to`   |       | `string` | `production` | Target track  |
+
+### Example
+
+Compare internal and production tracks:
+
+```bash
+gpc releases diff --app com.example.myapp
+```
+
+Compare specific tracks:
+
+```bash
+gpc releases diff \
+  --app com.example.myapp \
+  --from beta \
+  --to production
+```
+
+```
+Comparing releases: beta → production
+
+  versionCodes: 142 → 140
+  status: completed → inProgress
+  userFraction: (none) → 0.5
+```
+
+Use `--output json` for structured diff output. Returns "No differences found" when tracks have identical latest releases.
+
+---
 
 ## Related
 

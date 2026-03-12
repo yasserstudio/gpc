@@ -26,6 +26,7 @@ Manage subscriptions, base plans, and subscription offers.
 | [`subscriptions offers delete`](#subscriptions-offers-delete)                         | Delete an offer                 |
 | [`subscriptions offers activate`](#subscriptions-offers-activate)                     | Activate an offer               |
 | [`subscriptions offers deactivate`](#subscriptions-offers-deactivate)                 | Deactivate an offer             |
+| [`subscriptions diff`](#subscriptions-diff)                                           | Compare local JSON vs remote    |
 
 ## `subscriptions list`
 
@@ -529,6 +530,45 @@ No command-specific options.
 gpc subscriptions offers deactivate premium_monthly p1m free-trial-7d \
   --app com.example.myapp
 ```
+
+## `subscriptions diff`
+
+Compare a local JSON file against the remote subscription state. Shows field-level differences for `listings`, `basePlans`, and `taxAndComplianceSettings`.
+
+### Synopsis
+
+```bash
+gpc subscriptions diff <product-id> --file <path>
+```
+
+### Options
+
+| Flag     | Short | Type     | Default        | Description                              |
+| -------- | ----- | -------- | -------------- | ---------------------------------------- |
+| `--file` |       | `string` | **(required)** | Path to local JSON file to compare       |
+
+### Example
+
+```bash
+gpc subscriptions diff premium_monthly \
+  --app com.example.myapp \
+  --file subscription.json
+```
+
+Output shows each field that differs between local and remote:
+
+```
+Field: listings
+  Local:  {"en-US":{"title":"Premium Monthly","description":"Updated desc"}}
+  Remote: {"en-US":{"title":"Premium Monthly","description":"Original desc"}}
+
+Field: basePlans
+  No differences
+```
+
+Use `--output json` for structured diff output.
+
+---
 
 ## Related
 

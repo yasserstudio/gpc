@@ -88,7 +88,9 @@ export default defineConfig({
           text: "Monetization",
           items: [
             { text: "subscriptions", link: "/commands/subscriptions" },
-            { text: "iap", link: "/commands/iap" },
+            { text: "one-time-products", link: "/commands/one-time-products" },
+            { text: "purchase-options", link: "/commands/purchase-options" },
+            { text: "iap (legacy)", link: "/commands/iap" },
             { text: "purchases", link: "/commands/purchases" },
             { text: "pricing", link: "/commands/pricing" },
           ],
@@ -102,15 +104,19 @@ export default defineConfig({
           ],
         },
         {
-          text: "App Management",
+          text: "Distribution",
           items: [
-            { text: "recovery", link: "/commands/recovery" },
-            { text: "data-safety", link: "/commands/data-safety" },
-            { text: "external-transactions", link: "/commands/external-transactions" },
-            { text: "device-tiers", link: "/commands/device-tiers" },
             { text: "internal-sharing", link: "/commands/internal-sharing" },
             { text: "generated-apks", link: "/commands/generated-apks" },
-            { text: "one-time-products", link: "/commands/one-time-products" },
+            { text: "device-tiers", link: "/commands/device-tiers" },
+          ],
+        },
+        {
+          text: "Compliance & Recovery",
+          items: [
+            { text: "data-safety", link: "/commands/data-safety" },
+            { text: "recovery", link: "/commands/recovery" },
+            { text: "external-transactions", link: "/commands/external-transactions" },
           ],
         },
         {
@@ -120,6 +126,7 @@ export default defineConfig({
             { text: "apps", link: "/commands/apps" },
             { text: "config", link: "/commands/config" },
             { text: "plugins", link: "/commands/plugins" },
+            { text: "migrate", link: "/commands/migrate" },
             { text: "doctor / docs / completion", link: "/commands/utility" },
             { text: "install-skills", link: "/commands/install-skills" },
           ],

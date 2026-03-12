@@ -329,5 +329,7 @@ gpc purchases orders refund "GPA.1234-5678-9012-34567" \
 ## Related
 
 - [subscriptions](./subscriptions) -- Subscription product management
-- [iap](./iap) -- In-app product management
+- [one-time-products](./one-time-products) -- One-time product management (alias: `otp`)
+- [iap](./iap) -- Legacy in-app product management
+- [external-transactions](./external-transactions) -- Alternative billing transactions
 - [reports](./reports) -- Financial reports

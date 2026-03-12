@@ -43,6 +43,8 @@ All commands accept global flags, produce structured output, and return predicta
 | [`internal-sharing`](./internal-sharing)      | Review-free QA distribution                           |
 | [`generated-apks`](./generated-apks)          | Device-specific APK downloads                         |
 | [`one-time-products`](./one-time-products)    | One-time products and offers (alias: `otp`)           |
+| [`purchase-options`](./purchase-options)      | Purchase option management for one-time products      |
+| [`migrate`](./migrate)                        | Migrate from Fastlane to GPC                          |
 | [`doctor` / `docs` / `completion`](./utility) | Utilities                                             |
 
 ## Global Flags

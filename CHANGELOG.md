@@ -7,6 +7,106 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.19
+
+OTP parity fixes, diff commands, and table UX improvements.
+
+- fix: `otp update` and `otp offers update` now include `regionsVersion.version=2022/02` and auto-derived `updateMask`, matching the subscription fix from v0.9.18
+- fix: table and markdown cells wider than 60 characters are truncated with `...`
+- fix: `subscriptions list` and `otp list` show readable flat summaries (productId, counts, state) in table/markdown output instead of nested JSON blobs
+- fix: JSON file read errors now include the filename in the error message
+- feat: `gpc releases diff` — compare releases between two tracks (`--from internal --to production`)
+- feat: `gpc subscriptions diff` — compare a local JSON file against the remote subscription state
+- feat: `gpc otp diff` — compare a local JSON file against the remote one-time product state
+- test: 1,271 tests
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.18...v0.9.19
+
+## v0.9.18
+
+- fix: `subscriptions update` and `offers update` now always include the `regionsVersion.version=2022/02` query param, matching the existing create behavior
+- fix: auto-derive `updateMask` for subscription updates from provided fields
+- fix: table and markdown output formatters now render nested objects as JSON instead of displaying `[object Object]`
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.17...v0.9.18
+
+## v0.9.17
+
+- fix: subscriptions create validation — auto-add `regionsVersion.version` query param, strip output-only fields (`state`, `archived`), auto-prefix `prorationMode` enum values
+- fix: one-time products create — add missing `regionsVersion.version` query param
+- feat: client-side validation — benefits max 4, description max 80 chars, `gracePeriodDuration` + `accountHoldDuration` sum P30D–P60D, `Money.units` coerced to string
+- feat: `subscriptions create --activate` — auto-activate DRAFT base plans after creation
+- feat: empty result messages for `reviews list` and `vitals overview`
+- test: 1,262 tests
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.16...v0.9.17
+
+## v0.9.16
+
+- fix: `subscriptions create` — `productId` and `offerId` now correctly passed as query parameters when creating subscriptions and offers
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.15...v0.9.16
+
+## v0.9.15
+
+Five bugs found during live testing against `tv.visioo.app`.
+
+- fix: `--output` flag ignored — table, yaml, markdown, and junit output formats now work correctly
+- fix: `recovery list` used POST instead of GET — corrected HTTP method, added `--version-code` filter
+- fix: `iap list/get` used deprecated API — migrated to oneTimeProducts API (inappproducts endpoint deprecated, shutdown Aug 2027)
+- fix: vitals errors/anomalies missing OAuth scope — auth now requests `playdeveloperreporting` scope alongside `androidpublisher`
+- fix: `data-safety get/update` used edits workflow — data safety API calls no longer require edit insert/commit
+- fix: missing query params — added `productId` for subscriptions.create, `offerId` for createOffer, `regionsVersion` for update/updateOffer, `autoConvertMissingPrices`/`allowMissing` for inappproducts
+- test: 1,262 tests (up from 1,255)
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.14...v0.9.15
+
+## v0.9.14
+
+- fix: subscriptions API paths — removed incorrect `/monetization/` segment from all 17 subscription endpoint paths (list, get, create, update, delete, basePlans, offers)
+- fix: convertRegionPrices path — corrected from `/monetization/convertRegionPrices` to `/pricing:convertRegionPrices`
+- docs: troubleshooting for enabling the Play Developer Reporting API (required for vitals commands)
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.13...v0.9.14
+
+## v0.9.13
+
+- feat: `gpc install-skills` — interactive wizard for installing agent skills (pick skills, target agents, review security, install)
+- ci: updated Homebrew formula to v0.9.13 with standalone binaries for all 5 platforms
+- docs: consistency pass — all version, endpoint, and test count references aligned
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.12...v0.9.13
+
+## v0.9.12
+
+Pre-1.0 hardening release.
+
+- feat: input validation at core layer for package names, SKUs, version codes, language codes, and track names
+- fix: security hardening — aligned sensitive key redaction (23 field patterns), error message truncation to prevent key leakage
+- test: 1,255 tests (up from 932) — added API coverage, credential security, redaction, error codes, help consistency, e2e tests
+- perf: CLI cold start under 300ms, command latency sub-millisecond
+- ci: license compliance checker for all production dependencies
+- ci: release workflow with pre-publish dry-run, npm provenance, post-publish verification
+- docs: tracks command page, interactive mode and dry-run guides
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.11...v0.9.12
+
+## v0.9.11
+
+- docs: new pages for agent skills, troubleshooting, FAQ, changelog
+- feat: enhanced `gpc doctor` with additional environment checks
+- fix: CLI help text improvements across all commands
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.10...v0.9.11
+
+## v0.9.10
+
+- fix: improved error messages with actionable suggestions for common failures
+- fix: polished help text and command descriptions
+- feat: enhanced `gpc doctor` output with more diagnostic checks
+
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.9...v0.9.10
+
 ## v0.9.9
 
 The final pre-launch release — full API coverage, CLI polish, and migration tooling.
