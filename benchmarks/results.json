@@ -1,0 +1,11 @@
+{
+  "cold-start": {
+    "avgMs": 214.12
+  },
+  "help-render": {
+    "avgMs": 203.05
+  },
+  "command-load": {
+    "avgMs": 167.07
+  }
+}

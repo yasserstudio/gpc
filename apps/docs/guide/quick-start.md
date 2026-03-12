@@ -269,6 +269,59 @@ Expected output:
 Reply sent to review abc123def456
 ```
 
+## Interactive Mode
+
+When you omit required options on write commands, GPC prompts you interactively:
+
+```bash
+# No --track specified — GPC asks which track to use
+gpc releases upload app.aab
+# ? Select track: (Use arrow keys)
+#   internal
+# > beta
+#   alpha
+#   production
+
+# Destructive commands prompt for confirmation
+gpc subscriptions delete premium_monthly
+# ? Delete subscription "premium_monthly"? This cannot be undone. (y/N)
+```
+
+To skip all prompts (required in CI), use the `--yes` flag or set the environment variable:
+
+```bash
+gpc releases upload app.aab --track beta --yes
+# or
+GPC_NO_INTERACTIVE=1 gpc releases upload app.aab --track beta
+```
+
+## Dry Run
+
+Preview what a write command would do without making any changes:
+
+```bash
+gpc releases upload app.aab --track beta --dry-run
+```
+
+```
+[dry-run] Would upload app.aab (24.3 MB) to track "beta"
+[dry-run] Version code: 43
+[dry-run] No changes were made
+```
+
+```bash
+gpc releases promote --from beta --to production --dry-run
+```
+
+```
+[dry-run] Would promote version 43
+[dry-run]   From:   beta
+[dry-run]   To:     production
+[dry-run] No changes were made
+```
+
+The `--dry-run` flag is available on all write commands (`upload`, `promote`, `create`, `update`, `delete`, `sync`).
+
 ## Full Workflow in CI
 
 Combine these steps into a CI pipeline:

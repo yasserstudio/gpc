@@ -1,0 +1,14 @@
+{
+  "config-load": {
+    "avgMs": 1.28
+  },
+  "format-json": {
+    "avgMs": 0.08
+  },
+  "format-table": {
+    "avgMs": 0.31
+  },
+  "format-yaml": {
+    "avgMs": 0.61
+  }
+}

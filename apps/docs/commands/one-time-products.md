@@ -1,3 +1,7 @@
+---
+outline: deep
+---
+
 # One-Time Products
 
 Manage one-time products using the modern monetization API. Alias: `otp`.

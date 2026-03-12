@@ -28,6 +28,15 @@ jobs:
 
       - run: pnpm build
 
+      - name: Dry-run publish
+        run: |
+          for pkg in packages/auth packages/config packages/plugin-sdk packages/api packages/core packages/cli plugins/plugin-ci; do
+            echo "--- dry-run: $pkg ---"
+            (cd "$pkg" && npm publish --dry-run 2>&1) || exit 1
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Create Release PR or Publish
         id: changesets
         uses: changesets/action@v1
@@ -40,3 +49,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"
+
+      - name: Verify published packages
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          echo "Waiting 30s for npm registry propagation..."
+          sleep 30
+          for pkg in @gpc-cli/auth @gpc-cli/config @gpc-cli/plugin-sdk @gpc-cli/api @gpc-cli/core @gpc-cli/cli @gpc-cli/plugin-ci; do
+            echo "--- verifying: $pkg ---"
+            npm view "$pkg" version || echo "WARNING: $pkg not yet available"
+          done

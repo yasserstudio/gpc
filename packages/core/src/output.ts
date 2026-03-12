@@ -27,7 +27,7 @@ export function formatOutput(data: unknown, format: OutputFormat, redact = true)
 // Sensitive field redaction
 // ---------------------------------------------------------------------------
 
-const SENSITIVE_KEYS = new Set([
+export const SENSITIVE_KEYS = new Set([
   "private_key",
   "privateKey",
   "private_key_id",
@@ -42,6 +42,19 @@ const SENSITIVE_KEYS = new Set([
   "password",
   "secret",
   "credentials",
+  "keyFile",
+  "key_file",
+  "serviceAccount",
+  "service-account",
+  "apiKey",
+  "api_key",
+  "auth_token",
+  "bearer",
+  "jwt",
+  "signing_key",
+  "keystore_password",
+  "store_password",
+  "key_password",
 ]);
 
 const REDACTED = "[REDACTED]";

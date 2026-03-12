@@ -2,7 +2,7 @@ import { defineConfig } from "vitepress";
 
 export default defineConfig({
   title: "GPC",
-  description: "The complete CLI for Google Play — 162 API endpoints, one tool.",
+  description: "The complete CLI for Google Play — 187 API endpoints, one tool.",
 
   base: "/gpc/",
 
@@ -73,6 +73,7 @@ export default defineConfig({
           items: [
             { text: "publish / validate / status", link: "/commands/publish" },
             { text: "releases", link: "/commands/releases" },
+            { text: "tracks", link: "/commands/tracks" },
             { text: "listings", link: "/commands/listings" },
           ],
         },
