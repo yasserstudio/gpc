@@ -16,6 +16,75 @@ npx skills add yasserstudio/gpc-skills
 
 13 skills are available, covering setup, releases, metadata, CI/CD, monetization, and more. See the [gpc-skills repo](https://github.com/yasserstudio/gpc-skills) for details.
 
+## Getting Started
+
+Build and install your first GPC plugin in four steps.
+
+### Step 1: Scaffold
+
+Use the built-in generator to create a plugin project:
+
+```bash
+gpc plugins init my-plugin
+```
+
+This creates a `my-plugin/` directory with a `package.json`, `tsconfig.json`, `src/index.ts` skeleton, and a basic test file.
+
+### Step 2: Implement
+
+Edit `my-plugin/src/index.ts` to add a hook. Here is a minimal `beforeCommand` hook that logs a message before every command:
+
+```typescript
+import { definePlugin } from "@gpc-cli/plugin-sdk";
+
+export const plugin = definePlugin({
+  name: "gpc-plugin-my-plugin",
+  version: "0.1.0",
+
+  register(hooks) {
+    hooks.beforeCommand(async (event) => {
+      console.log(`Hello from my-plugin! Running: gpc ${event.command}`);
+    });
+  },
+});
+```
+
+### Step 3: Install Locally
+
+Build the plugin and link it so GPC can discover it:
+
+```bash
+cd my-plugin
+npm install
+npm run build
+npm link
+```
+
+Then approve it for use (required for third-party plugins):
+
+```bash
+gpc plugins approve gpc-plugin-my-plugin
+```
+
+### Step 4: Verify
+
+Run any GPC command and confirm your hook fires:
+
+```bash
+gpc apps list
+# Output includes: Hello from my-plugin! Running: gpc apps list
+```
+
+Check that your plugin appears in the loaded plugins list:
+
+```bash
+gpc plugins list
+```
+
+### Publishing
+
+When your plugin is ready to share, publish it to npm. Follow the `gpc-plugin-*` naming convention so GPC can auto-discover it from `node_modules`. Declare required permissions in your `package.json` under the `gpc` key (see [Permissions](#permissions) below).
+
 ## Plugin Interface
 
 Every GPC plugin implements the `GpcPlugin` interface:

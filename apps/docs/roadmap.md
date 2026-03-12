@@ -4,55 +4,72 @@ outline: deep
 
 # Roadmap
 
-Each phase maps to a version (`0.X.0`). Sub-updates (`0.X.y`) ship between phases.
+GPC follows a phased development approach. All nine foundational phases are complete, and the project is now in the `0.9.x` pre-release series working toward a stable `1.0.0` launch.
 
 ## Completed Phases
 
-| Phase | Version | Focus                                       | Status |
-| ----- | ------- | ------------------------------------------- | ------ |
-| 0     | —       | Monorepo scaffold, tooling                  | Done   |
-| 1     | v0.1.x  | Auth, config, CLI shell                     | Done   |
-| 2     | v0.2.x  | API client, apps commands                   | Done   |
-| 3     | v0.3.x  | Releases, tracks, rollouts, upload, promote | Done   |
-| 4     | v0.4.x  | Listings, metadata, images, Fastlane compat | Done   |
-| 5     | v0.5.x  | Reviews, vitals, reporting API, CI alerting | Done   |
-| 6     | v0.6.x  | Subscriptions, IAP, purchases, pricing      | Done   |
-| 7     | v0.7.x  | Reports, users, testers, grants             | Done   |
-| 8     | v0.8.x  | Plugin SDK, plugin manager, lifecycle hooks | Done   |
+| Phase | Focus | Status |
+| ----- | --------------------------------------------- | ------ |
+| 0 | Monorepo scaffold, tooling | Done |
+| 1 | Auth, config, CLI shell | Done |
+| 2 | API client, edits lifecycle, apps commands | Done |
+| 3 | Releases, tracks, rollouts, upload, promote | Done |
+| 4 | Listings, metadata, images, Fastlane compat | Done |
+| 5 | Reviews, vitals, reporting API, CI alerting | Done |
+| 6 | Subscriptions, IAP, purchases, pricing | Done |
+| 7 | Reports, users, testers, grants, CSV import | Done |
+| 8 | Plugin SDK, plugin manager, lifecycle hooks | Done |
+| 9 | Polish, security audit, docs, binary, publish | Done |
 
-## Phase 9 — Polish & v1.0.0
+### Phase 9 Highlights
 
-Production hardening and stable release.
+- Interactive mode (guided workflows for complex operations)
+- `--dry-run` support for all write operations
+- Audit logging and unified error hierarchy
+- Proxy and custom CA support (`GPC_CA_CERT`, `HTTPS_PROXY`)
+- Performance optimization (lazy loading, HTTP compression, connection keep-alive)
+- In-memory token cache with mutex deduplication
+- Parallel pagination helper and async config discovery
+- 90%+ test coverage on all core packages (930+ tests)
+- Standalone binary (esbuild bundle + Bun compile, 5 platforms)
+- Homebrew tap (`brew install yasserstudio/tap/gpc`)
+- npm publish (`npm install -g @gpc-cli/cli`)
+- VitePress documentation site
+- Security audit
+- `gpc doctor` diagnostics command
 
-- [x] Interactive mode (guided workflows for complex operations)
-- [x] `--dry-run` support for all write operations
-- [x] Audit logging
-- [x] Proxy and custom CA support (`GPC_CA_CERT`, `HTTPS_PROXY`)
-- [x] Performance optimization (lazy command loading)
-- [x] In-memory token cache with mutex deduplication
-- [x] HTTP compression and connection keep-alive
-- [x] Parallel pagination helper
-- [x] Async config file discovery
-- [x] Unified error hierarchy (exitCode + toJSON on all error types)
-- [x] 90%+ test coverage on core packages
-- [x] Standalone binary (esbuild bundle + Bun compile, cross-platform)
-- [x] Security audit
-- [x] README and docs final polish
-- [x] CHANGELOG complete
-- [x] VitePress documentation site
-- [x] Homebrew tap (`yasserstudio/homebrew-tap`)
+## Road to 1.0
+
+The remaining items before the stable `1.0.0` release:
+
+- [ ] Final API coverage audit (verify all ~187 endpoints)
+- [ ] End-to-end testing against live apps
+- [ ] Performance benchmarks and optimization pass
+- [ ] Documentation completeness review
 - [ ] Wall of Apps community showcase
+- [ ] Security review and penetration testing
+- [ ] npm publish automation refinement (Changesets workflow)
 
-## Version Map
+Once these items are addressed and the CLI has been validated in production workflows, the version will bump from `0.9.x` to `1.0.0`.
 
-| Version | Phase | Focus                      |
-| ------- | ----- | -------------------------- |
-| `0.1.0` | 1     | Auth, config, CLI shell    |
-| `0.2.0` | 2     | API client, apps           |
-| `0.3.0` | 3     | Releases, tracks, rollouts |
-| `0.4.0` | 4     | Listings, metadata         |
-| `0.5.0` | 5     | Reviews, vitals            |
-| `0.6.0` | 6     | Monetization               |
-| `0.7.0` | 7     | Reports, users, testers    |
-| `0.8.0` | 8     | Plugin system              |
-| `1.0.0` | 9     | Polish, stability          |
+## Post-1.0 Vision
+
+Features and directions planned after the stable release:
+
+- **App Bundle analysis** -- size optimization tools, per-module breakdown, size regression alerts
+- **Play Integrity API** -- device integrity checks, API abuse detection integration
+- **Automated release trains** -- scheduled track promotions, timed rollout curves
+- **Dashboard web UI** -- companion web interface for visual release management
+- **Community plugin ecosystem** -- plugin registry, starter templates, featured plugins
+- **Multi-account management** -- switch between developer accounts, cross-account operations
+- **Webhook integrations** -- Slack, Discord, and Teams notifications for releases, errors, and vitals alerts
+
+## Current Status
+
+- **Version:** `0.9.x` pre-release series
+- **Tests:** 930+ across 7 packages + e2e
+- **Coverage:** 90%+ line coverage on all core packages
+- **API endpoints:** ~187 (complete coverage)
+- **Packages:** 7 published under `@gpc-cli` scope on npm
+- **Docs:** [yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)
+- **Install:** `npm install -g @gpc-cli/cli` or `brew install yasserstudio/tap/gpc`

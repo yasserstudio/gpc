@@ -1,4 +1,5 @@
 import type { Command } from "commander";
+import { Option } from "commander";
 import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
@@ -261,7 +262,7 @@ export function registerPurchasesCommands(program: Command): void {
     .description("List voided purchases")
     .option("--start-time <time>", "Start time (milliseconds)")
     .option("--end-time <time>", "End time (milliseconds)")
-    .option("--max-results <n>", "Maximum results per page", parseInt)
+    .addOption(new Option("--max-results <n>", "Maximum results per page").argParser(parseInt).hideHelp())
     .option("--limit <n>", "Maximum total results", parseInt)
     .option("--next-page <token>", "Resume from page token")
     .action(async (options) => {

@@ -74,6 +74,64 @@ Update an existing offer.
 
 Delete an offer. Requires confirmation.
 
+### Offer Creation Payload
+
+When creating an offer with `gpc otp offers create`, the JSON file describes pricing phases, eligibility criteria, and regional overrides.
+
+```json
+{
+  "offerId": "launch_discount",
+  "pricingPhases": {
+    "pricingPhases": [
+      {
+        "recurrenceMode": "NON_RECURRING",
+        "billingPeriod": "",
+        "price": {
+          "currencyCode": "USD",
+          "units": "0",
+          "nanos": 990000000
+        }
+      }
+    ]
+  },
+  "targeting": {
+    "acquisitionRule": {
+      "scope": {
+        "anySubscriptionInApp": true
+      }
+    }
+  }
+}
+```
+
+### Regional Pricing in Offers
+
+Override prices per region by adding `regionalConfigs` to the offer payload. Each entry maps a region code to a price override:
+
+```json
+{
+  "offerId": "regional_promo",
+  "regionalConfigs": {
+    "US": { "newSubscriberAvailability": true, "price": { "currencyCode": "USD", "units": "4", "nanos": 990000000 } },
+    "GB": { "newSubscriberAvailability": true, "price": { "currencyCode": "GBP", "units": "3", "nanos": 990000000 } },
+    "JP": { "newSubscriberAvailability": true, "price": { "currencyCode": "JPY", "units": "700", "nanos": 0 } },
+    "IN": { "newSubscriberAvailability": true, "price": { "currencyCode": "INR", "units": "349", "nanos": 0 } },
+    "BR": { "newSubscriberAvailability": true, "price": { "currencyCode": "BRL", "units": "24", "nanos": 990000000 } }
+  },
+  "pricingPhases": {
+    "pricingPhases": [
+      {
+        "recurrenceMode": "NON_RECURRING",
+        "billingPeriod": "",
+        "price": { "currencyCode": "USD", "units": "4", "nanos": 990000000 }
+      }
+    ]
+  }
+}
+```
+
+Use `gpc pricing convert` to generate region prices from a single base price, then merge the output into your offer JSON.
+
 ## Options
 
 | Option     | Type     | Description                |

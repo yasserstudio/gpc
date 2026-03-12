@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import type { GpcConfig } from "@gpc-cli/config";
 import type { Command } from "commander";
+import { Option } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
@@ -48,8 +49,8 @@ export function registerSubscriptionsCommands(program: Command): void {
   subs
     .command("list")
     .description("List subscriptions")
-    .option("--page-size <n>", "Results per page", parseInt)
-    .option("--page-token <token>", "Page token")
+    .addOption(new Option("--page-size <n>", "Results per page").argParser(parseInt).hideHelp())
+    .addOption(new Option("--page-token <token>", "Page token").hideHelp())
     .option("--limit <n>", "Maximum total results", parseInt)
     .option("--next-page <token>", "Resume from page token")
     .option("--sort <field>", "Sort by field (prefix with - for descending)")

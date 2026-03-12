@@ -43,6 +43,7 @@ export default defineConfig({
           { text: "Exit Codes", link: "/reference/exit-codes" },
           { text: "JSON Output Contract", link: "/reference/json-contract" },
           { text: "API Coverage Map", link: "/reference/api-coverage" },
+          { text: "Changelog", link: "/reference/changelog" },
         ],
       },
     ],
@@ -57,6 +58,7 @@ export default defineConfig({
             { text: "Quick Start", link: "/guide/quick-start" },
             { text: "Authentication", link: "/guide/authentication" },
             { text: "Configuration", link: "/guide/configuration" },
+            { text: "FAQ", link: "/guide/faq" },
           ],
         },
       ],
@@ -143,6 +145,7 @@ export default defineConfig({
             { text: "System Design", link: "/advanced/architecture" },
             { text: "Plugin Development", link: "/advanced/plugins" },
             { text: "SDK Usage", link: "/advanced/sdk-usage" },
+            { text: "Agent Skills", link: "/advanced/skills" },
           ],
         },
         {
@@ -150,6 +153,7 @@ export default defineConfig({
           items: [
             { text: "Security", link: "/advanced/security" },
             { text: "Error Codes", link: "/advanced/error-codes" },
+            { text: "Troubleshooting", link: "/advanced/troubleshooting" },
           ],
         },
         {
@@ -176,6 +180,7 @@ export default defineConfig({
             { text: "Exit Codes", link: "/reference/exit-codes" },
             { text: "JSON Output Contract", link: "/reference/json-contract" },
             { text: "API Coverage Map", link: "/reference/api-coverage" },
+            { text: "Changelog", link: "/reference/changelog" },
           ],
         },
       ],
