@@ -1,5 +1,11 @@
 # @gpc-cli/api
 
+## 1.0.14
+
+### Patch Changes
+
+- Fix regionsVersion query param on subscription update, fix table [object Object] display
+
 ## 1.0.13
 
 ### Patch Changes
