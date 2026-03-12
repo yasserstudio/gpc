@@ -37,10 +37,16 @@ gpc otp create --file product.json
 
 ### `gpc otp update <product-id> --file <path>`
 
-Update an existing product.
+Update an existing product. The `regionsVersion` query parameter and `updateMask` are automatically derived from the provided fields.
 
 ```bash
 gpc otp update premium_upgrade --file updated.json
+```
+
+Specify an explicit update mask to limit which fields are updated:
+
+```bash
+gpc otp update premium_upgrade --file updated.json --update-mask listings
 ```
 
 ### `gpc otp delete <product-id>`
@@ -72,7 +78,12 @@ Create a new offer for a product.
 
 ### `gpc otp offers update <product-id> <offer-id> --file <path>`
 
-Update an existing offer.
+Update an existing offer. The `regionsVersion` and `updateMask` are automatically included.
+
+```bash
+gpc otp offers update premium_upgrade launch_discount --file offer-update.json
+gpc otp offers update premium_upgrade launch_discount --file offer-update.json --update-mask pricingPhases
+```
 
 ### `gpc otp offers delete <product-id> <offer-id>`
 
@@ -136,11 +147,30 @@ Override prices per region by adding `regionalConfigs` to the offer payload. Eac
 
 Use `gpc pricing convert` to generate region prices from a single base price, then merge the output into your offer JSON.
 
+### `gpc otp diff <product-id> --file <path>`
+
+Compare a local JSON file against the remote one-time product state. Shows field-level differences.
+
+```bash
+gpc otp diff premium_upgrade --file product.json
+```
+
+Output shows each field that differs between local and remote. Use `--output json` for structured diff output.
+
 ## Options
 
-| Option     | Type     | Description                |
-| ---------- | -------- | -------------------------- |
-| `--file`   | `string` | Path to JSON file          |
-| `--sort`   | `string` | Sort field for list output |
-| `--output` | `string` | Output format              |
-| `--app`    | `string` | App package name           |
+| Option          | Type     | Description                                        |
+| --------------- | -------- | -------------------------------------------------- |
+| `--file`        | `string` | Path to JSON file                                  |
+| `--update-mask` | `string` | Comma-separated field mask (for update commands)    |
+| `--sort`        | `string` | Sort field for list output                         |
+| `--output`      | `string` | Output format                                      |
+| `--app`         | `string` | App package name                                   |
+
+## Related
+
+- [purchase-options](./purchase-options) -- Purchase option management for one-time products
+- [iap](./iap) -- Legacy in-app products API
+- [subscriptions](./subscriptions) -- Subscription management
+- [purchases](./purchases) -- Purchase verification and management
+- [pricing](./pricing) -- Regional price conversion

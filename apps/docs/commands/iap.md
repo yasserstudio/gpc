@@ -253,6 +253,8 @@ gpc iap sync --app com.example.myapp --dir ./products --dry-run
 
 ## Related
 
+- [one-time-products](./one-time-products) -- Modern one-time products API (recommended for new products)
+- [purchase-options](./purchase-options) -- Purchase option management
 - [subscriptions](./subscriptions) -- Subscription products
 - [purchases](./purchases) -- Purchase verification
 - [pricing](./pricing) -- Regional price conversion
