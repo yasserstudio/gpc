@@ -1,5 +1,14 @@
 # @gpc-cli/cli
 
+## 0.9.18
+
+### Patch Changes
+
+- Fix regionsVersion query param on subscription update, fix table [object Object] display
+- Updated dependencies
+  - @gpc-cli/api@1.0.14
+  - @gpc-cli/core@0.9.16
+
 ## 0.9.17
 
 ### Patch Changes

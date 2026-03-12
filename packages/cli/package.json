@@ -1,6 +1,6 @@
 {
   "name": "@gpc-cli/cli",
-  "version": "0.9.17",
+  "version": "0.9.18",
   "description": "The complete Google Play CLI",
   "type": "module",
   "bin": {
