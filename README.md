@@ -482,6 +482,7 @@ Full documentation at **[yasserstudio.github.io/gpc](https://yasserstudio.github
 - [GitHub Discussions](https://github.com/yasserstudio/gpc/discussions) — questions, ideas, show what you built
 - [Issues](https://github.com/yasserstudio/gpc/issues) — bug reports and feature requests
 - `gpc doctor` — diagnose setup problems locally
+- `gpc install-skills` — install agent skills for AI-assisted workflows
 
 ---
 

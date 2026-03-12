@@ -121,6 +121,7 @@ export default defineConfig({
             { text: "config", link: "/commands/config" },
             { text: "plugins", link: "/commands/plugins" },
             { text: "doctor / docs / completion", link: "/commands/utility" },
+            { text: "install-skills", link: "/commands/install-skills" },
           ],
         },
       ],

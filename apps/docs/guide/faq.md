@@ -66,10 +66,10 @@ Download the binary for your platform from [GitHub Releases](https://github.com/
 Yes. Install the GPC agent skills to teach AI coding assistants how to use every GPC workflow:
 
 ```bash
-npx skills add yasserstudio/gpc-skills
+gpc install-skills
 ```
 
-See [Agent Skills](../advanced/skills) for the full list of 13 available skills.
+The interactive wizard lets you pick skills and target agents. See [Agent Skills](../advanced/skills) for the full list of 13 available skills.
 
 ## What Google Play APIs does GPC cover?
 
