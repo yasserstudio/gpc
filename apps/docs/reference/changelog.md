@@ -6,7 +6,13 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.15 <Badge type="tip" text="latest" />
+## v0.9.16 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **Fix: `subscriptions create` missing productId** — `productId` and `offerId` are now correctly passed as query parameters when creating subscriptions and offers
+
+## v0.9.15
 
 _March 2026_
 
