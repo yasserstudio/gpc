@@ -5,10 +5,10 @@ import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
 import {
   uploadInternalSharing,
-  detectOutputFormat,
   formatOutput,
   createSpinner,
 } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -37,7 +37,7 @@ export function registerInternalSharingCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       const fileType = opts.type as "bundle" | "apk" | undefined;
 

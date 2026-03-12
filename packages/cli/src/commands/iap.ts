@@ -5,18 +5,18 @@ import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
 import {
-  listInAppProducts,
-  getInAppProduct,
+  listOneTimeProducts,
+  getOneTimeProduct,
   createInAppProduct,
   updateInAppProduct,
   deleteInAppProduct,
   syncInAppProducts,
-  detectOutputFormat,
   formatOutput,
   sortResults,
   createSpinner,
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
+import { getOutputFormat } from "../format.js";
 import { requireConfirm } from "../prompt.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
@@ -34,7 +34,7 @@ async function getClient(config: GpcConfig) {
 }
 
 export function registerIapCommands(program: Command): void {
-  const iap = program.command("iap").description("Manage in-app products");
+  const iap = program.command("iap").description("Manage in-app products (uses one-time products API)");
 
   iap
     .command("list")
@@ -47,18 +47,17 @@ export function registerIapCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
+
+      console.error("Note: Using oneTimeProducts API (inappproducts endpoint is deprecated, shutdown Aug 2027)");
 
       try {
-        const result = await listInAppProducts(client, packageName, {
-          maxResults: options.max,
-          limit: options.limit,
-          nextPage: options.nextPage,
-        });
+        const result = await listOneTimeProducts(client, packageName);
+        let products = result.oneTimeProducts || [];
         if (options.sort) {
-          result.inappproduct = sortResults(result.inappproduct, options.sort);
+          products = sortResults(products, options.sort);
         }
-        console.log(formatOutput(result, format));
+        console.log(formatOutput(products, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
@@ -72,10 +71,12 @@ export function registerIapCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
+
+      console.error("Note: Using oneTimeProducts API (inappproducts endpoint is deprecated, shutdown Aug 2027)");
 
       try {
-        const result = await getInAppProduct(client, packageName, sku);
+        const result = await getOneTimeProduct(client, packageName, sku);
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -90,7 +91,7 @@ export function registerIapCommands(program: Command): void {
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -124,7 +125,7 @@ export function registerIapCommands(program: Command): void {
     .action(async (sku: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -162,7 +163,7 @@ export function registerIapCommands(program: Command): void {
       await requireConfirm(`Delete in-app product "${sku}"?`, program);
 
       if (isDryRun(program)) {
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
         printDryRun(
           {
             command: "iap delete",
@@ -194,7 +195,7 @@ export function registerIapCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
       const dryRun = isDryRun(program);
 
       const spinner = createSpinner("Syncing in-app products...");

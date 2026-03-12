@@ -9,10 +9,10 @@ import {
   deployRecoveryAction,
   createRecoveryAction,
   addRecoveryTargeting,
-  detectOutputFormat,
   formatOutput,
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
+import { getOutputFormat } from "../format.js";
 import { requireConfirm } from "../prompt.js";
 import { readFileSync } from "node:fs";
 
@@ -36,16 +36,17 @@ export function registerRecoveryCommands(program: Command): void {
   recovery
     .command("list")
     .description("List app recovery actions")
+    .option("--version-code <code>", "Filter by version code", parseInt)
     .option("--limit <n>", "Maximum results to return")
     .option("--next-page <token>", "Pagination token for next page")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
-        const result = await listRecoveryActions(client, packageName);
+        const result = await listRecoveryActions(client, packageName, options.versionCode);
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -59,7 +60,7 @@ export function registerRecoveryCommands(program: Command): void {
     .action(async (id: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -93,7 +94,7 @@ export function registerRecoveryCommands(program: Command): void {
     .action(async (id: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -128,7 +129,7 @@ export function registerRecoveryCommands(program: Command): void {
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       let data: Record<string, unknown>;
       try {
@@ -172,7 +173,7 @@ export function registerRecoveryCommands(program: Command): void {
     .action(async (actionId: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       let targeting: Record<string, unknown>;
       try {

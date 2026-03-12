@@ -8,10 +8,10 @@ import {
   getReview,
   replyToReview,
   exportReviews,
-  detectOutputFormat,
   formatOutput,
   sortResults,
 } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, requireOption } from "../prompt.js";
 
@@ -47,7 +47,7 @@ export function registerReviewsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await listReviews(client, packageName, {
@@ -75,7 +75,7 @@ export function registerReviewsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await getReview(client, packageName, reviewId, options.translateTo);
@@ -93,7 +93,7 @@ export function registerReviewsCommands(program: Command): void {
     .action(async (reviewId: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
       const interactive = isInteractive(program);
 
       options.text = await requireOption(

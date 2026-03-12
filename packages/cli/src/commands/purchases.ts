@@ -14,10 +14,10 @@ import {
   revokeSubscriptionPurchase,
   listVoidedPurchases,
   refundOrder,
-  detectOutputFormat,
   formatOutput,
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
+import { getOutputFormat } from "../format.js";
 import { isInteractive, requireOption, requireConfirm } from "../prompt.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
@@ -44,7 +44,7 @@ export function registerPurchasesCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await getProductPurchase(client, packageName, productId, token);
@@ -64,7 +64,7 @@ export function registerPurchasesCommands(program: Command): void {
       const packageName = resolvePackageName(program.opts()["app"], config);
 
       if (isDryRun(program)) {
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
         printDryRun(
           {
             command: "purchases acknowledge",
@@ -97,7 +97,7 @@ export function registerPurchasesCommands(program: Command): void {
       const packageName = resolvePackageName(program.opts()["app"], config);
 
       if (isDryRun(program)) {
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
         printDryRun(
           {
             command: "purchases consume",
@@ -131,7 +131,7 @@ export function registerPurchasesCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await getSubscriptionPurchase(client, packageName, token);
@@ -150,7 +150,7 @@ export function registerPurchasesCommands(program: Command): void {
       const packageName = resolvePackageName(program.opts()["app"], config);
 
       if (isDryRun(program)) {
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
         printDryRun(
           {
             command: "purchases subscription cancel",
@@ -181,7 +181,7 @@ export function registerPurchasesCommands(program: Command): void {
     .action(async (subscriptionId: string, token: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
       const interactive = isInteractive(program);
 
       options.expiry = await requireOption(
@@ -232,7 +232,7 @@ export function registerPurchasesCommands(program: Command): void {
       const packageName = resolvePackageName(program.opts()["app"], config);
 
       if (isDryRun(program)) {
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
         printDryRun(
           {
             command: "purchases subscription revoke",
@@ -269,7 +269,7 @@ export function registerPurchasesCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await listVoidedPurchases(client, packageName, {
@@ -301,7 +301,7 @@ export function registerPurchasesCommands(program: Command): void {
       await requireConfirm(`Refund order "${orderId}"?`, program);
 
       if (isDryRun(program)) {
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
         printDryRun(
           {
             command: "purchases orders refund",

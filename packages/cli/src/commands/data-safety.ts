@@ -8,10 +8,10 @@ import {
   updateDataSafety,
   exportDataSafety,
   importDataSafety,
-  detectOutputFormat,
   formatOutput,
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
+import { getOutputFormat } from "../format.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -40,7 +40,7 @@ export function registerDataSafetyCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await getDataSafety(client, packageName);
@@ -59,7 +59,7 @@ export function registerDataSafetyCommands(program: Command): void {
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -94,7 +94,7 @@ export function registerDataSafetyCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await exportDataSafety(client, packageName, options.output);

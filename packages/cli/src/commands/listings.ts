@@ -16,10 +16,10 @@ import {
   deleteImage,
   exportImages,
   getCountryAvailability,
-  detectOutputFormat,
   formatOutput,
   createSpinner,
 } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, requireOption, requireConfirm } from "../prompt.js";
 
@@ -69,7 +69,7 @@ export function registerListingsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await getListings(client, packageName, options.lang);
@@ -104,7 +104,7 @@ export function registerListingsCommands(program: Command): void {
         },
         interactive,
       );
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const data: Record<string, string> = {};
@@ -169,7 +169,7 @@ export function registerListingsCommands(program: Command): void {
       await requireConfirm(`Delete listing for "${options.lang}"?`, program);
 
       if (isDryRun(program)) {
-        const format = detectOutputFormat();
+        const format = getOutputFormat(program, config);
         printDryRun(
           {
             command: "listings delete",
@@ -202,7 +202,7 @@ export function registerListingsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await pullListings(client, packageName, options.dir);
@@ -231,7 +231,7 @@ export function registerListingsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       const spinner = createSpinner("Pushing listings...");
       if (!program.opts()["quiet"] && process.stderr.isTTY) spinner.start();
@@ -258,7 +258,7 @@ export function registerListingsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const diffs = await diffListingsCommand(client, packageName, options.dir);
@@ -324,7 +324,7 @@ export function registerListingsCommands(program: Command): void {
       );
 
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
       const imageType = validateImageType(options.type);
 
       try {
@@ -368,7 +368,7 @@ export function registerListingsCommands(program: Command): void {
       );
 
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
       const imageType = validateImageType(options.type);
 
       const spinner = createSpinner("Uploading image...");
@@ -450,7 +450,7 @@ export function registerListingsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       const exportOpts: { lang?: string; type?: ImageType } = {};
       if (options.lang) exportOpts.lang = options.lang;
@@ -481,7 +481,7 @@ export function registerListingsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await getCountryAvailability(client, packageName, options.track);

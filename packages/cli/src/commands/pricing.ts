@@ -3,7 +3,8 @@ import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
-import { convertRegionPrices, detectOutputFormat, formatOutput } from "@gpc-cli/core";
+import { convertRegionPrices, formatOutput } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -52,7 +53,7 @@ export function registerPricingCommands(program: Command): void {
         interactive,
       );
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await convertRegionPrices(client, packageName, options.from, options.amount);

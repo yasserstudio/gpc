@@ -6,7 +6,19 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.14 <Badge type="tip" text="latest" />
+## v0.9.15 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **Fix: `--output` flag ignored** — table, yaml, markdown, and junit output formats now work correctly via `--output` flag and config
+- **Fix: `recovery list` used POST instead of GET** — corrected HTTP method, added `--version-code` filter
+- **Fix: `iap list/get` used deprecated API** — migrated to oneTimeProducts API (inappproducts endpoint deprecated, shutdown Aug 2027)
+- **Fix: vitals errors/anomalies missing OAuth scope** — auth now requests `playdeveloperreporting` scope alongside `androidpublisher`
+- **Fix: `data-safety get/update` used edits workflow** — data safety API calls no longer require edit insert/commit
+- **Fix: missing query params** — added `productId` for subscriptions.create, `offerId` for createOffer, `regionsVersion` for update/updateOffer, `autoConvertMissingPrices`/`allowMissing` for inappproducts
+- 1,262 tests (up from 1,255)
+
+## v0.9.14
 
 _March 2026_
 

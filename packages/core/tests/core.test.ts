@@ -2377,7 +2377,7 @@ describe("app recovery commands", () => {
   it("listRecoveryActions calls client.appRecovery.list", async () => {
     const client = mockClient();
     const result = await listRecoveryActions(client, "com.example");
-    expect(client.appRecovery.list).toHaveBeenCalledWith("com.example");
+    expect(client.appRecovery.list).toHaveBeenCalledWith("com.example", undefined);
     expect(result).toHaveLength(2);
     expect(result[0].appRecoveryId).toBe("rec1");
     expect(result[1].status).toBe("DEPLOYED");
@@ -4075,12 +4075,6 @@ describe("data-safety commands", () => {
 
   function mockClient(): any {
     return {
-      edits: {
-        insert: vi.fn().mockResolvedValue({ id: "edit-1" }),
-        validate: vi.fn().mockResolvedValue({}),
-        commit: vi.fn().mockResolvedValue({}),
-        delete: vi.fn().mockResolvedValue(undefined),
-      },
       dataSafety: {
         get: vi.fn().mockResolvedValue(sampleDataSafety),
         update: vi.fn().mockResolvedValue(sampleDataSafety),
@@ -4088,23 +4082,18 @@ describe("data-safety commands", () => {
     };
   }
 
-  it("getDataSafety opens edit, reads data safety, deletes edit", async () => {
+  it("getDataSafety calls dataSafety.get directly without edits", async () => {
     const client = mockClient();
     const result = await getDataSafety(client, "com.example");
-    expect(client.edits.insert).toHaveBeenCalledWith("com.example");
-    expect(client.dataSafety.get).toHaveBeenCalledWith("com.example", "edit-1");
-    expect(client.edits.delete).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(client.dataSafety.get).toHaveBeenCalledWith("com.example");
     expect(result.securityPractices?.dataEncryptedInTransit).toBe(true);
     expect(result.dataTypes).toHaveLength(1);
   });
 
-  it("updateDataSafety opens edit, updates, validates, commits", async () => {
+  it("updateDataSafety calls dataSafety.update directly without edits", async () => {
     const client = mockClient();
     const result = await updateDataSafety(client, "com.example", sampleDataSafety);
-    expect(client.edits.insert).toHaveBeenCalledWith("com.example");
-    expect(client.dataSafety.update).toHaveBeenCalledWith("com.example", "edit-1", sampleDataSafety);
-    expect(client.edits.validate).toHaveBeenCalledWith("com.example", "edit-1");
-    expect(client.edits.commit).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(client.dataSafety.update).toHaveBeenCalledWith("com.example", sampleDataSafety);
     expect(result).toEqual(sampleDataSafety);
   });
 
@@ -4131,24 +4120,22 @@ describe("data-safety commands", () => {
     await writeFile(filePath, JSON.stringify(sampleDataSafety), "utf-8");
 
     const result = await importDataSafety(client, "com.example", filePath);
-    expect(client.dataSafety.update).toHaveBeenCalledWith("com.example", "edit-1", sampleDataSafety);
+    expect(client.dataSafety.update).toHaveBeenCalledWith("com.example", sampleDataSafety);
     expect(result).toEqual(sampleDataSafety);
 
     await rm(tmpDir, { recursive: true });
   });
 
-  it("getDataSafety cleans up edit on error", async () => {
+  it("getDataSafety propagates errors", async () => {
     const client = mockClient();
     client.dataSafety.get.mockRejectedValue(new Error("API error"));
     await expect(getDataSafety(client, "com.example")).rejects.toThrow("API error");
-    expect(client.edits.delete).toHaveBeenCalledWith("com.example", "edit-1");
   });
 
-  it("updateDataSafety cleans up edit on error", async () => {
+  it("updateDataSafety propagates errors", async () => {
     const client = mockClient();
     client.dataSafety.update.mockRejectedValue(new Error("API error"));
     await expect(updateDataSafety(client, "com.example", sampleDataSafety)).rejects.toThrow("API error");
-    expect(client.edits.delete).toHaveBeenCalledWith("com.example", "edit-1");
   });
 
   it("importDataSafety throws on invalid JSON", async () => {

@@ -1,6 +1,8 @@
 import type { Command } from "commander";
+import { loadConfig } from "@gpc-cli/config";
 import { validatePreSubmission, readReleaseNotesFromDir } from "@gpc-cli/core";
-import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
+import { formatOutput } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 
 export function registerValidateCommand(program: Command): void {
   program
@@ -16,7 +18,8 @@ export function registerValidateCommand(program: Command): void {
         process.exit(2);
       }
 
-      const format = detectOutputFormat();
+      const config = await loadConfig();
+      const format = getOutputFormat(program, config);
 
       let notes: { language: string; text: string }[] | undefined;
       if (options.notesDir) {

@@ -1,11 +1,12 @@
 import type { Command } from "commander";
+import { loadConfig } from "@gpc-cli/config";
 import {
   detectFastlane,
   generateMigrationPlan,
   writeMigrationOutput,
-  detectOutputFormat,
   formatOutput,
 } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 
 export function registerMigrateCommands(program: Command): void {
   const migrate = program.command("migrate").description("Migrate from other tools to GPC");
@@ -16,7 +17,8 @@ export function registerMigrateCommands(program: Command): void {
     .option("--dir <path>", "Directory containing Fastlane files", ".")
     .option("--output <path>", "Output directory for migration files", ".")
     .action(async (options) => {
-      const format = detectOutputFormat();
+      const config = await loadConfig();
+      const format = getOutputFormat(program, config);
 
       try {
         const detection = await detectFastlane(options.dir);

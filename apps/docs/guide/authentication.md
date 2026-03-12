@@ -62,15 +62,24 @@ This creates a `service-account-key.json` file in your current directory. Store 
 
 The service account is active immediately after invitation. No acceptance step is required.
 
-### Required API Scope
+### Required API Scopes
 
-All GPC auth methods use a single OAuth scope:
+GPC requests two OAuth scopes:
 
 ```
 https://www.googleapis.com/auth/androidpublisher
+https://www.googleapis.com/auth/playdeveloperreporting
 ```
 
-This scope covers both the Publisher API (`androidpublisher.googleapis.com`) and the Reporting API (`playdeveloperreporting.googleapis.com`).
+The `androidpublisher` scope covers the Publisher API (app management, releases, listings, monetization). The `playdeveloperreporting` scope is required for the Reporting API (vitals, crash rates, error issues, anomalies).
+
+::: tip Enable the Reporting API
+If you use `gpc vitals` commands, ensure the **Google Play Developer Reporting API** is enabled in your Google Cloud project:
+
+```bash
+gcloud services enable playdeveloperreporting.googleapis.com --project my-play-deploy-123456
+```
+:::
 
 ## Service Account
 

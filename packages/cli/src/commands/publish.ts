@@ -6,7 +6,8 @@ import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
 import type { RetryLogEntry } from "@gpc-cli/api";
 import { publish, generateNotesFromGit, writeAuditLog, createAuditEntry } from "@gpc-cli/core";
-import { detectOutputFormat, formatOutput } from "@gpc-cli/core";
+import { formatOutput } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 import { isDryRun } from "../dry-run.js";
 import { isInteractive, promptSelect, promptInput } from "../prompt.js";
 
@@ -41,7 +42,7 @@ export function registerPublishCommand(program: Command): void {
 
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       // Interactive mode: prompt for missing options
       if (isInteractive(program)) {

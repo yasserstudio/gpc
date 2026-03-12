@@ -1,7 +1,8 @@
 import type { Command } from "commander";
 import { loadConfig, setConfigValue, getUserConfigPath, initConfig } from "@gpc-cli/config";
 import type { GpcConfig } from "@gpc-cli/config";
-import { detectOutputFormat, formatOutput, writeAuditLog, createAuditEntry } from "@gpc-cli/core";
+import { formatOutput, writeAuditLog, createAuditEntry } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 import { isInteractive, promptInput, promptSelect } from "../prompt.js";
 
 export function registerConfigCommands(program: Command): void {
@@ -39,7 +40,7 @@ export function registerConfigCommands(program: Command): void {
     .description("Display resolved configuration")
     .action(async () => {
       const resolved = await loadConfig();
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, resolved);
       console.log(formatOutput(resolved, format));
     });
 

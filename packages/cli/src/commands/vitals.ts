@@ -17,9 +17,9 @@ import {
   searchVitalsErrors,
   compareVitalsTrend,
   checkThreshold,
-  detectOutputFormat,
   formatOutput,
 } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -78,7 +78,7 @@ function registerMetricCommand(
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const reporting = await getReportingClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await fn(reporting, packageName, {
@@ -119,7 +119,7 @@ export function registerVitalsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const reporting = await getReportingClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await getVitalsOverview(reporting, packageName);
@@ -156,7 +156,7 @@ export function registerVitalsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const reporting = await getReportingClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await getVitalsAnomalies(reporting, packageName);
@@ -178,7 +178,7 @@ export function registerVitalsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const reporting = await getReportingClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await searchVitalsErrors(reporting, packageName, {
@@ -217,7 +217,7 @@ export function registerVitalsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const reporting = await getReportingClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await compareVitalsTrend(reporting, packageName, metricSet, options.days);

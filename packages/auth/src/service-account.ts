@@ -6,6 +6,7 @@ import { acquireToken } from "./token-cache.js";
 import type { AuthClient, ServiceAccountKey } from "./types.js";
 
 const ANDROID_PUBLISHER_SCOPE = "https://www.googleapis.com/auth/androidpublisher";
+const REPORTING_SCOPE = "https://www.googleapis.com/auth/playdeveloperreporting";
 
 const REQUIRED_FIELDS: readonly (keyof ServiceAccountKey)[] = [
   "type",
@@ -91,7 +92,7 @@ export function createServiceAccountAuth(key: ServiceAccountKey, cachePath?: str
   const jwtClient = new JWT({
     email: key.client_email,
     key: key.private_key,
-    scopes: [ANDROID_PUBLISHER_SCOPE],
+    scopes: [ANDROID_PUBLISHER_SCOPE, REPORTING_SCOPE],
   });
 
   return {

@@ -10,11 +10,11 @@ import {
   createPurchaseOption,
   activatePurchaseOption,
   deactivatePurchaseOption,
-  detectOutputFormat,
   formatOutput,
   sortResults,
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
+import { getOutputFormat } from "../format.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -42,7 +42,7 @@ export function registerPurchaseOptionsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await listPurchaseOptions(client, packageName);
@@ -62,7 +62,7 @@ export function registerPurchaseOptionsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       try {
         const result = await getPurchaseOption(client, packageName, id);
@@ -79,7 +79,7 @@ export function registerPurchaseOptionsCommands(program: Command): void {
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -111,7 +111,7 @@ export function registerPurchaseOptionsCommands(program: Command): void {
     .action(async (id: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -142,7 +142,7 @@ export function registerPurchaseOptionsCommands(program: Command): void {
     .action(async (id: string) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
         printDryRun(

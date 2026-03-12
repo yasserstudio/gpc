@@ -6,9 +6,9 @@ import { createApiClient } from "@gpc-cli/api";
 import {
   listGeneratedApks,
   downloadGeneratedApk,
-  detectOutputFormat,
   formatOutput,
 } from "@gpc-cli/core";
+import { getOutputFormat } from "../format.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -36,7 +36,7 @@ export function registerGeneratedApksCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       const versionCode = parseInt(versionCodeStr, 10);
       if (isNaN(versionCode)) {
@@ -61,7 +61,7 @@ export function registerGeneratedApksCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
-      const format = detectOutputFormat();
+      const format = getOutputFormat(program, config);
 
       const versionCode = parseInt(versionCodeStr, 10);
       if (isNaN(versionCode)) {
