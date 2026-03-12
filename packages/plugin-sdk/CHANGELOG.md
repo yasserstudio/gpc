@@ -1,5 +1,11 @@
 # @gpc-cli/plugin-sdk
 
+## 0.9.6
+
+### Patch Changes
+
+- fda9c08: Pre-1.0 hardening: input validation, security review, expanded test coverage, performance benchmarks, license compliance, docs polish
+
 ## 0.9.5
 
 ### Patch Changes

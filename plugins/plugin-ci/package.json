@@ -1,6 +1,6 @@
 {
   "name": "@gpc-cli/plugin-ci",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "description": "CI/CD helpers for GPC",
   "type": "module",
   "main": "./dist/index.js",
