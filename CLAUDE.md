@@ -80,7 +80,9 @@ Private docs in `.dev/` (gitignored):
 
 ## GPC Skills
 
-Agent skills for GPC workflows are in `.agents/skills/gpc-*`:
+Agent skills for GPC workflows are in `.agents/skills/gpc-*`.
+
+Install: `npx skills add yasserstudio/gpc-skills`
 
 | Skill                    | When to Use                                                                     |
 | ------------------------ | ------------------------------------------------------------------------------- |
