@@ -6,7 +6,20 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.18 <Badge type="tip" text="latest" />
+## v0.9.19 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **Fix: OTP update regionsVersion + updateMask** — `otp update` and `otp offers update` now include `regionsVersion.version=2022/02` and auto-derived `updateMask`, matching the subscription fix from v0.9.18
+- **Fix: table cell truncation** — cells wider than 60 characters are truncated with `...` in table and markdown output
+- **Fix: flatten subscriptions/OTP list** — `subscriptions list` and `otp list` show readable summaries (productId, counts, state) in table/markdown output instead of nested JSON blobs
+- **Fix: better JSON parse errors** — file read errors now include the filename in the error message
+- **`gpc releases diff`** — compare releases between two tracks (`--from internal --to production`), showing version codes, status, rollout, and release notes differences
+- **`gpc subscriptions diff`** — compare a local JSON file against the remote subscription state
+- **`gpc otp diff`** — compare a local JSON file against the remote one-time product state
+- 1,271 tests
+
+## v0.9.18
 
 _March 2026_
 
