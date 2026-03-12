@@ -1,5 +1,13 @@
 # @gpc-cli/api
 
+## 1.0.10
+
+### Patch Changes
+
+- fda9c08: Pre-1.0 hardening: input validation, security review, expanded test coverage, performance benchmarks, license compliance, docs polish
+- Updated dependencies [fda9c08]
+  - @gpc-cli/auth@0.9.8
+
 ## 1.0.9
 
 ### Patch Changes
