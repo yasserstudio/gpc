@@ -36,7 +36,7 @@ features:
   - icon:
       src: /icons/shield.svg
     title: Battle-Tested
-    details: 1,273 tests, 90%+ code coverage, security-audited credential handling, automatic secrets redaction.
+    details: 1,276 tests, 90%+ code coverage, security-audited credential handling, automatic secrets redaction.
   - icon:
       src: /icons/activity.svg
     title: Vitals-Gated Releases

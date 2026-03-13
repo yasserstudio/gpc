@@ -7,6 +7,22 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.21
+
+Vitals query fix, reports GCS limitation, purchase-options redirect, table and JUnit fixes.
+
+- fix: vitals crashes/anr always include `timelineSpec` (defaults to 30 days), use per-metric-set metrics
+- fix: reports list/download show GCS limitation messages (financial/stats reports are delivered via Google Cloud Storage)
+- fix: purchase-options commands redirect to `otp offers` (correct sub-resource path)
+- fix: pricing convert extracts `units`/`nanos`/`currencyCode` from Money object
+- fix: subscriptions get handles array-format listings for language codes
+- fix: generated-apks flattens nested objects into readable table columns
+- fix: JUnit testcase names use fallback chain (`productId`, `region`, `languageCode`, `item-N`) instead of raw JSON
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.20...v0.9.21)
+
+---
+
 ## v0.9.20
 
 Vitals API fix, upload timeout auto-scaling, empty output messages, table formatting, HTML error sanitization.
