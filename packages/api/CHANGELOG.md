@@ -1,5 +1,11 @@
 # @gpc-cli/api
 
+## 1.0.16
+
+### Patch Changes
+
+- fix: vitals API endpoints, upload timeout auto-scaling, empty output messages, table formatting, HTML error sanitization
+
 ## 1.0.15
 
 ### Patch Changes
