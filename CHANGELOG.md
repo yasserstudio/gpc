@@ -7,6 +7,23 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.20
+
+Vitals API fix, upload timeout auto-scaling, empty output messages, table formatting, HTML error sanitization.
+
+- fix: correct vitals metric set names (`crashRateMetricSet`, not `vitals.crashrate`) — fixes 404 against real API
+- fix: auto-scale upload timeout based on file size (30s + 1s/MB), add `--timeout` flag and `GPC_UPLOAD_TIMEOUT` env var
+- fix: strip HTML tags from API error responses
+- fix: `data-safety get` shows clear error (no GET endpoint in Google Play API)
+- fix: `listings push --dry-run` no longer says "Listings pushed"
+- fix: `recovery list` requires `--version-code`
+- fix: empty result messages for `otp list`, `testers list`, `device-tiers list`, `listings availability`, `vitals errors search`, vitals metrics
+- fix: flatten table output for `subscriptions get`, `subscriptions offers list`, `pricing convert`
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.19...v0.9.20)
+
+---
+
 ## v0.9.19
 
 OTP parity fixes, diff commands, and table UX improvements.
