@@ -48,7 +48,19 @@ export function registerPurchasesCommands(program: Command): void {
 
       try {
         const result = await getProductPurchase(client, packageName, productId, token);
-        console.log(formatOutput(result, format));
+        if (format !== "json") {
+          const r = result as Record<string, unknown>;
+          const row = {
+            orderId: r["orderId"] || "-",
+            purchaseState: r["purchaseState"] ?? "-",
+            consumptionState: r["consumptionState"] ?? "-",
+            purchaseTime: r["purchaseTimeMillis"] ? new Date(Number(r["purchaseTimeMillis"])).toISOString() : "-",
+            acknowledged: r["acknowledgementState"] ?? "-",
+          };
+          console.log(formatOutput(row, format));
+        } else {
+          console.log(formatOutput(result, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
@@ -135,7 +147,21 @@ export function registerPurchasesCommands(program: Command): void {
 
       try {
         const result = await getSubscriptionPurchase(client, packageName, token);
-        console.log(formatOutput(result, format));
+        if (format !== "json") {
+          const r = result as Record<string, unknown>;
+          const lineItems = r["lineItems"] as Record<string, unknown>[] | undefined;
+          const row = {
+            subscriptionState: r["subscriptionState"] || "-",
+            startTime: r["startTime"] || "-",
+            expiryTime: r["expiryTime"] || "-",
+            linkedPurchaseToken: r["linkedPurchaseToken"] ? "yes" : "no",
+            lineItems: lineItems?.length || 0,
+            acknowledgement: r["acknowledgementState"] || "-",
+          };
+          console.log(formatOutput(row, format));
+        } else {
+          console.log(formatOutput(result, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
@@ -279,7 +305,23 @@ export function registerPurchasesCommands(program: Command): void {
           limit: options.limit,
           nextPage: options.nextPage,
         });
-        console.log(formatOutput(result, format));
+        if (format !== "json") {
+          const purchases = (result as Record<string, unknown>)["voidedPurchases"] as Record<string, unknown>[] | undefined;
+          if (purchases && purchases.length > 0) {
+            const rows = purchases.map((p) => ({
+              orderId: p["orderId"] || "-",
+              purchaseToken: String(p["purchaseToken"] || "-").slice(0, 16) + "...",
+              voidedTime: p["voidedTimeMillis"] ? new Date(Number(p["voidedTimeMillis"])).toISOString() : "-",
+              voidedSource: p["voidedSource"] ?? "-",
+              voidedReason: p["voidedReason"] ?? "-",
+            }));
+            console.log(formatOutput(rows, format));
+          } else {
+            console.log("No voided purchases found.");
+          }
+        } else {
+          console.log(formatOutput(result, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

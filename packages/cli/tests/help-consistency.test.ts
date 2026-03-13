@@ -201,6 +201,7 @@ const EXPECTED_TOP_LEVEL_COMMANDS = [
   "internal-sharing",
   "generated-apks",
   "purchase-options",
+  "audit",
   "migrate",
   "docs",
   "completion",

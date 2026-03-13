@@ -39,12 +39,21 @@ export function registerDeviceTiersCommands(program: Command): void {
 
       try {
         const result = await listDeviceTiers(client, packageName);
-        const configs = (result as Record<string, unknown>)["deviceTierConfigs"] as unknown[] | undefined;
+        const configs = (result as Record<string, unknown>)["deviceTierConfigs"] as Record<string, unknown>[] | undefined;
         if (format !== "json" && (!configs || configs.length === 0)) {
           console.log("No device tier configs found.");
           return;
         }
-        console.log(formatOutput(result, format));
+        if (format !== "json" && configs) {
+          const rows = configs.map((c) => ({
+            deviceTierConfigId: c["deviceTierConfigId"] || "-",
+            deviceGroups: Array.isArray(c["deviceGroups"]) ? (c["deviceGroups"] as unknown[]).length : 0,
+            deviceTierSet: c["deviceTierSet"] ? "yes" : "no",
+          }));
+          console.log(formatOutput(rows, format));
+        } else {
+          console.log(formatOutput(result, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

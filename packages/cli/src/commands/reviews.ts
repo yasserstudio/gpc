@@ -64,7 +64,25 @@ export function registerReviewsCommands(program: Command): void {
           return;
         }
         const sorted = sortResults(result, options.sort);
-        console.log(formatOutput(sorted, format));
+        if (format !== "json" && Array.isArray(sorted)) {
+          const rows = sorted.map((r: Record<string, unknown>) => {
+            const comments = r["comments"] as Record<string, unknown>[] | undefined;
+            const userComment = comments?.[0]?.["userComment"] as Record<string, unknown> | undefined;
+            return {
+              reviewId: r["reviewId"] || "-",
+              author: r["authorName"] || "-",
+              stars: userComment?.["starRating"] || "-",
+              text: String(userComment?.["text"] || "-").slice(0, 80),
+              lastModified: userComment?.["lastModified"]
+                ? String((userComment["lastModified"] as Record<string, unknown>)?.["seconds"] || "-")
+                : "-",
+              thumbsUp: userComment?.["thumbsUpCount"] || 0,
+            };
+          });
+          console.log(formatOutput(rows, format));
+        } else {
+          console.log(formatOutput(sorted, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

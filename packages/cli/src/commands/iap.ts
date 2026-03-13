@@ -10,6 +10,8 @@ import {
   updateInAppProduct,
   deleteInAppProduct,
   syncInAppProducts,
+  listInAppProducts,
+  batchSyncInAppProducts,
   formatOutput,
   sortResults,
   createSpinner,
@@ -212,6 +214,105 @@ export function registerIapCommands(program: Command): void {
         console.log(formatOutput(result, format));
       } catch (error) {
         spinner.fail("Sync failed");
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  iap
+    .command("batch-get")
+    .description("Batch get multiple in-app products")
+    .option("--skus <skus>", "Comma-separated list of SKUs")
+    .option("--file <path>", "JSON file with array of SKUs")
+    .action(async (options) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = getOutputFormat(program, config);
+
+      let skus: string[];
+      if (options.file) {
+        const data = await readJsonFile(options.file);
+        skus = Array.isArray(data) ? data : (data as Record<string, unknown>)["skus"] as string[] || [];
+      } else if (options.skus) {
+        skus = options.skus.split(",").map((s: string) => s.trim());
+      } else {
+        console.error("Error: Provide --skus <sku1,sku2,...> or --file <path>");
+        process.exit(2);
+        return;
+      }
+
+      console.error("Note: Using inappproducts batch API");
+
+      try {
+        const products = await client.inappproducts.batchGet(packageName, skus);
+        if (format !== "json") {
+          const rows = products.map((p: Record<string, unknown>) => ({
+            sku: p["sku"] || "-",
+            status: p["status"] || "-",
+            purchaseType: p["purchaseType"] || "-",
+            defaultPrice: (() => {
+              const price = p["defaultPrice"] as Record<string, unknown> | undefined;
+              return price ? `${price["priceMicros"] ? Number(price["priceMicros"]) / 1_000_000 : "-"} ${price["currency"] || ""}` : "-";
+            })(),
+          }));
+          console.log(formatOutput(rows, format));
+        } else {
+          console.log(formatOutput(products, format));
+        }
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  iap
+    .command("batch-update")
+    .description("Batch update multiple in-app products from a JSON file")
+    .requiredOption("--file <path>", "JSON file with array of product objects")
+    .option("--dry-run", "Preview changes without executing")
+    .action(async (options) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const format = getOutputFormat(program, config);
+
+      if (options.dryRun || isDryRun(program)) {
+        const data = await readJsonFile(options.file);
+        const products = Array.isArray(data) ? data : [];
+        console.log(`[dry-run] Would batch update ${products.length} product(s)`);
+        if (format !== "json") {
+          const rows = products.map((p: Record<string, unknown>) => ({
+            sku: p["sku"] || "-",
+            action: "update",
+          }));
+          console.log(formatOutput(rows, format));
+        } else {
+          console.log(formatOutput(products, format));
+        }
+        return;
+      }
+
+      const client = await getClient(config);
+      console.error("Note: Using inappproducts batch API");
+
+      const spinner = createSpinner("Batch updating products...");
+      if (!program.opts()["quiet"] && process.stderr.isTTY) spinner.start();
+
+      try {
+        const data = await readJsonFile(options.file);
+        const products = Array.isArray(data) ? data : [];
+        const request = {
+          requests: products.map((p: Record<string, unknown>) => ({
+            inappproduct: p,
+            packageName,
+            sku: p["sku"] as string,
+          })),
+        };
+        const result = await client.inappproducts.batchUpdate(packageName, request as any);
+        spinner.stop("Batch update complete");
+        console.log(formatOutput(result, format));
+      } catch (error) {
+        spinner.fail("Batch update failed");
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
       }
