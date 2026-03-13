@@ -172,7 +172,18 @@ export function registerReleasesCommands(program: Command): void {
       try {
         const statuses = await getReleasesStatus(client, packageName, options.track);
         const sorted = Array.isArray(statuses) ? sortResults(statuses, options.sort) : statuses;
-        console.log(formatOutput(sorted, format));
+        if (format !== "json" && Array.isArray(sorted)) {
+          const rows = sorted.map((s: Record<string, unknown>) => ({
+            track: s["track"] || "-",
+            status: s["status"] || "-",
+            name: s["name"] || "-",
+            versionCodes: Array.isArray(s["versionCodes"]) ? (s["versionCodes"] as unknown[]).join(", ") : "-",
+            userFraction: s["userFraction"] !== undefined ? String(s["userFraction"]) : "-",
+          }));
+          console.log(formatOutput(rows, format));
+        } else {
+          console.log(formatOutput(sorted, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

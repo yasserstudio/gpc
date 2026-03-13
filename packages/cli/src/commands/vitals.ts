@@ -50,6 +50,15 @@ const VALID_DIMENSIONS: ReportingDimension[] = [
   "deviceBrand",
 ];
 
+const THRESHOLD_CONFIG_KEYS: Record<string, string> = {
+  crashes: "crashRate",
+  anr: "anrRate",
+  startup: "slowStartRate",
+  rendering: "slowRenderingRate",
+  battery: "excessiveWakeupRate",
+  memory: "stuckWakelockRate",
+};
+
 function validateDimension(dim: string): ReportingDimension {
   if (!VALID_DIMENSIONS.includes(dim as ReportingDimension)) {
     console.error(`Error: Invalid dimension "${dim}".`);
@@ -89,16 +98,49 @@ function registerMetricCommand(
           console.log("No vitals data available.");
           return;
         }
-        console.log(formatOutput(result, format));
+        if (format !== "json" && result.rows) {
+          const rows = result.rows.map((row: Record<string, unknown>) => {
+            const startTime = row["startTime"] as Record<string, unknown> | undefined;
+            const metrics = row["metrics"] as Record<string, Record<string, unknown>> | undefined;
+            const flat: Record<string, unknown> = {
+              date: startTime ? `${startTime["year"]}-${String(startTime["month"]).padStart(2, "0")}-${String(startTime["day"]).padStart(2, "0")}` : "-",
+            };
+            if (metrics) {
+              for (const [key, val] of Object.entries(metrics)) {
+                flat[key] = val?.["decimalValue"]?.["value"] ?? "-";
+              }
+            }
+            const dims = row["dimensions"] as Record<string, unknown> | undefined;
+            if (dims) {
+              for (const [key, val] of Object.entries(dims)) {
+                flat[key] = (val as Record<string, unknown>)?.["stringValue"] ?? "-";
+              }
+            }
+            return flat;
+          });
+          console.log(formatOutput(rows, format));
+        } else {
+          console.log(formatOutput(result, format));
+        }
 
-        if (options.threshold !== undefined) {
+        // Check threshold from flag or config
+        const configKey = THRESHOLD_CONFIG_KEYS[name];
+        const configThreshold = configKey
+          ? (config as Record<string, unknown>)["vitals"]
+            ? ((config as Record<string, unknown>)["vitals"] as Record<string, unknown>)["thresholds"]
+              ? (((config as Record<string, unknown>)["vitals"] as Record<string, unknown>)["thresholds"] as Record<string, unknown>)[configKey]
+              : undefined
+            : undefined
+          : undefined;
+        const threshold = options.threshold ?? (configThreshold !== undefined ? Number(configThreshold) : undefined);
+        if (threshold !== undefined) {
           const latestRow = result.rows?.[result.rows.length - 1];
           const metricKeys = latestRow?.metrics ? Object.keys(latestRow.metrics) : [];
           const firstMetric = metricKeys[0];
           const value = firstMetric
             ? Number(latestRow?.metrics[firstMetric]?.decimalValue?.value)
             : undefined;
-          const check = checkThreshold(value, options.threshold);
+          const check = checkThreshold(value, threshold);
           if (check.breached) {
             console.error(`Threshold breached: ${check.value} > ${check.threshold}`);
             process.exit(6);
@@ -135,7 +177,24 @@ export function registerVitalsCommands(program: Command): void {
           }
           return;
         }
-        console.log(formatOutput(result, format));
+        if (format !== "json") {
+          const overview = result as Record<string, unknown>;
+          const rows = Object.entries(overview).map(([metric, data]) => {
+            const metricRows = data as Record<string, unknown>[] | undefined;
+            const latest = metricRows?.[metricRows.length - 1];
+            const metrics = latest?.["metrics"] as Record<string, Record<string, unknown>> | undefined;
+            const firstKey = metrics ? Object.keys(metrics)[0] : undefined;
+            const value = firstKey ? metrics?.[firstKey]?.["decimalValue"]?.["value"] : undefined;
+            return {
+              metric,
+              dataPoints: metricRows?.length || 0,
+              latestValue: value ?? "-",
+            };
+          });
+          console.log(formatOutput(rows, format));
+        } else {
+          console.log(formatOutput(result, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

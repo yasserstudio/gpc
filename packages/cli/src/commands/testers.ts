@@ -65,11 +65,17 @@ export function registerTestersCommands(program: Command): void {
             descending ? b.localeCompare(a) : a.localeCompare(b),
           );
         }
-        if (format !== "json" && (!result.googleGroups || result.googleGroups.length === 0)) {
-          console.log("No testers found.");
-          return;
+        if (format !== "json") {
+          const groups = (result.googleGroups || []) as string[];
+          const rows = groups.map((g: string) => ({ googleGroup: g }));
+          if (rows.length > 0) {
+            console.log(formatOutput(rows, format));
+          } else {
+            console.log("No testers found.");
+          }
+        } else {
+          console.log(formatOutput(result, format));
         }
-        console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

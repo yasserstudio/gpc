@@ -46,7 +46,8 @@ function buildQuery(metricSet: VitalsMetricSet, options?: VitalsQueryOptions): M
 
   const days = options?.days ?? 30;
   const end = new Date();
-  const start = new Date();
+  end.setDate(end.getDate() - 1); // API data lags ~1 day; cap to yesterday
+  const start = new Date(end);
   start.setDate(start.getDate() - days);
 
   const query: MetricSetQuery = {
@@ -195,6 +196,7 @@ export async function compareVitalsTrend(
   days: number = 7,
 ): Promise<VitalsTrendComparison> {
   const now = new Date();
+  now.setDate(now.getDate() - 1); // API data lags ~1 day; cap to yesterday
 
   // Current period
   const currentEnd = new Date(now);

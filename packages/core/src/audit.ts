@@ -1,4 +1,4 @@
-import { appendFile, chmod, mkdir } from "node:fs/promises";
+import { appendFile, chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 export interface AuditEntry {
@@ -94,4 +94,93 @@ export function createAuditEntry(
     app,
     args,
   };
+}
+
+export async function listAuditEvents(options?: {
+  limit?: number;
+  since?: string;
+  command?: string;
+}): Promise<AuditEntry[]> {
+  if (!auditDir) return [];
+  const logPath = join(auditDir, "audit.log");
+  let content: string;
+  try {
+    content = await readFile(logPath, "utf-8");
+  } catch {
+    return [];
+  }
+  const lines = content.trim().split("\n").filter(Boolean);
+  let entries: AuditEntry[] = [];
+  for (const line of lines) {
+    try {
+      entries.push(JSON.parse(line) as AuditEntry);
+    } catch {
+      // skip malformed lines
+    }
+  }
+  if (options?.since) {
+    const sinceDate = new Date(options.since).getTime();
+    entries = entries.filter((e) => new Date(e.timestamp).getTime() >= sinceDate);
+  }
+  if (options?.command) {
+    const cmd = options.command.toLowerCase();
+    entries = entries.filter((e) => e.command.toLowerCase().includes(cmd));
+  }
+  if (options?.limit) {
+    entries = entries.slice(-options.limit);
+  }
+  return entries;
+}
+
+export async function searchAuditEvents(query: string): Promise<AuditEntry[]> {
+  const all = await listAuditEvents();
+  const q = query.toLowerCase();
+  return all.filter((e) => {
+    const text = JSON.stringify(e).toLowerCase();
+    return text.includes(q);
+  });
+}
+
+export async function clearAuditLog(options?: {
+  before?: string;
+  dryRun?: boolean;
+}): Promise<{ deleted: number; remaining: number }> {
+  if (!auditDir) return { deleted: 0, remaining: 0 };
+  const logPath = join(auditDir, "audit.log");
+  let content: string;
+  try {
+    content = await readFile(logPath, "utf-8");
+  } catch {
+    return { deleted: 0, remaining: 0 };
+  }
+  const lines = content.trim().split("\n").filter(Boolean);
+  if (!options?.before) {
+    const count = lines.length;
+    if (!options?.dryRun) {
+      await writeFile(logPath, "", { encoding: "utf-8", mode: 0o600 });
+    }
+    return { deleted: count, remaining: 0 };
+  }
+  const beforeDate = new Date(options.before).getTime();
+  const keep: string[] = [];
+  const remove: string[] = [];
+  for (const line of lines) {
+    try {
+      const entry = JSON.parse(line) as AuditEntry;
+      if (new Date(entry.timestamp).getTime() < beforeDate) {
+        remove.push(line);
+      } else {
+        keep.push(line);
+      }
+    } catch {
+      keep.push(line);
+    }
+  }
+  if (!options?.dryRun) {
+    await writeFile(logPath, keep.length > 0 ? keep.join("\n") + "\n" : "", {
+      encoding: "utf-8",
+      mode: 0o600,
+    });
+  }
+  return { deleted: remove.length, remaining: keep.length };
 }

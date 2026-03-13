@@ -196,7 +196,7 @@ export { safePath, safePathWithin } from "./utils/safe-path.js";
 export { sortResults } from "./utils/sort.js";
 export { scaffoldPlugin } from "./commands/plugin-scaffold.js";
 export type { ScaffoldOptions, ScaffoldResult } from "./commands/plugin-scaffold.js";
-export { initAudit, writeAuditLog, createAuditEntry, redactAuditArgs, SENSITIVE_ARG_KEYS } from "./audit.js";
+export { initAudit, writeAuditLog, createAuditEntry, redactAuditArgs, SENSITIVE_ARG_KEYS, listAuditEvents, searchAuditEvents, clearAuditLog } from "./audit.js";
 export type { AuditEntry } from "./audit.js";
 export {
   sendWebhook,

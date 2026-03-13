@@ -61,7 +61,25 @@ export function registerUsersCommands(program: Command): void {
         if (options.sort) {
           result.users = sortResults(result.users, options.sort);
         }
-        console.log(formatOutput(result, format));
+        if (format !== "json") {
+          const users = (result.users || []) as Record<string, unknown>[];
+          if (users.length === 0) {
+            console.log("No users found.");
+          } else {
+            const rows = users.map((u) => ({
+              email: u["email"] || "-",
+              name: u["name"] || "-",
+              accessState: u["accessState"] || "-",
+              grants: Array.isArray(u["grants"]) ? (u["grants"] as unknown[]).length : 0,
+              permissions: Array.isArray(u["developerAccountPermission"])
+                ? (u["developerAccountPermission"] as unknown[]).length
+                : 0,
+            }));
+            console.log(formatOutput(rows, format));
+          }
+        } else {
+          console.log(formatOutput(result, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
