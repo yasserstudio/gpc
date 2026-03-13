@@ -1,11 +1,5 @@
 import type { Command } from "commander";
-import type { GpcConfig } from "@gpc-cli/config";
-import { loadConfig } from "@gpc-cli/config";
-import { resolveAuth } from "@gpc-cli/auth";
-import { createApiClient } from "@gpc-cli/api";
 import {
-  listReports,
-  downloadReport,
   parseMonth,
   isValidReportType,
   isFinancialReportType,
@@ -13,73 +7,60 @@ import {
   formatOutput,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
-import type { ReportType } from "@gpc-cli/api";
-import { writeFile } from "node:fs/promises";
-import { isInteractive, requireOption } from "../prompt.js";
 
-function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
-  const name = packageArg || config.app;
-  if (!name) {
-    console.error("Error: No package name. Use --app <package> or gpc config set app <package>");
-    process.exit(2);
-  }
-  return name;
-}
+const FINANCIAL_REPORT_MESSAGE = `Financial reports (earnings, sales, estimated_sales, play_balance) are not available through the Google Play Developer API.
 
-async function getClient(config: GpcConfig) {
-  const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
-  return createApiClient({ auth });
-}
+These reports are delivered as CSV files in Google Cloud Storage buckets.
+To access them:
+  1. Open Google Play Console → "Download reports" → "Financial"
+  2. For programmatic access, use the GCS bucket URI shown in Play Console
+     with the Google Cloud Storage API or gsutil.
+
+See: https://support.google.com/googleplay/android-developer/answer/6135870`;
+
+const STATS_REPORT_MESSAGE = `Stats reports (installs, crashes, ratings, reviews, store_performance, subscriptions) are not available through the Google Play Developer API as downloadable CSVs.
+
+These reports are delivered as CSV files in Google Cloud Storage buckets.
+To access them:
+  1. Open Google Play Console → "Download reports" → "Statistics"
+  2. For programmatic access, use the GCS bucket URI shown in Play Console
+     with the Google Cloud Storage API or gsutil.
+
+For real-time crash and ANR metrics, use:
+  gpc vitals crashes
+  gpc vitals anr
+  gpc vitals overview
+
+See: https://support.google.com/googleplay/android-developer/answer/6135870`;
 
 export function registerReportsCommands(program: Command): void {
-  const reports = program.command("reports").description("Download financial and stats reports");
+  const reports = program.command("reports").description("Financial and stats reports (via Google Cloud Storage)");
 
   reports
     .command("list <report-type>")
-    .description("List available report buckets")
+    .description("List available reports")
     .option("--month <YYYY-MM>", "Report month (e.g., 2026-03)")
     .option("--limit <n>", "Maximum results to return")
     .option("--next-page <token>", "Pagination token for next page")
     .action(async (reportType: string, options) => {
-      const interactive = isInteractive(program);
-      const now = new Date();
-      const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-
-      options.month = await requireOption(
-        "month",
-        options.month,
-        {
-          message: "Report month (YYYY-MM):",
-          default: defaultMonth,
-        },
-        interactive,
-      );
-
       if (!isValidReportType(reportType)) {
         console.error(
           `Error: Invalid report type "${reportType}". Valid types: earnings, sales, estimated_sales, installs, crashes, ratings, reviews, store_performance, subscriptions, play_balance`,
         );
         process.exit(2);
       }
-      const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()["app"], config);
-      const client = await getClient(config);
-      const format = getOutputFormat(program, config);
 
-      try {
-        const { year, month } = parseMonth(options.month);
-        const result = await listReports(
-          client,
-          packageName,
-          reportType as ReportType,
-          year,
-          month,
-        );
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      // Validate month format if provided
+      if (options.month) {
+        parseMonth(options.month);
       }
+
+      if (isFinancialReportType(reportType)) {
+        console.log(FINANCIAL_REPORT_MESSAGE);
+      } else {
+        console.log(STATS_REPORT_MESSAGE);
+      }
+      process.exit(1);
     });
 
   const download = reports.command("download").description("Download a report");
@@ -91,49 +72,15 @@ export function registerReportsCommands(program: Command): void {
     .option("--type <report-type>", "Report type", "earnings")
     .option("--output-file <path>", "Save to file instead of stdout")
     .action(async (options) => {
-      const interactive = isInteractive(program);
-      const now = new Date();
-      const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-
-      options.month = await requireOption(
-        "month",
-        options.month,
-        {
-          message: "Report month (YYYY-MM):",
-          default: defaultMonth,
-        },
-        interactive,
-      );
-
-      if (!isFinancialReportType(options.type)) {
+      if (options.type && !isFinancialReportType(options.type)) {
         console.error(
           `Error: Invalid financial report type "${options.type}". Valid types: earnings, sales, estimated_sales, play_balance`,
         );
         process.exit(2);
       }
-      const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()["app"], config);
-      const client = await getClient(config);
 
-      try {
-        const { year, month } = parseMonth(options.month);
-        const csv = await downloadReport(
-          client,
-          packageName,
-          options.type as ReportType,
-          year,
-          month,
-        );
-        if (options.outputFile) {
-          await writeFile(options.outputFile, csv, "utf-8");
-          console.log(`Report saved to ${options.outputFile}`);
-        } else {
-          console.log(csv);
-        }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      console.log(FINANCIAL_REPORT_MESSAGE);
+      process.exit(1);
     });
 
   download
@@ -146,66 +93,14 @@ export function registerReportsCommands(program: Command): void {
     )
     .option("--output-file <path>", "Save to file instead of stdout")
     .action(async (options) => {
-      const interactive = isInteractive(program);
-      const now = new Date();
-      const defaultMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-      const statsTypes = [
-        "installs",
-        "crashes",
-        "ratings",
-        "reviews",
-        "store_performance",
-        "subscriptions",
-      ];
-
-      options.month = await requireOption(
-        "month",
-        options.month,
-        {
-          message: "Report month (YYYY-MM):",
-          default: defaultMonth,
-        },
-        interactive,
-      );
-
-      options.type = await requireOption(
-        "type",
-        options.type,
-        {
-          message: "Stats report type:",
-          choices: statsTypes,
-        },
-        interactive,
-      );
-
-      if (!isStatsReportType(options.type)) {
+      if (options.type && !isStatsReportType(options.type)) {
         console.error(
           `Error: Invalid stats report type "${options.type}". Valid types: installs, crashes, ratings, reviews, store_performance, subscriptions`,
         );
         process.exit(2);
       }
-      const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()["app"], config);
-      const client = await getClient(config);
 
-      try {
-        const { year, month } = parseMonth(options.month);
-        const csv = await downloadReport(
-          client,
-          packageName,
-          options.type as ReportType,
-          year,
-          month,
-        );
-        if (options.outputFile) {
-          await writeFile(options.outputFile, csv, "utf-8");
-          console.log(`Report saved to ${options.outputFile}`);
-        } else {
-          console.log(csv);
-        }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      console.log(STATS_REPORT_MESSAGE);
+      process.exit(1);
     });
 }

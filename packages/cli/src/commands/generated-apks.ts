@@ -46,7 +46,22 @@ export function registerGeneratedApksCommands(program: Command): void {
 
       try {
         const result = await listGeneratedApks(client, packageName, versionCode);
-        console.log(formatOutput(result, format));
+        if (format !== "json") {
+          const apks = (result as Record<string, unknown>)["generatedApks"] as Array<Record<string, unknown>> | undefined;
+          if (apks && apks.length > 0) {
+            const rows = apks.map((apk) => ({
+              id: apk["generatedApkId"] || "-",
+              variantId: apk["variantId"] || "-",
+              moduleName: apk["moduleName"] || "-",
+              sha256: String(apk["certificateSha256Fingerprint"] || "-").slice(0, 16) + "...",
+            }));
+            console.log(formatOutput(rows, format));
+          } else {
+            console.log("No generated APKs found.");
+          }
+        } else {
+          console.log(formatOutput(result, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

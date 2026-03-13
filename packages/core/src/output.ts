@@ -234,8 +234,8 @@ function toTestCases(data: unknown, commandName: string): { cases: string[]; fai
   let failures = 0;
 
   if (Array.isArray(data)) {
-    for (const item of data) {
-      const tc = buildTestCase(item, commandName);
+    for (let i = 0; i < data.length; i++) {
+      const tc = buildTestCase(data[i], commandName, i);
       cases.push(tc.xml);
       if (tc.failed) failures++;
     }
@@ -255,6 +255,7 @@ function toTestCases(data: unknown, commandName: string): { cases: string[]; fai
 function buildTestCase(
   item: unknown,
   commandName: string,
+  index = 0,
 ): { xml: string; failed: boolean } {
   if (typeof item !== "object" || item === null) {
     const text = String(item);
@@ -266,7 +267,12 @@ function buildTestCase(
 
   const record = item as Record<string, unknown>;
   const name = escapeXml(
-    String(record["name"] ?? record["title"] ?? record["sku"] ?? record["id"] ?? JSON.stringify(item)),
+    String(
+      record["name"] ?? record["title"] ?? record["sku"] ?? record["id"]
+      ?? record["productId"] ?? record["packageName"] ?? record["trackId"]
+      ?? record["region"] ?? record["languageCode"]
+      ?? `item-${index + 1}`,
+    ),
   );
   const classname = `gpc.${escapeXml(commandName)}`;
 
