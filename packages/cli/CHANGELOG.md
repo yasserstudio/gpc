@@ -1,5 +1,13 @@
 # @gpc-cli/cli
 
+## 0.9.21
+
+### Patch Changes
+
+- fix: vitals query errors, reports GCS limitation, table formatting, JUnit names
+- Updated dependencies
+  - @gpc-cli/core@0.9.19
+
 ## 0.9.20
 
 ### Patch Changes
