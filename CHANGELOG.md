@@ -7,6 +7,18 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.22
+
+- feat: table flattening audit — flat readable columns for 7 more commands
+- feat: audit log querying — `gpc audit list`, `search`, `clear` commands
+- feat: persistent vitals thresholds — config-based threshold checks without CLI flags
+- feat: batch IAP commands — `gpc iap batch-get` and `batch-update`
+- fix: vitals end-date freshness — cap to yesterday (API data ~1 day lag)
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.21...v0.9.22)
+
+---
+
 ## v0.9.21
 
 Vitals query fix, reports GCS limitation, purchase-options redirect, table and JUnit fixes.

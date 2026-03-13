@@ -6,7 +6,18 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.21 <Badge type="tip" text="latest" />
+## v0.9.22 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **Feat: table flattening audit** — `releases status`, `reviews list`, `vitals crashes/anr/overview`, `purchases get/voided`, `testers list`, `users list`, `device-tiers list` now show flat, readable columns instead of nested JSON objects
+- **Feat: audit log querying** — new `gpc audit list`, `gpc audit search`, and `gpc audit clear` commands to query, filter, and manage the JSONL audit log
+- **Feat: persistent vitals thresholds** — set thresholds once via `gpc config set vitals.thresholds.crashRate 2.0` — automatically checked on every `gpc vitals crashes` run (exit code 6 on breach)
+- **Feat: batch IAP commands** — `gpc iap batch-get --skus sku1,sku2` and `gpc iap batch-update --file products.json` for bulk in-app product operations
+- **Fix: vitals end-date freshness** — capped timeline end date to yesterday since the Reporting API data has ~1 day lag, fixing 400 errors on `vitals crashes`, `vitals anr`, and other metric queries
+- 1,286 tests
+
+## v0.9.21
 
 _March 2026_
 
