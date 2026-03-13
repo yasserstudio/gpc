@@ -58,6 +58,7 @@ import {
   getVitalsAnomalies,
   searchVitalsErrors,
   checkThreshold,
+  compareVitalsTrend,
 } from "../src/commands/vitals.js";
 import { isValidBcp47, GOOGLE_PLAY_LANGUAGES } from "../src/utils/bcp47.js";
 import { readListingsFromDir, writeListingsToDir, diffListings } from "../src/utils/fastlane.js";
@@ -1971,6 +1972,51 @@ describe("checkThreshold", () => {
     const result = checkThreshold(undefined, 5.0);
     expect(result.breached).toBe(false);
     expect(result.value).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Vitals – compareVitalsTrend date logic
+// ---------------------------------------------------------------------------
+describe("compareVitalsTrend", () => {
+  it("sends non-overlapping date ranges to the API", async () => {
+    const capturedQueries: { startTime: unknown; endTime: unknown }[] = [];
+    const mockReporting = {
+      queryMetricSet: vi.fn().mockImplementation((_pkg: string, _metric: string, query: { timelineSpec: { startTime: unknown; endTime: unknown } }) => {
+        capturedQueries.push({ startTime: query.timelineSpec.startTime, endTime: query.timelineSpec.endTime });
+        return Promise.resolve({ rows: [] });
+      }),
+    };
+
+    await compareVitalsTrend(mockReporting as any, "com.test.app", "crashRateMetricSet", 7);
+
+    expect(capturedQueries).toHaveLength(2);
+
+    // Current period end and previous period end must not overlap
+    const currentQuery = capturedQueries[0]!;
+    const previousQuery = capturedQueries[1]!;
+
+    // Previous end must be strictly before current start
+    const currentStart = currentQuery.startTime as { year: number; month: number; day: number };
+    const previousEnd = previousQuery.endTime as { year: number; month: number; day: number };
+
+    const currentStartDate = new Date(currentStart.year, currentStart.month - 1, currentStart.day);
+    const previousEndDate = new Date(previousEnd.year, previousEnd.month - 1, previousEnd.day);
+
+    expect(previousEndDate.getTime()).toBeLessThan(currentStartDate.getTime());
+  });
+
+  it("returns direction=improved when rate decreases", async () => {
+    const mockReporting = {
+      queryMetricSet: vi.fn()
+        .mockResolvedValueOnce({ rows: [{ metrics: { crashRate: { decimalValue: { value: "0.02" } } } }] })
+        .mockResolvedValueOnce({ rows: [{ metrics: { crashRate: { decimalValue: { value: "0.05" } } } }] }),
+    };
+
+    const result = await compareVitalsTrend(mockReporting as any, "com.test.app", "crashRateMetricSet", 7);
+    expect(result.direction).toBe("improved");
+    expect(result.current).toBe(0.02);
+    expect(result.previous).toBe(0.05);
   });
 });
 

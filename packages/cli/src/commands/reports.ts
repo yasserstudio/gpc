@@ -60,7 +60,7 @@ export function registerReportsCommands(program: Command): void {
       } else {
         console.log(STATS_REPORT_MESSAGE);
       }
-      process.exit(1);
+      process.exit(2);
     });
 
   const download = reports.command("download").description("Download a report");
@@ -80,7 +80,7 @@ export function registerReportsCommands(program: Command): void {
       }
 
       console.log(FINANCIAL_REPORT_MESSAGE);
-      process.exit(1);
+      process.exit(2);
     });
 
   download
@@ -101,6 +101,6 @@ export function registerReportsCommands(program: Command): void {
       }
 
       console.log(STATS_REPORT_MESSAGE);
-      process.exit(1);
+      process.exit(2);
     });
 }

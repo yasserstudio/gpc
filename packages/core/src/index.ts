@@ -217,3 +217,5 @@ export {
 } from "./commands/purchase-options.js";
 export { batchSyncInAppProducts } from "./commands/iap.js";
 export type { BatchSyncResult } from "./commands/iap.js";
+export { analyzeBundle, compareBundles } from "./commands/bundle-analysis.js";
+export type { BundleEntry, BundleAnalysis, BundleComparison } from "./commands/bundle-analysis.js";

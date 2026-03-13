@@ -6,6 +6,7 @@ import { createApiClient } from "@gpc-cli/api";
 import { listTracks, createTrack, updateTrackConfig } from "@gpc-cli/core";
 import { formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
+import { isDryRun, printDryRun } from "../dry-run.js";
 
 export function registerTracksCommands(program: Command): void {
   const tracks = program.command("tracks").description("Manage tracks");
@@ -58,11 +59,21 @@ export function registerTracksCommands(program: Command): void {
         process.exit(2);
       }
 
+      const format = getOutputFormat(program, config);
+
+      if (isDryRun(program)) {
+        printDryRun(
+          { command: "tracks create", action: "create custom track", target: name },
+          format,
+          formatOutput,
+        );
+        return;
+      }
+
       try {
         const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
         const client = createApiClient({ auth });
         const track = await createTrack(client, packageName, name);
-        const format = getOutputFormat(program, config);
         console.log(formatOutput(track, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -84,6 +95,17 @@ export function registerTracksCommands(program: Command): void {
         process.exit(2);
       }
 
+      const format = getOutputFormat(program, config);
+
+      if (isDryRun(program)) {
+        printDryRun(
+          { command: "tracks update", action: "update track config from", target: options.file },
+          format,
+          formatOutput,
+        );
+        return;
+      }
+
       try {
         const raw = await readFile(options.file, "utf-8");
         const trackConfig = JSON.parse(raw) as Record<string, unknown>;
@@ -91,7 +113,6 @@ export function registerTracksCommands(program: Command): void {
         const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
         const client = createApiClient({ auth });
         const track = await updateTrackConfig(client, packageName, name, trackConfig);
-        const format = getOutputFormat(program, config);
         console.log(formatOutput(track, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);

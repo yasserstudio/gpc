@@ -44,7 +44,7 @@ export function registerDataSafetyCommands(program: Command): void {
       console.error("  https://play.google.com/console → App content → Data safety");
       console.error("");
       console.error("To update data safety via the API, use: gpc data-safety update --file <csv-file>");
-      process.exit(1);
+      process.exit(2);
     });
 
   // Update
@@ -92,6 +92,6 @@ export function registerDataSafetyCommands(program: Command): void {
       console.error("");
       console.error("To export your data safety declaration, use the Google Play Console:");
       console.error("  App content → Data safety → Export to CSV");
-      process.exit(1);
+      process.exit(2);
     });
 }

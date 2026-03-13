@@ -203,8 +203,9 @@ export async function compareVitalsTrend(
   const currentStart = new Date(now);
   currentStart.setDate(currentStart.getDate() - days);
 
-  // Previous period
+  // Previous period — 1-day gap to avoid boundary overlap
   const previousEnd = new Date(currentStart);
+  previousEnd.setDate(previousEnd.getDate() - 1);
   const previousStart = new Date(previousEnd);
   previousStart.setDate(previousStart.getDate() - days);
 

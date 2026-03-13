@@ -114,6 +114,9 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     "purchase-options": async () => {
       (await import("./commands/purchase-options.js")).registerPurchaseOptionsCommands(program);
     },
+    bundle: async () => {
+      (await import("./commands/bundle.js")).registerBundleCommands(program);
+    },
     audit: async () => {
       (await import("./commands/audit.js")).registerAuditCommands(program);
     },
