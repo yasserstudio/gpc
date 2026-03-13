@@ -100,7 +100,22 @@ export function registerSubscriptionsCommands(program: Command): void {
 
       try {
         const result = await getSubscription(client, packageName, productId);
-        console.log(formatOutput(result, format));
+        if (format !== "json") {
+          const s = result as Record<string, unknown>;
+          const basePlans = s["basePlans"] as Array<Record<string, unknown>> | undefined;
+          const listings = s["listings"] as Record<string, unknown> | undefined;
+          const summary = {
+            productId: s["productId"],
+            basePlans: basePlans?.length || 0,
+            basePlanIds: basePlans?.map((bp) => bp["basePlanId"]).join(", ") || "-",
+            listings: listings ? Object.keys(listings).length : 0,
+            listingLanguages: listings ? Object.keys(listings).join(", ") : "-",
+            taxCategory: (s["taxAndComplianceSettings"] as Record<string, unknown>)?.["taxRateInfoByRegionCode"] ? "configured" : "-",
+          };
+          console.log(formatOutput(summary, format));
+        } else {
+          console.log(formatOutput(result, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
@@ -391,7 +406,23 @@ export function registerSubscriptionsCommands(program: Command): void {
 
       try {
         const result = await listOffers(client, packageName, productId, basePlanId);
-        console.log(formatOutput(result, format));
+        const offers_list = (result as Record<string, unknown>)["subscriptionOffers"] as Array<Record<string, unknown>> | undefined;
+        if (format !== "json") {
+          if (!offers_list || offers_list.length === 0) {
+            console.log("No offers found.");
+            return;
+          }
+          const summary = offers_list.map((o) => ({
+            offerId: o["offerId"],
+            basePlanId: o["basePlanId"],
+            state: o["state"] || "-",
+            phases: (o["phases"] as unknown[])?.length || 0,
+            regionalConfigs: (o["regionalConfigs"] as unknown[])?.length || 0,
+          }));
+          console.log(formatOutput(summary, format));
+        } else {
+          console.log(formatOutput(result, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

@@ -16,6 +16,7 @@ export interface ApiClientOptions {
   };
   maxRetries?: number;
   timeout?: number;
+  uploadTimeout?: number;
   baseDelay?: number;
   maxDelay?: number;
   rateLimitPerSecond?: number;
@@ -211,13 +212,13 @@ export interface ReviewsListOptions {
 // --- Reporting API (Vitals) ---
 
 export type VitalsMetricSet =
-  | "vitals.crashrate"
-  | "vitals.anrrate"
-  | "vitals.excessivewakeuprate"
-  | "vitals.stuckbackgroundwakelockrate"
-  | "vitals.slowstartrate"
-  | "vitals.slowrenderingrate"
-  | "vitals.errors.counts";
+  | "crashRateMetricSet"
+  | "anrRateMetricSet"
+  | "excessiveWakeupRateMetricSet"
+  | "stuckBackgroundWakelockRateMetricSet"
+  | "slowStartRateMetricSet"
+  | "slowRenderingRateMetricSet"
+  | "errorCountMetricSet";
 
 export type ReportingDimension =
   | "apiLevel"

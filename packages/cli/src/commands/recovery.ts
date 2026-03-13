@@ -46,7 +46,20 @@ export function registerRecoveryCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       try {
+        if (options.versionCode === undefined) {
+          console.error("Error: --version-code is required. The API requires a version code to filter recovery actions.");
+          console.error("Usage: gpc recovery list --version-code <code>");
+          process.exit(2);
+        }
         const result = await listRecoveryActions(client, packageName, options.versionCode);
+        if (Array.isArray(result) && result.length === 0) {
+          if (format === "json") {
+            console.log(formatOutput([], format));
+          } else {
+            console.log("No recovery actions found.");
+          }
+          return;
+        }
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);

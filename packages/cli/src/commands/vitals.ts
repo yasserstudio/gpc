@@ -85,6 +85,10 @@ function registerMetricCommand(
           dimension: options.dim ? validateDimension(options.dim) : undefined,
           days: options.days,
         });
+        if (format !== "json" && (!result.rows || result.rows.length === 0)) {
+          console.log("No vitals data available.");
+          return;
+        }
         console.log(formatOutput(result, format));
 
         if (options.threshold !== undefined) {
@@ -123,8 +127,12 @@ export function registerVitalsCommands(program: Command): void {
 
       try {
         const result = await getVitalsOverview(reporting, packageName);
-        if (format !== "json" && Object.keys(result).length === 0) {
-          console.log("No vitals data available.");
+        if (Object.keys(result).length === 0) {
+          if (format === "json") {
+            console.log(formatOutput({ vitals: [], message: "No vitals data available" }, format));
+          } else {
+            console.log("No vitals data available.");
+          }
           return;
         }
         console.log(formatOutput(result, format));
@@ -189,6 +197,11 @@ export function registerVitalsCommands(program: Command): void {
           filter: options.filter,
           maxResults: options.max,
         });
+        const issues = (result as Record<string, unknown>)["errorIssues"] as unknown[] | undefined;
+        if (format !== "json" && (!issues || issues.length === 0)) {
+          console.log("No error issues found.");
+          return;
+        }
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -197,12 +210,12 @@ export function registerVitalsCommands(program: Command): void {
     });
 
   const METRIC_MAP: Record<string, VitalsMetricSet> = {
-    crashes: "vitals.crashrate",
-    anr: "vitals.anrrate",
-    startup: "vitals.slowstartrate",
-    rendering: "vitals.slowrenderingrate",
-    battery: "vitals.excessivewakeuprate",
-    memory: "vitals.stuckbackgroundwakelockrate",
+    crashes: "crashRateMetricSet",
+    anr: "anrRateMetricSet",
+    startup: "slowStartRateMetricSet",
+    rendering: "slowRenderingRateMetricSet",
+    battery: "excessiveWakeupRateMetricSet",
+    memory: "stuckBackgroundWakelockRateMetricSet",
   };
 
   vitals

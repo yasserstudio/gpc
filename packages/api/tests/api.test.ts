@@ -196,6 +196,25 @@ describe("createHttpClient", () => {
     }
   });
 
+  it("strips HTML from error body on 404", async () => {
+    const htmlBody = '<!DOCTYPE html><html><body><h1>Not Found</h1><p>The requested URL was not found.</p></body></html>';
+    mockFetch.mockResolvedValueOnce(
+      new Response(htmlBody, { status: 404, headers: { "Content-Type": "text/html" } }),
+    );
+
+    const client = createHttpClient({ auth: mockAuth(), maxRetries: 0 });
+
+    try {
+      await client.get("/com.example.app/dataSafety");
+      expect.unreachable("should have thrown");
+    } catch (err) {
+      expect(err).toBeInstanceOf(ApiError);
+      expect((err as ApiError).message).not.toContain("<html>");
+      expect((err as ApiError).message).not.toContain("<body>");
+      expect((err as ApiError).message).toContain("Not Found");
+    }
+  });
+
   it("throws ApiError with API_RATE_LIMITED after max retries on 429", async () => {
     mockFetch
       .mockResolvedValueOnce(mockResponse({ error: "rate limited" }, 429))
@@ -732,13 +751,13 @@ describe("createReportingClient", () => {
     mockFetch.mockResolvedValueOnce(mockResponse({ rows: [] }));
 
     const client = makeClient();
-    const result = await client.queryMetricSet(PKG, "vitals.crashrate", {
+    const result = await client.queryMetricSet(PKG, "crashRateMetricSet", {
       metrics: ["errorReportCount"],
     });
 
     expect(result).toEqual({ rows: [] });
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${REPORTING_URL}/apps/${PKG}/vitals.crashrate:query`);
+    expect(url).toBe(`${REPORTING_URL}/apps/${PKG}/crashRateMetricSet:query`);
     expect(init.method).toBe("POST");
   });
 
@@ -1587,7 +1606,7 @@ describe("HTTP error paths and methods", () => {
   });
 
   // 5. Upload timeout (AbortError)
-  it("upload throws API_TIMEOUT on AbortError", async () => {
+  it("upload throws API_TIMEOUT on AbortError with file size in message", async () => {
     const abortErr = new DOMException("The operation was aborted", "AbortError");
     mockFetch.mockRejectedValueOnce(abortErr);
     const http = makeHttp();
@@ -1601,7 +1620,24 @@ describe("HTTP error paths and methods", () => {
       expect(err).toBeInstanceOf(ApiError);
       expect(err.code).toBe("API_TIMEOUT");
       expect(err.message).toContain("timed out");
+      expect(err.message).toContain("MB");
+      expect(err.suggestion).toContain("GPC_UPLOAD_TIMEOUT");
     }
+  });
+
+  it("upload uses explicit uploadTimeout when provided", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ bundle: { versionCode: 1 } }));
+    const http = createHttpClient({
+      auth: mockAuth(),
+      maxRetries: 0,
+      uploadTimeout: 600_000,
+    });
+    const result = await http.upload(
+      "/com.example/edits/1/bundles",
+      "/fake/path.aab",
+      "application/octet-stream",
+    );
+    expect(result.data).toEqual({ bundle: { versionCode: 1 } });
   });
 
   // 6. Upload network error (TypeError)

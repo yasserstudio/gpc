@@ -65,6 +65,10 @@ export function registerTestersCommands(program: Command): void {
             descending ? b.localeCompare(a) : a.localeCompare(b),
           );
         }
+        if (format !== "json" && (!result.googleGroups || result.googleGroups.length === 0)) {
+          console.log("No testers found.");
+          return;
+        }
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);

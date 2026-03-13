@@ -77,12 +77,12 @@ export async function getVitalsOverview(
   packageName: string,
 ): Promise<VitalsOverview> {
   const metricSets: [VitalsMetricSet, keyof VitalsOverview][] = [
-    ["vitals.crashrate", "crashRate"],
-    ["vitals.anrrate", "anrRate"],
-    ["vitals.slowstartrate", "slowStartRate"],
-    ["vitals.slowrenderingrate", "slowRenderingRate"],
-    ["vitals.excessivewakeuprate", "excessiveWakeupRate"],
-    ["vitals.stuckbackgroundwakelockrate", "stuckWakelockRate"],
+    ["crashRateMetricSet", "crashRate"],
+    ["anrRateMetricSet", "anrRate"],
+    ["slowStartRateMetricSet", "slowStartRate"],
+    ["slowRenderingRateMetricSet", "slowRenderingRate"],
+    ["excessiveWakeupRateMetricSet", "excessiveWakeupRate"],
+    ["stuckBackgroundWakelockRateMetricSet", "stuckWakelockRate"],
   ];
 
   const results = await Promise.allSettled(
@@ -113,7 +113,7 @@ export async function getVitalsCrashes(
   packageName: string,
   options?: VitalsQueryOptions,
 ): Promise<MetricSetResponse> {
-  return queryMetric(reporting, packageName, "vitals.crashrate", options);
+  return queryMetric(reporting, packageName, "crashRateMetricSet", options);
 }
 
 export async function getVitalsAnr(
@@ -121,7 +121,7 @@ export async function getVitalsAnr(
   packageName: string,
   options?: VitalsQueryOptions,
 ): Promise<MetricSetResponse> {
-  return queryMetric(reporting, packageName, "vitals.anrrate", options);
+  return queryMetric(reporting, packageName, "anrRateMetricSet", options);
 }
 
 export async function getVitalsStartup(
@@ -129,7 +129,7 @@ export async function getVitalsStartup(
   packageName: string,
   options?: VitalsQueryOptions,
 ): Promise<MetricSetResponse> {
-  return queryMetric(reporting, packageName, "vitals.slowstartrate", options);
+  return queryMetric(reporting, packageName, "slowStartRateMetricSet", options);
 }
 
 export async function getVitalsRendering(
@@ -137,7 +137,7 @@ export async function getVitalsRendering(
   packageName: string,
   options?: VitalsQueryOptions,
 ): Promise<MetricSetResponse> {
-  return queryMetric(reporting, packageName, "vitals.slowrenderingrate", options);
+  return queryMetric(reporting, packageName, "slowRenderingRateMetricSet", options);
 }
 
 export async function getVitalsBattery(
@@ -145,7 +145,7 @@ export async function getVitalsBattery(
   packageName: string,
   options?: VitalsQueryOptions,
 ): Promise<MetricSetResponse> {
-  return queryMetric(reporting, packageName, "vitals.excessivewakeuprate", options);
+  return queryMetric(reporting, packageName, "excessiveWakeupRateMetricSet", options);
 }
 
 export async function getVitalsMemory(
@@ -153,7 +153,7 @@ export async function getVitalsMemory(
   packageName: string,
   options?: VitalsQueryOptions,
 ): Promise<MetricSetResponse> {
-  return queryMetric(reporting, packageName, "vitals.stuckbackgroundwakelockrate", options);
+  return queryMetric(reporting, packageName, "stuckBackgroundWakelockRateMetricSet", options);
 }
 
 export async function getVitalsAnomalies(

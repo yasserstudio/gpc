@@ -1791,12 +1791,12 @@ describe("getVitalsOverview", () => {
 });
 
 describe("getVitalsCrashes", () => {
-  it("queries vitals.crashrate", async () => {
+  it("queries crashRateMetricSet", async () => {
     const reporting = mockReportingClient();
     await getVitalsCrashes(reporting, PKG);
     expect(reporting.queryMetricSet).toHaveBeenCalledWith(
       PKG,
-      "vitals.crashrate",
+      "crashRateMetricSet",
       expect.any(Object),
     );
   });
@@ -1806,7 +1806,7 @@ describe("getVitalsCrashes", () => {
     await getVitalsCrashes(reporting, PKG, { dimension: "versionCode" });
     expect(reporting.queryMetricSet).toHaveBeenCalledWith(
       PKG,
-      "vitals.crashrate",
+      "crashRateMetricSet",
       expect.objectContaining({
         dimensions: ["versionCode"],
       }),
@@ -1818,7 +1818,7 @@ describe("getVitalsCrashes", () => {
     await getVitalsCrashes(reporting, PKG, { days: 7 });
     expect(reporting.queryMetricSet).toHaveBeenCalledWith(
       PKG,
-      "vitals.crashrate",
+      "crashRateMetricSet",
       expect.objectContaining({
         timelineSpec: expect.objectContaining({
           aggregationPeriod: "DAILY",
@@ -1829,60 +1829,60 @@ describe("getVitalsCrashes", () => {
 });
 
 describe("getVitalsAnr", () => {
-  it("queries vitals.anrrate", async () => {
+  it("queries anrRateMetricSet", async () => {
     const reporting = mockReportingClient();
     await getVitalsAnr(reporting, PKG);
     expect(reporting.queryMetricSet).toHaveBeenCalledWith(
       PKG,
-      "vitals.anrrate",
+      "anrRateMetricSet",
       expect.any(Object),
     );
   });
 });
 
 describe("getVitalsStartup", () => {
-  it("queries vitals.slowstartrate", async () => {
+  it("queries slowStartRateMetricSet", async () => {
     const reporting = mockReportingClient();
     await getVitalsStartup(reporting, PKG);
     expect(reporting.queryMetricSet).toHaveBeenCalledWith(
       PKG,
-      "vitals.slowstartrate",
+      "slowStartRateMetricSet",
       expect.any(Object),
     );
   });
 });
 
 describe("getVitalsRendering", () => {
-  it("queries vitals.slowrenderingrate", async () => {
+  it("queries slowRenderingRateMetricSet", async () => {
     const reporting = mockReportingClient();
     await getVitalsRendering(reporting, PKG);
     expect(reporting.queryMetricSet).toHaveBeenCalledWith(
       PKG,
-      "vitals.slowrenderingrate",
+      "slowRenderingRateMetricSet",
       expect.any(Object),
     );
   });
 });
 
 describe("getVitalsBattery", () => {
-  it("queries vitals.excessivewakeuprate", async () => {
+  it("queries excessiveWakeupRateMetricSet", async () => {
     const reporting = mockReportingClient();
     await getVitalsBattery(reporting, PKG);
     expect(reporting.queryMetricSet).toHaveBeenCalledWith(
       PKG,
-      "vitals.excessivewakeuprate",
+      "excessiveWakeupRateMetricSet",
       expect.any(Object),
     );
   });
 });
 
 describe("getVitalsMemory", () => {
-  it("queries vitals.stuckbackgroundwakelockrate", async () => {
+  it("queries stuckBackgroundWakelockRateMetricSet", async () => {
     const reporting = mockReportingClient();
     await getVitalsMemory(reporting, PKG);
     expect(reporting.queryMetricSet).toHaveBeenCalledWith(
       PKG,
-      "vitals.stuckbackgroundwakelockrate",
+      "stuckBackgroundWakelockRateMetricSet",
       expect.any(Object),
     );
   });

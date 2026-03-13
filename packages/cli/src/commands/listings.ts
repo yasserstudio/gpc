@@ -237,10 +237,11 @@ export function registerListingsCommands(program: Command): void {
       if (!program.opts()["quiet"] && process.stderr.isTTY) spinner.start();
 
       try {
+        const dryRun = isDryRun(program);
         const result = await pushListings(client, packageName, options.dir, {
-          dryRun: isDryRun(program),
+          dryRun,
         });
-        spinner.stop("Listings pushed");
+        spinner.stop(dryRun ? "Dry-run complete (no changes made)" : "Listings pushed");
         console.log(formatOutput(result, format));
       } catch (error) {
         spinner.fail("Push failed");
@@ -485,6 +486,11 @@ export function registerListingsCommands(program: Command): void {
 
       try {
         const result = await getCountryAvailability(client, packageName, options.track);
+        const countries = (result as Record<string, unknown>)["countryTargeting"] as unknown[] | undefined;
+        if (format !== "json" && (!countries || (Array.isArray(countries) && countries.length === 0)) && Object.keys(result as object).length === 0) {
+          console.log("No availability data.");
+          return;
+        }
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);

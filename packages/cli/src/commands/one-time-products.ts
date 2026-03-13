@@ -59,8 +59,13 @@ export function registerOneTimeProductsCommands(program: Command): void {
         if (options.sort) {
           result.oneTimeProducts = sortResults(result.oneTimeProducts, options.sort);
         }
+        const products = result.oneTimeProducts || [];
         if (format !== "json") {
-          const summary = (result.oneTimeProducts || []).map((p: OneTimeProduct) => ({
+          if (products.length === 0) {
+            console.log("No one-time products found.");
+            return;
+          }
+          const summary = products.map((p: OneTimeProduct) => ({
             productId: p.productId,
             purchaseType: (p as Record<string, unknown>)["purchaseType"] || "-",
             listings: p.listings ? Object.keys(p.listings).length : 0,

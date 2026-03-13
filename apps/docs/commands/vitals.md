@@ -279,7 +279,7 @@ gpc vitals anomalies --app com.example.myapp
 {
   "anomalies": [
     {
-      "metricSet": "vitals.crashrate",
+      "metricSet": "crashRateMetricSet",
       "timelineSpec": { "period": "DAILY" },
       "dimensions": [{ "dimension": "versionCode", "value": "43" }],
       "metric": "crashRate",
@@ -356,7 +356,7 @@ gpc vitals compare crashes --app com.example.myapp --days 7
 
 ```json
 {
-  "metric": "vitals.crashrate",
+  "metric": "crashRateMetricSet",
   "currentPeriod": { "start": "2026-03-02", "end": "2026-03-09", "value": 1.2 },
   "previousPeriod": { "start": "2026-02-23", "end": "2026-03-02", "value": 1.5 },
   "change": -0.3,
