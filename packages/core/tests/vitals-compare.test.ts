@@ -93,4 +93,17 @@ describe("compareVitalsTrend", () => {
 
     expect(reporting.queryMetricSet).toHaveBeenCalledTimes(2);
   });
+
+  it("uses per-metric-set metrics", async () => {
+    const reporting = mockReporting(
+      [{ metrics: { crashRate: { decimalValue: { value: "1" } } } }],
+      [{ metrics: { crashRate: { decimalValue: { value: "1" } } } }],
+    );
+
+    await compareVitalsTrend(reporting, "com.example", "crashRateMetricSet", 7);
+
+    const firstCall = reporting.queryMetricSet.mock.calls[0];
+    expect(firstCall[2].metrics).toContain("crashRate");
+    expect(firstCall[2].metrics).not.toContain("errorReportCount");
+  });
 });

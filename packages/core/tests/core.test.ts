@@ -361,6 +361,21 @@ describe("formatOutput – junit", () => {
     expect(result).toContain('failures="0"');
     expect(result).not.toContain("<failure");
   });
+
+  it("uses fallback name chain for items without name/title/sku/id", () => {
+    const data = [
+      { productId: "com.example.premium", status: "active" },
+      { region: "US", price: "4.99" },
+      { languageCode: "en-US", text: "Hello" },
+      { foo: "bar" },
+    ];
+    const result = formatOutput(data, "junit");
+    expect(result).toContain('name="com.example.premium"');
+    expect(result).toContain('name="US"');
+    expect(result).toContain('name="en-US"');
+    expect(result).toContain('name="item-4"');
+    expect(result).not.toContain("JSON");
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -1758,7 +1773,7 @@ function mockReportingClient() {
 }
 
 describe("getVitalsOverview", () => {
-  it("queries all metric sets and returns overview", async () => {
+  it("queries all metric sets with timelineSpec and returns overview", async () => {
     const reporting = mockReportingClient();
     reporting.queryMetricSet.mockResolvedValue({ rows: [{ metrics: {} }] });
 
@@ -1772,6 +1787,10 @@ describe("getVitalsOverview", () => {
     expect(result).toHaveProperty("stuckWakelockRate");
     // 6 metric sets queried
     expect(reporting.queryMetricSet).toHaveBeenCalledTimes(6);
+    // Each call should include timelineSpec
+    for (const call of reporting.queryMetricSet.mock.calls) {
+      expect(call[2]).toHaveProperty("timelineSpec");
+    }
   });
 
   it("handles partial failures gracefully", async () => {
@@ -1791,14 +1810,28 @@ describe("getVitalsOverview", () => {
 });
 
 describe("getVitalsCrashes", () => {
-  it("queries crashRateMetricSet", async () => {
+  it("queries crashRateMetricSet with correct metrics and timelineSpec", async () => {
     const reporting = mockReportingClient();
     await getVitalsCrashes(reporting, PKG);
     expect(reporting.queryMetricSet).toHaveBeenCalledWith(
       PKG,
       "crashRateMetricSet",
-      expect.any(Object),
+      expect.objectContaining({
+        metrics: ["crashRate", "userPerceivedCrashRate", "distinctUsers"],
+        timelineSpec: expect.objectContaining({
+          aggregationPeriod: "DAILY",
+        }),
+      }),
     );
+  });
+
+  it("always includes timelineSpec even without --days", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsCrashes(reporting, PKG);
+    const call = reporting.queryMetricSet.mock.calls[0];
+    expect(call[2]).toHaveProperty("timelineSpec");
+    expect(call[2].timelineSpec).toHaveProperty("startTime");
+    expect(call[2].timelineSpec).toHaveProperty("endTime");
   });
 
   it("passes dimension option", async () => {
@@ -1829,13 +1862,18 @@ describe("getVitalsCrashes", () => {
 });
 
 describe("getVitalsAnr", () => {
-  it("queries anrRateMetricSet", async () => {
+  it("queries anrRateMetricSet with correct metrics", async () => {
     const reporting = mockReportingClient();
     await getVitalsAnr(reporting, PKG);
     expect(reporting.queryMetricSet).toHaveBeenCalledWith(
       PKG,
       "anrRateMetricSet",
-      expect.any(Object),
+      expect.objectContaining({
+        metrics: ["anrRate", "userPerceivedAnrRate", "distinctUsers"],
+        timelineSpec: expect.objectContaining({
+          aggregationPeriod: "DAILY",
+        }),
+      }),
     );
   });
 });
@@ -2544,55 +2582,24 @@ describe("report commands", () => {
     expect(isValidStatsDimension("bogus")).toBe(false);
   });
 
-  it("listReports calls client.reports.list and returns buckets", async () => {
-    const buckets = [{ bucketId: "b1", uri: "https://storage.googleapis.com/r.csv" }];
-    const client: any = {
-      reports: {
-        list: vi.fn().mockResolvedValue({ reports: buckets }),
-      },
-    };
-    const result = await listReports(client, "com.example", "earnings", 2026, 3);
-    expect(result).toEqual(buckets);
-    expect(client.reports.list).toHaveBeenCalledWith("com.example", "earnings", 2026, 3);
+  it("listReports throws GCS not-supported error for financial reports", async () => {
+    const client: any = {};
+    await expect(listReports(client, "com.example", "earnings", 2026, 3)).rejects.toThrow(
+      "not available through the Google Play Developer API",
+    );
   });
 
-  it("listReports returns empty array when no reports", async () => {
-    const client: any = {
-      reports: { list: vi.fn().mockResolvedValue({ reports: undefined }) },
-    };
-    const result = await listReports(client, "com.example", "earnings", 2026, 3);
-    expect(result).toEqual([]);
+  it("listReports throws GCS not-supported error for stats reports", async () => {
+    const client: any = {};
+    await expect(listReports(client, "com.example", "installs", 2026, 3)).rejects.toThrow(
+      "not available through the Google Play Developer API",
+    );
   });
 
-  it("downloadReport fetches CSV from signed URI", async () => {
-    const client: any = {
-      reports: {
-        list: vi.fn().mockResolvedValue({
-          reports: [{ bucketId: "b1", uri: "https://storage.example.com/r.csv" }],
-        }),
-      },
-    };
-    const originalFetch = globalThis.fetch;
-    const mockFetch = vi
-      .fn()
-      .mockResolvedValue(new Response("col1,col2\nval1,val2", { status: 200 }));
-    vi.stubGlobal("fetch", mockFetch);
-
-    try {
-      const csv = await downloadReport(client, "com.example", "earnings", 2026, 3);
-      expect(csv).toBe("col1,col2\nval1,val2");
-      expect(mockFetch).toHaveBeenCalledWith("https://storage.example.com/r.csv");
-    } finally {
-      vi.stubGlobal("fetch", originalFetch);
-    }
-  });
-
-  it("downloadReport throws when no reports found", async () => {
-    const client: any = {
-      reports: { list: vi.fn().mockResolvedValue({ reports: [] }) },
-    };
+  it("downloadReport throws GCS not-supported error", async () => {
+    const client: any = {};
     await expect(downloadReport(client, "com.example", "earnings", 2026, 3)).rejects.toThrow(
-      "No earnings reports found",
+      "not available through the Google Play Developer API",
     );
   });
 });
@@ -3889,24 +3896,13 @@ describe("report commands – edge cases", () => {
     expect(() => parseMonth("")).toThrow("Invalid month format");
   });
 
-  it("downloadReport throws when report download HTTP fails", async () => {
-    const client: any = {
-      reports: {
-        list: vi.fn().mockResolvedValue({
-          reports: [{ bucketId: "b1", uri: "https://storage.example.com/r.csv" }],
-        }),
-      },
-    };
-    const originalFetch = globalThis.fetch;
-    const mockFetch = vi.fn().mockResolvedValue(new Response("forbidden", { status: 403 }));
-    vi.stubGlobal("fetch", mockFetch);
-
+  it("downloadReport throws GCS not-supported error with suggestion", async () => {
+    const client: any = {};
     try {
-      await expect(
-        downloadReport(client, "com.example", "earnings", 2026, 3),
-      ).rejects.toThrow("Failed to download report from signed URI: HTTP 403");
-    } finally {
-      vi.stubGlobal("fetch", originalFetch);
+      await downloadReport(client, "com.example", "earnings", 2026, 3);
+    } catch (err: any) {
+      expect(err.message).toContain("not available through the Google Play Developer API");
+      expect(err.suggestion).toContain("Google Cloud Storage");
     }
   });
 

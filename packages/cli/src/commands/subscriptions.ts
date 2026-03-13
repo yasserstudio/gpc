@@ -103,13 +103,21 @@ export function registerSubscriptionsCommands(program: Command): void {
         if (format !== "json") {
           const s = result as Record<string, unknown>;
           const basePlans = s["basePlans"] as Array<Record<string, unknown>> | undefined;
-          const listings = s["listings"] as Record<string, unknown> | undefined;
+          const listings = s["listings"] as Record<string, unknown> | Array<Record<string, unknown>> | undefined;
+          const listingLanguages = listings
+            ? Array.isArray(listings)
+              ? listings.map((l) => l["languageCode"] || l["language"] || "?").join(", ")
+              : Object.keys(listings).join(", ")
+            : "-";
+          const listingCount = listings
+            ? Array.isArray(listings) ? listings.length : Object.keys(listings).length
+            : 0;
           const summary = {
             productId: s["productId"],
             basePlans: basePlans?.length || 0,
             basePlanIds: basePlans?.map((bp) => bp["basePlanId"]).join(", ") || "-",
-            listings: listings ? Object.keys(listings).length : 0,
-            listingLanguages: listings ? Object.keys(listings).join(", ") : "-",
+            listings: listingCount,
+            listingLanguages,
             taxCategory: (s["taxAndComplianceSettings"] as Record<string, unknown>)?.["taxRateInfoByRegionCode"] ? "configured" : "-",
           };
           console.log(formatOutput(summary, format));

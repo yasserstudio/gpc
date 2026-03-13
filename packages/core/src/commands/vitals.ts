@@ -31,21 +31,28 @@ export interface ThresholdResult {
   threshold: number;
 }
 
-function buildQuery(options?: VitalsQueryOptions): MetricSetQuery {
+const METRIC_SET_METRICS: Record<VitalsMetricSet, string[]> = {
+  crashRateMetricSet: ["crashRate", "userPerceivedCrashRate", "distinctUsers"],
+  anrRateMetricSet: ["anrRate", "userPerceivedAnrRate", "distinctUsers"],
+  slowStartRateMetricSet: ["slowStartRate", "distinctUsers"],
+  slowRenderingRateMetricSet: ["slowRenderingRate", "distinctUsers"],
+  excessiveWakeupRateMetricSet: ["excessiveWakeupRate", "distinctUsers"],
+  stuckBackgroundWakelockRateMetricSet: ["stuckBackgroundWakelockRate", "distinctUsers"],
+  errorCountMetricSet: ["errorReportCount", "distinctUsers"],
+};
+
+function buildQuery(metricSet: VitalsMetricSet, options?: VitalsQueryOptions): MetricSetQuery {
+  const metrics = METRIC_SET_METRICS[metricSet] ?? ["errorReportCount", "distinctUsers"];
+
+  const days = options?.days ?? 30;
+  const end = new Date();
+  const start = new Date();
+  start.setDate(start.getDate() - days);
+
   const query: MetricSetQuery = {
-    metrics: ["errorReportCount", "distinctUsers"],
-  };
-
-  if (options?.dimension) {
-    query.dimensions = [options.dimension];
-  }
-
-  if (options?.days) {
-    const end = new Date();
-    const start = new Date();
-    start.setDate(start.getDate() - options.days);
-    query.timelineSpec = {
-      aggregationPeriod: options.aggregation ?? "DAILY",
+    metrics,
+    timelineSpec: {
+      aggregationPeriod: options?.aggregation ?? "DAILY",
       startTime: {
         year: start.getFullYear(),
         month: start.getMonth() + 1,
@@ -56,7 +63,11 @@ function buildQuery(options?: VitalsQueryOptions): MetricSetQuery {
         month: end.getMonth() + 1,
         day: end.getDate(),
       },
-    };
+    },
+  };
+
+  if (options?.dimension) {
+    query.dimensions = [options.dimension];
   }
 
   return query;
@@ -68,7 +79,7 @@ async function queryMetric(
   metricSet: VitalsMetricSet,
   options?: VitalsQueryOptions,
 ): Promise<MetricSetResponse> {
-  const query = buildQuery(options);
+  const query = buildQuery(metricSet, options);
   return reporting.queryMetricSet(packageName, metricSet, query);
 }
 
@@ -87,9 +98,7 @@ export async function getVitalsOverview(
 
   const results = await Promise.allSettled(
     metricSets.map(([metric]) =>
-      reporting.queryMetricSet(packageName, metric, {
-        metrics: ["errorReportCount", "distinctUsers"],
-      }),
+      reporting.queryMetricSet(packageName, metric, buildQuery(metric)),
     ),
   );
 
@@ -197,8 +206,10 @@ export async function compareVitalsTrend(
   const previousStart = new Date(previousEnd);
   previousStart.setDate(previousStart.getDate() - days);
 
+  const metrics = METRIC_SET_METRICS[metricSet] ?? ["errorReportCount", "distinctUsers"];
+
   const makeQuery = (start: Date, end: Date): MetricSetQuery => ({
-    metrics: ["errorReportCount", "distinctUsers"],
+    metrics,
     timelineSpec: {
       aggregationPeriod: "DAILY",
       startTime: { year: start.getFullYear(), month: start.getMonth() + 1, day: start.getDate() },

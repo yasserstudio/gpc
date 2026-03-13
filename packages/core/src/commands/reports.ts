@@ -1,5 +1,5 @@
 import type { PlayApiClient, ReportBucket, ReportType, StatsDimension } from "@gpc-cli/api";
-import { GpcError, NetworkError } from "../errors.js";
+import { GpcError } from "../errors.js";
 
 const FINANCIAL_REPORT_TYPES: ReadonlySet<string> = new Set([
   "earnings",
@@ -72,54 +72,35 @@ export function parseMonth(monthStr: string): ParsedMonth {
 }
 
 export async function listReports(
-  client: PlayApiClient,
-  packageName: string,
+  _client: PlayApiClient,
+  _packageName: string,
   reportType: ReportType,
-  year: number,
-  month: number,
+  _year: number,
+  _month: number,
 ): Promise<ReportBucket[]> {
-  const response = await client.reports.list(packageName, reportType, year, month);
-  return response.reports || [];
+  throw new GpcError(
+    `Report listing for "${reportType}" is not available through the Google Play Developer API.`,
+    "REPORT_NOT_SUPPORTED",
+    1,
+    isFinancialReportType(reportType)
+      ? "Financial reports are delivered via Google Cloud Storage. Access them from Play Console → Download reports → Financial."
+      : "Stats reports are delivered via Google Cloud Storage. For real-time metrics, use 'gpc vitals' commands.",
+  );
 }
 
 export async function downloadReport(
-  client: PlayApiClient,
-  packageName: string,
+  _client: PlayApiClient,
+  _packageName: string,
   reportType: ReportType,
-  year: number,
-  month: number,
+  _year: number,
+  _month: number,
 ): Promise<string> {
-  const reports = await listReports(client, packageName, reportType, year, month);
-
-  const monthPadded = String(month).padStart(2, "0");
-  if (reports.length === 0) {
-    throw new GpcError(
-      `No ${reportType} reports found for ${year}-${monthPadded}.`,
-      "REPORT_NOT_FOUND",
-      1,
-      `Reports may not be available yet for this period. Financial reports are typically available a few days after the month ends. Try a different month or report type.`,
-    );
-  }
-
-  // Download the first report bucket (signed URI — no auth needed)
-  const bucket = reports[0];
-  if (!bucket) {
-    throw new GpcError(
-      `No ${reportType} reports found for ${year}-${monthPadded}.`,
-      "REPORT_NOT_FOUND",
-      1,
-      `Reports may not be available yet for this period. Try a different month or report type.`,
-    );
-  }
-  const uri = bucket.uri;
-  const response = await fetch(uri);
-
-  if (!response.ok) {
-    throw new NetworkError(
-      `Failed to download report from signed URI: HTTP ${response.status}`,
-      "The signed download URL may have expired. Retry the command to generate a fresh URL.",
-    );
-  }
-
-  return response.text();
+  throw new GpcError(
+    `Report download for "${reportType}" is not available through the Google Play Developer API.`,
+    "REPORT_NOT_SUPPORTED",
+    1,
+    isFinancialReportType(reportType)
+      ? "Financial reports are delivered via Google Cloud Storage. Access them from Play Console → Download reports → Financial."
+      : "Stats reports are delivered via Google Cloud Storage. For real-time metrics, use 'gpc vitals' commands.",
+  );
 }

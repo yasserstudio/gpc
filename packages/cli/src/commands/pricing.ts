@@ -60,11 +60,16 @@ export function registerPricingCommands(program: Command): void {
         if (format !== "json") {
           const prices = (result as Record<string, unknown>)["convertedRegionPrices"] as Record<string, Record<string, unknown>> | undefined;
           if (prices) {
-            const rows = Object.entries(prices).map(([region, price]) => ({
-              region,
-              priceMicros: price["priceMicros"] || "-",
-              currencyCode: price["currencyCode"] || "-",
-            }));
+            const rows = Object.entries(prices).map(([region, data]) => {
+              const money = data["price"] as Record<string, unknown> | undefined;
+              const units = money?.["units"] || "0";
+              const nanos = String(money?.["nanos"] || 0).padStart(9, "0").slice(0, 2);
+              return {
+                region,
+                price: money ? `${units}.${nanos}` : (data["priceMicros"] ? String(Number(data["priceMicros"]) / 1_000_000) : "-"),
+                currencyCode: (money?.["currencyCode"] || data["currencyCode"] || "-") as string,
+              };
+            });
             console.log(formatOutput(rows, format));
           } else {
             console.log(formatOutput(result, format));
