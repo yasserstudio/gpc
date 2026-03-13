@@ -95,9 +95,10 @@ jobs:
           gh release upload "$TAG" binaries/* --repo ${{ github.repository }} --clobber
 
       - name: Update Homebrew tap
-        if: github.event_name == 'release'
+        if: github.event_name == 'release' && secrets.HOMEBREW_TAP_TOKEN != ''
+        continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
         run: |
           TAG="${{ github.event.release.tag_name }}"
           gh api repos/yasserstudio/homebrew-tap/dispatches \
