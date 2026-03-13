@@ -9,6 +9,7 @@ import {
   createSpinner,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
+import { isDryRun, printDryRun } from "../dry-run.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -36,11 +37,20 @@ export function registerInternalSharingCommands(program: Command): void {
     .action(async (file: string, opts: { type?: string }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
       const fileType = opts.type as "bundle" | "apk" | undefined;
 
+      if (isDryRun(program)) {
+        printDryRun(
+          { command: "internal-sharing upload", action: "upload for internal sharing", target: file },
+          format,
+          formatOutput,
+        );
+        return;
+      }
+
+      const client = await getClient(config);
       const spinner = createSpinner("Uploading for internal sharing...");
       if (!program.opts()["quiet"] && process.stderr.isTTY) spinner.start();
 

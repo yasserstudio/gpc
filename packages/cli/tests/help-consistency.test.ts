@@ -162,6 +162,8 @@ vi.mock("@gpc-cli/core", () => {
     activatePurchaseOption: vi.fn().mockResolvedValue({}),
     deactivatePurchaseOption: vi.fn().mockResolvedValue({}),
     migrateFastlaneMetadata: vi.fn().mockResolvedValue({}),
+    analyzeBundle: vi.fn().mockResolvedValue({ filePath: "test.aab", fileType: "aab", totalCompressed: 0, totalUncompressed: 0, entryCount: 0, modules: [], categories: [], entries: [] }),
+    compareBundles: vi.fn().mockReturnValue({ before: {}, after: {}, sizeDelta: 0, sizeDeltaPercent: 0, moduleDeltas: [], categoryDeltas: [] }),
   };
 });
 
@@ -201,6 +203,7 @@ const EXPECTED_TOP_LEVEL_COMMANDS = [
   "internal-sharing",
   "generated-apks",
   "purchase-options",
+  "bundle",
   "audit",
   "migrate",
   "docs",
