@@ -1,5 +1,13 @@
 # @gpc-cli/cli
 
+## 0.9.22
+
+### Patch Changes
+
+- feat: table flattening audit, audit log querying, persistent vitals thresholds, batch IAP CLI, vitals end-date fix
+- Updated dependencies
+  - @gpc-cli/core@0.9.20
+
 ## 0.9.21
 
 ### Patch Changes
