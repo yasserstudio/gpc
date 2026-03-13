@@ -46,6 +46,7 @@ export default defineConfig({
           { text: "Changelog", link: "/reference/changelog" },
         ],
       },
+      { text: "Roadmap", link: "/roadmap" },
     ],
 
     sidebar: {
@@ -106,6 +107,7 @@ export default defineConfig({
         {
           text: "Distribution",
           items: [
+            { text: "bundle", link: "/commands/bundle" },
             { text: "internal-sharing", link: "/commands/internal-sharing" },
             { text: "generated-apks", link: "/commands/generated-apks" },
             { text: "device-tiers", link: "/commands/device-tiers" },

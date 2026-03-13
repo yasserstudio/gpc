@@ -88,7 +88,7 @@ GPC covers the **entire Google Play Developer API** in one CLI. No Ruby. No brow
 | Cold start          | <500ms                       | 2-3s            | 3-5s                  | 5-10s        |
 | Plugin system       | Yes                          | No              | No                    | No           |
 | Interactive mode    | Yes (guided prompts)         | No              | No                    | N/A          |
-| Test suite          | 1,255 tests, 90%+ coverage   | —               | —                     | —            |
+| Test suite          | 1,299 tests, 90%+ coverage   | —               | —                     | —            |
 
 See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 187 endpoints.
 
@@ -495,7 +495,7 @@ git clone https://github.com/yasserstudio/gpc.git
 cd gpc
 pnpm install
 pnpm build
-pnpm test    # 1,255 tests across 7 packages
+pnpm test    # 1,299 tests across 7 packages
 ```
 
 ---
@@ -522,7 +522,7 @@ pnpm test    # 1,255 tests across 7 packages
 
 <p align="center">
   GPC was built entirely with <a href="https://claude.ai/claude-code">Claude Code</a> — from architecture design through implementation, testing, and documentation.<br>
-  1,255 tests, 7 packages, 90%+ coverage, all written through AI-assisted development.
+  1,299 tests, 7 packages, 90%+ coverage, all written through AI-assisted development.
 </p>
 
 ---
