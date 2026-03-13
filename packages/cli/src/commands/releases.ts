@@ -39,9 +39,9 @@ function createRetryLogger(retryLogPath?: string): ((entry: RetryLogEntry) => vo
   };
 }
 
-async function getClient(config: GpcConfig, retryLogPath?: string) {
+async function getClient(config: GpcConfig, retryLogPath?: string, uploadTimeout?: number) {
   const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
-  return createApiClient({ auth, onRetry: createRetryLogger(retryLogPath) });
+  return createApiClient({ auth, onRetry: createRetryLogger(retryLogPath), uploadTimeout });
 }
 
 export function registerReleasesCommands(program: Command): void {
@@ -60,6 +60,7 @@ export function registerReleasesCommands(program: Command): void {
     .option("--notes-from-git", "Generate release notes from git commit history")
     .option("--since <ref>", "Git ref to start from (tag, SHA) — used with --notes-from-git")
     .option("--retry-log <path>", "Write retry log entries to file (JSONL)")
+    .option("--timeout <ms>", "Upload timeout in milliseconds (auto-scales with file size by default)", parseInt)
     .action(async (file: string, options) => {
       const noteSources = [options.notes, options.notesDir, options.notesFromGit].filter(Boolean);
       if (noteSources.length > 1) {
@@ -93,7 +94,7 @@ export function registerReleasesCommands(program: Command): void {
         }
       }
 
-      const client = await getClient(config, options.retryLog);
+      const client = await getClient(config, options.retryLog, options.timeout);
 
       if (isDryRun(program)) {
         try {

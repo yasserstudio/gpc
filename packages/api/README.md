@@ -210,7 +210,7 @@ import { createReportingClient } from "@gpc-cli/api";
 const reporting = createReportingClient({ auth });
 
 // Query crash rate
-const crashes = await reporting.queryMetricSet("com.example.app", "vitals.crashrate", {
+const crashes = await reporting.queryMetricSet("com.example.app", "crashRateMetricSet", {
   metrics: ["crashRate", "userPerceivedCrashRate"],
   timelineSpec: {
     aggregationPeriod: "DAILY",
@@ -226,7 +226,7 @@ const { anomalies } = await reporting.getAnomalies("com.example.app");
 const { errorIssues } = await reporting.searchErrorIssues("com.example.app");
 ```
 
-Available metric sets: `vitals.crashrate`, `vitals.anrrate`, `vitals.excessivewakeuprate`, `vitals.stuckbackgroundwakelockrate`, `vitals.slowstartrate`, `vitals.slowrenderingrate`, `vitals.errors.counts`.
+Available metric sets: `crashRateMetricSet`, `anrRateMetricSet`, `excessiveWakeupRateMetricSet`, `stuckBackgroundWakelockRateMetricSet`, `slowStartRateMetricSet`, `slowRenderingRateMetricSet`, `errorCountMetricSet`.
 
 ### Reports
 

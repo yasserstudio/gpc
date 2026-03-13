@@ -23,7 +23,7 @@ describe("compareVitalsTrend", () => {
       [{ metrics: { crashRate: { decimalValue: { value: "1.0" } } } }],
     );
 
-    const result = await compareVitalsTrend(reporting, "com.example", "vitals.crashrate", 7);
+    const result = await compareVitalsTrend(reporting, "com.example", "crashRateMetricSet", 7);
 
     expect(result.direction).toBe("improved");
     expect(result.changePercent).toBeLessThan(0);
@@ -37,7 +37,7 @@ describe("compareVitalsTrend", () => {
       [{ metrics: { crashRate: { decimalValue: { value: "1.0" } } } }],
     );
 
-    const result = await compareVitalsTrend(reporting, "com.example", "vitals.crashrate", 7);
+    const result = await compareVitalsTrend(reporting, "com.example", "crashRateMetricSet", 7);
 
     expect(result.direction).toBe("degraded");
     expect(result.changePercent).toBeGreaterThan(0);
@@ -49,7 +49,7 @@ describe("compareVitalsTrend", () => {
       [{ metrics: { crashRate: { decimalValue: { value: "1.0" } } } }],
     );
 
-    const result = await compareVitalsTrend(reporting, "com.example", "vitals.crashrate", 7);
+    const result = await compareVitalsTrend(reporting, "com.example", "crashRateMetricSet", 7);
 
     expect(result.direction).toBe("unchanged");
   });
@@ -57,7 +57,7 @@ describe("compareVitalsTrend", () => {
   it("returns unknown when no data", async () => {
     const reporting = mockReporting([], []);
 
-    const result = await compareVitalsTrend(reporting, "com.example", "vitals.crashrate", 7);
+    const result = await compareVitalsTrend(reporting, "com.example", "crashRateMetricSet", 7);
 
     expect(result.direction).toBe("unknown");
     expect(result.current).toBeUndefined();
@@ -76,7 +76,7 @@ describe("compareVitalsTrend", () => {
       ],
     );
 
-    const result = await compareVitalsTrend(reporting, "com.example", "vitals.anrrate", 7);
+    const result = await compareVitalsTrend(reporting, "com.example", "anrRateMetricSet", 7);
 
     expect(result.current).toBe(3.0);
     expect(result.previous).toBe(7.0);
@@ -89,7 +89,7 @@ describe("compareVitalsTrend", () => {
       [{ metrics: { rate: { decimalValue: { value: "1" } } } }],
     );
 
-    await compareVitalsTrend(reporting, "com.example", "vitals.crashrate", 7);
+    await compareVitalsTrend(reporting, "com.example", "crashRateMetricSet", 7);
 
     expect(reporting.queryMetricSet).toHaveBeenCalledTimes(2);
   });

@@ -39,6 +39,11 @@ export function registerDeviceTiersCommands(program: Command): void {
 
       try {
         const result = await listDeviceTiers(client, packageName);
+        const configs = (result as Record<string, unknown>)["deviceTierConfigs"] as unknown[] | undefined;
+        if (format !== "json" && (!configs || configs.length === 0)) {
+          console.log("No device tier configs found.");
+          return;
+        }
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);

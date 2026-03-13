@@ -199,16 +199,12 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 | API Endpoint                             | Method | GPC Command                      |
 | ---------------------------------------- | ------ | -------------------------------- |
-| `vitals.crashrate.get`                   | GET    | `gpc vitals crashes`             |
-| `vitals.crashrate.query`                 | POST   | `gpc vitals crashes --query`     |
-| `vitals.anrrate.get`                     | GET    | `gpc vitals anr`                 |
-| `vitals.anrrate.query`                   | POST   | `gpc vitals anr --query`         |
-| `vitals.slowstartrate.get`               | GET    | `gpc vitals startup`             |
-| `vitals.slowstartrate.query`             | POST   | `gpc vitals startup --query`     |
-| `vitals.slowrenderingrate.get`           | GET    | `gpc vitals rendering`           |
-| `vitals.excessivewakeuprate.get`         | GET    | `gpc vitals battery`             |
-| `vitals.stuckbackgroundwakelockrate.get` | GET    | `gpc vitals battery --wakelocks` |
-| `vitals.lmkRateMetricSet.get`            | GET    | `gpc vitals memory`              |
+| `crashRateMetricSet.query`                    | POST   | `gpc vitals crashes`             |
+| `anrRateMetricSet.query`                      | POST   | `gpc vitals anr`                 |
+| `slowStartRateMetricSet.query`                | POST   | `gpc vitals startup`             |
+| `slowRenderingRateMetricSet.query`            | POST   | `gpc vitals rendering`           |
+| `excessiveWakeupRateMetricSet.query`          | POST   | `gpc vitals battery`             |
+| `stuckBackgroundWakelockRateMetricSet.query`  | POST   | `gpc vitals memory`              |
 | `anomalies.list`                         | GET    | `gpc vitals anomalies`           |
 | `errorIssues.search`                     | GET    | `gpc vitals errors search`       |
 | `errorReports.search`                    | GET    | `gpc vitals errors reports`      |

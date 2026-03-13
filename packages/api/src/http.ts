@@ -3,6 +3,15 @@ import { resolve, isAbsolute } from "node:path";
 import { ApiError } from "./errors.js";
 import type { ApiClientOptions, ApiResponse } from "./types.js";
 
+/** Strip HTML tags and collapse whitespace from a string. */
+function stripHtml(text: string): string {
+  return text
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&[a-z]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 /** Extract a short, safe error summary from API response body (no tokens/secrets). */
 function sanitizeErrorBody(body: string): string {
   try {
@@ -13,10 +22,11 @@ function sanitizeErrorBody(body: string): string {
       return `${parsed.error.code ?? "?"} ${parsed.error.status ?? ""}: ${parsed.error.message}`.trim();
     }
   } catch {
-    // not JSON
+    // not JSON — may be HTML error page
   }
-  // Truncate raw body to prevent leaking large payloads
-  return body.length > 200 ? body.slice(0, 200) + "..." : body;
+  // Strip HTML tags before truncating
+  const cleaned = body.startsWith("<") ? stripHtml(body) : body;
+  return cleaned.length > 200 ? cleaned.slice(0, 200) + "..." : cleaned;
 }
 
 /** Validate upload file path to prevent path traversal. */
@@ -118,6 +128,7 @@ function jitteredDelay(base: number, attempt: number, max: number): number {
 export function createHttpClient(options: ApiClientOptions): HttpClient {
   const maxRetries = resolveOption(options.maxRetries, "GPC_MAX_RETRIES", 3);
   const timeout = resolveOption(options.timeout, "GPC_TIMEOUT", 30_000);
+  const uploadTimeoutExplicit = options.uploadTimeout ?? envInt("GPC_UPLOAD_TIMEOUT");
   const baseDelay = resolveOption(options.baseDelay, "GPC_BASE_DELAY", 1_000);
   const maxDelay = resolveOption(options.maxDelay, "GPC_MAX_DELAY", 60_000);
   const onRetry = options.onRetry;
@@ -262,6 +273,14 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     throw lastError ?? new ApiError("Request failed", "API_NETWORK_ERROR", undefined, "Check your network connection and try again. Use --verbose for details.");
   }
 
+  /** Calculate upload timeout: explicit value, or auto-scale from file size (1 MB/s minimum throughput + 30s overhead). */
+  function computeUploadTimeout(fileSizeBytes: number): number {
+    if (uploadTimeoutExplicit !== undefined) return uploadTimeoutExplicit;
+    // Base: 30s overhead + 1s per MB (assumes ~1 MB/s minimum upload speed)
+    const sizeMb = fileSizeBytes / (1024 * 1024);
+    return Math.max(timeout, 30_000 + Math.ceil(sizeMb) * 1_000);
+  }
+
   async function uploadRequest<T>(
     path: string,
     filePath: string,
@@ -271,6 +290,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     const url = `${baseUrl}${path}`;
     const safeFilePath = validateFilePath(filePath);
     const fileBuffer = await readFile(safeFilePath);
+    const effectiveTimeout = computeUploadTimeout(fileBuffer.byteLength);
 
     // Fetch token once before retries
     let token = await options.auth.getAccessToken();
@@ -283,7 +303,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
       }
 
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeout);
+      const timer = setTimeout(() => controller.abort(), effectiveTimeout);
 
       try {
         const headers: Record<string, string> = {
@@ -346,11 +366,12 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         }
 
         if (error instanceof DOMException && error.name === "AbortError") {
+          const sizeMb = Math.round(fileBuffer.byteLength / (1024 * 1024));
           const timeoutErr = new ApiError(
-            `POST upload ${path} timed out after ${timeout}ms`,
+            `POST upload ${path} timed out after ${effectiveTimeout}ms (file: ${sizeMb} MB)`,
             "API_TIMEOUT",
             undefined,
-            "The request exceeded the configured timeout. Consider increasing the timeout value.",
+            `Upload timed out. Set GPC_UPLOAD_TIMEOUT=${effectiveTimeout * 2} (ms) or use --timeout to increase.`,
           );
           if (attempt < maxRetries) {
             lastError = timeoutErr;

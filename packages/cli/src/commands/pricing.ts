@@ -57,7 +57,21 @@ export function registerPricingCommands(program: Command): void {
 
       try {
         const result = await convertRegionPrices(client, packageName, options.from, options.amount);
-        console.log(formatOutput(result, format));
+        if (format !== "json") {
+          const prices = (result as Record<string, unknown>)["convertedRegionPrices"] as Record<string, Record<string, unknown>> | undefined;
+          if (prices) {
+            const rows = Object.entries(prices).map(([region, price]) => ({
+              region,
+              priceMicros: price["priceMicros"] || "-",
+              currencyCode: price["currencyCode"] || "-",
+            }));
+            console.log(formatOutput(rows, format));
+          } else {
+            console.log(formatOutput(result, format));
+          }
+        } else {
+          console.log(formatOutput(result, format));
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
