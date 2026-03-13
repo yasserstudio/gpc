@@ -40,6 +40,7 @@ All commands accept global flags, produce structured output, and return predicta
 | [`data-safety`](./data-safety)                | Data safety declarations                              |
 | [`external-transactions`](./external-transactions) | External transactions (alternative billing)      |
 | [`device-tiers`](./device-tiers)              | Device capability targeting                           |
+| [`bundle`](./bundle)                          | Local AAB/APK size analysis and comparison            |
 | [`internal-sharing`](./internal-sharing)      | Review-free QA distribution                           |
 | [`generated-apks`](./generated-apks)          | Device-specific APK downloads                         |
 | [`one-time-products`](./one-time-products)    | One-time products and offers (alias: `otp`)           |

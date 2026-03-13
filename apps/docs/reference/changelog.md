@@ -6,7 +6,17 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.22 <Badge type="tip" text="latest" />
+## v0.9.23 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **Feat: bundle analysis** — new `gpc bundle analyze` and `gpc bundle compare` commands for zero-dependency AAB/APK size breakdown by module and category, with `--threshold` CI gate (exit code 6 on breach)
+- **Fix: vitals compare 400 error** — `gpc vitals compare` now uses non-overlapping date ranges, preventing `start_time must be earlier than end_time` API errors
+- **Feat: --dry-run for 4 more commands** — `tracks create`, `tracks update`, `device-tiers create`, and `internal-sharing upload` now support `--dry-run`
+- **Fix: exit code consistency** — `data-safety get/export` and `reports download financial/stats` now exit 2 (usage error) instead of 1 for unsupported operations
+- 1,299 tests
+
+## v0.9.22
 
 _March 2026_
 
