@@ -1,5 +1,13 @@
 # @gpc-cli/cli
 
+## 0.9.23
+
+### Patch Changes
+
+- Add bundle analysis commands, fix vitals compare date overlap, add --dry-run to 4 write commands, fix exit code consistency
+- Updated dependencies
+  - @gpc-cli/core@0.9.21
+
 ## 0.9.22
 
 ### Patch Changes
