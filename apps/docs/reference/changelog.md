@@ -6,7 +6,21 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.19 <Badge type="tip" text="latest" />
+## v0.9.20 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **Fix: vitals API endpoints** — corrected metric set names (`crashRateMetricSet` instead of `vitals.crashrate`) — vitals commands now work against the real Google Play Reporting API
+- **Fix: upload timeout** — auto-scales based on file size (30s + 1s/MB), no more 30s hard limit; supports `--timeout` flag and `GPC_UPLOAD_TIMEOUT` env var
+- **Fix: HTML error messages** — API errors returning HTML (e.g., 404 pages) are now stripped to plain text
+- **Fix: data-safety get** — shows clear message that the Google Play API has no GET endpoint for data safety
+- **Fix: listings push --dry-run** — no longer says "Listings pushed" in dry-run mode
+- **Fix: recovery list** — requires `--version-code` (validated locally instead of sending invalid request)
+- **Fix: empty output** — `otp list`, `testers list`, `device-tiers list`, `listings availability`, `vitals errors search`, and all vitals metric commands now show human-readable messages when no data
+- **Fix: table formatting** — `subscriptions get`, `subscriptions offers list`, and `pricing convert` flatten nested objects for readable table output
+- 1,273 tests
+
+## v0.9.19
 
 _March 2026_
 
