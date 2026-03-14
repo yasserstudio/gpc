@@ -2,23 +2,54 @@ import { defineConfig } from "vitepress";
 
 export default defineConfig({
   title: "GPC",
-  description: "The complete CLI for Google Play — 187 API endpoints, one tool.",
+  description:
+    "The complete CLI for Google Play. 187 API endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
 
   base: "/gpc/",
 
   head: [
     ["link", { rel: "icon", href: "/gpc/favicon.ico" }],
-    ["meta", { property: "og:title", content: "GPC — Google Play CLI" }],
+    [
+      "meta",
+      { property: "og:title", content: "GPC — Ship Android Apps from Your Terminal" },
+    ],
     [
       "meta",
       {
         property: "og:description",
         content:
-          "Ship Android apps from your terminal. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
+          "The complete CLI for Google Play. 187 API endpoints, one tool. No Ruby, no browser, no ceremony.",
       },
     ],
     ["meta", { property: "og:type", content: "website" }],
+    [
+      "meta",
+      { property: "og:url", content: "https://yasserstudio.github.io/gpc/" },
+    ],
     ["meta", { name: "twitter:card", content: "summary_large_image" }],
+    [
+      "meta",
+      {
+        name: "twitter:title",
+        content: "GPC — Ship Android Apps from Your Terminal",
+      },
+    ],
+    [
+      "meta",
+      {
+        name: "twitter:description",
+        content:
+          "The complete CLI for Google Play. 187 API endpoints, one tool. No Ruby, no browser, no ceremony.",
+      },
+    ],
+    [
+      "meta",
+      {
+        name: "keywords",
+        content:
+          "google play cli, google play developer api, android release automation, fastlane alternative, play store cli, upload aab command line, google play vitals, android ci cd",
+      },
+    ],
   ],
 
   lastUpdated: true,
@@ -35,11 +66,21 @@ export default defineConfig({
       { text: "Guide", link: "/guide/" },
       { text: "Commands", link: "/commands/" },
       { text: "CI/CD", link: "/ci-cd/" },
+      {
+        text: "Migration",
+        items: [
+          { text: "From Fastlane", link: "/migration/from-fastlane" },
+          { text: "From Console UI", link: "/migration/from-console-ui" },
+        ],
+      },
       { text: "Advanced", link: "/advanced/architecture" },
       {
         text: "Reference",
         items: [
-          { text: "Environment Variables", link: "/reference/environment-variables" },
+          {
+            text: "Environment Variables",
+            link: "/reference/environment-variables",
+          },
           { text: "Exit Codes", link: "/reference/exit-codes" },
           { text: "JSON Output Contract", link: "/reference/json-contract" },
           { text: "API Coverage Map", link: "/reference/api-coverage" },
@@ -72,7 +113,10 @@ export default defineConfig({
         {
           text: "Core Workflow",
           items: [
-            { text: "publish / validate / status", link: "/commands/publish" },
+            {
+              text: "publish / validate / status",
+              link: "/commands/publish",
+            },
             { text: "releases", link: "/commands/releases" },
             { text: "tracks", link: "/commands/tracks" },
             { text: "listings", link: "/commands/listings" },
@@ -89,7 +133,10 @@ export default defineConfig({
           text: "Monetization",
           items: [
             { text: "subscriptions", link: "/commands/subscriptions" },
-            { text: "one-time-products", link: "/commands/one-time-products" },
+            {
+              text: "one-time-products",
+              link: "/commands/one-time-products",
+            },
             { text: "purchase-options", link: "/commands/purchase-options" },
             { text: "iap (legacy)", link: "/commands/iap" },
             { text: "purchases", link: "/commands/purchases" },
@@ -118,7 +165,10 @@ export default defineConfig({
           items: [
             { text: "data-safety", link: "/commands/data-safety" },
             { text: "recovery", link: "/commands/recovery" },
-            { text: "external-transactions", link: "/commands/external-transactions" },
+            {
+              text: "external-transactions",
+              link: "/commands/external-transactions",
+            },
           ],
         },
         {
@@ -129,7 +179,10 @@ export default defineConfig({
             { text: "config", link: "/commands/config" },
             { text: "plugins", link: "/commands/plugins" },
             { text: "migrate", link: "/commands/migrate" },
-            { text: "doctor / docs / completion", link: "/commands/utility" },
+            {
+              text: "doctor / docs / completion",
+              link: "/commands/utility",
+            },
             { text: "install-skills", link: "/commands/install-skills" },
           ],
         },
@@ -186,9 +239,15 @@ export default defineConfig({
         {
           text: "Reference",
           items: [
-            { text: "Environment Variables", link: "/reference/environment-variables" },
+            {
+              text: "Environment Variables",
+              link: "/reference/environment-variables",
+            },
             { text: "Exit Codes", link: "/reference/exit-codes" },
-            { text: "JSON Output Contract", link: "/reference/json-contract" },
+            {
+              text: "JSON Output Contract",
+              link: "/reference/json-contract",
+            },
             { text: "API Coverage Map", link: "/reference/api-coverage" },
             { text: "Changelog", link: "/reference/changelog" },
           ],
@@ -212,7 +271,8 @@ export default defineConfig({
     ],
 
     editLink: {
-      pattern: "https://github.com/yasserstudio/gpc/edit/main/apps/docs/:path",
+      pattern:
+        "https://github.com/yasserstudio/gpc/edit/main/apps/docs/:path",
       text: "Edit this page on GitHub",
     },
 
@@ -222,7 +282,8 @@ export default defineConfig({
 
     footer: {
       message: "Released under the MIT License.",
-      copyright: "Not affiliated with Google LLC. Google Play is a trademark of Google LLC.",
+      copyright:
+        "Not affiliated with Google LLC. Google Play is a trademark of Google LLC.",
     },
   },
 });

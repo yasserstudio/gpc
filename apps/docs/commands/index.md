@@ -6,47 +6,97 @@ outline: deep
 
 GPC follows a consistent `<domain> <action> [options]` pattern for every command.
 
-## Command Structure
+## Common Workflows
+
+Most users start with these:
 
 ```bash
-gpc <domain> <action> [options]
+# End-to-end: validate, upload, release
+gpc publish app.aab --track beta --notes "Bug fixes"
+
+# Upload to a specific track
+gpc releases upload app.aab --track internal
+
+# Promote between tracks
+gpc releases promote --from beta --to production --rollout 10
+
+# Check app health before shipping
+gpc vitals crashes --threshold 2.0
+
+# Cross-track release overview
+gpc status
+
+# Analyze bundle size
+gpc bundle analyze app.aab --threshold 150
 ```
 
-All commands accept global flags, produce structured output, and return predictable exit codes.
+## All Commands
 
-## Commands
+### Core Workflow
 
-| Domain                                        | Description                                           |
+| Command                                       | Description                                           |
 | --------------------------------------------- | ----------------------------------------------------- |
 | [`publish`](./publish)                        | End-to-end validate, upload, and release              |
 | [`validate`](./publish#gpc-validate)          | Pre-submission checks                                 |
 | [`status`](./publish#gpc-status)              | Cross-track release overview                          |
-| [`releases`](./releases)                      | Upload, promote, rollout, release notes               |
+| [`releases`](./releases)                      | Upload, promote, rollout, release notes, diff         |
+| [`tracks`](./tracks)                          | Track configuration and management                    |
 | [`listings`](./listings)                      | Store listings, metadata, images                      |
+
+### Monitoring
+
+| Command                                       | Description                                           |
+| --------------------------------------------- | ----------------------------------------------------- |
 | [`reviews`](./reviews)                        | User reviews and ratings                              |
 | [`vitals`](./vitals)                          | Crash rates, ANR, startup, rendering, battery, memory |
+
+### Monetization
+
+| Command                                       | Description                                           |
+| --------------------------------------------- | ----------------------------------------------------- |
 | [`subscriptions`](./subscriptions)            | Subscriptions, base plans, offers                     |
-| [`iap`](./iap)                                | In-app products (legacy one-time)                     |
+| [`one-time-products`](./one-time-products)    | One-time products and offers (alias: `otp`)           |
+| [`purchase-options`](./purchase-options)       | Purchase option management for one-time products      |
+| [`iap`](./iap)                                | In-app products (legacy API)                          |
 | [`purchases`](./purchases)                    | Purchase verification, acknowledgment, refunds        |
 | [`pricing`](./pricing)                        | Regional price conversion                             |
+
+### Reporting & Team
+
+| Command                                       | Description                                           |
+| --------------------------------------------- | ----------------------------------------------------- |
 | [`reports`](./reports)                        | Financial and stats report downloads                  |
 | [`testers`](./testers)                        | Tester management by track                            |
 | [`users`](./users)                            | Developer account users and permissions               |
+
+### Distribution
+
+| Command                                       | Description                                           |
+| --------------------------------------------- | ----------------------------------------------------- |
+| [`bundle`](./bundle)                          | Local AAB/APK size analysis and comparison            |
+| [`internal-sharing`](./internal-sharing)      | Review-free QA distribution                           |
+| [`generated-apks`](./generated-apks)          | Device-specific APK downloads                         |
+| [`device-tiers`](./device-tiers)              | Device capability targeting                           |
+
+### Compliance & Recovery
+
+| Command                                       | Description                                           |
+| --------------------------------------------- | ----------------------------------------------------- |
+| [`data-safety`](./data-safety)                | Data safety declarations                              |
+| [`recovery`](./recovery)                      | App recovery actions                                  |
+| [`external-transactions`](./external-transactions) | External transactions (alternative billing)      |
+
+### System
+
+| Command                                       | Description                                           |
+| --------------------------------------------- | ----------------------------------------------------- |
 | [`auth`](./auth)                              | Authentication and profiles                           |
 | [`apps`](./apps)                              | App info and configuration                            |
 | [`config`](./config)                          | CLI configuration                                     |
 | [`plugins`](./plugins)                        | Plugin management                                     |
-| [`recovery`](./recovery)                      | App recovery actions                                  |
-| [`data-safety`](./data-safety)                | Data safety declarations                              |
-| [`external-transactions`](./external-transactions) | External transactions (alternative billing)      |
-| [`device-tiers`](./device-tiers)              | Device capability targeting                           |
-| [`bundle`](./bundle)                          | Local AAB/APK size analysis and comparison            |
-| [`internal-sharing`](./internal-sharing)      | Review-free QA distribution                           |
-| [`generated-apks`](./generated-apks)          | Device-specific APK downloads                         |
-| [`one-time-products`](./one-time-products)    | One-time products and offers (alias: `otp`)           |
-| [`purchase-options`](./purchase-options)      | Purchase option management for one-time products      |
 | [`migrate`](./migrate)                        | Migrate from Fastlane to GPC                          |
-| [`doctor` / `docs` / `completion`](./utility) | Utilities                                             |
+| [`doctor` / `docs` / `completion`](./utility) | Diagnostics, documentation, shell completions         |
+| [`install-skills`](./install-skills)          | Install AI agent skills for GPC workflows             |
 
 ## Global Flags
 
