@@ -10,7 +10,7 @@ Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.
 <p align="center">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/v/@gpc-cli/cli?color=00D26A" alt="npm version"></a>
   <a href="https://github.com/yasserstudio/gpc"><img src="https://img.shields.io/github/stars/yasserstudio/gpc" alt="GitHub Stars"></a>
-  <img src="https://img.shields.io/badge/Tests-1299_passing-00D26A" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-1355_passing-00D26A" alt="Tests">
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License">
 </p>
 
