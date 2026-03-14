@@ -7,6 +7,24 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.26
+
+Eight `gpc status` quality-of-life improvements.
+
+- feat: trend arrows ↑↓ on vitals — compare current crash/ANR rate vs prior period at a glance
+- feat: `--format summary` — one-liner output for shell prompts and post-deploy hooks
+- feat: `--sections <list>` — skip API calls for excluded sections (releases/vitals/reviews)
+- feat: `--watch [N]` — real polling loop with ANSI clear, Ctrl+C to stop, 10s minimum, 30s default
+- feat: `--since-last` — diff mode showing version/crash/ANR/rating deltas vs last cached run
+- feat: `--all-apps` — run status across all configured app profiles (max 5)
+- feat: `--notify` — desktop notification on threshold breach/clear; CI-aware skip
+- fix: unknown vitals/reviews show `—` instead of `?`/`n/a`; "No vitals data available" message when all absent
+- 1,388 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.25...v0.9.26)
+
+---
+
 ## v0.9.25
 
 Five bugs fixed — including a critical one that prevented every upload from completing.

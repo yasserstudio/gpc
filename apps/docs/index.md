@@ -39,7 +39,7 @@ features:
     details: "Extend GPC with lifecycle hooks and custom commands. Or import @gpc-cli/api into your own projects — typed SDK for the entire Google Play API."
   - icon:
       src: /icons/shield.svg
-    title: 1,358 Tests. 90%+ Coverage.
+    title: 1,388 Tests. 90%+ Coverage.
     details: "Security-audited credential handling, automatic secrets redaction, audit logging for write operations. Every write command supports --dry-run."
 ---
 
