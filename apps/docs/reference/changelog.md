@@ -6,7 +6,21 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.25 <Badge type="tip" text="latest" />
+## v0.9.26 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **feat: trend arrows on vitals** — `gpc status` now shows ↑↓ next to crash rate and ANR rate, comparing the current window against the prior period so you can see at a glance if things are improving or worsening
+- **feat: `--format summary`** — one-liner output for shell prompts and post-deploy hooks: `tv.visioo.app · v142 internal · crashes 1.20% ↓ ✓ · avg 4.1★`
+- **feat: `--sections <list>`** — fetch only what you need; `--sections vitals` skips the releases and reviews API calls entirely
+- **feat: `--watch [N]`** — real polling loop with terminal clear, Ctrl+C to stop, min 10s interval, default 30s
+- **feat: `--since-last`** — diff mode: shows version, crash rate, ANR rate, and rating deltas vs the last cached run
+- **feat: `--all-apps`** — run status for all configured app profiles in one command (max 5 apps)
+- **feat: `--notify`** — desktop notification on threshold breach or clear (macOS, Linux, Windows); skipped in CI; only fires on state change
+- **fix: unknown vitals/reviews display** — shows `—` instead of `?`/`n/a`; renders "No vitals data available for this period" or "No reviews in this period" when there is nothing to show
+- 1,388 tests
+
+## v0.9.25
 
 _March 2026_
 
@@ -15,7 +29,7 @@ _March 2026_
 - **fix: gpc status --days N / gpc vitals compare --days N wrong date window** — Commander calls `parseInt(value, previousValue)` when a coerce function and default are both given. Using `parseInt` directly meant the default (e.g. `7`) was passed as the radix — `parseInt("7", 7)` = NaN, `parseInt("14", 7)` = 11. Now uses `(v) => parseInt(v, 10)`.
 - **fix: gpc validate table output showed raw JSON** — `ValidateResult.checks[]` was passed directly to `formatOutput`, producing `JSON.stringify(...)` in table/markdown cells. Now flattens checks to rows with a separate warnings list and `Valid`/`Invalid` footer.
 - **fix: JUnit name attribute showed `-` for releases status** — commands that set `name: s["name"] || "-"` produced sentinel `"-"` strings that stopped the `??` fallback chain. Now uses a loop that skips `""` and `"-"`, falling through to `track`, `versionCode`, etc.
-- 1,358 tests
+- 1,388 tests
 
 ## v0.9.24
 
