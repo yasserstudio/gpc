@@ -31,8 +31,8 @@ features:
     details: "One npm install. Or a standalone binary — no runtime needed. Under 500ms cold start. macOS, Linux, and Windows."
   - icon:
       src: /icons/activity.svg
-    title: Vitals-Gated Releases
-    details: "Gate deployments on crash rate and ANR thresholds. Exit code 6 when breached — your CI stops the rollout before users notice."
+    title: Full Picture in One Command
+    details: "gpc status shows releases, vitals, and reviews simultaneously — 6 parallel API calls, result in under 3 seconds. Exit code 6 if any vital is breached."
   - icon:
       src: /icons/plug.svg
     title: Plugin System + SDK
@@ -62,14 +62,14 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 # Authenticate
 gpc auth login --service-account path/to/key.json
 
+# App health at a glance — releases, vitals, and reviews in one command
+gpc status
+
 # Upload and release
 gpc releases upload app.aab --track internal
 
 # Promote to production with staged rollout
 gpc releases promote --from internal --to production --rollout 10
-
-# Check app health
-gpc vitals overview
 
 # Monitor reviews
 gpc reviews list --stars 1-3 --since 7d

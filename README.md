@@ -44,18 +44,46 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 # Authenticate
 gpc auth login --service-account path/to/key.json
 
+# App health at a glance — releases, vitals, and reviews in one command
+gpc status
+
 # Upload and release
 gpc releases upload app.aab --track internal
 
 # Promote to production with staged rollout
 gpc releases promote --from internal --to production --rollout 10
 
-# Check app health
-gpc vitals overview
-
 # Monitor reviews
 gpc reviews list --stars 1-3 --since 7d
 ```
+
+---
+
+## App health at a glance
+
+Everything you'd check in 4–6 Play Console screens, in one command:
+
+```
+$ gpc status
+
+App: com.example.myapp · My App  (fetched 10:42:01 AM)
+
+RELEASES
+  production   v1.4.2   completed    —
+  beta         v1.5.0   inProgress  10%
+  internal     v1.5.1   draft        —
+
+VITALS  (last 7 days)
+  crashes     0.80%  ✓    anr         0.20%  ✓
+  slow starts 2.10%  ✓    slow render 4.30%  ⚠
+
+REVIEWS  (last 30 days)
+  ★ 4.6   142 new   89% positive   ↑ from 4.4
+```
+
+6 parallel API calls. Results in under 3 seconds. Cached for 1 hour — `--cached` skips the network entirely.
+
+Exit code 6 if any vitals threshold is breached — drop it directly into a deployment gate.
 
 ---
 
@@ -101,10 +129,11 @@ gpc validate app.aab --track beta                          # Pre-submission chec
 ### Monitor app health
 
 ```bash
-gpc vitals overview                        # Summary dashboard
+gpc status                                 # Releases + vitals + reviews in one view
 gpc vitals crashes --threshold 2.0         # Exit code 6 if breached — CI gates
 gpc vitals compare crashes --days 7        # This week vs last week
 gpc vitals anr --version 142
+gpc status --watch 60                      # Auto-refresh every 60 seconds
 ```
 
 ### Manage store listings
