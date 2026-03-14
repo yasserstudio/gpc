@@ -8,7 +8,7 @@ GPC v0.9.x is a pre-release series working toward a stable **1.0.0** public laun
 
 ## Current Status
 
-**v0.9.22** is the latest release. GPC currently covers:
+**v0.9.23** is the latest release. GPC currently covers:
 
 - **187 API endpoints** across the Android Publisher API v3 and Play Developer Reporting API
 - **32 command groups**, 100+ subcommands
@@ -25,9 +25,65 @@ The following must be complete before the `1.0.0` tag ships:
 - [x] Security audit and credential hardening
 - [x] Documentation completeness review
 - [x] End-to-end validation against production apps
+- [ ] `gpc status` — unified app health snapshot (see below)
 - [ ] Community showcase — real apps using GPC in production
 - [ ] Stability soak — 2+ weeks without critical bugs
 - [ ] Public launch (blog posts, Android Weekly, community announcements)
+
+---
+
+## gpc status — Unified App Health Snapshot
+
+The launch anchor feature. One command that replaces opening 4–6 Play Console screens.
+
+```
+$ gpc status
+
+App: tv.visioo.app · Visioo TV  (updated 12s ago)
+
+RELEASES
+  production   v1.4.2   live       100%
+  beta         v1.5.0   in review  —
+  internal     v1.5.1   draft      —
+
+VITALS  (last 7 days)
+  crashes   0.8%  ✓    anr       0.2%  ✓
+  startup   2.1s  ✓    rendering 4.3%  ✓
+
+REVIEWS  (last 30 days)
+  ★ 4.6   142 new   89% positive   ↑ from 4.4
+```
+
+**How it works:**
+
+All API calls run in parallel — tracks, vitals (4 metric sets), and reviews fire simultaneously. Target: under 3 seconds on a normal connection.
+
+Vitals indicators (`✓` / `⚠` / `✗`) use your configured thresholds from `.gpcrc.json`. If any threshold is breached, the command exits with code `6` — the same as `gpc vitals` — so you can use it in CI health checks.
+
+**Flags:**
+
+| Flag | Description |
+|------|-------------|
+| `--days <n>` | Vitals window (default: `7`) |
+| `--full` | Include reviews sentiment breakdown |
+| `--cached` | Use last fetched data instantly (< 100ms) |
+| `--refresh` | Force fresh fetch and update cache |
+| `--watch` | Refresh on an interval (e.g. `--watch 60`) |
+| `--output json` | Machine-readable output for scripting |
+
+**Caching:**
+
+Results are stored in `.gpcrc-cache.json` with a configurable TTL (default: 1 hour). `--cached` reads from this file instantly — useful in scripts where you want the last known state without waiting for API calls. `--refresh` forces a live fetch regardless of TTL.
+
+**CI / scripting:**
+
+```bash
+# Health check — exits 6 if any vitals threshold breached
+gpc status --output json | jq '.vitals'
+
+# Use cached data in a status badge script
+gpc status --cached --output json
+```
 
 ---
 
@@ -105,15 +161,11 @@ If a quality gate fails at any stage, the train stops automatically and notifies
 
 ### App Quality
 
-#### Bundle Size Analysis
+#### Bundle Size Analysis :white_check_mark: Shipped (v0.9.23)
 
-Parse your AAB locally and track size across releases:
+`gpc bundle analyze` and `gpc bundle compare` are available now. Zero-dependency ZIP parsing gives you per-module and per-category size breakdowns, cross-build comparison with delta reporting, and `--threshold` for CI size gates. See [bundle commands](/commands/bundle).
 
-```bash
-gpc bundle analyze app-release.aab --compare previous.aab
-```
-
-Total size, per-feature-module breakdown, estimated APK size per device configuration, and a regression alert if any module grows beyond a configurable budget. Runs entirely offline — no API calls.
+Remaining enhancements for post-1.0: top-N largest files, per-module thresholds via `.bundlesize.json`, estimated APK size per device config.
 
 #### Rich Listings Diff
 
