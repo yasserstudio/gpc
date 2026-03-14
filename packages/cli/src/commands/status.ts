@@ -85,7 +85,19 @@ function makeRenderer(
   displayFormat: string,
 ): (status: AppStatus) => string {
   return (status: AppStatus): string => {
-    if (format === "json") return formatOutput(status, "json");
+    if (format === "json") {
+      const sectionSet = new Set(status.sections);
+      const filtered: Record<string, unknown> = {
+        packageName: status.packageName,
+        fetchedAt: status.fetchedAt,
+        cached: status.cached,
+        sections: status.sections,
+      };
+      if (sectionSet.has("releases")) filtered["releases"] = status.releases;
+      if (sectionSet.has("vitals")) filtered["vitals"] = status.vitals;
+      if (sectionSet.has("reviews")) filtered["reviews"] = status.reviews;
+      return formatOutput(filtered, "json");
+    }
     if (displayFormat === "summary") return formatStatusSummary(status);
     return formatStatusTable(status);
   };

@@ -1,5 +1,18 @@
 # @gpc-cli/cli
 
+## 0.9.27
+
+### Patch Changes
+
+- fix(status): --sections filter now hides excluded sections from table and JSON output
+
+  Previously, --sections vitals validated and skipped the API calls for excluded sections but still rendered all three sections (RELEASES, VITALS, REVIEWS) in the output. The AppStatus object now carries the active sections list, and both formatStatusTable and the JSON renderer respect it.
+
+  JSON output for --sections vitals omits the releases and reviews keys entirely.
+
+- Updated dependencies
+  - @gpc-cli/core@0.9.25
+
 ## 0.9.26
 
 ### Patch Changes
