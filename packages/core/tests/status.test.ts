@@ -298,6 +298,7 @@ describe("statusHasBreach", () => {
     packageName: "com.example",
     fetchedAt: new Date().toISOString(),
     cached: false,
+    sections: ["releases", "vitals", "reviews"],
     releases: [],
     vitals: {
       windowDays: 7,
@@ -348,6 +349,7 @@ describe("formatStatusTable", () => {
     packageName: "tv.visioo.app",
     fetchedAt: new Date().toISOString(),
     cached: false,
+    sections: ["releases", "vitals", "reviews"],
     releases: [
       { track: "production", versionCode: "42", status: "completed", userFraction: null },
       { track: "beta", versionCode: "43", status: "inProgress", userFraction: 0.1 },
@@ -516,6 +518,30 @@ describe("formatStatusTable", () => {
     // flat trend: no arrow in the vitals section for crash rate
     expect(out).toContain("VITALS");
   });
+
+  it("hides VITALS and REVIEWS sections when sections = ['releases']", () => {
+    const status: AppStatus = { ...baseStatus, sections: ["releases"] };
+    const out = formatStatusTable(status);
+    expect(out).toContain("RELEASES");
+    expect(out).not.toContain("VITALS");
+    expect(out).not.toContain("REVIEWS");
+  });
+
+  it("hides RELEASES and REVIEWS sections when sections = ['vitals']", () => {
+    const status: AppStatus = { ...baseStatus, sections: ["vitals"] };
+    const out = formatStatusTable(status);
+    expect(out).not.toContain("RELEASES");
+    expect(out).toContain("VITALS");
+    expect(out).not.toContain("REVIEWS");
+  });
+
+  it("hides RELEASES when sections = ['vitals','reviews']", () => {
+    const status: AppStatus = { ...baseStatus, sections: ["vitals", "reviews"] };
+    const out = formatStatusTable(status);
+    expect(out).not.toContain("RELEASES");
+    expect(out).toContain("VITALS");
+    expect(out).toContain("REVIEWS");
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -527,6 +553,7 @@ describe("formatStatusSummary", () => {
     packageName: "tv.visioo.app",
     fetchedAt: new Date().toISOString(),
     cached: false,
+    sections: ["releases", "vitals", "reviews"],
     releases: [
       { track: "internal", versionCode: "142", status: "completed", userFraction: null },
     ],
@@ -605,6 +632,7 @@ describe("computeStatusDiff", () => {
     packageName: "com.example",
     fetchedAt: new Date().toISOString(),
     cached: false,
+    sections: ["releases", "vitals", "reviews"],
     releases: [
       { track: "production", versionCode: "141", status: "completed", userFraction: null },
     ],
@@ -753,6 +781,7 @@ describe("runWatchLoop", () => {
       packageName: "com.example",
       fetchedAt: new Date().toISOString(),
       cached: false,
+      sections: ["releases", "vitals", "reviews"],
       releases: [],
       vitals: {
         windowDays: 7,
@@ -865,6 +894,7 @@ describe("status cache", () => {
     packageName: pkg,
     fetchedAt: new Date().toISOString(),
     cached: false,
+    sections: ["releases", "vitals", "reviews"],
     releases: [],
     vitals: {
       windowDays: 7,

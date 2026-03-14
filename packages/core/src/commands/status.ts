@@ -39,6 +39,7 @@ export interface AppStatus {
   packageName: string;
   fetchedAt: string;
   cached: boolean;
+  sections: string[]; // active sections: "releases" | "vitals" | "reviews"
   releases: StatusRelease[];
   vitals: {
     windowDays: number;
@@ -101,7 +102,12 @@ export async function loadStatusCache(
     const entry = JSON.parse(raw) as CacheEntry;
     const age = (Date.now() - new Date(entry.fetchedAt).getTime()) / 1000;
     if (age > (entry.ttl ?? ttlSeconds)) return null;
-    return { ...entry.data, cached: true };
+    const data = entry.data;
+    return {
+      ...data,
+      sections: data.sections ?? ["releases", "vitals", "reviews"],
+      cached: true,
+    };
   } catch {
     return null;
   }
@@ -349,6 +355,7 @@ export async function getAppStatus(
     packageName,
     fetchedAt: new Date().toISOString(),
     cached: false,
+    sections: [...sections],
     releases,
     vitals: {
       windowDays: days,
@@ -422,59 +429,66 @@ function allVitalsUnknown(vitals: AppStatus["vitals"]): boolean {
 
 export function formatStatusTable(status: AppStatus): string {
   const lines: string[] = [];
+  const sectionSet = new Set(status.sections);
   const cachedLabel = status.cached
     ? `  (cached ${new Date(status.fetchedAt).toLocaleTimeString()})`
     : `  (fetched ${new Date(status.fetchedAt).toLocaleTimeString()})`;
 
   lines.push(`App: ${status.packageName}${cachedLabel}`);
-  lines.push("");
 
   // Releases
-  lines.push("RELEASES");
-  if (status.releases.length === 0) {
-    lines.push("  No releases found.");
-  } else {
-    const trackW = Math.max(10, ...status.releases.map((r) => r.track.length));
-    const versionW = Math.max(7, ...status.releases.map((r) => r.versionCode.length));
-    const statusW = Math.max(8, ...status.releases.map((r) => r.status.length));
-    for (const r of status.releases) {
-      lines.push(
-        `  ${r.track.padEnd(trackW)}  ${r.versionCode.padEnd(versionW)}  ${r.status.padEnd(statusW)}  ${formatFraction(r.userFraction)}`,
-      );
+  if (sectionSet.has("releases")) {
+    lines.push("");
+    lines.push("RELEASES");
+    if (status.releases.length === 0) {
+      lines.push("  No releases found.");
+    } else {
+      const trackW = Math.max(10, ...status.releases.map((r) => r.track.length));
+      const versionW = Math.max(7, ...status.releases.map((r) => r.versionCode.length));
+      const statusW = Math.max(8, ...status.releases.map((r) => r.status.length));
+      for (const r of status.releases) {
+        lines.push(
+          `  ${r.track.padEnd(trackW)}  ${r.versionCode.padEnd(versionW)}  ${r.status.padEnd(statusW)}  ${formatFraction(r.userFraction)}`,
+        );
+      }
     }
   }
 
   // Vitals
-  lines.push("");
-  lines.push(`VITALS  (last ${status.vitals.windowDays} days)`);
-  if (allVitalsUnknown(status.vitals)) {
-    lines.push("  No vitals data available for this period.");
-  } else {
-    const { crashes, anr, slowStarts, slowRender } = status.vitals;
-    const crashVal = `${formatVitalValue(crashes)}${vitalTrendArrow(crashes)}`;
-    const anrVal = `${formatVitalValue(anr)}${vitalTrendArrow(anr)}`;
-    const slowStartVal = `${formatVitalValue(slowStarts)}${vitalTrendArrow(slowStarts)}`;
-    const slowRenderVal = `${formatVitalValue(slowRender)}${vitalTrendArrow(slowRender)}`;
-    lines.push(
-      `  crashes     ${crashVal.padEnd(10)}  ${vitalIndicator(crashes)}    ` +
-        `anr         ${anrVal.padEnd(10)}  ${vitalIndicator(anr)}`,
-    );
-    lines.push(
-      `  slow starts ${slowStartVal.padEnd(10)}  ${vitalIndicator(slowStarts)}    ` +
-        `slow render ${slowRenderVal.padEnd(10)}  ${vitalIndicator(slowRender)}`,
-    );
+  if (sectionSet.has("vitals")) {
+    lines.push("");
+    lines.push(`VITALS  (last ${status.vitals.windowDays} days)`);
+    if (allVitalsUnknown(status.vitals)) {
+      lines.push("  No vitals data available for this period.");
+    } else {
+      const { crashes, anr, slowStarts, slowRender } = status.vitals;
+      const crashVal = `${formatVitalValue(crashes)}${vitalTrendArrow(crashes)}`;
+      const anrVal = `${formatVitalValue(anr)}${vitalTrendArrow(anr)}`;
+      const slowStartVal = `${formatVitalValue(slowStarts)}${vitalTrendArrow(slowStarts)}`;
+      const slowRenderVal = `${formatVitalValue(slowRender)}${vitalTrendArrow(slowRender)}`;
+      lines.push(
+        `  crashes     ${crashVal.padEnd(10)}  ${vitalIndicator(crashes)}    ` +
+          `anr         ${anrVal.padEnd(10)}  ${vitalIndicator(anr)}`,
+      );
+      lines.push(
+        `  slow starts ${slowStartVal.padEnd(10)}  ${vitalIndicator(slowStarts)}    ` +
+          `slow render ${slowRenderVal.padEnd(10)}  ${vitalIndicator(slowRender)}`,
+      );
+    }
   }
 
   // Reviews
-  lines.push("");
-  lines.push(`REVIEWS  (last ${status.reviews.windowDays} days)`);
-  const { averageRating, previousAverageRating, totalNew, positivePercent } = status.reviews;
-  if (totalNew === 0 && averageRating === undefined) {
-    lines.push("  No reviews in this period.");
-  } else {
-    const trend = formatTrend(averageRating, previousAverageRating);
-    const positiveStr = positivePercent !== undefined ? `  ${positivePercent}% positive` : "";
-    lines.push(`  ${formatRating(averageRating)}   ${totalNew} new${positiveStr}${trend}`);
+  if (sectionSet.has("reviews")) {
+    lines.push("");
+    lines.push(`REVIEWS  (last ${status.reviews.windowDays} days)`);
+    const { averageRating, previousAverageRating, totalNew, positivePercent } = status.reviews;
+    if (totalNew === 0 && averageRating === undefined) {
+      lines.push("  No reviews in this period.");
+    } else {
+      const trend = formatTrend(averageRating, previousAverageRating);
+      const positiveStr = positivePercent !== undefined ? `  ${positivePercent}% positive` : "";
+      lines.push(`  ${formatRating(averageRating)}   ${totalNew} new${positiveStr}${trend}`);
+    }
   }
 
   return lines.join("\n");
