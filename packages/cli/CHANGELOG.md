@@ -1,5 +1,13 @@
 # @gpc-cli/cli
 
+## 0.9.28
+
+### Patch Changes
+
+- fix(audit): gpc audit clear --dry-run now correctly previews without deleting
+
+  The global --dry-run option on the root program was consumed before the audit clear subcommand action ran, making options.dryRun undefined in the action. Entries were deleted even when --dry-run was passed. Now uses isDryRun(cmd) to read from the root program opts, consistent with how other commands handle global flags.
+
 ## 0.9.27
 
 ### Patch Changes

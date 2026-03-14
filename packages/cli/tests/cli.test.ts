@@ -16,6 +16,7 @@ vi.mock("@gpc-cli/config", () => ({
   setConfigValue: vi.fn().mockResolvedValue(undefined),
   getUserConfigPath: vi.fn().mockReturnValue("/home/user/.config/gpc/config.toml"),
   initConfig: vi.fn().mockResolvedValue("/home/user/.config/gpc/config.toml"),
+  getConfigDir: vi.fn().mockReturnValue("/home/user/.config/gpc"),
 }));
 
 vi.mock("@gpc-cli/core", () => {
@@ -158,6 +159,9 @@ vi.mock("@gpc-cli/core", () => {
     writeAuditLog: vi.fn().mockResolvedValue(undefined),
     createAuditEntry: vi.fn().mockReturnValue({}),
     initAudit: vi.fn().mockResolvedValue(undefined),
+    listAuditEvents: vi.fn().mockResolvedValue([]),
+    searchAuditEvents: vi.fn().mockResolvedValue([]),
+    clearAuditLog: vi.fn().mockResolvedValue({ deleted: 3, remaining: 0 }),
     // one-time products (OTP)
     listOneTimeProducts: vi.fn().mockResolvedValue({ oneTimeProducts: [] }),
     getOneTimeProduct: vi.fn().mockResolvedValue({}),
@@ -789,6 +793,34 @@ describe("isDryRun", () => {
     const root = { opts: () => ({ dryRun: true }), parent: null } as any;
     const child = { opts: () => ({}), parent: root } as any;
     expect(isDryRun(child)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Regression: gpc audit clear --dry-run must not delete entries (v0.9.27 fix)
+// ---------------------------------------------------------------------------
+describe("audit clear --dry-run regression", () => {
+  it("passes dryRun=true to clearAuditLog when --dry-run flag is set on root program", async () => {
+    const core = await import("@gpc-cli/core");
+    const clearMock = vi.mocked(core.clearAuditLog);
+    clearMock.mockResolvedValue({ deleted: 2, remaining: 0 });
+
+    // Mock requireConfirm to avoid TTY requirement
+    const promptModule = await import("../src/prompt.js");
+    vi.spyOn(promptModule, "requireConfirm").mockResolvedValue(undefined);
+
+    const prog = await createProgram();
+    // Simulate global --dry-run consumed at the root level (the bug: opts.dryRun undefined in action)
+    prog.setOptionValue("dryRun", true);
+    const output: string[] = [];
+    vi.spyOn(console, "log").mockImplementation((...args) => output.push(args.join(" ")));
+
+    await prog.parseAsync(["node", "test", "audit", "clear"]);
+
+    expect(clearMock).toHaveBeenCalledWith(expect.objectContaining({ dryRun: true }));
+    expect(output.some((l) => l.includes("[dry-run]"))).toBe(true);
+
+    vi.restoreAllMocks();
   });
 });
 
