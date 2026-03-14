@@ -6,7 +6,14 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.27 <Badge type="tip" text="latest" />
+## v0.9.28 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **fix: `gpc audit clear --dry-run` no longer deletes entries** — the global `--dry-run` flag was consumed by the root program before the `audit clear` subcommand action ran, making `options.dryRun` always `undefined`. Entries were deleted. Now uses `isDryRun(cmd)` to read from root opts — same fix pattern as `gpc doctor --json` in v0.9.25.
+- 1,392 tests
+
+## v0.9.27
 
 _March 2026_
 

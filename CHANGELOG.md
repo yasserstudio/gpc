@@ -7,6 +7,15 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.28
+
+- fix: `gpc audit clear --dry-run` no longer deletes entries — global `--dry-run` was consumed at the root program level before the subcommand action ran, so `options.dryRun` was always `undefined`. Entries were deleted even when `--dry-run` was passed. Same root cause as the `gpc doctor --json` bug fixed in v0.9.25.
+- 1,392 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.27...v0.9.28)
+
+---
+
 ## v0.9.27
 
 - fix: `gpc status --sections <list>` now filters output — previously the API calls were correctly skipped but all three sections (RELEASES, VITALS, REVIEWS) still rendered in the terminal and JSON output. Now only the requested sections appear.
