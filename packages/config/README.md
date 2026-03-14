@@ -1,6 +1,6 @@
 # @gpc-cli/config
 
-Configuration loading and validation for GPC. Handles config files, environment variables, profiles, and XDG-compliant paths.
+Configuration loading and validation for [GPC](https://github.com/yasserstudio/gpc). Handles config files, environment variables, profiles, and XDG-compliant paths.
 
 ## Install
 
@@ -11,13 +11,7 @@ npm install @gpc-cli/config
 ## Usage
 
 ```typescript
-import {
-  loadConfig,
-  findConfigFile,
-  loadEnvConfig,
-  getConfigDir,
-  initConfig,
-} from "@gpc-cli/config";
+import { loadConfig, findConfigFile, loadEnvConfig, getConfigDir } from "@gpc-cli/config";
 
 // Load config (merges file + env vars)
 const config = await loadConfig();
@@ -58,15 +52,11 @@ Configuration is merged in priority order:
 ```typescript
 import { setProfileConfig, listProfiles, deleteProfile } from "@gpc-cli/config";
 
-// Create a profile
 await setProfileConfig("production", {
   serviceAccount: "./keys/prod.json",
 });
 
-// List profiles
 const profiles = await listProfiles();
-
-// Delete a profile
 await deleteProfile("staging");
 ```
 
@@ -88,9 +78,9 @@ await deleteProfile("staging");
 | `approvePlugin()`        | Approve a third-party plugin                    |
 | `revokePluginApproval()` | Revoke plugin approval                          |
 
-## Part of the GPC Monorepo
+## Documentation
 
-This is the config layer for [GPC](https://github.com/yasserstudio/gpc).
+- [Full documentation](https://yasserstudio.github.io/gpc/)
 
 ## License
 

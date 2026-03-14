@@ -26,18 +26,14 @@ Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.
 ## Install
 
 ```bash
-# Homebrew (macOS/Linux)
-brew install yasserstudio/tap/gpc
-
 # npm (includes plugin support)
 npm install -g @gpc-cli/cli
 
+# Homebrew (macOS/Linux)
+brew install yasserstudio/tap/gpc
+
 # Standalone binary (no Node.js required)
 curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
-
-# From source
-git clone https://github.com/yasserstudio/gpc.git
-cd gpc && pnpm install && pnpm build
 ```
 
 ---
@@ -45,7 +41,6 @@ cd gpc && pnpm install && pnpm build
 ## Quick Start
 
 ```bash
-
 # Authenticate
 gpc auth login --service-account path/to/key.json
 
@@ -68,64 +63,59 @@ gpc reviews list --stars 1-3 --since 7d
 
 You shouldn't need a browser to ship your app.
 
-Every Android release follows the same ritual: open the Play Console, upload your AAB, fill in release notes, pick a track, set the rollout percentage, click through confirmation screens. Fifteen minutes of clicking. Every single time.
+Every Android release is the same ritual: open the Play Console, upload your AAB, copy-paste release notes, pick a track, set the rollout percentage, click through confirmation screens. Fifteen minutes of clicking. Every single time.
 
-The alternative? Install Ruby, Bundler, and 150+ gems to run Fastlane — and get access to maybe 20 of 162 API endpoints. No reviews. No vitals. No subscriptions.
+The alternative? Install Ruby, Bundler, and 150+ gems to run Fastlane — and get access to maybe 20 of 187 API endpoints. No reviews. No vitals. No subscriptions. No reports.
 
 GPC covers the **entire Google Play Developer API** in one CLI. No Ruby. No browser. No ceremony.
 
-### GPC vs Alternatives
+### GPC vs the alternatives
 
 |                     | **GPC**                      | Fastlane supply | gradle-play-publisher | Console UI   |
 | ------------------- | ---------------------------- | --------------- | --------------------- | ------------ |
 | API coverage        | **187 endpoints**            | ~20             | ~15                   | All (manual) |
-| Standalone CLI      | Yes                          | Yes             | No (Gradle only)      | N/A          |
-| Runtime             | Node.js                      | Ruby + Bundler  | JVM                   | Browser      |
-| JSON output         | Structured + TTY-aware       | Partial         | No                    | No           |
+| Runtime             | Node.js or standalone binary | Ruby + Bundler  | JVM                   | Browser      |
+| Cold start          | <500ms                       | 2-3s            | 3-5s                  | 5-10s        |
 | Reviews & Vitals    | Yes                          | No              | No                    | Yes (manual) |
 | Subscriptions & IAP | Yes                          | No              | No                    | Yes (manual) |
 | CI/CD native        | JSON + exit codes + env vars | Partial         | Gradle tasks          | No           |
-| Cold start          | <500ms                       | 2-3s            | 3-5s                  | 5-10s        |
 | Plugin system       | Yes                          | No              | No                    | No           |
 | Interactive mode    | Yes (guided prompts)         | No              | No                    | N/A          |
 | Test suite          | 1,299 tests, 90%+ coverage   | —               | —                     | —            |
 
-See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 187 endpoints.
-
 ---
 
-## Commands
+## What You Can Do
 
-The simplest way to ship:
+### Ship releases
 
 ```bash
 gpc publish app.aab --track beta --notes "Bug fixes"      # End-to-end flow
-gpc publish app.aab --notes-dir ./release-notes/           # Multi-language notes
-gpc validate app.aab --track beta                          # Pre-submission checks
-gpc status                                                 # Cross-track overview
-```
-
-Every Play Store operation is covered. Here's the full breakdown.
-
-### Releases
-
-```bash
-gpc releases upload app.aab --track beta
+gpc releases upload app.aab --track internal               # Upload to any track
 gpc releases promote --from beta --to production --rollout 5
 gpc releases rollout increase --track production --to 50
-gpc releases rollout halt --track production
-gpc releases status
+gpc releases rollout halt --track production               # Emergency brake
+gpc validate app.aab --track beta                          # Pre-submission checks
 ```
 
-### Store Listings
+### Monitor app health
+
+```bash
+gpc vitals overview                        # Summary dashboard
+gpc vitals crashes --threshold 2.0         # Exit code 6 if breached — CI gates
+gpc vitals compare crashes --days 7        # This week vs last week
+gpc vitals anr --version 142
+```
+
+### Manage store listings
 
 ```bash
 gpc listings pull --dir metadata/          # Download all listings
-gpc listings push --dir metadata/          # Upload local changes
+gpc listings push --dir metadata/          # Upload local changes (Fastlane format)
 gpc listings images upload --lang en-US --type phoneScreenshots ./screens/*.png
 ```
 
-### Reviews
+### Track reviews
 
 ```bash
 gpc reviews list --stars 1-2 --since 7d
@@ -133,130 +123,33 @@ gpc reviews reply <review-id> "Thanks for the feedback!"
 gpc reviews export --format csv --output reviews.csv
 ```
 
-### Vitals
-
-```bash
-gpc vitals overview                        # Summary dashboard
-gpc vitals crashes --version 142
-gpc vitals crashes --threshold 2.0         # Exit code 6 if breached (CI gates)
-gpc vitals compare crashes --days 7        # This week vs last week
-gpc vitals anr
-gpc vitals startup
-gpc vitals battery
-gpc vitals anomalies
-```
-
-### Subscriptions & In-App Products
+### Handle monetization
 
 ```bash
 gpc subscriptions list
 gpc subscriptions create --file subscription.json
 gpc iap list
 gpc iap sync --dir products/
-```
-
-### Reports
-
-```bash
-gpc reports download financial --month 2026-02
-gpc reports download stats --type installs --since 30d
-```
-
-### Purchases & Pricing
-
-```bash
-gpc purchases get <token>
-gpc purchases subscription get <token>
-gpc purchases voided list
-gpc orders refund <order-id>
 gpc pricing convert --from USD --amount 9.99
 ```
 
-### Testers & Users
+### Analyze bundle size
+
+```bash
+gpc bundle analyze app.aab                   # Per-module + per-category breakdown
+gpc bundle compare old.aab new.aab           # Size diff between builds
+gpc bundle analyze app.aab --threshold 150   # Exit code 6 if > 150 MB — CI gate
+```
+
+### Manage testers and users
 
 ```bash
 gpc testers add user@example.com --track internal
 gpc testers import --track beta --file testers.csv
 gpc users list --developer-id <id>
-gpc users invite dev@company.com --developer-id <id> --role ADMIN
 ```
 
-### App Recovery & Data Safety
-
-```bash
-gpc recovery list                          # List recovery actions
-gpc recovery create --file action.json    # Create a recovery action
-gpc recovery deploy <action-id>           # Deploy a recovery action
-gpc data-safety get                       # View data safety declarations
-gpc data-safety update --file safety.json # Update declarations
-```
-
-### External Transactions
-
-```bash
-gpc external-transactions create --token <token> --amount 9.99 --currency USD
-gpc ext-txn get <id>                      # Alias for external-transactions
-gpc ext-txn refund <id>
-```
-
-### Device Tiers & Internal Sharing
-
-```bash
-gpc device-tiers list                     # List device tier configs
-gpc device-tiers create --file tiers.json # Create device targeting
-gpc internal-sharing upload app.aab       # Upload for review-free distribution
-gpc generated-apks list 142              # List device-specific APKs
-gpc generated-apks download 142 <id>     # Download a specific APK
-```
-
-### One-Time Products
-
-```bash
-gpc one-time-products list               # List one-time products (alias: otp)
-gpc otp create --file product.json       # Create a product
-gpc otp offers list <product-id>         # List offers for a product
-```
-
-### Plugins
-
-```bash
-gpc plugins list                           # Show loaded plugins
-gpc plugins init my-plugin                 # Scaffold a new plugin
-gpc plugins approve gpc-plugin-slack       # Approve third-party plugin
-```
-
----
-
-## Output
-
-GPC auto-detects your environment — no flags needed:
-
-- **Terminal:** formatted tables you can actually read
-- **Piped or CI:** structured JSON your scripts can parse
-
-No `--output json` in CI. No `| column -t` in your terminal. It just works.
-
-Override when you need to:
-
-```bash
-gpc releases status --output json
-gpc releases status --output yaml
-gpc releases status --output markdown    # For $GITHUB_STEP_SUMMARY
-```
-
-All JSON follows a consistent contract:
-
-```json
-{
-  "success": true,
-  "data": { "..." },
-  "metadata": {
-    "command": "releases status",
-    "timestamp": "2026-03-06T12:00:00Z",
-    "duration_ms": 342
-  }
-}
-```
+See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 187 endpoints — including reports, purchases, data safety, device tiers, internal sharing, external transactions, and recovery actions.
 
 ---
 
@@ -294,45 +187,25 @@ deploy:
     GPC_APP: com.example.myapp
 ```
 
-Add `@gpc-cli/plugin-ci` for automatic GitHub Actions step summaries:
-
-```json
-{
-  "plugins": ["@gpc-cli/plugin-ci"]
-}
-```
+Add `@gpc-cli/plugin-ci` for automatic GitHub Actions step summaries.
 
 See the full [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/) for GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI.
 
 ---
 
-## Interactive Mode
+## Output
 
-Missing a flag? GPC will ask. In your terminal, missing required options trigger guided prompts. In CI, they fail fast with clear error messages.
+GPC auto-detects your environment:
 
-```bash
-gpc releases promote                    # Prompts: Source track? Target track?
-gpc releases promote --from beta --to production   # No prompts
-```
+- **Terminal:** formatted tables you can read
+- **Piped or CI:** structured JSON your scripts can parse
 
-Destructive commands ask for confirmation:
+Override when you need to:
 
 ```bash
-gpc subscriptions delete my-sub         # "Delete subscription 'my-sub'?" [y/N]
-gpc subscriptions delete my-sub --yes   # Skip confirmation (CI-safe)
-```
-
-Disable all prompts: `--no-interactive` or `GPC_NO_INTERACTIVE=1`.
-
----
-
-## Dry Run
-
-Test your CI pipeline against real data without shipping anything. Every write operation supports `--dry-run`:
-
-```bash
-gpc listings push --dir metadata/ --dry-run
-gpc releases upload app.aab --track beta --dry-run
+gpc releases status --output json
+gpc releases status --output yaml
+gpc releases status --output markdown    # For $GITHUB_STEP_SUMMARY
 ```
 
 ---
@@ -362,69 +235,47 @@ export GPC_SERVICE_ACCOUNT=/path/to/key.json
 gpc auth login --adc
 ```
 
-Credentials are stored locally and never leave your machine. Manage multiple accounts:
+Manage multiple accounts with `gpc auth profiles`, `gpc auth switch`, `gpc auth whoami`.
+
+---
+
+## Dry Run
+
+Every write operation supports `--dry-run`. Test your CI pipeline against real data without shipping anything:
 
 ```bash
-gpc auth profiles
-gpc auth switch production
-gpc auth whoami
+gpc releases upload app.aab --track beta --dry-run
+gpc listings push --dir metadata/ --dry-run
 ```
 
 ---
 
-## Configuration
+## Interactive Mode
+
+Missing a flag? GPC asks. In your terminal, missing required options trigger guided prompts. In CI, they fail fast with clear error messages.
 
 ```bash
-# Interactive setup
-gpc config init
-
-# Set defaults
-gpc config set app com.example.myapp
-gpc config set output json
+gpc releases promote                    # Prompts: Source track? Target track?
+gpc releases promote --from beta --to production   # No prompts
 ```
 
-Or drop a `.gpcrc.json` in your project:
-
-```json
-{
-  "app": "com.example.myapp",
-  "output": "table",
-  "auth": {
-    "serviceAccount": "./keys/play-store.json"
-  }
-}
-```
-
----
-
-## Environment Variables
-
-| Variable              | Description                              | Default                       |
-| --------------------- | ---------------------------------------- | ----------------------------- |
-| `GPC_SERVICE_ACCOUNT` | Service account JSON string or file path | —                             |
-| `GPC_APP`             | Default package name                     | —                             |
-| `GPC_PROFILE`         | Auth profile name                        | —                             |
-| `GPC_OUTPUT`          | Default output format                    | `table` (TTY) / `json` (pipe) |
-| `GPC_NO_COLOR`        | Disable color output                     | —                             |
-| `GPC_NO_INTERACTIVE`  | Disable prompts (auto in CI)             | —                             |
-| `GPC_MAX_RETRIES`     | Max retry attempts                       | `3`                           |
-| `GPC_TIMEOUT`         | Request timeout (ms)                     | `30000`                       |
+Disable all prompts: `--no-interactive` or `GPC_NO_INTERACTIVE=1`.
 
 ---
 
 ## Packages (CLI + SDK)
 
-GPC is a TypeScript monorepo. Each package is independently publishable — use the CLI from your terminal, or import the SDK into your own projects:
+GPC is a TypeScript monorepo. Use the CLI from your terminal, or import the SDK into your own projects:
 
 | Package                                                                    | Description                                             |
 | -------------------------------------------------------------------------- | ------------------------------------------------------- |
-| [`@gpc-cli/cli`](https://www.npmjs.com/package/@gpc-cli/cli)               | CLI entry point — the `gpc` command you run             |
+| [`@gpc-cli/cli`](https://www.npmjs.com/package/@gpc-cli/cli)               | CLI entry point — the `gpc` command                    |
 | [`@gpc-cli/core`](https://www.npmjs.com/package/@gpc-cli/core)             | Business logic and command orchestration                |
 | [`@gpc-cli/api`](https://www.npmjs.com/package/@gpc-cli/api)               | Typed Google Play Developer API v3 client               |
-| [`@gpc-cli/auth`](https://www.npmjs.com/package/@gpc-cli/auth)             | Authentication strategies (service account, OAuth, ADC) |
-| [`@gpc-cli/config`](https://www.npmjs.com/package/@gpc-cli/config)         | Configuration loading and validation                    |
-| [`@gpc-cli/plugin-sdk`](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface for third-party extensions             |
-| [`@gpc-cli/plugin-ci`](https://www.npmjs.com/package/@gpc-cli/plugin-ci)   | CI/CD helpers and GitHub Actions step summaries         |
+| [`@gpc-cli/auth`](https://www.npmjs.com/package/@gpc-cli/auth)             | Authentication (service account, OAuth, ADC)            |
+| [`@gpc-cli/config`](https://www.npmjs.com/package/@gpc-cli/config)         | Configuration loading and profiles                      |
+| [`@gpc-cli/plugin-sdk`](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface for extensions                         |
+| [`@gpc-cli/plugin-ci`](https://www.npmjs.com/package/@gpc-cli/plugin-ci)   | CI/CD helpers and step summaries                        |
 
 Build custom dashboards, Slack bots, or internal tools on top of the same API client GPC uses:
 
@@ -445,9 +296,24 @@ CLI for your terminal. SDK for everything else.
 
 ---
 
+## Environment Variables
+
+| Variable              | Description                              | Default                       |
+| --------------------- | ---------------------------------------- | ----------------------------- |
+| `GPC_SERVICE_ACCOUNT` | Service account JSON string or file path | —                             |
+| `GPC_APP`             | Default package name                     | —                             |
+| `GPC_PROFILE`         | Auth profile name                        | —                             |
+| `GPC_OUTPUT`          | Default output format                    | `table` (TTY) / `json` (pipe) |
+| `GPC_NO_COLOR`        | Disable color output                     | —                             |
+| `GPC_NO_INTERACTIVE`  | Disable prompts (auto in CI)             | —                             |
+| `GPC_MAX_RETRIES`     | Max retry attempts                       | `3`                           |
+| `GPC_TIMEOUT`         | Request timeout (ms)                     | `30000`                       |
+
+---
+
 ## Exit Codes
 
-Your CI can distinguish "auth expired" from "crash rate too high" and react differently:
+Your CI can distinguish "auth expired" from "crash rate too high" and react accordingly:
 
 | Code | Meaning                               |
 | ---- | ------------------------------------- |
@@ -482,13 +348,13 @@ Full documentation at **[yasserstudio.github.io/gpc](https://yasserstudio.github
 - [GitHub Discussions](https://github.com/yasserstudio/gpc/discussions) — questions, ideas, show what you built
 - [Issues](https://github.com/yasserstudio/gpc/issues) — bug reports and feature requests
 - `gpc doctor` — diagnose setup problems locally
-- `gpc install-skills` — install agent skills for AI-assisted workflows
+- `gpc install-skills` — install AI agent skills for Claude Code workflows
 
 ---
 
 ## Contributing
 
-Found a bug? Want to add a feature? PRs are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup.
+Found a bug? Want to add a feature? PRs welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup.
 
 ```bash
 git clone https://github.com/yasserstudio/gpc.git
@@ -512,21 +378,6 @@ pnpm test    # 1,299 tests across 7 packages
 
 ---
 
-## Built with Claude
-
 <p align="center">
-  <a href="https://claude.ai/claude-code">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Claude_AI_logo.svg" alt="Claude" width="48">
-  </a>
-</p>
-
-<p align="center">
-  GPC was built entirely with <a href="https://claude.ai/claude-code">Claude Code</a> — from architecture design through implementation, testing, and documentation.<br>
-  1,299 tests, 7 packages, 90%+ coverage, all written through AI-assisted development.
-</p>
-
----
-
-<p align="center">
-  <sub>This project is an independent, unofficial tool and is not affiliated with, endorsed by, or sponsored by Google LLC. "Google Play" and the Google Play logo are trademarks of Google LLC. The "Android" name, the Android logo, and "Google" are trademarks of Google LLC.</sub>
+  <sub>GPC is an independent, open-source project. Not affiliated with, endorsed by, or sponsored by Google LLC. "Google Play" and the Google Play logo are trademarks of Google LLC. "Android" and "Google" are trademarks of Google LLC.</sub>
 </p>

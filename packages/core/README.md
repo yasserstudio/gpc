@@ -1,6 +1,8 @@
 # @gpc-cli/core
 
-Business logic and command orchestration for GPC. Contains all command implementations, validation, output formatting, and plugin management.
+Business logic and command orchestration for [GPC](https://github.com/yasserstudio/gpc) — the complete CLI for Google Play.
+
+Use this package to call GPC commands programmatically in your own tools, scripts, or services.
 
 ## Install
 
@@ -16,6 +18,7 @@ import {
   promoteRelease,
   getVitalsOverview,
   listReviews,
+  analyzeBundle,
   formatOutput,
 } from "@gpc-cli/core";
 
@@ -34,9 +37,10 @@ await promoteRelease(context, {
 
 // Check vitals
 const vitals = await getVitalsOverview(context);
-
-// Format output
 console.log(formatOutput(vitals, "table"));
+
+// Analyze bundle size
+const analysis = await analyzeBundle("./app.aab");
 ```
 
 ## Command Groups
@@ -54,6 +58,7 @@ console.log(formatOutput(vitals, "table"));
 | **Reports**       | `listReports`, `downloadReport`                                                                                     |
 | **Users**         | `listUsers`, `inviteUser`, `updateUser`, `removeUser`                                                               |
 | **Testers**       | `listTesters`, `addTesters`, `removeTesters`, `importTestersFromCsv`                                                |
+| **Bundle**        | `analyzeBundle`, `compareBundles` (zero-dependency AAB/APK size analysis)                                           |
 | **Publishing**    | `publish` (end-to-end: upload + track + notes + commit)                                                             |
 | **Validation**    | `validateUploadFile`, `validateImage`, `validatePreSubmission`                                                      |
 
@@ -65,9 +70,10 @@ console.log(formatOutput(vitals, "table"));
 - **Path safety** — `safePath()`, `safePathWithin()` for path traversal prevention
 - **Plugin management** — `PluginManager`, `discoverPlugins()`, `scaffoldPlugin()`
 
-## Part of the GPC Monorepo
+## Documentation
 
-This is the core logic layer for [GPC](https://github.com/yasserstudio/gpc). The CLI calls into core; core calls into api, auth, and config.
+- [Full documentation](https://yasserstudio.github.io/gpc/)
+- [Architecture](https://yasserstudio.github.io/gpc/advanced/architecture)
 
 ## License
 
