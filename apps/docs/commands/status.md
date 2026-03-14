@@ -40,7 +40,6 @@ gpc status [options]
 | `--cached` | flag | off | Read from cache, skip all API calls |
 | `--refresh` | flag | off | Force live fetch, ignore cache TTL |
 | `--ttl <seconds>` | `number` | `3600` | Cache TTL override for this invocation |
-| `--watch <seconds>` | `number` | off | Auto-refresh on an interval (e.g. `--watch 60`) |
 | `--output <format>` | `string` | `table` | `table` or `json` |
 | `--app <package>` | `string` | config | Override app package name |
 
@@ -127,12 +126,15 @@ Computed locally from the `reviews.list` response — no external service.
 
 ## Continuous Monitoring
 
-```bash
-# Refresh every 60 seconds — useful on a dashboard display
-gpc status --watch 60
-```
+`--watch` is not yet implemented. For periodic monitoring, use a shell loop or cron:
 
-`--watch` clears the terminal on each refresh and shows the time of last fetch. Exit with `Ctrl+C`.
+```bash
+# Poll every 60 seconds
+watch -n 60 gpc status --cached
+
+# Or with explicit loop
+while true; do gpc status --refresh; sleep 60; done
+```
 
 ## JSON Output
 

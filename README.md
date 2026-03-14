@@ -133,7 +133,7 @@ gpc status                                 # Releases + vitals + reviews in one 
 gpc vitals crashes --threshold 2.0         # Exit code 6 if breached — CI gates
 gpc vitals compare crashes --days 7        # This week vs last week
 gpc vitals anr --version 142
-gpc status --watch 60                      # Auto-refresh every 60 seconds
+watch -n 60 gpc status --cached            # Poll every 60 seconds (shell)
 ```
 
 ### Manage store listings
