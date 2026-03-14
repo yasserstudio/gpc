@@ -1,5 +1,19 @@
 # @gpc-cli/core
 
+## 0.9.24
+
+### Patch Changes
+
+- feat: `gpc status` v0.9.26 improvements — 8 quality-of-life enhancements
+  - fix: unknown vitals/reviews show `—` instead of `?`/`n/a`; render "No vitals data available" / "No reviews in this period" when all values are absent
+  - feat: trend arrows ↑↓ on vitals — two-period comparison shows whether crash/ANR rates are improving or worsening vs the prior window
+  - feat: `--watch [N]` — proper polling loop with ANSI terminal clear, SIGINT/SIGTERM cleanup, 1s sleep ticks, min 10s interval, default 30s
+  - feat: `--format summary` — one-liner output (`tv.visioo.app · v142 internal · crashes 1.20% ↓ ✓ · avg 4.1★`) for shell prompts and post-deploy hooks
+  - feat: `--sections <list>` — skip API calls for excluded sections (e.g. `--sections vitals` skips releases and reviews fetches)
+  - feat: `--since-last` — diff mode: compares current fetch against last cached status, shows version/crash/ANR/rating deltas
+  - feat: `--all-apps` — run status for all configured app profiles sequentially (max 5 apps)
+  - feat: `--notify` — desktop notification on threshold breach/clear (macOS, Linux, Windows); skipped in CI; only fires on state change
+
 ## 0.9.23
 
 ### Patch Changes
