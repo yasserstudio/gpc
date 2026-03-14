@@ -6,7 +6,22 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.23 <Badge type="tip" text="latest" />
+## v0.9.24 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **Fix: migrate rollout mapping** — `supply(rollout: "0.1")` now correctly maps to `gpc releases upload --rollout 10` (was `releases promote`)
+- **Feat: migrate --dry-run** — `gpc migrate fastlane --dry-run` previews the migration plan and `.gpcrc.json` without writing any files
+- **Feat: migrate conflict detection** — warns before overwriting an existing `.gpcrc.json`
+- **Feat: parse warnings** — Fastlane complex Ruby constructs (begin/rescue/if/unless) now surface a warning in migration output instead of silently producing incomplete lane detection
+- **Fix: validate warnings surfaced** — file validation warnings (e.g., "Large file") are now included in `ValidateResult.warnings` and shown to the user
+- **Feat: git notes truncation flag** — `generateNotesFromGit` now returns `truncated: boolean`; CLI warns to stderr when release notes were trimmed
+- **Fix: doctor package name check** — added Android package name format validation to `gpc doctor`
+- **Feat: config init wizard** — `gpc config init` now runs a guided setup wizard with auth method selection, file existence validation, and post-init summary
+- **Fix: publish rollout guard** — `gpc publish` rejects non-finite and out-of-range rollout values (< 1 or > 100) with exit code 2
+- 1,355 tests
+
+## v0.9.23
 
 _March 2026_
 
