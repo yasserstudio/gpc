@@ -19,6 +19,7 @@ export interface ValidateCheck {
 export interface ValidateResult {
   valid: boolean;
   checks: ValidateCheck[];
+  warnings: string[];
 }
 
 const STANDARD_TRACKS = new Set([
@@ -49,15 +50,21 @@ const TRACK_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9_:-]*$/;
 export async function validatePreSubmission(options: ValidateOptions): Promise<ValidateResult> {
   const checks: ValidateCheck[] = [];
 
+  const resultWarnings: string[] = [];
+
   // 1. File validation
   const fileResult = await validateUploadFile(options.filePath);
   checks.push({
     name: "file",
     passed: fileResult.valid,
     message: fileResult.valid
-      ? `Valid ${fileResult.fileType} file (${formatSize(fileResult.sizeBytes)})`
+      ? `Valid ${fileResult.fileType.toUpperCase()} (${formatSize(fileResult.sizeBytes)})`
       : fileResult.errors.join("; "),
   });
+  // Surface file validation warnings (e.g. large file upload time notice)
+  for (const w of fileResult.warnings) {
+    resultWarnings.push(w);
+  }
 
   // 2. Mapping file
   if (options.mappingFile) {
@@ -124,6 +131,7 @@ export async function validatePreSubmission(options: ValidateOptions): Promise<V
   return {
     valid: checks.every((c) => c.passed),
     checks,
+    warnings: resultWarnings,
   };
 }
 

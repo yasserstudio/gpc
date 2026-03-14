@@ -89,7 +89,7 @@ describe("generateNotesFromGit", () => {
     expect(result.text).toContain("\u2022 bump version");
   });
 
-  it("truncates to maxLength with ellipsis", async () => {
+  it("truncates to maxLength with ellipsis and sets truncated: true", async () => {
     const longCommits = Array.from({ length: 50 }, (_, i) => `feat: feature number ${i + 1} with a long description`);
     setupExecFile({
       "describe --tags": { stdout: "v1.0.0\n" },
@@ -100,6 +100,7 @@ describe("generateNotesFromGit", () => {
 
     expect(result.text.length).toBeLessThanOrEqual(100);
     expect(result.text).toMatch(/\.\.\.$/);
+    expect(result.truncated).toBe(true);
   });
 
   it("uses custom since ref", async () => {
@@ -169,9 +170,10 @@ describe("generateNotesFromGit", () => {
 
     expect(result.commitCount).toBe(0);
     expect(result.text).toBe("No changes since last release.");
+    expect(result.truncated).toBe(false);
   });
 
-  it("respects default maxLength of 500", async () => {
+  it("respects default maxLength of 500 and sets truncated when exceeded", async () => {
     const longCommits = Array.from({ length: 200 }, (_, i) => `feat: this is feature ${i + 1} with description`);
     setupExecFile({
       "describe --tags": { stdout: "v1.0.0\n" },
@@ -181,6 +183,18 @@ describe("generateNotesFromGit", () => {
     const result = await generateNotesFromGit();
 
     expect(result.text.length).toBeLessThanOrEqual(500);
+    expect(result.truncated).toBe(true);
+  });
+
+  it("sets truncated: false when notes fit within limit", async () => {
+    setupExecFile({
+      "describe --tags": { stdout: "v1.0.0\n" },
+      "log": { stdout: "feat: small feature\nfix: tiny bug\n" },
+    });
+
+    const result = await generateNotesFromGit();
+
+    expect(result.truncated).toBe(false);
   });
 
   it("orders sections: New, Fixed, Improved, Changes", async () => {

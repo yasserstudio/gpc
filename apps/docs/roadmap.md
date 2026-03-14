@@ -8,11 +8,11 @@ GPC v0.9.x is a pre-release series working toward a stable **1.0.0** public laun
 
 ## Current Status
 
-**v0.9.23** is the latest release. GPC currently covers:
+**v0.9.24** is the latest release. GPC currently covers:
 
 - **187 API endpoints** across the Android Publisher API v3 and Play Developer Reporting API
 - **32 command groups**, 100+ subcommands
-- **1,299 tests**, 90%+ line coverage across all core packages
+- **1,320 tests**, 90%+ line coverage across all core packages
 - **7 published packages** under the `@gpc-cli` scope
 - Complete coverage of releases, listings, vitals, reviews, subscriptions, IAP, purchases, users, reports, and more
 
@@ -25,65 +25,35 @@ The following must be complete before the `1.0.0` tag ships:
 - [x] Security audit and credential hardening
 - [x] Documentation completeness review
 - [x] End-to-end validation against production apps
-- [ ] `gpc status` — unified app health snapshot (see below)
+- [x] `gpc status` — unified app health snapshot (shipped in v0.9.24)
 - [ ] Community showcase — real apps using GPC in production
 - [ ] Stability soak — 2+ weeks without critical bugs
 - [ ] Public launch (blog posts, Android Weekly, community announcements)
 
 ---
 
-## gpc status — Unified App Health Snapshot
+## gpc status — Shipped in v0.9.24
 
-The launch anchor feature. One command that replaces opening 4–6 Play Console screens.
+One command that replaces opening 4–6 Play Console screens. See the full reference at [commands/status](/commands/status).
 
 ```
 $ gpc status
 
-App: tv.visioo.app · Visioo TV  (updated 12s ago)
+App: tv.visioo.app  (fetched 10:42:01 AM)
 
 RELEASES
-  production   v1.4.2   live       100%
-  beta         v1.5.0   in review  —
-  internal     v1.5.1   draft      —
+  production   42   completed   —
+  beta         43   inProgress  10%
 
 VITALS  (last 7 days)
-  crashes   0.8%  ✓    anr       0.2%  ✓
-  startup   2.1s  ✓    rendering 4.3%  ✓
+  crashes     0.80%     ✓    anr         0.20%     ✓
+  slow starts 2.10%     ✓    slow render 4.30%     ⚠
 
 REVIEWS  (last 30 days)
   ★ 4.6   142 new   89% positive   ↑ from 4.4
 ```
 
-**How it works:**
-
-All API calls run in parallel — tracks, vitals (4 metric sets), and reviews fire simultaneously. Target: under 3 seconds on a normal connection.
-
-Vitals indicators (`✓` / `⚠` / `✗`) use your configured thresholds from `.gpcrc.json`. If any threshold is breached, the command exits with code `6` — the same as `gpc vitals` — so you can use it in CI health checks.
-
-**Flags:**
-
-| Flag | Description |
-|------|-------------|
-| `--days <n>` | Vitals window (default: `7`) |
-| `--full` | Include reviews sentiment breakdown |
-| `--cached` | Use last fetched data instantly (< 100ms) |
-| `--refresh` | Force fresh fetch and update cache |
-| `--watch` | Refresh on an interval (e.g. `--watch 60`) |
-| `--output json` | Machine-readable output for scripting |
-
-**Caching:**
-
-Results are stored in `.gpcrc-cache.json` with a configurable TTL (default: 1 hour). `--cached` reads from this file instantly — useful in scripts where you want the last known state without waiting for API calls. `--refresh` forces a live fetch regardless of TTL.
-
-**CI / scripting:**
-
-```bash
-# Health check — exits 6 if any vitals threshold breached
-gpc status --output json | jq '.vitals'
-
-# Use cached data in a status badge script
-gpc status --cached --output json
-```
+6 parallel API calls, results in under 3 seconds. Results cached in `~/.cache/gpc/` with a 1-hour TTL. Exit code 6 if any vitals threshold is breached.
 
 ---
 

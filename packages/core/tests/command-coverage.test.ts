@@ -246,3 +246,10 @@ describe("Core Command Coverage — Purchase Options", () => {
     "purchase-options",
   );
 });
+
+describe("Core Command Coverage — Status", () => {
+  assertExports(
+    ["getAppStatus", "formatStatusTable", "loadStatusCache", "saveStatusCache", "statusHasBreach"],
+    "status",
+  );
+});

@@ -5,7 +5,7 @@ import { existsSync, accessSync, statSync, constants } from "node:fs";
 import { resolve } from "node:path";
 import { lookup } from "node:dns/promises";
 
-interface CheckResult {
+export interface CheckResult {
   name: string;
   status: "pass" | "fail" | "warn" | "info";
   message: string;
@@ -30,6 +30,56 @@ function icon(status: CheckResult["status"]): string {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Pure, testable check helpers
+// ---------------------------------------------------------------------------
+
+const ANDROID_PACKAGE_RE = /^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$/;
+
+export function checkNodeVersion(nodeVersion: string): CheckResult {
+  const major = parseInt(nodeVersion.split(".")[0] ?? "0", 10);
+  return major >= 20
+    ? { name: "node", status: "pass", message: `Node.js ${nodeVersion}` }
+    : {
+        name: "node",
+        status: "fail",
+        message: `Node.js ${nodeVersion} (requires >=20)`,
+        suggestion: "Upgrade Node.js to v20 or later: https://nodejs.org",
+      };
+}
+
+export function checkPackageName(app: string | undefined): CheckResult | null {
+  if (!app) return null;
+  return ANDROID_PACKAGE_RE.test(app)
+    ? { name: "package-name", status: "pass", message: `Package name format OK: ${app}` }
+    : {
+        name: "package-name",
+        status: "warn",
+        message: `Package name may be invalid: ${app}`,
+        suggestion:
+          "Android package names must have 2+ dot-separated segments, each starting with a letter (e.g. com.example.app)",
+      };
+}
+
+export function checkProxy(url: string | undefined): CheckResult | null {
+  if (!url) return null;
+  try {
+    new URL(url);
+    return { name: "proxy", status: "pass", message: `Proxy configured: ${url}` };
+  } catch {
+    return {
+      name: "proxy",
+      status: "warn",
+      message: `Invalid proxy URL: ${url}`,
+      suggestion: "Set HTTPS_PROXY to a valid URL (e.g. http://proxy.example.com:8080)",
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Command registration
+// ---------------------------------------------------------------------------
+
 export function registerDoctorCommand(program: Command): void {
   program
     .command("doctor")
@@ -40,18 +90,7 @@ export function registerDoctorCommand(program: Command): void {
       const jsonMode = opts.json ?? false;
 
       // 1. Node.js version
-      const nodeVersion = process.versions.node;
-      const major = parseInt(nodeVersion.split(".")[0] ?? "0", 10);
-      results.push(
-        major >= 20
-          ? { name: "node", status: "pass", message: `Node.js ${nodeVersion}` }
-          : {
-              name: "node",
-              status: "fail",
-              message: `Node.js ${nodeVersion} (requires >=20)`,
-              suggestion: "Upgrade Node.js to v20 or later: https://nodejs.org",
-            },
-      );
+      results.push(checkNodeVersion(process.versions.node));
 
       // 2. Config file
       let config;
@@ -64,6 +103,9 @@ export function registerDoctorCommand(program: Command): void {
             status: "pass",
             message: `Default app: ${config.app}`,
           });
+          // 2b. Package name format
+          const pkgCheck = checkPackageName(config.app);
+          if (pkgCheck) results.push(pkgCheck);
         } else {
           results.push({
             name: "default-app",
@@ -76,8 +118,8 @@ export function registerDoctorCommand(program: Command): void {
         results.push({
           name: "config",
           status: "fail",
-          message: "Configuration error",
-          suggestion: "Check your .gpcrc.json or config file for syntax errors",
+          message: "Configuration could not be loaded",
+          suggestion: "Run gpc config init to create a config file, or check .gpcrc.json for syntax errors",
         });
       }
 
@@ -133,7 +175,7 @@ export function registerDoctorCommand(program: Command): void {
         });
       }
 
-      // 5. Service account file existence
+      // 5. Service account file existence + permissions
       if (config?.auth?.serviceAccount) {
         const saValue = config.auth.serviceAccount;
         const looksLikePath = !saValue.trim().startsWith("{");
@@ -191,7 +233,7 @@ export function registerDoctorCommand(program: Command): void {
         }
       }
 
-      // 5c. Profile validation
+      // 6. Profile validation
       const gpcProfile = process.env["GPC_PROFILE"];
       if (gpcProfile && config) {
         if (config.profiles && gpcProfile in config.profiles) {
@@ -213,31 +255,16 @@ export function registerDoctorCommand(program: Command): void {
         }
       }
 
-      // 6. Proxy configuration
+      // 7. Proxy configuration
       const proxyUrl =
         process.env["HTTPS_PROXY"] ||
         process.env["https_proxy"] ||
         process.env["HTTP_PROXY"] ||
         process.env["http_proxy"];
-      if (proxyUrl) {
-        try {
-          new URL(proxyUrl);
-          results.push({
-            name: "proxy",
-            status: "pass",
-            message: `Proxy configured: ${proxyUrl}`,
-          });
-        } catch {
-          results.push({
-            name: "proxy",
-            status: "warn",
-            message: `Invalid proxy URL: ${proxyUrl}`,
-            suggestion: "Set HTTPS_PROXY to a valid URL (e.g., http://proxy.example.com:8080)",
-          });
-        }
-      }
+      const proxyCheck = checkProxy(proxyUrl);
+      if (proxyCheck) results.push(proxyCheck);
 
-      // 7. CA certificate
+      // 8. CA certificate
       const caCert = process.env["GPC_CA_CERT"] || process.env["NODE_EXTRA_CA_CERTS"];
       if (caCert) {
         if (existsSync(caCert)) {
@@ -256,24 +283,30 @@ export function registerDoctorCommand(program: Command): void {
         }
       }
 
-      // 8. DNS resolution
-      try {
-        await lookup("androidpublisher.googleapis.com");
-        results.push({
-          name: "dns",
-          status: "pass",
-          message: "DNS resolution: androidpublisher.googleapis.com",
-        });
-      } catch {
-        results.push({
-          name: "dns",
-          status: "fail",
-          message: "Cannot resolve androidpublisher.googleapis.com",
-          suggestion: "Check your DNS settings and network connection",
-        });
+      // 9. DNS resolution — both API endpoints
+      const dnsHosts = [
+        "androidpublisher.googleapis.com",
+        "playdeveloperreporting.googleapis.com",
+      ];
+      for (const host of dnsHosts) {
+        try {
+          await lookup(host);
+          results.push({
+            name: "dns",
+            status: "pass",
+            message: `DNS: ${host}`,
+          });
+        } catch {
+          results.push({
+            name: "dns",
+            status: "fail",
+            message: `Cannot resolve ${host}`,
+            suggestion: "Check your DNS settings and network connection",
+          });
+        }
       }
 
-      // 9. Authentication + API connectivity
+      // 10. Authentication + API connectivity
       try {
         const authConfig = config ?? (await loadConfig());
         const client = await resolveAuth({
@@ -309,21 +342,17 @@ export function registerDoctorCommand(program: Command): void {
         }
       }
 
+      // ---------------------------------------------------------------------------
       // Output
+      // ---------------------------------------------------------------------------
+
+      const errors = results.filter((r) => r.status === "fail").length;
+      const warnings = results.filter((r) => r.status === "warn").length;
+      const passed = results.filter((r) => r.status === "pass").length;
+
       if (jsonMode) {
-        const errors = results.filter((r) => r.status === "fail").length;
-        const warnings = results.filter((r) => r.status === "warn").length;
         console.log(
-          JSON.stringify(
-            {
-              success: errors === 0,
-              errors,
-              warnings,
-              checks: results,
-            },
-            null,
-            2,
-          ),
+          JSON.stringify({ success: errors === 0, errors, warnings, checks: results }, null, 2),
         );
         if (errors > 0) process.exit(1);
         return;
@@ -337,17 +366,17 @@ export function registerDoctorCommand(program: Command): void {
         }
       }
 
-      const errors = results.filter((r) => r.status === "fail").length;
-      const warnings = results.filter((r) => r.status === "warn").length;
+      console.log(
+        `\n  ${PASS} ${passed} passed  ${WARN} ${warnings} warning${warnings !== 1 ? "s" : ""}  ${FAIL} ${errors} failed`,
+      );
 
-      console.log("");
       if (errors > 0) {
-        console.log("Some checks failed. Fix the issues above and run again.");
+        console.log("\nSome checks failed. Fix the issues above and run again.");
         process.exit(1);
       } else if (warnings > 0) {
-        console.log("All checks passed with warnings.");
+        console.log("\nAll checks passed with warnings.");
       } else {
-        console.log("All checks passed!");
+        console.log("\nAll checks passed!");
       }
     });
 }

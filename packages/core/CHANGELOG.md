@@ -1,5 +1,25 @@
 # @gpc-cli/core
 
+## 0.9.22
+
+### Patch Changes
+
+- v0.9.24: gpc status, publish polish, migrate polish, doctor/init polish
+
+  **New: `gpc status`** — unified app health snapshot: releases, vitals, and reviews in one command. Six parallel API calls, 1-hour cache, threshold exit codes, full JSON output.
+
+  **`gpc publish` polish** — clean validated→uploaded→released output for table mode; rollout range guard (1–100); file-size warnings now surface; git notes truncation warning; validation failures go to stdout respecting `--output`.
+
+  **`gpc migrate fastlane` polish** — `--dry-run` flag to preview without writing files; fixed rollout mapping (`supply(rollout: "0.1")` now correctly maps to `gpc releases upload --rollout 10`); parse warnings for complex Ruby constructs; conflict warning before clobbering existing `.gpcrc.json`; plugin suggestion on unmapped lanes.
+
+  **`gpc doctor` polish** — package name format validation; both API endpoints DNS-checked; counts summary (`✓ N passed · ⚠ N warnings · ✗ N failed`); config-missing error now suggests `gpc config init`.
+
+  **`gpc config init` polish** — proper wizard: auth method selection (service account / ADC / skip), SA path existence validation, post-init summary, `gpc doctor` hint.
+
+  **Bug fixes** — `compareVitalsTrend` timezone off-by-one (UTC timestamps); JUnit testcase name fallback includes `reviewId`/`track`/`versionCode`; `gpc bundle` markdown mode now renders proper GFM tables.
+
+  **CI/CD** — CodeQL security scanning workflow, dependency review on PRs, bundle size reporter, branch protection on main.
+
 ## 0.9.21
 
 ### Patch Changes

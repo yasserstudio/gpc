@@ -219,3 +219,17 @@ export { batchSyncInAppProducts } from "./commands/iap.js";
 export type { BatchSyncResult } from "./commands/iap.js";
 export { analyzeBundle, compareBundles } from "./commands/bundle-analysis.js";
 export type { BundleEntry, BundleAnalysis, BundleComparison } from "./commands/bundle-analysis.js";
+export {
+  getAppStatus,
+  formatStatusTable,
+  loadStatusCache,
+  saveStatusCache,
+  statusHasBreach,
+} from "./commands/status.js";
+export type {
+  AppStatus,
+  StatusRelease,
+  StatusVitalMetric,
+  StatusReviews,
+  GetAppStatusOptions,
+} from "./commands/status.js";

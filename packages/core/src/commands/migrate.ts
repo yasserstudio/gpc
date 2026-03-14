@@ -10,6 +10,7 @@ export interface FastlaneDetection {
   jsonKeyPath?: string;
   lanes: FastlaneLane[];
   metadataLanguages: string[];
+  parseWarnings: string[];
 }
 
 export interface FastlaneLane {
@@ -23,6 +24,9 @@ export interface MigrationResult {
   checklist: string[];
   warnings: string[];
 }
+
+// Ruby constructs that confuse the lane-end regex
+const COMPLEX_RUBY_RE = /\b(begin|rescue|ensure|if |unless |case |while |until |for )\b/;
 
 async function fileExists(path: string): Promise<boolean> {
   try {
@@ -41,6 +45,7 @@ export async function detectFastlane(cwd: string): Promise<FastlaneDetection> {
     hasGemfile: false,
     lanes: [],
     metadataLanguages: [],
+    parseWarnings: [],
   };
 
   // Check for fastlane directory or root-level files
@@ -72,7 +77,7 @@ export async function detectFastlane(cwd: string): Promise<FastlaneDetection> {
         .filter((e) => e.isDirectory())
         .map((e) => e.name);
     } catch {
-      // Ignore errors reading metadata dir
+      result.parseWarnings.push("Could not read metadata directory — check permissions");
     }
   }
 
@@ -81,8 +86,16 @@ export async function detectFastlane(cwd: string): Promise<FastlaneDetection> {
     try {
       const content = await readFile(fastfilePath, "utf-8");
       result.lanes = parseFastfile(content);
+
+      // Warn if the Fastfile contains complex Ruby that may have been misread
+      if (COMPLEX_RUBY_RE.test(content)) {
+        result.parseWarnings.push(
+          "Fastfile contains complex Ruby constructs (begin/rescue/if/unless/case). " +
+            "Lane detection may be incomplete — review MIGRATION.md and adjust manually.",
+        );
+      }
     } catch {
-      // Ignore parse errors
+      result.parseWarnings.push("Could not read Fastfile — check permissions");
     }
   }
 
@@ -94,7 +107,7 @@ export async function detectFastlane(cwd: string): Promise<FastlaneDetection> {
       result.packageName = parsed.packageName;
       result.jsonKeyPath = parsed.jsonKeyPath;
     } catch {
-      // Ignore parse errors
+      result.parseWarnings.push("Could not read Appfile — check permissions");
     }
   }
 
@@ -112,8 +125,9 @@ export function parseFastfile(content: string): FastlaneLane[] {
     const body = match[2] ?? "";
     const actions: string[] = [];
 
-    // Extract action calls (Ruby method calls at the start of a line or after whitespace)
-    const actionRegex = /\b(supply|upload_to_play_store|capture_android_screenshots|deliver|gradle)\b/g;
+    // Extract action calls
+    const actionRegex =
+      /\b(supply|upload_to_play_store|capture_android_screenshots|deliver|gradle)\b/g;
     let actionMatch: RegExpExecArray | null;
     while ((actionMatch = actionRegex.exec(body)) !== null) {
       const action = actionMatch[1] ?? "";
@@ -133,20 +147,21 @@ export function parseFastfile(content: string): FastlaneLane[] {
 
 function mapLaneToGpc(name: string, actions: string[], body: string): string | undefined {
   if (actions.includes("upload_to_play_store") || actions.includes("supply")) {
-    // Check for specific options
     const trackMatch = body.match(/track\s*:\s*["'](\w+)["']/);
     const rolloutMatch = body.match(/rollout\s*:\s*["']?([\d.]+)["']?/);
 
     if (rolloutMatch) {
-      const percentage = Math.round(parseFloat(rolloutMatch[1] ?? "0") * 100);
-      return `gpc releases promote --rollout ${percentage}`;
+      const raw = parseFloat(rolloutMatch[1] ?? "0");
+      // Fastlane uses 0.0–1.0; convert to whole percentage for gpc
+      const pct = raw > 1 ? Math.round(raw) : Math.round(raw * 100);
+      return `gpc releases upload --rollout ${pct}${trackMatch ? ` --track ${trackMatch[1]}` : ""}`;
     }
 
     if (trackMatch) {
       return `gpc releases upload --track ${trackMatch[1]}`;
     }
 
-    // Check if it's mainly a metadata push
+    // Metadata-only supply
     if (body.match(/skip_upload_apk\s*:\s*true/) || body.match(/skip_upload_aab\s*:\s*true/)) {
       return "gpc listings push";
     }
@@ -182,7 +197,7 @@ export function parseAppfile(content: string): { packageName?: string; jsonKeyPa
 export function generateMigrationPlan(detection: FastlaneDetection): MigrationResult {
   const config: Record<string, unknown> = {};
   const checklist: string[] = [];
-  const warnings: string[] = [];
+  const warnings: string[] = [...detection.parseWarnings];
 
   // Set package name if detected
   if (detection.packageName) {
@@ -195,41 +210,66 @@ export function generateMigrationPlan(detection: FastlaneDetection): MigrationRe
   if (detection.jsonKeyPath) {
     config["auth"] = { serviceAccount: detection.jsonKeyPath };
   } else {
-    checklist.push("Configure authentication: gpc auth setup");
+    checklist.push("Configure authentication: gpc auth login");
   }
 
   // Lane mappings
   for (const lane of detection.lanes) {
     if (lane.gpcEquivalent) {
-      checklist.push(`Replace Fastlane lane "${lane.name}" with: ${lane.gpcEquivalent}`);
+      checklist.push(
+        `Replace Fastlane lane "${lane.name}" with: ${lane.gpcEquivalent} <your.aab>`,
+      );
     }
 
     if (lane.actions.includes("capture_android_screenshots")) {
       warnings.push(
-        `Lane "${lane.name}" uses capture_android_screenshots which has no GPC equivalent. You will need to continue using Fastlane for screenshot capture or use a separate tool.`,
+        `Lane "${lane.name}" uses capture_android_screenshots which has no GPC equivalent. ` +
+          "Use a separate screenshot tool or check gpc plugins list for community plugins.",
+      );
+    }
+
+    // Lanes with no known action and no GPC equivalent
+    if (
+      lane.actions.length === 0 ||
+      (lane.gpcEquivalent === undefined && !lane.actions.includes("capture_android_screenshots"))
+    ) {
+      warnings.push(
+        `Lane "${lane.name}" has no automatic GPC equivalent. ` +
+          "Check \`gpc plugins list\` or the plugin SDK docs to build a custom command.",
       );
     }
   }
 
   // Metadata migration
   if (detection.hasMetadata && detection.metadataLanguages.length > 0) {
+    const langs = detection.metadataLanguages.slice(0, 3).join(", ");
+    const more =
+      detection.metadataLanguages.length > 3
+        ? ` (+${detection.metadataLanguages.length - 3} more)`
+        : "";
     checklist.push(
-      `Migrate metadata for ${detection.metadataLanguages.length} language(s): gpc listings pull --dir metadata`,
+      `Pull current metadata for ${detection.metadataLanguages.length} language(s) (${langs}${more}): gpc listings pull --dir fastlane/metadata/android`,
     );
-    checklist.push("Review and push metadata: gpc listings push --dir metadata");
+    checklist.push(
+      "Review pulled metadata, then push back: gpc listings push --dir fastlane/metadata/android",
+    );
   }
 
   // General checklist items
   checklist.push("Run gpc doctor to verify your setup");
-  checklist.push("Test with --dry-run before making real changes");
+  checklist.push("Test each command with --dry-run before making real changes");
 
   if (detection.hasGemfile) {
     checklist.push("Remove Fastlane from your Gemfile once migration is complete");
   }
 
-  // CI warnings
-  if (detection.lanes.some((l) => l.actions.includes("supply") || l.actions.includes("upload_to_play_store"))) {
-    checklist.push("Update CI/CD pipelines to use gpc commands instead of Fastlane lanes");
+  // CI/CD reminder
+  if (
+    detection.lanes.some(
+      (l) => l.actions.includes("supply") || l.actions.includes("upload_to_play_store"),
+    )
+  ) {
+    checklist.push("Update CI/CD pipelines to call gpc commands instead of Fastlane lanes");
   }
 
   return { config, checklist, warnings };
@@ -242,15 +282,19 @@ export async function writeMigrationOutput(
   await mkdir(dir, { recursive: true });
   const files: string[] = [];
 
-  // Write .gpcrc.json
-  const configPath = join(dir, ".gpcrc.json");
-  await writeFile(configPath, JSON.stringify(result.config, null, 2) + "\n", "utf-8");
-  files.push(configPath);
+  // Write .gpcrc.json only if we have something meaningful to put in it
+  if (Object.keys(result.config).length > 0) {
+    const configPath = join(dir, ".gpcrc.json");
+    await writeFile(configPath, JSON.stringify(result.config, null, 2) + "\n", "utf-8");
+    files.push(configPath);
+  }
 
   // Write MIGRATION.md
   const migrationPath = join(dir, "MIGRATION.md");
   const lines: string[] = [
     "# Fastlane to GPC Migration",
+    "",
+    "Generated by `gpc migrate fastlane`. Review and adjust before applying.",
     "",
     "## Migration Checklist",
     "",
@@ -265,7 +309,7 @@ export async function writeMigrationOutput(
     lines.push("## Warnings");
     lines.push("");
     for (const warning of result.warnings) {
-      lines.push(`- ${warning}`);
+      lines.push(`> ⚠ ${warning}`);
     }
   }
 
@@ -277,8 +321,11 @@ export async function writeMigrationOutput(
   lines.push("| `fastlane supply` | `gpc releases upload` / `gpc listings push` |");
   lines.push("| `upload_to_play_store` | `gpc releases upload` |");
   lines.push("| `supply(track: \"internal\")` | `gpc releases upload --track internal` |");
-  lines.push("| `supply(rollout: \"0.1\")` | `gpc releases promote --rollout 10` |");
-  lines.push("| `capture_android_screenshots` | No equivalent (use separate tool) |");
+  lines.push("| `supply(rollout: \"0.1\")` | `gpc releases upload --rollout 10` |");
+  lines.push("| `supply(skip_upload_aab: true)` | `gpc listings push` |");
+  lines.push("| `capture_android_screenshots` | No equivalent — use separate tool |");
+  lines.push("");
+  lines.push("See the full migration guide: https://yasserstudio.github.io/gpc/migration/from-fastlane");
   lines.push("");
 
   await writeFile(migrationPath, lines.join("\n"), "utf-8");
