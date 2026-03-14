@@ -6,7 +6,18 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.24 <Badge type="tip" text="latest" />
+## v0.9.25 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **fix: gpc publish / gpc releases upload always failed** — Google Play API returns `Bundle` directly from the upload endpoint, not wrapped in `{ bundle: Bundle }`. The client was accessing `data.bundle` (always `undefined`), throwing "Upload succeeded but no bundle data returned" on every upload even though the file transferred successfully.
+- **fix: gpc doctor --json always output human-readable text** — the global `-j, --json` option on the root Commander program was consumed before the `doctor` subcommand action ran. Now reads `cmd.parent?.opts()`.
+- **fix: gpc status --days N / gpc vitals compare --days N wrong date window** — Commander calls `parseInt(value, previousValue)` when a coerce function and default are both given. Using `parseInt` directly meant the default (e.g. `7`) was passed as the radix — `parseInt("7", 7)` = NaN, `parseInt("14", 7)` = 11. Now uses `(v) => parseInt(v, 10)`.
+- **fix: gpc validate table output showed raw JSON** — `ValidateResult.checks[]` was passed directly to `formatOutput`, producing `JSON.stringify(...)` in table/markdown cells. Now flattens checks to rows with a separate warnings list and `Valid`/`Invalid` footer.
+- **fix: JUnit name attribute showed `-` for releases status** — commands that set `name: s["name"] || "-"` produced sentinel `"-"` strings that stopped the `??` fallback chain. Now uses a loop that skips `""` and `"-"`, falling through to `track`, `versionCode`, etc.
+- 1,358 tests
+
+## v0.9.24
 
 _March 2026_
 

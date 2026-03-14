@@ -53,7 +53,6 @@ import type {
   Testers,
   Track,
   TrackListResponse,
-  UploadResponse,
   VoidedPurchasesListResponse,
   OneTimeProduct,
   OneTimeProductsListResponse,
@@ -476,12 +475,12 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async upload(packageName, editId, filePath) {
-        const { data } = await http.upload<UploadResponse>(
+        const { data } = await http.upload<Bundle>(
           `/${packageName}/edits/${editId}/bundles`,
           filePath,
           "application/octet-stream",
         );
-        if (!data.bundle) {
+        if (!data || !data.versionCode) {
           throw new ApiError(
             "Upload succeeded but no bundle data returned",
             "API_EMPTY_RESPONSE",
@@ -489,7 +488,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
             "This is unexpected. Retry the upload or contact Google Play support if the issue persists.",
           );
         }
-        return data.bundle;
+        return data;
       },
     },
 

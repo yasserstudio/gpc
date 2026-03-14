@@ -280,7 +280,7 @@ export function registerVitalsCommands(program: Command): void {
   vitals
     .command("compare <metric>")
     .description("Compare metric trend: this period vs previous period")
-    .option("--days <n>", "Period length in days", parseInt, 7)
+    .option("--days <n>", "Period length in days", (v) => parseInt(v, 10), 7)
     .action(async (metric: string, options) => {
       const metricSet = METRIC_MAP[metric];
       if (!metricSet) {

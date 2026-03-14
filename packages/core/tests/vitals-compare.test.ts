@@ -94,6 +94,31 @@ describe("compareVitalsTrend", () => {
     expect(reporting.queryMetricSet).toHaveBeenCalledTimes(2);
   });
 
+  it("passes valid date ranges when days is supplied as a number", async () => {
+    const reporting = mockReporting(
+      [{ metrics: { crashRate: { decimalValue: { value: "1" } } } }],
+      [{ metrics: { crashRate: { decimalValue: { value: "1" } } } }],
+    );
+
+    // days=7 must produce valid (non-NaN) dates — regression guard for parseInt(value, radix) bug
+    await compareVitalsTrend(reporting, "com.example", "crashRateMetricSet", 7);
+
+    type Query = { timelineSpec: { startTime: { year: number; month: number; day: number }; endTime: { year: number; month: number; day: number } } };
+    const calls = (reporting.queryMetricSet as ReturnType<typeof vi.fn>).mock.calls as [unknown, unknown, Query][];
+    for (const call of calls) {
+      const { startTime, endTime } = call[2].timelineSpec;
+      // All date fields must be real numbers, not NaN
+      expect(startTime.year).not.toBeNaN();
+      expect(startTime.month).not.toBeNaN();
+      expect(startTime.day).not.toBeNaN();
+      expect(endTime.year).not.toBeNaN();
+      // startTime must be strictly before endTime
+      const startMs = Date.UTC(startTime.year, startTime.month - 1, startTime.day);
+      const endMs = Date.UTC(endTime.year, endTime.month - 1, endTime.day);
+      expect(startMs).toBeLessThan(endMs);
+    }
+  });
+
   it("uses per-metric-set metrics", async () => {
     const reporting = mockReporting(
       [{ metrics: { crashRate: { decimalValue: { value: "1" } } } }],

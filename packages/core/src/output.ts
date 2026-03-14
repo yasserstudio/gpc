@@ -266,14 +266,22 @@ function buildTestCase(
   }
 
   const record = item as Record<string, unknown>;
-  const name = escapeXml(
-    String(
-      record["name"] ?? record["title"] ?? record["sku"] ?? record["id"]
-      ?? record["reviewId"] ?? record["productId"] ?? record["packageName"] ?? record["track"]
-      ?? record["trackId"] ?? record["versionCode"] ?? record["region"]
-      ?? record["languageCode"] ?? `item-${index + 1}`,
-    ),
-  );
+
+  // Pick the first meaningful identifier, skipping sentinel dash/empty values
+  // that commands use as display placeholders (e.g. `name: s["name"] || "-"`).
+  const CANDIDATE_KEYS = [
+    "name", "title", "sku", "id", "reviewId", "productId", "packageName",
+    "track", "trackId", "versionCode", "region", "languageCode",
+  ] as const;
+  let resolvedName = `item-${index + 1}`;
+  for (const key of CANDIDATE_KEYS) {
+    const val = record[key];
+    if (val != null && val !== "" && val !== "-") {
+      resolvedName = String(val);
+      break;
+    }
+  }
+  const name = escapeXml(resolvedName);
   const classname = `gpc.${escapeXml(commandName)}`;
 
   // Detect threshold breach (vitals)

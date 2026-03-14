@@ -1,5 +1,43 @@
 # @gpc-cli/core
 
+## 0.9.23
+
+### Patch Changes
+
+- fix: resolve upload, output, and date-window bugs (v0.9.25)
+
+  **`gpc publish` / `gpc releases upload` — upload always failed**
+  The Google Play API returns a `Bundle` object directly from the upload endpoint, not
+  wrapped in `{ bundle: Bundle }`. The client was accessing `data.bundle` (always
+  `undefined`), causing every upload to throw "Upload succeeded but no bundle data
+  returned" even though the file transferred successfully.
+  Fix: `http.upload<Bundle>`, validate with `data.versionCode`, return `data` directly.
+
+  **`gpc doctor --json` — always printed human-readable text**
+  The global `-j, --json` option on the root Commander program was consumed before
+  the `doctor` subcommand action ran, making `opts.json` always `undefined` in the
+  subcommand. Fix: removed local `--json` option from doctor and reads
+  `cmd.parent?.opts()` in the action.
+
+  **`gpc status --days N` / `gpc vitals compare --days N` — wrong date window**
+  Commander calls `parseInt(valueString, previousValue)` when a coerce function and
+  default are both provided. Using `parseInt` directly meant the default (e.g. `7`) was
+  passed as the radix — `parseInt("7", 7)` = NaN, `parseInt("14", 7)` = 11.
+  Fix: use `(v) => parseInt(v, 10)` lambda for all `--days` and `--ttl` options.
+
+  **`gpc validate` table output — checks rendered as raw JSON**
+  `ValidateResult.checks[]` was passed directly to `formatOutput`, producing
+  `JSON.stringify(...)` in table/markdown cells. Fix: flatten checks to rows in the CLI
+  command, with a separate warnings section and `Valid`/`Invalid` footer.
+
+  **JUnit `name` attribute — showed `-` placeholder for releases status**
+  Commands that set `name: s["name"] || "-"` produced non-null `"-"` strings that stopped
+  the `??` fallback chain. Fix: replaced with a loop over candidate keys that skips `""` and
+  `"-"` sentinel values, falling through to `track`, `versionCode`, etc.
+
+- Updated dependencies
+  - @gpc-cli/api@1.0.17
+
 ## 0.9.22
 
 ### Patch Changes
