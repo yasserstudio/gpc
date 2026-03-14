@@ -377,6 +377,26 @@ describe("formatOutput – junit", () => {
     expect(result).toContain('name="item-4"');
     expect(result).not.toContain("JSON");
   });
+
+  it("skips sentinel dash placeholder and falls through to track name (releases status regression)", () => {
+    // releases status rows use `name: s["name"] || "-"` — when no release name exists,
+    // the name field is "-". JUnit should skip it and use the track field instead.
+    const data = [
+      { track: "production", status: "completed", name: "-", versionCodes: "142" },
+      { track: "beta", status: "inProgress", name: "-", versionCodes: "141" },
+    ];
+    const result = formatOutput(data, "junit");
+    expect(result).toContain('name="production"');
+    expect(result).toContain('name="beta"');
+    expect(result).not.toContain('name="-"');
+  });
+
+  it("skips empty string placeholder and falls through to next candidate", () => {
+    const data = [{ name: "", track: "internal", status: "draft" }];
+    const result = formatOutput(data, "junit");
+    expect(result).toContain('name="internal"');
+    expect(result).not.toContain('name=""');
+  });
 });
 
 // ---------------------------------------------------------------------------

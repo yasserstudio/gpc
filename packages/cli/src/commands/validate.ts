@@ -40,7 +40,23 @@ export function registerValidateCommand(program: Command): void {
         notes,
       });
 
-      console.log(formatOutput(result, format));
+      if (format === "json") {
+        console.log(formatOutput(result, format));
+      } else {
+        const checkRows = result.checks.map((c) => ({
+          check: c.name,
+          passed: c.passed ? "pass" : "FAIL",
+          message: c.message,
+        }));
+        console.log(formatOutput(checkRows, format));
+        if (result.warnings.length > 0) {
+          console.log("\nWarnings:");
+          for (const w of result.warnings) {
+            console.log(`  ${w}`);
+          }
+        }
+        console.log(`\n${result.valid ? "Valid" : "Invalid"}`);
+      }
       process.exit(result.valid ? 0 : 1);
     });
 }

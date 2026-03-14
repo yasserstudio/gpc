@@ -404,7 +404,7 @@ describe("createApiClient", () => {
       const UPLOAD_BASE_URL =
         "https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications";
       const bundle = { versionCode: 3, sha256: "ghi789" };
-      mockFetch.mockResolvedValueOnce(mockResponse({ bundle }));
+      mockFetch.mockResolvedValueOnce(mockResponse(bundle));
 
       const client = makeClient();
       const result = await client.bundles.upload(PKG, EDIT_ID, "/tmp/app.aab");

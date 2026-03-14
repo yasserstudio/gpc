@@ -84,10 +84,10 @@ export function registerDoctorCommand(program: Command): void {
   program
     .command("doctor")
     .description("Verify setup and connectivity")
-    .option("--json", "Output results as JSON")
-    .action(async (opts: { json?: boolean }) => {
+    .action(async (_opts, cmd) => {
       const results: CheckResult[] = [];
-      const jsonMode = opts.json ?? false;
+      const parentOpts = cmd.parent?.opts() ?? {};
+      const jsonMode = !!(parentOpts["json"] || parentOpts["output"] === "json");
 
       // 1. Node.js version
       results.push(checkNodeVersion(process.versions.node));

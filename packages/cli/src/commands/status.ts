@@ -16,10 +16,10 @@ export function registerStatusCommand(program: Command): void {
   program
     .command("status")
     .description("Unified app health snapshot: releases, vitals, and reviews")
-    .option("--days <n>", "Vitals window in days", parseInt, 7)
+    .option("--days <n>", "Vitals window in days", (v) => parseInt(v, 10), 7)
     .option("--cached", "Use last fetched data, skip API calls")
     .option("--refresh", "Force live fetch, ignore cache TTL")
-    .option("--ttl <seconds>", "Cache TTL in seconds", parseInt, 3600)
+    .option("--ttl <seconds>", "Cache TTL in seconds", (v) => parseInt(v, 10), 3600)
     .action(async (opts: { days: number; cached?: boolean; refresh?: boolean; ttl: number }) => {
       const config = await loadConfig();
       const packageName = program.opts()["app"] || config.app;
