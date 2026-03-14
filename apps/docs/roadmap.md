@@ -12,7 +12,7 @@ GPC v0.9.x is a pre-release series working toward a stable **1.0.0** public laun
 
 - **187 API endpoints** across the Android Publisher API v3 and Play Developer Reporting API
 - **32 command groups**, 100+ subcommands
-- **1,320 tests**, 90%+ line coverage across all core packages
+- **1,355 tests**, 90%+ line coverage across all core packages
 - **7 published packages** under the `@gpc-cli` scope
 - Complete coverage of releases, listings, vitals, reviews, subscriptions, IAP, purchases, users, reports, and more
 
@@ -39,15 +39,16 @@ One command that replaces opening 4–6 Play Console screens. See the full refer
 ```
 $ gpc status
 
-App: tv.visioo.app  (fetched 10:42:01 AM)
+App: tv.visioo.app · Visioo TV  (fetched 10:42:01 AM)
 
 RELEASES
-  production   42   completed   —
-  beta         43   inProgress  10%
+  production   v1.4.2   completed    —
+  beta         v1.5.0   inProgress  10%
+  internal     v1.5.1   draft        —
 
 VITALS  (last 7 days)
-  crashes     0.80%     ✓    anr         0.20%     ✓
-  slow starts 2.10%     ✓    slow render 4.30%     ⚠
+  crashes     0.80%  ✓    anr         0.20%  ✓
+  slow starts 2.10%  ✓    slow render 4.30%  ⚠
 
 REVIEWS  (last 30 days)
   ★ 4.6   142 new   89% positive   ↑ from 4.4
