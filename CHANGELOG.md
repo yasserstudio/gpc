@@ -7,6 +7,15 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.27
+
+- fix: `gpc status --sections <list>` now filters output — previously the API calls were correctly skipped but all three sections (RELEASES, VITALS, REVIEWS) still rendered in the terminal and JSON output. Now only the requested sections appear.
+- 1,391 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.26...v0.9.27)
+
+---
+
 ## v0.9.26
 
 Eight `gpc status` quality-of-life improvements.

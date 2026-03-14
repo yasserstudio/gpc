@@ -6,7 +6,14 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.26 <Badge type="tip" text="latest" />
+## v0.9.27 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **fix: `gpc status --sections` now filters output** — `--sections vitals` previously skipped the API calls correctly but still rendered all three sections (RELEASES, VITALS, REVIEWS). Now only the requested sections appear in both table and JSON output.
+- 1,391 tests
+
+## v0.9.26
 
 _March 2026_
 
