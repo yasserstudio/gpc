@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-# publish / validate / status
+# publish / validate
 
 High-level workflow commands that combine multiple operations into a single step.
 
@@ -12,7 +12,10 @@ High-level workflow commands that combine multiple operations into a single step
 | ------------------------------- | ----------------------------------------- |
 | [`gpc publish`](#gpc-publish)   | Validate, upload, and release in one step |
 | [`gpc validate`](#gpc-validate) | Pre-submission validation checks          |
-| [`gpc status`](#gpc-status)     | Cross-track release overview              |
+
+::: tip
+`gpc status` — unified app health snapshot (releases + vitals + reviews) — has its own page: [status](/commands/status).
+:::
 
 ## `gpc publish`
 
@@ -147,59 +150,9 @@ gpc validate app-release.aab \
 
 Exits with code 0 if valid, code 1 if any check fails.
 
----
-
-## `gpc status`
-
-Show release status across all tracks for the current app.
-
-### Synopsis
-
-```bash
-gpc status
-```
-
-### Options
-
-No command-specific options. Uses global `--app` and `--output` flags.
-
-### Example
-
-```bash
-gpc status --app com.example.myapp
-```
-
-```json
-{
-  "tracks": [
-    {
-      "track": "production",
-      "status": "completed",
-      "versionCodes": ["42"],
-      "userFraction": 1.0
-    },
-    {
-      "track": "beta",
-      "status": "completed",
-      "versionCodes": ["43"]
-    },
-    {
-      "track": "internal",
-      "status": "completed",
-      "versionCodes": ["44"]
-    }
-  ]
-}
-```
-
-Pipe into CI summary:
-
-```bash
-gpc status --output markdown >> "$GITHUB_STEP_SUMMARY"
-```
-
 ## Related
 
-- [releases](./releases) -- Granular release control
-- [vitals](./vitals) -- Quality monitoring
-- [CI/CD Integration](/ci-cd/) -- Automation workflows
+- [status](./status) — Unified health snapshot (releases + vitals + reviews)
+- [releases](./releases) — Granular release control
+- [vitals](./vitals) — Quality monitoring
+- [CI/CD Integration](/ci-cd/) — Automation workflows

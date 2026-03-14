@@ -45,24 +45,23 @@ function buildQuery(metricSet: VitalsMetricSet, options?: VitalsQueryOptions): M
   const metrics = METRIC_SET_METRICS[metricSet] ?? ["errorReportCount", "distinctUsers"];
 
   const days = options?.days ?? 30;
-  const end = new Date();
-  end.setDate(end.getDate() - 1); // API data lags ~1 day; cap to yesterday
-  const start = new Date(end);
-  start.setDate(start.getDate() - days);
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const end = new Date(Date.now() - DAY_MS); // API data lags ~1 day; cap to yesterday
+  const start = new Date(Date.now() - DAY_MS - days * DAY_MS);
 
   const query: MetricSetQuery = {
     metrics,
     timelineSpec: {
       aggregationPeriod: options?.aggregation ?? "DAILY",
       startTime: {
-        year: start.getFullYear(),
-        month: start.getMonth() + 1,
-        day: start.getDate(),
+        year: start.getUTCFullYear(),
+        month: start.getUTCMonth() + 1,
+        day: start.getUTCDate(),
       },
       endTime: {
-        year: end.getFullYear(),
-        month: end.getMonth() + 1,
-        day: end.getDate(),
+        year: end.getUTCFullYear(),
+        month: end.getUTCMonth() + 1,
+        day: end.getUTCDate(),
       },
     },
   };
@@ -195,28 +194,36 @@ export async function compareVitalsTrend(
   metricSet: VitalsMetricSet,
   days: number = 7,
 ): Promise<VitalsTrendComparison> {
-  const now = new Date();
-  now.setDate(now.getDate() - 1); // API data lags ~1 day; cap to yesterday
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const nowMs = Date.now();
 
-  // Current period
-  const currentEnd = new Date(now);
-  const currentStart = new Date(now);
-  currentStart.setDate(currentStart.getDate() - days);
+  // Cap to 2 days ago — API data typically lags 1-2 days; using 2 ensures
+  // the endTime is always within the available data window.
+  const baseMs = nowMs - 2 * DAY_MS;
 
-  // Previous period — 1-day gap to avoid boundary overlap
-  const previousEnd = new Date(currentStart);
-  previousEnd.setDate(previousEnd.getDate() - 1);
-  const previousStart = new Date(previousEnd);
-  previousStart.setDate(previousStart.getDate() - days);
+  // Current period: [base - days, base]
+  const currentEnd = new Date(baseMs);
+  const currentStart = new Date(baseMs - days * DAY_MS);
+
+  // Previous period: [base - 2*days - 1, base - days - 1]  (1-day gap)
+  const previousEnd = new Date(baseMs - days * DAY_MS - DAY_MS);
+  const previousStart = new Date(baseMs - days * DAY_MS - DAY_MS - days * DAY_MS);
 
   const metrics = METRIC_SET_METRICS[metricSet] ?? ["errorReportCount", "distinctUsers"];
+
+  // Use UTC accessors to avoid timezone-dependent off-by-one on date boundaries
+  const toApiDate = (d: Date) => ({
+    year: d.getUTCFullYear(),
+    month: d.getUTCMonth() + 1,
+    day: d.getUTCDate(),
+  });
 
   const makeQuery = (start: Date, end: Date): MetricSetQuery => ({
     metrics,
     timelineSpec: {
       aggregationPeriod: "DAILY",
-      startTime: { year: start.getFullYear(), month: start.getMonth() + 1, day: start.getDate() },
-      endTime: { year: end.getFullYear(), month: end.getMonth() + 1, day: end.getDate() },
+      startTime: toApiDate(start),
+      endTime: toApiDate(end),
     },
   });
 

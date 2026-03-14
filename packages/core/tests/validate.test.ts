@@ -121,6 +121,22 @@ describe("validatePreSubmission", () => {
     expect(result.checks.find((c) => c.name === "notes")?.passed).toBe(true);
   });
 
+  it("surfaces file validation warnings in result.warnings", async () => {
+    mockedValidate.mockResolvedValue({
+      valid: true,
+      fileType: "aab",
+      sizeBytes: 110 * 1024 * 1024,
+      errors: [],
+      warnings: ["Large file (110.0 MB). Upload may take a while on slow connections."],
+    });
+
+    const result = await validatePreSubmission({ filePath: "/tmp/big.aab", track: "internal" });
+
+    expect(result.valid).toBe(true);
+    expect(result.warnings).toHaveLength(1);
+    expect(result.warnings[0]).toContain("Large file");
+  });
+
   it("reports multiple failures together", async () => {
     mockedValidate.mockResolvedValue({
       valid: false,

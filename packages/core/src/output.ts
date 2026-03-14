@@ -269,9 +269,9 @@ function buildTestCase(
   const name = escapeXml(
     String(
       record["name"] ?? record["title"] ?? record["sku"] ?? record["id"]
-      ?? record["productId"] ?? record["packageName"] ?? record["trackId"]
-      ?? record["region"] ?? record["languageCode"]
-      ?? `item-${index + 1}`,
+      ?? record["reviewId"] ?? record["productId"] ?? record["packageName"] ?? record["track"]
+      ?? record["trackId"] ?? record["versionCode"] ?? record["region"]
+      ?? record["languageCode"] ?? `item-${index + 1}`,
     ),
   );
   const classname = `gpc.${escapeXml(commandName)}`;

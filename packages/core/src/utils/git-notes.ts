@@ -15,6 +15,7 @@ export interface GitReleaseNotes {
   text: string;
   commitCount: number;
   since: string;
+  truncated: boolean;
 }
 
 interface ParsedCommit {
@@ -38,7 +39,7 @@ function parseConventionalCommit(subject: string): ParsedCommit {
   return { type: "other", message: subject.trim() };
 }
 
-function formatNotes(commits: ParsedCommit[], maxLength: number): string {
+function formatNotes(commits: ParsedCommit[], maxLength: number): { text: string; truncated: boolean } {
   const groups = new Map<string, string[]>();
 
   for (const commit of commits) {
@@ -61,12 +62,14 @@ function formatNotes(commits: ParsedCommit[], maxLength: number): string {
   }
 
   let text = sections.join("\n\n");
+  let truncated = false;
 
   if (text.length > maxLength) {
     text = text.slice(0, maxLength - 3) + "...";
+    truncated = true;
   }
 
-  return text;
+  return { text, truncated };
 }
 
 async function gitExec(args: string[]): Promise<string> {
@@ -128,17 +131,19 @@ export async function generateNotesFromGit(
       text: "No changes since last release.",
       commitCount: 0,
       since,
+      truncated: false,
     };
   }
 
   const subjects = logOutput.split("\n").filter((line) => line.length > 0);
   const commits = subjects.map(parseConventionalCommit);
-  const text = formatNotes(commits, maxLength);
+  const { text, truncated } = formatNotes(commits, maxLength);
 
   return {
     language,
     text,
     commitCount: subjects.length,
     since,
+    truncated,
   };
 }

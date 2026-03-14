@@ -51,7 +51,7 @@ end
     expect(lanes[0]!.gpcEquivalent).toBe("gpc releases upload");
   });
 
-  it("parses lane with rollout option", () => {
+  it("parses lane with rollout option (decimal → percentage)", () => {
     const content = `
 lane :rollout do
   supply(rollout: "0.1")
@@ -59,7 +59,27 @@ end
 `;
     const lanes = parseFastfile(content);
     expect(lanes).toHaveLength(1);
-    expect(lanes[0]!.gpcEquivalent).toBe("gpc releases promote --rollout 10");
+    expect(lanes[0]!.gpcEquivalent).toBe("gpc releases upload --rollout 10");
+  });
+
+  it("parses lane with rollout + track", () => {
+    const content = `
+lane :staged do
+  supply(track: "production", rollout: "0.5")
+end
+`;
+    const lanes = parseFastfile(content);
+    expect(lanes[0]!.gpcEquivalent).toBe("gpc releases upload --rollout 50 --track production");
+  });
+
+  it("handles already-percentage rollout (>1) gracefully", () => {
+    const content = `
+lane :rollout do
+  supply(rollout: "50")
+end
+`;
+    const lanes = parseFastfile(content);
+    expect(lanes[0]!.gpcEquivalent).toBe("gpc releases upload --rollout 50");
   });
 
   it("parses multiple lanes", () => {
@@ -81,6 +101,20 @@ end
 
   it("returns empty array for empty content", () => {
     expect(parseFastfile("")).toEqual([]);
+  });
+
+  it("does not crash on complex Ruby with begin/rescue", () => {
+    const content = `
+lane :deploy do
+  begin
+    supply(track: "internal")
+  rescue => e
+    puts e
+  end
+end
+`;
+    // Lane may be partially parsed — just ensure no throw
+    expect(() => parseFastfile(content)).not.toThrow();
   });
 
   it("parses lane with metadata-only supply", () => {
@@ -142,6 +176,7 @@ describe("generateMigrationPlan", () => {
       jsonKeyPath: "keys/key.json",
       lanes: [],
       metadataLanguages: [],
+      parseWarnings: [],
     };
 
     const result = generateMigrationPlan(detection);
@@ -157,6 +192,7 @@ describe("generateMigrationPlan", () => {
       hasGemfile: false,
       lanes: [],
       metadataLanguages: [],
+      parseWarnings: [],
     };
 
     const result = generateMigrationPlan(detection);
@@ -174,6 +210,7 @@ describe("generateMigrationPlan", () => {
         { name: "screenshots", actions: ["capture_android_screenshots"] },
       ],
       metadataLanguages: [],
+      parseWarnings: [],
     };
 
     const result = generateMigrationPlan(detection);
@@ -191,6 +228,7 @@ describe("generateMigrationPlan", () => {
         { name: "deploy", actions: ["supply"], gpcEquivalent: "gpc releases upload" },
       ],
       metadataLanguages: [],
+      parseWarnings: [],
     };
 
     const result = generateMigrationPlan(detection);
@@ -207,6 +245,7 @@ describe("generateMigrationPlan", () => {
       hasGemfile: true,
       lanes: [],
       metadataLanguages: [],
+      parseWarnings: [],
     };
 
     const result = generateMigrationPlan(detection);
@@ -258,13 +297,34 @@ describe("detectFastlane", () => {
     const result = await detectFastlane(tmpDir);
     expect(result.hasGemfile).toBe(true);
   });
+
+  it("adds parseWarning when Fastfile contains complex Ruby", async () => {
+    const fastlaneDir = join(tmpDir, "fastlane");
+    await mkdir(fastlaneDir, { recursive: true });
+    await writeFile(
+      join(fastlaneDir, "Fastfile"),
+      'lane :deploy do\n  begin\n    supply\n  rescue\n  end\nend\n',
+    );
+
+    const result = await detectFastlane(tmpDir);
+    expect(result.parseWarnings.some((w) => w.includes("complex Ruby"))).toBe(true);
+  });
+
+  it("always has parseWarnings array (empty when clean)", async () => {
+    const fastlaneDir = join(tmpDir, "fastlane");
+    await mkdir(fastlaneDir, { recursive: true });
+    await writeFile(join(fastlaneDir, "Fastfile"), 'lane :deploy do\n  supply\nend\n');
+
+    const result = await detectFastlane(tmpDir);
+    expect(Array.isArray(result.parseWarnings)).toBe(true);
+  });
 });
 
 // ---------------------------------------------------------------------------
 // writeMigrationOutput
 // ---------------------------------------------------------------------------
 describe("writeMigrationOutput", () => {
-  it("writes .gpcrc.json and MIGRATION.md", async () => {
+  it("writes .gpcrc.json and MIGRATION.md when config is non-empty", async () => {
     const plan = {
       config: { app: "com.test.app" },
       checklist: ["Step 1", "Step 2"],
@@ -293,6 +353,52 @@ describe("writeMigrationOutput", () => {
       { config: {}, checklist: [], warnings: [] },
       outputDir,
     );
-    expect(files).toHaveLength(2);
+    // Only MIGRATION.md — empty config skips .gpcrc.json
+    expect(files).toHaveLength(1);
+    expect(files[0]).toContain("MIGRATION.md");
+  });
+
+  it("skips .gpcrc.json when config is empty", async () => {
+    const outputDir = join(tmpDir, "empty-config");
+    const files = await writeMigrationOutput(
+      { config: {}, checklist: ["Step 1"], warnings: [] },
+      outputDir,
+    );
+    expect(files.every((f) => !f.includes(".gpcrc.json"))).toBe(true);
+  });
+
+  it("writes .gpcrc.json when config has content", async () => {
+    const outputDir = join(tmpDir, "with-config");
+    const files = await writeMigrationOutput(
+      { config: { app: "com.example.app" }, checklist: [], warnings: [] },
+      outputDir,
+    );
+    expect(files.some((f) => f.includes(".gpcrc.json"))).toBe(true);
+  });
+
+  it("includes link to migration guide in MIGRATION.md", async () => {
+    const outputDir = join(tmpDir, "with-guide");
+    const files = await writeMigrationOutput(
+      { config: {}, checklist: [], warnings: [] },
+      outputDir,
+    );
+    const md = await readFile(files[files.length - 1]!, "utf-8");
+    expect(md).toContain("yasserstudio.github.io/gpc/migration/from-fastlane");
+  });
+
+  it("adds no-equivalent lanes warning with plugin suggestion", () => {
+    const detection: FastlaneDetection = {
+      hasFastfile: true,
+      hasAppfile: false,
+      hasMetadata: false,
+      hasGemfile: false,
+      lanes: [{ name: "custom_notify", actions: [] }],
+      metadataLanguages: [],
+      parseWarnings: [],
+    };
+
+    const result = generateMigrationPlan(detection);
+    expect(result.warnings.some((w) => w.includes("custom_notify"))).toBe(true);
+    expect(result.warnings.some((w) => w.includes("gpc plugins list"))).toBe(true);
   });
 });

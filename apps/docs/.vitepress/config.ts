@@ -113,10 +113,8 @@ export default defineConfig({
         {
           text: "Core Workflow",
           items: [
-            {
-              text: "publish / validate / status",
-              link: "/commands/publish",
-            },
+            { text: "status", link: "/commands/status" },
+            { text: "publish / validate", link: "/commands/publish" },
             { text: "releases", link: "/commands/releases" },
             { text: "tracks", link: "/commands/tracks" },
             { text: "listings", link: "/commands/listings" },

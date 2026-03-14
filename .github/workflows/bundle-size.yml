@@ -1,0 +1,103 @@
+name: Bundle Size
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  bundle-size:
+    name: Check bundle size
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Measure bundle sizes
+        id: sizes
+        run: |
+          cli_size=$(du -sh packages/cli/dist 2>/dev/null | cut -f1 || echo "n/a")
+          core_size=$(du -sh packages/core/dist 2>/dev/null | cut -f1 || echo "n/a")
+          api_size=$(du -sh packages/api/dist 2>/dev/null | cut -f1 || echo "n/a")
+          auth_size=$(du -sh packages/auth/dist 2>/dev/null | cut -f1 || echo "n/a")
+          config_size=$(du -sh packages/config/dist 2>/dev/null | cut -f1 || echo "n/a")
+
+          # Main CLI ESM bundle (single-file size matters most for install)
+          cli_esm=$(find packages/cli/dist -name "*.js" -not -name "*.map" | xargs du -sh 2>/dev/null | sort -rh | head -1 | cut -f1 || echo "n/a")
+
+          echo "cli=$cli_size" >> "$GITHUB_OUTPUT"
+          echo "core=$core_size" >> "$GITHUB_OUTPUT"
+          echo "api=$api_size" >> "$GITHUB_OUTPUT"
+          echo "auth=$auth_size" >> "$GITHUB_OUTPUT"
+          echo "config=$config_size" >> "$GITHUB_OUTPUT"
+          echo "cli_esm=$cli_esm" >> "$GITHUB_OUTPUT"
+
+      - name: Post PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { cli, core, api, auth, config, cli_esm } = {
+              cli:     '${{ steps.sizes.outputs.cli }}',
+              core:    '${{ steps.sizes.outputs.core }}',
+              api:     '${{ steps.sizes.outputs.api }}',
+              auth:    '${{ steps.sizes.outputs.auth }}',
+              config:  '${{ steps.sizes.outputs.config }}',
+              cli_esm: '${{ steps.sizes.outputs.cli_esm }}',
+            };
+
+            const body = [
+              '## Bundle Size Report',
+              '',
+              '| Package | dist size |',
+              '| --- | --- |',
+              `| \`@gpc-cli/cli\` | ${cli} |`,
+              `| \`@gpc-cli/core\` | ${core} |`,
+              `| \`@gpc-cli/api\` | ${api} |`,
+              `| \`@gpc-cli/auth\` | ${auth} |`,
+              `| \`@gpc-cli/config\` | ${config} |`,
+              '',
+              `**Largest CLI ESM chunk:** ${cli_esm}`,
+              '',
+              '_Sizes are uncompressed. Published npm tarballs are ~30-40% smaller._',
+            ].join('\n');
+
+            // Find existing bot comment and update it, or create a new one
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existing = comments.find(c =>
+              c.user?.type === 'Bot' && c.body?.startsWith('## Bundle Size Report')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }

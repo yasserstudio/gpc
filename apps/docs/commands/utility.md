@@ -18,17 +18,38 @@ Utility commands for environment verification, documentation access, and shell c
 
 ## `gpc doctor`
 
-Run diagnostic checks to verify your GPC setup: Node.js version, configuration, authentication, and API connectivity.
+Run diagnostic checks to verify your GPC setup end-to-end.
 
 ### Synopsis
 
 ```bash
-gpc doctor
+gpc doctor [--json]
 ```
 
 ### Options
 
-No command-specific options.
+| Flag | Description |
+| --- | --- |
+| `--json` | Output results as machine-readable JSON |
+
+### Checks performed
+
+| Check | What it verifies |
+| --- | --- |
+| `node` | Node.js ≥ 20 |
+| `config` | Config file loads without errors |
+| `default-app` | A default package name is configured |
+| `package-name` | Package name matches Android naming rules |
+| `config-dir` | Config directory is readable and writable |
+| `cache-dir` | Cache directory is readable and writable |
+| `service-account-file` | SA key file exists and is readable (if configured) |
+| `service-account-permissions` | SA key file is not group/world-readable (Unix) |
+| `profile` | `GPC_PROFILE` env var points to a known profile |
+| `proxy` | Proxy URL is valid (if `HTTPS_PROXY` etc. are set) |
+| `ca-cert` | CA cert file exists (if `GPC_CA_CERT` is set) |
+| `dns` | Both API endpoints resolve: `androidpublisher.googleapis.com` and `playdeveloperreporting.googleapis.com` |
+| `auth` | Credentials load and authenticate successfully |
+| `api-connectivity` | Access token can be obtained from Google |
 
 ### Example
 
@@ -44,8 +65,17 @@ GPC Doctor
   ✓ Node.js 22.12.0
   ✓ Configuration loaded
   ✓ Default app: com.example.myapp
+  ✓ Package name format OK: com.example.myapp
+  ✓ Config directory: /Users/you/.config/gpc
+  ✓ Cache directory: /Users/you/.cache/gpc
+  ✓ Service account file: /path/to/key.json
+  ✓ Service account file permissions OK (mode: 600)
+  ✓ DNS: androidpublisher.googleapis.com
+  ✓ DNS: playdeveloperreporting.googleapis.com
   ✓ Authenticated as play-api@my-project.iam.gserviceaccount.com
   ✓ API connectivity verified
+
+  ✓ 12 passed  ⚠ 0 warnings  ✗ 0 failed
 
 All checks passed!
 ```
@@ -56,15 +86,33 @@ With failures:
 GPC Doctor
 
   ✓ Node.js 22.12.0
-  ✓ Configuration loaded
-  - No default app configured (use --app flag or gpc config set app <package>)
-  ✗ Authentication: No service account configured
-    Run 'gpc auth login --service-account <path>' to authenticate
+  ✗ Configuration could not be loaded
+    Run gpc config init to create a config file, or check .gpcrc.json for syntax errors
+
+  ✓ 1 passed  ⚠ 0 warnings  ✗ 1 failed
 
 Some checks failed. Fix the issues above and run again.
 ```
 
-Exits with code 0 if all checks pass, code 1 if any check fails.
+### JSON output
+
+```bash
+gpc doctor --json
+```
+
+```json
+{
+  "success": true,
+  "errors": 0,
+  "warnings": 0,
+  "checks": [
+    { "name": "node", "status": "pass", "message": "Node.js 22.12.0" },
+    { "name": "config", "status": "pass", "message": "Configuration loaded" }
+  ]
+}
+```
+
+Exits `0` if all checks pass, `1` if any check fails.
 
 ---
 
