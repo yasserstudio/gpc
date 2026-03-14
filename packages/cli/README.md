@@ -33,18 +33,40 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 # Authenticate
 gpc auth login --service-account path/to/key.json
 
+# App health at a glance — releases, vitals, and reviews in one command
+gpc status
+
 # Upload and release
 gpc releases upload app.aab --track internal
 
 # Promote to production
 gpc releases promote --from internal --to production --rollout 10
 
-# Check app health
-gpc vitals overview
-
 # Monitor reviews
 gpc reviews list --stars 1-3 --since 7d
 ```
+
+## App Health at a Glance
+
+```
+$ gpc status
+
+App: com.example.myapp · My App  (fetched 10:42:01 AM)
+
+RELEASES
+  production   v1.4.2   completed    —
+  beta         v1.5.0   inProgress  10%
+  internal     v1.5.1   draft        —
+
+VITALS  (last 7 days)
+  crashes     0.80%  ✓    anr         0.20%  ✓
+  slow starts 2.10%  ✓    slow render 4.30%  ⚠
+
+REVIEWS  (last 30 days)
+  ★ 4.6   142 new   89% positive   ↑ from 4.4
+```
+
+6 parallel API calls, results in under 3 seconds. Results cached — `--cached` skips the network entirely.
 
 ## What You Get
 

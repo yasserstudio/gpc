@@ -11,6 +11,9 @@ GPC follows a consistent `<domain> <action> [options]` pattern for every command
 Most users start with these:
 
 ```bash
+# Full picture — releases, vitals, and reviews in one command
+gpc status
+
 # End-to-end: validate, upload, release
 gpc publish app.aab --track beta --notes "Bug fixes"
 
@@ -19,12 +22,6 @@ gpc releases upload app.aab --track internal
 
 # Promote between tracks
 gpc releases promote --from beta --to production --rollout 10
-
-# Check app health before shipping
-gpc vitals crashes --threshold 2.0
-
-# Cross-track release overview
-gpc status
 
 # Analyze bundle size
 gpc bundle analyze app.aab --threshold 150
@@ -36,9 +33,9 @@ gpc bundle analyze app.aab --threshold 150
 
 | Command                                       | Description                                           |
 | --------------------------------------------- | ----------------------------------------------------- |
+| [`status`](./status)                          | Releases + vitals + reviews in one unified snapshot   |
 | [`publish`](./publish)                        | End-to-end validate, upload, and release              |
 | [`validate`](./publish#gpc-validate)          | Pre-submission checks                                 |
-| [`status`](./publish#gpc-status)              | Cross-track release overview                          |
 | [`releases`](./releases)                      | Upload, promote, rollout, release notes, diff         |
 | [`tracks`](./tracks)                          | Track configuration and management                    |
 | [`listings`](./listings)                      | Store listings, metadata, images                      |
