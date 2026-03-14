@@ -1,8 +1,8 @@
 # @gpc-cli/api
 
-Typed Google Play Developer API v3 client for TypeScript.
+Typed Google Play Developer API v3 client for TypeScript. Part of [GPC](https://github.com/yasserstudio/gpc).
 
-Covers edits, releases, tracks, listings, images, subscriptions, in-app products, purchases, reviews, vitals, reports, users, and testers -- with built-in rate limiting, retry logic, and pagination.
+187 API endpoints — edits, releases, tracks, listings, images, subscriptions, in-app products, purchases, reviews, vitals, reports, users, and testers. Built-in rate limiting, retry logic, and pagination.
 
 ## Install
 

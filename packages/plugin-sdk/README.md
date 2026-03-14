@@ -1,6 +1,6 @@
 # @gpc-cli/plugin-sdk
 
-Plugin interface and SDK for extending GPC with custom commands, lifecycle hooks, and integrations.
+Plugin interface for extending [GPC](https://github.com/yasserstudio/gpc) with custom commands, lifecycle hooks, and integrations.
 
 ## Install
 

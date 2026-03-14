@@ -1,6 +1,8 @@
 # @gpc-cli/auth
 
-Authentication for Google Play Developer API -- service account, OAuth, and Application Default Credentials.
+Authentication for the Google Play Developer API. Part of [GPC](https://github.com/yasserstudio/gpc).
+
+Service account, OAuth, and Application Default Credentials — with automatic token caching and a simple `AuthClient` interface.
 
 ## Install
 

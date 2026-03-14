@@ -1,17 +1,29 @@
 # @gpc-cli/cli
 
-Ship Android apps from your terminal. The complete CLI for Google Play Developer API v3.
+<p align="center"><strong>Ship Android apps from your terminal.</strong></p>
+
+<p align="center">
+The complete CLI for Google Play — 187 API endpoints, one tool.<br>
+Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/v/@gpc-cli/cli?color=00D26A" alt="npm version"></a>
+  <a href="https://github.com/yasserstudio/gpc"><img src="https://img.shields.io/github/stars/yasserstudio/gpc" alt="GitHub Stars"></a>
+  <img src="https://img.shields.io/badge/Tests-1299_passing-00D26A" alt="Tests">
+  <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License">
+</p>
 
 ## Install
 
 ```bash
-# npm
+# npm (includes plugin support)
 npm install -g @gpc-cli/cli
 
-# Homebrew
+# Homebrew (macOS/Linux)
 brew install yasserstudio/tap/gpc
 
-# Standalone binary
+# Standalone binary (no Node.js required)
 curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
 ```
 
@@ -36,48 +48,37 @@ gpc reviews list --stars 1-3 --since 7d
 
 ## What You Get
 
-187 API endpoints across 10 command groups:
+187 API endpoints across these command groups:
 
-| Command Group     | Examples                                                       |
+| Group             | Examples                                                       |
 | ----------------- | -------------------------------------------------------------- |
 | **Releases**      | `upload`, `promote`, `rollout increase/halt/resume`, `publish` |
 | **Listings**      | `pull`, `push`, `images upload/delete`, Fastlane format        |
 | **Reviews**       | `list`, `reply`, `export --format csv`                         |
 | **Vitals**        | `crashes`, `anr`, `startup`, `rendering`, `battery`, `memory`  |
-| **Subscriptions** | `list`, `create`, `base-plans`, `offers`                       |
-| **IAP**           | `list`, `create`, `sync --dir products/`                       |
-| **Purchases**     | `get`, `acknowledge`, `cancel`, `refund`                       |
+| **Bundle**        | `analyze` (size breakdown), `compare` (size diff)              |
+| **Subscriptions** | `list`, `create`, `update`, `base-plans`, `offers`             |
+| **IAP**           | `list`, `create`, `sync --dir products/`, `batch-get/update`   |
+| **Purchases**     | `get`, `acknowledge`, `cancel`, `refund`, `voided list`        |
 | **Reports**       | `download financial`, `download stats`                         |
 | **Testers**       | `add`, `remove`, `import --file testers.csv`                   |
 | **Users**         | `invite`, `update`, `remove`, per-app grants                   |
 
-## CI/CD
+## CI/CD Ready
 
-JSON output, semantic exit codes (0-6), env var config — no wrapper scripts needed.
+JSON output when piped. Formatted tables in your terminal. Semantic exit codes (0-6) your CI can react to.
 
 ```yaml
-- name: Install GPC
-  run: npm install -g @gpc-cli/cli
-
 - name: Upload
   env:
     GPC_SERVICE_ACCOUNT: ${{ secrets.GPC_SERVICE_ACCOUNT }}
     GPC_APP: com.example.myapp
-  run: gpc releases upload app.aab --track internal
+  run: |
+    npm install -g @gpc-cli/cli
+    gpc releases upload app.aab --track internal
 ```
 
-## Output Formats
-
-GPC auto-detects your environment:
-
-- **Terminal:** formatted tables
-- **Piped/CI:** structured JSON
-
-Override with `--output json|yaml|markdown|table`.
-
-## Documentation
-
-Full docs at **[yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)**
+Every write operation supports `--dry-run`.
 
 ## Part of the GPC Monorepo
 
@@ -90,6 +91,10 @@ Full docs at **[yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)
 | [@gpc-cli/config](https://www.npmjs.com/package/@gpc-cli/config)         | Configuration and profiles                   |
 | [@gpc-cli/plugin-sdk](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface and lifecycle hooks         |
 | [@gpc-cli/plugin-ci](https://www.npmjs.com/package/@gpc-cli/plugin-ci)   | CI/CD helpers                                |
+
+## Documentation
+
+Full docs at **[yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)**
 
 ## License
 
