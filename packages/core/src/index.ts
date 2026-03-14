@@ -222,14 +222,22 @@ export type { BundleEntry, BundleAnalysis, BundleComparison } from "./commands/b
 export {
   getAppStatus,
   formatStatusTable,
+  formatStatusSummary,
+  computeStatusDiff,
+  formatStatusDiff,
   loadStatusCache,
   saveStatusCache,
   statusHasBreach,
+  runWatchLoop,
+  trackBreachState,
+  sendNotification,
 } from "./commands/status.js";
 export type {
   AppStatus,
   StatusRelease,
   StatusVitalMetric,
   StatusReviews,
+  StatusDiff,
   GetAppStatusOptions,
+  WatchOptions,
 } from "./commands/status.js";

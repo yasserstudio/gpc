@@ -1,4 +1,5 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { execSync } from "node:child_process";
 import { join } from "node:path";
 import type { PlayApiClient } from "@gpc-cli/api";
 import type { ReportingApiClient } from "@gpc-cli/api";
@@ -15,6 +16,8 @@ export interface StatusVitalMetric {
   value: number | undefined;
   threshold: number;
   status: "ok" | "warn" | "breach" | "unknown";
+  previousValue?: number | undefined;
+  trend?: "up" | "down" | "flat" | null;
 }
 
 export interface StatusRelease {
@@ -47,14 +50,30 @@ export interface AppStatus {
   reviews: StatusReviews;
 }
 
+export interface StatusDiff {
+  versionCode: { from: string | null; to: string | null };
+  crashRate: { from: number | null; to: number | null; delta: number | null };
+  anrRate: { from: number | null; to: number | null; delta: number | null };
+  reviewCount: { from: number | null; to: number | null };
+  averageRating: { from: number | null; to: number | null; delta: number | null };
+}
+
 export interface GetAppStatusOptions {
   days?: number;
+  sections?: string[]; // "releases" | "vitals" | "reviews"
   vitalThresholds?: {
     crashRate?: number;
     anrRate?: number;
     slowStartRate?: number;
     slowRenderingRate?: number;
   };
+}
+
+export interface WatchOptions {
+  intervalSeconds: number;
+  render: (status: AppStatus) => string;
+  fetch: () => Promise<AppStatus>;
+  save: (status: AppStatus) => Promise<void>;
 }
 
 // ---------------------------------------------------------------------------
@@ -96,12 +115,11 @@ export async function saveStatusCache(
   try {
     const dir = getCacheDir();
     await mkdir(dir, { recursive: true });
-    const entry: CacheEntry = {
-      fetchedAt: data.fetchedAt,
-      ttl: ttlSeconds,
-      data,
-    };
-    await writeFile(cacheFilePath(packageName), JSON.stringify(entry, null, 2), { encoding: "utf-8", mode: 0o600 });
+    const entry: CacheEntry = { fetchedAt: data.fetchedAt, ttl: ttlSeconds, data };
+    await writeFile(cacheFilePath(packageName), JSON.stringify(entry, null, 2), {
+      encoding: "utf-8",
+      mode: 0o600,
+    });
   } catch {
     // Cache write failures must never break the command
   }
@@ -136,9 +154,10 @@ async function queryVitalForStatus(
   packageName: string,
   metricSet: VitalsMetricSet,
   days: number,
+  offsetDays = 0,
 ): Promise<number | undefined> {
   const DAY_MS = 24 * 60 * 60 * 1000;
-  const baseMs = Date.now() - 2 * DAY_MS;
+  const baseMs = Date.now() - 2 * DAY_MS - offsetDays * DAY_MS;
   const end = new Date(baseMs);
   const start = new Date(baseMs - days * DAY_MS);
   const metrics = METRIC_SET_METRICS[metricSet] ?? ["distinctUsers"];
@@ -166,16 +185,50 @@ async function queryVitalForStatus(
   return values.reduce((a, b) => a + b, 0) / values.length;
 }
 
+interface VitalWithTrend {
+  current: number | undefined;
+  previous: number | undefined;
+  trend: "up" | "down" | "flat" | null;
+}
+
+async function queryVitalWithTrend(
+  reporting: ReportingApiClient,
+  packageName: string,
+  metricSet: VitalsMetricSet,
+  days: number,
+): Promise<VitalWithTrend> {
+  const [current, previous] = await Promise.all([
+    queryVitalForStatus(reporting, packageName, metricSet, days, 0),
+    queryVitalForStatus(reporting, packageName, metricSet, days, days),
+  ]);
+
+  let trend: "up" | "down" | "flat" | null = null;
+  if (current !== undefined && previous !== undefined) {
+    if (current > previous) trend = "up";
+    else if (current < previous) trend = "down";
+    else trend = "flat";
+  }
+
+  return { current, previous, trend };
+}
+
+const SKIPPED_VITAL: VitalWithTrend = { current: undefined, previous: undefined, trend: null };
+
 function toVitalMetric(
   value: number | undefined,
   threshold: number,
+  previousValue?: number | undefined,
+  trend?: "up" | "down" | "flat" | null,
 ): StatusVitalMetric {
-  if (value === undefined) {
-    return { value: undefined, threshold, status: "unknown" };
-  }
-  if (value > threshold) return { value, threshold, status: "breach" };
-  if (value > threshold * (1 - WARN_MARGIN)) return { value, threshold, status: "warn" };
-  return { value, threshold, status: "ok" };
+  const base: StatusVitalMetric =
+    previousValue !== undefined
+      ? { value, threshold, status: "unknown", previousValue, trend: trend ?? null }
+      : { value, threshold, status: "unknown" };
+
+  if (value === undefined) return { ...base, status: "unknown" };
+  if (value > threshold) return { ...base, status: "breach" };
+  if (value > threshold * (1 - WARN_MARGIN)) return { ...base, status: "warn" };
+  return { ...base, status: "ok" };
 }
 
 // ---------------------------------------------------------------------------
@@ -219,9 +272,7 @@ function computeReviewSentiment(
   ).length;
 
   const positivePercent =
-    current.length > 0
-      ? Math.round((positiveCount / current.length) * 100)
-      : undefined;
+    current.length > 0 ? Math.round((positiveCount / current.length) * 100) : undefined;
 
   return {
     windowDays,
@@ -243,6 +294,7 @@ export async function getAppStatus(
   options: GetAppStatusOptions = {},
 ): Promise<AppStatus> {
   const days = options.days ?? 7;
+  const sections = new Set(options.sections ?? ["releases", "vitals", "reviews"]);
   const thresholds = {
     crashRate: options.vitalThresholds?.crashRate ?? DEFAULT_THRESHOLDS.crashRate,
     anrRate: options.vitalThresholds?.anrRate ?? DEFAULT_THRESHOLDS.anrRate,
@@ -251,20 +303,29 @@ export async function getAppStatus(
       options.vitalThresholds?.slowRenderingRate ?? DEFAULT_THRESHOLDS.slowRenderingRate,
   };
 
-  // Fire all 6 calls in parallel; use allSettled so partial failures show "unknown"
   const [releasesResult, crashesResult, anrResult, slowStartResult, slowRenderResult, reviewsResult] =
     await Promise.allSettled([
-      getReleasesStatus(client, packageName),
-      queryVitalForStatus(reporting, packageName, "crashRateMetricSet", days),
-      queryVitalForStatus(reporting, packageName, "anrRateMetricSet", days),
-      queryVitalForStatus(reporting, packageName, "slowStartRateMetricSet", days),
-      queryVitalForStatus(reporting, packageName, "slowRenderingRateMetricSet", days),
-      listReviews(client, packageName, { maxResults: 500 }),
+      sections.has("releases")
+        ? getReleasesStatus(client, packageName)
+        : Promise.resolve([]),
+      sections.has("vitals")
+        ? queryVitalWithTrend(reporting, packageName, "crashRateMetricSet", days)
+        : Promise.resolve(SKIPPED_VITAL),
+      sections.has("vitals")
+        ? queryVitalWithTrend(reporting, packageName, "anrRateMetricSet", days)
+        : Promise.resolve(SKIPPED_VITAL),
+      sections.has("vitals")
+        ? queryVitalWithTrend(reporting, packageName, "slowStartRateMetricSet", days)
+        : Promise.resolve(SKIPPED_VITAL),
+      sections.has("vitals")
+        ? queryVitalWithTrend(reporting, packageName, "slowRenderingRateMetricSet", days)
+        : Promise.resolve(SKIPPED_VITAL),
+      sections.has("reviews")
+        ? listReviews(client, packageName, { maxResults: 500 })
+        : Promise.resolve([]),
     ]);
 
-  // Releases
-  const rawReleases =
-    releasesResult.status === "fulfilled" ? releasesResult.value : [];
+  const rawReleases = releasesResult.status === "fulfilled" ? releasesResult.value : [];
   const releases: StatusRelease[] = rawReleases.map((r) => ({
     track: r.track,
     versionCode: r.versionCodes[r.versionCodes.length - 1] ?? "—",
@@ -272,34 +333,39 @@ export async function getAppStatus(
     userFraction: r.userFraction ?? null,
   }));
 
-  // Vitals
-  const crashValue =
-    crashesResult.status === "fulfilled" ? crashesResult.value : undefined;
-  const anrValue =
-    anrResult.status === "fulfilled" ? anrResult.value : undefined;
-  const slowStartValue =
-    slowStartResult.status === "fulfilled" ? slowStartResult.value : undefined;
-  const slowRenderValue =
-    slowRenderResult.status === "fulfilled" ? slowRenderResult.value : undefined;
+  const crashes =
+    crashesResult.status === "fulfilled" ? crashesResult.value : SKIPPED_VITAL;
+  const anr =
+    anrResult.status === "fulfilled" ? anrResult.value : SKIPPED_VITAL;
+  const slowStart =
+    slowStartResult.status === "fulfilled" ? slowStartResult.value : SKIPPED_VITAL;
+  const slowRender =
+    slowRenderResult.status === "fulfilled" ? slowRenderResult.value : SKIPPED_VITAL;
 
-  // Reviews
-  const rawReviews =
-    reviewsResult.status === "fulfilled" ? reviewsResult.value : [];
+  const rawReviews = reviewsResult.status === "fulfilled" ? reviewsResult.value : [];
   const reviews = computeReviewSentiment(rawReviews, 30);
-
-  const fetchedAt = new Date().toISOString();
 
   return {
     packageName,
-    fetchedAt,
+    fetchedAt: new Date().toISOString(),
     cached: false,
     releases,
     vitals: {
       windowDays: days,
-      crashes: toVitalMetric(crashValue, thresholds.crashRate),
-      anr: toVitalMetric(anrValue, thresholds.anrRate),
-      slowStarts: toVitalMetric(slowStartValue, thresholds.slowStartRate),
-      slowRender: toVitalMetric(slowRenderValue, thresholds.slowRenderingRate),
+      crashes: toVitalMetric(crashes.current, thresholds.crashRate, crashes.previous, crashes.trend),
+      anr: toVitalMetric(anr.current, thresholds.anrRate, anr.previous, anr.trend),
+      slowStarts: toVitalMetric(
+        slowStart.current,
+        thresholds.slowStartRate,
+        slowStart.previous,
+        slowStart.trend,
+      ),
+      slowRender: toVitalMetric(
+        slowRender.current,
+        thresholds.slowRenderingRate,
+        slowRender.previous,
+        slowRender.trend,
+      ),
     },
     reviews,
   };
@@ -310,14 +376,21 @@ export async function getAppStatus(
 // ---------------------------------------------------------------------------
 
 function vitalIndicator(metric: StatusVitalMetric): string {
-  if (metric.status === "unknown") return "?";
+  if (metric.status === "unknown") return "—";
   if (metric.status === "breach") return "✗";
   if (metric.status === "warn") return "⚠";
   return "✓";
 }
 
+// For all vital metrics (crash rate, ANR, slow starts, slow render) lower is better:
+// trend "up" (increasing) is bad → ↑, trend "down" (decreasing) is good → ↓
+function vitalTrendArrow(metric: StatusVitalMetric): string {
+  if (!metric.trend || metric.trend === "flat") return "";
+  return metric.trend === "up" ? " ↑" : " ↓";
+}
+
 function formatVitalValue(metric: StatusVitalMetric): string {
-  if (metric.value === undefined) return "n/a";
+  if (metric.value === undefined) return "—";
   return `${(metric.value * 100).toFixed(2)}%`;
 }
 
@@ -327,7 +400,7 @@ function formatFraction(fraction: number | null): string {
 }
 
 function formatRating(rating: number | undefined): string {
-  if (rating === undefined) return "n/a";
+  if (rating === undefined) return "—";
   return `★ ${rating.toFixed(1)}`;
 }
 
@@ -336,6 +409,15 @@ function formatTrend(current: number | undefined, previous: number | undefined):
   if (current > previous) return `  ↑ from ${previous.toFixed(1)}`;
   if (current < previous) return `  ↓ from ${previous.toFixed(1)}`;
   return "";
+}
+
+function allVitalsUnknown(vitals: AppStatus["vitals"]): boolean {
+  return (
+    vitals.crashes.status === "unknown" &&
+    vitals.anr.status === "unknown" &&
+    vitals.slowStarts.status === "unknown" &&
+    vitals.slowRender.status === "unknown"
+  );
 }
 
 export function formatStatusTable(status: AppStatus): string {
@@ -365,27 +447,255 @@ export function formatStatusTable(status: AppStatus): string {
   // Vitals
   lines.push("");
   lines.push(`VITALS  (last ${status.vitals.windowDays} days)`);
-  const { crashes, anr, slowStarts, slowRender } = status.vitals;
-  lines.push(
-    `  crashes     ${formatVitalValue(crashes).padEnd(8)}  ${vitalIndicator(crashes)}    ` +
-    `anr         ${formatVitalValue(anr).padEnd(8)}  ${vitalIndicator(anr)}`,
-  );
-  lines.push(
-    `  slow starts ${formatVitalValue(slowStarts).padEnd(8)}  ${vitalIndicator(slowStarts)}    ` +
-    `slow render ${formatVitalValue(slowRender).padEnd(8)}  ${vitalIndicator(slowRender)}`,
-  );
+  if (allVitalsUnknown(status.vitals)) {
+    lines.push("  No vitals data available for this period.");
+  } else {
+    const { crashes, anr, slowStarts, slowRender } = status.vitals;
+    const crashVal = `${formatVitalValue(crashes)}${vitalTrendArrow(crashes)}`;
+    const anrVal = `${formatVitalValue(anr)}${vitalTrendArrow(anr)}`;
+    const slowStartVal = `${formatVitalValue(slowStarts)}${vitalTrendArrow(slowStarts)}`;
+    const slowRenderVal = `${formatVitalValue(slowRender)}${vitalTrendArrow(slowRender)}`;
+    lines.push(
+      `  crashes     ${crashVal.padEnd(10)}  ${vitalIndicator(crashes)}    ` +
+        `anr         ${anrVal.padEnd(10)}  ${vitalIndicator(anr)}`,
+    );
+    lines.push(
+      `  slow starts ${slowStartVal.padEnd(10)}  ${vitalIndicator(slowStarts)}    ` +
+        `slow render ${slowRenderVal.padEnd(10)}  ${vitalIndicator(slowRender)}`,
+    );
+  }
 
   // Reviews
   lines.push("");
   lines.push(`REVIEWS  (last ${status.reviews.windowDays} days)`);
   const { averageRating, previousAverageRating, totalNew, positivePercent } = status.reviews;
-  const trend = formatTrend(averageRating, previousAverageRating);
-  const positiveStr = positivePercent !== undefined ? `  ${positivePercent}% positive` : "";
-  lines.push(
-    `  ${formatRating(averageRating)}   ${totalNew} new${positiveStr}${trend}`,
-  );
+  if (totalNew === 0 && averageRating === undefined) {
+    lines.push("  No reviews in this period.");
+  } else {
+    const trend = formatTrend(averageRating, previousAverageRating);
+    const positiveStr = positivePercent !== undefined ? `  ${positivePercent}% positive` : "";
+    lines.push(`  ${formatRating(averageRating)}   ${totalNew} new${positiveStr}${trend}`);
+  }
 
   return lines.join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// Summary formatter (one-liner for --format summary)
+// ---------------------------------------------------------------------------
+
+export function formatStatusSummary(status: AppStatus): string {
+  const parts: string[] = [status.packageName];
+
+  // Latest non-draft release
+  const latestRelease =
+    status.releases.find((r) => r.status !== "draft") ?? status.releases[0];
+  if (latestRelease) {
+    parts.push(`v${latestRelease.versionCode} ${latestRelease.track}`);
+  }
+
+  // Vitals (crashes + ANR only for brevity)
+  const { crashes, anr } = status.vitals;
+  if (crashes.status !== "unknown") {
+    const arrow = crashes.trend === "up" ? " ↑" : crashes.trend === "down" ? " ↓" : "";
+    parts.push(`crashes ${formatVitalValue(crashes)}${arrow} ${vitalIndicator(crashes)}`);
+  }
+  if (anr.status !== "unknown") {
+    const arrow = anr.trend === "up" ? " ↑" : anr.trend === "down" ? " ↓" : "";
+    parts.push(`ANR ${formatVitalValue(anr)}${arrow} ${vitalIndicator(anr)}`);
+  }
+
+  // Reviews
+  const { averageRating, totalNew } = status.reviews;
+  if (averageRating !== undefined) {
+    parts.push(`avg ${averageRating.toFixed(1)}★`);
+  }
+  if (totalNew > 0) {
+    parts.push(`${totalNew} reviews`);
+  }
+
+  return parts.join(" · ") + (statusHasBreach(status) ? " [ALERT]" : "");
+}
+
+// ---------------------------------------------------------------------------
+// Diff (--since-last)
+// ---------------------------------------------------------------------------
+
+export function computeStatusDiff(prev: AppStatus, curr: AppStatus): StatusDiff {
+  const prevVersion = prev.releases[0]?.versionCode ?? null;
+  const currVersion = curr.releases[0]?.versionCode ?? null;
+  const prevCrash = prev.vitals.crashes.value ?? null;
+  const currCrash = curr.vitals.crashes.value ?? null;
+  const prevAnr = prev.vitals.anr.value ?? null;
+  const currAnr = curr.vitals.anr.value ?? null;
+  const prevRating = prev.reviews.averageRating ?? null;
+  const currRating = curr.reviews.averageRating ?? null;
+
+  return {
+    versionCode: { from: prevVersion, to: currVersion },
+    crashRate: {
+      from: prevCrash,
+      to: currCrash,
+      delta: currCrash !== null && prevCrash !== null ? currCrash - prevCrash : null,
+    },
+    anrRate: {
+      from: prevAnr,
+      to: currAnr,
+      delta: currAnr !== null && prevAnr !== null ? currAnr - prevAnr : null,
+    },
+    reviewCount: { from: prev.reviews.totalNew, to: curr.reviews.totalNew },
+    averageRating: {
+      from: prevRating,
+      to: currRating,
+      delta:
+        currRating !== null && prevRating !== null
+          ? Math.round((currRating - prevRating) * 10) / 10
+          : null,
+    },
+  };
+}
+
+export function formatStatusDiff(diff: StatusDiff, since: string): string {
+  const lines: string[] = [`Changes since ${since}:`];
+
+  if (diff.versionCode.from !== diff.versionCode.to) {
+    lines.push(`  Version:    ${diff.versionCode.from ?? "—"} → ${diff.versionCode.to ?? "—"}`);
+  }
+
+  const fmtRate = (v: number | null): string =>
+    v !== null ? `${(v * 100).toFixed(2)}%` : "—";
+
+  const fmtDelta = (d: number | null, lowerIsBetter = true): string => {
+    if (d === null || Math.abs(d) < 0.0001) return "no change";
+    const sign = d > 0 ? "+" : "";
+    const good = lowerIsBetter ? d < 0 : d > 0;
+    return `${sign}${(d * 100).toFixed(2)}% ${good ? "✓" : "✗"}`;
+  };
+
+  lines.push(
+    `  Crash rate: ${fmtRate(diff.crashRate.from)} → ${fmtRate(diff.crashRate.to)} (${fmtDelta(diff.crashRate.delta)})`,
+  );
+  lines.push(
+    `  ANR rate:   ${fmtRate(diff.anrRate.from)} → ${fmtRate(diff.anrRate.to)} (${fmtDelta(diff.anrRate.delta)})`,
+  );
+
+  const ratingDelta = diff.averageRating.delta;
+  const prevR =
+    diff.averageRating.from !== null ? `${diff.averageRating.from.toFixed(1)}★` : "—";
+  const currR =
+    diff.averageRating.to !== null ? `${diff.averageRating.to.toFixed(1)}★` : "—";
+  const ratingStr =
+    ratingDelta === null || Math.abs(ratingDelta) < 0.05
+      ? "no change"
+      : `${ratingDelta > 0 ? "+" : ""}${ratingDelta.toFixed(1)} ${ratingDelta > 0 ? "✓" : "✗"}`;
+  lines.push(`  Reviews:    ${prevR} → ${currR} (${ratingStr})`);
+
+  return lines.join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// Watch loop (--watch N)
+// ---------------------------------------------------------------------------
+
+export async function runWatchLoop(opts: WatchOptions): Promise<void> {
+  if (opts.intervalSeconds < 10) {
+    console.error("Error: --watch interval must be at least 10 seconds");
+    process.exit(2);
+  }
+
+  let running = true;
+
+  const cleanup = () => {
+    running = false;
+    process.stdout.write("\n");
+    process.exit(0);
+  };
+  process.on("SIGINT", cleanup);
+  process.on("SIGTERM", cleanup);
+
+  while (running) {
+    process.stdout.write("\x1b[2J\x1b[H"); // clear terminal
+
+    try {
+      const status = await opts.fetch();
+      await opts.save(status);
+      console.log(opts.render(status));
+    } catch (err) {
+      console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
+    }
+
+    console.log(`\n[gpc status] Refreshing in ${opts.intervalSeconds}s… (Ctrl+C to stop)`);
+
+    // Sleep in 1s ticks so SIGINT is responsive
+    for (let i = 0; i < opts.intervalSeconds && running; i++) {
+      await new Promise<void>((r) => setTimeout(r, 1000));
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Notifications (--notify)
+// ---------------------------------------------------------------------------
+
+function breachStateFilePath(packageName: string): string {
+  return join(getCacheDir(), `breach-state-${packageName}.json`);
+}
+
+/** Returns true if breach state changed (breach started or cleared). */
+export async function trackBreachState(
+  packageName: string,
+  isBreaching: boolean,
+): Promise<boolean> {
+  const filePath = breachStateFilePath(packageName);
+  let prevBreaching = false;
+
+  try {
+    const raw = await readFile(filePath, "utf-8");
+    prevBreaching = (JSON.parse(raw) as { breaching: boolean }).breaching;
+  } catch {
+    // No prior state — first run
+  }
+
+  if (prevBreaching !== isBreaching) {
+    try {
+      await mkdir(getCacheDir(), { recursive: true });
+      await writeFile(
+        filePath,
+        JSON.stringify({ breaching: isBreaching, since: new Date().toISOString() }, null, 2),
+        { encoding: "utf-8", mode: 0o600 },
+      );
+    } catch {
+      // State write failure is non-fatal
+    }
+    return true;
+  }
+  return false;
+}
+
+export function sendNotification(title: string, body: string): void {
+  if (process.env["CI"]) return; // Skip in CI environments
+
+  try {
+    const p = process.platform;
+    if (p === "darwin") {
+      execSync(
+        `osascript -e 'display notification ${JSON.stringify(body)} with title ${JSON.stringify(title)}'`,
+        { stdio: "ignore" },
+      );
+    } else if (p === "linux") {
+      execSync(`notify-send ${JSON.stringify(title)} ${JSON.stringify(body)}`, {
+        stdio: "ignore",
+      });
+    } else if (p === "win32") {
+      const escaped = (s: string) => s.replace(/'/g, "''");
+      execSync(
+        `powershell -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('${escaped(body)}', '${escaped(title)}')"`,
+        { stdio: "ignore" },
+      );
+    }
+  } catch {
+    // Notification failures are non-fatal
+  }
 }
 
 // ---------------------------------------------------------------------------
