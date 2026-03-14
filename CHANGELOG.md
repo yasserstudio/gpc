@@ -7,6 +7,51 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.25
+
+Five bugs fixed — including a critical one that prevented every upload from completing.
+
+- fix: `gpc publish` / `gpc releases upload` always threw "Upload succeeded but no bundle data returned" — Google Play API returns `Bundle` directly, not `{ bundle: Bundle }`. The client was reading `data.bundle` (always `undefined`) even when the file uploaded successfully.
+- fix: `gpc doctor --json` always output human-readable text — global `-j, --json` on the root program was consumed before the subcommand action ran
+- fix: `gpc status --days N` and `gpc vitals compare --days N` used the wrong date window — Commander passes the option default as the radix to `parseInt`, causing `parseInt("7", 7)` = NaN and `parseInt("14", 7)` = 11
+- fix: `gpc validate` table output showed raw JSON — `checks[]` was passed directly to `formatOutput`; now flattens to check/passed/message rows
+- fix: `--output junit` testcase `name` attribute showed `-` placeholder for releases — loop now skips `""` and `"-"` sentinel values and falls through to `track`, `versionCode`, etc.
+- 1,358 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.24...v0.9.25)
+
+---
+
+## v0.9.24
+
+- feat: `gpc status` — unified app health snapshot: releases, vitals, and reviews in one command. Six parallel API calls, 1-hour cache, `--cached` / `--refresh` / `--days` flags, exit code 6 on vitals threshold breach
+- feat: `gpc config init` — guided wizard with auth method selection, SA file validation with retry, package name format check, post-init summary
+- feat: `gpc migrate fastlane --dry-run` — preview migration plan without writing any files
+- feat: `gpc migrate fastlane` conflict detection — warns before overwriting an existing `.gpcrc.json`
+- fix: `gpc migrate fastlane` rollout mapping — `supply(rollout: "0.1")` now correctly maps to `gpc releases upload --rollout 10` (was `releases promote`)
+- fix: `gpc migrate fastlane` parse warnings — complex Ruby constructs (begin/rescue/if/unless) now surface a warning instead of producing silent incomplete lane detection
+- fix: `gpc validate` warnings surfaced — file-size warnings now included in `ValidateResult.warnings` and shown to the user
+- fix: `gpc publish` rollout guard — rejects non-finite and out-of-range rollout values (< 1 or > 100) with exit code 2
+- fix: `gpc doctor` package name format — validates Android naming rules and reports as a check
+- fix: git release notes truncation — `generateNotesFromGit` now returns `truncated: boolean`; CLI warns to stderr when notes were trimmed
+- 1,355 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.23...v0.9.24)
+
+---
+
+## v0.9.23
+
+- feat: `gpc bundle analyze` and `gpc bundle compare` — zero-dependency AAB/APK size breakdown by module and category, with `--threshold` CI gate (exit code 6 on breach)
+- fix: `gpc vitals compare` date overlap — non-overlapping date ranges prevent `start_time must be earlier than end_time` API errors
+- feat: `--dry-run` on 4 more commands — `tracks create`, `tracks update`, `device-tiers create`, and `internal-sharing upload`
+- fix: exit code consistency — `data-safety get/export` and `reports download financial/stats` now exit 2 (usage error) instead of 1
+- 1,299 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.22...v0.9.23)
+
+---
+
 ## v0.9.22
 
 - feat: table flattening audit — flat readable columns for 7 more commands

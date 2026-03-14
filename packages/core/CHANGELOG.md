@@ -4,37 +4,8 @@
 
 ### Patch Changes
 
-- fix: resolve upload, output, and date-window bugs (v0.9.25)
-
-  **`gpc publish` / `gpc releases upload` — upload always failed**
-  The Google Play API returns a `Bundle` object directly from the upload endpoint, not
-  wrapped in `{ bundle: Bundle }`. The client was accessing `data.bundle` (always
-  `undefined`), causing every upload to throw "Upload succeeded but no bundle data
-  returned" even though the file transferred successfully.
-  Fix: `http.upload<Bundle>`, validate with `data.versionCode`, return `data` directly.
-
-  **`gpc doctor --json` — always printed human-readable text**
-  The global `-j, --json` option on the root Commander program was consumed before
-  the `doctor` subcommand action ran, making `opts.json` always `undefined` in the
-  subcommand. Fix: removed local `--json` option from doctor and reads
-  `cmd.parent?.opts()` in the action.
-
-  **`gpc status --days N` / `gpc vitals compare --days N` — wrong date window**
-  Commander calls `parseInt(valueString, previousValue)` when a coerce function and
-  default are both provided. Using `parseInt` directly meant the default (e.g. `7`) was
-  passed as the radix — `parseInt("7", 7)` = NaN, `parseInt("14", 7)` = 11.
-  Fix: use `(v) => parseInt(v, 10)` lambda for all `--days` and `--ttl` options.
-
-  **`gpc validate` table output — checks rendered as raw JSON**
-  `ValidateResult.checks[]` was passed directly to `formatOutput`, producing
-  `JSON.stringify(...)` in table/markdown cells. Fix: flatten checks to rows in the CLI
-  command, with a separate warnings section and `Valid`/`Invalid` footer.
-
-  **JUnit `name` attribute — showed `-` placeholder for releases status**
-  Commands that set `name: s["name"] || "-"` produced non-null `"-"` strings that stopped
-  the `??` fallback chain. Fix: replaced with a loop over candidate keys that skips `""` and
-  `"-"` sentinel values, falling through to `track`, `versionCode`, etc.
-
+- fix: JUnit `buildTestCase` skips `""` and `"-"` sentinel values, falls through to `track`, `versionCode`, etc.
+- fix: `vitals compare` date-window calculation — `(v) => parseInt(v, 10)` prevents radix corruption from Commander option defaults
 - Updated dependencies
   - @gpc-cli/api@1.0.17
 
@@ -42,21 +13,9 @@
 
 ### Patch Changes
 
-- v0.9.24: gpc status, publish polish, migrate polish, doctor/init polish
-
-  **New: `gpc status`** — unified app health snapshot: releases, vitals, and reviews in one command. Six parallel API calls, 1-hour cache, threshold exit codes, full JSON output.
-
-  **`gpc publish` polish** — clean validated→uploaded→released output for table mode; rollout range guard (1–100); file-size warnings now surface; git notes truncation warning; validation failures go to stdout respecting `--output`.
-
-  **`gpc migrate fastlane` polish** — `--dry-run` flag to preview without writing files; fixed rollout mapping (`supply(rollout: "0.1")` now correctly maps to `gpc releases upload --rollout 10`); parse warnings for complex Ruby constructs; conflict warning before clobbering existing `.gpcrc.json`; plugin suggestion on unmapped lanes.
-
-  **`gpc doctor` polish** — package name format validation; both API endpoints DNS-checked; counts summary (`✓ N passed · ⚠ N warnings · ✗ N failed`); config-missing error now suggests `gpc config init`.
-
-  **`gpc config init` polish** — proper wizard: auth method selection (service account / ADC / skip), SA path existence validation, post-init summary, `gpc doctor` hint.
-
-  **Bug fixes** — `compareVitalsTrend` timezone off-by-one (UTC timestamps); JUnit testcase name fallback includes `reviewId`/`track`/`versionCode`; `gpc bundle` markdown mode now renders proper GFM tables.
-
-  **CI/CD** — CodeQL security scanning workflow, dependency review on PRs, bundle size reporter, branch protection on main.
+- feat: `gpc status` core logic — parallel API calls for releases, vitals, and reviews; 1-hour cache; threshold-based exit code 6
+- fix: `compareVitalsTrend` timezone off-by-one with UTC timestamps
+- fix: JUnit testcase name fallback expanded to include `reviewId`, `track`, `versionCode`
 
 ## 0.9.21
 
