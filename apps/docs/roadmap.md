@@ -8,11 +8,11 @@ GPC v0.9.x is a pre-release series working toward a stable **1.0.0** public laun
 
 ## Current Status
 
-**v0.9.24** is the latest release. GPC currently covers:
+**v0.9.26** is the latest release. GPC currently covers:
 
 - **187 API endpoints** across the Android Publisher API v3 and Play Developer Reporting API
 - **32 command groups**, 100+ subcommands
-- **1,355 tests**, 90%+ line coverage across all core packages
+- **1,388 tests**, 90%+ line coverage across all core packages
 - **7 published packages** under the `@gpc-cli` scope
 - Complete coverage of releases, listings, vitals, reviews, subscriptions, IAP, purchases, users, reports, and more
 
@@ -25,36 +25,36 @@ The following must be complete before the `1.0.0` tag ships:
 - [x] Security audit and credential hardening
 - [x] Documentation completeness review
 - [x] End-to-end validation against production apps
-- [x] `gpc status` — unified app health snapshot (shipped in v0.9.24)
+- [x] `gpc status` — unified app health snapshot with trend arrows, --format summary, --sections, --watch, --since-last, --all-apps, --notify (shipped v0.9.24–v0.9.26)
 - [ ] Community showcase — real apps using GPC in production
 - [ ] Stability soak — 2+ weeks without critical bugs
 - [ ] Public launch (blog posts, Android Weekly, community announcements)
 
 ---
 
-## gpc status — Shipped in v0.9.24
+## gpc status — Shipped in v0.9.24–v0.9.26
 
 One command that replaces opening 4–6 Play Console screens. See the full reference at [commands/status](/commands/status).
 
 ```
 $ gpc status
 
-App: tv.visioo.app · Visioo TV  (fetched 10:42:01 AM)
+App: tv.visioo.app  (fetched 10:42:01 AM)
 
 RELEASES
-  production   v1.4.2   completed    —
-  beta         v1.5.0   inProgress  10%
-  internal     v1.5.1   draft        —
+  production   v142   completed    —
+  beta         v143   inProgress  10%
+  internal     v144   draft        —
 
 VITALS  (last 7 days)
-  crashes     0.80%  ✓    anr         0.20%  ✓
-  slow starts 2.10%  ✓    slow render 4.30%  ⚠
+  crashes     0.80% ↓  ✓    anr         0.20% ↓  ✓
+  slow starts 2.10%    ✓    slow render 4.30%    ⚠
 
 REVIEWS  (last 30 days)
   ★ 4.6   142 new   89% positive   ↑ from 4.4
 ```
 
-6 parallel API calls, results in under 3 seconds. Results cached in `~/.cache/gpc/` with a 1-hour TTL. Exit code 6 if any vitals threshold is breached.
+Up to 10 parallel API calls (current + prior period for trend data), results in under 3 seconds. Results cached in `~/.cache/gpc/` with a 1-hour TTL. Exit code 6 if any vitals threshold is breached.
 
 ---
 

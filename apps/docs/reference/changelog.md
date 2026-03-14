@@ -29,7 +29,7 @@ _March 2026_
 - **fix: gpc status --days N / gpc vitals compare --days N wrong date window** — Commander calls `parseInt(value, previousValue)` when a coerce function and default are both given. Using `parseInt` directly meant the default (e.g. `7`) was passed as the radix — `parseInt("7", 7)` = NaN, `parseInt("14", 7)` = 11. Now uses `(v) => parseInt(v, 10)`.
 - **fix: gpc validate table output showed raw JSON** — `ValidateResult.checks[]` was passed directly to `formatOutput`, producing `JSON.stringify(...)` in table/markdown cells. Now flattens checks to rows with a separate warnings list and `Valid`/`Invalid` footer.
 - **fix: JUnit name attribute showed `-` for releases status** — commands that set `name: s["name"] || "-"` produced sentinel `"-"` strings that stopped the `??` fallback chain. Now uses a loop that skips `""` and `"-"`, falling through to `track`, `versionCode`, etc.
-- 1,388 tests
+- 1,358 tests
 
 ## v0.9.24
 
