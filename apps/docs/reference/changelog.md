@@ -10,6 +10,7 @@ All notable user-facing changes to GPC are documented here. For full release det
 
 _March 2026_
 
+- **Feat: gpc status** — unified app health snapshot: releases, vitals, and reviews in one command. 6 parallel API calls, results in under 3 seconds. Cached 1 hour. `--cached`, `--refresh`, `--watch <seconds>`, `--days`. Exit code 6 if any vitals threshold is breached. See [status command](/commands/status).
 - **Fix: migrate rollout mapping** — `supply(rollout: "0.1")` now correctly maps to `gpc releases upload --rollout 10` (was `releases promote`)
 - **Feat: migrate --dry-run** — `gpc migrate fastlane --dry-run` previews the migration plan and `.gpcrc.json` without writing any files
 - **Feat: migrate conflict detection** — warns before overwriting an existing `.gpcrc.json`
