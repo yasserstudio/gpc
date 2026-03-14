@@ -128,6 +128,23 @@ Validate a bundle before uploading:
 gpc validate app-release.aab
 ```
 
+```
+check        passed  message
+-----------  ------  --------------------------------
+file_exists  pass    File exists
+file_type    pass    Valid AAB file
+file_size    pass    148.2 MB (under 150 MB limit)
+magic_bytes  pass    Valid ZIP magic bytes
+
+Valid
+```
+
+JSON output:
+
+```bash
+gpc validate app-release.aab --output json
+```
+
 ```json
 {
   "valid": true,
@@ -136,7 +153,8 @@ gpc validate app-release.aab
     { "name": "file_type", "passed": true, "message": "Valid AAB file" },
     { "name": "file_size", "passed": true, "message": "148.2 MB (under 150 MB limit)" },
     { "name": "magic_bytes", "passed": true, "message": "Valid ZIP magic bytes" }
-  ]
+  ],
+  "warnings": []
 }
 ```
 
