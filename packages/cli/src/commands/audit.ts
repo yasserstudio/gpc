@@ -9,6 +9,7 @@ import {
   formatOutput,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
+import { isDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
 
 export function registerAuditCommands(program: Command): void {
@@ -89,21 +90,22 @@ export function registerAuditCommands(program: Command): void {
     .description("Clear audit log entries")
     .option("--before <date>", "Clear entries before date (ISO 8601)")
     .option("--dry-run", "Preview what would be cleared")
-    .action(async (options) => {
+    .action(async (options, cmd: Command) => {
+      const dryRun = options.dryRun || isDryRun(cmd);
       const config = await loadConfig();
       const format = getOutputFormat(program, config);
       initAudit(getConfigDir());
 
-      if (!options.dryRun && !options.before) {
+      if (!dryRun && !options.before) {
         await requireConfirm("Clear all audit log entries?", program);
       }
 
       try {
         const result = await clearAuditLog({
           before: options.before,
-          dryRun: options.dryRun,
+          dryRun,
         });
-        if (options.dryRun) {
+        if (dryRun) {
           console.log(`[dry-run] Would delete ${result.deleted} entries, ${result.remaining} would remain.`);
         } else {
           console.log(`Deleted ${result.deleted} entries. ${result.remaining} remaining.`);
