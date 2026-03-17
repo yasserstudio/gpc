@@ -70,7 +70,23 @@ describe("detectInstallMethod", () => {
 
   it('returns "binary" when __GPC_BINARY=1', () => {
     process.env["__GPC_BINARY"] = "1";
+    mockRealpathSync.mockReturnValue("/usr/local/bin/gpc");
     expect(detectInstallMethod()).toBe("binary");
+  });
+
+  it('returns "homebrew" when __GPC_BINARY=1 and execPath contains "/Cellar/"', () => {
+    process.env["__GPC_BINARY"] = "1";
+    const origExecPath = process.execPath;
+    Object.defineProperty(process, "execPath", {
+      value: "/usr/local/Cellar/gpc/0.9.31/bin/gpc",
+      configurable: true,
+    });
+    mockRealpathSync.mockImplementation((p: string) => p);
+    try {
+      expect(detectInstallMethod()).toBe("homebrew");
+    } finally {
+      Object.defineProperty(process, "execPath", { value: origExecPath, configurable: true });
+    }
   });
 
   it('returns "npm" when npm_config_prefix is set', () => {
