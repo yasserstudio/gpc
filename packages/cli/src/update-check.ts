@@ -116,5 +116,5 @@ export async function checkForUpdate(currentVersion: string): Promise<UpdateChec
  * Format a user-facing update notification string.
  */
 export function formatUpdateNotification(result: UpdateCheckResult): string {
-  return `Update available: ${result.current} \u2192 ${result.latest}  \u2014  npm install -g @gpc-cli/cli`;
+  return `Update available: ${result.current} \u2192 ${result.latest}  \u2014  Run: gpc update`;
 }

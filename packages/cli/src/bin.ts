@@ -74,6 +74,8 @@ if (notifyOpt !== undefined && notifyOpt !== false) {
 }
 
 // After command completes, show update notification if available
+// Suppress when user ran `gpc update` — the update command handles its own messaging
+const isUpdateCommand = process.argv[2] === "update";
 try {
   const result = await Promise.race([
     updateCheckPromise,
@@ -83,6 +85,7 @@ try {
   if (
     result &&
     result.updateAvailable &&
+    !isUpdateCommand &&
     process.stdout.isTTY &&
     !process.argv.includes("--json") &&
     program.opts()["output"] !== "json"
