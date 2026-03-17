@@ -520,22 +520,27 @@ export function formatStatusSummary(status: AppStatus): string {
 
   // Vitals (crashes + ANR only for brevity)
   const { crashes, anr } = status.vitals;
-  if (crashes.status !== "unknown") {
-    const arrow = crashes.trend === "up" ? " ↑" : crashes.trend === "down" ? " ↓" : "";
-    parts.push(`crashes ${formatVitalValue(crashes)}${arrow} ${vitalIndicator(crashes)}`);
-  }
-  if (anr.status !== "unknown") {
-    const arrow = anr.trend === "up" ? " ↑" : anr.trend === "down" ? " ↓" : "";
-    parts.push(`ANR ${formatVitalValue(anr)}${arrow} ${vitalIndicator(anr)}`);
+  const allVitalsUnknown = crashes.status === "unknown" && anr.status === "unknown";
+  if (allVitalsUnknown) {
+    parts.push("no vitals");
+  } else {
+    if (crashes.status !== "unknown") {
+      const arrow = crashes.trend === "up" ? " ↑" : crashes.trend === "down" ? " ↓" : "";
+      parts.push(`crashes ${formatVitalValue(crashes)}${arrow} ${vitalIndicator(crashes)}`);
+    }
+    if (anr.status !== "unknown") {
+      const arrow = anr.trend === "up" ? " ↑" : anr.trend === "down" ? " ↓" : "";
+      parts.push(`ANR ${formatVitalValue(anr)}${arrow} ${vitalIndicator(anr)}`);
+    }
   }
 
   // Reviews
   const { averageRating, totalNew } = status.reviews;
   if (averageRating !== undefined) {
     parts.push(`avg ${averageRating.toFixed(1)}★`);
-  }
-  if (totalNew > 0) {
-    parts.push(`${totalNew} reviews`);
+    if (totalNew > 0) parts.push(`${totalNew} reviews`);
+  } else {
+    parts.push("no reviews");
   }
 
   return parts.join(" · ") + (statusHasBreach(status) ? " [ALERT]" : "");

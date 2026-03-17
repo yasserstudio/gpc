@@ -606,7 +606,7 @@ describe("formatStatusSummary", () => {
     expect(formatStatusSummary(healthyStatus)).not.toContain("[ALERT]");
   });
 
-  it("omits vitals when all unknown", () => {
+  it("shows 'no vitals' when all vitals are unknown", () => {
     const status: AppStatus = {
       ...healthyStatus,
       vitals: {
@@ -620,6 +620,23 @@ describe("formatStatusSummary", () => {
     const out = formatStatusSummary(status);
     expect(out).not.toContain("crashes");
     expect(out).not.toContain("ANR");
+    expect(out).toContain("no vitals");
+  });
+
+  it("shows 'no reviews' when averageRating is undefined", () => {
+    const status: AppStatus = {
+      ...healthyStatus,
+      reviews: {
+        windowDays: 30,
+        averageRating: undefined,
+        previousAverageRating: undefined,
+        totalNew: 0,
+        positivePercent: undefined,
+      },
+    };
+    const out = formatStatusSummary(status);
+    expect(out).toContain("no reviews");
+    expect(out).not.toContain("★");
   });
 });
 
