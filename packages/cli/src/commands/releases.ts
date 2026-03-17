@@ -195,7 +195,10 @@ export function registerReleasesCommands(program: Command): void {
 
       try {
         const TRACK_ORDER = ["production", "beta", "alpha", "internal"];
-        const statuses = await getReleasesStatus(client, packageName, options.track);
+        const rawStatuses = await getReleasesStatus(client, packageName, options.track);
+        const statuses = options.track
+          ? (Array.isArray(rawStatuses) ? rawStatuses.filter((s: any) => s.track === options.track) : rawStatuses)
+          : rawStatuses;
         const sorted = Array.isArray(statuses)
           ? options.sort
             ? sortResults(statuses, options.sort)
