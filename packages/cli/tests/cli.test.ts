@@ -1411,7 +1411,7 @@ describe("releases notes set honest stub", () => {
       program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "notes", "set", "--track", "internal", "--notes", "Test notes"]),
     ).rejects.toThrow("process.exit(1)");
     expect(exitSpy).toHaveBeenCalledWith(1);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("not yet implemented"));
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("not implemented"));
   });
 
   it("error message includes suggestion to use --notes with upload/publish", async () => {

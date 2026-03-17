@@ -210,6 +210,9 @@ const EXPECTED_TOP_LEVEL_COMMANDS = [
   "docs",
   "completion",
   "install-skills",
+  "version",
+  "cache",
+  "feedback",
 ];
 
 describe("help text consistency", () => {
