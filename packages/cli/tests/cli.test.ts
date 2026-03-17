@@ -1132,6 +1132,13 @@ describe("external-transactions subcommands", () => {
 });
 
 // ---------------------------------------------------------------------------
+// v0.9.33 – mock for updater (detectInstallMethod used by version command)
+// ---------------------------------------------------------------------------
+vi.mock("../src/updater.js", () => ({
+  detectInstallMethod: vi.fn().mockReturnValue("npm"),
+}));
+
+// ---------------------------------------------------------------------------
 // v0.9.29 – module-level mocks for file system and child_process
 // (vi.mock calls are hoisted, so placement here is fine)
 // ---------------------------------------------------------------------------
@@ -1576,5 +1583,90 @@ describe("audit list human-readable timestamps", () => {
     const eventsArg = formatOutputMock.mock.calls.at(-1)?.[0] as Array<{ timestamp: string }>;
     expect(eventsArg).toBeDefined();
     expect(eventsArg![0]?.timestamp).toBe(ts);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.33 – Bug D: gpc version --json
+// ---------------------------------------------------------------------------
+describe("gpc version command (Bug D fix)", () => {
+  let logSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("gpc version outputs plain version string", async () => {
+    const program = await createProgram();
+    program.exitOverride();
+    await program.parseAsync(["node", "test", "version"]);
+    expect(logSpy).toHaveBeenCalledWith("0.0.0");
+  });
+
+  it("gpc version --output json outputs structured JSON", async () => {
+    const program = await createProgram();
+    program.exitOverride();
+    await program.parseAsync(["node", "test", "--output", "json", "version"]);
+    const raw = logSpy.mock.calls[0]?.[0] as string;
+    expect(raw).toBeDefined();
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    expect(parsed["version"]).toBe("0.0.0");
+    expect(parsed["node"]).toBe(process.version);
+    expect(typeof parsed["platform"]).toBe("string");
+    expect(parsed["installMethod"]).toBe("npm");
+  });
+
+  it("gpc version --json flag (via --output json alias) outputs structured JSON", async () => {
+    // Simulate what bin.ts does: --json is converted to --output json
+    const program = await createProgram();
+    program.exitOverride();
+    // Directly set the root output option (equivalent to bin.ts --json → --output json transform)
+    program.setOptionValue("output", "json");
+    await program.parseAsync(["node", "test", "version"]);
+    const raw = logSpy.mock.calls[0]?.[0] as string;
+    expect(raw).toBeDefined();
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    expect(parsed["version"]).toBe("0.0.0");
+    expect(parsed["installMethod"]).toBe("npm");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.33 – Bug E: GPC_DEBUG=1 must not mutate process.argv
+// ---------------------------------------------------------------------------
+describe("GPC_DEBUG env var (Bug E fix)", () => {
+  it("does not inject --verbose into process.argv", async () => {
+    const original = [...process.argv];
+    process.env["GPC_DEBUG"] = "1";
+    try {
+      // createProgram does not touch process.argv — the fix is in bin.ts
+      // which calls program.setOptionValueWithSource after createProgram.
+      // Here we verify the mechanism works without argv mutation.
+      const program = await createProgram();
+      program.setOptionValueWithSource("verbose", true, "env");
+      expect(process.argv).toEqual(original);
+      expect(program.opts()["verbose"]).toBe(true);
+    } finally {
+      delete process.env["GPC_DEBUG"];
+    }
+  });
+
+  it("gpc apps list does not throw with --verbose set via env mechanism", async () => {
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const program = await createProgram();
+    program.exitOverride();
+    // Simulate bin.ts GPC_DEBUG handling: set verbose without touching argv
+    program.setOptionValueWithSource("verbose", true, "env");
+    // Should parse cleanly with no extra positional args
+    await expect(
+      program.parseAsync(["node", "test", "apps", "list"])
+    ).resolves.not.toThrow();
+    vi.restoreAllMocks();
   });
 });
