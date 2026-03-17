@@ -68,6 +68,7 @@ export function registerUpdateCommand(program: Command): void {
           console.log(`\nRun: gpc update`);
         } else {
           console.log(`Already on latest version: v${result.current}`);
+          console.log(`Install method: ${result.installMethod}`);
         }
         return;
       }
@@ -82,6 +83,7 @@ export function registerUpdateCommand(program: Command): void {
               current: result.current,
               latest: result.latest,
               updated: false,
+              installMethod: result.installMethod,
             }),
           );
         }

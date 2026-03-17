@@ -176,6 +176,17 @@ describe("gpc update --check", () => {
     expect(output).toContain("Already on latest");
   });
 
+  it("shows install method when already on latest version", async () => {
+    mockCheckForUpdate.mockResolvedValueOnce(
+      makeCheckResult({ updateAvailable: false, latest: "0.9.29", installMethod: "npm" }),
+    );
+    await run(["update", "--check"]);
+    expect(exitSpy).not.toHaveBeenCalled();
+    const output = logSpy.mock.calls.flat().join("\n");
+    expect(output).toContain("Install method");
+    expect(output).toContain("npm");
+  });
+
   it("exits 0 and prints version info when update is available", async () => {
     mockCheckForUpdate.mockResolvedValueOnce(makeCheckResult());
     await run(["update", "--check"]);
