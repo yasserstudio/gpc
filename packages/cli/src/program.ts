@@ -34,6 +34,9 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     doctor: async () => {
       (await import("./commands/doctor.js")).registerDoctorCommand(program);
     },
+    update: async () => {
+      (await import("./commands/update.js")).registerUpdateCommand(program);
+    },
     docs: async () => {
       (await import("./commands/docs.js")).registerDocsCommand(program);
     },
