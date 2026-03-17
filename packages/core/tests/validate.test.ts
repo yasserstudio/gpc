@@ -100,13 +100,14 @@ describe("validatePreSubmission", () => {
     expect(result.checks.find((c) => c.name === "track")?.passed).toBe(false);
   });
 
-  it("validates release notes length", async () => {
+  it("warns (but passes) when release notes exceed 500 chars", async () => {
     const result = await validatePreSubmission({
       filePath: "/tmp/app.aab",
       notes: [{ language: "en-US", text: "a".repeat(501) }],
     });
 
-    expect(result.checks.find((c) => c.name === "notes")?.passed).toBe(false);
+    expect(result.checks.find((c) => c.name === "notes")?.passed).toBe(true);
+    expect(result.warnings.some((w) => w.includes("501 chars"))).toBe(true);
   });
 
   it("reads notes from directory", async () => {

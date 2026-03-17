@@ -74,11 +74,12 @@ describe("validateReleaseNotes", () => {
     expect(result.errors).toEqual([]);
   });
 
-  it("fails for notes over 500 chars", () => {
+  it("warns for notes over 500 chars (does not fail)", () => {
     const result = validateReleaseNotes([{ language: "en-US", text: "a".repeat(501) }]);
 
-    expect(result.valid).toBe(false);
-    expect(result.errors[0]).toContain("exceed 500 chars");
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+    expect(result.warnings[0]).toContain("501 chars");
   });
 
   it("detects duplicate language codes", () => {
