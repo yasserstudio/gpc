@@ -14,6 +14,7 @@ export interface GpcConfig {
   profiles?: Record<string, ProfileConfig>;
   approvedPlugins?: string[];
   webhooks?: WebhookConfig;
+  debug?: boolean;
 }
 
 export interface AuthConfig {
@@ -38,4 +39,5 @@ export interface ResolvedConfig extends Required<Pick<GpcConfig, "output">> {
   profiles?: Record<string, ProfileConfig>;
   approvedPlugins?: string[];
   webhooks?: WebhookConfig;
+  debug?: boolean;
 }

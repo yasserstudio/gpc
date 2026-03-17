@@ -1,3 +1,4 @@
+if (process.env["GPC_NO_COLOR"] === "1") process.env["NO_COLOR"] = "1";
 import { setupNetworking } from "./networking.js";
 import { createProgram } from "./program.js";
 import { loadPlugins } from "./plugins.js";

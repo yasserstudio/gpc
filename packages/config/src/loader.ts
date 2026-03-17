@@ -36,6 +36,9 @@ export function loadEnvConfig(): Partial<GpcConfig> {
   const developerId = process.env["GPC_DEVELOPER_ID"];
   if (developerId) config.developerId = developerId;
 
+  const debug = process.env["GPC_DEBUG"] === "1";
+  if (debug) config.debug = true;
+
   return config;
 }
 
