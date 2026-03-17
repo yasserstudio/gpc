@@ -67,8 +67,14 @@ const DOWNLOAD_TIMEOUT_MS = 120_000;
  *     is a symlink but the real path contains "Cellar"
  */
 export function detectInstallMethod(): InstallMethod {
-  // 1. Compiled binary — most reliable, baked in at esbuild build time
-  if (process.env["__GPC_BINARY"] === "1") return "binary";
+  // 1. Compiled binary — but Homebrew also distributes as compiled binary, check execPath
+  if (process.env["__GPC_BINARY"] === "1") {
+    try {
+      const resolved = realpathSync(process.execPath).toLowerCase();
+      if (resolved.includes("cellar") || resolved.includes("homebrew")) return "homebrew";
+    } catch { /* ignore */ }
+    return "binary";
+  }
 
   // 2. npm global install
   if (process.env["npm_config_prefix"]) return "npm";
