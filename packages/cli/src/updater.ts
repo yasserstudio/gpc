@@ -11,7 +11,7 @@ import { realpathSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
 import { pipeline } from "node:stream/promises";
-import { Readable } from "node:stream";
+import { Readable, Transform } from "node:stream";
 import { spawn } from "node:child_process";
 import { isNewerVersion } from "./update-check.js";
 
@@ -328,6 +328,7 @@ export async function updateBinaryInPlace(
   assetUrl: string,
   expectedSha256: string,
   currentBinaryPath: string,
+  options: { onProgress?: (downloaded: number, total: number) => void } = {},
 ): Promise<void> {
   const dir = dirname(currentBinaryPath);
   const tmpPath = join(dir, `.gpc-update-${process.pid}.tmp`);
@@ -361,8 +362,29 @@ export async function updateBinaryInPlace(
       });
     }
 
+    const contentLength = response.headers.get("content-length");
+    const total = contentLength ? parseInt(contentLength, 10) : 0;
+    let downloaded = 0;
+
     const dest = createWriteStream(tmpPath);
-    await pipeline(Readable.fromWeb(response.body as Parameters<typeof Readable.fromWeb>[0]), dest);
+    const { onProgress } = options;
+
+    if (onProgress) {
+      const tracker = new Transform({
+        transform(chunk: Buffer, _enc, cb) {
+          downloaded += chunk.length;
+          onProgress(downloaded, total);
+          cb(null, chunk);
+        },
+      });
+      await pipeline(
+        Readable.fromWeb(response.body as Parameters<typeof Readable.fromWeb>[0]),
+        tracker,
+        dest,
+      );
+    } else {
+      await pipeline(Readable.fromWeb(response.body as Parameters<typeof Readable.fromWeb>[0]), dest);
+    }
 
     // 2. Verify checksum (skip if no checksum available)
     if (expectedSha256) {
