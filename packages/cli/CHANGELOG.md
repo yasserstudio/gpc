@@ -1,5 +1,27 @@
 # @gpc-cli/cli
 
+## 0.9.32
+
+### Patch Changes
+
+- fix(update): Homebrew install correctly detected when running as compiled binary
+  fix(releases): gpc releases notes set immediately shows redirect regardless of args
+  feat(releases): live upload progress bar during AAB upload
+  feat(releases): gpc releases notes get reads notes per track and language
+  feat(releases): --vitals-gate on rollout increase halts if crash rate exceeds threshold
+  feat(cli): Did you mean? suggestions for mistyped commands
+  feat(cli): gpc version --json outputs structured version and install info
+  feat(cli): gpc cache manages status, token, and update-check cache
+  feat(cli): gpc auth token prints current access token
+  feat(cli): gpc feedback opens pre-filled GitHub issue with diagnostics
+  feat(config): GPC_DEBUG and GPC_NO_COLOR environment variables
+  feat(validate): release notes exceeding 500 chars trigger a warning
+  fix(status): --format summary shows no vitals / no reviews when data absent
+  fix(update): --check always shows detected install method
+  fix(releases): upload rejects non-.aab/.apk files before any API call
+- Updated dependencies
+  - @gpc-cli/core@0.9.27
+
 ## 0.9.31
 
 ### Patch Changes

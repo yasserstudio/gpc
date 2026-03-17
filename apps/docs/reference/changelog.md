@@ -6,7 +6,28 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.31 <Badge type="tip" text="latest" />
+## v0.9.32 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **feat: live upload progress bar** — `gpc releases upload` now shows a live progress line during AAB uploads: `Uploading my-app.aab  22.1 / 58.7 MB  (38%)`
+- **feat: `gpc releases notes get`** — reads release notes per track and language directly from the Play Console
+- **feat: `--vitals-gate` on rollout increase** — `gpc releases rollout increase --vitals-gate` halts the rollout if the crash rate exceeds your configured threshold, preventing a bad build from reaching more users
+- **feat: "Did you mean?" suggestions** — mistyped commands now show the closest match: `Unknown command "releses". Did you mean "releases"?`
+- **feat: `gpc version --json`** — outputs structured version and install info (version, installMethod, platform, node) as JSON
+- **feat: `gpc cache`** — manage status, token, and update-check cache: `gpc cache list`, `gpc cache clear`, `gpc cache clear --type token`
+- **feat: `gpc auth token`** — prints the current access token to stdout (useful for scripting and debugging)
+- **feat: `gpc feedback`** — opens a pre-filled GitHub issue in your browser with system diagnostics attached
+- **feat: `GPC_DEBUG` and `GPC_NO_COLOR` environment variables** — `GPC_DEBUG=1` enables verbose debug output; `GPC_NO_COLOR=1` disables ANSI color
+- **feat: release notes length warning** — `gpc validate` now warns when any release notes entry exceeds the Play Store's 500-character limit
+- **fix: Homebrew install correctly detected when running as a compiled binary** — `gpc update` now identifies Homebrew installs even inside a compiled binary context
+- **fix: `gpc releases notes set` shows redirect immediately** — the command now prints the redirect message regardless of arguments instead of silently doing nothing in some cases
+- **fix: `gpc status --format summary` shows "no vitals" / "no reviews" when data is absent** — was previously blank or crashed on empty data
+- **fix: `gpc update --check` always shows detected install method** — install method is now reported even when no update is available
+- **fix: `gpc releases upload` rejects non-.aab / .apk files before any API call** — invalid file extensions exit 2 immediately with a clear error message
+- 1,461 tests
+
+## v0.9.31
 
 _March 2026_
 
