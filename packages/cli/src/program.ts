@@ -129,6 +129,9 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     "install-skills": async () => {
       (await import("./commands/install-skills.js")).registerInstallSkillsCommand(program);
     },
+    version: async () => {
+      (await import("./commands/version.js")).registerVersionCommand(program);
+    },
     plugins: async () => {
       registerPluginsCommand(program, pluginManager);
     },
