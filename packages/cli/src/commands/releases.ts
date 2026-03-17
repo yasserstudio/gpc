@@ -4,7 +4,7 @@ import type { GpcConfig } from "@gpc-cli/config";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
-import { createApiClient } from "@gpc-cli/api";
+import { createApiClient, createReportingClient } from "@gpc-cli/api";
 import type { RetryLogEntry } from "@gpc-cli/api";
 import {
   uploadRelease,
@@ -17,6 +17,8 @@ import {
   createAuditEntry,
   uploadExternallyHosted,
   diffReleases,
+  getVitalsCrashes,
+  checkThreshold,
 } from "@gpc-cli/core";
 import { formatOutput, sortResults, createSpinner } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
@@ -328,6 +330,7 @@ export function registerReleasesCommands(program: Command): void {
 
     if (action === "increase") {
       cmd.option("--to <percent>", "New rollout percentage");
+      cmd.option("--vitals-gate", "Halt rollout if crash rate exceeds configured threshold");
     }
 
     cmd.action(async (options) => {
@@ -390,6 +393,31 @@ export function registerReleasesCommands(program: Command): void {
           action,
           options.to ? Number(options.to) / 100 : undefined,
         );
+
+        // Vitals gate: check crash rate after rollout increase
+        if (action === "increase" && options.vitalsGate) {
+          const threshold = (config as any).vitals?.thresholds?.crashRate;
+          if (!threshold) {
+            console.error("Warning: --vitals-gate requires vitals.thresholds.crashRate in config. Skipping gate.");
+          } else {
+            try {
+              const { auth: authConfig } = config;
+              const vitalsAuth = await resolveAuth({ serviceAccountPath: authConfig?.serviceAccount });
+              const reportingClient = createReportingClient({ auth: vitalsAuth });
+              const vitalsResult = await getVitalsCrashes(reportingClient, packageName, { days: 1 });
+              const latest = (vitalsResult as any).data?.[0]?.crashRate;
+              const check = checkThreshold(latest, threshold);
+              if (check.breached) {
+                await updateRollout(client, packageName, options.track, "halt");
+                console.error(`Vitals gate: crash rate ${String(latest)}% > threshold ${String(threshold)}%. Rollout halted.`);
+                process.exit(6);
+              }
+            } catch (vitalsErr) {
+              console.error(`Warning: Vitals gate check failed: ${vitalsErr instanceof Error ? vitalsErr.message : String(vitalsErr)}`);
+            }
+          }
+        }
+
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
