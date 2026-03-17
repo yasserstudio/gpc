@@ -223,10 +223,12 @@ export async function checkForUpdate(currentVersion: string): Promise<UpdateChec
 // Update execution paths
 // ---------------------------------------------------------------------------
 
-export async function updateViaNpm(): Promise<void> {
+export async function updateViaNpm(options: { silent?: boolean } = {}): Promise<void> {
   return new Promise((resolve, reject) => {
     const proc = spawn("npm", ["install", "-g", "@gpc-cli/cli@latest"], {
-      stdio: "inherit",
+      // In silent (JSON) mode, redirect npm's stdout to stderr so it doesn't
+      // pollute the machine-readable JSON that gpc writes to stdout.
+      stdio: options.silent ? ["inherit", process.stderr, process.stderr] : "inherit",
       shell: false,
     });
     proc.on("close", (code) => {
@@ -254,10 +256,12 @@ export async function updateViaNpm(): Promise<void> {
   });
 }
 
-export async function updateViaBrew(): Promise<void> {
+export async function updateViaBrew(options: { silent?: boolean } = {}): Promise<void> {
   return new Promise((resolve, reject) => {
     const proc = spawn("brew", ["upgrade", "yasserstudio/tap/gpc"], {
-      stdio: "inherit",
+      // In silent (JSON) mode, redirect brew's stdout to stderr so it doesn't
+      // pollute the machine-readable JSON that gpc writes to stdout.
+      stdio: options.silent ? ["inherit", process.stderr, process.stderr] : "inherit",
       shell: false,
     });
     proc.on("close", (code) => {

@@ -12,8 +12,12 @@ initAudit(getConfigDir());
 
 const currentVersion = process.env["__GPC_VERSION"] || "0.0.0";
 
+// Skip passive update check when the user is explicitly running `gpc update` —
+// that command does its own check against the GitHub Releases API.
+const isUpdateCommand = process.argv[2] === "update";
+
 // Start update check before command execution (non-blocking)
-const updateCheckPromise = checkForUpdate(currentVersion);
+const updateCheckPromise = isUpdateCommand ? Promise.resolve(null) : checkForUpdate(currentVersion);
 
 // Handle --ci and --json flags early (before command parsing)
 if (process.argv.includes("--ci")) {
@@ -74,8 +78,7 @@ if (notifyOpt !== undefined && notifyOpt !== false) {
 }
 
 // After command completes, show update notification if available
-// Suppress when user ran `gpc update` — the update command handles its own messaging
-const isUpdateCommand = process.argv[2] === "update";
+// isUpdateCommand is declared above — update check was skipped for this command
 try {
   const result = await Promise.race([
     updateCheckPromise,

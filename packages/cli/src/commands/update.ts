@@ -95,12 +95,12 @@ export function registerUpdateCommand(program: Command): void {
       switch (result.installMethod) {
         case "npm":
           spinner.stop();
-          await updateViaNpm();
+          await updateViaNpm({ silent: jsonMode });
           break;
 
         case "homebrew":
           spinner.stop();
-          await updateViaBrew();
+          await updateViaBrew({ silent: jsonMode });
           break;
 
         case "binary": {
