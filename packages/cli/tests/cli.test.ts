@@ -129,6 +129,8 @@ vi.mock("@gpc-cli/core", () => {
     diffListingsCommand: vi.fn().mockResolvedValue({ diffs: [] }),
     // v0.9.7 – sort utility
     sortResults: vi.fn().mockImplementation((data: unknown[]) => data),
+    // v0.9.29 – spinner
+    createSpinner: vi.fn().mockReturnValue({ start: vi.fn(), stop: vi.fn(), fail: vi.fn(), update: vi.fn() }),
     // v0.9.7 – app recovery
     listRecoveryActions: vi.fn().mockResolvedValue([]),
     cancelRecoveryAction: vi.fn().mockResolvedValue({}),
@@ -1126,5 +1128,453 @@ describe("external-transactions subcommands", () => {
     expect(subcommandNames).toContain("create");
     expect(subcommandNames).toContain("get");
     expect(subcommandNames).toContain("refund");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.29 – module-level mocks for file system and child_process
+// (vi.mock calls are hoisted, so placement here is fine)
+// ---------------------------------------------------------------------------
+vi.mock("node:fs/promises", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:fs/promises")>();
+  return {
+    ...actual,
+    stat: vi.fn().mockResolvedValue({ size: 5 * 1024 * 1024 }),
+    appendFile: vi.fn().mockResolvedValue(undefined),
+  };
+});
+
+vi.mock("node:child_process", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node:child_process")>();
+  return {
+    ...actual,
+    execFile: vi.fn().mockImplementation(
+      (_cmd: string, _args: string[], cb: (err: Error | null) => void) => {
+        if (typeof cb === "function") cb(null);
+      },
+    ),
+  };
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.29 – releases upload --rollout validation
+// ---------------------------------------------------------------------------
+describe("releases upload --rollout validation", () => {
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+  let exitSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
+      throw new Error(`process.exit(${code})`);
+    }) as never);
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it("--rollout 0 exits 2 before auth", async () => {
+    const program = await createProgram();
+    await expect(
+      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "upload", "app.aab", "--rollout", "0"]),
+    ).rejects.toThrow("process.exit(2)");
+    expect(exitSpy).toHaveBeenCalledWith(2);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("--rollout must be a number between 1 and 100"));
+  });
+
+  it("--rollout 101 exits 2 before auth", async () => {
+    const program = await createProgram();
+    await expect(
+      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "upload", "app.aab", "--rollout", "101"]),
+    ).rejects.toThrow("process.exit(2)");
+    expect(exitSpy).toHaveBeenCalledWith(2);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("--rollout must be a number between 1 and 100"));
+  });
+
+  it("--rollout abc exits 2", async () => {
+    const program = await createProgram();
+    await expect(
+      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "upload", "app.aab", "--rollout", "abc"]),
+    ).rejects.toThrow("process.exit(2)");
+    expect(exitSpy).toHaveBeenCalledWith(2);
+  });
+
+  it("missing file (stat preflight) exits 2 before auth", async () => {
+    const fsPromises = await import("node:fs/promises");
+    vi.mocked(fsPromises.stat).mockRejectedValueOnce(new Error("ENOENT: no such file"));
+
+    const program = await createProgram();
+    await expect(
+      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "upload", "nonexistent.aab"]),
+    ).rejects.toThrow("process.exit(2)");
+    expect(exitSpy).toHaveBeenCalledWith(2);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("File not found: nonexistent.aab"));
+  });
+
+  it("spinner message includes filename and size in MB", async () => {
+    const fsPromises = await import("node:fs/promises");
+    // stat is called twice: once for file-exists preflight, once to get size
+    vi.mocked(fsPromises.stat).mockResolvedValue({ size: 10 * 1024 * 1024 } as any);
+
+    const core = await import("@gpc-cli/core");
+    const spinnerMock = { start: vi.fn(), stop: vi.fn(), fail: vi.fn(), update: vi.fn() };
+    vi.mocked(core.createSpinner).mockReturnValueOnce(spinnerMock as any);
+
+    const program = await createProgram();
+    await program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "upload", "my-app.aab"]);
+
+    const createSpinnerMock = vi.mocked(core.createSpinner);
+    const spinnerArg = createSpinnerMock.mock.calls.at(-1)?.[0] as string | undefined;
+    expect(spinnerArg).toContain("my-app.aab");
+    expect(spinnerArg).toContain("10.0 MB");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.29 – releases promote validation
+// ---------------------------------------------------------------------------
+describe("releases promote validation", () => {
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+  let exitSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
+      throw new Error(`process.exit(${code})`);
+    }) as never);
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it("--from internal --to internal exits 2 (same track)", async () => {
+    const program = await createProgram();
+    await expect(
+      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "promote", "--from", "internal", "--to", "internal"]),
+    ).rejects.toThrow("process.exit(2)");
+    expect(exitSpy).toHaveBeenCalledWith(2);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("must be different tracks"));
+  });
+
+  it("--rollout 0 exits 2", async () => {
+    const program = await createProgram();
+    await expect(
+      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "promote", "--from", "internal", "--to", "production", "--rollout", "0"]),
+    ).rejects.toThrow("process.exit(2)");
+    expect(exitSpy).toHaveBeenCalledWith(2);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("--rollout must be a number between 1 and 100"));
+  });
+
+  it("--rollout 101 exits 2", async () => {
+    const program = await createProgram();
+    await expect(
+      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "promote", "--from", "internal", "--to", "production", "--rollout", "101"]),
+    ).rejects.toThrow("process.exit(2)");
+    expect(exitSpy).toHaveBeenCalledWith(2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.29 – releases rollout increase --to validation
+// ---------------------------------------------------------------------------
+describe("releases rollout increase --to validation", () => {
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+  let exitSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
+      throw new Error(`process.exit(${code})`);
+    }) as never);
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it("--to 0 exits 2", async () => {
+    const program = await createProgram();
+    await expect(
+      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "rollout", "increase", "--track", "production", "--to", "0"]),
+    ).rejects.toThrow("process.exit(2)");
+    expect(exitSpy).toHaveBeenCalledWith(2);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("--to must be a number between 1 and 100"));
+  });
+
+  it("--to 101 exits 2", async () => {
+    const program = await createProgram();
+    await expect(
+      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "rollout", "increase", "--track", "production", "--to", "101"]),
+    ).rejects.toThrow("process.exit(2)");
+    expect(exitSpy).toHaveBeenCalledWith(2);
+  });
+
+  it("dry-run with --to 25 shows '25%' in details output", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    const program = await createProgram();
+    await program.parseAsync([
+      "node", "gpc", "--app", "com.example.app", "--dry-run",
+      "releases", "rollout", "increase", "--track", "production", "--to", "25",
+    ]);
+
+    // printDryRun calls formatOutput(data, format) — formatOutput mock returns JSON.stringify(data)
+    // the data includes details: { percentage: "25%" }
+    const output = logSpy.mock.calls.map((c) => String(c[0])).join("\n");
+    expect(output).toContain("25%");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.29 – releases status userFraction display
+// ---------------------------------------------------------------------------
+describe("releases status userFraction display", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("renders userFraction 0.1 as '10%'", async () => {
+    const core = await import("@gpc-cli/core");
+    vi.mocked(core.getReleasesStatus).mockResolvedValueOnce([
+      { track: "production", status: "completed", name: "v1.0", versionCodes: ["100"], userFraction: 0.1 },
+    ] as any);
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const program = await createProgram();
+    await program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "status"]);
+
+    // formatOutput mock returns JSON.stringify(data); check what it was called with
+    const formatOutputMock = vi.mocked(core.formatOutput);
+    const rowsArg = formatOutputMock.mock.calls.at(-1)?.[0] as unknown[];
+    expect(rowsArg).toEqual(expect.arrayContaining([
+      expect.objectContaining({ userFraction: "10%" }),
+    ]));
+  });
+
+  it("renders undefined userFraction as '—'", async () => {
+    const core = await import("@gpc-cli/core");
+    vi.mocked(core.getReleasesStatus).mockResolvedValueOnce([
+      { track: "internal", status: "completed", name: "v1.0", versionCodes: ["100"] },
+    ] as any);
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const program = await createProgram();
+    await program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "status"]);
+
+    const formatOutputMock = vi.mocked(core.formatOutput);
+    const rowsArg = formatOutputMock.mock.calls.at(-1)?.[0] as unknown[];
+    expect(rowsArg).toEqual(expect.arrayContaining([
+      expect.objectContaining({ userFraction: "—" }),
+    ]));
+  });
+
+  it("sorts production before internal by default", async () => {
+    const core = await import("@gpc-cli/core");
+    vi.mocked(core.getReleasesStatus).mockResolvedValueOnce([
+      { track: "internal", status: "completed", name: "v1", versionCodes: ["101"] },
+      { track: "production", status: "completed", name: "v1", versionCodes: ["100"] },
+    ] as any);
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const program = await createProgram();
+    await program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "status"]);
+
+    const formatOutputMock = vi.mocked(core.formatOutput);
+    const rowsArg = formatOutputMock.mock.calls.at(-1)?.[0] as Array<{ track: string }>;
+    expect(rowsArg).toBeDefined();
+    const prodIdx = rowsArg!.findIndex((r) => r.track === "production");
+    const internalIdx = rowsArg!.findIndex((r) => r.track === "internal");
+    expect(prodIdx).toBeLessThan(internalIdx);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.29 – releases notes set honest stub
+// ---------------------------------------------------------------------------
+describe("releases notes set honest stub", () => {
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+  let exitSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
+      throw new Error(`process.exit(${code})`);
+    }) as never);
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it("exits 1 with 'not yet implemented' message", async () => {
+    const program = await createProgram();
+    await expect(
+      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "notes", "set", "--track", "internal", "--notes", "Test notes"]),
+    ).rejects.toThrow("process.exit(1)");
+    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("not yet implemented"));
+  });
+
+  it("error message includes suggestion to use --notes with upload/publish", async () => {
+    const program = await createProgram();
+    await expect(
+      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "notes", "set", "--track", "internal", "--notes", "Test notes"]),
+    ).rejects.toThrow("process.exit(1)");
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("gpc releases upload"));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.29 – gpc status --days validation
+// ---------------------------------------------------------------------------
+describe("gpc status --days validation", () => {
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+  let exitSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
+      throw new Error(`process.exit(${code})`);
+    }) as never);
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => vi.restoreAllMocks());
+
+  it("--days 0 exits 2", async () => {
+    const program = await createProgram();
+    await expect(
+      program.parseAsync(["node", "gpc", "--app", "com.example.app", "status", "--days", "0"]),
+    ).rejects.toThrow("process.exit(2)");
+    expect(exitSpy).toHaveBeenCalledWith(2);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("--days must be a positive integer"));
+  });
+
+  it("--days -1 exits 2", async () => {
+    const program = await createProgram();
+    await expect(
+      program.parseAsync(["node", "gpc", "--app", "com.example.app", "status", "--days", "-1"]),
+    ).rejects.toThrow("process.exit(2)");
+    expect(exitSpy).toHaveBeenCalledWith(2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.29 – gpc status --watch + --since-last warning
+// ---------------------------------------------------------------------------
+describe("gpc status --watch + --since-last warning", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("emits stderr warning when --since-last used with --watch", async () => {
+    const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const core = await import("@gpc-cli/core");
+    // runWatchLoop is not in the mock — stub it here so the test doesn't hang
+    (core as any).runWatchLoop = vi.fn().mockResolvedValue(undefined);
+
+    const program = await createProgram();
+    await program.parseAsync(["node", "gpc", "--app", "com.example.app", "status", "--watch", "10", "--since-last"]);
+
+    const stderrOutput = stderrSpy.mock.calls.map((c) => String(c[0])).join("");
+    expect(stderrOutput).toContain("--since-last is not supported with --watch");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.29 – gpc docs routing and --list
+// ---------------------------------------------------------------------------
+describe("gpc docs routing", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("gpc docs releases calls execFile with URL containing 'commands/releases'", async () => {
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const childProcess = await import("node:child_process");
+    const execFileMock = vi.mocked(childProcess.execFile);
+
+    const program = await createProgram();
+    await program.parseAsync(["node", "gpc", "docs", "releases"]);
+
+    expect(execFileMock).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.arrayContaining([expect.stringContaining("commands/releases")]),
+      expect.any(Function),
+    );
+  });
+
+  it("gpc docs bogus exits 2 with 'Unknown topic' message", async () => {
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
+      throw new Error(`process.exit(${code})`);
+    }) as never);
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
+
+    const program = await createProgram();
+    await expect(
+      program.parseAsync(["node", "gpc", "docs", "bogus-topic"]),
+    ).rejects.toThrow("process.exit(2)");
+    expect(exitSpy).toHaveBeenCalledWith(2);
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Unknown topic"));
+  });
+
+  it("gpc docs --list prints available topics to stdout", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const program = await createProgram();
+    await program.parseAsync(["node", "gpc", "docs", "--list"]);
+
+    const output = logSpy.mock.calls.map((c) => String(c[0])).join("\n");
+    expect(output).toContain("Available topics:");
+    expect(output).toContain("gpc docs releases");
+    expect(output).toContain("gpc docs status");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// v0.9.29 – audit list human-readable timestamps
+// ---------------------------------------------------------------------------
+describe("audit list human-readable timestamps", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("formats recent audit entry with relative time (not raw ISO)", async () => {
+    const core = await import("@gpc-cli/core");
+    const recentTs = new Date(Date.now() - 5 * 60 * 1000).toISOString(); // 5 min ago
+    vi.mocked(core.listAuditEvents).mockResolvedValueOnce([
+      { timestamp: recentTs, command: "releases upload", app: "com.example", success: true } as any,
+    ]);
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const program = await createProgram();
+    await program.parseAsync(["node", "gpc", "audit", "list"]);
+
+    // formatOutput is called with rows that have relative timestamps
+    const formatOutputMock = vi.mocked(core.formatOutput);
+    const rowsArg = formatOutputMock.mock.calls.at(-1)?.[0] as Array<{ timestamp: string }>;
+    expect(rowsArg).toBeDefined();
+    expect(rowsArg![0]?.timestamp).not.toBe(recentTs);
+    expect(rowsArg![0]?.timestamp).toContain("min ago");
+  });
+
+  it("JSON output preserves raw ISO timestamp", async () => {
+    const core = await import("@gpc-cli/core");
+    const ts = "2026-03-17T14:23:45.123Z";
+    vi.mocked(core.listAuditEvents).mockResolvedValueOnce([
+      { timestamp: ts, command: "releases upload", app: "com.example", success: true } as any,
+    ]);
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const program = await createProgram();
+    await program.parseAsync(["node", "gpc", "--output", "json", "audit", "list"]);
+
+    // In JSON mode, formatOutput is called with raw events (not transformed rows)
+    const formatOutputMock = vi.mocked(core.formatOutput);
+    const eventsArg = formatOutputMock.mock.calls.at(-1)?.[0] as Array<{ timestamp: string }>;
+    expect(eventsArg).toBeDefined();
+    expect(eventsArg![0]?.timestamp).toBe(ts);
   });
 });
