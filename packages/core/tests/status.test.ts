@@ -876,6 +876,58 @@ describe("sendNotification", () => {
 });
 
 // ---------------------------------------------------------------------------
+// relativeTime (tested via formatStatusTable header)
+// ---------------------------------------------------------------------------
+
+describe("relativeTime (via formatStatusTable header)", () => {
+  const makeStatus = (fetchedAt: string): AppStatus => ({
+    packageName: "com.example.app",
+    fetchedAt,
+    cached: false,
+    sections: ["releases"],
+    releases: [],
+    vitals: {
+      windowDays: 7,
+      crashes: { value: undefined, threshold: 0.02, status: "unknown" },
+      anr: { value: undefined, threshold: 0.01, status: "unknown" },
+      slowStarts: { value: undefined, threshold: 0.05, status: "unknown" },
+      slowRender: { value: undefined, threshold: 0.1, status: "unknown" },
+    },
+    reviews: {
+      windowDays: 30,
+      averageRating: undefined,
+      previousAverageRating: undefined,
+      totalNew: 0,
+      positivePercent: undefined,
+    },
+  });
+
+  it("shows 'just now' when fetchedAt is less than 1 minute ago", () => {
+    const fetchedAt = new Date(Date.now() - 30 * 1000).toISOString();
+    const out = formatStatusTable(makeStatus(fetchedAt));
+    expect(out).toContain("just now");
+  });
+
+  it("shows 'N min ago' when fetchedAt is 5 minutes ago", () => {
+    const fetchedAt = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    const out = formatStatusTable(makeStatus(fetchedAt));
+    expect(out).toContain("5 min ago");
+  });
+
+  it("shows 'Nh ago' when fetchedAt is 90 minutes ago", () => {
+    const fetchedAt = new Date(Date.now() - 90 * 60 * 1000).toISOString();
+    const out = formatStatusTable(makeStatus(fetchedAt));
+    expect(out).toContain("1h ago");
+  });
+
+  it("shows 'Nd ago' when fetchedAt is 25 hours ago", () => {
+    const fetchedAt = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString();
+    const out = formatStatusTable(makeStatus(fetchedAt));
+    expect(out).toContain("1d ago");
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Cache
 // ---------------------------------------------------------------------------
 
