@@ -16,7 +16,7 @@ _March 2026_
 
 ## v0.9.30
 
-_March 2026_
+_March 2026_ · _Superseded by v0.9.31 — use v0.9.31 or later_
 
 - **feat: `gpc update`** — self-update command that detects your install method (npm, Homebrew, or standalone binary) and delegates to the right mechanism automatically
 - **feat: `gpc update --check`** — checks for a newer version without installing; always exits 0 (use `--output json` to parse `updateAvailable` in CI)
