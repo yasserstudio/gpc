@@ -39,7 +39,7 @@ One command that replaces opening 4–6 Play Console screens. See the full refer
 ```
 $ gpc status
 
-App: tv.visioo.app  (fetched 10:42:01 AM)
+App: com.example.app  (fetched 10:42:01 AM)
 
 RELEASES
   production   v142   completed    —
