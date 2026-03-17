@@ -1,5 +1,16 @@
 # @gpc-cli/core
 
+## 0.9.28
+
+### Patch Changes
+
+- Bug fixes and branding update: fix gpc version --json, fix GPC_DEBUG argv mutation, warn on --vitals-gate with --dry-run, update product name to GPC — Google Play Console CLI
+- Updated dependencies
+  - @gpc-cli/api@1.0.18
+  - @gpc-cli/auth@0.9.10
+  - @gpc-cli/config@0.9.9
+  - @gpc-cli/plugin-sdk@0.9.7
+
 ## 0.9.27
 
 ### Patch Changes

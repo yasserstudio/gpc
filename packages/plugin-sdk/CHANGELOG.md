@@ -1,5 +1,11 @@
 # @gpc-cli/plugin-sdk
 
+## 0.9.7
+
+### Patch Changes
+
+- Bug fixes and branding update: fix gpc version --json, fix GPC_DEBUG argv mutation, warn on --vitals-gate with --dry-run, update product name to GPC — Google Play Console CLI
+
 ## 0.9.6
 
 ### Patch Changes
