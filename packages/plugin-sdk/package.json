@@ -1,6 +1,6 @@
 {
   "name": "@gpc-cli/plugin-sdk",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "description": "Plugin interface and SDK for extending GPC",
   "type": "module",
   "main": "./dist/index.js",
