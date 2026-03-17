@@ -1,3 +1,4 @@
+import { stat } from "node:fs/promises";
 import type { PlayApiClient, Release, Track, ExternallyHostedApk, ExternallyHostedApkResponse } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
 import { validateUploadFile } from "../utils/file-validation.js";
@@ -36,6 +37,7 @@ export async function uploadRelease(
     releaseName?: string;
     mappingFile?: string;
     dryRun?: boolean;
+    onProgress?: (uploaded: number, total: number) => void;
   },
 ): Promise<UploadResult | DryRunUploadResult> {
   // Validate file before upload
@@ -87,10 +89,20 @@ export async function uploadRelease(
     );
   }
 
+  // Get file size for progress reporting
+  let fileSize = 0;
+  try {
+    const { size } = await stat(filePath);
+    fileSize = size;
+  } catch { /* ignore — file was validated above */ }
+
+  if (options.onProgress) options.onProgress(0, fileSize);
+
   const edit = await client.edits.insert(packageName);
   try {
     // Upload the bundle
     const bundle = await client.bundles.upload(packageName, edit.id, filePath);
+    if (options.onProgress) options.onProgress(fileSize, fileSize);
 
     // Upload mapping file if provided
     if (options.mappingFile) {

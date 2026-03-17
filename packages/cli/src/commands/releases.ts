@@ -117,7 +117,17 @@ export function registerReleasesCommands(program: Command): void {
       }
 
       const { size: fileSize } = await stat(file);
+      const jsonMode = format === "json";
       const client = await getClient(config, options.retryLog, options.timeout);
+
+      const onProgress = (!jsonMode && process.stderr.isTTY && !program.opts()["quiet"])
+        ? (uploaded: number, total: number) => {
+            const pct = Math.min(100, Math.round((uploaded / total) * 100));
+            const upMB = (uploaded / (1024 * 1024)).toFixed(1);
+            const totMB = (total / (1024 * 1024)).toFixed(1);
+            process.stderr.write(`\r  Uploading ${basename(file)}  ${upMB} / ${totMB} MB  (${String(pct).padStart(3)}%)  `);
+          }
+        : undefined;
 
       if (isDryRun(program)) {
         try {
@@ -146,7 +156,7 @@ export function registerReleasesCommands(program: Command): void {
 
       const sizeMB = (fileSize / (1024 * 1024)).toFixed(1);
       const spinner = createSpinner(`Uploading ${basename(file)} (${sizeMB} MB)...`);
-      if (!program.opts()["quiet"] && process.stderr.isTTY) spinner.start();
+      if (!program.opts()["quiet"] && process.stderr.isTTY && !onProgress) spinner.start();
 
       try {
         let releaseNotes: { language: string; text: string }[] | undefined;
@@ -165,11 +175,14 @@ export function registerReleasesCommands(program: Command): void {
           releaseNotes,
           releaseName: options.name,
           mappingFile: options.mapping,
+          onProgress,
         });
+        if (onProgress) process.stderr.write("\n");
         spinner.stop("Upload complete");
         console.log(formatOutput(result, format));
         auditEntry.success = true;
       } catch (error) {
+        if (onProgress) process.stderr.write("\n");
         spinner.fail("Upload failed");
         auditEntry.success = false;
         auditEntry.error = error instanceof Error ? error.message : String(error);
