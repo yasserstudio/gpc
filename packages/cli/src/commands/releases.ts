@@ -377,6 +377,9 @@ export function registerReleasesCommands(program: Command): void {
       }
 
       if (isDryRun(program)) {
+        if (action === "increase" && options.vitalsGate) {
+          console.error("Warning: --vitals-gate is ignored in --dry-run mode. Gate will run on live execution.");
+        }
         printDryRun(
           {
             command: `releases rollout ${action}`,
