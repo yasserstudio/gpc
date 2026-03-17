@@ -134,6 +134,28 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     },
   };
 
+  // "Did you mean?" suggestions for unknown commands
+  function levenshtein(a: string, b: string): number {
+    const m = a.length, n = b.length;
+    const dp = Array.from({ length: m + 1 }, (_, i) =>
+      Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0))
+    );
+    for (let i = 1; i <= m; i++)
+      for (let j = 1; j <= n; j++)
+        dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1]
+          : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+    return dp[m][n];
+  }
+
+  program.on("command:*", ([cmd]: string[]) => {
+    const names = Object.keys(commandLoaders);
+    const best = names.map(n => ({ n, d: levenshtein(cmd, n) })).sort((a, b) => a.d - b.d)[0];
+    console.error(`Error: Unknown command "${cmd}".`);
+    if (best && best.d <= 3) console.error(`Did you mean: gpc ${best.n}?`);
+    console.error(`Run "gpc --help" to see all commands.`);
+    process.exit(2);
+  });
+
   // Resolve command aliases for lazy loading
   const commandAliases: Record<string, string> = {
     "ext-txn": "external-transactions",
