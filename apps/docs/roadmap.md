@@ -8,7 +8,7 @@ GPC v0.9.x is a pre-release series working toward a stable **1.0.0** public laun
 
 ## Current Status
 
-**v0.9.30** is the latest release. GPC currently covers:
+**v0.9.31** is the latest release. GPC currently covers:
 
 - **187 API endpoints** across the Android Publisher API v3 and Play Developer Reporting API
 - **32 command groups**, 100+ subcommands

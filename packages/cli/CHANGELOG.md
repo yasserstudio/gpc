@@ -1,5 +1,13 @@
 # @gpc-cli/cli
 
+## 0.9.31
+
+### Patch Changes
+
+- feat(update): live download progress for binary installs — shows MB downloaded and percentage
+  fix(update): silence npm/brew stdout in JSON mode so --output json stays parseable
+  fix(update): skip passive update check when running gpc update (avoids redundant network request)
+
 ## 0.9.30
 
 ### Patch Changes
