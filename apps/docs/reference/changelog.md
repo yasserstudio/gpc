@@ -46,7 +46,7 @@ _March 2026_
 _March 2026_
 
 - **feat: trend arrows on vitals** — `gpc status` now shows ↑↓ next to crash rate and ANR rate, comparing the current window against the prior period so you can see at a glance if things are improving or worsening
-- **feat: `--format summary`** — one-liner output for shell prompts and post-deploy hooks: `tv.visioo.app · v142 internal · crashes 1.20% ↓ ✓ · avg 4.1★`
+- **feat: `--format summary`** — one-liner output for shell prompts and post-deploy hooks: `com.example.app · v142 internal · crashes 1.20% ↓ ✓ · avg 4.1★`
 - **feat: `--sections <list>`** — fetch only what you need; `--sections vitals` skips the releases and reviews API calls entirely
 - **feat: `--watch [N]`** — real polling loop with terminal clear, Ctrl+C to stop, min 10s interval, default 30s
 - **feat: `--since-last`** — diff mode: shows version, crash rate, ANR rate, and rating deltas vs the last cached run

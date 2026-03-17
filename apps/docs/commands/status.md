@@ -9,7 +9,7 @@ Everything you'd check in 4–6 Play Console screens, in one terminal command.
 ```
 $ gpc status
 
-App: tv.visioo.app  (fetched 5 min ago)
+App: com.example.app  (fetched 5 min ago)
 
 RELEASES
   production   v142   completed    —
@@ -144,13 +144,13 @@ gpc status --format summary
 ```
 
 ```
-tv.visioo.app · v142 production · crashes 0.80% ↓ ✓ · ANR 0.20% ↓ ✓ · avg 4.6★ · 142 reviews
+com.example.app · v142 production · crashes 0.80% ↓ ✓ · ANR 0.20% ↓ ✓ · avg 4.6★ · 142 reviews
 ```
 
 With a threshold breach:
 
 ```
-tv.visioo.app · v142 production · crashes 3.50% ↑ ✗ · ANR 0.20% ✓ · avg 4.6★ [ALERT]
+com.example.app · v142 production · crashes 3.50% ↑ ✗ · ANR 0.20% ✓ · avg 4.6★ [ALERT]
 ```
 
 Exit codes are the same as table mode — exit 6 on breach.
@@ -204,7 +204,7 @@ gpc status --since-last
 ```
 
 ```
-App: tv.visioo.app  (fetched just now)
+App: com.example.app  (fetched just now)
 
 RELEASES
   ...
@@ -242,8 +242,8 @@ gpc status --all-apps
 App: com.example.app  (fetched 11:00:00 AM)
 ...
 
-=== tv.visioo.app ===
-App: tv.visioo.app  (fetched 11:00:01 AM)
+=== com.example.app ===
+App: com.example.app  (fetched 11:00:01 AM)
 ...
 ```
 
@@ -257,10 +257,10 @@ App: tv.visioo.app  (fetched 11:00:01 AM)
 `--notify` sends a system notification when a vitals threshold breaches or clears. Only fires on state change — no repeated notifications while a breach is ongoing:
 
 ```bash
-# Threshold breach: sends "GPC Alert: tv.visioo.app: vitals threshold breached"
+# Threshold breach: sends "GPC Alert: com.example.app: vitals threshold breached"
 gpc status --notify
 
-# Breach clears on next run: sends "GPC Status: tv.visioo.app: vitals back to normal"
+# Breach clears on next run: sends "GPC Status: com.example.app: vitals back to normal"
 gpc status --notify
 ```
 
@@ -280,7 +280,7 @@ gpc status --output json
 
 ```json
 {
-  "packageName": "tv.visioo.app",
+  "packageName": "com.example.app",
   "fetchedAt": "2026-03-14T10:42:00Z",
   "cached": false,
   "releases": [

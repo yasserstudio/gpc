@@ -39,8 +39,10 @@ gpc releases upload <file> [options]
 | `--notes`     |       | `string` |            | Release notes text (en-US)                                          |
 | `--name`      |       | `string` |            | Release name                                                        |
 | `--mapping`   |       | `string` |            | Path to ProGuard/R8 mapping file for deobfuscation                  |
-| `--notes-dir` |       | `string` |            | Directory with per-language release notes (`<dir>/<lang>.txt`)      |
-| `--retry-log` |       | `string` |            | Write retry log entries to file (JSONL)                             |
+| `--notes-dir`      |       | `string` |            | Directory with per-language release notes (`<dir>/<lang>.txt`)      |
+| `--notes-from-git` |       | flag     |            | Generate release notes from git commit history                      |
+| `--since`          |       | `string` |            | Git ref to start from (tag, SHA) — used with `--notes-from-git`    |
+| `--retry-log`      |       | `string` |            | Write retry log entries to file (JSONL)                             |
 
 ::: tip Validation
 The file path is verified before authentication. If the file does not exist, the command exits code 2 immediately — no API calls are made.
