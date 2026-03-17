@@ -12,6 +12,23 @@ import { getOutputFormat } from "../format.js";
 import { isDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
 
+function formatAuditTimestamp(iso: string): string {
+  const date = new Date(iso);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 60) return diffMin < 1 ? "just now" : `${diffMin} min ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
+  const diffDays = Math.floor(diffHr / 24);
+  if (diffDays < 7) {
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    return `${days[date.getDay()]} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+  }
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+}
+
 export function registerAuditCommands(program: Command): void {
   const audit = program.command("audit").description("Query and manage audit logs");
 
@@ -38,7 +55,7 @@ export function registerAuditCommands(program: Command): void {
         }
         if (format !== "json") {
           const rows = events.map((e) => ({
-            timestamp: e.timestamp,
+            timestamp: formatAuditTimestamp(e.timestamp),
             command: e.command,
             app: e.app || "-",
             success: e.success !== undefined ? String(e.success) : "-",
@@ -70,7 +87,7 @@ export function registerAuditCommands(program: Command): void {
         }
         if (format !== "json") {
           const rows = events.map((e) => ({
-            timestamp: e.timestamp,
+            timestamp: formatAuditTimestamp(e.timestamp),
             command: e.command,
             app: e.app || "-",
             success: e.success !== undefined ? String(e.success) : "-",
