@@ -126,18 +126,34 @@ export function registerUpdateCommand(program: Command): void {
             process.exit(1);
           }
 
-          // Show size before downloading so users know what to expect
           const sizeMB = (assetObj.size / (1024 * 1024)).toFixed(1);
           spinner.stop();
-          console.log(
-            `Downloading ${assetName} (${sizeMB} MB)...`,
-          );
 
           const checksums = await fetchChecksums(result.release);
           const expectedHash = checksums.get(assetName) ?? "";
-
           const binaryPath = getCurrentBinaryPath();
-          await updateBinaryInPlace(assetObj.browser_download_url, expectedHash, binaryPath);
+
+          if (jsonMode) {
+            await updateBinaryInPlace(assetObj.browser_download_url, expectedHash, binaryPath);
+          } else {
+            // Show live download progress on a single overwriting line
+            const label = `Downloading ${assetName} (${sizeMB} MB)`;
+            process.stdout.write(`${label}...\n`);
+            let lastPct = -1;
+            await updateBinaryInPlace(assetObj.browser_download_url, expectedHash, binaryPath, {
+              onProgress(downloaded, total) {
+                if (total <= 0) return;
+                const pct = Math.min(100, Math.round((downloaded / total) * 100));
+                if (pct === lastPct) return; // avoid redundant writes
+                lastPct = pct;
+                const dlMB = (downloaded / (1024 * 1024)).toFixed(1);
+                process.stdout.write(
+                  `\r${label}  ${dlMB} / ${sizeMB} MB  (${String(pct).padStart(3)}%)  `,
+                );
+              },
+            });
+            process.stdout.write("\n");
+          }
           break;
         }
 

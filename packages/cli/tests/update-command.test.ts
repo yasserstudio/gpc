@@ -134,6 +134,11 @@ async function run(args: string[]) {
   return program.parseAsync(["node", "gpc", ...args]);
 }
 
+function savedArgv() {
+  const orig = process.argv;
+  return () => { process.argv = orig; };
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -141,8 +146,10 @@ async function run(args: string[]) {
 describe("gpc update --check", () => {
   let exitSpy: ReturnType<typeof vi.spyOn>;
   let logSpy: ReturnType<typeof vi.spyOn>;
+  let restoreArgv: () => void;
 
   beforeEach(() => {
+    restoreArgv = savedArgv();
     exitSpy = mockExit();
     logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
@@ -151,6 +158,7 @@ describe("gpc update --check", () => {
   });
 
   afterEach(() => {
+    restoreArgv();
     exitSpy.mockRestore();
     logSpy.mockRestore();
     vi.mocked(console.error).mockRestore?.();
@@ -193,17 +201,23 @@ describe("gpc update --check", () => {
 describe("gpc update (execute)", () => {
   let exitSpy: ReturnType<typeof vi.spyOn>;
   let logSpy: ReturnType<typeof vi.spyOn>;
+  let stdoutSpy: ReturnType<typeof vi.spyOn>;
+  let restoreArgv: () => void;
 
   beforeEach(() => {
+    restoreArgv = savedArgv();
     exitSpy = mockExit();
     logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    stdoutSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
     vi.spyOn(console, "error").mockImplementation(() => {});
     process.env["__GPC_VERSION"] = "0.9.29";
   });
 
   afterEach(() => {
+    restoreArgv();
     exitSpy.mockRestore();
     logSpy.mockRestore();
+    stdoutSpy.mockRestore();
     vi.mocked(console.error).mockRestore?.();
     delete process.env["__GPC_VERSION"];
     vi.clearAllMocks();
@@ -228,9 +242,9 @@ describe("gpc update (execute)", () => {
     mockGetPlatformAsset.mockReturnValueOnce("gpc-darwin-arm64");
     await run(["update"]);
     expect(mockUpdateBinaryInPlace).toHaveBeenCalledOnce();
-    // Should print size before download
-    const output = logSpy.mock.calls.flat().join("\n");
-    expect(output).toMatch(/\d+\.\d+ MB/);
+    // Size is printed via process.stdout.write (progress line), not console.log
+    const stdoutOutput = stdoutSpy.mock.calls.flat().join("\n");
+    expect(stdoutOutput).toMatch(/\d+\.\d+ MB/);
   });
 
   it("--force updates even when already on latest", async () => {
