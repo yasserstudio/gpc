@@ -109,7 +109,7 @@ GPC covers the **entire Google Play Developer API** in one CLI. No Ruby. No brow
 | CI/CD native        | JSON + exit codes + env vars | Partial         | Gradle tasks          | No           |
 | Plugin system       | Yes                          | No              | No                    | No           |
 | Interactive mode    | Yes (guided prompts)         | No              | No                    | N/A          |
-| Test suite          | 1,358 tests, 90%+ coverage   | —               | —                     | —            |
+| Test suite          | 1,420 tests, 90%+ coverage   | —               | —                     | —            |
 
 ---
 
@@ -390,7 +390,7 @@ git clone https://github.com/yasserstudio/gpc.git
 cd gpc
 pnpm install
 pnpm build
-pnpm test    # 1,358 tests across 7 packages
+pnpm test    # 1,420 tests across 7 packages
 ```
 
 ---

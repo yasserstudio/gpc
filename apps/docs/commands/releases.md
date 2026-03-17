@@ -42,6 +42,11 @@ gpc releases upload <file> [options]
 | `--notes-dir` |       | `string` |            | Directory with per-language release notes (`<dir>/<lang>.txt`)      |
 | `--retry-log` |       | `string` |            | Write retry log entries to file (JSONL)                             |
 
+::: tip Validation
+The file path is verified before authentication. If the file does not exist, the command exits code 2 immediately — no API calls are made.
+`--rollout` must be between 1–100. Values outside that range exit code 2.
+:::
+
 ### Example
 
 Upload to internal track:
@@ -110,6 +115,8 @@ Show a single track:
 gpc releases status --app com.example.myapp --track production
 ```
 
+The `userFraction` column shows rollout percentage (e.g., `10%`) or `—` for a full rollout. Output is sorted production → beta → alpha → internal by default unless `--sort` is specified.
+
 ```json
 {
   "tracks": [
@@ -148,6 +155,11 @@ gpc releases promote --from <track> --to <track> [options]
 | `--to`      |       | `string` | **(required)** | Target track                                           |
 | `--rollout` |       | `number` |                | Staged rollout percentage (1-100) for the target track |
 | `--notes`   |       | `string` |                | Release notes text (en-US)                             |
+
+::: tip Validation
+`--from` and `--to` must be different tracks. Passing the same value for both exits code 2.
+`--rollout` must be between 1–100. Values outside that range exit code 2.
+:::
 
 ### Example
 
@@ -195,6 +207,10 @@ gpc releases rollout increase --track <track> --to <percent>
 | --------- | ----- | -------- | -------------- | ------------------------------ |
 | `--track` |       | `string` | **(required)** | Track name                     |
 | `--to`    |       | `number` | **(required)** | New rollout percentage (1-100) |
+
+::: tip Validation
+`--to` must be between 1–100. Values outside that range exit code 2.
+:::
 
 ### Example
 
@@ -287,44 +303,24 @@ gpc releases rollout complete \
 
 ## `releases notes set`
 
-Set release notes for an existing release on a track.
+::: warning Not yet implemented
+`gpc releases notes set` is not yet available as a standalone command. Running it exits code 1 with a redirect message.
 
-### Synopsis
-
-```bash
-gpc releases notes set --track <track> [options]
-```
-
-### Options
-
-| Flag      | Short | Type     | Default        | Description            |
-| --------- | ----- | -------- | -------------- | ---------------------- |
-| `--track` |       | `string` | **(required)** | Track name             |
-| `--lang`  |       | `string` | `en-US`        | Language code (BCP 47) |
-| `--notes` |       | `string` |                | Release notes text     |
-| `--file`  |       | `string` |                | Read notes from a file |
-
-### Example
-
-Set notes inline:
+To set release notes today, use the `--notes`, `--notes-dir`, or `--notes-from-git` flags on the commands that do support them:
 
 ```bash
-gpc releases notes set \
-  --app com.example.myapp \
-  --track beta \
-  --lang en-US \
-  --notes "Bug fixes and performance improvements"
+# Set notes during upload
+gpc releases upload app.aab --track beta --notes "Bug fixes"
+
+# Set notes during publish
+gpc publish app.aab --notes "Bug fixes"
+
+# Set per-language notes from a directory
+gpc releases upload app.aab --track beta --notes-dir ./release-notes/
 ```
 
-Set notes from a file:
-
-```bash
-gpc releases notes set \
-  --app com.example.myapp \
-  --track beta \
-  --lang ja-JP \
-  --file release-notes/ja-JP.txt
-```
+Full standalone support is planned for a future release.
+:::
 
 ## `releases diff`
 

@@ -118,25 +118,70 @@ Exits `0` if all checks pass, `1` if any check fails.
 
 ## `gpc docs`
 
-Open the GPC documentation in your default browser.
+Open the GPC documentation in your default browser. Optionally navigate directly to a specific topic page.
 
 ### Synopsis
 
 ```bash
-gpc docs
+gpc docs [topic] [--list]
 ```
 
 ### Options
 
-No command-specific options.
+| Flag | Description |
+| --- | --- |
+| `[topic]` | Topic name to open directly (see list below) |
+| `--list` | Print all available topics and exit |
+
+### Available Topics
+
+| Topic | Opens |
+| --- | --- |
+| `releases` | commands/releases |
+| `status` | commands/status |
+| `vitals` | commands/vitals |
+| `reviews` | commands/reviews |
+| `listings` | commands/listings |
+| `subscriptions` | commands/subscriptions |
+| `bundle` | commands/bundle |
+| `users` | commands/users |
+| `audit` | commands/audit |
+| `config` | commands/config |
+| `doctor` | commands/doctor |
+| `publish` | commands/publish |
 
 ### Example
+
+Open the docs home:
 
 ```bash
 gpc docs
 ```
 
-Opens `https://github.com/yasserstudio/gpc#readme` in the default browser. If the browser cannot be opened, prints the URL to stdout.
+Open a specific topic:
+
+```bash
+gpc docs releases
+gpc docs vitals
+```
+
+List all available topics:
+
+```bash
+gpc docs --list
+```
+
+```
+Available topics:
+  gpc docs releases
+  gpc docs status
+  gpc docs vitals
+  ...
+```
+
+If an unknown topic is passed, the command exits code 2 with a suggestion to run `gpc docs --list`.
+
+Opens `https://yasserstudio.github.io/gpc/` (or the topic-specific page) in the default browser. If the browser cannot be opened, prints the URL to stdout.
 
 ---
 

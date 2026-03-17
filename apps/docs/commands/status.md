@@ -9,7 +9,7 @@ Everything you'd check in 4–6 Play Console screens, in one terminal command.
 ```
 $ gpc status
 
-App: tv.visioo.app  (fetched 10:42:01 AM)
+App: tv.visioo.app  (fetched 5 min ago)
 
 RELEASES
   production   v142   completed    —
@@ -36,7 +36,7 @@ gpc status [options]
 
 | Flag | Type | Default | Description |
 | --- | --- | --- | --- |
-| `--days <n>` | `number` | `7` | Vitals window in days (reviews always use last 30 days) |
+| `--days <n>` | `number` | `7` | Vitals window in days (reviews always use last 30 days); must be ≥ 1, exits code 2 otherwise |
 | `--cached` | flag | off | Read from cache, skip all API calls |
 | `--refresh` | flag | off | Force live fetch, ignore cache TTL |
 | `--ttl <seconds>` | `number` | `3600` | Cache TTL override for this run |
@@ -63,6 +63,8 @@ gpc status [options]
 | Reviews | Publisher API v3 | `reviews.list` | 1 |
 
 Results are cached in `~/.cache/gpc/status-<packageName>.json` (XDG-compliant). Default TTL: 1 hour. Individual API failures do not abort the command — the failed section shows `—` and the exit code reflects overall health.
+
+The header timestamp uses relative time: `fetched 5 min ago`, `fetched 2h ago`, `fetched 1d ago`.
 
 ## Output Sections
 
@@ -170,9 +172,15 @@ gpc status --sections vitals --output json
 
 Valid sections: `releases`, `vitals`, `reviews`. Invalid values exit code 2.
 
+When using `--cached`, the `--sections` filter applies at display time — only the requested sections are shown even if the cache contains all three. If the requested section was not fetched in the cached run, it shows `—`.
+
 ## Polling Mode
 
 `--watch [N]` refreshes on a loop. The terminal clears before each update. Press Ctrl+C to stop cleanly.
+
+::: warning --since-last with --watch
+`--since-last` is not supported in watch mode and will be silently ignored. Use `--since-last` without `--watch` for a single diff run.
+:::
 
 ```bash
 # Refresh every 30 seconds (default)
@@ -196,12 +204,12 @@ gpc status --since-last
 ```
 
 ```
-App: tv.visioo.app  (fetched 11:00:00 AM)
+App: tv.visioo.app  (fetched just now)
 
 RELEASES
   ...
 
-Changes since 3/14/2026, 10:00:00 AM:
+Changes since 1h ago:
   Version:    141 → 142
   Crash rate: 1.80% → 0.80% (−1.00%) ✓
   ANR rate:   0.30% → 0.20% (−0.10%) ✓
@@ -347,7 +355,7 @@ gpc status --watch 300 --notify --sections vitals
 | --- | --- |
 | `0` | All clear — no threshold breaches |
 | `1` | No cached data (only when `--cached` is used) |
-| `2` | Usage error — missing package name, invalid section, watch interval too short |
+| `2` | Usage error — missing package name, invalid section, watch interval too short, `--days` < 1 |
 | `4` | API error |
 | `6` | One or more vitals thresholds breached |
 
