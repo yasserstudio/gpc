@@ -49,7 +49,7 @@ vi.mock("@gpc-cli/api", () => ({
       commit: vi.fn().mockResolvedValue({}),
     },
     tracks: {
-      get: vi.fn().mockResolvedValue({ track: "internal", releases: [] }),
+      get: vi.fn().mockResolvedValue({ track: "internal", releases: [{ status: "inProgress", versionCodes: ["42"], userFraction: 0.1 }] }),
       list: vi.fn().mockResolvedValue([]),
       update: vi.fn().mockResolvedValue({}),
     },
@@ -60,6 +60,7 @@ vi.mock("@gpc-cli/api", () => ({
       upload: vi.fn().mockResolvedValue({}),
     },
   }),
+  createReportingClient: vi.fn().mockReturnValue({}),
 }));
 
 vi.mock("@gpc-cli/core", () => {
@@ -259,5 +260,33 @@ describe("gpc releases upload — progress bar", () => {
   it("completes upload without error when TTY is available", async () => {
     await run(["releases", "upload", tmpFile, "--track", "internal"]);
     expect(exitSpy).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Tests: rollout increase --vitals-gate
+// ---------------------------------------------------------------------------
+
+describe("gpc releases rollout increase --vitals-gate", () => {
+  let exitSpy: ReturnType<typeof vi.spyOn>;
+  let errSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    exitSpy = mockExit();
+    errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    exitSpy.mockRestore();
+    errSpy.mockRestore();
+    vi.mocked(console.log).mockRestore?.();
+    vi.clearAllMocks();
+  });
+
+  it("warns and skips gate when no crashRate threshold configured", async () => {
+    await run(["releases", "rollout", "increase", "--track", "production", "--to", "50", "--vitals-gate"]);
+    const allErrors = errSpy.mock.calls.flat().join("\n");
+    expect(allErrors).toContain("vitals.thresholds.crashRate");
   });
 });
