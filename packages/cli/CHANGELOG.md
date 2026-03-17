@@ -1,5 +1,15 @@
 # @gpc-cli/cli
 
+## 0.9.30
+
+### Patch Changes
+
+- feat(update): gpc update self-updates via npm, Homebrew, or in-place binary replace
+  feat(update): --check flag checks for updates without installing (exits 0 always)
+  feat(update): detects install method automatically (npm / Homebrew / binary)
+  feat(update): verifies SHA-256 checksum for binary downloads
+  fix(update-check): notification now shows "Run: gpc update" for all install methods
+
 ## 0.9.29
 
 ### Patch Changes

@@ -6,7 +6,18 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.29 <Badge type="tip" text="latest" />
+## v0.9.30 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **feat: `gpc update`** — self-update command that detects your install method (npm, Homebrew, or standalone binary) and delegates to the right mechanism automatically
+- **feat: `gpc update --check`** — checks for a newer version without installing; always exits 0 (use `--output json` to parse `updateAvailable` in CI)
+- **feat: `gpc update --force`** — reinstalls even when already on the latest version
+- **feat: binary update checksum verification** — SHA-256 of the downloaded binary is verified against `checksums.txt` from the release before swapping the binary in place
+- **fix: update notification says "Run: gpc update"** — the passive update hint shown after other commands now gives the correct command for all install methods instead of showing the npm command to Homebrew and binary users
+- 1,453 tests
+
+## v0.9.29
 
 _March 2026_
 

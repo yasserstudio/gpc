@@ -116,6 +116,104 @@ Exits `0` if all checks pass, `1` if any check fails.
 
 ---
 
+## `gpc update`
+
+Update GPC to the latest version. Automatically detects your install method (npm, Homebrew, or standalone binary) and delegates to the appropriate update mechanism.
+
+### Synopsis
+
+```bash
+gpc update [--check] [--force] [--output json]
+```
+
+### Options
+
+| Option | Description |
+|--------|-------------|
+| `--check` | Check for updates without installing. Exits 0 always — communicate update availability via output or `--output json`. |
+| `--force` | Update even if already on the latest version. |
+| `--output json` | Emit structured JSON instead of human-readable output. |
+
+### How it works
+
+GPC detects the install method in priority order:
+
+1. `__GPC_BINARY=1` env var (injected at compile time) → standalone binary in-place replace
+2. `npm_config_prefix` env var → `npm install -g @gpc-cli/cli@latest`
+3. Resolved binary path contains `cellar` or `homebrew` → `brew upgrade yasserstudio/tap/gpc`
+4. Resolved binary path contains `node_modules` → npm
+5. Fallback → manual instructions with exit code 1
+
+Binary installs download the platform asset, verify its SHA-256 checksum against `checksums.txt` from the release, then atomically replace the running binary.
+
+### Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `GPC_GITHUB_TOKEN` | GitHub personal access token. Raises the API rate limit from 60 to 5,000 requests/hour. Useful on shared CI runner IPs. |
+
+### Examples
+
+```bash
+# Check if an update is available (safe, no changes made)
+gpc update --check
+
+# Update to latest
+gpc update
+
+# Force reinstall even if already on latest
+gpc update --force
+
+# Check in CI — parse result as JSON
+gpc update --check --output json | jq '.updateAvailable'
+```
+
+### Example output
+
+**Update available:**
+```
+Update available: 0.9.29 → 0.9.30
+Install method: homebrew
+Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.30
+
+Run: gpc update
+```
+
+**Already on latest:**
+```
+Already on latest version: v0.9.30
+```
+
+**`--output json` (update available):**
+```json
+{
+  "current": "0.9.29",
+  "latest": "0.9.30",
+  "updateAvailable": true,
+  "installMethod": "homebrew",
+  "releaseUrl": "https://github.com/yasserstudio/gpc/releases/tag/v0.9.30"
+}
+```
+
+### Exit codes
+
+| Code | Meaning |
+|------|---------|
+| `0` | Success — `--check` always exits 0 regardless of whether an update exists |
+| `1` | Error — unknown install method, permission denied, checksum mismatch |
+| `4` | GitHub API error (rate limited, HTTP error) |
+| `5` | Network error (no connectivity) |
+
+::: tip CI usage
+Use `--check --output json` to gate on update availability without installing:
+```bash
+gpc update --check --output json | jq -e '.updateAvailable' && echo "Update required"
+```
+`jq -e` exits 1 if the value is false/null, making it composable with `&&`.
+:::
+
+---
+
 ## `gpc docs`
 
 Open the GPC documentation in your default browser. Optionally navigate directly to a specific topic page.
