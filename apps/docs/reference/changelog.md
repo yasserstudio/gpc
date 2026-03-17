@@ -6,7 +6,28 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.28 <Badge type="tip" text="latest" />
+## v0.9.29 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **fix: `gpc releases upload` / `gpc publish` abort early when file is missing** — stat preflight runs before auth is resolved, so a typo in the file path gives instant feedback (exit 2) rather than waiting for credential loading
+- **fix: `gpc releases upload` spinner shows filename and size** — was always "Uploading bundle…"; now shows "Uploading my-app.aab (12.3 MB)…"
+- **fix: `gpc releases status` rollout shows as percentage** — was "0.1", now "10%"
+- **fix: `gpc releases status` sorts tracks by priority** — production → beta → alpha → internal by default when `--sort` is not specified
+- **fix: `gpc releases promote` rejects same-track promote** — `--from internal --to internal` now exits 2 with a clear error
+- **fix: `gpc releases promote --rollout` validates range** — exits 2 for values outside 1–100, same as `releases upload`
+- **fix: `gpc releases rollout increase --to` validates range** — exits 2 for values outside 1–100; dry-run now shows "25%" not "25"
+- **fix: `gpc releases notes set` honest error** — was silently printing "Release notes set" without calling any API; now exits 1 with a message directing you to `--notes` on `releases upload` or `publish`
+- **fix: `gpc status --sections` filter applies to cached data** — sections requested at display time now filter the cached snapshot correctly (closes bug #9b introduced in v0.9.26)
+- **fix: `gpc status --days` validates positive integer** — `--days 0` or `--days -1` now exits 2 before any API calls
+- **fix: `gpc status --watch` warns when combined with `--since-last`** — `--since-last` is incompatible with watch mode; now prints a warning to stderr instead of silently ignoring it
+- **fix: `gpc status --since-last` diff header uses relative time** — "Changes since 5h ago:" instead of "Changes since 3/17/2026, 10:42:01 AM:"
+- **fix: `gpc status` header timestamps use relative time** — "fetched 5 min ago" / "cached 2h ago" instead of a full locale date string
+- **fix: `gpc audit list/search` show human-readable timestamps** — table output shows "5 min ago", "14:23:45", "Mon 14:23", or "Mar 14, 2026" depending on age; JSON output preserves raw ISO strings
+- **feat: `gpc docs [topic]`** — opens a specific docs page directly; `gpc docs releases` opens the releases reference, `gpc docs --list` shows all available topics
+- 1,420 tests
+
+## v0.9.28
 
 _March 2026_
 

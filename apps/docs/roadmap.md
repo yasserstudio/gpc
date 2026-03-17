@@ -8,11 +8,11 @@ GPC v0.9.x is a pre-release series working toward a stable **1.0.0** public laun
 
 ## Current Status
 
-**v0.9.28** is the latest release. GPC currently covers:
+**v0.9.29** is the latest release. GPC currently covers:
 
 - **187 API endpoints** across the Android Publisher API v3 and Play Developer Reporting API
 - **32 command groups**, 100+ subcommands
-- **1,392 tests**, 90%+ line coverage across all core packages
+- **1,420 tests**, 90%+ line coverage across all core packages
 - **7 published packages** under the `@gpc-cli` scope
 - Complete coverage of releases, listings, vitals, reviews, subscriptions, IAP, purchases, users, reports, and more
 
@@ -27,7 +27,7 @@ The following must be complete before the `1.0.0` tag ships:
 - [x] End-to-end validation against production apps
 - [x] `gpc status` — unified app health snapshot with trend arrows, --format summary, --sections, --watch, --since-last, --all-apps, --notify (shipped v0.9.24–v0.9.26)
 - [ ] Community showcase — real apps using GPC in production
-- [ ] Stability soak — 2+ weeks without critical bugs
+- [ ] Stability soak — 2+ weeks without critical bugs (clock reset 2026-03-14, target 2026-03-28)
 - [ ] Public launch (blog posts, Android Weekly, community announcements)
 
 ---

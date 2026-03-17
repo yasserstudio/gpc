@@ -43,13 +43,13 @@ e2e/               → End-to-end tests
 - Phase 8 ✓ — Plugin SDK, plugin manager, lifecycle hooks, plugin-ci
 - Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, Homebrew tap, npm publish, README/CHANGELOG
 - Published to npm: `npm install -g @gpc-cli/cli`
-- Current version: v0.9.26 — pre-release series (`0.9.x` → `1.0.0` public launch)
-- 1,388 total tests, 7 packages building, 90%+ line coverage on all core packages
+- Current version: v0.9.29 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- 1,420 total tests, 7 packages building, 90%+ line coverage on all core packages
 - GitHub Releases: umbrella `v*` tags only, user-facing notes (see `apps/docs/advanced/conventions.md` for template)
 
 ## Testing
 
-- Vitest for all tests (1,388 total across 7 packages + e2e)
+- Vitest for all tests (1,420 total across 7 packages + e2e)
 - Tests in `tests/` directory per package
 - Mock external APIs — never call real Google APIs in tests
 - Mock fetch with `vi.stubGlobal("fetch", mockFn)` for API tests
