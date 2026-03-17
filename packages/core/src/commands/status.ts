@@ -418,6 +418,16 @@ function formatTrend(current: number | undefined, previous: number | undefined):
   return "";
 }
 
+function relativeTime(isoString: string): string {
+  const diffMs = Date.now() - new Date(isoString).getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "just now";
+  if (diffMin < 60) return `${diffMin} min ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+  return `${Math.floor(diffHr / 24)}d ago`;
+}
+
 function allVitalsUnknown(vitals: AppStatus["vitals"]): boolean {
   return (
     vitals.crashes.status === "unknown" &&
@@ -431,8 +441,8 @@ export function formatStatusTable(status: AppStatus): string {
   const lines: string[] = [];
   const sectionSet = new Set(status.sections);
   const cachedLabel = status.cached
-    ? `  (cached ${new Date(status.fetchedAt).toLocaleTimeString()})`
-    : `  (fetched ${new Date(status.fetchedAt).toLocaleTimeString()})`;
+    ? `  (cached ${relativeTime(status.fetchedAt)})`
+    : `  (fetched ${relativeTime(status.fetchedAt)})`;
 
   lines.push(`App: ${status.packageName}${cachedLabel}`);
 
