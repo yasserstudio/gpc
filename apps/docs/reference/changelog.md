@@ -6,7 +6,15 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.30 <Badge type="tip" text="latest" />
+## v0.9.31 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **feat: `gpc update` shows download progress** — binary installs now display a live progress line: `Downloading gpc-darwin-arm64 (58.7 MB)  14.2 / 58.7 MB  (24%)`
+- **fix: `gpc update --output json` no longer polluted by npm/brew output** — npm and Homebrew stdout is redirected to stderr in JSON mode so the machine-readable output stays parseable
+- **fix: running `gpc update` no longer triggers a redundant background update check** — the passive npm registry check is now skipped entirely when the command is `update`
+
+## v0.9.30
 
 _March 2026_
 
