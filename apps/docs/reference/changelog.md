@@ -44,7 +44,7 @@ _March 2026_
 - **fix: `gpc status` header timestamps use relative time** — "fetched 5 min ago" / "cached 2h ago" instead of a full locale date string
 - **fix: `gpc audit list/search` show human-readable timestamps** — table output shows "5 min ago", "14:23:45", "Mon 14:23", or "Mar 14, 2026" depending on age; JSON output preserves raw ISO strings
 - **feat: `gpc docs [topic]`** — opens a specific docs page directly; `gpc docs releases` opens the releases reference, `gpc docs --list` shows all available topics
-- 1,420 tests
+- 1,420 tests (→ 1,453 after v0.9.30–v0.9.31)
 
 ## v0.9.28
 
