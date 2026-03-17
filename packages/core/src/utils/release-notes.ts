@@ -60,11 +60,8 @@ export function validateReleaseNotes(notes: ReleaseNote[]): ReleaseNotesValidati
     seen.add(note.language);
 
     if (note.text.length > MAX_NOTES_LENGTH) {
-      errors.push(
-        `Release notes for "${note.language}" exceed ${MAX_NOTES_LENGTH} chars (${note.text.length} chars)`,
-      );
       warnings.push(
-        `Release notes for "${note.language}" are ${note.text.length} chars (max ${MAX_NOTES_LENGTH})`,
+        `Release notes for "${note.language}" are ${note.text.length} chars (max ${MAX_NOTES_LENGTH}) — Google Play will reject notes exceeding this limit`,
       );
     }
   }

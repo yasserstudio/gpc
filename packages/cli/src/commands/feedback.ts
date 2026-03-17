@@ -24,11 +24,17 @@ export function registerFeedbackCommand(program: Command): void {
         labels: "bug",
       });
       const url = `https://github.com/yasserstudio/gpc/issues/new?${params}`;
-      const cmd = process.platform === "darwin" ? "open"
-        : process.platform === "win32" ? "start" : "xdg-open";
-      execFile(cmd, [url], (err) => {
-        if (err) console.log(`Open in your browser:\n${url}`);
-        else console.log("Opened GitHub issue form in your browser.");
-      });
+      if (process.platform === "win32") {
+        execFile("cmd", ["/c", "start", "", url], (err) => {
+          if (err) console.log(`Open in your browser:\n${url}`);
+          else console.log("Opened GitHub issue form in your browser.");
+        });
+      } else {
+        const cmd = process.platform === "darwin" ? "open" : "xdg-open";
+        execFile(cmd, [url], (err) => {
+          if (err) console.log(`Open in your browser:\n${url}`);
+          else console.log("Opened GitHub issue form in your browser.");
+        });
+      }
     });
 }

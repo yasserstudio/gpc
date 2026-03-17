@@ -22,7 +22,7 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     .option("--notify [target]", "Send webhook notification on completion (slack, discord, custom)")
     .option("--ci", "Force CI mode (JSON output, no prompts, strict exit codes)")
     .option("-j, --json", "Shorthand for --output json")
-    .showSuggestionAfterError(true);
+    .showSuggestionAfterError(false);
 
   const commandLoaders: Record<string, () => Promise<void>> = {
     auth: async () => {

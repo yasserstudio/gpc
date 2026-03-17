@@ -126,6 +126,7 @@ export async function validatePreSubmission(options: ValidateOptions): Promise<V
         ? `Release notes valid (${resolvedNotes.length} language(s))`
         : notesResult.errors.join("; "),
     });
+    for (const w of notesResult.warnings) resultWarnings.push(w);
   }
 
   return {

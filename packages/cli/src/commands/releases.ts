@@ -122,14 +122,22 @@ export function registerReleasesCommands(program: Command): void {
       const jsonMode = format === "json";
       const client = await getClient(config, options.retryLog, options.timeout);
 
-      const onProgress = (!jsonMode && process.stderr.isTTY && !program.opts()["quiet"])
-        ? (uploaded: number, total: number) => {
-            const pct = Math.min(100, Math.round((uploaded / total) * 100));
-            const upMB = (uploaded / (1024 * 1024)).toFixed(1);
-            const totMB = (total / (1024 * 1024)).toFixed(1);
-            process.stderr.write(`\r  Uploading ${basename(file)}  ${upMB} / ${totMB} MB  (${String(pct).padStart(3)}%)  `);
-          }
-        : undefined;
+      // The API layer buffers the full file before sending, so byte-level streaming progress
+      // isn't available. Use a time-based animation instead.
+      const showProgress = !jsonMode && process.stderr.isTTY && !program.opts()["quiet"];
+      const sizeMB = (fileSize / (1024 * 1024)).toFixed(1);
+      const FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+      let progressInterval: ReturnType<typeof setInterval> | undefined;
+      if (showProgress) {
+        let frame = 0;
+        const startTime = Date.now();
+        progressInterval = setInterval(() => {
+          const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
+          process.stderr.write(`\r  ${FRAMES[frame % FRAMES.length]} Uploading ${basename(file)}  ${sizeMB} MB  (${elapsed}s)  `);
+          frame++;
+        }, 120);
+      }
+      const onProgress = undefined;
 
       if (isDryRun(program)) {
         try {
@@ -156,9 +164,8 @@ export function registerReleasesCommands(program: Command): void {
         packageName,
       );
 
-      const sizeMB = (fileSize / (1024 * 1024)).toFixed(1);
       const spinner = createSpinner(`Uploading ${basename(file)} (${sizeMB} MB)...`);
-      if (!program.opts()["quiet"] && process.stderr.isTTY && !onProgress) spinner.start();
+      if (!showProgress) spinner.start();
 
       try {
         let releaseNotes: { language: string; text: string }[] | undefined;
@@ -179,12 +186,12 @@ export function registerReleasesCommands(program: Command): void {
           mappingFile: options.mapping,
           onProgress,
         });
-        if (onProgress) process.stderr.write("\n");
+        if (progressInterval) { clearInterval(progressInterval); process.stderr.write(`\r  ✓ Uploaded ${basename(file)}  ${sizeMB} MB\n`); }
         spinner.stop("Upload complete");
         console.log(formatOutput(result, format));
         auditEntry.success = true;
       } catch (error) {
-        if (onProgress) process.stderr.write("\n");
+        if (progressInterval) { clearInterval(progressInterval); process.stderr.write("\n"); }
         spinner.fail("Upload failed");
         auditEntry.success = false;
         auditEntry.error = error instanceof Error ? error.message : String(error);
