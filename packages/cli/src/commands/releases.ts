@@ -379,53 +379,43 @@ export function registerReleasesCommands(program: Command): void {
   // Release notes
   releases
     .command("notes")
-    .description("Set release notes")
-    .argument("<action>", "Action: set")
+    .description("Get or set release notes")
+    .argument("<action>", "Action: get|set")
     .option("--track <track>", "Track name")
     .option("--lang <language>", "Language code", "en-US")
     .option("--notes <text>", "Release notes text")
     .option("--file <path>", "Read notes from file")
     .action(async (action: string, options) => {
-      if (action !== "set") {
-        console.error("Usage: gpc releases notes set --track <track> --notes <text>");
-        process.exit(2);
+      if (action === "set") {
+        console.error(
+          "Error: gpc releases notes set is not implemented as a standalone command.\n" +
+          "Use --notes, --notes-dir, or --notes-from-git with:\n" +
+          "  gpc releases upload\n" +
+          "  gpc publish"
+        );
+        process.exit(1);
       }
 
-      const interactive = isInteractive(program);
-      const tracks = ["internal", "alpha", "beta", "production"];
-
-      options.track = await requireOption(
-        "track",
-        options.track,
-        {
-          message: "Track:",
-          choices: tracks,
-        },
-        interactive,
-      );
-
-      let notesText = options.notes;
-      if (options.file) {
-        const { readFile } = await import("node:fs/promises");
-        notesText = await readFile(options.file, "utf-8");
+      if (action === "get") {
+        const config = await loadConfig();
+        const packageName = resolvePackageName(program.opts()["app"], config);
+        const client = await getClient(config);
+        const format = getOutputFormat(program, config);
+        const track = options.track ?? "internal";
+        const statuses = await getReleasesStatus(client, packageName, track);
+        const notes = Array.isArray(statuses)
+          ? statuses.flatMap((s: any) => s.releaseNotes ?? [])
+          : (statuses as any).releaseNotes ?? [];
+        if (notes.length === 0) {
+          console.log("No release notes found.");
+          return;
+        }
+        console.log(formatOutput(notes, format));
+        return;
       }
 
-      if (!notesText && interactive) {
-        notesText = await promptInput("Release notes text:");
-      }
-
-      if (!notesText) {
-        console.error("Provide --notes <text> or --file <path>");
-        process.exit(2);
-      }
-
-      console.error(
-        "Error: gpc releases notes set is not yet implemented as a standalone command.\n" +
-        "To set release notes, use --notes, --notes-dir, or --notes-from-git with:\n" +
-        "  gpc releases upload\n" +
-        "  gpc publish"
-      );
-      process.exit(1);
+      console.error("Usage: gpc releases notes <get|set> --track <track>");
+      process.exit(2);
     });
 
   // Upload externally hosted APK
