@@ -1,4 +1,4 @@
-# gpc
+# GPC — Google Play Console CLI
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/v/@gpc-cli/cli?style=for-the-badge&color=00D26A" alt="npm version"></a>
