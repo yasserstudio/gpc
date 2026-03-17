@@ -1,7 +1,4 @@
 if (process.env["GPC_NO_COLOR"] === "1") process.env["NO_COLOR"] = "1";
-if (process.env["GPC_DEBUG"] === "1" && !process.argv.includes("--verbose") && !process.argv.includes("-v")) {
-  process.argv.splice(2, 0, "--verbose");
-}
 import { setupNetworking } from "./networking.js";
 import { createProgram } from "./program.js";
 import { loadPlugins } from "./plugins.js";
@@ -45,6 +42,11 @@ if (process.argv.includes("--json") || process.argv.includes("-j")) {
 
 const pluginManager = await loadPlugins();
 const program = await createProgram(pluginManager);
+
+// GPC_DEBUG=1 enables verbose mode without mutating process.argv
+if (process.env["GPC_DEBUG"] === "1") {
+  program.setOptionValueWithSource("verbose", true, "env");
+}
 
 const startTime = Date.now();
 let commandSuccess = true;

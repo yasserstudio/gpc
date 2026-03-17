@@ -5,10 +5,9 @@ export function registerVersionCommand(program: Command): void {
   program
     .command("version")
     .description("Show version information")
-    .option("--json", "Output as JSON")
-    .action((opts) => {
+    .action(() => {
       const version = process.env["__GPC_VERSION"] || "0.0.0";
-      if (opts.json) {
+      if (program.opts()["output"] === "json") {
         console.log(JSON.stringify({
           version,
           node: process.version,
