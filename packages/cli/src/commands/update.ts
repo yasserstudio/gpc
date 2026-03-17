@@ -1,0 +1,166 @@
+import type { Command } from "commander";
+import {
+  checkForUpdate,
+  fetchChecksums,
+  updateViaNpm,
+  updateViaBrew,
+  updateBinaryInPlace,
+  getPlatformAsset,
+  getCurrentBinaryPath,
+} from "../updater.js";
+import { createSpinner } from "@gpc-cli/core";
+
+export function registerUpdateCommand(program: Command): void {
+  program
+    .command("update")
+    .description("Update gpc to the latest version")
+    .option("--check", "Check for updates without installing (exits 0 always)")
+    .option("--force", "Update even if already on the latest version")
+    .action(async (opts: { check?: boolean; force?: boolean }, cmd) => {
+      const parentOpts = (cmd.parent?.opts() ?? {}) as Record<string, unknown>;
+      const jsonMode = !!(parentOpts["json"] || parentOpts["output"] === "json");
+      const currentVersion = process.env["__GPC_VERSION"] ?? "0.0.0";
+
+      // Dev build guard
+      if (currentVersion === "0.0.0") {
+        if (jsonMode) {
+          console.log(
+            JSON.stringify({
+              success: false,
+              reason: "Cannot update a development build",
+              current: currentVersion,
+            }),
+          );
+        } else {
+          console.log("Cannot update a development build (version: 0.0.0).");
+        }
+        return;
+      }
+
+      const spinner = createSpinner("Checking for updates...");
+      spinner.start();
+
+      let result;
+      try {
+        result = await checkForUpdate(currentVersion);
+      } catch (err) {
+        spinner.fail("Failed to check for updates");
+        throw err;
+      }
+
+      // --check mode: always exit 0, communicate via output
+      if (opts.check) {
+        spinner.stop();
+        if (jsonMode) {
+          console.log(
+            JSON.stringify({
+              current: result.current,
+              latest: result.latest,
+              updateAvailable: result.updateAvailable,
+              installMethod: result.installMethod,
+              releaseUrl: result.release.html_url,
+            }),
+          );
+        } else if (result.updateAvailable) {
+          console.log(`Update available: ${result.current} → ${result.latest}`);
+          console.log(`Install method: ${result.installMethod}`);
+          console.log(`Release: ${result.release.html_url}`);
+          console.log(`\nRun: gpc update`);
+        } else {
+          console.log(`Already on latest version: v${result.current}`);
+        }
+        return;
+      }
+
+      // Already up to date
+      if (!result.updateAvailable && !opts.force) {
+        spinner.stop(`Already on latest version: v${result.current}`);
+        if (jsonMode) {
+          console.log(
+            JSON.stringify({
+              success: true,
+              current: result.current,
+              latest: result.latest,
+              updated: false,
+            }),
+          );
+        }
+        return;
+      }
+
+      spinner.update(
+        `Updating v${result.current} → v${result.latest} (${result.installMethod})...`,
+      );
+
+      switch (result.installMethod) {
+        case "npm":
+          spinner.stop();
+          await updateViaNpm();
+          break;
+
+        case "homebrew":
+          spinner.stop();
+          await updateViaBrew();
+          break;
+
+        case "binary": {
+          const assetName = getPlatformAsset();
+          if (!assetName) {
+            spinner.fail();
+            console.error(
+              `Error: Unsupported platform: ${process.platform}/${process.arch}`,
+            );
+            console.error(
+              `Download manually: ${result.release.html_url}`,
+            );
+            process.exit(1);
+          }
+
+          const assetObj = result.release.assets.find((a) => a.name === assetName);
+          if (!assetObj) {
+            spinner.fail();
+            console.error(
+              `Error: No binary found for ${assetName} in release ${result.latestTag}`,
+            );
+            console.error(`Check: ${result.release.html_url}`);
+            process.exit(1);
+          }
+
+          // Show size before downloading so users know what to expect
+          const sizeMB = (assetObj.size / (1024 * 1024)).toFixed(1);
+          spinner.stop();
+          console.log(
+            `Downloading ${assetName} (${sizeMB} MB)...`,
+          );
+
+          const checksums = await fetchChecksums(result.release);
+          const expectedHash = checksums.get(assetName) ?? "";
+
+          const binaryPath = getCurrentBinaryPath();
+          await updateBinaryInPlace(assetObj.browser_download_url, expectedHash, binaryPath);
+          break;
+        }
+
+        case "unknown":
+          spinner.fail();
+          console.error("Error: Could not detect install method. Update manually:");
+          console.error(`  npm:      npm install -g @gpc-cli/cli@latest`);
+          console.error(`  Homebrew: brew upgrade yasserstudio/tap/gpc`);
+          console.error(`  Binary:   https://github.com/yasserstudio/gpc/releases/latest`);
+          process.exit(1);
+      }
+
+      if (jsonMode) {
+        console.log(
+          JSON.stringify({
+            success: true,
+            previous: result.current,
+            current: result.latest,
+            method: result.installMethod,
+          }),
+        );
+      } else {
+        console.log(`\n✔ Updated to v${result.latest}`);
+      }
+    });
+}
