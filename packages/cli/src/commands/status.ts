@@ -140,6 +140,12 @@ export function registerStatusCommand(program: Command): void {
         }
 
         const sections = parseSections(opts.sections);
+
+        if (!Number.isFinite(opts.days) || opts.days < 1) {
+          console.error(`Error: --days must be a positive integer (got: ${opts.days})`);
+          process.exit(2);
+        }
+
         const config = await loadConfig();
         const format = getOutputFormat(program, config);
         const render = makeRenderer(format, opts.format);
@@ -231,6 +237,14 @@ interface RunCtx {
   }>;
 }
 
+/** Override sections on a cached AppStatus with the user-requested sections for display. */
+function applyDisplaySections(status: AppStatus, requestedSections: string[]): AppStatus {
+  const requested = new Set(requestedSections);
+  const filtered = status.sections.filter((s) => requested.has(s));
+  if (filtered.length === status.sections.length) return status;
+  return { ...status, sections: filtered };
+}
+
 /** Returns true if a breach was detected. */
 async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
   const { packageName, opts, sections, vitalThresholds, watchInterval, render } = ctx;
@@ -246,6 +260,10 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
 
   const save = (status: AppStatus) => saveStatusCache(packageName, status, opts.ttl);
 
+  if (watchInterval !== null && opts.sinceLast) {
+    process.stderr.write("Warning: --since-last is not supported with --watch and will be ignored.\n");
+  }
+
   // --watch: hand off entirely to runWatchLoop
   if (watchInterval !== null) {
     await runWatchLoop({ intervalSeconds: watchInterval, render, fetch: fetchLive, save });
@@ -259,7 +277,8 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
       console.error("Error: No cached status found. Run without --cached to fetch live data.");
       process.exit(1);
     }
-    console.log(render(cached));
+    const display = applyDisplaySections(cached, sections);
+    console.log(render(display));
     await handleNotify(packageName, cached, opts.notify);
     return statusHasBreach(cached);
   }
@@ -271,7 +290,13 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
   if (!opts.refresh) {
     const cached = await loadStatusCache(packageName, opts.ttl);
     if (cached) {
-      printWithDiff(cached, prevStatus, opts.sinceLast, render, ctx.format);
+      const display = applyDisplaySections(cached, sections);
+      if (ctx.format !== "json" && display.sections.length < cached.sections.length) {
+        process.stderr.write(
+          `Tip: cache contains all sections. Add --refresh to fetch only the requested sections and reduce API calls.\n`,
+        );
+      }
+      printWithDiff(display, prevStatus, opts.sinceLast, render, ctx.format);
       await handleNotify(packageName, cached, opts.notify);
       return statusHasBreach(cached);
     }
@@ -286,6 +311,16 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
   return statusHasBreach(status);
 }
 
+function relativeTime(isoString: string): string {
+  const diffMs = Date.now() - new Date(isoString).getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "just now";
+  if (diffMin < 60) return `${diffMin} min ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+  return `${Math.floor(diffHr / 24)}d ago`;
+}
+
 function printWithDiff(
   status: AppStatus,
   prevStatus: AppStatus | null,
@@ -296,7 +331,7 @@ function printWithDiff(
   console.log(render(status));
 
   if (sinceLast && prevStatus) {
-    const since = new Date(prevStatus.fetchedAt).toLocaleString();
+    const since = relativeTime(prevStatus.fetchedAt);
     console.log("");
     console.log(formatStatusDiff(computeStatusDiff(prevStatus, status), since));
   } else if (sinceLast && !prevStatus && format !== "json") {
