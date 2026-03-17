@@ -132,6 +132,9 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     version: async () => {
       (await import("./commands/version.js")).registerVersionCommand(program);
     },
+    cache: async () => {
+      (await import("./commands/cache.js")).registerCacheCommand(program);
+    },
     plugins: async () => {
       registerPluginsCommand(program, pluginManager);
     },
