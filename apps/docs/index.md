@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: "GPC"
-  text: "Ship Android apps from your terminal"
-  tagline: "The complete CLI for Google Play. 187 API endpoints, one tool. No Ruby, no browser, no ceremony."
+  text: "Google Play Console CLI"
+  tagline: "Ship Android apps from your terminal. 187 API endpoints, one tool. No Ruby, no browser, no ceremony."
   actions:
     - theme: brand
       text: Get Started

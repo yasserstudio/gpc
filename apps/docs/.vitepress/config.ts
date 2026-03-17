@@ -1,7 +1,7 @@
 import { defineConfig } from "vitepress";
 
 export default defineConfig({
-  title: "GPC",
+  title: "GPC — Google Play Console CLI",
   description:
     "The complete CLI for Google Play. 187 API endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
 
@@ -11,7 +11,7 @@ export default defineConfig({
     ["link", { rel: "icon", href: "/gpc/favicon.ico" }],
     [
       "meta",
-      { property: "og:title", content: "GPC — Ship Android Apps from Your Terminal" },
+      { property: "og:title", content: "GPC — Google Play Console CLI" },
     ],
     [
       "meta",
@@ -31,7 +31,7 @@ export default defineConfig({
       "meta",
       {
         name: "twitter:title",
-        content: "GPC — Ship Android Apps from Your Terminal",
+        content: "GPC — Google Play Console CLI",
       },
     ],
     [

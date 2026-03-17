@@ -1,7 +1,7 @@
 {
   "name": "@gpc-cli/cli",
   "version": "0.9.32",
-  "description": "The complete Google Play CLI",
+  "description": "GPC — Google Play Console CLI. 187 API endpoints, one tool.",
   "type": "module",
   "bin": {
     "gpc": "./dist/bin.js"
@@ -36,10 +36,16 @@
   },
   "keywords": [
     "google-play",
+    "google-play-console",
+    "google-play-console-cli",
     "cli",
     "android",
     "play-store",
-    "play-console"
+    "play-console",
+    "fastlane-alternative",
+    "release-automation",
+    "devops",
+    "ci-cd"
   ],
   "engines": {
     "node": ">=20"
