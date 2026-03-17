@@ -63,6 +63,9 @@ export function validateReleaseNotes(notes: ReleaseNote[]): ReleaseNotesValidati
       errors.push(
         `Release notes for "${note.language}" exceed ${MAX_NOTES_LENGTH} chars (${note.text.length} chars)`,
       );
+      warnings.push(
+        `Release notes for "${note.language}" are ${note.text.length} chars (max ${MAX_NOTES_LENGTH})`,
+      );
     }
   }
 
