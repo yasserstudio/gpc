@@ -180,6 +180,7 @@ const EXPECTED_TOP_LEVEL_COMMANDS = [
   "auth",
   "config",
   "doctor",
+  "update",
   "releases",
   "tracks",
   "listings",

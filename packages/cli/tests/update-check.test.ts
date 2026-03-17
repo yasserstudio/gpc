@@ -204,7 +204,7 @@ describe("formatUpdateNotification", () => {
     });
     expect(msg).toContain("0.9.5");
     expect(msg).toContain("0.9.6");
-    expect(msg).toContain("npm install -g @gpc-cli/cli");
+    expect(msg).toContain("Run: gpc update");
     expect(msg).toContain("Update available");
   });
 });
