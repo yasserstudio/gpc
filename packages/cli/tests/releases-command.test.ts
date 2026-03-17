@@ -289,4 +289,10 @@ describe("gpc releases rollout increase --vitals-gate", () => {
     const allErrors = errSpy.mock.calls.flat().join("\n");
     expect(allErrors).toContain("vitals.thresholds.crashRate");
   });
+
+  it("warns that --vitals-gate is ignored in --dry-run mode", async () => {
+    await run(["releases", "rollout", "increase", "--track", "production", "--to", "50", "--vitals-gate", "--dry-run"]);
+    const allErrors = errSpy.mock.calls.flat().join("\n");
+    expect(allErrors).toContain("--vitals-gate is ignored in --dry-run mode");
+  });
 });
