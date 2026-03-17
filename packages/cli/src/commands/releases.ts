@@ -1,4 +1,5 @@
-import { appendFile } from "node:fs/promises";
+import { appendFile, stat } from "node:fs/promises";
+import { basename } from "node:path";
 import type { GpcConfig } from "@gpc-cli/config";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
@@ -62,6 +63,13 @@ export function registerReleasesCommands(program: Command): void {
     .option("--retry-log <path>", "Write retry log entries to file (JSONL)")
     .option("--timeout <ms>", "Upload timeout in milliseconds (auto-scales with file size by default)", parseInt)
     .action(async (file: string, options) => {
+      try {
+        await stat(file);
+      } catch {
+        console.error(`Error: File not found: ${file}`);
+        process.exit(2);
+      }
+
       const noteSources = [options.notes, options.notesDir, options.notesFromGit].filter(Boolean);
       if (noteSources.length > 1) {
         console.error("Error: Cannot combine --notes, --notes-dir, and --notes-from-git. Use only one.");
@@ -94,6 +102,15 @@ export function registerReleasesCommands(program: Command): void {
         }
       }
 
+      if (options.rollout !== undefined) {
+        const rollout = Number(options.rollout);
+        if (!Number.isFinite(rollout) || rollout < 1 || rollout > 100) {
+          console.error(`Error: --rollout must be a number between 1 and 100 (got: ${options.rollout})`);
+          process.exit(2);
+        }
+      }
+
+      const { size: fileSize } = await stat(file);
       const client = await getClient(config, options.retryLog, options.timeout);
 
       if (isDryRun(program)) {
@@ -121,7 +138,8 @@ export function registerReleasesCommands(program: Command): void {
         packageName,
       );
 
-      const spinner = createSpinner("Uploading bundle...");
+      const sizeMB = (fileSize / (1024 * 1024)).toFixed(1);
+      const spinner = createSpinner(`Uploading ${basename(file)} (${sizeMB} MB)...`);
       if (!program.opts()["quiet"] && process.stderr.isTTY) spinner.start();
 
       try {
@@ -170,15 +188,26 @@ export function registerReleasesCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       try {
+        const TRACK_ORDER = ["production", "beta", "alpha", "internal"];
         const statuses = await getReleasesStatus(client, packageName, options.track);
-        const sorted = Array.isArray(statuses) ? sortResults(statuses, options.sort) : statuses;
+        const sorted = Array.isArray(statuses)
+          ? options.sort
+            ? sortResults(statuses, options.sort)
+            : [...statuses].sort((a, b) => {
+                const ai = TRACK_ORDER.indexOf(String((a as Record<string, unknown>)["track"] ?? ""));
+                const bi = TRACK_ORDER.indexOf(String((b as Record<string, unknown>)["track"] ?? ""));
+                return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+              })
+          : statuses;
         if (format !== "json" && Array.isArray(sorted)) {
           const rows = sorted.map((s: Record<string, unknown>) => ({
             track: s["track"] || "-",
             status: s["status"] || "-",
             name: s["name"] || "-",
             versionCodes: Array.isArray(s["versionCodes"]) ? (s["versionCodes"] as unknown[]).join(", ") : "-",
-            userFraction: s["userFraction"] !== undefined ? String(s["userFraction"]) : "-",
+            userFraction: s["userFraction"] !== undefined
+              ? `${Math.round(Number(s["userFraction"]) * 100)}%`
+              : "—",
           }));
           console.log(formatOutput(rows, format));
         } else {
@@ -224,6 +253,19 @@ export function registerReleasesCommands(program: Command): void {
         },
         interactive,
       );
+
+      if (options.from === options.to) {
+        console.error(`Error: --from and --to must be different tracks (both are "${options.from}")`);
+        process.exit(2);
+      }
+
+      if (options.rollout !== undefined) {
+        const rollout = Number(options.rollout);
+        if (!Number.isFinite(rollout) || rollout < 1 || rollout > 100) {
+          console.error(`Error: --rollout must be a number between 1 and 100 (got: ${options.rollout})`);
+          process.exit(2);
+        }
+      }
 
       if (isDryRun(program)) {
         printDryRun(
@@ -294,13 +336,21 @@ export function registerReleasesCommands(program: Command): void {
         );
       }
 
+      if (action === "increase" && options.to !== undefined) {
+        const to = Number(options.to);
+        if (!Number.isFinite(to) || to < 1 || to > 100) {
+          console.error(`Error: --to must be a number between 1 and 100 (got: ${options.to})`);
+          process.exit(2);
+        }
+      }
+
       if (isDryRun(program)) {
         printDryRun(
           {
             command: `releases rollout ${action}`,
             action: action,
             target: options.track,
-            details: { percentage: options.to },
+            details: { percentage: options.to !== undefined ? `${options.to}%` : undefined },
           },
           format,
           formatOutput,
@@ -369,7 +419,13 @@ export function registerReleasesCommands(program: Command): void {
         process.exit(2);
       }
 
-      console.log(`Release notes set for ${options.track} (${options.lang})`);
+      console.error(
+        "Error: gpc releases notes set is not yet implemented as a standalone command.\n" +
+        "To set release notes, use --notes, --notes-dir, or --notes-from-git with:\n" +
+        "  gpc releases upload\n" +
+        "  gpc publish"
+      );
+      process.exit(1);
     });
 
   // Upload externally hosted APK
