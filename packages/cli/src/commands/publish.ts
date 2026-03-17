@@ -1,4 +1,4 @@
-import { appendFile } from "node:fs/promises";
+import { appendFile, stat } from "node:fs/promises";
 import type { GpcConfig, OutputFormat } from "@gpc-cli/config";
 import type { Command } from "commander";
 import { loadConfig, getCacheDir } from "@gpc-cli/config";
@@ -121,6 +121,13 @@ export function registerPublishCommand(program: Command): void {
     .option("--mapping <file>", "ProGuard/R8 mapping file for deobfuscation")
     .option("--retry-log <path>", "Write retry log entries to file (JSONL)")
     .action(async (file: string, options) => {
+      try {
+        await stat(file);
+      } catch {
+        console.error(`Error: File not found: ${file}`);
+        process.exit(2);
+      }
+
       const noteSources = [options.notes, options.notesDir, options.notesFromGit].filter(Boolean);
       if (noteSources.length > 1) {
         console.error(
