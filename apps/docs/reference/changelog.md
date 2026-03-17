@@ -6,7 +6,17 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.32 <Badge type="tip" text="latest" />
+## v0.9.33 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- **fix: `gpc version --json` outputs structured JSON** — was printing plain version text regardless of the flag; now returns `{ version, node, platform, installMethod }` as JSON
+- **fix: `GPC_DEBUG=1` no longer causes intermittent "too many arguments" errors** — debug mode was injecting `--verbose` into `process.argv` before command parsing, which could corrupt subcommand routing
+- **fix: `--vitals-gate` with `--dry-run` now warns instead of silently skipping** — combining the two flags previously gave no indication the gate wasn't running; now prints a warning to stderr
+- **docs: product name updated to "GPC — Google Play Console CLI"** — README, docs site, npm package descriptions, `gpc --help`, and GitHub repo metadata
+- 1,467 tests
+
+## v0.9.32
 
 _March 2026_
 
