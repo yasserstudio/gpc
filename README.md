@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-1358_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-1461_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
@@ -109,7 +109,7 @@ GPC covers the **entire Google Play Developer API** in one CLI. No Ruby. No brow
 | CI/CD native        | JSON + exit codes + env vars | Partial         | Gradle tasks          | No           |
 | Plugin system       | Yes                          | No              | No                    | No           |
 | Interactive mode    | Yes (guided prompts)         | No              | No                    | N/A          |
-| Test suite          | 1,453 tests, 90%+ coverage   | —               | —                     | —            |
+| Test suite          | 1,461 tests, 90%+ coverage   | —               | —                     | —            |
 
 ---
 
@@ -333,7 +333,8 @@ CLI for your terminal. SDK for everything else.
 | `GPC_APP`             | Default package name                     | —                             |
 | `GPC_PROFILE`         | Auth profile name                        | —                             |
 | `GPC_OUTPUT`          | Default output format                    | `table` (TTY) / `json` (pipe) |
-| `GPC_NO_COLOR`        | Disable color output                     | —                             |
+| `GPC_NO_COLOR`        | Disable color output (`GPC_NO_COLOR=1`)  | —                             |
+| `GPC_DEBUG`           | Enable verbose debug output (`GPC_DEBUG=1`) | —                          |
 | `GPC_NO_INTERACTIVE`  | Disable prompts (auto in CI)             | —                             |
 | `GPC_MAX_RETRIES`     | Max retry attempts                       | `3`                           |
 | `GPC_TIMEOUT`         | Request timeout (ms)                     | `30000`                       |
@@ -390,7 +391,7 @@ git clone https://github.com/yasserstudio/gpc.git
 cd gpc
 pnpm install
 pnpm build
-pnpm test    # 1,453 tests across 7 packages
+pnpm test    # 1,461 tests across 7 packages
 ```
 
 ---
