@@ -8,11 +8,11 @@ GPC v0.9.x is a pre-release series working toward a stable **1.0.0** public laun
 
 ## Current Status
 
-**v0.9.31** is the latest release. GPC currently covers:
+**v0.9.32** is the latest release. GPC currently covers:
 
 - **187 API endpoints** across the Android Publisher API v3 and Play Developer Reporting API
 - **32 command groups**, 100+ subcommands
-- **1,453 tests**, 90%+ line coverage across all core packages
+- **1,461 tests**, 90%+ line coverage across all core packages
 - **7 published packages** under the `@gpc-cli` scope
 - Complete coverage of releases, listings, vitals, reviews, subscriptions, IAP, purchases, users, reports, and more
 
@@ -64,15 +64,11 @@ Up to 10 parallel API calls (current + prior period for trend data), results in 
 
 The biggest gap in today's Android tooling is **analysis on top of the API** — not just wrapping endpoints, but answering the question: _should I do this thing?_
 
-#### Vitals-Gated Rollouts
+#### Vitals-Gated Rollouts :white_check_mark: Shipped (v0.9.32)
 
-Combine rollout management with vitals monitoring into a safety primitive:
+`gpc releases rollout increase --vitals-gate` is available now. Before increasing rollout percentage, GPC checks the crash and ANR rates for the current version. If they exceed configured thresholds, the command refuses to proceed and tells you why.
 
-```bash
-gpc releases rollout increase --to 25 --vitals-gate
-```
-
-Before increasing rollout percentage, GPC checks the crash and ANR rates for the current version. If they exceed configured thresholds, the command refuses to proceed and tells you why. A `--auto-halt-rollout` flag lets you run continuous monitoring that pauses a live rollout if vitals degrade.
+Remaining enhancement for post-1.0: `--auto-halt-rollout` for continuous monitoring that pauses a live rollout if vitals degrade.
 
 #### Release Regression Analysis
 

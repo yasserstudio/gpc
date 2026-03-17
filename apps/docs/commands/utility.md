@@ -2,19 +2,23 @@
 outline: deep
 ---
 
-# doctor / docs / completion
+# doctor / docs / version / cache / feedback / completion
 
-Utility commands for environment verification, documentation access, and shell completions.
+Utility commands for environment verification, documentation access, version info, cache management, and shell completions.
 
 ## Commands
 
-| Command                               | Description                   |
-| ------------------------------------- | ----------------------------- |
-| [`doctor`](#gpc-doctor)               | Verify setup and connectivity |
-| [`docs`](#gpc-docs)                   | Open documentation in browser |
-| [`completion bash`](#completion-bash) | Generate bash completions     |
-| [`completion zsh`](#completion-zsh)   | Generate zsh completions      |
-| [`completion fish`](#completion-fish) | Generate fish completions     |
+| Command                               | Description                              |
+| ------------------------------------- | ---------------------------------------- |
+| [`doctor`](#gpc-doctor)               | Verify setup and connectivity            |
+| [`docs`](#gpc-docs)                   | Open documentation in browser            |
+| [`version --json`](#gpc-version)      | Print version and install info as JSON   |
+| [`cache`](#gpc-cache)                 | Manage status, token, and update cache   |
+| [`auth token`](#gpc-auth-token)       | Print current access token               |
+| [`feedback`](#gpc-feedback)           | Open a pre-filled GitHub issue           |
+| [`completion bash`](#completion-bash) | Generate bash completions                |
+| [`completion zsh`](#completion-zsh)   | Generate zsh completions                 |
+| [`completion fish`](#completion-fish) | Generate fish completions                |
 
 ## `gpc doctor`
 
@@ -172,26 +176,26 @@ gpc update --check --output json | jq '.updateAvailable'
 
 **Update available:**
 ```
-Update available: 0.9.30 → 0.9.31
+Update available: 0.9.31 → 0.9.32
 Install method: homebrew
-Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.31
+Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.32
 
 Run: gpc update
 ```
 
 **Already on latest:**
 ```
-Already on latest version: v0.9.31
+Already on latest version: v0.9.32
 ```
 
 **`--output json` (update available):**
 ```json
 {
-  "current": "0.9.30",
-  "latest": "0.9.31",
+  "current": "0.9.31",
+  "latest": "0.9.32",
   "updateAvailable": true,
   "installMethod": "homebrew",
-  "releaseUrl": "https://github.com/yasserstudio/gpc/releases/tag/v0.9.31"
+  "releaseUrl": "https://github.com/yasserstudio/gpc/releases/tag/v0.9.32"
 }
 ```
 
@@ -280,6 +284,131 @@ Available topics:
 If an unknown topic is passed, the command exits code 2 with a suggestion to run `gpc docs --list`.
 
 Opens `https://yasserstudio.github.io/gpc/` (or the topic-specific page) in the default browser. If the browser cannot be opened, prints the URL to stdout.
+
+---
+
+## `gpc version`
+
+Print the current GPC version. Add `--json` to get structured output including install method and platform info.
+
+### Synopsis
+
+```bash
+gpc version [--json]
+```
+
+### Options
+
+| Flag | Description |
+| --- | --- |
+| `--json` | Output version info as machine-readable JSON |
+
+### Example
+
+```bash
+gpc version
+# v0.9.32
+
+gpc version --json
+```
+
+```json
+{
+  "version": "0.9.32",
+  "installMethod": "homebrew",
+  "platform": "darwin-arm64",
+  "node": "22.12.0"
+}
+```
+
+---
+
+## `gpc cache`
+
+Manage the local GPC cache. GPC caches app status snapshots, OAuth access tokens, and update-check results to reduce API calls and improve responsiveness.
+
+### Synopsis
+
+```bash
+gpc cache list
+gpc cache clear [--type <status|token|update-check>]
+```
+
+### Subcommands
+
+| Subcommand | Description |
+| --- | --- |
+| `list` | Show all cached entries with type, age, and size |
+| `clear` | Clear all cache entries or a specific type |
+
+### Options
+
+| Flag | Description |
+| --- | --- |
+| `--type <type>` | Clear only entries of the given type: `status`, `token`, or `update-check` |
+
+### Examples
+
+```bash
+# List all cache entries
+gpc cache list
+
+# Clear everything
+gpc cache clear
+
+# Clear only the access token cache (forces re-auth on next command)
+gpc cache clear --type token
+
+# Clear only status snapshots
+gpc cache clear --type status
+```
+
+---
+
+## `gpc auth token`
+
+Print the current Google API access token to stdout. Useful for scripting, debugging, or passing to other tools that call the Google Play API directly.
+
+### Synopsis
+
+```bash
+gpc auth token
+```
+
+### Example
+
+```bash
+gpc auth token
+# ya29.a0ARrdaM...
+
+# Use in a curl call
+curl -H "Authorization: Bearer $(gpc auth token)" \
+  "https://androidpublisher.googleapis.com/androidpublisher/v3/applications/com.example.app/tracks"
+```
+
+The token is fetched using your configured credentials (service account, OAuth, or ADC). It is cached for its remaining lifetime.
+
+---
+
+## `gpc feedback`
+
+Open a pre-filled GitHub issue in your default browser with system diagnostics attached. The issue template includes your GPC version, install method, platform, Node.js version, and the output of `gpc doctor`.
+
+### Synopsis
+
+```bash
+gpc feedback
+```
+
+### Example
+
+```bash
+gpc feedback
+# Opening GitHub issue in browser...
+# https://github.com/yasserstudio/gpc/issues/new?...
+```
+
+If the browser cannot be opened, the URL is printed to stdout so you can copy it manually.
 
 ---
 
