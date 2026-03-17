@@ -1,5 +1,26 @@
 # @gpc-cli/cli
 
+## 0.9.29
+
+### Patch Changes
+
+- fix(releases): validate --rollout on promote and rollout increase; guard same-track promote
+  fix(releases): notes set now exits with helpful error instead of silently succeeding
+  fix(releases): upload and publish check file exists before resolving auth
+  fix(releases): status shows rollout as "10%" not "0.1"
+  fix(releases): status sorts production before internal by default
+  fix(releases): rollout increase dry-run shows "25%" not "25" in details
+  fix(releases): upload spinner shows filename and file size
+  fix(status): --sections filter now applies to cached data (closes bug #9b)
+  fix(status): --days validates positive integer before API calls
+  fix(status): --watch warns when combined with --since-last (ignored in watch mode)
+  fix(status): --since-last diff header uses relative time ("5h ago") not locale clock string
+  fix(status): header timestamps use relative time ("5 min ago", "2h ago")
+  fix(audit): list and search show human-readable timestamps in table output
+  feat(docs): gpc docs [topic] routes to specific page; --list shows available topics
+- Updated dependencies
+  - @gpc-cli/core@0.9.26
+
 ## 0.9.28
 
 ### Patch Changes
