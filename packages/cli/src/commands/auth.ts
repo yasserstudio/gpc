@@ -134,6 +134,27 @@ export function registerAuthCommands(program: Command): void {
     });
 
   auth
+    .command("token")
+    .description("Print the current access token (useful for manual API calls)")
+    .action(async () => {
+      try {
+        const config = await loadConfig();
+        const authClient = await resolveAuth({
+          serviceAccountPath: config.auth?.serviceAccount,
+          cachePath: getCacheDir(),
+        });
+        const token = await authClient.getAccessToken();
+        console.log(token);
+      } catch (error) {
+        if (error instanceof AuthError) {
+          console.error(`Error: ${error.message}`);
+          process.exit(3);
+        }
+        throw error;
+      }
+    });
+
+  auth
     .command("profiles")
     .description("List configured profiles")
     .action(async () => {
