@@ -1,5 +1,5 @@
 import { appendFile, stat } from "node:fs/promises";
-import { basename } from "node:path";
+import { basename, extname } from "node:path";
 import type { GpcConfig } from "@gpc-cli/config";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
@@ -67,6 +67,12 @@ export function registerReleasesCommands(program: Command): void {
         await stat(file);
       } catch {
         console.error(`Error: File not found: ${file}`);
+        process.exit(2);
+      }
+
+      const ext = extname(file).toLowerCase();
+      if (ext !== ".aab" && ext !== ".apk") {
+        console.error(`Error: Expected .aab or .apk file, got "${ext || "(no extension)"}"`);
         process.exit(2);
       }
 
