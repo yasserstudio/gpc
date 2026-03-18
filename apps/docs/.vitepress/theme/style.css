@@ -326,7 +326,8 @@ html {
   padding: 4px 10px;
   transition:
     color 0.13s ease,
-    background 0.13s ease;
+    background 0.13s ease,
+    box-shadow 0.13s ease;
 }
 
 .VPSidebarItem.level-1 > .item > .link:hover,
@@ -340,8 +341,18 @@ html {
   font-weight: 600 !important;
   color: var(--vp-c-brand-1) !important;
   background: var(--vp-c-brand-soft) !important;
-  border-left: 2px solid var(--vp-c-brand-1);
-  padding-left: 8px !important;
+  box-shadow:
+    0 0 0 1px rgba(26, 115, 232, 0.18),
+    0 0 14px rgba(26, 115, 232, 0.22),
+    0 2px 6px rgba(26, 115, 232, 0.1) !important;
+}
+
+.dark .VPSidebarItem.level-1.is-active > .item > .link,
+.dark .VPSidebarItem.level-2.is-active > .item > .link {
+  box-shadow:
+    0 0 0 1px rgba(77, 149, 241, 0.22),
+    0 0 18px rgba(77, 149, 241, 0.28),
+    0 2px 8px rgba(77, 149, 241, 0.14) !important;
 }
 
 /* ================================================================
