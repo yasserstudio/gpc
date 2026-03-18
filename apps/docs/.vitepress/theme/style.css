@@ -650,8 +650,63 @@ html {
 }
 
 .vp-doc div[class*='language-bash'] pre,
-.vp-doc div[class*='language-sh']   pre {
+.vp-doc div[class*='language-sh']   pre,
+.vp-doc div[class*='language-shell'] pre,
+.vp-doc div[class*='language-zsh']   pre {
   font-size: 0.858rem !important;
+}
+
+/* ── Terminal chrome on shell code blocks ──────────────────────── */
+
+.vp-doc div[class*='language-bash'],
+.vp-doc div[class*='language-sh'],
+.vp-doc div[class*='language-shell'],
+.vp-doc div[class*='language-zsh'] {
+  padding-top: 40px !important;
+}
+
+.vp-doc div[class*='language-bash']::before,
+.vp-doc div[class*='language-sh']::before,
+.vp-doc div[class*='language-shell']::before,
+.vp-doc div[class*='language-zsh']::before {
+  content: 'terminal';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  background-color: #161b22;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background-image:
+    radial-gradient(circle, #ff5f57 5px, transparent 5px),
+    radial-gradient(circle, #febc2e 5px, transparent 5px),
+    radial-gradient(circle, #28c840 5px, transparent 5px);
+  background-position: 14px center, 30px center, 46px center;
+  background-repeat: no-repeat;
+  font-family: var(--vp-font-family-base);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.22);
+  letter-spacing: 0.06em;
+  z-index: 2;
+}
+
+/* Hide the default lang label — title shown in chrome header */
+.vp-doc div[class*='language-bash'] .lang,
+.vp-doc div[class*='language-sh'] .lang,
+.vp-doc div[class*='language-shell'] .lang,
+.vp-doc div[class*='language-zsh'] .lang {
+  display: none !important;
+}
+
+/* Push copy button below terminal header */
+.vp-doc div[class*='language-bash'] > button.copy,
+.vp-doc div[class*='language-sh'] > button.copy,
+.vp-doc div[class*='language-shell'] > button.copy,
+.vp-doc div[class*='language-zsh'] > button.copy {
+  top: 50px !important;
 }
 
 /* Inline code */
