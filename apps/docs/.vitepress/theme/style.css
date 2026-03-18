@@ -315,6 +315,10 @@ html {
 
 .VPSidebarItem.level-0 > .item {
   border-top: none !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 0 !important;
 }
 
 .VPSidebarItem.level-0 > .item > .text {
