@@ -37,7 +37,12 @@ const METRIC_SET_METRICS: Record<VitalsMetricSet, string[]> = {
   slowStartRateMetricSet: ["slowStartRate", "distinctUsers"],
   slowRenderingRateMetricSet: ["slowRenderingRate", "distinctUsers"],
   excessiveWakeupRateMetricSet: ["excessiveWakeupRate", "distinctUsers"],
-  stuckBackgroundWakelockRateMetricSet: ["stuckBackgroundWakelockRate", "distinctUsers"],
+  // API requires the weighted variants — base `stuckBackgroundWakelockRate` is not a valid metric
+  stuckBackgroundWakelockRateMetricSet: [
+    "stuckBackgroundWakelockRate7dUserWeighted",
+    "stuckBackgroundWakelockRate28dUserWeighted",
+    "distinctUsers",
+  ],
   errorCountMetricSet: ["errorReportCount", "distinctUsers"],
 };
 

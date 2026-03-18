@@ -59,14 +59,12 @@ export function registerQuickstartCommand(program: Command): void {
       if (allPassed) {
         try {
           const { spawnSync } = await import("node:child_process");
-          const result = spawnSync(
-            process.execPath,
-            [process.argv[1] ?? "gpc", "doctor", "--quiet"],
-            {
-              stdio: "pipe",
-              encoding: "utf-8",
-            },
-          );
+          // stdout/stderr captured via "pipe" — no need for --quiet flag
+          // (--quiet after the subcommand name is treated as an unknown subcommand option)
+          const result = spawnSync(process.execPath, [process.argv[1] ?? "gpc", "doctor"], {
+            stdio: "pipe",
+            encoding: "utf-8",
+          });
           if (result.status === 0) {
             step(4, total, "Running doctor...", "✓ All checks passed");
           } else {
