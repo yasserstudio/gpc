@@ -109,8 +109,7 @@ export function registerAuditCommands(program: Command): void {
     .option("--dry-run", "Preview what would be cleared")
     .action(async (options, cmd: Command) => {
       const dryRun = options.dryRun || isDryRun(cmd);
-      const config = await loadConfig();
-      const format = getOutputFormat(program, config);
+      await loadConfig();
       initAudit(getConfigDir());
 
       if (!dryRun && !options.before) {

@@ -1,6 +1,6 @@
-import { Command } from "commander";
-import { readdir, stat, unlink, rm } from "node:fs/promises";
-import { join, extname, basename } from "node:path";
+import type { Command } from "commander";
+import { readdir, stat, unlink } from "node:fs/promises";
+import { join } from "node:path";
 import { getCacheDir } from "@gpc-cli/config";
 
 const FILE_TYPES: Record<string, (name: string) => boolean> = {

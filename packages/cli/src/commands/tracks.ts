@@ -16,7 +16,7 @@ export function registerTracksCommands(program: Command): void {
     .description("List all tracks")
     .option("--limit <n>", "Maximum results to return")
     .option("--next-page <token>", "Pagination token for next page")
-    .action(async (options) => {
+    .action(async (_options) => {
       const config = await loadConfig();
       const packageName = program.opts()["app"] || config.app;
       if (!packageName) {

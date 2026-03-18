@@ -23,7 +23,7 @@ export function registerConfigCommands(program: Command): void {
         console.log("\nGPC Setup Wizard\n");
 
         // Package name
-        let app = await promptInput("Default package name (e.g. com.example.app, blank to skip)");
+        const app = await promptInput("Default package name (e.g. com.example.app, blank to skip)");
         if (app) {
           if (!ANDROID_PACKAGE_RE.test(app)) {
             console.error(
@@ -41,7 +41,7 @@ export function registerConfigCommands(program: Command): void {
         );
 
         if (authMethod === "service-account") {
-          let saPath = "";
+          let saPath: string;
           while (true) {
             saPath = await promptInput("Path to service account JSON key file");
             if (!saPath) {

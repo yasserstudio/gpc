@@ -34,7 +34,8 @@ function sanitizeSubscription(data: Subscription): Subscription {
 
   if (cleaned.basePlans) {
     cleaned.basePlans = cleaned.basePlans.map((bp) => {
-      const { state: _s, archived: _a, ...cleanBp } = bp;
+      const { state: _state, archived: _archived, ...cleanBp } = bp;
+      void _state; void _archived;
       // Coerce Money.units to string in regional configs
       if (cleanBp.regionalConfigs) {
         cleanBp.regionalConfigs = cleanBp.regionalConfigs.map((rc) => ({
@@ -49,7 +50,8 @@ function sanitizeSubscription(data: Subscription): Subscription {
 }
 
 function sanitizeOffer(data: SubscriptionOffer): SubscriptionOffer {
-  const { state: _s, ...cleaned } = data;
+  const { state: _state2, ...cleaned } = data;
+  void _state2;
   delete (cleaned as Record<string, unknown>)["archived"];
   return cleaned as SubscriptionOffer;
 }
@@ -72,7 +74,7 @@ function autoFixProrationMode(data: Subscription): void {
   for (const bp of data.basePlans) {
     const mode = bp.autoRenewingBasePlanType?.prorationMode;
     if (mode && !mode.startsWith(PRORATION_MODE_PREFIX)) {
-      bp.autoRenewingBasePlanType!.prorationMode = `${PRORATION_MODE_PREFIX}${mode}`;
+      if (bp.autoRenewingBasePlanType) bp.autoRenewingBasePlanType.prorationMode = `${PRORATION_MODE_PREFIX}${mode}`;
     }
     if (bp.autoRenewingBasePlanType?.prorationMode) {
       const fullMode = bp.autoRenewingBasePlanType.prorationMode;

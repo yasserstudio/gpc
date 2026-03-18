@@ -52,7 +52,8 @@ function formatValidationOutput(result: PublishResult, format: OutputFormat): st
 function formatPublishOutput(result: PublishResult, format: OutputFormat): string {
   if (format !== "table") return formatOutput(result, format);
 
-  const upload = result.upload!;
+  const upload = result.upload;
+  if (!upload) return formatOutput(result, format);
   const rollout =
     upload.status === "inProgress" && "userFraction" in upload
       ? ` (${Math.round(Number((upload as Record<string, unknown>)["userFraction"]) * 100)}% rollout)`

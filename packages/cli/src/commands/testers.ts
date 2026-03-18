@@ -9,7 +9,6 @@ import {
   removeTesters,
   importTestersFromCsv,
   formatOutput,
-  sortResults,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";

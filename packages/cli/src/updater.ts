@@ -315,10 +315,10 @@ async function sha256File(filePath: string): Promise<string> {
   // Read in 64 KB chunks
   const { createReadStream } = await import("node:fs");
   const stream = createReadStream(filePath);
-  await pipeline(stream, async function* (source) {
-    for await (const chunk of source) {
-      hash.update(chunk as Buffer);
-    }
+  await new Promise<void>((resolve, reject) => {
+    stream.on("data", (chunk: Buffer) => hash.update(chunk));
+    stream.on("end", resolve);
+    stream.on("error", reject);
   });
   return hash.digest("hex");
 }

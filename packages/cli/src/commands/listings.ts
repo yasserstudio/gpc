@@ -10,7 +10,6 @@ import {
   deleteListing,
   pullListings,
   pushListings,
-  diffListingsCommand,
   diffListingsEnhanced,
   lintLocalListings,
   analyzeRemoteListings,

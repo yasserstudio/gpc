@@ -171,16 +171,15 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     const dp: number[][] = Array.from({ length: m + 1 }, (_, i) =>
       Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0))
     );
+    const cell = (r: number, c: number): number => dp[r]?.[c] ?? 0;
     for (let i = 1; i <= m; i++) {
       for (let j = 1; j <= n; j++) {
-        const row = dp[i]!;
-        const prevRow = dp[i - 1]!;
-        row[j] = a[i - 1] === b[j - 1]
-          ? prevRow[j - 1]!
-          : 1 + Math.min(prevRow[j]!, row[j - 1]!, prevRow[j - 1]!);
+        (dp[i] as number[])[j] = a[i - 1] === b[j - 1]
+          ? cell(i - 1, j - 1)
+          : 1 + Math.min(cell(i - 1, j), cell(i, j - 1), cell(i - 1, j - 1));
       }
     }
-    return dp[m]![n]!;
+    return cell(m, n);
   }
 
   program.on("command:*", (operands: string[]) => {
