@@ -4,7 +4,7 @@ outline: deep
 
 # Installation
 
-GPC supports four installation methods. Choose based on your environment:
+GPC is free and open-source (MIT). Choose the installation method that fits your environment:
 
 | Method                                  | Best For                   | Plugin Support | Auto-Update     |
 | --------------------------------------- | -------------------------- | -------------- | --------------- |
@@ -279,6 +279,7 @@ gpc completion fish > ~/.config/fish/completions/gpc.fish
 
 ## Next Steps
 
-- [Quick Start](/guide/quick-start) -- Authenticate and run your first commands
-- [Authentication](/guide/authentication) -- Set up service accounts, OAuth, or ADC
-- [Configuration](/guide/configuration) -- Config files, environment variables, and profiles
+- [Quick Start](/guide/quick-start) — Authenticate and run your first commands
+- [Authentication](/guide/authentication) — Set up service accounts, OAuth, or ADC
+- [Configuration](/guide/configuration) — Config files, environment variables, and profiles
+- [Migration from Fastlane](/migration/from-fastlane) — Most commands map one-to-one
