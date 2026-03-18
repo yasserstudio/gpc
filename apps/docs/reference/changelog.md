@@ -65,11 +65,11 @@ _March 2026_
 - feat: `gpc purchases subscription refund <token>` — refund a subscription using v2 API
 - feat: Color output on `gpc validate` — pass shows `✓` in green, fail `✗` in red
 
-**Stats:** ~1,700 tests · 7 packages · 187+ API endpoints
+**Stats:** 1,536 tests · 7 packages · 187+ API endpoints
 
 ---
 
-## v0.9.34 <Badge type="warning" text="previous" />
+## v0.9.34
 
 **Bug Fixes**
 
