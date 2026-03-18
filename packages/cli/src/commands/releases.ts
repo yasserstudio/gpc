@@ -5,7 +5,7 @@ import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient, createReportingClient } from "@gpc-cli/api";
-import type { RetryLogEntry } from "@gpc-cli/api";
+import type { RetryLogEntry, ExternallyHostedApk } from "@gpc-cli/api";
 import {
   uploadRelease,
   getReleasesStatus,
@@ -507,7 +507,7 @@ export function registerReleasesCommands(program: Command): void {
         const result = await uploadExternallyHosted(
           client,
           packageName,
-          apkConfig as import("@gpc-cli/api").ExternallyHostedApk,
+          apkConfig as ExternallyHostedApk,
         );
         console.log(formatOutput(result, format));
       } catch (error) {

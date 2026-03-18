@@ -4,9 +4,6 @@ import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
 import {
-  getDataSafety,
-  updateDataSafety,
-  exportDataSafety,
   importDataSafety,
   formatOutput,
 } from "@gpc-cli/core";

@@ -4,9 +4,7 @@ import {
   isValidReportType,
   isFinancialReportType,
   isStatsReportType,
-  formatOutput,
 } from "@gpc-cli/core";
-import { getOutputFormat } from "../format.js";
 
 const FINANCIAL_REPORT_MESSAGE = `Financial reports (earnings, sales, estimated_sales, play_balance) are not available through the Google Play Developer API.
 

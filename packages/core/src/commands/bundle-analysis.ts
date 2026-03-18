@@ -276,7 +276,7 @@ export async function checkBundleSize(
   analysis: BundleAnalysis,
   configPath: string = ".bundlesize.json",
 ): Promise<BundleSizeCheckResult> {
-  let config: BundleSizeConfig = {};
+  let config: BundleSizeConfig;
   try {
     const raw = await readFile(configPath, "utf-8");
     config = JSON.parse(raw) as BundleSizeConfig;

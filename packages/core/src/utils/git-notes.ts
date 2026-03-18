@@ -34,7 +34,7 @@ const DEFAULT_MAX_LENGTH = 500;
 function parseConventionalCommit(subject: string): ParsedCommit {
   const match = subject.match(/^(\w+)(?:\([^)]*\))?:\s*(.+)$/);
   if (match) {
-    return { type: match[1]!, message: match[2]!.trim() };
+    return { type: match[1] ?? "other", message: (match[2] ?? "").trim() };
   }
   return { type: "other", message: subject.trim() };
 }
@@ -47,7 +47,7 @@ function formatNotes(commits: ParsedCommit[], maxLength: number): { text: string
     if (!groups.has(header)) {
       groups.set(header, []);
     }
-    groups.get(header)!.push(commit.message);
+    groups.get(header)?.push(commit.message);
   }
 
   // Order: New, Fixed, Improved, then Changes

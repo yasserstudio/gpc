@@ -37,5 +37,9 @@
   },
   "devDependencies": {
     "@types/node": "^25.3.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yasserstudio/gpc"
   }
 }

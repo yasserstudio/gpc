@@ -9,7 +9,7 @@ import { validateUploadFile } from "../utils/file-validation.js";
  * If the API returns API_EDIT_EXPIRED (FAILED_PRECONDITION), the helper opens a
  * fresh edit and retries the operation exactly once.
  */
-async function withFreshEdit<T>(
+export async function withFreshEdit<T>(
   client: PlayApiClient,
   packageName: string,
   operation: (editId: string) => Promise<T>,

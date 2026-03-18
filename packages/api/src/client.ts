@@ -709,7 +709,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const params: Record<string, string> = {};
         if (updateMask) params["updateMask"] = updateMask;
         params["regionsVersion.version"] = regionsVersion || "2022/02";
-        let path = `/${packageName}/subscriptions/${productId}?${new URLSearchParams(params).toString()}`;
+        const path = `/${packageName}/subscriptions/${productId}?${new URLSearchParams(params).toString()}`;
         const { data } = await http.patch<Subscription>(path, body);
         return data;
       },
@@ -773,7 +773,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const params: Record<string, string> = {};
         if (updateMask) params["updateMask"] = updateMask;
         params["regionsVersion.version"] = regionsVersion || "2022/02";
-        let path = `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}?${new URLSearchParams(params).toString()}`;
+        const path = `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}?${new URLSearchParams(params).toString()}`;
         const { data } = await http.patch<SubscriptionOffer>(path, body);
         return data;
       },

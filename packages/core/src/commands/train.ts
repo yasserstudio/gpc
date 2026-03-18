@@ -89,7 +89,8 @@ export async function advanceTrain(
     return state;
   }
 
-  const nextStageConfig = state.stages[nextStage]!;
+  const nextStageConfig = state.stages[nextStage];
+  if (!nextStageConfig) return state;
 
   // Check `after` delay
   if (nextStageConfig.after) {
@@ -155,7 +156,8 @@ async function executeStage(
   state: TrainState,
   stageIndex: number,
 ): Promise<void> {
-  const stage = state.stages[stageIndex]!;
+  const stage = state.stages[stageIndex];
+  if (!stage) throw new Error(`Stage ${stageIndex} not found`);
   const rolloutFraction = stage.rollout / 100;
 
   await updateRollout(apiClient, packageName, stage.track, "increase", rolloutFraction);

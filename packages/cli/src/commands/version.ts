@@ -1,4 +1,4 @@
-import { Command } from "commander";
+import type { Command } from "commander";
 import { detectInstallMethod } from "../updater.js";
 
 export function registerVersionCommand(program: Command): void {

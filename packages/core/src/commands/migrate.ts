@@ -235,7 +235,7 @@ export function generateMigrationPlan(detection: FastlaneDetection): MigrationRe
     ) {
       warnings.push(
         `Lane "${lane.name}" has no automatic GPC equivalent. ` +
-          "Check \`gpc plugins list\` or the plugin SDK docs to build a custom command.",
+          "Check `gpc plugins list` or the plugin SDK docs to build a custom command.",
       );
     }
   }

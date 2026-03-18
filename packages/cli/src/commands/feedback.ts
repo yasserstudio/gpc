@@ -1,4 +1,4 @@
-import { Command } from "commander";
+import type { Command } from "commander";
 import { execFile } from "node:child_process";
 import { detectInstallMethod } from "../updater.js";
 

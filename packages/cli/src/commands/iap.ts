@@ -10,8 +10,6 @@ import {
   updateInAppProduct,
   deleteInAppProduct,
   syncInAppProducts,
-  listInAppProducts,
-  batchSyncInAppProducts,
   formatOutput,
   sortResults,
   createSpinner,

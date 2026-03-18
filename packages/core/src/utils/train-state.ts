@@ -67,7 +67,7 @@ export async function clearTrainState(packageName: string): Promise<void> {
 export function parseDuration(s: string): number {
   const match = /^(\d+)(d|h|m)$/.exec(s.trim());
   if (!match) return 0;
-  const n = parseInt(match[1]!, 10);
+  const n = parseInt(match[1] ?? "0", 10);
   switch (match[2]) {
     case "d": return n * 24 * 60 * 60 * 1000;
     case "h": return n * 60 * 60 * 1000;

@@ -19,7 +19,7 @@ const AUTH_KEYWORDS = ["AUTH", "UNAUTHENTICATED", "PERMISSION_DENIED", "401", "4
 function isAuthRelatedError(error: unknown): boolean {
   if (isTypedError(error)) {
     if (error.exitCode === 3) return true;
-    if (error.code && AUTH_KEYWORDS.some((k) => error.code!.includes(k))) return true;
+    if (error.code && AUTH_KEYWORDS.some((k) => error.code?.includes(k))) return true;
   }
   const msg = error instanceof Error ? error.message : String(error);
   return AUTH_KEYWORDS.some((k) => msg.includes(k));
