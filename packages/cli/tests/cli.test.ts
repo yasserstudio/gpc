@@ -1806,29 +1806,24 @@ describe("gpc status --watch + --since-last warning", () => {
 // v0.9.29 – gpc docs routing and --list
 // ---------------------------------------------------------------------------
 describe("gpc docs routing", () => {
-  beforeEach(async () => {
-    // Re-apply execFile mock implementation to guard against any previous
-    // afterEach cleanups (vi.restoreAllMocks can clear mockImplementation)
-    const cp = await import("node:child_process");
-    vi.mocked(cp.execFile)
-      .mockClear()
-      .mockImplementation((_cmd, _args, cb) => {
-        if (typeof cb === "function") (cb as (err: null) => void)(null);
-      });
-  });
   afterEach(() => vi.restoreAllMocks());
 
   it("gpc docs releases calls execFile with URL containing 'commands/releases'", async () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
 
-    const childProcess = await import("node:child_process");
-    const execFileMock = vi.mocked(childProcess.execFile);
+    // Use namespace import + spyOn so the mock intercepts via the module object
+    // (ESM named bindings are fixed at import time and can't be patched after the fact)
+    const cp = await import("node:child_process");
+    const execFileSpy = vi.spyOn(cp, "execFile").mockImplementation((_cmd, _args, cb) => {
+      if (typeof cb === "function") (cb as (err: null) => void)(null);
+      return undefined as unknown as ReturnType<typeof cp.execFile>;
+    });
 
     const program = await createProgram();
     await program.parseAsync(["node", "gpc", "docs", "releases"]);
 
-    expect(execFileMock).toHaveBeenCalledWith(
+    expect(execFileSpy).toHaveBeenCalledWith(
       expect.any(String),
       expect.arrayContaining([expect.stringContaining("commands/releases")]),
       expect.any(Function),
