@@ -172,6 +172,21 @@ const isHome = () => page.value.frontmatter.layout === "home";
   justify-content: center;
 }
 
+@media (max-width: 960px) {
+  .terminal-window {
+    width: 360px;
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .terminal-window {
+    width: 100%;
+    max-width: 420px;
+    font-size: 0.7rem;
+  }
+}
+
 /* ── 404 page ────────────────────────────────────────────────────── */
 .gpc-404 {
   display: flex;
