@@ -24,7 +24,7 @@ export { createRateLimiter, RATE_LIMIT_BUCKETS } from "./rate-limiter.js";
 export type { RateLimitBucket, RateLimiter } from "./rate-limiter.js";
 export { paginate, paginateAll, paginateParallel } from "./paginate.js";
 export type { PaginateOptions } from "./paginate.js";
-export { ApiError } from "./errors.js";
+export { PlayApiError } from "./errors.js";
 export type {
   ApiClientOptions,
   ApiResponse,

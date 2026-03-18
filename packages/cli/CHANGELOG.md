@@ -1,5 +1,19 @@
 # @gpc-cli/cli
 
+## 0.9.37
+
+### Patch Changes
+
+- fix: security and code quality improvements
+  - fix(cli): replace execSync shell interpolation with spawnSync array args in `gpc plugins install/uninstall` — eliminates command injection risk when plugin names contain shell metacharacters
+  - fix(api): rename internal `ApiError` class to `PlayApiError` to eliminate naming collision with `@gpc-cli/core`'s `ApiError` — no behavioral change, single import site updated
+  - fix(core): replace `process.exit(2)` with a thrown error in `runWatchLoop()` validation — core packages should not call `process.exit` directly
+  - fix(cli): change `workspace:^` to `workspace:*` for `@gpc-cli/auth` dependency — consistent with all other workspace packages
+
+- Updated dependencies
+  - @gpc-cli/core@0.9.31
+  - @gpc-cli/api@1.0.20
+
 ## 0.9.36
 
 ### Patch Changes

@@ -357,10 +357,14 @@ function registerPluginsCommand(program: Command, manager?: PluginManager): void
     .command("install <name>")
     .description("Install a plugin from npm")
     .action(async (name: string) => {
-      const { execSync } = await import("node:child_process");
+      const { spawnSync } = await import("node:child_process");
       console.log(`Installing plugin "${name}"...`);
       try {
-        execSync(`npm install -g ${name}`, { stdio: "inherit" });
+        // Use spawnSync with an array to avoid shell injection — no shell is invoked
+        const result = spawnSync("npm", ["install", "-g", name], { stdio: "inherit" });
+        if (result.status !== 0) {
+          throw new Error(`npm install exited with code ${result.status ?? "unknown"}`);
+        }
         const { approvePlugin } = await import("@gpc-cli/config");
         await approvePlugin(name);
         console.log(`\nPlugin "${name}" installed and approved. It will be loaded on next run.`);
@@ -375,10 +379,14 @@ function registerPluginsCommand(program: Command, manager?: PluginManager): void
     .command("uninstall <name>")
     .description("Uninstall a plugin and revoke its approval")
     .action(async (name: string) => {
-      const { execSync } = await import("node:child_process");
+      const { spawnSync } = await import("node:child_process");
       console.log(`Uninstalling plugin "${name}"...`);
       try {
-        execSync(`npm uninstall -g ${name}`, { stdio: "inherit" });
+        // Use spawnSync with an array to avoid shell injection — no shell is invoked
+        const result = spawnSync("npm", ["uninstall", "-g", name], { stdio: "inherit" });
+        if (result.status !== 0) {
+          throw new Error(`npm uninstall exited with code ${result.status ?? "unknown"}`);
+        }
         const { revokePluginApproval } = await import("@gpc-cli/config");
         await revokePluginApproval(name);
         console.log(`\nPlugin "${name}" uninstalled and approval revoked.`);

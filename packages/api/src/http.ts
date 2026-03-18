@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { resolve, isAbsolute } from "node:path";
-import { ApiError } from "./errors.js";
+import { PlayApiError } from "./errors.js";
 import type { ApiClientOptions, ApiResponse } from "./types.js";
 
 /** Strip HTML tags and collapse whitespace from a string. */
@@ -33,7 +33,7 @@ function sanitizeErrorBody(body: string): string {
 function validateFilePath(filePath: string): string {
   const resolved = resolve(filePath);
   if (!isAbsolute(resolved)) {
-    throw new ApiError(
+    throw new PlayApiError(
       "Invalid file path",
       "API_INVALID_PATH",
       undefined,
@@ -42,7 +42,7 @@ function validateFilePath(filePath: string): string {
   }
   // Block obvious traversal patterns in the original input
   if (filePath.includes("\0")) {
-    throw new ApiError(
+    throw new PlayApiError(
       "Invalid file path: null bytes not allowed",
       "API_INVALID_PATH",
       undefined,
@@ -211,7 +211,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         const errorBody = await response.text();
         const { code, suggestion } = mapStatusToError(response.status, errorBody);
 
-        const err = new ApiError(
+        const err = new PlayApiError(
           `${method} ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
           code,
           response.status,
@@ -242,12 +242,12 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
 
         throw err;
       } catch (error) {
-        if (error instanceof ApiError) {
+        if (error instanceof PlayApiError) {
           throw error;
         }
 
         if (error instanceof DOMException && error.name === "AbortError") {
-          const timeoutErr = new ApiError(
+          const timeoutErr = new PlayApiError(
             `${method} ${path} timed out after ${timeout}ms`,
             "API_TIMEOUT",
             undefined,
@@ -268,7 +268,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
           throw timeoutErr;
         }
 
-        const networkErr = new ApiError(
+        const networkErr = new PlayApiError(
           `${method} ${path} failed: ${error instanceof Error ? error.message : String(error)}`,
           "API_NETWORK_ERROR",
           undefined,
@@ -295,7 +295,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     // Should not reach here, but just in case
     throw (
       lastError ??
-      new ApiError(
+      new PlayApiError(
         "Request failed",
         "API_NETWORK_ERROR",
         undefined,
@@ -361,7 +361,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         const errorBody = await response.text();
         const { code, suggestion } = mapStatusToError(response.status, errorBody);
 
-        const err = new ApiError(
+        const err = new PlayApiError(
           `POST upload ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
           code,
           response.status,
@@ -392,13 +392,13 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
 
         throw err;
       } catch (error) {
-        if (error instanceof ApiError) {
+        if (error instanceof PlayApiError) {
           throw error;
         }
 
         if (error instanceof DOMException && error.name === "AbortError") {
           const sizeMb = Math.round(fileBuffer.byteLength / (1024 * 1024));
-          const timeoutErr = new ApiError(
+          const timeoutErr = new PlayApiError(
             `POST upload ${path} timed out after ${effectiveTimeout}ms (file: ${sizeMb} MB)`,
             "API_TIMEOUT",
             undefined,
@@ -419,7 +419,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
           throw timeoutErr;
         }
 
-        const networkErr = new ApiError(
+        const networkErr = new PlayApiError(
           `POST upload ${path} failed: ${error instanceof Error ? error.message : String(error)}`,
           "API_NETWORK_ERROR",
           undefined,
@@ -445,7 +445,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
 
     throw (
       lastError ??
-      new ApiError(
+      new PlayApiError(
         "Upload request failed",
         "API_NETWORK_ERROR",
         undefined,
@@ -497,7 +497,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         if (!response.ok) {
           const errorBody = await response.text();
           const { code, suggestion } = mapStatusToError(response.status, errorBody);
-          throw new ApiError(
+          throw new PlayApiError(
             `GET ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
             code,
             response.status,

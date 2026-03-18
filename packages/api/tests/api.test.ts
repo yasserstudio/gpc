@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { ApiError } from "../src/errors";
+import { PlayApiError } from "../src/errors";
 import { createHttpClient } from "../src/http";
 import { createApiClient } from "../src/client";
 import { createReportingClient } from "../src/reporting-client";
@@ -22,13 +22,13 @@ function mockAuth() {
   return { getAccessToken: vi.fn().mockResolvedValue("test-token") };
 }
 
-describe("ApiError", () => {
+describe("PlayApiError", () => {
   it("has correct name, code, statusCode, message, and suggestion", () => {
-    const err = new ApiError("something broke", "API_UNAUTHORIZED", 401, "Check your token.");
+    const err = new PlayApiError("something broke", "API_UNAUTHORIZED", 401, "Check your token.");
 
     expect(err).toBeInstanceOf(Error);
-    expect(err).toBeInstanceOf(ApiError);
-    expect(err.name).toBe("ApiError");
+    expect(err).toBeInstanceOf(PlayApiError);
+    expect(err.name).toBe("PlayApiError");
     expect(err.code).toBe("API_UNAUTHORIZED");
     expect(err.statusCode).toBe(401);
     expect(err.message).toBe("something broke");
@@ -40,13 +40,13 @@ describe("ApiError", () => {
 // Phase 9 – error hierarchy
 // ---------------------------------------------------------------------------
 describe("error hierarchy", () => {
-  it("ApiError has exitCode 4", () => {
-    const err = new ApiError("fail", "FAIL_CODE", 500);
+  it("PlayApiError has exitCode 4", () => {
+    const err = new PlayApiError("fail", "FAIL_CODE", 500);
     expect(err.exitCode).toBe(4);
   });
 
-  it("ApiError has toJSON() that returns structured error", () => {
-    const err = new ApiError("not found", "NOT_FOUND", 404, "Check the resource ID.");
+  it("PlayApiError has toJSON() that returns structured error", () => {
+    const err = new PlayApiError("not found", "NOT_FOUND", 404, "Check the resource ID.");
     expect(err.toJSON()).toEqual({
       success: false,
       error: {
@@ -57,8 +57,8 @@ describe("error hierarchy", () => {
     });
   });
 
-  it("ApiError preserves statusCode", () => {
-    const err = new ApiError("rate limited", "RATE_LIMIT", 429, "Slow down.");
+  it("PlayApiError preserves statusCode", () => {
+    const err = new PlayApiError("rate limited", "RATE_LIMIT", 429, "Slow down.");
     expect(err.statusCode).toBe(429);
   });
 });
@@ -146,12 +146,12 @@ describe("createHttpClient", () => {
     expect(result).toEqual({ data: { ok: true }, status: 200 });
   });
 
-  it("throws ApiError with API_UNAUTHORIZED on 401", async () => {
+  it("throws PlayApiError with API_UNAUTHORIZED on 401", async () => {
     mockFetch.mockResolvedValueOnce(mockResponse({ error: "unauthorized" }, 401));
 
     const client = createHttpClient({ auth: mockAuth(), maxRetries: 0 });
 
-    await expect(client.get("/com.example.app/edits")).rejects.toThrow(ApiError);
+    await expect(client.get("/com.example.app/edits")).rejects.toThrow(PlayApiError);
     await expect(client.get("/com.example.app/edits")).rejects.toBeDefined();
 
     // Re-mock for a clean assertion
@@ -160,13 +160,13 @@ describe("createHttpClient", () => {
       await client.get("/com.example.app/edits");
       expect.unreachable("should have thrown");
     } catch (err) {
-      expect(err).toBeInstanceOf(ApiError);
-      expect((err as ApiError).code).toBe("API_UNAUTHORIZED");
-      expect((err as ApiError).statusCode).toBe(401);
+      expect(err).toBeInstanceOf(PlayApiError);
+      expect((err as PlayApiError).code).toBe("API_UNAUTHORIZED");
+      expect((err as PlayApiError).statusCode).toBe(401);
     }
   });
 
-  it("throws ApiError with API_FORBIDDEN on 403", async () => {
+  it("throws PlayApiError with API_FORBIDDEN on 403", async () => {
     mockFetch.mockResolvedValueOnce(mockResponse({ error: "forbidden" }, 403));
 
     const client = createHttpClient({ auth: mockAuth(), maxRetries: 0 });
@@ -175,13 +175,13 @@ describe("createHttpClient", () => {
       await client.get("/com.example.app/edits");
       expect.unreachable("should have thrown");
     } catch (err) {
-      expect(err).toBeInstanceOf(ApiError);
-      expect((err as ApiError).code).toBe("API_FORBIDDEN");
-      expect((err as ApiError).statusCode).toBe(403);
+      expect(err).toBeInstanceOf(PlayApiError);
+      expect((err as PlayApiError).code).toBe("API_FORBIDDEN");
+      expect((err as PlayApiError).statusCode).toBe(403);
     }
   });
 
-  it("throws ApiError with API_NOT_FOUND on 404", async () => {
+  it("throws PlayApiError with API_NOT_FOUND on 404", async () => {
     mockFetch.mockResolvedValueOnce(mockResponse({ error: "not found" }, 404));
 
     const client = createHttpClient({ auth: mockAuth(), maxRetries: 0 });
@@ -190,9 +190,9 @@ describe("createHttpClient", () => {
       await client.get("/com.example.app/edits/bad-id");
       expect.unreachable("should have thrown");
     } catch (err) {
-      expect(err).toBeInstanceOf(ApiError);
-      expect((err as ApiError).code).toBe("API_NOT_FOUND");
-      expect((err as ApiError).statusCode).toBe(404);
+      expect(err).toBeInstanceOf(PlayApiError);
+      expect((err as PlayApiError).code).toBe("API_NOT_FOUND");
+      expect((err as PlayApiError).statusCode).toBe(404);
     }
   });
 
@@ -209,14 +209,14 @@ describe("createHttpClient", () => {
       await client.get("/com.example.app/dataSafety");
       expect.unreachable("should have thrown");
     } catch (err) {
-      expect(err).toBeInstanceOf(ApiError);
-      expect((err as ApiError).message).not.toContain("<html>");
-      expect((err as ApiError).message).not.toContain("<body>");
-      expect((err as ApiError).message).toContain("Not Found");
+      expect(err).toBeInstanceOf(PlayApiError);
+      expect((err as PlayApiError).message).not.toContain("<html>");
+      expect((err as PlayApiError).message).not.toContain("<body>");
+      expect((err as PlayApiError).message).toContain("Not Found");
     }
   });
 
-  it("throws ApiError with API_RATE_LIMITED after max retries on 429", async () => {
+  it("throws PlayApiError with API_RATE_LIMITED after max retries on 429", async () => {
     mockFetch
       .mockResolvedValueOnce(mockResponse({ error: "rate limited" }, 429))
       .mockResolvedValueOnce(mockResponse({ error: "rate limited" }, 429))
@@ -233,9 +233,9 @@ describe("createHttpClient", () => {
       await client.get("/com.example.app/edits");
       expect.unreachable("should have thrown");
     } catch (err) {
-      expect(err).toBeInstanceOf(ApiError);
-      expect((err as ApiError).code).toBe("API_RATE_LIMITED");
-      expect((err as ApiError).statusCode).toBe(429);
+      expect(err).toBeInstanceOf(PlayApiError);
+      expect((err as PlayApiError).code).toBe("API_RATE_LIMITED");
+      expect((err as PlayApiError).statusCode).toBe(429);
     }
 
     // 1 initial + 2 retries = 3 total
@@ -255,7 +255,7 @@ describe("createHttpClient", () => {
       await client.get("/com.example.app/edits");
       expect.unreachable("should have thrown");
     } catch (err) {
-      expect(err).toBeInstanceOf(ApiError);
+      expect(err).toBeInstanceOf(PlayApiError);
     }
 
     expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -281,8 +281,8 @@ describe("createHttpClient", () => {
       await client.get("/com.example.app/edits");
       expect.unreachable("should have thrown");
     } catch (err) {
-      expect(err).toBeInstanceOf(ApiError);
-      expect((err as ApiError).code).toBe("API_TIMEOUT");
+      expect(err).toBeInstanceOf(PlayApiError);
+      expect((err as PlayApiError).code).toBe("API_TIMEOUT");
     }
   });
 });
@@ -1548,7 +1548,7 @@ describe("HTTP error paths and methods", () => {
       new Response("conflict", { status: 409, headers: { "Content-Type": "text/plain" } }),
     );
     const http = makeHttp();
-    await expect(http.get("/com.example/edits")).rejects.toThrow(ApiError);
+    await expect(http.get("/com.example/edits")).rejects.toThrow(PlayApiError);
     try {
       await http.get("/com.example/edits");
     } catch {
@@ -1562,7 +1562,7 @@ describe("HTTP error paths and methods", () => {
     try {
       await http2.get("/com.example/edits");
     } catch (err: any) {
-      expect(err).toBeInstanceOf(ApiError);
+      expect(err).toBeInstanceOf(PlayApiError);
       expect(err.code).toBe("API_EDIT_CONFLICT");
       expect(err.statusCode).toBe(409);
       expect(err.suggestion).toContain("Delete the existing edit");
@@ -1578,7 +1578,7 @@ describe("HTTP error paths and methods", () => {
     try {
       await http.post("/com.example/edits", { bad: true });
     } catch (err: any) {
-      expect(err).toBeInstanceOf(ApiError);
+      expect(err).toBeInstanceOf(PlayApiError);
       expect(err.code).toBe("API_HTTP_422");
       expect(err.statusCode).toBe(422);
       expect(err.suggestion).toBeUndefined();
@@ -1592,7 +1592,7 @@ describe("HTTP error paths and methods", () => {
     try {
       await http.get("/com.example/edits");
     } catch (err: any) {
-      expect(err).toBeInstanceOf(ApiError);
+      expect(err).toBeInstanceOf(PlayApiError);
       expect(err.code).toBe("API_NETWORK_ERROR");
       expect(err.message).toContain("fetch failed");
       expect(err.suggestion).toContain("network error");
@@ -1627,7 +1627,7 @@ describe("HTTP error paths and methods", () => {
         "application/octet-stream",
       );
     } catch (err: any) {
-      expect(err).toBeInstanceOf(ApiError);
+      expect(err).toBeInstanceOf(PlayApiError);
       expect(err.code).toBe("API_TIMEOUT");
       expect(err.message).toContain("timed out");
       expect(err.message).toContain("MB");
@@ -1661,7 +1661,7 @@ describe("HTTP error paths and methods", () => {
         "application/octet-stream",
       );
     } catch (err: any) {
-      expect(err).toBeInstanceOf(ApiError);
+      expect(err).toBeInstanceOf(PlayApiError);
       expect(err.code).toBe("API_NETWORK_ERROR");
       expect(err.message).toContain("network down");
     }
@@ -1964,33 +1964,33 @@ describe("createRateLimiter", () => {
 // ---------------------------------------------------------------------------
 // Error handling edge cases
 // ---------------------------------------------------------------------------
-describe("ApiError – edge cases", () => {
-  it("ApiError without statusCode has undefined statusCode", () => {
-    const err = new ApiError("generic error", "GENERIC");
+describe("PlayApiError – edge cases", () => {
+  it("PlayApiError without statusCode has undefined statusCode", () => {
+    const err = new PlayApiError("generic error", "GENERIC");
     expect(err.statusCode).toBeUndefined();
     expect(err.suggestion).toBeUndefined();
     expect(err.exitCode).toBe(4);
   });
 
-  it("ApiError without suggestion has undefined suggestion", () => {
-    const err = new ApiError("no suggestion", "NO_SUGGEST", 500);
+  it("PlayApiError without suggestion has undefined suggestion", () => {
+    const err = new PlayApiError("no suggestion", "NO_SUGGEST", 500);
     expect(err.suggestion).toBeUndefined();
   });
 
-  it("ApiError toJSON omits suggestion when not provided", () => {
-    const err = new ApiError("test", "TEST_CODE", 400);
+  it("PlayApiError toJSON omits suggestion when not provided", () => {
+    const err = new PlayApiError("test", "TEST_CODE", 400);
     const json = err.toJSON();
     expect(json.error.suggestion).toBeUndefined();
   });
 
-  it("ApiError is instanceof Error", () => {
-    const err = new ApiError("test", "T", 500);
+  it("PlayApiError is instanceof Error", () => {
+    const err = new PlayApiError("test", "T", 500);
     expect(err).toBeInstanceOf(Error);
-    expect(err.name).toBe("ApiError");
+    expect(err.name).toBe("PlayApiError");
   });
 
-  it("ApiError preserves stack trace", () => {
-    const err = new ApiError("trace test", "TRACE", 500);
+  it("PlayApiError preserves stack trace", () => {
+    const err = new PlayApiError("trace test", "TRACE", 500);
     expect(err.stack).toBeDefined();
     expect(err.stack).toContain("trace test");
   });
@@ -2024,9 +2024,9 @@ describe("HTTP error response edge cases", () => {
       await client.get("/com.example/edits");
       expect.unreachable("should have thrown");
     } catch (err) {
-      expect(err).toBeInstanceOf(ApiError);
-      expect((err as ApiError).statusCode).toBe(500);
-      expect((err as ApiError).code).toBe("API_SERVER_ERROR");
+      expect(err).toBeInstanceOf(PlayApiError);
+      expect((err as PlayApiError).statusCode).toBe(500);
+      expect((err as PlayApiError).code).toBe("API_SERVER_ERROR");
     }
   });
 
@@ -2043,8 +2043,8 @@ describe("HTTP error response edge cases", () => {
       await client.get("/com.example/edits");
       expect.unreachable("should have thrown");
     } catch (err) {
-      expect(err).toBeInstanceOf(ApiError);
-      expect((err as ApiError).statusCode).toBe(400);
+      expect(err).toBeInstanceOf(PlayApiError);
+      expect((err as PlayApiError).statusCode).toBe(400);
     }
   });
 
@@ -2056,9 +2056,9 @@ describe("HTTP error response edge cases", () => {
       await client.get("/com.example/edits");
       expect.unreachable("should have thrown");
     } catch (err) {
-      expect(err).toBeInstanceOf(ApiError);
-      expect((err as ApiError).code).toBe("API_NETWORK_ERROR");
-      expect((err as ApiError).message).toContain("Failed to fetch");
+      expect(err).toBeInstanceOf(PlayApiError);
+      expect((err as PlayApiError).code).toBe("API_NETWORK_ERROR");
+      expect((err as PlayApiError).message).toContain("Failed to fetch");
     }
   });
 
@@ -2078,9 +2078,9 @@ describe("HTTP error response edge cases", () => {
       await client.get("/com.example/edits");
       expect.unreachable("should have thrown");
     } catch (err) {
-      expect(err).toBeInstanceOf(ApiError);
-      expect((err as ApiError).code).toBe("API_RATE_LIMITED");
-      expect((err as ApiError).statusCode).toBe(429);
+      expect(err).toBeInstanceOf(PlayApiError);
+      expect((err as PlayApiError).code).toBe("API_RATE_LIMITED");
+      expect((err as PlayApiError).statusCode).toBe(429);
     }
     expect(mockFetch).toHaveBeenCalledTimes(2);
   });
@@ -2105,9 +2105,9 @@ describe("HTTP error response edge cases", () => {
       await client.get("/com.example/edits");
       expect.unreachable("should have thrown");
     } catch (err) {
-      expect(err).toBeInstanceOf(ApiError);
-      expect((err as ApiError).code).toBe("API_FORBIDDEN");
-      expect((err as ApiError).statusCode).toBe(403);
+      expect(err).toBeInstanceOf(PlayApiError);
+      expect((err as PlayApiError).code).toBe("API_FORBIDDEN");
+      expect((err as PlayApiError).statusCode).toBe(403);
     }
   });
 });
