@@ -251,7 +251,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.layers, "Core Workflow"),
-          collapsed: true,
+          collapsed: false,
           items: [
             { text: "status", link: "/commands/status" },
             { text: "publish / validate", link: "/commands/publish" },
@@ -262,7 +262,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.activity, "Monitoring"),
-          collapsed: true,
+          collapsed: false,
           items: [
             { text: "reviews", link: "/commands/reviews" },
             { text: "vitals", link: "/commands/vitals" },
@@ -271,7 +271,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.dollar, "Monetization"),
-          collapsed: true,
+          collapsed: false,
           items: [
             { text: "subscriptions", link: "/commands/subscriptions" },
             {
@@ -286,7 +286,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.users, "Reporting & Team"),
-          collapsed: true,
+          collapsed: false,
           items: [
             { text: "reports", link: "/commands/reports" },
             { text: "testers", link: "/commands/testers" },
@@ -296,7 +296,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.pkg, "Distribution"),
-          collapsed: true,
+          collapsed: false,
           items: [
             { text: "bundle", link: "/commands/bundle" },
             { text: "internal-sharing", link: "/commands/internal-sharing" },
@@ -308,7 +308,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.shieldCheck, "Compliance & Recovery"),
-          collapsed: true,
+          collapsed: false,
           items: [
             { text: "data-safety", link: "/commands/data-safety" },
             { text: "recovery", link: "/commands/recovery" },
@@ -320,7 +320,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.cpu, "Automation"),
-          collapsed: true,
+          collapsed: false,
           items: [
             { text: "train", link: "/commands/train" },
             { text: "quota", link: "/commands/quota" },
@@ -328,7 +328,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.settings, "System"),
-          collapsed: true,
+          collapsed: false,
           items: [
             { text: "auth", link: "/commands/auth" },
             { text: "apps", link: "/commands/apps" },
