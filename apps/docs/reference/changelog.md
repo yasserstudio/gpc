@@ -7,7 +7,23 @@ pageClass: wide-page
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.36 <Badge type="tip" text="latest" />
+## v0.9.37 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+**Security**
+
+- fix: `gpc plugins install/uninstall` — replaced `execSync` with shell string interpolation with `spawnSync` using array arguments, eliminating command injection risk when plugin names contain shell metacharacters
+
+**Code Quality**
+
+- fix: Renamed internal `PlayApiError` class in `@gpc-cli/api` (was `ApiError`) to eliminate naming collision with `@gpc-cli/core`'s `ApiError` — no user-facing behavioral change
+- fix: `runWatchLoop()` validation now throws instead of calling `process.exit(2)` — core packages should not exit the process directly
+- fix: `@gpc-cli/auth` workspace dependency specifier changed from `workspace:^` to `workspace:*` — consistent with all other internal workspace packages
+
+---
+
+## v0.9.36
 
 _March 2026_
 

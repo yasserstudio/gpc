@@ -775,11 +775,7 @@ describe("runWatchLoop", () => {
     vi.useRealTimers();
   });
 
-  it("exits with code 2 when interval < 10", async () => {
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
-      throw new Error("process.exit called");
-    });
-
+  it("throws when interval < 10", async () => {
     await expect(
       runWatchLoop({
         intervalSeconds: 5,
@@ -789,10 +785,7 @@ describe("runWatchLoop", () => {
         },
         save: async () => {},
       }),
-    ).rejects.toThrow("process.exit called");
-
-    expect(exitSpy).toHaveBeenCalledWith(2);
-    exitSpy.mockRestore();
+    ).rejects.toThrow("--watch interval must be at least 10 seconds");
   });
 
   it("calls fetch and render on each tick", async () => {

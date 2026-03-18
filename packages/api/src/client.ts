@@ -1,4 +1,4 @@
-import { ApiError } from "./errors.js";
+import { PlayApiError } from "./errors.js";
 import { createHttpClient } from "./http.js";
 import type { RateLimiter } from "./rate-limiter.js";
 import type {
@@ -486,7 +486,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           "application/octet-stream",
         );
         if (!data || !data.versionCode) {
-          throw new ApiError(
+          throw new PlayApiError(
             "Upload succeeded but no bundle data returned",
             "API_EMPTY_RESPONSE",
             200,
@@ -591,7 +591,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           filePath.endsWith(".png") ? "image/png" : "image/jpeg",
         );
         if (!data.image) {
-          throw new ApiError(
+          throw new PlayApiError(
             "Upload succeeded but no image data returned",
             "API_EMPTY_RESPONSE",
             200,
@@ -991,7 +991,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           "application/octet-stream",
         );
         if (!data.deobfuscationFile) {
-          throw new ApiError(
+          throw new PlayApiError(
             "Upload succeeded but no deobfuscation file data returned",
             "API_EMPTY_RESPONSE",
             200,

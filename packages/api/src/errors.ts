@@ -1,4 +1,4 @@
-export class ApiError extends Error {
+export class PlayApiError extends Error {
   public readonly exitCode = 4;
   constructor(
     message: string,
@@ -7,7 +7,7 @@ export class ApiError extends Error {
     public readonly suggestion?: string,
   ) {
     super(message);
-    this.name = "ApiError";
+    this.name = "PlayApiError";
   }
   toJSON() {
     return {

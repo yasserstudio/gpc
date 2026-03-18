@@ -6,7 +6,7 @@ import type {
   ExternallyHostedApk,
   ExternallyHostedApkResponse,
 } from "@gpc-cli/api";
-import { ApiError } from "@gpc-cli/api";
+import { PlayApiError } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
 import { validateUploadFile } from "../utils/file-validation.js";
 
@@ -24,7 +24,7 @@ export async function withFreshEdit<T>(
   try {
     return await operation(edit.id);
   } catch (error) {
-    if (error instanceof ApiError && error.code === "API_EDIT_EXPIRED") {
+    if (error instanceof PlayApiError && error.code === "API_EDIT_EXPIRED") {
       // Discard stale edit (best effort) and retry with a fresh one
       await client.edits.delete(packageName, edit.id).catch(() => {});
       const freshEdit = await client.edits.insert(packageName);

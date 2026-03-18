@@ -1,6 +1,6 @@
 {
   "name": "@gpc-cli/cli",
-  "version": "0.9.36",
+  "version": "0.9.37",
   "description": "GPC — Google Play Console CLI. 187 API endpoints, one tool.",
   "type": "module",
   "bin": {
@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@gpc-cli/api": "workspace:*",
-    "@gpc-cli/auth": "workspace:^",
+    "@gpc-cli/auth": "workspace:*",
     "@gpc-cli/config": "workspace:*",
     "@gpc-cli/core": "workspace:*",
     "@gpc-cli/plugin-sdk": "workspace:*",

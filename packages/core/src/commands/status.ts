@@ -630,8 +630,7 @@ export function formatStatusDiff(diff: StatusDiff, since: string): string {
 
 export async function runWatchLoop(opts: WatchOptions): Promise<void> {
   if (opts.intervalSeconds < 10) {
-    console.error("Error: --watch interval must be at least 10 seconds");
-    process.exit(2);
+    throw new Error("--watch interval must be at least 10 seconds");
   }
 
   let running = true;
