@@ -2,7 +2,7 @@
 
 Authentication for the Google Play Developer API. Part of [GPC](https://github.com/yasserstudio/gpc).
 
-Service account, OAuth, and Application Default Credentials — with automatic token caching and a simple `AuthClient` interface.
+Service account, OAuth, and Application Default Credentials — with automatic token caching and a simple `AuthClient` interface. Works with your existing Google Play service account; no new credentials or extra permissions needed.
 
 ## Install
 

@@ -27,11 +27,16 @@ brew install yasserstudio/tap/gpc
 curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
 ```
 
+Free. Open-source. No account required beyond your existing Google Play service account.
+
 ## Quick Start
 
 ```bash
 # Authenticate
 gpc auth login --service-account path/to/key.json
+
+# Verify your setup
+gpc doctor
 
 # App health at a glance — releases, vitals, and reviews in one command
 gpc status
@@ -72,23 +77,23 @@ REVIEWS  (last 30 days)
 
 187 API endpoints across these command groups:
 
-| Group             | Examples                                                       |
-| ----------------- | -------------------------------------------------------------- |
-| **Releases**      | `upload`, `promote`, `rollout increase/halt/resume`, `publish` |
-| **Listings**      | `pull`, `push`, `images upload/delete`, Fastlane format        |
-| **Reviews**       | `list`, `reply`, `export --format csv`                         |
-| **Vitals**        | `crashes`, `anr`, `startup`, `rendering`, `battery`, `memory`  |
-| **Bundle**        | `analyze` (size breakdown), `compare` (size diff)              |
-| **Subscriptions** | `list`, `create`, `update`, `base-plans`, `offers`             |
-| **IAP**           | `list`, `create`, `sync --dir products/`, `batch-get/update`   |
-| **Purchases**     | `get`, `acknowledge`, `cancel`, `refund`, `voided list`        |
-| **Reports**       | `download financial`, `download stats`                         |
-| **Testers**       | `add`, `remove`, `import --file testers.csv`                   |
-| **Users**         | `invite`, `update`, `remove`, per-app grants                   |
+| Group             | What you can do                                                                       |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| **Releases**      | Upload, promote, rollout increase/halt/resume, end-to-end `publish`                  |
+| **Listings**      | Pull and push store listings, upload screenshots — works with Fastlane metadata format |
+| **Reviews**       | Filter by stars, reply to users, export to CSV                                        |
+| **Vitals**        | Crash rates, ANR, startup, rendering — with CI threshold gates                        |
+| **Bundle**        | Per-module size breakdown, build-to-build diff, size CI gates                         |
+| **Subscriptions** | Create and manage base plans, offers, and pricing                                      |
+| **IAP**           | Sync products from local files, batch get and update                                  |
+| **Purchases**     | Verify, acknowledge, cancel, refund, list voided                                      |
+| **Reports**       | Download financial and stats reports                                                  |
+| **Testers**       | Add, remove, import from CSV                                                           |
+| **Users**         | Invite, update, remove, manage per-app grants                                          |
 
 ## CI/CD Ready
 
-JSON output when piped. Formatted tables in your terminal. Semantic exit codes (0-6) your CI can react to.
+JSON output when piped. Formatted tables in your terminal. Semantic exit codes (0–6) your CI can react to. Every write operation supports `--dry-run`.
 
 ```yaml
 - name: Upload
@@ -100,7 +105,7 @@ JSON output when piped. Formatted tables in your terminal. Semantic exit codes (
     gpc releases upload app.aab --track internal
 ```
 
-Every write operation supports `--dry-run`.
+Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
 
 ## Part of the GPC Monorepo
 

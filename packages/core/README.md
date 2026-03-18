@@ -2,7 +2,7 @@
 
 Business logic and command orchestration for [GPC](https://github.com/yasserstudio/gpc) — the complete CLI for Google Play.
 
-Use this package to call GPC commands programmatically in your own tools, scripts, or services.
+Need to integrate Play operations into your own tools or services? Use `@gpc-cli/core` to call GPC commands programmatically — same logic the CLI uses, no terminal required.
 
 ## Install
 
