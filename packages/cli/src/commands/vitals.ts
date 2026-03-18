@@ -20,6 +20,7 @@ import {
   formatOutput,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
+import { red, yellow } from "../colors.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -57,6 +58,8 @@ const THRESHOLD_CONFIG_KEYS: Record<string, string> = {
   rendering: "slowRenderingRate",
   battery: "excessiveWakeupRate",
   memory: "stuckWakelockRate",
+  wakeup: "excessiveWakeupRate",
+  lmk: "stuckWakelockRate",
 };
 
 function validateDimension(dim: string): ReportingDimension {
@@ -95,7 +98,7 @@ function registerMetricCommand(
           days: options.days,
         });
         if (format !== "json" && (!result.rows || result.rows.length === 0)) {
-          console.log("No vitals data available.");
+          console.log(`${yellow("⚠")} No vitals data available.`);
           return;
         }
         if (format !== "json" && result.rows) {
@@ -142,7 +145,7 @@ function registerMetricCommand(
             : undefined;
           const check = checkThreshold(value, threshold);
           if (check.breached) {
-            console.error(`Threshold breached: ${check.value} > ${check.threshold}`);
+            console.error(`${red("✗")} Threshold breached: ${check.value} > ${check.threshold}`);
             process.exit(6);
           }
         }
@@ -219,6 +222,20 @@ export function registerVitalsCommands(program: Command): void {
     program,
   );
   registerMetricCommand(vitals, "memory", "Query stuck wakelock metrics", getVitalsMemory, program);
+  registerMetricCommand(
+    vitals,
+    "wakeup",
+    "Query excessive wakeup rate metrics",
+    getVitalsBattery,
+    program,
+  );
+  registerMetricCommand(
+    vitals,
+    "lmk",
+    "Query low-memory kill (stuck wakelock) metrics",
+    getVitalsMemory,
+    program,
+  );
 
   vitals
     .command("anomalies")

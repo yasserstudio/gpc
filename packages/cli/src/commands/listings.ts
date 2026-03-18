@@ -22,6 +22,7 @@ import {
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, requireOption, requireConfirm } from "../prompt.js";
+import { green, red } from "../colors.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -278,8 +279,8 @@ export function registerListingsCommands(program: Command): void {
         } else {
           for (const diff of diffs) {
             console.log(`[${diff.language}] ${diff.field}:`);
-            console.log(`  local:  ${diff.local || "(empty)"}`);
-            console.log(`  remote: ${diff.remote || "(empty)"}`);
+            console.log(green(`+ local:  ${diff.local || "(empty)"}`));
+            console.log(red(`- remote: ${diff.remote || "(empty)"}`));
           }
         }
       } catch (error) {

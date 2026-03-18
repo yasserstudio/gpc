@@ -224,46 +224,12 @@ export function registerIapCommands(program: Command): void {
     .description("Batch get multiple in-app products")
     .option("--skus <skus>", "Comma-separated list of SKUs")
     .option("--file <path>", "JSON file with array of SKUs")
-    .action(async (options) => {
-      const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()["app"], config);
-      const client = await getClient(config);
-      const format = getOutputFormat(program, config);
-
-      let skus: string[];
-      if (options.file) {
-        const data = await readJsonFile(options.file);
-        skus = Array.isArray(data) ? data : (data as Record<string, unknown>)["skus"] as string[] || [];
-      } else if (options.skus) {
-        skus = options.skus.split(",").map((s: string) => s.trim());
-      } else {
-        console.error("Error: Provide --skus <sku1,sku2,...> or --file <path>");
-        process.exit(2);
-        return;
-      }
-
-      console.error("Note: Using inappproducts batch API");
-
-      try {
-        const products = await client.inappproducts.batchGet(packageName, skus);
-        if (format !== "json") {
-          const rows = products.map((p: Record<string, unknown>) => ({
-            sku: p["sku"] || "-",
-            status: p["status"] || "-",
-            purchaseType: p["purchaseType"] || "-",
-            defaultPrice: (() => {
-              const price = p["defaultPrice"] as Record<string, unknown> | undefined;
-              return price ? `${price["priceMicros"] ? Number(price["priceMicros"]) / 1_000_000 : "-"} ${price["currency"] || ""}` : "-";
-            })(),
-          }));
-          console.log(formatOutput(rows, format));
-        } else {
-          console.log(formatOutput(products, format));
-        }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+    .action(async (_options) => {
+      console.error(
+        "Note: The inappproducts batchGet endpoint is permanently blocked by Google Play (returns 403 PERMISSION_DENIED).\n" +
+        "Use `gpc iap get <sku>` for a single product, or `gpc iap list` for all products."
+      );
+      process.exit(1);
     });
 
   iap

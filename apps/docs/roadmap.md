@@ -4,75 +4,173 @@ outline: deep
 
 # Roadmap
 
-GPC v0.9.x is a pre-release series working toward a stable **1.0.0** public launch. This page covers what's shipping next, what's planned for post-1.0, and the longer-term direction for the project.
+GPC v0.9.x is a pre-release series working toward a stable **1.0.0** public launch. Every feature on this page ships before 1.0 — nothing is deferred post-launch.
 
 ## Current Status
 
-**v0.9.32** is the latest release. GPC currently covers:
+**v0.9.34** is the latest release. GPC currently covers:
 
 - **187 API endpoints** across the Android Publisher API v3 and Play Developer Reporting API
-- **32 command groups**, 100+ subcommands
-- **1,461 tests**, 90%+ line coverage across all core packages
+- **33 command groups**, 100+ subcommands
+- **1,504 tests**, 90%+ line coverage across all core packages
 - **7 published packages** under the `@gpc-cli` scope
 - Complete coverage of releases, listings, vitals, reviews, subscriptions, IAP, purchases, users, reports, and more
 
-## Road to 1.0
+---
 
-The following must be complete before the `1.0.0` tag ships:
+## v0.9.34 — Bug fixes, color output, onboarding foundations (shipped)
 
-- [x] API coverage audit — 187 endpoints verified
-- [x] Performance benchmarks — cold start < 300ms
-- [x] Security audit and credential hardening
-- [x] Documentation completeness review
-- [x] End-to-end validation against production apps
-- [x] `gpc status` — unified app health snapshot with trend arrows, --format summary, --sections, --watch, --since-last, --all-apps, --notify (shipped v0.9.24–v0.9.26)
-- [ ] Community showcase — real apps using GPC in production
-- [ ] Stability soak — 2+ weeks without critical bugs (clock reset 2026-03-14, target 2026-03-28)
-- [ ] Public launch (blog posts, Android Weekly, community announcements)
+**Bug fixes**
+
+- `gpc iap batch-get` — replace 403 error with a proper deprecation notice (the underlying Google endpoint is blocked; `iap list` already handles this gracefully)
+- `gpc migrate fastlane` — warn before overwriting an existing `.gpcrc.json` instead of silently replacing it
+
+**Color output**
+
+- `✓` green, `✗` red, `⚠` yellow across `vitals`, `doctor`, `status`, and `validate`
+- Track status colors: `inProgress` green, `halted` red, `draft` dim, `completed` gray
+- Diff coloring: additions green, removals red in `listings diff`, `releases diff`, `subscriptions diff`
+- `NO_COLOR` / `FORCE_COLOR` env var support + `--no-color` global flag
+
+**Onboarding**
+
+- First-run banner: if no config exists, any command prints `✦ First time? Run gpc config init to get set up.`
+- Auth errors (403/401) append `→ Run gpc doctor to diagnose your credentials.`
+- `gpc config init` automatically runs `gpc doctor` inline when it completes
+- `gpc doctor` success prints `✓ Ready. Try: gpc status`
+
+**New commands**
+
+- `gpc reviews reply <review-id> --text "..."` — reply to a user review directly from the terminal
+- `gpc anomalies list` — surface automatic quality spikes from the Reporting API without configuring thresholds
+- `gpc vitals wakeup` — excessive wake-up rate (battery drain signal)
+- `gpc vitals lmk` — Low Memory Killer events (memory pressure signal)
 
 ---
 
-## gpc status — Shipped in v0.9.24–v0.9.26
+## v0.9.35 — Terminal UX + onboarding commands
 
-One command that replaces opening 4–6 Play Console screens. See the full reference at [commands/status](/commands/status).
+**Terminal UX**
+
+- Upload progress bar for `releases upload` and `internal-sharing upload` — bytes transferred, speed, ETA during 30–90s uploads
+- Spinner during multi-API waits — `gpc status` currently freezes 2–3s while fetching; a live indicator replaces it
+- Terminal-width-aware table truncation — adapts to actual terminal width instead of a hardcoded 60-char limit
+- Number right-alignment in tables — rollout percentages, crash rates, version codes
+- Bold/dim column headers
+
+**Onboarding commands**
+
+- `gpc auth login` with no flags → interactive prompts (profile name → credentials path → package name)
+- `gpc quickstart` — single guided flow: detects config state → verifies credentials → checks package name → runs doctor → shows next steps. Idempotent, safe to run again at any time.
 
 ```
-$ gpc status
+$ gpc quickstart
 
-App: com.example.app  (fetched 10:42:01 AM)
+Welcome to GPC — Google Play Console CLI
+─────────────────────────────────────────
+Step 1/4  Checking for existing config...     ✓ Found profile "myapp"
+Step 2/4  Verifying credentials...            ✓ Service account valid
+Step 3/4  Checking package name...            ✓ com.example.app
+Step 4/4  Running doctor...                   ✓ All checks passed
 
-RELEASES
-  production   v142   completed    —
-  beta         v143   inProgress  10%
-  internal     v144   draft        —
-
-VITALS  (last 7 days)
-  crashes     0.80% ↓  ✓    anr         0.20% ↓  ✓
-  slow starts 2.10%    ✓    slow render 4.30%    ⚠
-
-REVIEWS  (last 30 days)
-  ★ 4.6   142 new   89% positive   ↑ from 4.4
+Ready. Here's what you can do next:
+  gpc status              → app health snapshot
+  gpc releases list       → current tracks and versions
+  gpc reviews list        → recent user reviews
+  gpc vitals overview     → crash and ANR rates
 ```
-
-Up to 10 parallel API calls (current + prior period for trend data), results in under 3 seconds. Results cached in `~/.cache/gpc/` with a 1-hour TTL. Exit code 6 if any vitals threshold is breached.
 
 ---
 
-## Post-1.0 Roadmap
+## v0.9.36 — Listing text optimization
 
-### Intelligence Layer
+Validate and analyze store listing text without leaving the terminal. GPC currently has no character limit enforcement — the API silently rejects over-limit text.
 
-The biggest gap in today's Android tooling is **analysis on top of the API** — not just wrapping endpoints, but answering the question: _should I do this thing?_
+**`gpc listings lint`** (local, no API call)
 
-#### Vitals-Gated Rollouts :white_check_mark: Shipped (v0.9.32)
+```bash
+gpc listings lint [--dir metadata] [--strict]
+```
 
-`gpc releases rollout increase --vitals-gate` is available now. Before increasing rollout percentage, GPC checks the crash and ANR rates for the current version. If they exceed configured thresholds, the command refuses to proceed and tells you why.
+Field-by-field table with character counts, usage percentages, and status indicators. Exit code 2 if any field is over the limit or missing. `--strict` treats >80% usage as an error.
 
-Remaining enhancement for post-1.0: `--auto-halt-rollout` for continuous monitoring that pauses a live rollout if vitals degrade.
+**`gpc listings analyze`** (live, fetches remote listings)
 
-#### Release Regression Analysis
+```bash
+gpc listings analyze [--expected en-US,de-DE,fr-FR]
+```
 
-Compare vitals between consecutive versions:
+Same analysis for what's currently live on Play Store. `--expected` flags missing translations.
+
+**`gpc listings push` preflight gate** — runs lint before committing. Aborts if any field exceeds its limit (unless `--force`).
+
+**Enhanced `gpc listings diff`** — `--lang` filter, character count header per field, word-level inline diff for `fullDescription` changes.
+
+---
+
+## v0.9.37 — Missing API coverage
+
+Complete the command groups that exist in the API but are unimplemented in GPC:
+
+**App Recovery** — halt distribution of broken versions and deploy fixes without a full release cycle:
+
+```bash
+gpc recovery create --version-code 35 --percentage 100
+gpc recovery deploy <action-id>
+gpc recovery add-targeting <action-id> --regions US,GB
+gpc recovery cancel <action-id>
+```
+
+**Orders** — support and refund workflows:
+
+```bash
+gpc orders get <order-id>
+gpc orders batch-get --file order-ids.json
+gpc orders refund <order-id> [--revoke]
+```
+
+**Grants** — per-package team access control, finer-grained than `gpc users`:
+
+```bash
+gpc grants list --user user@example.com
+gpc grants create --user user@example.com --permission VIEW_APP_INFORMATION,REPLY_TO_REVIEWS
+gpc grants delete <grant-name>
+gpc grants patch <grant-name> --permission VIEW_APP_INFORMATION
+```
+
+**Subscription lifecycle** — cancel, defer, refund, or revoke any subscription from the terminal:
+
+```bash
+gpc purchases subscription cancel <token>
+gpc purchases subscription defer <token> --until 2027-01-01
+gpc purchases subscription refund <token>
+gpc purchases subscription revoke <token>   # refund + revoke entitlement
+```
+
+---
+
+## v0.9.38 — RTDN + subscription price migration
+
+**Real-Time Developer Notifications** — no other CLI wraps this. Every subscription event fires as a Pub/Sub message; GPC makes it inspectable from the terminal:
+
+```bash
+gpc rtdn status
+gpc rtdn setup --topic projects/P/topics/T
+gpc rtdn events [--limit 50] [--type SUBSCRIPTION_CANCELED]
+gpc rtdn validate --endpoint https://api.example.com/webhook
+```
+
+**Subscription price migration** — bulk-update prices across all regions without breaking existing subscriptions:
+
+```bash
+gpc subscriptions base-plans migrate-prices <product-id> <base-plan-id> --dry-run
+```
+
+---
+
+## v0.9.39 — Intelligence layer
+
+**Release regression analysis**
 
 ```bash
 gpc vitals compare v1.2.3 v1.2.4
@@ -80,23 +178,21 @@ gpc vitals compare v1.2.3 v1.2.4
 
 Side-by-side crash rate, ANR, startup time, and rendering quality. Regressions highlighted in red. Exportable as a markdown table for PR descriptions or release notes.
 
-#### Review Sentiment Analysis
-
-Go beyond raw reviews data to understand trends:
+**Review sentiment analysis** (local, no external service)
 
 ```bash
 gpc reviews analyze --days 30
 ```
 
-Local analysis (no external service) covering sentiment trend over time, topic clustering (crashes, performance, UI, pricing), rating distribution by version code, and keyword frequency in 1★ vs 5★ reviews. Alerts when negative sentiment spikes.
+Sentiment trend over time, topic clustering (crashes, performance, UI, pricing), rating distribution by version code, keyword frequency in 1★ vs 5★ reviews. Alerts when negative sentiment spikes.
+
+**Vitals-gated auto-halt** — `gpc vitals watch --auto-halt-rollout` monitors a live rollout and pauses it automatically if crash or ANR rates breach configured thresholds. Completes the `--vitals-gate` story shipped in v0.9.32.
 
 ---
 
-### Release Automation
+## v0.9.40 — Release automation + data access
 
-#### Automated Release Trains
-
-Config-driven staged rollout pipeline with time delays and quality gates:
+**Automated release trains** — config-driven staged rollout pipeline with time delays and quality gates:
 
 ```jsonc
 // .gpcrc.json
@@ -108,10 +204,7 @@ Config-driven staged rollout pipeline with time delays and quality gates:
     { "track": "production", "rollout": 10,  "after": "7d" },
     { "track": "production", "rollout": 100, "after": "14d" }
   ],
-  "gates": {
-    "crashes": { "max": 1.5 },
-    "anr":     { "max": 0.5 }
-  }
+  "gates": { "crashes": { "max": 1.5 }, "anr": { "max": 0.5 } }
 }
 ```
 
@@ -122,35 +215,28 @@ gpc train pause   # hold at current stage
 gpc train abort   # halt everything
 ```
 
-If a quality gate fails at any stage, the train stops automatically and notifies you.
-
----
-
-### App Quality
-
-#### Bundle Size Analysis :white_check_mark: Shipped (v0.9.23)
-
-`gpc bundle analyze` and `gpc bundle compare` are available now. Zero-dependency ZIP parsing gives you per-module and per-category size breakdowns, cross-build comparison with delta reporting, and `--threshold` for CI size gates. See [bundle commands](/commands/bundle).
-
-Remaining enhancements for post-1.0: top-N largest files, per-module thresholds via `.bundlesize.json`, estimated APK size per device config.
-
-#### Rich Listings Diff
-
-See exactly what changes before pushing metadata:
+**GCS reports download** — financial and stats reports are auto-delivered by Google to a private Cloud Storage bucket. GPC bridges the gap:
 
 ```bash
-gpc listings push --dry-run --diff
+gpc reports gcs-bucket
+gpc reports download financial --month 2026-02
+gpc reports download stats --type crashes --since 2026-01-01
 ```
 
-Word-level diff per language, character counts against Play Store limits, completeness check across all active languages.
+**Quota monitoring** — visibility into 200k daily / 3,000 per-minute API limits before CI pipelines hit walls:
+
+```bash
+gpc quota status
+gpc quota usage --bucket subscriptions
+```
+
+**Subscription analytics** — active/in-trial/cancelled counts, trial→paid conversion per offer, regional revenue breakdown, churn cohort analysis.
 
 ---
 
-### Ecosystem
+## v0.9.41 — Ecosystem
 
-#### GitHub Actions Marketplace Action
-
-A first-class GitHub Action that wraps GPC — install from the Marketplace, no manual shell setup:
+**GitHub Actions Marketplace Action** — first-class Action wrapping GPC, no manual shell setup:
 
 ```yaml
 - uses: yasserstudio/gpc-action@v1
@@ -161,24 +247,7 @@ A first-class GitHub Action that wraps GPC — install from the Marketplace, no 
     track: internal
 ```
 
-#### Plugin Registry
-
-Community plugin discovery and installation:
-
-```bash
-gpc plugins search firebase
-gpc plugins install @gpc-cli/plugin-firebase
-```
-
-Planned official plugins:
-- `@gpc-cli/plugin-firebase` — link releases to Firebase App Distribution and Remote Config
-- `@gpc-cli/plugin-sentry` — correlate releases with Sentry deploys and version mappings
-- `@gpc-cli/plugin-jira` — auto-close issues and link fix versions on release
-- `@gpc-cli/plugin-slack` — rich Slack notifications with inline approve/hold buttons
-
-#### Multi-App Parallel Operations
-
-First-class support for app families (phone + tablet + TV + Wear):
+**Multi-app parallel operations** — first-class support for app families (phone + tablet + TV + Wear):
 
 ```bash
 gpc --apps com.example.phone,com.example.tv releases upload *.aab
@@ -186,50 +255,52 @@ gpc --apps com.example.phone,com.example.tv releases upload *.aab
 
 Fans out to parallel API calls, unified status report, partial success handling.
 
+**Plugin registry** — community plugin discovery and installation:
+
+```bash
+gpc plugins search firebase
+gpc plugins install @gpc-cli/plugin-firebase
+```
+
+Planned official plugins: `plugin-firebase`, `plugin-sentry`, `plugin-jira`, `plugin-slack`
+
+**Bundle analysis enhancements** (`gpc bundle` shipped in v0.9.23 — remaining): top-N largest files, per-module thresholds via `.bundlesize.json`, estimated APK size per device config.
+
 ---
 
-### New Google Play APIs
+## v0.9.42 — Extended APIs + AI release notes
 
-GPC currently covers the Android Publisher API v3 and Play Developer Reporting API. Post-1.0, we'll expand to additional Google Play APIs:
+**Play Games Services v2** (`gpc games`) — leaderboards, achievements, events, and cloud save config for game developers.
 
-#### Play Integrity API
-
-Verify device and app integrity tokens from the command line — useful for backend teams debugging attestation issues:
-
-```bash
-gpc integrity verify --token <jwt> --package com.example.app
-```
-
-Returns the `appRecognitionVerdict`, `deviceIntegrity`, and `accountDetails` fields from the decoded verdict.
-
-#### Play Games Services v2
-
-A full `gpc games` command group for game developers:
-
-```bash
-gpc games leaderboards list
-gpc games achievements create --file achievement.json
-gpc games events get <event-id>
-```
-
-Covers leaderboards, achievements, events, and cloud save configuration.
-
-#### Play Custom App API
-
-For enterprise teams distributing internal apps through Managed Google Play without a public Play Store listing:
+**Play Custom App API** (`gpc enterprise`) — private app distribution for enterprises through Managed Google Play, without a public Play Store listing:
 
 ```bash
 gpc enterprise apps create --title "Internal Tool" --org <developer-id>
 gpc enterprise apps list --org <developer-id>
 ```
 
+**AI-assisted release notes** — generate user-facing "What's new" text from git history, with optional translation to all active listing languages:
+
+```bash
+gpc releases upload app.aab --notes-from-git --ai-enhance
+```
+
 ---
 
-### Longer-Term Directions
+## v1.0.0 — Stable release
 
-- **Dashboard web UI** — visual release pipeline, vitals charts, review trends, one-click promote/halt actions
-- **Webhook-driven approvals** — post to Slack when a release train reaches production stage, approve or hold from Slack
-- **AI-assisted release notes** — generate user-facing "What's new" text from git log, with optional translation
+**Onboarding completion**
+
+- `gpc doctor --fix` — inline remediation for each failing check: moves keys, updates config paths, opens the relevant GCP or Play Console URL when a manual step is required
+- `gpc auth setup-gcp` — step-by-step interactive guidance for creating a GCP service account, replacing 6+ manual console screens
+- Destructive command confirmations — `releases rollout halt`, `iap delete`, and similar irreversible commands prompt `[y/N]`. Skip with `--yes` for scripting.
+- Pager for long lists — auto-pipe to `$PAGER` when output exceeds terminal height (TTY only)
+
+**1.0 gate**
+
+- [ ] Community showcase — real apps using GPC in production
+- [ ] Stability soak — 2+ weeks without critical bugs
+- [ ] Public launch: blog post, Android Weekly, community announcements
 
 ---
 

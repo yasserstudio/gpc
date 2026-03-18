@@ -6,7 +6,37 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.33 <Badge type="tip" text="latest" />
+## v0.9.34 <Badge type="tip" text="latest" />
+
+**Bug Fixes**
+
+- fix: `gpc iap batch-get` — replaced 403 crash with a proper deprecation notice; the underlying Google endpoint is permanently blocked. Use `gpc iap get <sku>` or `gpc iap list` instead
+- fix: `gpc migrate fastlane` — warns before overwriting an existing `.gpcrc.json`; aborts unless `--yes` is passed
+
+**Color Output**
+
+- feat: `✓` green, `✗` red, `⚠` yellow indicators across `vitals`, `doctor`, `status`, and `validate`
+- feat: Track status colors — `inProgress` green, `halted` red, `draft` dim
+- feat: Diff coloring — additions green, removals red in `listings diff` and `releases diff`
+- feat: `NO_COLOR` / `FORCE_COLOR` environment variable support; `--no-color` now also sets `NO_COLOR=1`
+
+**Onboarding**
+
+- feat: First-run banner — any command shows `✦ First time? Run gpc config init to get set up.` when no config is found
+- feat: Auth errors (403/401) now append `→ Run gpc doctor to diagnose your credentials.`
+- feat: `gpc config init` automatically runs `gpc doctor` inline on completion
+- feat: `gpc doctor` success now prints `✓ Ready. Try: gpc status`
+
+**New Commands**
+
+- feat: `gpc reviews reply <review-id> --text "..."` — reply to a user review directly from the terminal; shows character count on success
+- feat: `gpc anomalies list` — surface automatic quality spikes from the Play Developer Reporting API
+- feat: `gpc vitals wakeup` — query excessive wake-up rate (battery drain signal)
+- feat: `gpc vitals lmk` — query Low Memory Killer events (memory pressure signal)
+
+**Stats:** 1,504 tests · 7 packages · 187 API endpoints
+
+## v0.9.33
 
 _March 2026_
 

@@ -18,6 +18,7 @@ import {
 } from "@gpc-cli/core";
 import type { AppStatus } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
+import { green, red, dim, gray } from "../colors.js";
 
 const VALID_SECTIONS = new Set(["releases", "vitals", "reviews"]);
 const VALID_FORMATS = new Set(["table", "summary"]);
@@ -80,6 +81,31 @@ function resolveWatchInterval(watch: string | boolean | undefined): number | nul
   return isNaN(n) ? 30 : n;
 }
 
+function colorizeTrackStatus(s: string): string {
+  switch (s) {
+    case "inProgress":
+    case "completed":
+      return green(s);
+    case "halted":
+      return red(s);
+    case "draft":
+      return dim(s);
+    default:
+      return gray(s);
+  }
+}
+
+function applyStatusColors(status: AppStatus): AppStatus {
+  if (!status.releases || status.releases.length === 0) return status;
+  return {
+    ...status,
+    releases: status.releases.map((r) => ({
+      ...r,
+      status: colorizeTrackStatus(r.status),
+    })),
+  };
+}
+
 function makeRenderer(
   format: string,
   displayFormat: string,
@@ -98,8 +124,9 @@ function makeRenderer(
       if (sectionSet.has("reviews")) filtered["reviews"] = status.reviews;
       return formatOutput(filtered, "json");
     }
-    if (displayFormat === "summary") return formatStatusSummary(status);
-    return formatStatusTable(status);
+    const colorized = applyStatusColors(status);
+    if (displayFormat === "summary") return formatStatusSummary(colorized);
+    return formatStatusTable(colorized);
   };
 }
 

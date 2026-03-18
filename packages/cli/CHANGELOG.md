@@ -1,5 +1,33 @@
 # @gpc-cli/cli
 
+## 0.9.34
+
+### Patch Changes
+
+- Color output, onboarding foundations, bug fixes, and four new commands.
+
+  **Bug Fixes**
+  - `gpc iap batch-get` — replaced 403 crash with a deprecation notice; Google permanently blocked this endpoint. Use `gpc iap get <sku>` or `gpc iap list` instead
+  - `gpc migrate fastlane` — warns and aborts when `.gpcrc.json` already exists; pass `--yes` to overwrite
+
+  **Color Output**
+  - `✓` green, `✗` red, `⚠` yellow across doctor, vitals, status, and validate
+  - Track status colors: `inProgress` green, `halted` red, `draft` dim
+  - Diff coloring: additions green, removals red in listings diff and releases diff
+  - `NO_COLOR` / `FORCE_COLOR` environment variable support; `--no-color` now also sets `NO_COLOR=1`
+
+  **Onboarding**
+  - First-run banner: any command prints `✦ First time? Run gpc config init to get set up.` when no config is found
+  - Auth errors (403/401) now append `→ Run gpc doctor to diagnose your credentials.`
+  - `gpc config init` automatically runs `gpc doctor` inline on completion
+  - `gpc doctor` success now prints `✓ Ready. Try: gpc status`
+
+  **New Commands**
+  - `gpc reviews reply <review-id> --text "..."` — reply to a user review from the terminal; shows character count on success
+  - `gpc anomalies list` — surface automatic quality spikes from the Play Developer Reporting API
+  - `gpc vitals wakeup` — query excessive wake-up rate (battery drain signal)
+  - `gpc vitals lmk` — query Low Memory Killer events (memory pressure signal)
+
 ## 0.9.33
 
 ### Patch Changes

@@ -1,12 +1,31 @@
 if (process.env["GPC_NO_COLOR"] === "1") process.env["NO_COLOR"] = "1";
+if (process.argv.includes("--no-color")) {
+  process.env["NO_COLOR"] = "1";
+}
+import { existsSync } from "node:fs";
 import { setupNetworking } from "./networking.js";
 import { createProgram } from "./program.js";
 import { loadPlugins } from "./plugins.js";
 import { handleCliError } from "./error-handler.js";
 import { initAudit, sendWebhook } from "@gpc-cli/core";
 import type { WebhookPayload } from "@gpc-cli/core";
-import { getConfigDir, loadConfig } from "@gpc-cli/config";
+import { getConfigDir, loadConfig, getUserConfigPath } from "@gpc-cli/config";
 import { checkForUpdate, formatUpdateNotification } from "./update-check.js";
+
+// First-run banner
+const _isJsonMode =
+  process.argv.includes("--json") ||
+  process.argv.includes("-j") ||
+  process.argv.includes("--ci") ||
+  (process.argv.includes("--output") &&
+    process.argv[process.argv.indexOf("--output") + 1] === "json") ||
+  (process.argv.includes("-o") &&
+    process.argv[process.argv.indexOf("-o") + 1] === "json");
+const _isQuiet = process.argv.includes("--quiet") || process.argv.includes("-q");
+
+if (!_isJsonMode && !_isQuiet && !existsSync(getUserConfigPath())) {
+  process.stderr.write("✦ First time? Run gpc config init to get set up.\n\n");
+}
 
 await setupNetworking();
 initAudit(getConfigDir());
