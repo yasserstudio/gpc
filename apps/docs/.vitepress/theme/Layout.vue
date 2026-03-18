@@ -2,6 +2,7 @@
 import { useData } from "vitepress";
 import DefaultTheme from "vitepress/theme";
 import BackToTop from "./BackToTop.vue";
+import CopyForAI from "./CopyForAI.vue";
 
 const { Layout } = DefaultTheme;
 const { page } = useData();
@@ -67,6 +68,11 @@ const isHome = () => page.value.frontmatter.layout === "home";
           </div>
         </div>
       </div>
+    </template>
+
+    <!-- Copy for AI button -->
+    <template #doc-before>
+      <CopyForAI v-if="!isHome()" />
     </template>
 
     <!-- Back to top -->
