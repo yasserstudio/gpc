@@ -1,0 +1,581 @@
+# GPC — Google Play Console CLI — Full Reference
+
+> Complete technical reference for AI agents and LLMs.
+> Compact version: https://yasserstudio.github.io/gpc/llms.txt
+
+---
+
+## Overview
+
+GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Play Console web UI and Fastlane supply for CI/CD and automation workflows.
+
+- Install: `npm install -g @gpc-cli/cli`
+- Binary: `gpc`
+- Version: 0.9.34
+- API endpoints covered: 187
+- Tests: 1,504 (90%+ coverage)
+- License: MIT
+- Repo: https://github.com/yasserstudio/gpc
+
+---
+
+## Authentication
+
+GPC supports four auth methods:
+
+### 1. Service Account (recommended for CI)
+```
+gpc auth login --service-account /path/to/key.json
+# or via env var
+GPC_SERVICE_ACCOUNT=/path/to/key.json gpc status
+# or inline JSON
+GPC_SERVICE_ACCOUNT='{"type":"service_account",...}' gpc status
+```
+
+### 2. OAuth 2.0 (interactive)
+```
+gpc auth login --oauth
+```
+
+### 3. Application Default Credentials
+```
+gpc auth login --adc
+```
+
+### 4. Named Profiles
+```
+gpc auth login --service-account key.json --profile production
+gpc auth login --service-account staging-key.json --profile staging
+gpc status --profile staging
+```
+
+### Auth Commands
+```
+gpc auth login      # Authenticate (interactive or --service-account)
+gpc auth status     # Show current auth state
+gpc auth logout     # Remove stored credentials
+gpc auth token      # Print current access token (for debugging)
+gpc auth profiles   # List all named profiles
+```
+
+---
+
+## Core Workflow
+
+### gpc status
+Everything in Play Console at once — releases, vitals, reviews.
+```
+gpc status
+gpc status --sections releases,vitals
+gpc status --days 14
+gpc status --watch 60          # Refresh every 60s
+gpc status --since-last        # Diff from last run
+gpc status --all-apps          # All configured apps
+gpc status --format summary    # One-liner output
+gpc status --json
+```
+
+### gpc publish
+End-to-end release: upload + assign track + commit.
+```
+gpc publish app.aab --track internal
+gpc publish app.aab --track beta --notes "Bug fixes"
+gpc publish app.aab --track production --rollout 10
+gpc publish app.aab --track beta --dry-run
+```
+
+### gpc doctor
+Diagnose authentication and configuration problems.
+```
+gpc doctor
+gpc doctor --json
+```
+
+---
+
+## Releases
+
+### Upload
+```
+gpc releases upload app.aab [options]
+  --track <track>         internal | alpha | beta | production | custom
+  --rollout <n>           Staged rollout percentage 1-100
+  --notes <text>          Release notes (en-US)
+  --notes-dir <dir>       Per-locale notes directory (<dir>/<lang>.txt)
+  --notes-from-git        Auto-generate notes from git log
+  --since <ref>           Git ref to start from (with --notes-from-git)
+  --name <name>           Release name
+  --mapping <file>        ProGuard/R8 mapping file
+  --dry-run               Preview without uploading
+```
+
+### Status
+```
+gpc releases status
+gpc releases status --track production
+gpc releases status --json
+```
+
+### Promote
+```
+gpc releases promote --from internal --to production
+gpc releases promote --from beta --to production --rollout 10
+gpc releases promote --dry-run
+```
+
+### Rollout Management
+```
+gpc releases rollout increase --track production --rollout 50
+gpc releases rollout increase --track production --rollout 100  # Complete
+gpc releases rollout halt --track production
+gpc releases rollout resume --track production
+gpc releases rollout complete --track production
+```
+
+### Release Notes
+```
+gpc releases notes set --track beta --text "Bug fixes"
+gpc releases notes set --track beta --lang de --text "Fehlerbehebungen"
+gpc releases notes get --track production
+```
+
+### Diff
+```
+gpc releases diff --from internal --to production
+```
+
+---
+
+## Tracks
+```
+gpc tracks list
+gpc tracks get --track production
+gpc tracks create --track custom-track
+gpc tracks delete --track custom-track
+```
+
+---
+
+## Listings (Store Metadata)
+
+### Pull / Push
+```
+gpc listings pull --dir metadata/
+gpc listings push --dir metadata/
+gpc listings pull --dir metadata/ --locale en-US
+gpc listings push --dir metadata/ --dry-run
+```
+
+### Metadata directory structure (Fastlane compatible)
+```
+metadata/
+  en-US/
+    title.txt
+    short_description.txt
+    full_description.txt
+    changelogs/
+      <version-code>.txt
+  de-DE/
+    ...
+```
+
+### Images
+```
+gpc listings images list --locale en-US --type phoneScreenshots
+gpc listings images upload --locale en-US --type phoneScreenshots --file screen1.png
+gpc listings images delete --locale en-US --type phoneScreenshots --image-id <id>
+```
+Image types: phoneScreenshots, sevenInchScreenshots, tenInchScreenshots, tvScreenshots, wearScreenshots, icon, featureGraphic, tvBanner
+
+---
+
+## Vitals
+
+### Crash Rate
+```
+gpc vitals crashes
+gpc vitals crashes --threshold 2.0    # Exit code 6 if ≥ 2.0%
+gpc vitals crashes --days 14
+gpc vitals crashes --json
+```
+
+### ANR Rate
+```
+gpc vitals anr
+gpc vitals anr --threshold 0.5
+```
+
+### All Vitals
+```
+gpc vitals list
+gpc vitals compare --days 30          # Compare periods
+gpc vitals wakeup                     # Excessive wakeups
+gpc vitals lmk                        # Low-memory kills
+```
+
+### CI Threshold Gating
+```
+# Exit code 6 if threshold breached — use in CI to halt rollouts
+gpc vitals crashes --threshold 1.5 || gpc releases rollout halt --track production
+```
+
+---
+
+## Anomalies
+```
+gpc anomalies list
+gpc anomalies list --json
+```
+
+---
+
+## Reviews
+```
+gpc reviews list
+gpc reviews list --stars 1-3
+gpc reviews list --since 7d
+gpc reviews list --lang en
+gpc reviews list --limit 50
+gpc reviews reply --review-id <id> --text "Thank you for your feedback."
+gpc reviews export --format csv --output reviews.csv
+gpc reviews json
+```
+
+---
+
+## Subscriptions
+```
+gpc subscriptions list
+gpc subscriptions get <product-id>
+gpc subscriptions create <product-id> [options]
+gpc subscriptions update <product-id> [options]
+gpc subscriptions delete <product-id>
+gpc subscriptions activate <product-id>
+gpc subscriptions deactivate <product-id>
+gpc subscriptions base-plans list <product-id>
+gpc subscriptions base-plans create <product-id> <base-plan-id>
+gpc subscriptions offers list <product-id>
+gpc subscriptions offers create <product-id> <offer-id>
+```
+
+---
+
+## In-App Products (One-time)
+```
+gpc one-time-products list
+gpc one-time-products get <product-id>
+gpc one-time-products create <product-id> [options]
+gpc one-time-products update <product-id> [options]
+gpc one-time-products delete <product-id>
+gpc one-time-products activate <product-id>
+gpc one-time-products deactivate <product-id>
+```
+
+---
+
+## Purchases
+```
+gpc purchases get <purchase-token>
+gpc purchases acknowledge <purchase-token>
+gpc purchases refund <purchase-token>
+gpc purchases voided list
+gpc purchases voided list --since 2026-01-01
+```
+
+---
+
+## Pricing
+```
+gpc pricing convert --from USD --amount 9.99
+gpc pricing convert --from USD --amount 9.99 --regions all
+gpc pricing templates list
+```
+
+---
+
+## Reports
+```
+gpc reports download financial --month 2026-02
+gpc reports download financial --month 2026-02 --output report.csv
+gpc reports download stats --month 2026-02
+gpc reports list
+```
+
+---
+
+## Users & Permissions
+```
+gpc users list --developer-id <id>
+gpc users invite user@company.com --developer-id <id> --role ADMIN
+gpc users invite user@company.com --developer-id <id> --role RELEASE_MANAGER
+gpc users remove user@company.com --developer-id <id>
+gpc users grants list --developer-id <id>
+gpc users grants add --developer-id <id> --email user@co.com --app com.example.app
+```
+
+Roles: ADMIN, RELEASE_MANAGER, GLOBAL_VIEWER, DEVELOPER, GAME_WIZARD
+
+---
+
+## Testers
+```
+gpc testers list --track beta
+gpc testers add --track beta --email tester@example.com
+gpc testers remove --track beta --email tester@example.com
+gpc testers import --track beta --file testers.csv
+gpc testers export --track beta --output testers.csv
+```
+
+CSV format: one email per line.
+
+---
+
+## Bundles
+```
+gpc bundle analyze app.aab
+gpc bundle compare app-v1.aab app-v2.aab
+gpc bundle compare app-v1.aab app-v2.aab --size-gate 10MB
+```
+
+---
+
+## Internal App Sharing
+```
+gpc internal-sharing upload app.aab
+gpc internal-sharing list
+```
+
+---
+
+## Device Tiers
+```
+gpc device-tiers list
+gpc device-tiers get --tier <n>
+gpc device-tiers set --aab-path app.aab --tier <n>
+```
+
+---
+
+## Data Safety
+```
+gpc data-safety get
+gpc data-safety update --file data-safety.json
+```
+
+---
+
+## Recovery
+```
+gpc recovery list
+gpc recovery create [options]
+gpc recovery deploy <recovery-id>
+gpc recovery cancel <recovery-id>
+```
+
+---
+
+## Auth
+```
+gpc auth login
+gpc auth logout
+gpc auth status
+gpc auth token
+gpc auth profiles
+```
+
+---
+
+## Apps
+```
+gpc apps list
+gpc apps get --app com.example.app
+```
+
+---
+
+## Config
+```
+gpc config get
+gpc config set <key> <value>
+gpc config set app com.example.myapp
+gpc config set profile production
+gpc config init
+gpc config profiles list
+gpc config profiles add <name>
+gpc config profiles remove <name>
+gpc config profiles use <name>
+```
+
+---
+
+## Plugins
+```
+gpc plugins list
+gpc plugins install <plugin>
+gpc plugins remove <plugin>
+gpc plugins info <plugin>
+```
+
+---
+
+## Utility Commands
+```
+gpc doctor              # Diagnose setup
+gpc docs                # Open documentation
+gpc docs --search <q>   # Search docs
+gpc completion          # Shell completion (bash/zsh/fish)
+gpc version             # Show version
+gpc version --json      # Machine-readable version
+gpc update              # Self-update
+gpc update --check      # Check for updates (CI-friendly, no update)
+gpc cache list          # Show cached data
+gpc cache clear         # Clear all cached data
+gpc feedback            # Open GitHub issues
+```
+
+---
+
+## Migrate
+
+### From Fastlane
+```
+gpc migrate fastlane --dir fastlane/metadata
+gpc migrate fastlane --dir fastlane/metadata --dry-run
+```
+
+### Mapping (Fastlane → GPC)
+```
+Fastlane supply upload         → gpc publish
+Fastlane supply               → gpc listings pull / push
+Fastlane supply --track beta  → gpc releases upload --track beta
+```
+
+---
+
+## Global Flags (all commands)
+
+```
+--app <package>      Override package name
+--profile <name>     Use named auth profile
+--json               JSON output
+--output <format>    table | json | yaml | markdown
+--dry-run            Preview without side effects
+--verbose            Verbose logging
+--no-color           Disable ANSI color
+--yes                Skip confirmation prompts
+```
+
+---
+
+## CI/CD Integration
+
+### GitHub Actions
+```yaml
+- name: Upload to Google Play
+  env:
+    GPC_SERVICE_ACCOUNT: ${{ secrets.GPC_SERVICE_ACCOUNT }}
+    GPC_APP: com.example.myapp
+  run: |
+    npm install -g @gpc-cli/cli
+    gpc releases upload app.aab --track internal
+    gpc vitals crashes --threshold 2.0
+    gpc releases promote --from internal --to production --rollout 10
+```
+
+### Exit Code Gating
+```bash
+gpc vitals crashes --threshold 1.5
+if [ $? -eq 6 ]; then
+  echo "Crash rate too high — aborting rollout"
+  gpc releases rollout halt --track production
+  exit 1
+fi
+```
+
+### JSON Output for Parsing
+```bash
+STATUS=$(gpc releases status --json)
+VERSION=$(echo $STATUS | jq -r '.releases[0].versionCode')
+```
+
+---
+
+## Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| GPC_SERVICE_ACCOUNT | Service account JSON string or file path | — |
+| GPC_APP | Default package name | — |
+| GPC_PROFILE | Named auth profile | — |
+| GPC_DEVELOPER_ID | Developer account ID | — |
+| GPC_OUTPUT | Output format | auto |
+| GPC_NO_COLOR | Disable color | — |
+| GPC_NO_INTERACTIVE | Disable prompts | auto in CI |
+| GPC_MAX_RETRIES | Max retry attempts | 3 |
+| GPC_TIMEOUT | Request timeout (ms) | 30000 |
+| GPC_DEBUG | Debug logging | — |
+| GPC_CA_CERT | Custom CA certificate path | — |
+| HTTPS_PROXY | HTTP proxy | — |
+| NO_COLOR | Standard no-color | — |
+
+---
+
+## Exit Codes
+
+| Code | Name | Meaning |
+|------|------|---------|
+| 0 | Success | Command completed |
+| 1 | Error | General / unexpected error |
+| 2 | Usage | Bad arguments or flags |
+| 3 | Auth | Authentication failure |
+| 4 | API | Google Play API error |
+| 5 | Network | DNS, timeout, proxy error |
+| 6 | Threshold | Vitals metric exceeded threshold |
+| 10 | Plugin | Plugin load or runtime error |
+
+---
+
+## SDK Usage (@gpc-cli/api)
+
+```typescript
+import { createPlayClient } from '@gpc-cli/api';
+import { loadCredentials } from '@gpc-cli/auth';
+
+const auth = await loadCredentials();
+const client = createPlayClient({ auth, packageName: 'com.example.app' });
+
+const releases = await client.releases.list({ track: 'production' });
+const vitals = await client.vitals.getCrashRate({ days: 7 });
+```
+
+---
+
+## Plugin Development (@gpc-cli/plugin-sdk)
+
+```typescript
+import type { GpcPlugin } from '@gpc-cli/plugin-sdk';
+
+const plugin: GpcPlugin = {
+  name: 'my-plugin',
+  version: '1.0.0',
+  permissions: ['releases:read', 'vitals:read'],
+  hooks: {
+    beforeUpload: async (ctx) => { /* ... */ },
+    afterUpload: async (ctx) => { /* ... */ },
+  },
+  commands: [
+    {
+      name: 'my-command',
+      description: 'Custom command',
+      action: async (options) => { /* ... */ },
+    },
+  ],
+};
+
+export default plugin;
+```
+
+---
+
+*Generated from GPC v0.9.34 documentation.*
+*Source: https://github.com/yasserstudio/gpc*
