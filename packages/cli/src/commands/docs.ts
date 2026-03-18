@@ -1,5 +1,5 @@
 import type { Command } from "commander";
-import { execFile } from "node:child_process";
+import * as cp from "node:child_process";
 
 const PAGE_MAP: Record<string, string> = {
   releases: "commands/releases",
@@ -37,7 +37,7 @@ export function registerDocsCommand(program: Command): void {
       const url = path ? `${BASE}${path}` : BASE;
       const platform = process.platform;
       const cmd = platform === "darwin" ? "open" : platform === "win32" ? "start" : "xdg-open";
-      execFile(cmd, [url], (error) => {
+      cp.execFile(cmd, [url], (error) => {
         if (error) {
           console.log(`Open in your browser: ${url}`);
         }
