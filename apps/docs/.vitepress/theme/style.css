@@ -329,55 +329,44 @@ html {
 }
 
 .VPHero {
-  padding-top: 96px !important;
-  padding-bottom: 88px !important;
+  padding-top: 80px !important;
+  padding-bottom: 80px !important;
   position: relative;
   overflow: hidden;
 }
 
-/* Center all hero content */
-.VPHero .container {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  text-align: center !important;
-  position: relative;
-  z-index: 1;
-}
-
-.VPHero .main {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  width: 100% !important;
-  max-width: 780px !important;
-}
-
-/* Light mode: soft radial glow behind hero */
+/* Dot grid background */
 .VPHero::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(26, 115, 232, 0.07) 0%, transparent 65%);
+  background:
+    radial-gradient(ellipse 60% 80% at 30% 50%, rgba(26, 115, 232, 0.06) 0%, transparent 65%),
+    radial-gradient(circle at 1px 1px, rgba(26, 115, 232, 0.07) 1px, transparent 0);
+  background-size: 100% 100%, 28px 28px;
   pointer-events: none;
   z-index: 0;
 }
 
-/* Dark mode: dot grid + stronger glow */
 .dark .VPHero::before {
   background:
-    radial-gradient(ellipse 100% 70% at 50% -5%, rgba(77, 149, 241, 0.10) 0%, transparent 60%),
-    radial-gradient(circle at 1px 1px, rgba(77, 149, 241, 0.13) 1px, transparent 0);
-  background-size: 100% 100%, 36px 36px;
+    radial-gradient(ellipse 60% 80% at 30% 50%, rgba(77, 149, 241, 0.09) 0%, transparent 65%),
+    radial-gradient(circle at 1px 1px, rgba(77, 149, 241, 0.10) 1px, transparent 0);
+  background-size: 100% 100%, 28px 28px;
+}
+
+.VPHero .container {
+  position: relative;
+  z-index: 1;
 }
 
 .VPHero .name {
   font-family: var(--gpc-font-display) !important;
-  font-size: clamp(4.5rem, 10vw, 8rem) !important;
+  font-size: clamp(3.5rem, 7vw, 6rem) !important;
   font-weight: 800 !important;
   letter-spacing: -0.04em !important;
   line-height: 0.92 !important;
-  margin-bottom: 20px !important;
+  margin-bottom: 18px !important;
 }
 
 .VPHero .name .clip {
@@ -393,7 +382,7 @@ html {
 .VPHero .text {
   font-family: var(--gpc-font-display) !important;
   font-weight: 600 !important;
-  font-size: clamp(1.1rem, 2.5vw, 1.5rem) !important;
+  font-size: clamp(1.05rem, 2vw, 1.35rem) !important;
   letter-spacing: -0.015em !important;
   line-height: 1.3 !important;
   margin-bottom: 14px !important;
@@ -401,12 +390,11 @@ html {
 }
 
 .VPHero .tagline {
-  font-size: clamp(0.92rem, 1.5vw, 1.05rem) !important;
+  font-size: 1rem !important;
   line-height: 1.72 !important;
   font-weight: 400;
-  max-width: 520px;
-  margin: 0 auto !important;
-  opacity: 0.72;
+  max-width: 460px;
+  opacity: 0.68;
 }
 
 /* Staggered entry animations */
@@ -423,8 +411,7 @@ html {
 .VPHero .actions {
   gap: 10px !important;
   flex-wrap: wrap;
-  justify-content: center !important;
-  margin-top: 36px !important;
+  margin-top: 32px !important;
 }
 
 /* Primary brand button */
