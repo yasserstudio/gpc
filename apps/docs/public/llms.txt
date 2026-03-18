@@ -1,55 +1,66 @@
-# GPC — Google Play CLI
+# GPC — Google Play Console CLI
 
 > Ship Android apps from your terminal. The complete CLI for Google Play Developer API v3.
 
-GPC is a TypeScript CLI that covers 162 Google Play Developer API endpoints. It handles releases, rollouts, metadata, vitals, reviews, subscriptions, in-app products, purchases, reports, users, testers, and more — from one tool.
+GPC is a TypeScript CLI that covers 187 Google Play Developer API endpoints. It handles releases, rollouts, metadata, vitals, reviews, subscriptions, in-app products, purchases, reports, users, testers, and more — from one tool.
 
 ## Key Facts
 
 - Language: TypeScript (ESM, strict mode)
 - Runtime: Node.js 20+ or standalone binary (Bun-compiled)
-- Package manager: npm (`npm install -g @gpc-cli/cli`)
+- Install: `npm install -g @gpc-cli/cli`
 - Auth: Service account JSON, OAuth 2.0, Application Default Credentials
 - Output: JSON (default in CI/pipe), table (default in TTY), YAML, Markdown
 - Exit codes: 0 success, 1 error, 2 usage, 3 auth, 4 API, 5 network, 6 threshold breach, 10 plugin
 - Config: `.gpcrc.json` (project), `~/.config/gpc/config.json` (user), `GPC_*` env vars
-- Tests: 843+, 90%+ coverage
+- Tests: 1,504 total, 90%+ line coverage on all core packages
+- Version: 0.9.34 (pre-release series → 1.0.0 public launch)
+- License: MIT
 
 ## Documentation
 
 - Guide: https://yasserstudio.github.io/gpc/guide/
 - Commands: https://yasserstudio.github.io/gpc/commands/
 - CI/CD: https://yasserstudio.github.io/gpc/ci-cd/
+- Environment Variables: https://yasserstudio.github.io/gpc/reference/environment-variables
+- Exit Codes: https://yasserstudio.github.io/gpc/reference/exit-codes
 - API Coverage: https://yasserstudio.github.io/gpc/reference/api-coverage
 - Security: https://yasserstudio.github.io/gpc/advanced/security
 - Plugin Dev: https://yasserstudio.github.io/gpc/advanced/plugins
 - SDK Usage: https://yasserstudio.github.io/gpc/advanced/sdk-usage
+- Migration from Fastlane: https://yasserstudio.github.io/gpc/migration/from-fastlane
 
 ## Source
 
 - Repository: https://github.com/yasserstudio/gpc
+- npm: https://www.npmjs.com/package/@gpc-cli/cli
 - License: MIT
-- Full docs: https://yasserstudio.github.io/gpc/llms-full.txt
+- Full LLM reference: https://yasserstudio.github.io/gpc/llms-full.txt
 
 ## Common Commands
 
 ```
-gpc auth login --service-account key.json    # Authenticate
-gpc releases upload app.aab --track beta     # Upload AAB to track
-gpc releases promote --from beta --to production --rollout 10  # Promote with rollout
-gpc vitals crashes --threshold 2.0           # CI gate on crash rate (exit 6 if breached)
-gpc listings pull --dir metadata/            # Download store listings
-gpc listings push --dir metadata/            # Upload store listings
-gpc reviews list --stars 1-3 --since 7d      # Recent low-rated reviews
-gpc subscriptions list                       # List subscriptions
-gpc purchases get <token>                    # Verify a purchase
-gpc pricing convert --from USD --amount 9.99 # Regional price conversion
-gpc reports download financial --month 2026-02  # Download financial report
+gpc auth login --service-account key.json              # Authenticate
+gpc doctor                                             # Diagnose setup problems
+gpc status                                             # App health: releases + vitals + reviews
+gpc releases upload app.aab --track internal           # Upload AAB to internal track
+gpc releases promote --from internal --to production --rollout 10  # Promote with staged rollout
+gpc releases rollout increase --track production --rollout 50      # Increase rollout
+gpc vitals crashes --threshold 2.0                     # CI gate on crash rate (exit 6 if breached)
+gpc vitals anr --threshold 0.5                         # CI gate on ANR rate
+gpc listings pull --dir metadata/                      # Download store listings
+gpc listings push --dir metadata/                      # Upload store listings
+gpc reviews list --stars 1-3 --since 7d                # Recent low-rated reviews
+gpc reviews reply --review-id <id> --text "Thanks"     # Reply to a review
+gpc subscriptions list                                 # List subscriptions
+gpc purchases get <token>                              # Verify a purchase token
+gpc pricing convert --from USD --amount 9.99           # Regional price conversion
+gpc reports download financial --month 2026-02         # Download financial report
 gpc users invite user@co.com --developer-id <id> --role ADMIN  # Invite user
-gpc testers import --track beta --file testers.csv  # Bulk tester import
-gpc publish app.aab --track beta --notes "Bug fixes"  # End-to-end release
-gpc status                                   # Cross-track release overview
-gpc doctor                                   # Diagnose setup problems
+gpc testers import --track beta --file testers.csv     # Bulk tester import
+gpc publish app.aab --track beta --notes "Bug fixes"   # End-to-end release
+gpc anomalies list                                     # List Android vitals anomalies
+gpc migrate fastlane --dir fastlane/metadata           # Migrate Fastlane metadata
 ```
 
 ## Environment Variables
@@ -59,23 +70,37 @@ gpc doctor                                   # Diagnose setup problems
 | GPC_SERVICE_ACCOUNT | Service account JSON string or file path | — |
 | GPC_APP | Default package name | — |
 | GPC_PROFILE | Auth profile name | — |
+| GPC_DEVELOPER_ID | Developer account ID (user/tester management) | — |
 | GPC_OUTPUT | Output format (table, json, yaml, markdown) | auto |
 | GPC_NO_COLOR | Disable color output | — |
-| GPC_NO_INTERACTIVE | Disable prompts | auto in CI |
+| GPC_NO_INTERACTIVE | Disable prompts (auto in CI) | — |
 | GPC_MAX_RETRIES | Max retry attempts | 3 |
 | GPC_TIMEOUT | Request timeout (ms) | 30000 |
-| GPC_DEVELOPER_ID | Developer account ID (user management) | — |
+| GPC_DEBUG | Enable debug logging | — |
 | GPC_CA_CERT | Custom CA certificate path | — |
 | HTTPS_PROXY | HTTP proxy URL | — |
 
+## Exit Codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | General error |
+| 2 | Usage / bad arguments |
+| 3 | Auth failure |
+| 4 | Google Play API error |
+| 5 | Network error |
+| 6 | Vitals threshold breached (CI gate) |
+| 10 | Plugin error |
+
 ## Packages (Monorepo)
 
-| Package | npm | Purpose |
-|---------|-----|---------|
-| gpc | gpc | CLI entry point |
-| @gpc-cli/core | @gpc-cli/core | Business logic, command orchestration |
-| @gpc-cli/api | @gpc-cli/api | Typed Google Play API client |
-| @gpc-cli/auth | @gpc-cli/auth | Authentication (SA, OAuth, ADC) |
-| @gpc-cli/config | @gpc-cli/config | Config loading, env vars, profiles |
-| @gpc-cli/plugin-sdk | @gpc-cli/plugin-sdk | Plugin interface and hooks |
-| @gpc-cli/plugin-ci | @gpc-cli/plugin-ci | CI/CD helpers |
+| Package | Purpose |
+|---------|---------|
+| @gpc-cli/cli | CLI entry point (bin: gpc) |
+| @gpc-cli/core | Business logic, command orchestration |
+| @gpc-cli/api | Typed Google Play API client (187 endpoints) |
+| @gpc-cli/auth | Authentication: service account, OAuth, ADC |
+| @gpc-cli/config | Config loading, env vars, profiles |
+| @gpc-cli/plugin-sdk | Plugin interface and lifecycle hooks |
+| @gpc-cli/plugin-ci | CI/CD helpers |
