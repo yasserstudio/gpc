@@ -3,6 +3,7 @@ import { useData } from "vitepress";
 import DefaultTheme from "vitepress/theme";
 import BackToTop from "./BackToTop.vue";
 import CopyForAI from "./CopyForAI.vue";
+import AnnouncementBanner from "./AnnouncementBanner.vue";
 
 const { Layout } = DefaultTheme;
 const { page } = useData();
@@ -12,6 +13,11 @@ const isHome = () => page.value.frontmatter.layout === "home";
 
 <template>
   <Layout>
+    <!-- Announcement banner -->
+    <template #layout-top>
+      <AnnouncementBanner />
+    </template>
+
     <!-- Hero terminal mockup -->
     <template #home-hero-image>
       <div v-if="isHome()" class="terminal-window" aria-hidden="true">

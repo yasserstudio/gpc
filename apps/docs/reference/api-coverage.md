@@ -1,5 +1,6 @@
 ---
 outline: deep
+pageClass: wide-page
 ---
 
 # API Coverage Map
