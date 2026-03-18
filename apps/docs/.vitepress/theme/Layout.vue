@@ -10,6 +10,7 @@ const isHome = () => page.value.frontmatter.layout === "home";
 
 <template>
   <Layout>
+    <!-- Hero terminal mockup -->
     <template #home-hero-image>
       <div v-if="isHome()" class="terminal-window" aria-hidden="true">
         <div class="terminal-header">
@@ -40,10 +41,36 @@ const isHome = () => page.value.frontmatter.layout === "home";
         </div>
       </div>
     </template>
+
+    <!-- Custom 404 -->
+    <template #not-found>
+      <div class="gpc-404">
+        <div class="nf-window">
+          <div class="nf-header">
+            <span class="dot dot-red" />
+            <span class="dot dot-yellow" />
+            <span class="dot dot-green" />
+            <span class="nf-title">terminal</span>
+          </div>
+          <div class="nf-body">
+            <div class="nf-cmd"><span class="nf-prompt">$</span> gpc docs --page <span class="nf-val">"{{ page.relativePath }}"</span></div>
+            <div class="nf-gap" />
+            <div class="nf-err"><span class="nf-x">✗</span> Error <span class="nf-code">E404</span> — Page not found</div>
+            <div class="nf-hint">  The page you're looking for doesn't exist or has moved.</div>
+            <div class="nf-gap" />
+            <div class="nf-sugg-label">Try:</div>
+            <div class="nf-sugg"><span class="nf-dim">→</span> <a href="/gpc/" class="nf-link">gpc docs --home</a>          <span class="nf-dim">Back to home</span></div>
+            <div class="nf-sugg"><span class="nf-dim">→</span> <a href="/gpc/commands/" class="nf-link">gpc docs --commands</a>    <span class="nf-dim">Browse all commands</span></div>
+            <div class="nf-sugg"><span class="nf-dim">→</span> <a href="/gpc/guide/" class="nf-link">gpc docs --guide</a>        <span class="nf-dim">Getting started guide</span></div>
+          </div>
+        </div>
+      </div>
+    </template>
   </Layout>
 </template>
 
 <style scoped>
+/* ── Hero terminal ───────────────────────────────────────────────── */
 .terminal-window {
   width: 420px;
   background: #0d1117;
@@ -64,7 +91,8 @@ const isHome = () => page.value.frontmatter.layout === "home";
   to   { opacity: 1; transform: translateY(0)   scale(1); }
 }
 
-.terminal-header {
+.terminal-header,
+.nf-header {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -73,20 +101,17 @@ const isHome = () => page.value.frontmatter.layout === "home";
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-}
+.dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
 .dot-red    { background: #ff5f57; }
 .dot-yellow { background: #febc2e; }
 .dot-green  { background: #28c840; }
 
-.terminal-title {
+.terminal-title,
+.nf-title {
   margin-left: auto;
   font-family: 'Inter', sans-serif;
   font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.28);
   letter-spacing: 0.02em;
 }
 
@@ -101,15 +126,9 @@ const isHome = () => page.value.frontmatter.layout === "home";
   opacity: 0;
   animation: lineIn 0.3s ease forwards;
 }
-
 .t-spacer { height: 6px; }
+.t-divider { color: rgba(255,255,255,0.1); font-size: 0.65rem; }
 
-.t-divider {
-  color: rgba(255, 255, 255, 0.1);
-  font-size: 0.65rem;
-}
-
-/* Staggered line delays */
 .delay-1  { animation-delay: 0.5s; }
 .delay-2  { animation-delay: 0.65s; }
 .delay-3  { animation-delay: 0.85s; }
@@ -128,7 +147,6 @@ const isHome = () => page.value.frontmatter.layout === "home";
   to   { opacity: 1; transform: translateX(0); }
 }
 
-/* Token colors */
 .t-prompt  { color: #4d95f1; font-weight: 600; }
 .t-cmd     { color: #e6edf3; font-weight: 500; }
 .t-section { color: #e6edf3; font-weight: 700; }
@@ -148,10 +166,56 @@ const isHome = () => page.value.frontmatter.layout === "home";
   50%       { opacity: 0; }
 }
 
-/* Light mode: keep terminal always dark */
 :global(.VPHero .image-container) {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
+/* ── 404 page ────────────────────────────────────────────────────── */
+.gpc-404 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 64px);
+  padding: 40px 24px;
+}
+
+.nf-window {
+  width: min(520px, 100%);
+  background: #0d1117;
+  border-radius: 12px;
+  border: 1px solid rgba(77, 149, 241, 0.18);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.4),
+    0 24px 80px rgba(0, 0, 0, 0.4),
+    0 0 60px rgba(77, 149, 241, 0.06);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.82rem;
+  overflow: hidden;
+  animation: terminalFadeIn 0.6s ease both;
+}
+
+.nf-body {
+  padding: 20px 22px 24px;
+  line-height: 2;
+}
+
+.nf-cmd   { color: #e6edf3; display: flex; gap: 8px; }
+.nf-prompt { color: #4d95f1; font-weight: 600; flex-shrink: 0; }
+.nf-val   { color: #79c0ff; }
+.nf-gap   { height: 8px; }
+.nf-err   { display: flex; gap: 8px; align-items: baseline; }
+.nf-x     { color: #f85149; flex-shrink: 0; }
+.nf-code  { color: #f85149; }
+.nf-hint  { color: #8b949e; }
+.nf-sugg-label { color: #484f58; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+.nf-sugg  { display: flex; gap: 12px; color: #8b949e; }
+.nf-dim   { color: #484f58; flex-shrink: 0; }
+.nf-link  {
+  color: #4d95f1;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.nf-link:hover { color: #8fbdf7; }
 </style>

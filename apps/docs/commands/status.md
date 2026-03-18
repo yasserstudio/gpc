@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# status
-
-Everything you'd check in 4–6 Play Console screens, in one terminal command.
+<CommandHeader
+  name="gpc status"
+  description="Everything you'd check in 4–6 Play Console screens, in one terminal command. Six parallel API calls — full picture in under 3 seconds."
+  usage="gpc status [options]"
+  :badges="['--json', '--watch', '--sections', '--all-apps', '--dry-run']"
+/>
 
 ```
 $ gpc status
