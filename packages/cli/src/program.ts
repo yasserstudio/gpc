@@ -22,6 +22,7 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     .option("--notify [target]", "Send webhook notification on completion (slack, discord, custom)")
     .option("--ci", "Force CI mode (JSON output, no prompts, strict exit codes)")
     .option("-j, --json", "Shorthand for --output json")
+    .option("--apps <csv>", "Comma-separated package names for multi-app operations")
     .showSuggestionAfterError(false);
 
   const commandLoaders: Record<string, () => Promise<void>> = {
@@ -140,6 +141,24 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     },
     feedback: async () => {
       (await import("./commands/feedback.js")).registerFeedbackCommand(program);
+    },
+    quickstart: async () => {
+      (await import("./commands/quickstart.js")).registerQuickstartCommand(program);
+    },
+    grants: async () => {
+      (await import("./commands/grants.js")).registerGrantsCommands(program);
+    },
+    train: async () => {
+      (await import("./commands/train.js")).registerTrainCommands(program);
+    },
+    quota: async () => {
+      (await import("./commands/quota.js")).registerQuotaCommand(program);
+    },
+    games: async () => {
+      (await import("./commands/games.js")).registerGamesCommands(program);
+    },
+    enterprise: async () => {
+      (await import("./commands/enterprise.js")).registerEnterpriseCommands(program);
     },
     plugins: async () => {
       registerPluginsCommand(program, pluginManager);
@@ -285,6 +304,84 @@ function registerPluginsCommand(program: Command, manager?: PluginManager): void
         console.log(`Plugin "${name}" approval revoked.`);
       } else {
         console.log(`Plugin "${name}" was not in the approved list.`);
+      }
+    });
+
+  const REGISTRY_URL =
+    "https://raw.githubusercontent.com/yasserstudio/gpc-plugins/main/registry.json";
+
+  interface RegistryPlugin {
+    name: string;
+    description: string;
+    version: string;
+    author?: string;
+    tags?: string[];
+  }
+
+  cmd
+    .command("search [query]")
+    .description("Search the GPC plugin registry")
+    .action(async (query?: string) => {
+      try {
+        const res = await fetch(REGISTRY_URL);
+        if (!res.ok) throw new Error(`Registry fetch failed: ${res.status}`);
+        const plugins = (await res.json()) as RegistryPlugin[];
+        const filtered = query
+          ? plugins.filter(
+              (p) =>
+                p.name.includes(query) ||
+                p.description?.toLowerCase().includes(query.toLowerCase()),
+            )
+          : plugins;
+
+        if (filtered.length === 0) {
+          console.log(`No plugins found${query ? ` matching "${query}"` : ""}.`);
+          return;
+        }
+
+        for (const p of filtered) {
+          console.log(`  ${p.name}@${p.version}`);
+          if (p.description) console.log(`    ${p.description}`);
+        }
+        console.log(`\nInstall: gpc plugins install <name>`);
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  cmd
+    .command("install <name>")
+    .description("Install a plugin from npm")
+    .action(async (name: string) => {
+      const { execSync } = await import("node:child_process");
+      console.log(`Installing plugin "${name}"...`);
+      try {
+        execSync(`npm install -g ${name}`, { stdio: "inherit" });
+        const { approvePlugin } = await import("@gpc-cli/config");
+        await approvePlugin(name);
+        console.log(`\nPlugin "${name}" installed and approved. It will be loaded on next run.`);
+        console.log(`Configure it in .gpcrc.json: { "plugins": ["${name}"] }`);
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  cmd
+    .command("uninstall <name>")
+    .description("Uninstall a plugin and revoke its approval")
+    .action(async (name: string) => {
+      const { execSync } = await import("node:child_process");
+      console.log(`Uninstalling plugin "${name}"...`);
+      try {
+        execSync(`npm uninstall -g ${name}`, { stdio: "inherit" });
+        const { revokePluginApproval } = await import("@gpc-cli/config");
+        await revokePluginApproval(name);
+        console.log(`\nPlugin "${name}" uninstalled and approval revoked.`);
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
       }
     });
 }

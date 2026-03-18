@@ -164,6 +164,32 @@ vi.mock("@gpc-cli/core", () => {
     migrateFastlaneMetadata: vi.fn().mockResolvedValue({}),
     analyzeBundle: vi.fn().mockResolvedValue({ filePath: "test.aab", fileType: "aab", totalCompressed: 0, totalUncompressed: 0, entryCount: 0, modules: [], categories: [], entries: [] }),
     compareBundles: vi.fn().mockReturnValue({ before: {}, after: {}, sizeDelta: 0, sizeDeltaPercent: 0, moduleDeltas: [], categoryDeltas: [] }),
+    topFiles: vi.fn().mockResolvedValue([]),
+    checkBundleSize: vi.fn().mockResolvedValue({ pass: true, violations: [] }),
+    getVitalsLmk: vi.fn().mockResolvedValue({ rows: [] }),
+    compareVitalsTrend: vi.fn().mockResolvedValue({ metric: "crashRateMetricSet", current: undefined, previous: undefined, changePercent: undefined, direction: "unknown" }),
+    compareVersionVitals: vi.fn().mockResolvedValue({ v1: { versionCode: "1" }, v2: { versionCode: "2" }, regressions: [] }),
+    watchVitalsWithAutoHalt: vi.fn().mockReturnValue(() => {}),
+    analyzeReviews: vi.fn().mockResolvedValue({ totalReviews: 0, averageRating: 0, sentimentBreakdown: { positive: 0, negative: 0, neutral: 0 }, topTopics: [], topKeywords: [], ratingDistribution: {} }),
+    maybePaginate: vi.fn().mockResolvedValue(undefined),
+    createGrant: vi.fn().mockResolvedValue({}),
+    startTrain: vi.fn().mockResolvedValue({}),
+    getTrainStatus: vi.fn().mockResolvedValue(null),
+    pauseTrain: vi.fn().mockResolvedValue(null),
+    abortTrain: vi.fn().mockResolvedValue(undefined),
+    advanceTrain: vi.fn().mockResolvedValue(null),
+    getQuotaUsage: vi.fn().mockResolvedValue({ total: 0, today: 0, thisMinute: 0, topCommands: [] }),
+    getSubscriptionAnalytics: vi.fn().mockResolvedValue({ totalSubscriptions: 0, activeCount: 0, activeBasePlans: 0, trialBasePlans: 0, pausedBasePlans: 0, canceledBasePlans: 0, offerCount: 0, byProductId: [] }),
+    diffSubscription: vi.fn().mockResolvedValue([]),
+    listLeaderboards: vi.fn().mockResolvedValue([]),
+    listAchievements: vi.fn().mockResolvedValue([]),
+    listEvents: vi.fn().mockResolvedValue([]),
+    listEnterpriseApps: vi.fn().mockResolvedValue([]),
+    createEnterpriseApp: vi.fn().mockResolvedValue({}),
+    refundSubscriptionV2: vi.fn().mockResolvedValue(undefined),
+    lintLocalListings: vi.fn().mockResolvedValue([]),
+    analyzeRemoteListings: vi.fn().mockResolvedValue({ results: [] }),
+    diffListingsEnhanced: vi.fn().mockResolvedValue([]),
   };
 });
 
@@ -171,6 +197,9 @@ vi.mock("@gpc-cli/api", () => ({
   createApiClient: vi.fn().mockReturnValue({
     apps: { get: vi.fn() },
   }),
+  createUsersClient: vi.fn().mockReturnValue({}),
+  createGamesClient: vi.fn().mockReturnValue({}),
+  createEnterpriseClient: vi.fn().mockReturnValue({}),
 }));
 
 import { createProgram } from "../src/program";
@@ -214,6 +243,12 @@ const EXPECTED_TOP_LEVEL_COMMANDS = [
   "version",
   "cache",
   "feedback",
+  "grants",
+  "quickstart",
+  "train",
+  "quota",
+  "games",
+  "enterprise",
 ];
 
 describe("help text consistency", () => {

@@ -15,6 +15,7 @@ import {
   trackBreachState,
   sendNotification,
   formatOutput,
+  createSpinner,
 } from "@gpc-cli/core";
 import type { AppStatus } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
@@ -329,8 +330,17 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
     }
   }
 
-  // Live fetch
-  const status = await fetchLive();
+  // Live fetch (with spinner in TTY mode)
+  const spinner = createSpinner("Fetching app status...");
+  if (ctx.format !== "json") spinner.start();
+  let status: AppStatus;
+  try {
+    status = await fetchLive();
+  } catch (err) {
+    spinner.fail("Failed to fetch app status");
+    throw err;
+  }
+  spinner.stop("Done");
   await save(status);
 
   printWithDiff(status, prevStatus, opts.sinceLast, render, ctx.format);

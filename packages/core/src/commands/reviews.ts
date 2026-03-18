@@ -1,6 +1,8 @@
 import type { PlayApiClient, Review, ReviewsListOptions, ReviewReplyResponse } from "@gpc-cli/api";
 import { paginateAll } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
+import { analyzeReviews as analyzeReviewsSentiment } from "../utils/sentiment.js";
+import type { ReviewAnalysis } from "../utils/sentiment.js";
 
 export interface ReviewsFilterOptions {
   stars?: number;
@@ -160,4 +162,25 @@ function csvEscape(value: string): string {
     return `"${value.replace(/"/g, '""')}"`;
   }
   return value;
+}
+
+export { ReviewAnalysis };
+
+/** Fetch reviews and run local sentiment/topic/keyword analysis. */
+export async function analyzeReviews(
+  client: PlayApiClient,
+  packageName: string,
+  options?: ReviewsFilterOptions,
+): Promise<ReviewAnalysis> {
+  const reviews = await listReviews(client, packageName, options);
+
+  const items = reviews.map((r) => {
+    const uc = r.comments?.[0]?.userComment;
+    return {
+      text: uc?.text ?? "",
+      rating: uc?.starRating,
+    };
+  });
+
+  return analyzeReviewsSentiment(items);
 }

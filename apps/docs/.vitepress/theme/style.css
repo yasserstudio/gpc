@@ -471,12 +471,22 @@ html {
 }
 
 .VPFeatures .items {
-  gap: 16px !important;
   display: grid !important;
   grid-template-columns: repeat(3, 1fr) !important;
+  gap: 16px !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-/* Feature grid breakpoints — see consolidated responsive section below */
+.VPFeature {
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+  grid-column: span 1 !important;
+}
+
 @media (max-width: 960px) {
   .VPFeatures .items { grid-template-columns: repeat(2, 1fr) !important; }
 }
@@ -672,7 +682,16 @@ html {
 .vp-doc div[class*='language-sh'],
 .vp-doc div[class*='language-shell'],
 .vp-doc div[class*='language-zsh'] {
+  position: relative !important;
   padding-top: 40px !important;
+  background: #0d1117 !important;
+}
+
+.vp-doc div[class*='language-bash'] pre,
+.vp-doc div[class*='language-sh'] pre,
+.vp-doc div[class*='language-shell'] pre,
+.vp-doc div[class*='language-zsh'] pre {
+  background: transparent !important;
 }
 
 .vp-doc div[class*='language-bash']::before,
@@ -685,10 +704,13 @@ html {
   left: 0;
   right: 0;
   height: 40px;
-  line-height: 40px;
-  text-align: center;
+  /* Flexbox so "terminal" label is always centered, independent of dot positions */
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
   background-color: #161b22;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  /* Dots drawn as background behind the flex text */
   background-image:
     radial-gradient(circle, #ff5f57 5px, transparent 5px),
     radial-gradient(circle, #febc2e 5px, transparent 5px),
@@ -698,9 +720,10 @@ html {
   font-family: var(--vp-font-family-base);
   font-size: 0.7rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.28);
   letter-spacing: 0.06em;
   z-index: 2;
+  box-sizing: border-box;
 }
 
 /* Hide the default lang label — title shown in chrome header */

@@ -389,3 +389,93 @@ export async function deactivateOffer(
   validateSku(productId);
   return client.subscriptions.deactivateOffer(packageName, productId, basePlanId, offerId);
 }
+
+export interface SubscriptionAnalytics {
+  totalSubscriptions: number;
+  activeCount: number;
+  activeBasePlans: number;
+  trialBasePlans: number;
+  pausedBasePlans: number;
+  canceledBasePlans: number;
+  offerCount: number;
+  byProductId: Array<{
+    productId: string;
+    state: string;
+    basePlanCount: number;
+    offerCount: number;
+  }>;
+}
+
+/** Aggregate subscription catalog analytics from the Play API. */
+export async function getSubscriptionAnalytics(
+  client: PlayApiClient,
+  packageName: string,
+): Promise<SubscriptionAnalytics> {
+  validatePackageName(packageName);
+
+  const { items: subs } = await paginateAll<Subscription>(async (pageToken) => {
+    const response = await client.subscriptions.list(packageName, {
+      pageToken,
+      pageSize: 100,
+    });
+    return {
+      items: response.subscriptions || [],
+      nextPageToken: response.nextPageToken,
+    };
+  });
+
+  let activeCount = 0;
+  let activeBasePlans = 0;
+  let trialBasePlans = 0;
+  let pausedBasePlans = 0;
+  let canceledBasePlans = 0;
+  let totalOffers = 0;
+
+  const byProductId: SubscriptionAnalytics["byProductId"] = [];
+
+  for (const sub of subs) {
+    const state = (sub as unknown as Record<string, unknown>)["state"] as string | undefined;
+    if (state === "ACTIVE") activeCount++;
+
+    const basePlans = sub.basePlans ?? [];
+    let subOfferCount = 0;
+
+    for (const bp of basePlans) {
+      const bpState = (bp as unknown as Record<string, unknown>)["state"] as string | undefined;
+      if (bpState === "ACTIVE") activeBasePlans++;
+      else if (bpState === "DRAFT") trialBasePlans++;
+      else if (bpState === "INACTIVE") pausedBasePlans++;
+      else if (bpState === "PREPUBLISHED") canceledBasePlans++;
+    }
+
+    // Count offers across all base plans
+    for (const bp of basePlans) {
+      try {
+        const offersResp = await client.subscriptions.listOffers(packageName, sub.productId, bp.basePlanId);
+        const offers = offersResp.subscriptionOffers ?? [];
+        subOfferCount += offers.length;
+        totalOffers += offers.length;
+      } catch {
+        // offers may not be accessible for all base plans
+      }
+    }
+
+    byProductId.push({
+      productId: sub.productId,
+      state: (sub as unknown as Record<string, unknown>)["state"] as string ?? "UNKNOWN",
+      basePlanCount: basePlans.length,
+      offerCount: subOfferCount,
+    });
+  }
+
+  return {
+    totalSubscriptions: subs.length,
+    activeCount,
+    activeBasePlans,
+    trialBasePlans,
+    pausedBasePlans,
+    canceledBasePlans,
+    offerCount: totalOffers,
+    byProductId,
+  };
+}

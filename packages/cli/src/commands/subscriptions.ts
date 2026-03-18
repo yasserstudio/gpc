@@ -23,6 +23,7 @@ import {
   activateOffer,
   deactivateOffer,
   diffSubscription,
+  getSubscriptionAnalytics,
   formatOutput,
   sortResults,
 } from "@gpc-cli/core";
@@ -663,6 +664,42 @@ export function registerSubscriptionsCommands(program: Command): void {
           console.log("No differences found.");
         } else {
           console.log(formatOutput(diffs, format));
+        }
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  subs
+    .command("analytics")
+    .description("Subscription catalog analytics: active plans, offer counts, state breakdown")
+    .action(async () => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = getOutputFormat(program, config);
+
+      try {
+        const result = await getSubscriptionAnalytics(client, packageName);
+
+        if (format === "json") {
+          console.log(formatOutput(result, format));
+          return;
+        }
+
+        console.log(`\nSubscription Analytics — ${packageName}`);
+        console.log(`${"─".repeat(50)}`);
+        console.log(`Total subscriptions:  ${result.totalSubscriptions}`);
+        console.log(`Active subscriptions: ${result.activeCount}`);
+        console.log(`Active base plans:    ${result.activeBasePlans}`);
+        console.log(`Draft base plans:     ${result.trialBasePlans}`);
+        console.log(`Inactive base plans:  ${result.pausedBasePlans}`);
+        console.log(`Total offers:         ${result.offerCount}`);
+
+        if (result.byProductId.length > 0) {
+          console.log(`\nBy product:`);
+          console.log(formatOutput(result.byProductId, format));
         }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);

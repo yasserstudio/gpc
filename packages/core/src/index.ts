@@ -1,5 +1,5 @@
 export { GpcError, ConfigError, ApiError, NetworkError } from "./errors.js";
-export { detectOutputFormat, formatOutput, formatJunit, redactSensitive, SENSITIVE_KEYS } from "./output.js";
+export { detectOutputFormat, formatOutput, formatJunit, redactSensitive, SENSITIVE_KEYS, maybePaginate } from "./output.js";
 export type { CommandContext } from "./context.js";
 export { PluginManager, discoverPlugins } from "./plugins.js";
 export type { LoadedPlugin, DiscoverPluginsOptions } from "./plugins.js";
@@ -24,6 +24,9 @@ export {
   pullListings,
   pushListings,
   diffListingsCommand,
+  diffListingsEnhanced,
+  lintLocalListings,
+  analyzeRemoteListings,
   listImages,
   uploadImage,
   deleteImage,
@@ -32,6 +35,8 @@ export {
   exportImages,
 } from "./commands/listings.js";
 export type { ListingsResult, PushResult, DryRunResult, ExportImagesOptions, ExportImagesSummary } from "./commands/listings.js";
+export { lintListings, lintListing, wordDiff, formatWordDiff, DEFAULT_LIMITS } from "./utils/listing-text.js";
+export type { ListingLintResult, FieldLintResult, ListingFieldLimits, DiffToken } from "./utils/listing-text.js";
 export {
   detectFastlane,
   parseFastfile,
@@ -58,9 +63,10 @@ export { publish } from "./commands/publish.js";
 export type { PublishOptions, PublishResult, DryRunPublishResult } from "./commands/publish.js";
 export { readListingsFromDir, writeListingsToDir, diffListings } from "./utils/fastlane.js";
 export type { ListingDiff } from "./utils/fastlane.js";
-export { listReviews, getReview, replyToReview, exportReviews } from "./commands/reviews.js";
-export type { ReviewsFilterOptions, ReviewExportOptions } from "./commands/reviews.js";
-export type { ListSubscriptionsOptions } from "./commands/subscriptions.js";
+export { listReviews, getReview, replyToReview, exportReviews, analyzeReviews } from "./commands/reviews.js";
+export type { ReviewsFilterOptions, ReviewExportOptions, ReviewAnalysis } from "./commands/reviews.js";
+export type { ListSubscriptionsOptions, SubscriptionAnalytics } from "./commands/subscriptions.js";
+export { getSubscriptionAnalytics } from "./commands/subscriptions.js";
 export type { ListIapOptions } from "./commands/iap.js";
 export type { ListVoidedOptions } from "./commands/purchases.js";
 export type { ListUsersOptions } from "./commands/users.js";
@@ -78,11 +84,15 @@ export {
   compareVitalsTrend,
   checkThreshold,
 } from "./commands/vitals.js";
+export { compareVersionVitals, watchVitalsWithAutoHalt } from "./commands/vitals.js";
 export type {
   VitalsQueryOptions,
   VitalsOverview,
   VitalsTrendComparison,
   ThresholdResult,
+  VersionVitalsRow,
+  VersionVitalsComparison,
+  WatchVitalsOptions,
 } from "./commands/vitals.js";
 export { validateImage } from "./utils/image-validation.js";
 export type { ImageValidationResult } from "./utils/image-validation.js";
@@ -123,6 +133,7 @@ export {
   cancelSubscriptionPurchase,
   deferSubscriptionPurchase,
   revokeSubscriptionPurchase,
+  refundSubscriptionV2,
   listVoidedPurchases,
   refundOrder,
 } from "./commands/purchases.js";
@@ -146,6 +157,7 @@ export {
   parseGrantArg,
   PERMISSION_PROPAGATION_WARNING,
 } from "./commands/users.js";
+export { listGrants, createGrant, updateGrant, deleteGrant } from "./commands/grants.js";
 export {
   listTesters,
   addTesters,
@@ -192,6 +204,12 @@ export {
 } from "./commands/one-time-products.js";
 export type { OneTimeProductDiff } from "./commands/one-time-products.js";
 export { createSpinner } from "./utils/spinner.js";
+export { startTrain, getTrainStatus, pauseTrain, abortTrain, advanceTrain } from "./commands/train.js";
+export { listLeaderboards, listAchievements, listEvents } from "./commands/games.js";
+export { listEnterpriseApps, createEnterpriseApp } from "./commands/enterprise.js";
+export type { TrainConfig, TrainState } from "./commands/train.js";
+export { getQuotaUsage } from "./commands/quota.js";
+export type { QuotaUsage } from "./commands/quota.js";
 export type { Spinner } from "./utils/spinner.js";
 export { safePath, safePathWithin } from "./utils/safe-path.js";
 export { sortResults } from "./utils/sort.js";
@@ -218,8 +236,8 @@ export {
 } from "./commands/purchase-options.js";
 export { batchSyncInAppProducts } from "./commands/iap.js";
 export type { BatchSyncResult } from "./commands/iap.js";
-export { analyzeBundle, compareBundles } from "./commands/bundle-analysis.js";
-export type { BundleEntry, BundleAnalysis, BundleComparison } from "./commands/bundle-analysis.js";
+export { analyzeBundle, compareBundles, topFiles, checkBundleSize } from "./commands/bundle-analysis.js";
+export type { BundleEntry, BundleAnalysis, BundleComparison, BundleSizeConfig, BundleSizeCheckResult } from "./commands/bundle-analysis.js";
 export {
   getAppStatus,
   formatStatusTable,

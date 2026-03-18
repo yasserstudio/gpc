@@ -163,7 +163,6 @@ export default defineConfig({
           { text: "Changelog", link: "/reference/changelog" },
         ],
       },
-      { text: "Roadmap", link: "/roadmap" },
     ],
 
     sidebar: {
@@ -224,6 +223,7 @@ export default defineConfig({
             { text: "reports", link: "/commands/reports" },
             { text: "testers", link: "/commands/testers" },
             { text: "users", link: "/commands/users" },
+            { text: "grants", link: "/commands/grants" },
           ],
         },
         {
@@ -233,6 +233,8 @@ export default defineConfig({
             { text: "internal-sharing", link: "/commands/internal-sharing" },
             { text: "generated-apks", link: "/commands/generated-apks" },
             { text: "device-tiers", link: "/commands/device-tiers" },
+            { text: "enterprise", link: "/commands/enterprise" },
+            { text: "games", link: "/commands/games" },
           ],
         },
         {
@@ -244,6 +246,13 @@ export default defineConfig({
               text: "external-transactions",
               link: "/commands/external-transactions",
             },
+          ],
+        },
+        {
+          text: "Automation",
+          items: [
+            { text: "train", link: "/commands/train" },
+            { text: "quota", link: "/commands/quota" },
           ],
         },
         {
@@ -282,6 +291,12 @@ export default defineConfig({
           text: "Architecture",
           items: [
             { text: "System Design", link: "/advanced/architecture" },
+            { text: "Conventions", link: "/advanced/conventions" },
+          ],
+        },
+        {
+          text: "Extend",
+          items: [
             { text: "Plugin Development", link: "/advanced/plugins" },
             { text: "SDK Usage", link: "/advanced/sdk-usage" },
             { text: "Agent Skills", link: "/advanced/skills" },
@@ -293,19 +308,6 @@ export default defineConfig({
             { text: "Security", link: "/advanced/security" },
             { text: "Error Codes", link: "/advanced/error-codes" },
             { text: "Troubleshooting", link: "/advanced/troubleshooting" },
-          ],
-        },
-        {
-          text: "Migration",
-          items: [
-            { text: "From Fastlane", link: "/migration/from-fastlane" },
-            { text: "From Console UI", link: "/migration/from-console-ui" },
-          ],
-        },
-        {
-          text: "Project",
-          items: [
-            { text: "Conventions", link: "/advanced/conventions" },
           ],
         },
       ],

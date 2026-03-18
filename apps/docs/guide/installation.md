@@ -91,11 +91,29 @@ Pre-compiled binaries with no runtime dependencies. Ideal for CI/CD environments
 
 ### Automatic install (recommended)
 
+**macOS / Linux:**
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
 ```
 
 This script detects your platform, downloads the correct binary, and places it in `/usr/local/bin`.
+
+**Windows (PowerShell):**
+
+```powershell
+iwr https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.ps1 | iex
+```
+
+This downloads the binary to `%LOCALAPPDATA%\Programs\gpc` and adds it to your user PATH automatically.
+
+**Windows (Git Bash / MSYS2):**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
+```
+
+The shell script auto-detects Windows and installs `gpc.exe` to `%LOCALAPPDATA%\Programs\gpc`.
 
 ### Manual download
 
@@ -131,12 +149,17 @@ gpc --version
 
 ```powershell
 # Download the binary
-Invoke-WebRequest -Uri "https://github.com/yasserstudio/gpc/releases/latest/download/gpc-windows-x64.exe" -OutFile "gpc.exe"
+$Dir = "$env:LOCALAPPDATA\Programs\gpc"
+New-Item -ItemType Directory -Path $Dir -Force
+Invoke-WebRequest -Uri "https://github.com/yasserstudio/gpc/releases/latest/download/gpc-windows-x64.exe" -OutFile "$Dir\gpc.exe"
 
-# Move to a directory in your PATH (e.g., C:\Windows\System32 or a custom directory)
-Move-Item gpc.exe C:\Windows\System32\gpc.exe
+# Add to user PATH (once)
+$Path = [Environment]::GetEnvironmentVariable("Path", "User")
+if ($Path -notlike "*$Dir*") {
+  [Environment]::SetEnvironmentVariable("Path", "$Path;$Dir", "User")
+}
 
-# Verify
+# Verify (open a new terminal first)
 gpc --version
 ```
 

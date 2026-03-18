@@ -11,6 +11,9 @@ import {
   pullListings,
   pushListings,
   diffListingsCommand,
+  diffListingsEnhanced,
+  lintLocalListings,
+  analyzeRemoteListings,
   listImages,
   uploadImage,
   deleteImage,
@@ -228,6 +231,7 @@ export function registerListingsCommands(program: Command): void {
     .command("push")
     .description("Upload listings from Fastlane-format directory")
     .option("--dir <path>", "Source directory (default: metadata)", "metadata")
+    .option("--force", "Push even if fields exceed character limits")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -241,6 +245,7 @@ export function registerListingsCommands(program: Command): void {
         const dryRun = isDryRun(program);
         const result = await pushListings(client, packageName, options.dir, {
           dryRun,
+          force: options.force,
         });
         spinner.stop(dryRun ? "Dry-run complete (no changes made)" : "Listings pushed");
         console.log(formatOutput(result, format));
@@ -251,11 +256,13 @@ export function registerListingsCommands(program: Command): void {
       }
     });
 
-  // Diff
+  // Diff (enhanced: --lang filter, word-level inline diff)
   listings
     .command("diff")
     .description("Compare local Fastlane-format metadata against remote listings")
     .option("--dir <path>", "Local metadata directory", "metadata")
+    .option("--lang <language>", "Filter diff to a specific language")
+    .option("--word-diff", "Show word-level inline diff for fullDescription")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -263,7 +270,10 @@ export function registerListingsCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       try {
-        const diffs = await diffListingsCommand(client, packageName, options.dir);
+        const diffs = await diffListingsEnhanced(client, packageName, options.dir, {
+          lang: options.lang,
+          wordLevel: options.wordDiff,
+        });
 
         if (diffs.length === 0) {
           if (format === "json") {
@@ -278,12 +288,106 @@ export function registerListingsCommands(program: Command): void {
           console.log(formatOutput(diffs, format));
         } else {
           for (const diff of diffs) {
-            console.log(`[${diff.language}] ${diff.field}:`);
-            console.log(green(`+ local:  ${diff.local || "(empty)"}`));
-            console.log(red(`- remote: ${diff.remote || "(empty)"}`));
+            const charInfo = (diff as Record<string, unknown>)["chars"]
+              ? ` (${(diff as Record<string, unknown>)["chars"]} chars)`
+              : "";
+            console.log(`[${diff.language}] ${diff.field}:${charInfo}`);
+            if ((diff as Record<string, unknown>)["diffSummary"]) {
+              console.log(`  ${(diff as Record<string, unknown>)["diffSummary"]}`);
+            } else {
+              console.log(green(`  + local:  ${diff.local || "(empty)"}`));
+              console.log(red(`  - remote: ${diff.remote || "(empty)"}`));
+            }
           }
         }
       } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  // Lint (local, no API)
+  listings
+    .command("lint")
+    .description("Lint local listing metadata for Play Store character limits (no API)")
+    .option("--dir <path>", "Metadata directory", "metadata")
+    .action(async (options) => {
+      const format = getOutputFormat(program, await loadConfig());
+      try {
+        const results = await lintLocalListings(options.dir);
+        if (format === "json") {
+          console.log(formatOutput(results, format));
+          return;
+        }
+        let exitCode = 0;
+        for (const r of results) {
+          console.log(`\n[${r.language}]  ${r.valid ? green("✓ valid") : red("✗ over limit")}`);
+          const rows = r.fields.map((f) => ({
+            field: f.field,
+            chars: f.chars,
+            limit: f.limit,
+            pct: `${f.pct}%`,
+            status: f.status === "ok" ? green("✓") : f.status === "warn" ? "⚠" : red("✗"),
+          }));
+          console.log(formatOutput(rows, "table"));
+          if (!r.valid) exitCode = 1;
+        }
+        if (exitCode) process.exit(exitCode);
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(1);
+      }
+    });
+
+  // Analyze (live, fetches remote)
+  listings
+    .command("analyze")
+    .description("Analyze live Play Store listings for character limit compliance")
+    .option("--expected <locales>", "Comma-separated list of expected locale codes")
+    .action(async (options) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = getOutputFormat(program, config);
+
+      const spinner = createSpinner("Fetching remote listings...");
+      if (!program.opts()["quiet"] && process.stderr.isTTY) spinner.start();
+
+      try {
+        const expectedLocales = options.expected
+          ? (options.expected as string).split(",").map((s: string) => s.trim())
+          : undefined;
+        const { results, missingLocales } = await analyzeRemoteListings(client, packageName, {
+          expectedLocales,
+        });
+        spinner.stop("Done");
+
+        if (format === "json") {
+          console.log(formatOutput({ results, missingLocales }, format));
+          return;
+        }
+
+        let exitCode = 0;
+        for (const r of results) {
+          console.log(`\n[${r.language}]  ${r.valid ? green("✓ valid") : red("✗ over limit")}`);
+          const rows = r.fields.map((f) => ({
+            field: f.field,
+            chars: f.chars,
+            limit: f.limit,
+            pct: `${f.pct}%`,
+            status: f.status === "ok" ? green("✓") : f.status === "warn" ? "⚠" : red("✗"),
+          }));
+          console.log(formatOutput(rows, "table"));
+          if (!r.valid) exitCode = 1;
+        }
+
+        if (missingLocales && missingLocales.length > 0) {
+          console.log(`\nMissing locales: ${missingLocales.join(", ")}`);
+        }
+
+        if (exitCode) process.exit(exitCode);
+      } catch (error) {
+        spinner.fail("Analysis failed");
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
       }

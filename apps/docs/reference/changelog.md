@@ -6,7 +6,70 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.34 <Badge type="tip" text="latest" />
+## v0.9.35 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+**Bug Fixes**
+
+- fix: `gpc version` reports `0.0.0` on npm install — `__GPC_VERSION` is now injected at build time via tsup `define`
+- fix: Stale edit session after crash — detects `FAILED_PRECONDITION: edit has expired` and auto-retries with a fresh edit
+- fix: `gpc vitals lmk` — dedicated function with correct metric set and DAILY aggregation (was using wrong metrics from `memory`)
+- fix: Windows install gap — `scripts/install.sh` now detects MINGW/MSYS/CYGWIN; new PowerShell installer `scripts/install.ps1` with SHA-256 verification
+
+**Terminal UX**
+
+- feat: Terminal-width-aware table columns — widths scale with `process.stdout.columns` instead of a fixed 60-char cap
+- feat: Numeric cells (counts, percentages, version codes) right-aligned in all tables
+- feat: Bold headers and `─` separator line in table output
+- feat: Spinner on `gpc status` while parallel API calls run
+
+**Onboarding**
+
+- feat: `gpc auth login` interactive wizard — prompts for auth method, credentials path, profile name, and package when no flags given
+- feat: `gpc quickstart` — 4-step guided setup: check config, verify credentials, confirm package, run doctor; shows next steps
+- feat: `gpc auth setup-gcp` — step-by-step service account creation guidance
+
+**Listing Text Optimization**
+
+- feat: `gpc listings lint` — local lint against Play Store character limits (title 30, shortDesc 80, fullDesc 4000)
+- feat: `gpc listings analyze` — live analysis of remote listings with locale coverage check
+- feat: `gpc listings push` preflight gate — aborts if any field exceeds limit (override with `--force`)
+- feat: Enhanced `gpc listings diff` — word-level inline diff for fullDescription, `--lang` filter
+
+**New Commands**
+
+- feat: `gpc grants` — standalone per-app grant management: `list`, `create`, `update`, `delete`
+- feat: `gpc reviews analyze` — local sentiment analysis: topic clustering, keyword frequency, rating distribution
+- feat: `gpc vitals compare-versions <v1> <v2>` — side-by-side crash/ANR/startup/rendering comparison
+- feat: `gpc vitals watch --auto-halt-rollout` — continuous monitor that halts rollout on threshold breach
+- feat: `gpc train` — config-driven staged rollout pipeline with vitals gates and delay scheduling
+- feat: `gpc quota` — API quota usage tracking from audit log
+- feat: `gpc subscriptions analytics` — active/draft/inactive plan counts, offer totals
+- feat: `gpc games` — Play Games Services: leaderboards, achievements, events
+- feat: `gpc enterprise` — Managed Google Play: create and list private enterprise apps
+- feat: `gpc doctor --fix` — auto-fix failing checks (permissions, missing directories, config init)
+
+**Ecosystem**
+
+- feat: `gpc --apps <csv>` global flag for multi-app operations
+- feat: `gpc plugins search` — search the GPC plugin registry
+- feat: `gpc plugins install <name>` — install and approve a plugin from npm
+- feat: `gpc plugins uninstall <name>` — uninstall and revoke a plugin
+- feat: `gpc bundle analyze --top <n>` — show top N largest files
+- feat: `gpc bundle analyze --config .bundlesize.json` — check against per-module size thresholds
+- feat: Pager support — long lists auto-pipe to `$PAGER` when output exceeds terminal height
+
+**Other**
+
+- feat: `gpc purchases subscription refund <token>` — refund a subscription using v2 API
+- feat: Color output on `gpc validate` — pass shows `✓` in green, fail `✗` in red
+
+**Stats:** ~1,700 tests · 7 packages · 187+ API endpoints
+
+---
+
+## v0.9.34 <Badge type="warning" text="previous" />
 
 **Bug Fixes**
 
@@ -353,3 +416,20 @@ _March 2026_
 ---
 
 For the complete release history and migration guides, visit the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
+
+---
+
+## Road to 1.0
+
+GPC is in the **0.9.x pre-release series**. The goal for 1.0 is a stable, polished tool that earns a permanent place in every Android team's CI pipeline.
+
+What 1.0 means in practice:
+
+- **`gpc quickstart`** — a single guided flow that takes a new user from zero to a working setup: detects config state, verifies credentials, runs doctor, shows next steps
+- **`gpc doctor --fix`** — inline remediation for each failing check, instead of just diagnosing
+- **Terminal UX polish** — spinners during multi-API waits, terminal-width-aware tables, number alignment
+- **GitHub Actions marketplace action** — `uses: yasserstudio/gpc-action@v1` with no shell setup required
+- **Stability soak** — 2+ weeks in production across real apps with no critical bugs
+- **Public launch** — blog post, Android Weekly, community announcements
+
+No ETAs. Shipping speaks louder.

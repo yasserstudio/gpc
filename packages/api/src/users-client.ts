@@ -1,7 +1,12 @@
 import { createHttpClient } from "./http.js";
-import type { ApiClientOptions, User, UsersListResponse } from "./types.js";
+import type { ApiClientOptions, User, UsersListResponse, Grant } from "./types.js";
 
 const USERS_BASE_URL = "https://androidpublisher.googleapis.com/androidpublisher/v3/developers";
+
+export interface GrantsListResponse {
+  grants: Grant[];
+  nextPageToken?: string;
+}
 
 export interface UsersApiClient {
   list(
@@ -21,6 +26,19 @@ export interface UsersApiClient {
   ): Promise<User>;
 
   delete(developerId: string, userId: string): Promise<void>;
+
+  grants: {
+    list(developerId: string, email: string): Promise<GrantsListResponse>;
+    create(developerId: string, email: string, grant: Partial<Grant>): Promise<Grant>;
+    patch(
+      developerId: string,
+      email: string,
+      packageName: string,
+      grant: Partial<Grant>,
+      updateMask?: string,
+    ): Promise<Grant>;
+    delete(developerId: string, email: string, packageName: string): Promise<void>;
+  };
 }
 
 export function createUsersClient(options: ApiClientOptions): UsersApiClient {
@@ -60,6 +78,38 @@ export function createUsersClient(options: ApiClientOptions): UsersApiClient {
 
     async delete(developerId, userId) {
       await http.delete(`/${developerId}/users/${userId}`);
+    },
+
+    grants: {
+      async list(developerId, email) {
+        const { data } = await http.get<GrantsListResponse>(
+          `/${developerId}/users/${encodeURIComponent(email)}/grants`,
+        );
+        return data;
+      },
+
+      async create(developerId, email, grant) {
+        const { data } = await http.post<Grant>(
+          `/${developerId}/users/${encodeURIComponent(email)}/grants`,
+          grant,
+        );
+        return data;
+      },
+
+      async patch(developerId, email, packageName, grant, updateMask?) {
+        let path = `/${developerId}/users/${encodeURIComponent(email)}/grants/${encodeURIComponent(packageName)}`;
+        if (updateMask) {
+          path += `?updateMask=${encodeURIComponent(updateMask)}`;
+        }
+        const { data } = await http.patch<Grant>(path, grant);
+        return data;
+      },
+
+      async delete(developerId, email, packageName) {
+        await http.delete(
+          `/${developerId}/users/${encodeURIComponent(email)}/grants/${encodeURIComponent(packageName)}`,
+        );
+      },
     },
   };
 }

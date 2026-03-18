@@ -250,3 +250,62 @@ export function compareBundles(before: BundleAnalysis, after: BundleAnalysis): B
     categoryDeltas,
   };
 }
+
+/** Return the top N largest files by compressed size. */
+export function topFiles(
+  analysis: BundleAnalysis,
+  n: number = 20,
+): BundleEntry[] {
+  return [...analysis.entries]
+    .sort((a, b) => b.compressedSize - a.compressedSize)
+    .slice(0, n);
+}
+
+export interface BundleSizeConfig {
+  maxTotalCompressed?: number;
+  modules?: Record<string, { maxCompressed: number }>;
+}
+
+export interface BundleSizeCheckResult {
+  passed: boolean;
+  violations: Array<{ subject: string; actual: number; max: number }>;
+}
+
+/** Check bundle analysis against .bundlesize.json thresholds. */
+export async function checkBundleSize(
+  analysis: BundleAnalysis,
+  configPath: string = ".bundlesize.json",
+): Promise<BundleSizeCheckResult> {
+  let config: BundleSizeConfig = {};
+  try {
+    const raw = await readFile(configPath, "utf-8");
+    config = JSON.parse(raw) as BundleSizeConfig;
+  } catch {
+    return { passed: true, violations: [] };
+  }
+
+  const violations: BundleSizeCheckResult["violations"] = [];
+
+  if (config.maxTotalCompressed !== undefined && analysis.totalCompressed > config.maxTotalCompressed) {
+    violations.push({
+      subject: "total",
+      actual: analysis.totalCompressed,
+      max: config.maxTotalCompressed,
+    });
+  }
+
+  if (config.modules) {
+    for (const [moduleName, threshold] of Object.entries(config.modules)) {
+      const mod = analysis.modules.find((m) => m.name === moduleName);
+      if (mod && mod.compressedSize > threshold.maxCompressed) {
+        violations.push({
+          subject: `module:${moduleName}`,
+          actual: mod.compressedSize,
+          max: threshold.maxCompressed,
+        });
+      }
+    }
+  }
+
+  return { passed: violations.length === 0, violations };
+}

@@ -290,3 +290,148 @@ export function checkThreshold(value: number | undefined, threshold: number): Th
     threshold,
   };
 }
+
+export interface VersionVitalsRow {
+  versionCode: string;
+  crashRate?: number;
+  anrRate?: number;
+  slowStartRate?: number;
+  slowRenderingRate?: number;
+}
+
+export interface VersionVitalsComparison {
+  v1: VersionVitalsRow;
+  v2: VersionVitalsRow;
+  regressions: string[];
+}
+
+/** Compare vitals side-by-side for two version codes. */
+export async function compareVersionVitals(
+  reporting: ReportingApiClient,
+  packageName: string,
+  v1: string,
+  v2: string,
+  options?: { days?: number },
+): Promise<VersionVitalsComparison> {
+  const days = options?.days ?? 30;
+  const metricSets: [VitalsMetricSet, keyof Omit<VersionVitalsRow, "versionCode">][] = [
+    ["crashRateMetricSet", "crashRate"],
+    ["anrRateMetricSet", "anrRate"],
+    ["slowStartRateMetricSet", "slowStartRate"],
+    ["slowRenderingRateMetricSet", "slowRenderingRate"],
+  ];
+
+  const results = await Promise.allSettled(
+    metricSets.map(([ms]) =>
+      queryMetric(reporting, packageName, ms, { dimension: "versionCode", days }),
+    ),
+  );
+
+  const row1: VersionVitalsRow = { versionCode: v1 };
+  const row2: VersionVitalsRow = { versionCode: v2 };
+
+  for (let i = 0; i < metricSets.length; i++) {
+    const entry = metricSets[i];
+    const result = results[i];
+    if (!entry || !result || result.status !== "fulfilled") continue;
+    const key = entry[1];
+    const rows = result.value.rows ?? [];
+
+    const extractAvgForVersion = (vc: string): number | undefined => {
+      const matching = rows.filter((r) => {
+        const dims = r.dimensions as Record<string, unknown>[] | undefined;
+        return dims?.some((d) => (d as Record<string, unknown>)["stringValue"] === vc) ?? false;
+      });
+      if (matching.length === 0) return undefined;
+      const values = matching
+        .map((r) => {
+          const firstKey = Object.keys(r.metrics)[0];
+          return firstKey ? Number(r.metrics[firstKey]?.decimalValue?.value) : NaN;
+        })
+        .filter((v) => !isNaN(v));
+      if (values.length === 0) return undefined;
+      return values.reduce((a, b) => a + b, 0) / values.length;
+    };
+
+    (row1 as unknown as Record<string, unknown>)[key] = extractAvgForVersion(v1);
+    (row2 as unknown as Record<string, unknown>)[key] = extractAvgForVersion(v2);
+  }
+
+  const regressions: string[] = [];
+  for (const [, key] of metricSets) {
+    const val1 = (row1 as unknown as Record<string, unknown>)[key] as number | undefined;
+    const val2 = (row2 as unknown as Record<string, unknown>)[key] as number | undefined;
+    if (val1 !== undefined && val2 !== undefined && val2 > val1 * 1.05) {
+      regressions.push(key as string);
+    }
+  }
+
+  return { v1: row1, v2: row2, regressions };
+}
+
+export interface WatchVitalsOptions {
+  /** Polling interval in milliseconds. Defaults to 5 minutes. */
+  intervalMs?: number;
+  /** Threshold value; breach triggers halt. */
+  threshold: number;
+  /** Metric set to monitor. Defaults to crashRateMetricSet. */
+  metricSet?: VitalsMetricSet;
+  /** Called when threshold is breached. Implement halt logic here. */
+  onHalt?: (value: number) => Promise<void>;
+  /** Called on each poll result (value may be undefined if no data). */
+  onPoll?: (value: number | undefined, breached: boolean) => void;
+}
+
+/**
+ * Poll vitals on an interval; invoke onHalt if threshold is breached.
+ * Returns a stop function — call it to cancel the watch loop.
+ */
+export function watchVitalsWithAutoHalt(
+  reporting: ReportingApiClient,
+  packageName: string,
+  options: WatchVitalsOptions,
+): () => void {
+  const {
+    intervalMs = 5 * 60 * 1000,
+    threshold,
+    metricSet = "crashRateMetricSet",
+    onHalt,
+    onPoll,
+  } = options;
+
+  let stopped = false;
+  let haltTriggered = false;
+
+  const poll = async () => {
+    if (stopped) return;
+    try {
+      const result = await queryMetric(reporting, packageName, metricSet, { days: 1 });
+      const latestRow = result.rows?.[result.rows.length - 1];
+      const firstMetric = latestRow?.metrics ? Object.keys(latestRow.metrics)[0] : undefined;
+      const value = firstMetric
+        ? Number(latestRow?.metrics[firstMetric]?.decimalValue?.value)
+        : undefined;
+
+      const breached = value !== undefined && value > threshold;
+      onPoll?.(value, breached);
+
+      if (breached && !haltTriggered && onHalt) {
+        haltTriggered = true;
+        await onHalt(value as number);
+      }
+    } catch {
+      // swallow errors in background polling
+    }
+
+    if (!stopped) {
+      timerId = setTimeout(poll, intervalMs);
+    }
+  };
+
+  let timerId = setTimeout(poll, 0);
+
+  return () => {
+    stopped = true;
+    clearTimeout(timerId);
+  };
+}

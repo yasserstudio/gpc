@@ -17,11 +17,13 @@ import {
   getVitalsAnomalies,
   searchVitalsErrors,
   compareVitalsTrend,
+  compareVersionVitals,
+  watchVitalsWithAutoHalt,
   checkThreshold,
   formatOutput,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
-import { red, yellow } from "../colors.js";
+import { red, yellow, green } from "../colors.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -320,5 +322,141 @@ export function registerVitalsCommands(program: Command): void {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);
       }
+    });
+
+  vitals
+    .command("compare-versions <v1> <v2>")
+    .description("Compare vitals side-by-side for two version codes")
+    .option("--days <n>", "Number of days to query", (v) => parseInt(v, 10), 30)
+    .action(async (v1: string, v2: string, options) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const reporting = await getReportingClient(config);
+      const format = getOutputFormat(program, config);
+
+      try {
+        const result = await compareVersionVitals(reporting, packageName, v1, v2, {
+          days: options.days,
+        });
+
+        if (format === "json") {
+          console.log(formatOutput(result, format));
+          return;
+        }
+
+        const metrics: [keyof typeof result.v1, string][] = [
+          ["crashRate", "Crash Rate"],
+          ["anrRate", "ANR Rate"],
+          ["slowStartRate", "Slow Start Rate"],
+          ["slowRenderingRate", "Slow Rendering Rate"],
+        ];
+
+        console.log(`\nVersion Comparison — ${packageName}`);
+        console.log(`${"─".repeat(60)}`);
+        console.log(`${"Metric".padEnd(22)} ${"v" + v1.padEnd(14)} ${"v" + v2.padEnd(14)} Change`);
+        console.log(`${"─".repeat(60)}`);
+
+        for (const [key, label] of metrics) {
+          const val1 = result.v1[key];
+          const val2 = result.v2[key];
+          const s1 = val1 !== undefined ? (val1 * 100).toFixed(3) + "%" : "N/A";
+          const s2 = val2 !== undefined ? (val2 * 100).toFixed(3) + "%" : "N/A";
+          const isRegression = result.regressions.includes(key as string);
+          const change =
+            val1 !== undefined && val2 !== undefined
+              ? ((val2 - val1) / val1) * 100
+              : undefined;
+          const changeStr =
+            change !== undefined
+              ? (change > 0 ? "+" : "") + change.toFixed(1) + "%"
+              : "N/A";
+          const colorFn = isRegression ? red : change !== undefined && change < -1 ? green : (s: string) => s;
+          console.log(
+            `${label.padEnd(22)} ${s1.padEnd(15)} ${colorFn(s2.padEnd(15))} ${colorFn(changeStr)}`,
+          );
+        }
+
+        if (result.regressions.length > 0) {
+          console.log(`\n${red("✗")} Regressions detected: ${result.regressions.join(", ")}`);
+        } else {
+          console.log(`\n${green("✓")} No regressions detected.`);
+        }
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  vitals
+    .command("watch")
+    .description("Monitor vitals continuously and optionally auto-halt rollout on breach")
+    .requiredOption("--threshold <value>", "Breach threshold value", parseFloat)
+    .option("--metric <name>", "Metric to monitor (crashes, anr, startup, rendering, battery, memory)", "crashes")
+    .option("--interval <seconds>", "Polling interval in seconds", (v) => parseInt(v, 10), 300)
+    .option("--auto-halt-rollout", "Automatically halt rollout if threshold is breached")
+    .option("--track <name>", "Track to halt rollout on (required with --auto-halt-rollout)")
+    .action(async (options) => {
+      const metricSet = METRIC_MAP[options.metric as string];
+      if (!metricSet) {
+        console.error(
+          `Error: Unknown metric "${options.metric}". Use: ${Object.keys(METRIC_MAP).join(", ")}`,
+        );
+        process.exit(2);
+      }
+
+      if (options.autoHaltRollout && !options.track) {
+        console.error("Error: --track <name> is required when using --auto-halt-rollout");
+        process.exit(2);
+      }
+
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const reporting = await getReportingClient(config);
+      const intervalMs = (options.interval as number) * 1000;
+
+      console.log(`Watching ${options.metric} for ${packageName}`);
+      console.log(`Threshold: ${options.threshold}  Interval: ${options.interval}s`);
+      if (options.autoHaltRollout) {
+        console.log(`Auto-halt enabled on track: ${options.track}`);
+      }
+      console.log("Press Ctrl+C to stop.\n");
+
+      const stop = watchVitalsWithAutoHalt(reporting, packageName, {
+        intervalMs,
+        threshold: options.threshold as number,
+        metricSet,
+        onPoll: (value, breached) => {
+          const ts = new Date().toISOString();
+          const valStr = value !== undefined ? (value * 100).toFixed(3) + "%" : "N/A";
+          const indicator = breached ? red("✗ BREACH") : green("✓ OK");
+          console.log(`[${ts}] ${options.metric}: ${valStr} — ${indicator}`);
+        },
+        onHalt: options.autoHaltRollout
+          ? async (value: number) => {
+              console.error(
+                `\n${red("✗")} Threshold breached (${(value * 100).toFixed(3)}% > ${options.threshold}%). Halting rollout on track "${options.track}"...`,
+              );
+              try {
+                const { resolveAuth } = await import("@gpc-cli/auth");
+                const { createApiClient } = await import("@gpc-cli/api");
+                const { updateRollout } = await import("@gpc-cli/core");
+                const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
+                const apiClient = createApiClient({ auth });
+                await updateRollout(apiClient, packageName, options.track as string, 0);
+                console.error(`${red("⚠")} Rollout halted on track "${options.track}".`);
+              } catch (err) {
+                console.error(`Failed to halt rollout: ${err instanceof Error ? err.message : String(err)}`);
+              }
+              stop();
+              process.exit(6);
+            }
+          : undefined,
+      });
+
+      process.on("SIGINT", () => {
+        stop();
+        console.log("\nWatch stopped.");
+        process.exit(0);
+      });
     });
 }

@@ -283,6 +283,7 @@ export interface PlayApiClient {
       body: SubscriptionDeferRequest,
     ): Promise<SubscriptionDeferResponse>;
     revokeSubscriptionV2(packageName: string, token: string): Promise<void>;
+    refundSubscriptionV2(packageName: string, token: string): Promise<void>;
     listVoided(
       packageName: string,
       options?: { startTime?: string; endTime?: string; maxResults?: number; token?: string },
@@ -913,6 +914,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
       async revokeSubscriptionV2(packageName, token) {
         await http.post(`/${packageName}/purchases/subscriptionsv2/tokens/${token}:revoke`);
+      },
+
+      async refundSubscriptionV2(packageName, token) {
+        await http.post(`/${packageName}/purchases/subscriptionsv2/tokens/${token}:refund`);
       },
 
       async listVoided(packageName, options?) {
