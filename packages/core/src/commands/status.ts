@@ -710,14 +710,13 @@ export function sendNotification(title: string, body: string): void {
     const p = process.platform;
     if (p === "darwin") {
       // execFile avoids shell parsing; AppleScript string uses JSON.stringify for safe quoting
-      execFile(
-        "osascript",
-        ["-e", `display notification ${JSON.stringify(body)} with title ${JSON.stringify(title)}`],
-        { stdio: "ignore" } as Parameters<typeof execFile>[2],
-      );
+      execFile("osascript", [
+        "-e",
+        `display notification ${JSON.stringify(body)} with title ${JSON.stringify(title)}`,
+      ]);
     } else if (p === "linux") {
       // Pass title and body as separate argv elements — no shell, no escaping needed
-      execFile("notify-send", [title, body], { stdio: "ignore" } as Parameters<typeof execFile>[2]);
+      execFile("notify-send", [title, body]);
     } else if (p === "win32") {
       // Escape single quotes for PowerShell literal strings; execFile skips shell parsing
       // so no double-quote injection risk from the outer command string
@@ -725,16 +724,12 @@ export function sendNotification(title: string, body: string): void {
         s
           .replace(/'/g, "''") // PS single-quote escape
           .replace(/[\r\n]/g, " "); // strip newlines that would break the -Command string
-      execFile(
-        "powershell",
-        [
-          "-NoProfile",
-          "-NonInteractive",
-          "-Command",
-          `Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('${psEscape(body)}', '${psEscape(title)}')`,
-        ],
-        { stdio: "ignore" } as Parameters<typeof execFile>[2],
-      );
+      execFile("powershell", [
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        `Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('${psEscape(body)}', '${psEscape(title)}')`,
+      ]);
     }
   } catch {
     // Notification failures are non-fatal

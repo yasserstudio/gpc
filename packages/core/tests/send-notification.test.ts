@@ -31,11 +31,7 @@ describe("sendNotification (Bug N regression — execFile, not execSync)", () =>
 
     Object.defineProperty(process, "platform", { value: origPlatform, configurable: true });
 
-    expect(execFileMock).toHaveBeenCalledWith(
-      "osascript",
-      expect.arrayContaining(["-e"]),
-      expect.anything(),
-    );
+    expect(execFileMock).toHaveBeenCalledWith("osascript", expect.arrayContaining(["-e"]));
   });
 
   it("passes title and body as separate argv elements on linux — no shell quoting needed", () => {
@@ -46,11 +42,7 @@ describe("sendNotification (Bug N regression — execFile, not execSync)", () =>
 
     Object.defineProperty(process, "platform", { value: origPlatform, configurable: true });
 
-    expect(execFileMock).toHaveBeenCalledWith(
-      "notify-send",
-      ["GPC Alert", "Body with spaces"],
-      expect.anything(),
-    );
+    expect(execFileMock).toHaveBeenCalledWith("notify-send", ["GPC Alert", "Body with spaces"]);
   });
 
   it("calls powershell execFile on win32", () => {
@@ -61,11 +53,7 @@ describe("sendNotification (Bug N regression — execFile, not execSync)", () =>
 
     Object.defineProperty(process, "platform", { value: origPlatform, configurable: true });
 
-    expect(execFileMock).toHaveBeenCalledWith(
-      "powershell",
-      expect.any(Array),
-      expect.anything(),
-    );
+    expect(execFileMock).toHaveBeenCalledWith("powershell", expect.any(Array));
   });
 
   it("escapes single quotes in title and body on win32", () => {
