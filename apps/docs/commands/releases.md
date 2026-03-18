@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# releases
-
-Manage releases, uploads, promotions, rollouts, and release notes.
+<CommandHeader
+  name="gpc releases"
+  description="Manage releases, uploads, promotions, rollouts, and release notes."
+  usage="gpc releases <subcommand> [options]"
+  :badges="['--json', '--dry-run', '--track', '--rollout']"
+/>
 
 ## Commands
 

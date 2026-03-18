@@ -836,25 +836,96 @@ html {
 
 
 /* ================================================================
-   LOCAL SEARCH
+   LOCAL SEARCH — terminal aesthetic
    ================================================================ */
+
+.VPLocalSearchBox {
+  --vp-local-search-bg: #0d1117;
+}
 
 .VPLocalSearchBox .shell {
   border-radius: var(--gpc-radius-lg) !important;
-  border: 1px solid var(--vp-c-border) !important;
-  background: var(--vp-c-bg-elv) !important;
-  box-shadow: var(--vp-shadow-3) !important;
+  border: 1px solid rgba(77, 149, 241, 0.2) !important;
+  background: #0d1117 !important;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.4),
+    0 24px 80px rgba(0,0,0,0.5),
+    0 0 40px rgba(77, 149, 241, 0.08) !important;
+  overflow: hidden;
 }
 
-.dark .VPLocalSearchBox .shell {
-  border-color: rgba(77, 149, 241, 0.16) !important;
-  background: var(--vp-c-bg-alt) !important;
+/* Terminal header bar on search */
+.VPLocalSearchBox .shell::before {
+  content: 'search';
+  display: block;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  background: #161b22;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background-image:
+    radial-gradient(circle, #ff5f57 5px, transparent 5px),
+    radial-gradient(circle, #febc2e 5px, transparent 5px),
+    radial-gradient(circle, #28c840 5px, transparent 5px);
+  background-position: 14px center, 30px center, 46px center;
+  background-repeat: no-repeat;
+  font-family: var(--vp-font-family-base);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: rgba(255,255,255,0.22);
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.VPLocalSearchBox .search-input {
+  background: transparent !important;
+  color: #e6edf3 !important;
+  font-family: var(--vp-font-family-mono) !important;
+  font-size: 0.9rem !important;
+}
+
+.VPLocalSearchBox .search-input::placeholder {
+  color: #484f58 !important;
+}
+
+.VPLocalSearchBox .results {
+  background: transparent !important;
+}
+
+.VPLocalSearchBox .result {
+  border-color: rgba(255,255,255,0.06) !important;
+  transition: background 0.1s ease;
+}
+
+.VPLocalSearchBox .result:hover,
+.VPLocalSearchBox .result.selected {
+  background: rgba(77, 149, 241, 0.08) !important;
+  border-color: rgba(77, 149, 241, 0.2) !important;
+}
+
+.VPLocalSearchBox .result .title {
+  color: #e6edf3 !important;
+}
+
+.VPLocalSearchBox .result .excerpt {
+  color: #8b949e !important;
 }
 
 .VPLocalSearchBox mark {
-  background: var(--gpc-accent-dim);
-  color: var(--vp-c-brand-1);
+  background: rgba(77, 149, 241, 0.25) !important;
+  color: #79c0ff !important;
   border-radius: 2px;
+  padding: 0 2px;
+}
+
+.VPLocalSearchBox .no-results {
+  color: #484f58 !important;
+  font-family: var(--vp-font-family-mono) !important;
+}
+
+.VPLocalSearchBox .no-results::before {
+  content: '✗  ';
+  color: #f85149;
 }
 
 
@@ -888,6 +959,80 @@ html {
   color: var(--vp-c-text-2);
 }
 
+
+/* ================================================================
+   HOME — BODY SECTIONS (below features)
+   ================================================================ */
+
+/* Wrap the home page markdown content in a contained, styled area */
+.VPHome .vp-doc {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 24px 64px;
+}
+
+.VPHome .vp-doc h2 {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  margin-top: 56px !important;
+  padding-top: 0 !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  position: relative;
+  padding-left: 16px !important;
+}
+
+.VPHome .vp-doc h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  background: var(--vp-c-brand-1);
+  border-radius: 2px;
+}
+
+.dark .VPHome .vp-doc h2::before {
+  background: #4d95f1;
+}
+
+/* ================================================================
+   DARK MODE REFINEMENTS
+   ================================================================ */
+
+/* Dark nav glow */
+.dark .VPNav {
+  box-shadow: 0 1px 0 rgba(77, 149, 241, 0.08) !important;
+}
+
+/* Dark sidebar section headers */
+.dark .VPSidebarItem.level-0 > .item > .text {
+  color: rgba(77, 149, 241, 0.5) !important;
+}
+
+/* Dark callouts */
+.dark .vp-doc .custom-block.tip {
+  background: rgba(77, 149, 241, 0.05) !important;
+}
+.dark .vp-doc .custom-block.warning {
+  background: rgba(245, 158, 11, 0.05) !important;
+}
+.dark .vp-doc .custom-block.danger {
+  background: rgba(239, 68, 68, 0.05) !important;
+}
+
+/* Dark blockquote */
+.dark .vp-doc blockquote {
+  background: rgba(77, 149, 241, 0.05);
+  border-left-color: #4d95f1;
+}
+
+/* Dark footer */
+.dark .VPFooter {
+  background: transparent !important;
+}
 
 /* ================================================================
    RESPONSIVE
