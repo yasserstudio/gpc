@@ -533,6 +533,14 @@ html {
   padding: 0 !important;
 }
 
+/* Reset the VitePress .item wrapper — it carries flex width (calc(100%/3))
+   which inside our CSS grid shrinks each cell to 1/9 of the container */
+.VPFeatures .item {
+  width: 100% !important;
+  max-width: none !important;
+  padding: 0 !important;
+}
+
 .VPFeature {
   width: 100% !important;
   min-width: 0 !important;
