@@ -39,7 +39,7 @@ features:
     details: "Build Slack notifications, custom release gates, or internal dashboards — extend GPC with lifecycle hooks and custom commands. Or import @gpc-cli/api directly as a typed SDK."
   - icon:
       src: /icons/shield.svg
-    title: 1,536 Tests. 90%+ Coverage.
+    title: 1,551 Tests. 90%+ Coverage.
     details: "Security-audited credential handling, automatic secrets redaction, and audit logging for every write operation. Every write command supports --dry-run. Free and open-source. MIT licensed."
 ---
 
