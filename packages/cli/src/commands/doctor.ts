@@ -1,5 +1,6 @@
 import type { Command } from "commander";
 import { loadConfig, getCacheDir, getConfigDir } from "@gpc-cli/config";
+import { green, red, yellow } from "../colors.js";
 import { resolveAuth, AuthError } from "@gpc-cli/auth";
 import { existsSync, accessSync, statSync, constants } from "node:fs";
 import { resolve } from "node:path";
@@ -20,11 +21,11 @@ const INFO = "-";
 function icon(status: CheckResult["status"]): string {
   switch (status) {
     case "pass":
-      return PASS;
+      return green(PASS);
     case "fail":
-      return FAIL;
+      return red(FAIL);
     case "warn":
-      return WARN;
+      return yellow(WARN);
     case "info":
       return INFO;
   }
@@ -376,7 +377,7 @@ export function registerDoctorCommand(program: Command): void {
       } else if (warnings > 0) {
         console.log("\nAll checks passed with warnings.");
       } else {
-        console.log("\nAll checks passed!");
+        console.log(`\n${green("✓")} Ready. Try: gpc status`);
       }
     });
 }

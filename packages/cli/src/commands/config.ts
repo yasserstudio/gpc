@@ -84,9 +84,24 @@ export function registerConfigCommands(program: Command): void {
       if (configured.length > 0) {
         console.log(`  ${configured.join("  ·  ")}`);
       }
-      console.log("\nRun `gpc doctor` to verify your setup.");
 
       writeAuditLog(createAuditEntry("config init", { path })).catch(() => {});
+
+      // Run doctor inline to verify setup
+      console.log("\nVerifying setup...");
+      try {
+        const { registerDoctorCommand } = await import("./doctor.js");
+        const { Command } = await import("commander");
+        const doctorProgram = new Command();
+        doctorProgram
+          .option("-o, --output <format>", "Output format")
+          .option("-j, --json", "JSON mode");
+        registerDoctorCommand(doctorProgram);
+        await doctorProgram.parseAsync(["node", "gpc", "doctor"]);
+      } catch {
+        // Doctor failures should not prevent config init from succeeding
+        console.log("Run `gpc doctor` to verify your setup.");
+      }
     });
 
   config

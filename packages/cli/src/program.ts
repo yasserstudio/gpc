@@ -126,6 +126,9 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     migrate: async () => {
       (await import("./commands/migrate.js")).registerMigrateCommands(program);
     },
+    anomalies: async () => {
+      (await import("./commands/anomalies.js")).registerAnomaliesCommands(program);
+    },
     "install-skills": async () => {
       (await import("./commands/install-skills.js")).registerInstallSkillsCommand(program);
     },

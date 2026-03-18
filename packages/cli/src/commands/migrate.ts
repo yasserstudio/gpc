@@ -128,15 +128,27 @@ export function registerMigrateCommands(program: Command): void {
           return;
         }
 
-        // Conflict check — warn before clobbering existing .gpcrc.json
+        // Conflict check — abort before clobbering existing .gpcrc.json unless --yes
         if (
           Object.keys(plan.config).length > 0 &&
           (await fileExists(join(options.output, ".gpcrc.json")))
         ) {
+          const hasYes =
+            process.argv.includes("--yes") || process.argv.includes("-y");
+
+          if (!hasYes) {
+            console.log(
+              `\n${WARN} .gpcrc.json already exists and will be overwritten. Use --dry-run to preview first.`,
+            );
+            console.log(
+              "Aborting. Pass --yes to overwrite without confirmation.",
+            );
+            return;
+          }
+
           console.log(
-            `\n${WARN} .gpcrc.json already exists in ${options.output} — it will be overwritten.`,
+            `\n${WARN} .gpcrc.json already exists in ${options.output} — overwriting (--yes passed).`,
           );
-          console.log("  Use --dry-run to preview the new config first.");
         }
 
         const files = await writeMigrationOutput(plan, options.output);

@@ -177,6 +177,7 @@ import { createProgram } from "../src/program";
 
 const EXPECTED_TOP_LEVEL_COMMANDS = [
   "apps",
+  "anomalies",
   "auth",
   "config",
   "doctor",

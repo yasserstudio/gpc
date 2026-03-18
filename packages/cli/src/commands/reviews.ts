@@ -145,6 +145,10 @@ export function registerReviewsCommands(program: Command): void {
 
       try {
         const result = await replyToReview(client, packageName, reviewId, options.text);
+        if (format !== "json") {
+          const charCount = options.text.length;
+          console.log(`Reply sent (${charCount}/350 chars)`);
+        }
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
