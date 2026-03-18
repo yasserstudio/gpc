@@ -476,16 +476,12 @@ html {
   grid-template-columns: repeat(3, 1fr) !important;
 }
 
+/* Feature grid breakpoints — see consolidated responsive section below */
 @media (max-width: 960px) {
-  .VPFeatures .items {
-    grid-template-columns: repeat(2, 1fr) !important;
-  }
+  .VPFeatures .items { grid-template-columns: repeat(2, 1fr) !important; }
 }
-
 @media (max-width: 640px) {
-  .VPFeatures .items {
-    grid-template-columns: 1fr !important;
-  }
+  .VPFeatures .items { grid-template-columns: 1fr !important; }
 }
 
 .VPFeature {
@@ -1052,26 +1048,138 @@ html {
    RESPONSIVE
    ================================================================ */
 
-@media (max-width: 768px) {
-  .VPHero .name {
-    font-size: clamp(2.8rem, 14vw, 5rem) !important;
-    letter-spacing: -0.025em !important;
-  }
-
+/* ── Tablet (≤ 960px) ─────────────────────────────────────────── */
+@media (max-width: 960px) {
   .VPHero {
-    padding-top: 52px !important;
-    padding-bottom: 52px !important;
+    padding-top: 80px !important;
+    padding-bottom: 64px !important;
   }
 
-  .VPFeature {
-    padding: 20px !important;
+  .VPHero .name {
+    font-size: clamp(3rem, 9vw, 5.5rem) !important;
+  }
+
+  .VPHero .text {
+    font-size: 1.15rem !important;
+  }
+
+  .VPHero .tagline {
+    max-width: 100% !important;
   }
 }
 
+/* ── Mobile (≤ 768px) ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Hero */
+  .VPHero {
+    padding-top: 56px !important;
+    padding-bottom: 48px !important;
+  }
+
+  .VPHero .name {
+    font-size: clamp(2.6rem, 13vw, 4rem) !important;
+    letter-spacing: -0.025em !important;
+  }
+
+  .VPHero .text {
+    font-size: 1rem !important;
+  }
+
+  .VPHero .tagline {
+    font-size: 0.9rem !important;
+  }
+
+  .VPHero .actions {
+    justify-content: flex-start !important;
+  }
+
+  /* Feature cards */
+  .VPFeature {
+    padding: 20px !important;
+  }
+
+  .VPFeatures {
+    padding: 4px 0 40px !important;
+  }
+
+  /* Tables — horizontal scroll instead of overflow */
+  .vp-doc table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  /* Code blocks — full bleed on small screens */
+  .vp-doc div[class*='language-'] {
+    margin-left: -16px !important;
+    margin-right: -16px !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+
+  /* Home body */
+  .VPHome .vp-doc {
+    padding: 0 16px 48px !important;
+  }
+
+  .VPHome .vp-doc h2 {
+    font-size: 1.25rem !important;
+    margin-top: 40px !important;
+  }
+
+  /* Doc headings */
+  .vp-doc h1 {
+    font-size: 1.75rem !important;
+  }
+
+  .vp-doc h2 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Nav search button */
+  .VPNavBarSearch {
+    padding-left: 0 !important;
+  }
+}
+
+/* ── Small mobile (≤ 480px) ───────────────────────────────────── */
 @media (max-width: 480px) {
+  .VPHero {
+    padding-top: 44px !important;
+    padding-bottom: 40px !important;
+  }
+
+  .VPHero .name {
+    font-size: clamp(2.2rem, 15vw, 3.2rem) !important;
+  }
+
+  .VPHero .actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
   .VPButton.medium.brand,
   .VPButton.medium.alt {
-    padding: 9px 18px !important;
-    font-size: 0.86rem !important;
+    padding: 11px 20px !important;
+    font-size: 0.9rem !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  /* Sidebar nav */
+  .VPSidebar {
+    padding-top: 16px !important;
+  }
+
+  /* CommandHeader */
+  .ch-name {
+    font-size: 1rem !important;
+  }
+
+  .ch-badges {
+    display: none !important;
   }
 }
