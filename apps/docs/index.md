@@ -19,26 +19,32 @@ hero:
 features:
   - icon:
       src: /icons/layers.svg
+      wrap: true
     title: The Entire Google Play API
     details: "187 endpoints — releases, rollouts, metadata, vitals, reviews, subscriptions, purchases, reports, users, testers, and more. Nothing left out. Fastlane covers ~20."
   - icon:
       src: /icons/terminal.svg
+      wrap: true
     title: CI/CD Native
     details: "JSON output when piped, formatted tables in your terminal. Semantic exit codes (0–6) your pipeline can branch on. Env var config. --dry-run on every write. No wrapper scripts needed."
   - icon:
       src: /icons/package.svg
+      wrap: true
     title: No Ruby. No JVM. No Browser.
     details: "One npm install. Or a standalone binary with no runtime at all. Under 500ms cold start — faster than opening a browser tab. macOS, Linux, and Windows."
   - icon:
       src: /icons/activity.svg
+      wrap: true
     title: Full Picture in One Command
     details: "gpc status shows releases, vitals, and reviews without opening a browser — 6 parallel API calls, results in under 3 seconds. Exit code 6 if any vital threshold is breached."
   - icon:
       src: /icons/plug.svg
+      wrap: true
     title: Plugin System + SDK
     details: "Build Slack notifications, custom release gates, or internal dashboards — extend GPC with lifecycle hooks and custom commands. Or import @gpc-cli/api directly as a typed SDK."
   - icon:
       src: /icons/shield.svg
+      wrap: true
     title: 1,551 Tests. 90%+ Coverage.
     details: "Security-audited credential handling, automatic secrets redaction, and audit logging for every write operation. Every write command supports --dry-run. Free and open-source. MIT licensed."
 ---
