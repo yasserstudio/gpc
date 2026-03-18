@@ -16,52 +16,17 @@
 
 <p align="center">
 The complete CLI for Google Play — 187 API endpoints, one tool.<br>
-Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.
+Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.<br>
+<strong>Free and open-source. MIT licensed.</strong>
 </p>
 
 <!-- ![demo](./assets/demo.gif) -->
 
 ---
 
-## Install
-
-```bash
-# npm (includes plugin support)
-npm install -g @gpc-cli/cli
-
-# Homebrew (macOS/Linux)
-brew install yasserstudio/tap/gpc
-
-# Standalone binary (no Node.js required)
-curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
-```
-
----
-
-## Quick Start
-
-```bash
-# Authenticate
-gpc auth login --service-account path/to/key.json
-
-# App health at a glance — releases, vitals, and reviews in one command
-gpc status
-
-# Upload and release
-gpc releases upload app.aab --track internal
-
-# Promote to production with staged rollout
-gpc releases promote --from internal --to production --rollout 10
-
-# Monitor reviews
-gpc reviews list --stars 1-3 --since 7d
-```
-
----
-
 ## App health at a glance
 
-Everything you'd check in 4–6 Play Console screens, in one command:
+Everything you'd check in releases, vitals, crashes, and reviews — without opening a browser:
 
 ```
 $ gpc status
@@ -83,7 +48,48 @@ REVIEWS  (last 30 days)
 
 6 parallel API calls. Results in under 3 seconds. Cached for 1 hour — `--cached` skips the network entirely.
 
-Exit code 6 if any vitals threshold is breached — drop it directly into a deployment gate.
+Exit code 6 if any vitals threshold is breached — use it as a quality gate in your CI pipeline.
+
+---
+
+## Install
+
+```bash
+# npm (includes plugin support)
+npm install -g @gpc-cli/cli
+
+# Homebrew (macOS/Linux)
+brew install yasserstudio/tap/gpc
+
+# Standalone binary (no Node.js required)
+curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
+```
+
+Free. Open-source. No account required beyond your existing Google Play service account.
+
+---
+
+## Quick Start
+
+```bash
+# Authenticate
+gpc auth login --service-account path/to/key.json
+
+# Verify your setup
+gpc doctor
+
+# App health at a glance — releases, vitals, and reviews in one command
+gpc status
+
+# Upload and release
+gpc releases upload app.aab --track internal
+
+# Promote to production with staged rollout
+gpc releases promote --from internal --to production --rollout 10
+
+# Monitor reviews
+gpc reviews list --stars 1-3 --since 7d
+```
 
 ---
 
@@ -95,7 +101,7 @@ Every Android release is the same ritual: open the Play Console, upload your AAB
 
 The alternative? Install Ruby, Bundler, and 150+ gems to run Fastlane — and get access to maybe 20 of 187 API endpoints. No reviews. No vitals. No subscriptions. No reports.
 
-GPC covers the **entire Google Play Developer API** in one CLI. No Ruby. No browser. No ceremony.
+GPC covers the **entire Google Play Developer API** in one CLI — that's 187 endpoints, nothing left out. No Ruby. No browser. No ceremony.
 
 ### GPC vs the alternatives
 
@@ -111,11 +117,15 @@ GPC covers the **entire Google Play Developer API** in one CLI. No Ruby. No brow
 | Interactive mode    | Yes (guided prompts)         | No              | No                    | N/A          |
 | Test suite          | 1,504 tests, 90%+ coverage   | —               | —                     | —            |
 
+Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
+
 ---
 
 ## What You Can Do
 
 ### Ship releases
+
+From first upload to full production rollout — in one pipeline, without touching a browser.
 
 ```bash
 gpc publish app.aab --track beta --notes "Bug fixes"      # End-to-end flow
@@ -128,6 +138,8 @@ gpc validate app.aab --track beta                          # Pre-submission chec
 
 ### Monitor app health
 
+Know if something broke before your users do.
+
 ```bash
 gpc status                                 # Releases + vitals + reviews in one view
 gpc vitals crashes --threshold 2.0         # Exit code 6 if breached — CI gates
@@ -138,6 +150,8 @@ watch -n 60 gpc status --cached            # Poll every 60 seconds (shell)
 
 ### Manage store listings
 
+Keep your store presence in sync — pull, edit locally, push. Works with Fastlane metadata format.
+
 ```bash
 gpc listings pull --dir metadata/          # Download all listings
 gpc listings push --dir metadata/          # Upload local changes (Fastlane format)
@@ -146,6 +160,8 @@ gpc listings images upload --lang en-US --type phoneScreenshots ./screens/*.png
 
 ### Track reviews
 
+Stay on top of what users are saying — filter, reply, and export without leaving your terminal.
+
 ```bash
 gpc reviews list --stars 1-2 --since 7d
 gpc reviews reply <review-id> "Thanks for the feedback!"
@@ -153,6 +169,8 @@ gpc reviews export --format csv --output reviews.csv
 ```
 
 ### Handle monetization
+
+Manage subscriptions and IAP without digging through the Play Console UI.
 
 ```bash
 gpc subscriptions list
@@ -163,6 +181,8 @@ gpc pricing convert --from USD --amount 9.99
 ```
 
 ### Analyze bundle size
+
+Catch size regressions before they ship.
 
 ```bash
 gpc bundle analyze app.aab                   # Per-module + per-category breakdown
@@ -184,7 +204,7 @@ See the full [command reference](https://yasserstudio.github.io/gpc/commands/) f
 
 ## CI/CD
 
-Drop GPC into any pipeline. JSON output, semantic exit codes (0-6), env var config — no wrapper scripts needed.
+Drop GPC into any pipeline. JSON output, semantic exit codes (0–6), env var config — no wrapper scripts needed.
 
 ### GitHub Actions
 
@@ -241,7 +261,7 @@ gpc releases status --output markdown    # For $GITHUB_STEP_SUMMARY
 
 ## Authentication
 
-Four options — pick the one that fits:
+Four options — pick the one that fits. Works with your existing Google Play service account — no new credentials or extra permissions required.
 
 | Method               | Best for                              |
 | -------------------- | ------------------------------------- |
@@ -270,7 +290,7 @@ Manage multiple accounts with `gpc auth profiles`, `gpc auth switch`, `gpc auth 
 
 ## Dry Run
 
-Every write operation supports `--dry-run`. Test your CI pipeline against real data without shipping anything:
+Ship nothing. Learn everything. Every write command supports `--dry-run` — run your pipeline against real Play Console data without publishing a thing:
 
 ```bash
 gpc releases upload app.aab --track beta --dry-run
@@ -281,10 +301,10 @@ gpc listings push --dir metadata/ --dry-run
 
 ## Interactive Mode
 
-Missing a flag? GPC asks. In your terminal, missing required options trigger guided prompts. In CI, they fail fast with clear error messages.
+Missing a flag? GPC asks. In your terminal, missing required options trigger guided prompts. In CI, they fail fast with clear error messages — GPC never hangs waiting for input.
 
 ```bash
-gpc releases promote                    # Prompts: Source track? Target track?
+gpc releases promote                               # Prompts: Source track? Target track?
 gpc releases promote --from beta --to production   # No prompts
 ```
 
@@ -294,19 +314,9 @@ Disable all prompts: `--no-interactive` or `GPC_NO_INTERACTIVE=1`.
 
 ## Packages (CLI + SDK)
 
-GPC is a TypeScript monorepo. Use the CLI from your terminal, or import the SDK into your own projects:
+GPC is a TypeScript monorepo. Use the CLI from your terminal, or import the SDK into your own projects — same API client, same auth, same reliability.
 
-| Package                                                                    | Description                                             |
-| -------------------------------------------------------------------------- | ------------------------------------------------------- |
-| [`@gpc-cli/cli`](https://www.npmjs.com/package/@gpc-cli/cli)               | CLI entry point — the `gpc` command                    |
-| [`@gpc-cli/core`](https://www.npmjs.com/package/@gpc-cli/core)             | Business logic and command orchestration                |
-| [`@gpc-cli/api`](https://www.npmjs.com/package/@gpc-cli/api)               | Typed Google Play Developer API v3 client               |
-| [`@gpc-cli/auth`](https://www.npmjs.com/package/@gpc-cli/auth)             | Authentication (service account, OAuth, ADC)            |
-| [`@gpc-cli/config`](https://www.npmjs.com/package/@gpc-cli/config)         | Configuration loading and profiles                      |
-| [`@gpc-cli/plugin-sdk`](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface for extensions                         |
-| [`@gpc-cli/plugin-ci`](https://www.npmjs.com/package/@gpc-cli/plugin-ci)   | CI/CD helpers and step summaries                        |
-
-Build custom dashboards, Slack bots, or internal tools on top of the same API client GPC uses:
+Need to integrate Play data into your own tools? Build custom dashboards, Slack bots, or internal release portals on top of the same client GPC uses:
 
 ```typescript
 import { createApiClient } from "@gpc-cli/api";
@@ -322,6 +332,16 @@ const vitals = await client.vitals.overview("com.example.app");
 ```
 
 CLI for your terminal. SDK for everything else.
+
+| Package                                                                    | Description                                             |
+| -------------------------------------------------------------------------- | ------------------------------------------------------- |
+| [`@gpc-cli/cli`](https://www.npmjs.com/package/@gpc-cli/cli)               | CLI entry point — the `gpc` command                    |
+| [`@gpc-cli/core`](https://www.npmjs.com/package/@gpc-cli/core)             | Business logic and command orchestration                |
+| [`@gpc-cli/api`](https://www.npmjs.com/package/@gpc-cli/api)               | Typed Google Play Developer API v3 client               |
+| [`@gpc-cli/auth`](https://www.npmjs.com/package/@gpc-cli/auth)             | Authentication (service account, OAuth, ADC)            |
+| [`@gpc-cli/config`](https://www.npmjs.com/package/@gpc-cli/config)         | Configuration loading and profiles                      |
+| [`@gpc-cli/plugin-sdk`](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface for extensions                         |
+| [`@gpc-cli/plugin-ci`](https://www.npmjs.com/package/@gpc-cli/plugin-ci)   | CI/CD helpers and step summaries                        |
 
 ---
 
@@ -343,7 +363,7 @@ CLI for your terminal. SDK for everything else.
 
 ## Exit Codes
 
-Your CI can distinguish "auth expired" from "crash rate too high" and react accordingly:
+Every exit code is documented — your CI knows exactly what happened and why:
 
 | Code | Meaning                               |
 | ---- | ------------------------------------- |
@@ -360,7 +380,7 @@ Your CI can distinguish "auth expired" from "crash rate too high" and react acco
 
 ## Documentation
 
-Full documentation at **[yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)**
+Full documentation at **[yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)** — full command reference, CI/CD recipes, and migration guides.
 
 - [Installation](https://yasserstudio.github.io/gpc/guide/installation)
 - [Quick Start](https://yasserstudio.github.io/gpc/guide/quick-start)
@@ -378,13 +398,12 @@ Full documentation at **[yasserstudio.github.io/gpc](https://yasserstudio.github
 - [GitHub Discussions](https://github.com/yasserstudio/gpc/discussions) — questions, ideas, show what you built
 - [Issues](https://github.com/yasserstudio/gpc/issues) — bug reports and feature requests
 - `gpc doctor` — diagnose setup problems locally
-- `gpc install-skills` — install AI agent skills for Claude Code workflows
 
 ---
 
 ## Contributing
 
-Found a bug? Want to add a feature? PRs welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup.
+Found a bug? Want to add a feature? Read the [setup guide](./CONTRIBUTING.md) and jump in — first-time setup takes about 10 minutes.
 
 ```bash
 git clone https://github.com/yasserstudio/gpc.git

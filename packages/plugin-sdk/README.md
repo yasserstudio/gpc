@@ -2,6 +2,8 @@
 
 Plugin interface for extending [GPC](https://github.com/yasserstudio/gpc) with custom commands, lifecycle hooks, and integrations.
 
+Add Slack notifications, custom release gates, internal dashboards, or any workflow GPC doesn't cover out of the box — without forking the CLI.
+
 ## Install
 
 ```bash

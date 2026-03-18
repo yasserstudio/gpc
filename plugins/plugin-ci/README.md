@@ -1,6 +1,6 @@
 # @gpc-cli/plugin-ci
 
-CI/CD helpers for [GPC](https://github.com/yasserstudio/gpc). Auto-detects CI environments and writes GitHub Actions step summaries.
+CI/CD helpers for [GPC](https://github.com/yasserstudio/gpc). Auto-detects your CI environment and writes formatted step summaries — so your GitHub Actions jobs show clean, readable release results instead of raw terminal output.
 
 ## Install
 
