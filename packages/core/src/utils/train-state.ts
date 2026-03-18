@@ -69,9 +69,13 @@ export function parseDuration(s: string): number {
   if (!match) return 0;
   const n = parseInt(match[1] ?? "0", 10);
   switch (match[2]) {
-    case "d": return n * 24 * 60 * 60 * 1000;
-    case "h": return n * 60 * 60 * 1000;
-    case "m": return n * 60 * 1000;
-    default: return 0;
+    case "d":
+      return n * 24 * 60 * 60 * 1000;
+    case "h":
+      return n * 60 * 60 * 1000;
+    case "m":
+      return n * 60 * 1000;
+    default:
+      return 0;
   }
 }

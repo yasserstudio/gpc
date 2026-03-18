@@ -42,7 +42,12 @@ function validateFilePath(filePath: string): string {
   }
   // Block obvious traversal patterns in the original input
   if (filePath.includes("\0")) {
-    throw new ApiError("Invalid file path: null bytes not allowed", "API_INVALID_PATH", undefined, "Provide a valid file path without null bytes.");
+    throw new ApiError(
+      "Invalid file path: null bytes not allowed",
+      "API_INVALID_PATH",
+      undefined,
+      "Provide a valid file path without null bytes.",
+    );
   }
   return resolved;
 }
@@ -92,7 +97,9 @@ function mapStatusToError(status: number, body: string): { code: string; suggest
             suggestion: "The edit session has expired. Retry the operation to open a fresh edit.",
           };
         }
-      } catch { /* not JSON */ }
+      } catch {
+        /* not JSON */
+      }
       return { code: "API_HTTP_400", suggestion: "Check request parameters and try again." };
     }
     case 401:
@@ -286,7 +293,15 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     }
 
     // Should not reach here, but just in case
-    throw lastError ?? new ApiError("Request failed", "API_NETWORK_ERROR", undefined, "Check your network connection and try again. Use --verbose for details.");
+    throw (
+      lastError ??
+      new ApiError(
+        "Request failed",
+        "API_NETWORK_ERROR",
+        undefined,
+        "Check your network connection and try again. Use --verbose for details.",
+      )
+    );
   }
 
   /** Calculate upload timeout: explicit value, or auto-scale from file size (1 MB/s minimum throughput + 30s overhead). */
@@ -428,7 +443,15 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
       }
     }
 
-    throw lastError ?? new ApiError("Upload request failed", "API_NETWORK_ERROR", undefined, "Check your network connection and try again. Use --verbose for details.");
+    throw (
+      lastError ??
+      new ApiError(
+        "Upload request failed",
+        "API_NETWORK_ERROR",
+        undefined,
+        "Check your network connection and try again. Use --verbose for details.",
+      )
+    );
   }
 
   return {

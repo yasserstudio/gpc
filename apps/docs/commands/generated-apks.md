@@ -11,10 +11,10 @@ outline: deep
 
 ## Commands
 
-| Command                                                 | Description                                    |
-| ------------------------------------------------------- | ---------------------------------------------- |
-| [`generated-apks list`](#generated-apks-list)           | List generated APKs for a version code         |
-| [`generated-apks download`](#generated-apks-download)   | Download a specific generated APK              |
+| Command                                               | Description                            |
+| ----------------------------------------------------- | -------------------------------------- |
+| [`generated-apks list`](#generated-apks-list)         | List generated APKs for a version code |
+| [`generated-apks download`](#generated-apks-download) | Download a specific generated APK      |
 
 ## `generated-apks list`
 
@@ -28,10 +28,10 @@ gpc generated-apks list <version-code> [options]
 
 ### Options
 
-| Flag       | Short | Type     | Default | Description                        |
-| ---------- | ----- | -------- | ------- | ---------------------------------- |
-| `--app`    |       | `string` |         | App package name                   |
-| `--json`   |       | `flag`   |         | Output as JSON                     |
+| Flag     | Short | Type     | Default | Description      |
+| -------- | ----- | -------- | ------- | ---------------- |
+| `--app`  |       | `string` |         | App package name |
+| `--json` |       | `flag`   |         | Output as JSON   |
 
 ### Example
 
@@ -103,10 +103,10 @@ gpc generated-apks download <version-code> <download-id> [options]
 
 ### Options
 
-| Flag       | Short | Type     | Default               | Description                        |
-| ---------- | ----- | -------- | --------------------- | ---------------------------------- |
-| `--output` | `-o`  | `string` | `./<download-id>.apk` | Output file path                   |
-| `--app`    |       | `string` |                       | App package name                   |
+| Flag       | Short | Type     | Default               | Description      |
+| ---------- | ----- | -------- | --------------------- | ---------------- |
+| `--output` | `-o`  | `string` | `./<download-id>.apk` | Output file path |
+| `--app`    |       | `string` |                       | App package name |
 
 ### Example
 
@@ -138,11 +138,11 @@ Saved to ./downloads/universal.apk (28.6 MB)
 
 ## Errors
 
-| Code | Exit | Description                                                        |
-| ---- | ---- | ------------------------------------------------------------------ |
-| `VERSION_CODE_NOT_FOUND`  | 4 | No bundle exists with the specified version code      |
-| `DOWNLOAD_ID_NOT_FOUND`   | 4 | The download ID does not match any generated APK      |
-| `BUNDLE_NOT_PROCESSED`    | 4 | The bundle is still being processed; try again later  |
+| Code                     | Exit | Description                                          |
+| ------------------------ | ---- | ---------------------------------------------------- |
+| `VERSION_CODE_NOT_FOUND` | 4    | No bundle exists with the specified version code     |
+| `DOWNLOAD_ID_NOT_FOUND`  | 4    | The download ID does not match any generated APK     |
+| `BUNDLE_NOT_PROCESSED`   | 4    | The bundle is still being processed; try again later |
 
 ## Related
 

@@ -60,10 +60,7 @@ describe("Core Command Coverage — Listings & Metadata", () => {
 });
 
 describe("Core Command Coverage — Reviews", () => {
-  assertExports(
-    ["listReviews", "getReview", "replyToReview", "exportReviews"],
-    "reviews",
-  );
+  assertExports(["listReviews", "getReview", "replyToReview", "exportReviews"], "reviews");
 });
 
 describe("Core Command Coverage — Vitals & Reporting", () => {
@@ -165,10 +162,7 @@ describe("Core Command Coverage — Users & Testers", () => {
     ["listUsers", "getUser", "inviteUser", "updateUser", "removeUser", "parseGrantArg"],
     "users",
   );
-  assertExports(
-    ["listTesters", "addTesters", "removeTesters", "importTestersFromCsv"],
-    "testers",
-  );
+  assertExports(["listTesters", "addTesters", "removeTesters", "importTestersFromCsv"], "testers");
 });
 
 describe("Core Command Coverage — App Recovery", () => {
@@ -199,10 +193,7 @@ describe("Core Command Coverage — External Transactions", () => {
 });
 
 describe("Core Command Coverage — Device Tiers", () => {
-  assertExports(
-    ["listDeviceTiers", "getDeviceTier", "createDeviceTier"],
-    "device-tiers",
-  );
+  assertExports(["listDeviceTiers", "getDeviceTier", "createDeviceTier"], "device-tiers");
 });
 
 describe("Core Command Coverage — One-Time Products", () => {
@@ -228,10 +219,7 @@ describe("Core Command Coverage — Internal Sharing", () => {
 });
 
 describe("Core Command Coverage — Generated APKs", () => {
-  assertExports(
-    ["listGeneratedApks", "downloadGeneratedApk"],
-    "generated-apks",
-  );
+  assertExports(["listGeneratedApks", "downloadGeneratedApk"], "generated-apks");
 });
 
 describe("Core Command Coverage — Purchase Options", () => {

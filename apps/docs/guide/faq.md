@@ -70,6 +70,7 @@ Yes. See [Migrating from Console UI](../migration/from-console-ui) for a mapping
 ### Can I use GPC in CI/CD?
 
 Yes. GPC is designed for CI/CD:
+
 - **JSON output** when piped (automatic)
 - **Semantic exit codes** (0-6) for branching logic
 - **Environment variable config** (`GPC_SERVICE_ACCOUNT`, `GPC_APP`)

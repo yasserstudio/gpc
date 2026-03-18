@@ -11,17 +11,17 @@ outline: deep
 
 ## Commands
 
-| Command                               | Description                              |
-| ------------------------------------- | ---------------------------------------- |
-| [`doctor`](#gpc-doctor)               | Verify setup and connectivity            |
-| [`docs`](#gpc-docs)                   | Open documentation in browser            |
-| [`version --json`](#gpc-version)      | Print version and install info as JSON   |
-| [`cache`](#gpc-cache)                 | Manage status, token, and update cache   |
-| [`auth token`](#gpc-auth-token)       | Print current access token               |
-| [`feedback`](#gpc-feedback)           | Open a pre-filled GitHub issue           |
-| [`completion bash`](#completion-bash) | Generate bash completions                |
-| [`completion zsh`](#completion-zsh)   | Generate zsh completions                 |
-| [`completion fish`](#completion-fish) | Generate fish completions                |
+| Command                               | Description                            |
+| ------------------------------------- | -------------------------------------- |
+| [`doctor`](#gpc-doctor)               | Verify setup and connectivity          |
+| [`docs`](#gpc-docs)                   | Open documentation in browser          |
+| [`version --json`](#gpc-version)      | Print version and install info as JSON |
+| [`cache`](#gpc-cache)                 | Manage status, token, and update cache |
+| [`auth token`](#gpc-auth-token)       | Print current access token             |
+| [`feedback`](#gpc-feedback)           | Open a pre-filled GitHub issue         |
+| [`completion bash`](#completion-bash) | Generate bash completions              |
+| [`completion zsh`](#completion-zsh)   | Generate zsh completions               |
+| [`completion fish`](#completion-fish) | Generate fish completions              |
 
 ## `gpc doctor`
 
@@ -35,28 +35,28 @@ gpc doctor [--json]
 
 ### Options
 
-| Flag | Description |
-| --- | --- |
+| Flag     | Description                             |
+| -------- | --------------------------------------- |
 | `--json` | Output results as machine-readable JSON |
 
 ### Checks performed
 
-| Check | What it verifies |
-| --- | --- |
-| `node` | Node.js ≥ 20 |
-| `config` | Config file loads without errors |
-| `default-app` | A default package name is configured |
-| `package-name` | Package name matches Android naming rules |
-| `config-dir` | Config directory is readable and writable |
-| `cache-dir` | Cache directory is readable and writable |
-| `service-account-file` | SA key file exists and is readable (if configured) |
-| `service-account-permissions` | SA key file is not group/world-readable (Unix) |
-| `profile` | `GPC_PROFILE` env var points to a known profile |
-| `proxy` | Proxy URL is valid (if `HTTPS_PROXY` etc. are set) |
-| `ca-cert` | CA cert file exists (if `GPC_CA_CERT` is set) |
-| `dns` | Both API endpoints resolve: `androidpublisher.googleapis.com` and `playdeveloperreporting.googleapis.com` |
-| `auth` | Credentials load and authenticate successfully |
-| `api-connectivity` | Access token can be obtained from Google |
+| Check                         | What it verifies                                                                                          |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `node`                        | Node.js ≥ 20                                                                                              |
+| `config`                      | Config file loads without errors                                                                          |
+| `default-app`                 | A default package name is configured                                                                      |
+| `package-name`                | Package name matches Android naming rules                                                                 |
+| `config-dir`                  | Config directory is readable and writable                                                                 |
+| `cache-dir`                   | Cache directory is readable and writable                                                                  |
+| `service-account-file`        | SA key file exists and is readable (if configured)                                                        |
+| `service-account-permissions` | SA key file is not group/world-readable (Unix)                                                            |
+| `profile`                     | `GPC_PROFILE` env var points to a known profile                                                           |
+| `proxy`                       | Proxy URL is valid (if `HTTPS_PROXY` etc. are set)                                                        |
+| `ca-cert`                     | CA cert file exists (if `GPC_CA_CERT` is set)                                                             |
+| `dns`                         | Both API endpoints resolve: `androidpublisher.googleapis.com` and `playdeveloperreporting.googleapis.com` |
+| `auth`                        | Credentials load and authenticate successfully                                                            |
+| `api-connectivity`            | Access token can be obtained from Google                                                                  |
 
 ### Example
 
@@ -135,11 +135,11 @@ gpc update [--check] [--force] [--output json]
 
 ### Options
 
-| Option | Description |
-|--------|-------------|
-| `--check` | Check for updates without installing. Exits 0 always — communicate update availability via output or `--output json`. |
-| `--force` | Update even if already on the latest version. |
-| `--output json` | Emit structured JSON instead of human-readable output. |
+| Option          | Description                                                                                                           |
+| --------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `--check`       | Check for updates without installing. Exits 0 always — communicate update availability via output or `--output json`. |
+| `--force`       | Update even if already on the latest version.                                                                         |
+| `--output json` | Emit structured JSON instead of human-readable output.                                                                |
 
 ### How it works
 
@@ -155,8 +155,8 @@ Binary installs download the platform asset, verify its SHA-256 checksum against
 
 ### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
+| Variable           | Description                                                                                                             |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------- |
 | `GPC_GITHUB_TOKEN` | GitHub personal access token. Raises the API rate limit from 60 to 5,000 requests/hour. Useful on shared CI runner IPs. |
 
 ### Examples
@@ -178,6 +178,7 @@ gpc update --check --output json | jq '.updateAvailable'
 ### Example output
 
 **Update available:**
+
 ```
 Update available: 0.9.31 → 0.9.32
 Install method: homebrew
@@ -187,11 +188,13 @@ Run: gpc update
 ```
 
 **Already on latest:**
+
 ```
 Already on latest version: v0.9.32
 ```
 
 **`--output json` (update available):**
+
 ```json
 {
   "current": "0.9.31",
@@ -204,18 +207,20 @@ Already on latest version: v0.9.32
 
 ### Exit codes
 
-| Code | Meaning |
-|------|---------|
-| `0` | Success — `--check` always exits 0 regardless of whether an update exists |
-| `1` | Error — unknown install method, permission denied, checksum mismatch |
-| `4` | GitHub API error (rate limited, HTTP error) |
-| `5` | Network error (no connectivity) |
+| Code | Meaning                                                                   |
+| ---- | ------------------------------------------------------------------------- |
+| `0`  | Success — `--check` always exits 0 regardless of whether an update exists |
+| `1`  | Error — unknown install method, permission denied, checksum mismatch      |
+| `4`  | GitHub API error (rate limited, HTTP error)                               |
+| `5`  | Network error (no connectivity)                                           |
 
 ::: tip CI usage
 Use `--check --output json` to gate on update availability without installing:
+
 ```bash
 gpc update --check --output json | jq -e '.updateAvailable' && echo "Update required"
 ```
+
 `jq -e` exits 1 if the value is false/null, making it composable with `&&`.
 :::
 
@@ -233,27 +238,27 @@ gpc docs [topic] [--list]
 
 ### Options
 
-| Flag | Description |
-| --- | --- |
+| Flag      | Description                                  |
+| --------- | -------------------------------------------- |
 | `[topic]` | Topic name to open directly (see list below) |
-| `--list` | Print all available topics and exit |
+| `--list`  | Print all available topics and exit          |
 
 ### Available Topics
 
-| Topic | Opens |
-| --- | --- |
-| `releases` | commands/releases |
-| `status` | commands/status |
-| `vitals` | commands/vitals |
-| `reviews` | commands/reviews |
-| `listings` | commands/listings |
+| Topic           | Opens                  |
+| --------------- | ---------------------- |
+| `releases`      | commands/releases      |
+| `status`        | commands/status        |
+| `vitals`        | commands/vitals        |
+| `reviews`       | commands/reviews       |
+| `listings`      | commands/listings      |
 | `subscriptions` | commands/subscriptions |
-| `bundle` | commands/bundle |
-| `users` | commands/users |
-| `audit` | commands/audit |
-| `config` | commands/config |
-| `doctor` | commands/doctor |
-| `publish` | commands/publish |
+| `bundle`        | commands/bundle        |
+| `users`         | commands/users         |
+| `audit`         | commands/audit         |
+| `config`        | commands/config        |
+| `doctor`        | commands/doctor        |
+| `publish`       | commands/publish       |
 
 ### Example
 
@@ -302,8 +307,8 @@ gpc version [--json]
 
 ### Options
 
-| Flag | Description |
-| --- | --- |
+| Flag     | Description                                  |
+| -------- | -------------------------------------------- |
 | `--json` | Output version info as machine-readable JSON |
 
 ### Example
@@ -339,15 +344,15 @@ gpc cache clear [--type <status|token|update-check>]
 
 ### Subcommands
 
-| Subcommand | Description |
-| --- | --- |
-| `list` | Show all cached entries with type, age, and size |
-| `clear` | Clear all cache entries or a specific type |
+| Subcommand | Description                                      |
+| ---------- | ------------------------------------------------ |
+| `list`     | Show all cached entries with type, age, and size |
+| `clear`    | Clear all cache entries or a specific type       |
 
 ### Options
 
-| Flag | Description |
-| --- | --- |
+| Flag            | Description                                                                |
+| --------------- | -------------------------------------------------------------------------- |
 | `--type <type>` | Clear only entries of the given type: `status`, `token`, or `update-check` |
 
 ### Examples

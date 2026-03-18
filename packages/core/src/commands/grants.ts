@@ -30,9 +30,15 @@ export async function updateGrant(
   packageName: string,
   permissions: string[],
 ): Promise<Grant> {
-  return client.grants.patch(developerId, email, packageName, {
-    appLevelPermissions: permissions as Grant["appLevelPermissions"],
-  }, "appLevelPermissions");
+  return client.grants.patch(
+    developerId,
+    email,
+    packageName,
+    {
+      appLevelPermissions: permissions as Grant["appLevelPermissions"],
+    },
+    "appLevelPermissions",
+  );
 }
 
 export async function deleteGrant(

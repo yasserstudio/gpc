@@ -59,10 +59,9 @@ describe("package.json validation", () => {
 
   it("every package has publishConfig.access set to public", () => {
     for (const pkg of packages) {
-      expect(
-        pkg.publishConfig?.access,
-        `${pkg.name} missing publishConfig.access: "public"`,
-      ).toBe("public");
+      expect(pkg.publishConfig?.access, `${pkg.name} missing publishConfig.access: "public"`).toBe(
+        "public",
+      );
     }
   });
 

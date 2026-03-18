@@ -11,11 +11,11 @@ outline: deep
 
 ## Commands
 
-| Command                                       | Description                                    |
-| --------------------------------------------- | ---------------------------------------------- |
-| [`recovery list`](#recovery-list)             | List all recovery actions for the app          |
-| [`recovery cancel`](#recovery-cancel)         | Cancel a pending recovery action               |
-| [`recovery deploy`](#recovery-deploy)         | Deploy a recovery action to affected users     |
+| Command                               | Description                                |
+| ------------------------------------- | ------------------------------------------ |
+| [`recovery list`](#recovery-list)     | List all recovery actions for the app      |
+| [`recovery cancel`](#recovery-cancel) | Cancel a pending recovery action           |
+| [`recovery deploy`](#recovery-deploy) | Deploy a recovery action to affected users |
 
 ## `recovery list`
 
@@ -29,10 +29,10 @@ gpc recovery list [options]
 
 ### Options
 
-| Flag       | Short | Type     | Default | Description                        |
-| ---------- | ----- | -------- | ------- | ---------------------------------- |
-| `--app`    |       | `string` |         | App package name                   |
-| `--json`   |       | `flag`   |         | Output as JSON                     |
+| Flag     | Short | Type     | Default | Description      |
+| -------- | ----- | -------- | ------- | ---------------- |
+| `--app`  |       | `string` |         | App package name |
+| `--json` |       | `flag`   |         | Output as JSON   |
 
 ### Example
 
@@ -100,10 +100,10 @@ gpc recovery cancel <action-id> [options]
 
 ### Options
 
-| Flag       | Short | Type     | Default | Description                        |
-| ---------- | ----- | -------- | ------- | ---------------------------------- |
-| `--app`    |       | `string` |         | App package name                   |
-| `--json`   |       | `flag`   |         | Output as JSON                     |
+| Flag     | Short | Type     | Default | Description      |
+| -------- | ----- | -------- | ------- | ---------------- |
+| `--app`  |       | `string` |         | App package name |
+| `--json` |       | `flag`   |         | Output as JSON   |
 
 ### Example
 
@@ -131,10 +131,10 @@ gpc recovery deploy <action-id> [options]
 
 ### Options
 
-| Flag       | Short | Type     | Default | Description                        |
-| ---------- | ----- | -------- | ------- | ---------------------------------- |
-| `--app`    |       | `string` |         | App package name                   |
-| `--json`   |       | `flag`   |         | Output as JSON                     |
+| Flag     | Short | Type     | Default | Description      |
+| -------- | ----- | -------- | ------- | ---------------- |
+| `--app`  |       | `string` |         | App package name |
+| `--json` |       | `flag`   |         | Output as JSON   |
 
 ### Example
 
@@ -182,12 +182,12 @@ gpc recovery deploy ra-001 --app com.example.myapp --json
 
 ## Errors
 
-| Code | Exit | Description                                                        |
-| ---- | ---- | ------------------------------------------------------------------ |
-| `RECOVERY_ACTION_NOT_FOUND`  | 4 | No recovery action exists with the specified ID       |
-| `INVALID_ACTION_STATUS`      | 4 | The action is not in a valid state for the operation (e.g., deploying an already cancelled action) |
-| `NO_RECOVERY_BUILD`          | 4 | No newer version code is available as a recovery target |
-| `API_ERROR`                  | 4 | Google Play API rejected the request                  |
+| Code                        | Exit | Description                                                                                        |
+| --------------------------- | ---- | -------------------------------------------------------------------------------------------------- |
+| `RECOVERY_ACTION_NOT_FOUND` | 4    | No recovery action exists with the specified ID                                                    |
+| `INVALID_ACTION_STATUS`     | 4    | The action is not in a valid state for the operation (e.g., deploying an already cancelled action) |
+| `NO_RECOVERY_BUILD`         | 4    | No newer version code is available as a recovery target                                            |
+| `API_ERROR`                 | 4    | Google Play API rejected the request                                                               |
 
 ## Related
 

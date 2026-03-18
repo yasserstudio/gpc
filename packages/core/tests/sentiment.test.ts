@@ -29,12 +29,7 @@ describe("analyzeSentiment", () => {
   });
 
   it("returns score in range [-1, 1]", () => {
-    const texts = [
-      "amazing app love it",
-      "broken garbage waste",
-      "the app exists",
-      "",
-    ];
+    const texts = ["amazing app love it", "broken garbage waste", "the app exists", ""];
     for (const text of texts) {
       const r = analyzeSentiment(text);
       expect(r.score).toBeGreaterThanOrEqual(-1);
@@ -85,16 +80,10 @@ describe("clusterTopics", () => {
   });
 
   it("groups similar topics", () => {
-    const texts = [
-      "crashes on startup",
-      "app keeps crashing",
-      "crashes every day",
-    ];
+    const texts = ["crashes on startup", "app keeps crashing", "crashes every day"];
     const topics = clusterTopics(texts);
     // Should find a crashes related topic
-    const crashTopic = topics.find((t) =>
-      t.topic.toLowerCase().includes("crash"),
-    );
+    const crashTopic = topics.find((t) => t.topic.toLowerCase().includes("crash"));
     expect(crashTopic).toBeDefined();
     expect(crashTopic!.count).toBeGreaterThan(1);
   });
@@ -105,10 +94,7 @@ describe("clusterTopics", () => {
 // ---------------------------------------------------------------------------
 describe("keywordFrequency", () => {
   it("returns keywords sorted by frequency descending", () => {
-    const texts = [
-      "crash crash crash bugs",
-      "crash bugs bugs",
-    ];
+    const texts = ["crash crash crash bugs", "crash bugs bugs"];
     const kf = keywordFrequency(texts);
     expect(kf.length).toBeGreaterThan(0);
     // First keyword should have highest count
@@ -173,9 +159,9 @@ describe("analyzeReviews", () => {
     expect(result.sentiment.positive).toBeGreaterThanOrEqual(0);
     expect(result.sentiment.negative).toBeGreaterThanOrEqual(0);
     expect(result.sentiment.neutral).toBeGreaterThanOrEqual(0);
-    expect(
-      result.sentiment.positive + result.sentiment.negative + result.sentiment.neutral,
-    ).toBe(3);
+    expect(result.sentiment.positive + result.sentiment.negative + result.sentiment.neutral).toBe(
+      3,
+    );
   });
 
   it("builds rating distribution", () => {
@@ -190,9 +176,7 @@ describe("analyzeReviews", () => {
   });
 
   it("includes topics and keywords arrays", () => {
-    const reviews = [
-      { text: "great app works perfectly", rating: 5 },
-    ];
+    const reviews = [{ text: "great app works perfectly", rating: 5 }];
     const result = analyzeReviews(reviews);
     expect(Array.isArray(result.topics)).toBe(true);
     expect(Array.isArray(result.keywords)).toBe(true);

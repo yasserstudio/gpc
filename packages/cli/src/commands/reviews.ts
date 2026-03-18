@@ -70,14 +70,18 @@ export function registerReviewsCommands(program: Command): void {
           const rows = sorted.map((r: unknown) => {
             const rv = r as Record<string, unknown>;
             const comments = rv["comments"] as Record<string, unknown>[] | undefined;
-            const userComment = comments?.[0]?.["userComment"] as Record<string, unknown> | undefined;
+            const userComment = comments?.[0]?.["userComment"] as
+              | Record<string, unknown>
+              | undefined;
             return {
               reviewId: rv["reviewId"] || "-",
               author: rv["authorName"] || "-",
               stars: userComment?.["starRating"] || "-",
               text: String(userComment?.["text"] || "-").slice(0, 80),
               lastModified: userComment?.["lastModified"]
-                ? String((userComment["lastModified"] as Record<string, unknown>)?.["seconds"] || "-")
+                ? String(
+                    (userComment["lastModified"] as Record<string, unknown>)?.["seconds"] || "-",
+                  )
                 : "-",
               thumbsUp: userComment?.["thumbsUpCount"] || 0,
             };
@@ -188,9 +192,13 @@ export function registerReviewsCommands(program: Command): void {
         console.log(`\nReview Analysis — ${packageName}`);
         console.log(`${"─".repeat(50)}`);
         console.log(`Total reviews:   ${result.totalReviews}`);
-        console.log(`Average rating:  ${result.avgRating > 0 ? result.avgRating.toFixed(2) + " ★" : "N/A"}`);
+        console.log(
+          `Average rating:  ${result.avgRating > 0 ? result.avgRating.toFixed(2) + " ★" : "N/A"}`,
+        );
         console.log(`\nSentiment:`);
-        console.log(`  Positive: ${result.sentiment.positive}  Negative: ${result.sentiment.negative}  Neutral: ${result.sentiment.neutral}`);
+        console.log(
+          `  Positive: ${result.sentiment.positive}  Negative: ${result.sentiment.negative}  Neutral: ${result.sentiment.neutral}`,
+        );
         console.log(`  Avg score: ${result.sentiment.avgScore} (range -1 to +1)`);
 
         if (result.topics.length > 0) {
@@ -202,7 +210,12 @@ export function registerReviewsCommands(program: Command): void {
         }
 
         if (result.keywords.length > 0) {
-          console.log(`\nTop keywords: ${result.keywords.slice(0, 10).map((k) => k.word).join(", ")}`);
+          console.log(
+            `\nTop keywords: ${result.keywords
+              .slice(0, 10)
+              .map((k) => k.word)
+              .join(", ")}`,
+          );
         }
 
         if (Object.keys(result.ratingDistribution).length > 0) {

@@ -58,15 +58,23 @@ export function registerPricingCommands(program: Command): void {
       try {
         const result = await convertRegionPrices(client, packageName, options.from, options.amount);
         if (format !== "json") {
-          const prices = (result as unknown as Record<string, unknown>)["convertedRegionPrices"] as Record<string, Record<string, unknown>> | undefined;
+          const prices = (result as unknown as Record<string, unknown>)["convertedRegionPrices"] as
+            | Record<string, Record<string, unknown>>
+            | undefined;
           if (prices) {
             const rows = Object.entries(prices).map(([region, data]) => {
               const money = data["price"] as Record<string, unknown> | undefined;
               const units = money?.["units"] || "0";
-              const nanos = String(money?.["nanos"] || 0).padStart(9, "0").slice(0, 2);
+              const nanos = String(money?.["nanos"] || 0)
+                .padStart(9, "0")
+                .slice(0, 2);
               return {
                 region,
-                price: money ? `${units}.${nanos}` : (data["priceMicros"] ? String(Number(data["priceMicros"]) / 1_000_000) : "-"),
+                price: money
+                  ? `${units}.${nanos}`
+                  : data["priceMicros"]
+                    ? String(Number(data["priceMicros"]) / 1_000_000)
+                    : "-",
                 currencyCode: (money?.["currencyCode"] || data["currencyCode"] || "-") as string,
               };
             });

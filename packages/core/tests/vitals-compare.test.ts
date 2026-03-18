@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
-import { compareVitalsTrend, compareVersionVitals, watchVitalsWithAutoHalt } from "../src/commands/vitals";
+import {
+  compareVitalsTrend,
+  compareVersionVitals,
+  watchVitalsWithAutoHalt,
+} from "../src/commands/vitals";
 import type { ReportingApiClient } from "@gpc-cli/api";
 
 function mockReporting(currentRows: any[], previousRows: any[]): ReportingApiClient {
@@ -103,8 +107,17 @@ describe("compareVitalsTrend", () => {
     // days=7 must produce valid (non-NaN) dates — regression guard for parseInt(value, radix) bug
     await compareVitalsTrend(reporting, "com.example", "crashRateMetricSet", 7);
 
-    type Query = { timelineSpec: { startTime: { year: number; month: number; day: number }; endTime: { year: number; month: number; day: number } } };
-    const calls = (reporting.queryMetricSet as ReturnType<typeof vi.fn>).mock.calls as [unknown, unknown, Query][];
+    type Query = {
+      timelineSpec: {
+        startTime: { year: number; month: number; day: number };
+        endTime: { year: number; month: number; day: number };
+      };
+    };
+    const calls = (reporting.queryMetricSet as ReturnType<typeof vi.fn>).mock.calls as [
+      unknown,
+      unknown,
+      Query,
+    ][];
     for (const call of calls) {
       const { startTime, endTime } = call[2].timelineSpec;
       // All date fields must be real numbers, not NaN
@@ -264,7 +277,10 @@ describe("watchVitalsWithAutoHalt", () => {
         onPoll: (v, breached) => {
           onPoll(v, breached);
           calls++;
-          if (calls >= 1) { stop(); resolve(); }
+          if (calls >= 1) {
+            stop();
+            resolve();
+          }
         },
       });
     });

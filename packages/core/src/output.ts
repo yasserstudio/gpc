@@ -11,8 +11,12 @@ function isColorEnabled(): boolean {
 function ansi(code: number, s: string): string {
   return isColorEnabled() ? `\x1b[${code}m${s}\x1b[0m` : s;
 }
-function bold(s: string): string { return ansi(1, s); }
-function dim(s: string): string  { return ansi(2, s); }
+function bold(s: string): string {
+  return ansi(1, s);
+}
+function dim(s: string): string {
+  return ansi(2, s);
+}
 
 export function detectOutputFormat(): OutputFormat {
   return process.stdout.isTTY ? "table" : "json";
@@ -195,7 +199,10 @@ function formatTable(data: unknown): string {
   const maxCellWidth = computeMaxCellWidth(colCount);
 
   const widths = keys.map((key) =>
-    Math.max(key.length, ...rows.map((row) => truncateCell(cellValue(row[key]), maxCellWidth).length)),
+    Math.max(
+      key.length,
+      ...rows.map((row) => truncateCell(cellValue(row[key]), maxCellWidth).length),
+    ),
   );
 
   // Detect numeric columns (right-align numbers)
@@ -206,9 +213,7 @@ function formatTable(data: unknown): string {
     }),
   );
 
-  const header = keys
-    .map((key, i) => bold(key.padEnd(widths[i] ?? 0)))
-    .join("  ");
+  const header = keys.map((key, i) => bold(key.padEnd(widths[i] ?? 0))).join("  ");
   const separator = widths.map((w) => dim("─".repeat(w))).join("  ");
   const body = rows
     .map((row) =>
@@ -316,8 +321,18 @@ function buildTestCase(
   // Pick the first meaningful identifier, skipping sentinel dash/empty values
   // that commands use as display placeholders (e.g. `name: s["name"] || "-"`).
   const CANDIDATE_KEYS = [
-    "name", "title", "sku", "id", "reviewId", "productId", "packageName",
-    "track", "trackId", "versionCode", "region", "languageCode",
+    "name",
+    "title",
+    "sku",
+    "id",
+    "reviewId",
+    "productId",
+    "packageName",
+    "track",
+    "trackId",
+    "versionCode",
+    "region",
+    "languageCode",
   ] as const;
   let resolvedName = `item-${index + 1}`;
   for (const key of CANDIDATE_KEYS) {

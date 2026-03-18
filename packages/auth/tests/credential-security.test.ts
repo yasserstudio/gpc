@@ -25,7 +25,8 @@ const VALID_SA_KEY = {
   type: "service_account",
   project_id: "test-project",
   private_key_id: "key-id-123",
-  private_key: "-----BEGIN RSA PRIVATE KEY-----\nMIIBogIBAAJBALRiMLAH...fake...key\n-----END RSA PRIVATE KEY-----\n",
+  private_key:
+    "-----BEGIN RSA PRIVATE KEY-----\nMIIBogIBAAJBALRiMLAH...fake...key\n-----END RSA PRIVATE KEY-----\n",
   client_email: "test@test-project.iam.gserviceaccount.com",
   client_id: "123456789",
   auth_uri: "https://accounts.google.com/o/oauth2/auth",
@@ -41,9 +42,9 @@ describe("credential security", () => {
       // This one is valid — test with a truly non-object inline JSON:
       // loadServiceAccountKey only parses inline when trimmed starts with "{"
       // So we test via a valid JSON object missing fields instead
-      await expect(
-        loadServiceAccountKey('{"notAServiceAccount": true}'),
-      ).rejects.toThrow('missing required field: "type"');
+      await expect(loadServiceAccountKey('{"notAServiceAccount": true}')).rejects.toThrow(
+        'missing required field: "type"',
+      );
     });
 
     it("rejects null JSON embedded in an object context", async () => {
@@ -119,9 +120,7 @@ describe("credential security", () => {
         private_key: fakePrivateKey,
       };
 
-      mockGetAccessToken.mockRejectedValue(
-        new Error(`JWT error: invalid key ${fakePrivateKey}`),
-      );
+      mockGetAccessToken.mockRejectedValue(new Error(`JWT error: invalid key ${fakePrivateKey}`));
 
       const auth = createServiceAccountAuth(key);
 

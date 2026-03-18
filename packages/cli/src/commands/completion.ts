@@ -2,7 +2,12 @@ import type { Command } from "commander";
 
 export type ShellType = "bash" | "zsh" | "fish" | "powershell";
 
-export const SUPPORTED_SHELLS: readonly ShellType[] = ["bash", "zsh", "fish", "powershell"] as const;
+export const SUPPORTED_SHELLS: readonly ShellType[] = [
+  "bash",
+  "zsh",
+  "fish",
+  "powershell",
+] as const;
 
 /**
  * Full command tree for gpc CLI.
@@ -353,13 +358,17 @@ export function generateBashCompletions(): string {
   for (const [cmd, def] of Object.entries(tree)) {
     if (def.subcommands) {
       const subNames = Object.keys(def.subcommands).join(" ");
-      caseEntries.push(`    ${cmd})\n      COMPREPLY=( $(compgen -W "${subNames}" -- "\${cur}") )\n      return 0\n      ;;`);
+      caseEntries.push(
+        `    ${cmd})\n      COMPREPLY=( $(compgen -W "${subNames}" -- "\${cur}") )\n      return 0\n      ;;`,
+      );
 
       // Level 3: subcommands of subcommands
       for (const [sub, subDef] of Object.entries(def.subcommands)) {
         if (subDef.subcommands) {
           const subSubNames = Object.keys(subDef.subcommands).join(" ");
-          caseEntries.push(`    ${sub})\n      COMPREPLY=( $(compgen -W "${subSubNames}" -- "\${cur}") )\n      return 0\n      ;;`);
+          caseEntries.push(
+            `    ${sub})\n      COMPREPLY=( $(compgen -W "${subSubNames}" -- "\${cur}") )\n      return 0\n      ;;`,
+          );
         }
       }
     }
@@ -411,7 +420,9 @@ export function generateZshCompletions(): string {
         .map(([name, sub]) => `    '${name}:${escapeZsh(sub.description)}'`)
         .join("\n");
       arrayDefs.push(`  ${varName}=(\n${entries}\n  )`);
-      caseBranches.push(`        ${cmd})\n          _describe -t ${varName} '${cmd} commands' ${varName}\n          ;;`);
+      caseBranches.push(
+        `        ${cmd})\n          _describe -t ${varName} '${cmd} commands' ${varName}\n          ;;`,
+      );
 
       // Level 3
       for (const [sub, subDef] of Object.entries(def.subcommands)) {
@@ -433,7 +444,9 @@ export function generateZshCompletions(): string {
     for (const [sub, subDef] of Object.entries(def.subcommands)) {
       if (subDef.subcommands) {
         const subVarName = `${cmd.replace(/-/g, "_")}_${sub.replace(/-/g, "_")}_commands`;
-        level3Cases.push(`          ${sub})\n            _describe -t ${subVarName} '${sub} commands' ${subVarName}\n            ;;`);
+        level3Cases.push(
+          `          ${sub})\n            _describe -t ${subVarName} '${sub} commands' ${subVarName}\n            ;;`,
+        );
       }
     }
   }

@@ -11,10 +11,8 @@ function shouldShowFirstRunBanner(configExists: boolean, argv: string[]): boolea
     argv.includes("--json") ||
     argv.includes("-j") ||
     argv.includes("--ci") ||
-    (argv.includes("--output") &&
-      argv[argv.indexOf("--output") + 1] === "json") ||
-    (argv.includes("-o") &&
-      argv[argv.indexOf("-o") + 1] === "json");
+    (argv.includes("--output") && argv[argv.indexOf("--output") + 1] === "json") ||
+    (argv.includes("-o") && argv[argv.indexOf("-o") + 1] === "json");
 
   const isQuiet = argv.includes("--quiet") || argv.includes("-q");
 
@@ -39,7 +37,9 @@ describe("first-run banner logic", () => {
   });
 
   it("does not show banner when --ci flag is present", () => {
-    expect(shouldShowFirstRunBanner(false, ["node", "gpc", "releases", "upload", "--ci"])).toBe(false);
+    expect(shouldShowFirstRunBanner(false, ["node", "gpc", "releases", "upload", "--ci"])).toBe(
+      false,
+    );
   });
 
   it("does not show banner when --quiet flag is present", () => {
@@ -51,10 +51,14 @@ describe("first-run banner logic", () => {
   });
 
   it("does not show banner when --output json is present", () => {
-    expect(shouldShowFirstRunBanner(false, ["node", "gpc", "status", "--output", "json"])).toBe(false);
+    expect(shouldShowFirstRunBanner(false, ["node", "gpc", "status", "--output", "json"])).toBe(
+      false,
+    );
   });
 
   it("shows banner when --output table is present (not JSON) and no config", () => {
-    expect(shouldShowFirstRunBanner(false, ["node", "gpc", "status", "--output", "table"])).toBe(true);
+    expect(shouldShowFirstRunBanner(false, ["node", "gpc", "status", "--output", "table"])).toBe(
+      true,
+    );
   });
 });

@@ -81,14 +81,16 @@ function makePlayClient(releases: unknown[] = []): PlayApiClient {
 
 // Each call to queryMetricSet returns the metric for the current OR previous period.
 // Call count is used to distinguish: calls 0,2,4,6 = current; calls 1,3,5,7 = previous.
-function makeReportingClient(values: {
-  crashes?: number;
-  anr?: number;
-  slowStart?: number;
-  slowRender?: number;
-  crashesPrev?: number;
-  anrPrev?: number;
-} = {}): ReportingApiClient {
+function makeReportingClient(
+  values: {
+    crashes?: number;
+    anr?: number;
+    slowStart?: number;
+    slowRender?: number;
+    crashesPrev?: number;
+    anrPrev?: number;
+  } = {},
+): ReportingApiClient {
   let callIndex = 0;
   return {
     queryMetricSet: vi.fn().mockImplementation((_pkg: string, metricSet: string) => {
@@ -99,10 +101,10 @@ function makeReportingClient(values: {
         metricSet === "crashRateMetricSet"
           ? "crashRate"
           : metricSet === "anrRateMetricSet"
-          ? "anrRate"
-          : metricSet === "slowStartRateMetricSet"
-          ? "slowStartRate"
-          : "slowRenderingRate";
+            ? "anrRate"
+            : metricSet === "slowStartRateMetricSet"
+              ? "slowStartRate"
+              : "slowRenderingRate";
 
       let val: number | undefined;
       if (metricSet === "crashRateMetricSet") {
@@ -554,9 +556,7 @@ describe("formatStatusSummary", () => {
     fetchedAt: new Date().toISOString(),
     cached: false,
     sections: ["releases", "vitals", "reviews"],
-    releases: [
-      { track: "internal", versionCode: "142", status: "completed", userFraction: null },
-    ],
+    releases: [{ track: "internal", versionCode: "142", status: "completed", userFraction: null }],
     vitals: {
       windowDays: 7,
       crashes: { value: 0.008, threshold: 0.02, status: "ok" },
@@ -673,7 +673,9 @@ describe("computeStatusDiff", () => {
   it("detects version change", () => {
     const prev = makeStatus({});
     const curr = makeStatus({
-      releases: [{ track: "production", versionCode: "142", status: "completed", userFraction: null }],
+      releases: [
+        { track: "production", versionCode: "142", status: "completed", userFraction: null },
+      ],
     });
     const diff = computeStatusDiff(prev, curr);
     expect(diff.versionCode.from).toBe("141");
@@ -782,7 +784,9 @@ describe("runWatchLoop", () => {
       runWatchLoop({
         intervalSeconds: 5,
         render: () => "",
-        fetch: async () => { throw new Error("should not fetch"); },
+        fetch: async () => {
+          throw new Error("should not fetch");
+        },
         save: async () => {},
       }),
     ).rejects.toThrow("process.exit called");
@@ -832,7 +836,11 @@ describe("runWatchLoop", () => {
     expect(render).toHaveBeenCalledTimes(1);
 
     // Emit SIGINT — sets running=false, throws (caught here)
-    try { process.emit("SIGINT"); } catch { /* expected from mocked process.exit */ }
+    try {
+      process.emit("SIGINT");
+    } catch {
+      /* expected from mocked process.exit */
+    }
 
     // Advance past the sleep so the for-loop condition (running=false) is checked and exits
     await vi.advanceTimersByTimeAsync(10000);
@@ -856,7 +864,9 @@ describe("trackBreachState", () => {
     try {
       const { getCacheDir } = await import("@gpc-cli/config");
       await rm(join(getCacheDir(), `breach-state-${pkg}.json`), { force: true });
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   });
 
   it("returns true on first call (state changed from no-file to false)", async () => {

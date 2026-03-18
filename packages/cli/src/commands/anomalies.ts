@@ -21,9 +21,7 @@ async function getReportingClient(config: GpcConfig) {
 }
 
 export function registerAnomaliesCommands(program: Command): void {
-  const anomalies = program
-    .command("anomalies")
-    .description("Detect and list vitals anomalies");
+  const anomalies = program.command("anomalies").description("Detect and list vitals anomalies");
 
   anomalies
     .command("list")
@@ -36,8 +34,9 @@ export function registerAnomaliesCommands(program: Command): void {
 
       try {
         const result = await getVitalsAnomalies(reporting, packageName);
-        const items =
-          (result as unknown as Record<string, unknown>)["anomalies"] as unknown[] | undefined;
+        const items = (result as unknown as Record<string, unknown>)["anomalies"] as
+          | unknown[]
+          | undefined;
 
         if (format !== "json") {
           if (!items || items.length === 0) {

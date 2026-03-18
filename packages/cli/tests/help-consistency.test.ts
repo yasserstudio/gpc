@@ -162,15 +162,54 @@ vi.mock("@gpc-cli/core", () => {
     activatePurchaseOption: vi.fn().mockResolvedValue({}),
     deactivatePurchaseOption: vi.fn().mockResolvedValue({}),
     migrateFastlaneMetadata: vi.fn().mockResolvedValue({}),
-    analyzeBundle: vi.fn().mockResolvedValue({ filePath: "test.aab", fileType: "aab", totalCompressed: 0, totalUncompressed: 0, entryCount: 0, modules: [], categories: [], entries: [] }),
-    compareBundles: vi.fn().mockReturnValue({ before: {}, after: {}, sizeDelta: 0, sizeDeltaPercent: 0, moduleDeltas: [], categoryDeltas: [] }),
+    analyzeBundle: vi
+      .fn()
+      .mockResolvedValue({
+        filePath: "test.aab",
+        fileType: "aab",
+        totalCompressed: 0,
+        totalUncompressed: 0,
+        entryCount: 0,
+        modules: [],
+        categories: [],
+        entries: [],
+      }),
+    compareBundles: vi
+      .fn()
+      .mockReturnValue({
+        before: {},
+        after: {},
+        sizeDelta: 0,
+        sizeDeltaPercent: 0,
+        moduleDeltas: [],
+        categoryDeltas: [],
+      }),
     topFiles: vi.fn().mockResolvedValue([]),
     checkBundleSize: vi.fn().mockResolvedValue({ pass: true, violations: [] }),
     getVitalsLmk: vi.fn().mockResolvedValue({ rows: [] }),
-    compareVitalsTrend: vi.fn().mockResolvedValue({ metric: "crashRateMetricSet", current: undefined, previous: undefined, changePercent: undefined, direction: "unknown" }),
-    compareVersionVitals: vi.fn().mockResolvedValue({ v1: { versionCode: "1" }, v2: { versionCode: "2" }, regressions: [] }),
+    compareVitalsTrend: vi
+      .fn()
+      .mockResolvedValue({
+        metric: "crashRateMetricSet",
+        current: undefined,
+        previous: undefined,
+        changePercent: undefined,
+        direction: "unknown",
+      }),
+    compareVersionVitals: vi
+      .fn()
+      .mockResolvedValue({ v1: { versionCode: "1" }, v2: { versionCode: "2" }, regressions: [] }),
     watchVitalsWithAutoHalt: vi.fn().mockReturnValue(() => {}),
-    analyzeReviews: vi.fn().mockResolvedValue({ totalReviews: 0, averageRating: 0, sentimentBreakdown: { positive: 0, negative: 0, neutral: 0 }, topTopics: [], topKeywords: [], ratingDistribution: {} }),
+    analyzeReviews: vi
+      .fn()
+      .mockResolvedValue({
+        totalReviews: 0,
+        averageRating: 0,
+        sentimentBreakdown: { positive: 0, negative: 0, neutral: 0 },
+        topTopics: [],
+        topKeywords: [],
+        ratingDistribution: {},
+      }),
     maybePaginate: vi.fn().mockResolvedValue(undefined),
     createGrant: vi.fn().mockResolvedValue({}),
     startTrain: vi.fn().mockResolvedValue({}),
@@ -178,8 +217,21 @@ vi.mock("@gpc-cli/core", () => {
     pauseTrain: vi.fn().mockResolvedValue(null),
     abortTrain: vi.fn().mockResolvedValue(undefined),
     advanceTrain: vi.fn().mockResolvedValue(null),
-    getQuotaUsage: vi.fn().mockResolvedValue({ total: 0, today: 0, thisMinute: 0, topCommands: [] }),
-    getSubscriptionAnalytics: vi.fn().mockResolvedValue({ totalSubscriptions: 0, activeCount: 0, activeBasePlans: 0, trialBasePlans: 0, pausedBasePlans: 0, canceledBasePlans: 0, offerCount: 0, byProductId: [] }),
+    getQuotaUsage: vi
+      .fn()
+      .mockResolvedValue({ total: 0, today: 0, thisMinute: 0, topCommands: [] }),
+    getSubscriptionAnalytics: vi
+      .fn()
+      .mockResolvedValue({
+        totalSubscriptions: 0,
+        activeCount: 0,
+        activeBasePlans: 0,
+        trialBasePlans: 0,
+        pausedBasePlans: 0,
+        canceledBasePlans: 0,
+        offerCount: 0,
+        byProductId: [],
+      }),
     diffSubscription: vi.fn().mockResolvedValue([]),
     listLeaderboards: vi.fn().mockResolvedValue([]),
     listAchievements: vi.fn().mockResolvedValue([]),

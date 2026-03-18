@@ -61,11 +61,23 @@ function measure(name: string, args: string[]): BenchResult {
   const minMs = Math.min(...timings);
   const maxMs = Math.max(...timings);
 
-  return { name, avgMs: Math.round(avgMs * 100) / 100, minMs: Math.round(minMs * 100) / 100, maxMs: Math.round(maxMs * 100) / 100 };
+  return {
+    name,
+    avgMs: Math.round(avgMs * 100) / 100,
+    minMs: Math.round(minMs * 100) / 100,
+    maxMs: Math.round(maxMs * 100) / 100,
+  };
 }
 
 function printTable(results: BenchResult[], baseline: BaselineData | null): void {
-  const header = ["Metric", "Avg (ms)", "Min (ms)", "Max (ms)", baseline ? "Baseline (ms)" : "", baseline ? "Delta" : ""]
+  const header = [
+    "Metric",
+    "Avg (ms)",
+    "Min (ms)",
+    "Max (ms)",
+    baseline ? "Baseline (ms)" : "",
+    baseline ? "Delta" : "",
+  ]
     .filter(Boolean)
     .map((h) => h.padEnd(22))
     .join(" | ");

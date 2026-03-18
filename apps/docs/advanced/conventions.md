@@ -318,6 +318,7 @@ One release per version. Per-package changesets releases are **not** created —
 ```
 
 **Rules:**
+
 - Use `feat:`, `fix:`, `perf:`, `breaking:`, `docs:`, `ci:` prefixes
 - Write for users, not contributors ("faster CLI startup", not "cached homedir at module level")
 - No package scopes in prefixes (`feat:` not `feat(core):`)

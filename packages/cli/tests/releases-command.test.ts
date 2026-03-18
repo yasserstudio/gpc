@@ -49,7 +49,12 @@ vi.mock("@gpc-cli/api", () => ({
       commit: vi.fn().mockResolvedValue({}),
     },
     tracks: {
-      get: vi.fn().mockResolvedValue({ track: "internal", releases: [{ status: "inProgress", versionCodes: ["42"], userFraction: 0.1 }] }),
+      get: vi
+        .fn()
+        .mockResolvedValue({
+          track: "internal",
+          releases: [{ status: "inProgress", versionCodes: ["42"], userFraction: 0.1 }],
+        }),
       list: vi.fn().mockResolvedValue([]),
       update: vi.fn().mockResolvedValue({}),
     },
@@ -71,9 +76,15 @@ vi.mock("@gpc-cli/core", () => {
     async runOnError() {}
     async runBeforeRequest() {}
     async runAfterResponse() {}
-    getRegisteredCommands() { return []; }
-    getLoadedPlugins() { return []; }
-    hasRequestHooks() { return false; }
+    getRegisteredCommands() {
+      return [];
+    }
+    getLoadedPlugins() {
+      return [];
+    }
+    hasRequestHooks() {
+      return false;
+    }
     reset() {}
   }
   return {
@@ -88,18 +99,31 @@ vi.mock("@gpc-cli/core", () => {
       update: vi.fn(),
     }),
     scaffoldPlugin: vi.fn(),
-    uploadRelease: vi.fn().mockResolvedValue({ versionCode: 42, track: "internal", status: "completed" }),
-    getReleasesStatus: vi.fn().mockResolvedValue([
-      { track: "internal", status: "completed", versionCodes: ["42"], releaseNotes: [{ language: "en-US", text: "test notes" }] },
-    ]),
+    uploadRelease: vi
+      .fn()
+      .mockResolvedValue({ versionCode: 42, track: "internal", status: "completed" }),
+    getReleasesStatus: vi
+      .fn()
+      .mockResolvedValue([
+        {
+          track: "internal",
+          status: "completed",
+          versionCodes: ["42"],
+          releaseNotes: [{ language: "en-US", text: "test notes" }],
+        },
+      ]),
     promoteRelease: vi.fn().mockResolvedValue({}),
     updateRollout: vi.fn().mockResolvedValue({}),
     readReleaseNotesFromDir: vi.fn().mockResolvedValue([]),
     generateNotesFromGit: vi.fn().mockResolvedValue({ language: "en-US", text: "git notes" }),
     writeAuditLog: vi.fn().mockResolvedValue(undefined),
-    createAuditEntry: vi.fn().mockReturnValue({ timestamp: new Date().toISOString(), success: false }),
+    createAuditEntry: vi
+      .fn()
+      .mockReturnValue({ timestamp: new Date().toISOString(), success: false }),
     uploadExternallyHosted: vi.fn().mockResolvedValue({}),
-    diffReleases: vi.fn().mockResolvedValue({ fromTrack: "internal", toTrack: "production", diffs: [] }),
+    diffReleases: vi
+      .fn()
+      .mockResolvedValue({ fromTrack: "internal", toTrack: "production", diffs: [] }),
     sortResults: vi.fn().mockImplementation((arr: unknown[]) => arr),
     getVitalsCrashes: vi.fn().mockResolvedValue({ data: [] }),
     checkThreshold: vi.fn().mockReturnValue({ breached: false }),
@@ -126,11 +150,9 @@ vi.mock("../src/plugins", () => ({
 // ---------------------------------------------------------------------------
 
 function mockExit() {
-  return vi
-    .spyOn(process, "exit")
-    .mockImplementation((code?: number) => {
-      throw new Error(`process.exit(${code ?? 0})`);
-    }) as unknown as ReturnType<typeof vi.spyOn>;
+  return vi.spyOn(process, "exit").mockImplementation((code?: number) => {
+    throw new Error(`process.exit(${code ?? 0})`);
+  }) as unknown as ReturnType<typeof vi.spyOn>;
 }
 
 async function run(args: string[]) {
@@ -160,7 +182,11 @@ describe("gpc releases upload — file extension validation", () => {
     exitSpy.mockRestore();
     errSpy.mockRestore();
     vi.mocked(console.log).mockRestore?.();
-    try { await unlink(tmpFile); } catch { /* ignore */ }
+    try {
+      await unlink(tmpFile);
+    } catch {
+      /* ignore */
+    }
     vi.clearAllMocks();
   });
 
@@ -253,7 +279,11 @@ describe("gpc releases upload — progress bar", () => {
     vi.mocked(console.log).mockRestore?.();
     vi.mocked(console.error).mockRestore?.();
     Object.defineProperty(process.stderr, "isTTY", { value: undefined, configurable: true });
-    try { await unlink(tmpFile); } catch { /* ignore */ }
+    try {
+      await unlink(tmpFile);
+    } catch {
+      /* ignore */
+    }
     vi.clearAllMocks();
   });
 
@@ -285,13 +315,32 @@ describe("gpc releases rollout increase --vitals-gate", () => {
   });
 
   it("warns and skips gate when no crashRate threshold configured", async () => {
-    await run(["releases", "rollout", "increase", "--track", "production", "--to", "50", "--vitals-gate"]);
+    await run([
+      "releases",
+      "rollout",
+      "increase",
+      "--track",
+      "production",
+      "--to",
+      "50",
+      "--vitals-gate",
+    ]);
     const allErrors = errSpy.mock.calls.flat().join("\n");
     expect(allErrors).toContain("vitals.thresholds.crashRate");
   });
 
   it("warns that --vitals-gate is ignored in --dry-run mode", async () => {
-    await run(["releases", "rollout", "increase", "--track", "production", "--to", "50", "--vitals-gate", "--dry-run"]);
+    await run([
+      "releases",
+      "rollout",
+      "increase",
+      "--track",
+      "production",
+      "--to",
+      "50",
+      "--vitals-gate",
+      "--dry-run",
+    ]);
     const allErrors = errSpy.mock.calls.flat().join("\n");
     expect(allErrors).toContain("--vitals-gate is ignored in --dry-run mode");
   });

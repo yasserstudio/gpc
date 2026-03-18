@@ -32,7 +32,12 @@ function runWithExit(...args: string[]): { stdout: string; stderr: string; exitC
 
 describe.skipIf(!hasCliDist)("CLI error handling", () => {
   it("command requiring auth without credentials produces auth error output", () => {
-    const { exitCode, stdout, stderr } = runWithExit("releases", "list", "--app", "com.example.nonexistent");
+    const { exitCode, stdout, stderr } = runWithExit(
+      "releases",
+      "list",
+      "--app",
+      "com.example.nonexistent",
+    );
     const combined = stdout + stderr;
     // Should exit non-zero with an auth or API error
     if (exitCode === 0) {

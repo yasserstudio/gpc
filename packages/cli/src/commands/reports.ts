@@ -32,7 +32,9 @@ For real-time crash and ANR metrics, use:
 See: https://support.google.com/googleplay/android-developer/answer/6135870`;
 
 export function registerReportsCommands(program: Command): void {
-  const reports = program.command("reports").description("Financial and stats reports (via Google Cloud Storage)");
+  const reports = program
+    .command("reports")
+    .description("Financial and stats reports (via Google Cloud Storage)");
 
   reports
     .command("list <report-type>")

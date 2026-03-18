@@ -17,14 +17,15 @@ onUnmounted(() => window.removeEventListener("scroll", onScroll));
 
 <template>
   <Transition name="btt">
-    <button
-      v-if="visible"
-      class="btt-btn"
-      aria-label="Back to top"
-      @click="scrollToTop"
-    >
+    <button v-if="visible" class="btt-btn" aria-label="Back to top" @click="scrollToTop">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M8 12V4M4 8l4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path
+          d="M8 12V4M4 8l4-4 4 4"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
       </svg>
     </button>
   </Transition>
@@ -46,7 +47,10 @@ onUnmounted(() => window.removeEventListener("scroll", onScroll));
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 16px rgba(26, 115, 232, 0.35);
-  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.15s ease;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.15s ease;
   z-index: 100;
 }
 
@@ -62,7 +66,9 @@ onUnmounted(() => window.removeEventListener("scroll", onScroll));
 
 .btt-enter-active,
 .btt-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 .btt-enter-from,
 .btt-leave-to {

@@ -3,11 +3,7 @@ import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
-import {
-  listGeneratedApks,
-  downloadGeneratedApk,
-  formatOutput,
-} from "@gpc-cli/core";
+import { listGeneratedApks, downloadGeneratedApk, formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
@@ -47,7 +43,9 @@ export function registerGeneratedApksCommands(program: Command): void {
       try {
         const result = await listGeneratedApks(client, packageName, versionCode);
         if (format !== "json") {
-          const apks = (result as unknown as Record<string, unknown>)["generatedApks"] as Array<Record<string, unknown>> | undefined;
+          const apks = (result as unknown as Record<string, unknown>)["generatedApks"] as
+            | Array<Record<string, unknown>>
+            | undefined;
           if (apks && apks.length > 0) {
             const rows = apks.map((apk) => ({
               id: apk["generatedApkId"] || "-",

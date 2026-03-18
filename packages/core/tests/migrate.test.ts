@@ -206,9 +206,7 @@ describe("generateMigrationPlan", () => {
       hasAppfile: false,
       hasMetadata: false,
       hasGemfile: false,
-      lanes: [
-        { name: "screenshots", actions: ["capture_android_screenshots"] },
-      ],
+      lanes: [{ name: "screenshots", actions: ["capture_android_screenshots"] }],
       metadataLanguages: [],
       parseWarnings: [],
     };
@@ -224,9 +222,7 @@ describe("generateMigrationPlan", () => {
       hasAppfile: false,
       hasMetadata: false,
       hasGemfile: false,
-      lanes: [
-        { name: "deploy", actions: ["supply"], gpcEquivalent: "gpc releases upload" },
-      ],
+      lanes: [{ name: "deploy", actions: ["supply"], gpcEquivalent: "gpc releases upload" }],
       metadataLanguages: [],
       parseWarnings: [],
     };
@@ -260,7 +256,7 @@ describe("detectFastlane", () => {
   it("detects fastlane directory structure", async () => {
     const fastlaneDir = join(tmpDir, "fastlane");
     await mkdir(fastlaneDir, { recursive: true });
-    await writeFile(join(fastlaneDir, "Fastfile"), 'lane :deploy do\n  supply\nend\n');
+    await writeFile(join(fastlaneDir, "Fastfile"), "lane :deploy do\n  supply\nend\n");
     await writeFile(join(fastlaneDir, "Appfile"), 'package_name("com.test.app")\n');
 
     const result = await detectFastlane(tmpDir);
@@ -303,7 +299,7 @@ describe("detectFastlane", () => {
     await mkdir(fastlaneDir, { recursive: true });
     await writeFile(
       join(fastlaneDir, "Fastfile"),
-      'lane :deploy do\n  begin\n    supply\n  rescue\n  end\nend\n',
+      "lane :deploy do\n  begin\n    supply\n  rescue\n  end\nend\n",
     );
 
     const result = await detectFastlane(tmpDir);
@@ -313,7 +309,7 @@ describe("detectFastlane", () => {
   it("always has parseWarnings array (empty when clean)", async () => {
     const fastlaneDir = join(tmpDir, "fastlane");
     await mkdir(fastlaneDir, { recursive: true });
-    await writeFile(join(fastlaneDir, "Fastfile"), 'lane :deploy do\n  supply\nend\n');
+    await writeFile(join(fastlaneDir, "Fastfile"), "lane :deploy do\n  supply\nend\n");
 
     const result = await detectFastlane(tmpDir);
     expect(Array.isArray(result.parseWarnings)).toBe(true);

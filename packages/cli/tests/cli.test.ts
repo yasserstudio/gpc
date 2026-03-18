@@ -130,7 +130,9 @@ vi.mock("@gpc-cli/core", () => {
     // v0.9.7 – sort utility
     sortResults: vi.fn().mockImplementation((data: unknown[]) => data),
     // v0.9.29 – spinner
-    createSpinner: vi.fn().mockReturnValue({ start: vi.fn(), stop: vi.fn(), fail: vi.fn(), update: vi.fn() }),
+    createSpinner: vi
+      .fn()
+      .mockReturnValue({ start: vi.fn(), stop: vi.fn(), fail: vi.fn(), update: vi.fn() }),
     // v0.9.7 – app recovery
     listRecoveryActions: vi.fn().mockResolvedValue([]),
     cancelRecoveryAction: vi.fn().mockResolvedValue({}),
@@ -147,7 +149,9 @@ vi.mock("@gpc-cli/core", () => {
     getExternalTransaction: vi.fn().mockResolvedValue({}),
     refundExternalTransaction: vi.fn().mockResolvedValue({}),
     // v0.9.7 – git-based release notes
-    generateNotesFromGit: vi.fn().mockResolvedValue({ language: "en-US", text: "notes", commitCount: 1, since: "v1.0.0" }),
+    generateNotesFromGit: vi
+      .fn()
+      .mockResolvedValue({ language: "en-US", text: "notes", commitCount: 1, since: "v1.0.0" }),
     // device tiers
     listDeviceTiers: vi.fn().mockResolvedValue([]),
     getDeviceTier: vi.fn().mockResolvedValue({}),
@@ -176,19 +180,54 @@ vi.mock("@gpc-cli/core", () => {
     updateOneTimeOffer: vi.fn().mockResolvedValue({}),
     deleteOneTimeOffer: vi.fn().mockResolvedValue(undefined),
     // internal sharing & generated APKs
-    uploadInternalSharing: vi.fn().mockResolvedValue({ downloadUrl: "", sha256: "", certificateFingerprint: "", fileType: "bundle" }),
+    uploadInternalSharing: vi
+      .fn()
+      .mockResolvedValue({
+        downloadUrl: "",
+        sha256: "",
+        certificateFingerprint: "",
+        fileType: "bundle",
+      }),
     listGeneratedApks: vi.fn().mockResolvedValue([]),
     downloadGeneratedApk: vi.fn().mockResolvedValue({ path: "/tmp/out.apk", sizeBytes: 1024 }),
     // migrate
-    detectFastlane: vi.fn().mockResolvedValue({ hasFastfile: false, hasAppfile: false, hasMetadata: false, hasGemfile: false, lanes: [], metadataLanguages: [] }),
+    detectFastlane: vi
+      .fn()
+      .mockResolvedValue({
+        hasFastfile: false,
+        hasAppfile: false,
+        hasMetadata: false,
+        hasGemfile: false,
+        lanes: [],
+        metadataLanguages: [],
+      }),
     generateMigrationPlan: vi.fn().mockReturnValue({ config: {}, checklist: [], warnings: [] }),
     writeMigrationOutput: vi.fn().mockResolvedValue([]),
     // v0.9.35 new exports
     getVitalsLmk: vi.fn().mockResolvedValue({ rows: [] }),
-    compareVitalsTrend: vi.fn().mockResolvedValue({ metric: "crashRateMetricSet", current: 0, previous: 0, changePercent: 0, direction: "unchanged" }),
-    compareVersionVitals: vi.fn().mockResolvedValue({ v1: { versionCode: "1" }, v2: { versionCode: "2" }, regressions: [] }),
+    compareVitalsTrend: vi
+      .fn()
+      .mockResolvedValue({
+        metric: "crashRateMetricSet",
+        current: 0,
+        previous: 0,
+        changePercent: 0,
+        direction: "unchanged",
+      }),
+    compareVersionVitals: vi
+      .fn()
+      .mockResolvedValue({ v1: { versionCode: "1" }, v2: { versionCode: "2" }, regressions: [] }),
     watchVitalsWithAutoHalt: vi.fn().mockReturnValue(() => {}),
-    analyzeReviews: vi.fn().mockResolvedValue({ totalReviews: 0, avgRating: 0, sentiment: { positive: 0, negative: 0, neutral: 0, avgScore: 0 }, topics: [], keywords: [], ratingDistribution: {} }),
+    analyzeReviews: vi
+      .fn()
+      .mockResolvedValue({
+        totalReviews: 0,
+        avgRating: 0,
+        sentiment: { positive: 0, negative: 0, neutral: 0, avgScore: 0 },
+        topics: [],
+        keywords: [],
+        ratingDistribution: {},
+      }),
     maybePaginate: vi.fn().mockResolvedValue(undefined),
     listGrants: vi.fn().mockResolvedValue([]),
     createGrant: vi.fn().mockResolvedValue({}),
@@ -199,16 +238,57 @@ vi.mock("@gpc-cli/core", () => {
     pauseTrain: vi.fn().mockResolvedValue(null),
     abortTrain: vi.fn().mockResolvedValue(undefined),
     advanceTrain: vi.fn().mockResolvedValue(null),
-    getQuotaUsage: vi.fn().mockResolvedValue({ dailyCallsUsed: 0, dailyCallsLimit: 200000, dailyCallsRemaining: 200000, minuteCallsUsed: 0, minuteCallsLimit: 3000, minuteCallsRemaining: 3000, topCommands: [] }),
-    getSubscriptionAnalytics: vi.fn().mockResolvedValue({ totalSubscriptions: 0, activeCount: 0, activeBasePlans: 0, trialBasePlans: 0, pausedBasePlans: 0, canceledBasePlans: 0, offerCount: 0, byProductId: [] }),
+    getQuotaUsage: vi
+      .fn()
+      .mockResolvedValue({
+        dailyCallsUsed: 0,
+        dailyCallsLimit: 200000,
+        dailyCallsRemaining: 200000,
+        minuteCallsUsed: 0,
+        minuteCallsLimit: 3000,
+        minuteCallsRemaining: 3000,
+        topCommands: [],
+      }),
+    getSubscriptionAnalytics: vi
+      .fn()
+      .mockResolvedValue({
+        totalSubscriptions: 0,
+        activeCount: 0,
+        activeBasePlans: 0,
+        trialBasePlans: 0,
+        pausedBasePlans: 0,
+        canceledBasePlans: 0,
+        offerCount: 0,
+        byProductId: [],
+      }),
     diffSubscription: vi.fn().mockResolvedValue([]),
     listLeaderboards: vi.fn().mockResolvedValue([]),
     listAchievements: vi.fn().mockResolvedValue([]),
     listEvents: vi.fn().mockResolvedValue([]),
     listEnterpriseApps: vi.fn().mockResolvedValue([]),
     createEnterpriseApp: vi.fn().mockResolvedValue({}),
-    analyzeBundle: vi.fn().mockResolvedValue({ filePath: "test.aab", fileType: "aab", totalCompressed: 0, totalUncompressed: 0, entryCount: 0, modules: [], categories: [], entries: [] }),
-    compareBundles: vi.fn().mockReturnValue({ before: { path: "a.aab", totalCompressed: 0 }, after: { path: "b.aab", totalCompressed: 0 }, sizeDelta: 0, sizeDeltaPercent: 0, moduleDeltas: [], categoryDeltas: [] }),
+    analyzeBundle: vi
+      .fn()
+      .mockResolvedValue({
+        filePath: "test.aab",
+        fileType: "aab",
+        totalCompressed: 0,
+        totalUncompressed: 0,
+        entryCount: 0,
+        modules: [],
+        categories: [],
+        entries: [],
+      }),
+    compareBundles: vi
+      .fn()
+      .mockReturnValue({
+        before: { path: "a.aab", totalCompressed: 0 },
+        after: { path: "b.aab", totalCompressed: 0 },
+        sizeDelta: 0,
+        sizeDeltaPercent: 0,
+        moduleDeltas: [],
+        categoryDeltas: [],
+      }),
     topFiles: vi.fn().mockReturnValue([]),
     checkBundleSize: vi.fn().mockResolvedValue({ passed: true, violations: [] }),
     refundSubscriptionV2: vi.fn().mockResolvedValue(undefined),
@@ -222,7 +302,30 @@ vi.mock("@gpc-cli/core", () => {
     scaffoldPlugin: vi.fn().mockResolvedValue({ dir: "./gpc-plugin-test", files: [] }),
     DEFAULT_LIMITS: { title: 30, shortDescription: 80, fullDescription: 4000, video: 256 },
     // status
-    getAppStatus: vi.fn().mockResolvedValue({ packageName: "com.example.app", fetchedAt: new Date().toISOString(), cached: false, sections: ["releases", "vitals", "reviews"], releases: [], vitals: { windowDays: 7, crashes: { value: undefined, threshold: 2, status: "unknown" }, anr: { value: undefined, threshold: 0.5, status: "unknown" }, slowStarts: { value: undefined, threshold: 25, status: "unknown" }, slowRender: { value: undefined, threshold: 50, status: "unknown" } }, reviews: { windowDays: 7, averageRating: undefined, previousAverageRating: undefined, totalNew: 0, positivePercent: undefined }, thresholdBreached: false }),
+    getAppStatus: vi
+      .fn()
+      .mockResolvedValue({
+        packageName: "com.example.app",
+        fetchedAt: new Date().toISOString(),
+        cached: false,
+        sections: ["releases", "vitals", "reviews"],
+        releases: [],
+        vitals: {
+          windowDays: 7,
+          crashes: { value: undefined, threshold: 2, status: "unknown" },
+          anr: { value: undefined, threshold: 0.5, status: "unknown" },
+          slowStarts: { value: undefined, threshold: 25, status: "unknown" },
+          slowRender: { value: undefined, threshold: 50, status: "unknown" },
+        },
+        reviews: {
+          windowDays: 7,
+          averageRating: undefined,
+          previousAverageRating: undefined,
+          totalNew: 0,
+          positivePercent: undefined,
+        },
+        thresholdBreached: false,
+      }),
     formatStatusTable: vi.fn().mockReturnValue(""),
     formatStatusSummary: vi.fn().mockReturnValue(""),
     computeStatusDiff: vi.fn().mockReturnValue({ releases: [], vitals: {}, reviews: {} }),
@@ -251,7 +354,12 @@ vi.mock("@gpc-cli/api", () => ({
     searchErrorReports: vi.fn(),
   }),
   createUsersClient: vi.fn().mockReturnValue({
-    grants: { list: vi.fn().mockResolvedValue({ grants: [] }), create: vi.fn(), patch: vi.fn(), delete: vi.fn() },
+    grants: {
+      list: vi.fn().mockResolvedValue({ grants: [] }),
+      create: vi.fn(),
+      patch: vi.fn(),
+      delete: vi.fn(),
+    },
   }),
   createGamesClient: vi.fn().mockReturnValue({
     leaderboards: { list: vi.fn().mockResolvedValue({}), get: vi.fn(), getScores: vi.fn() },
@@ -1215,11 +1323,11 @@ vi.mock("node:child_process", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:child_process")>();
   return {
     ...actual,
-    execFile: vi.fn().mockImplementation(
-      (_cmd: string, _args: string[], cb: (err: Error | null) => void) => {
+    execFile: vi
+      .fn()
+      .mockImplementation((_cmd: string, _args: string[], cb: (err: Error | null) => void) => {
         if (typeof cb === "function") cb(null);
-      },
-    ),
+      }),
   };
 });
 
@@ -1246,25 +1354,59 @@ describe("releases upload --rollout validation", () => {
   it("--rollout 0 exits 2 before auth", async () => {
     const program = await createProgram();
     await expect(
-      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "upload", "app.aab", "--rollout", "0"]),
+      program.parseAsync([
+        "node",
+        "gpc",
+        "--app",
+        "com.example.app",
+        "releases",
+        "upload",
+        "app.aab",
+        "--rollout",
+        "0",
+      ]),
     ).rejects.toThrow("process.exit(2)");
     expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("--rollout must be a number between 1 and 100"));
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining("--rollout must be a number between 1 and 100"),
+    );
   });
 
   it("--rollout 101 exits 2 before auth", async () => {
     const program = await createProgram();
     await expect(
-      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "upload", "app.aab", "--rollout", "101"]),
+      program.parseAsync([
+        "node",
+        "gpc",
+        "--app",
+        "com.example.app",
+        "releases",
+        "upload",
+        "app.aab",
+        "--rollout",
+        "101",
+      ]),
     ).rejects.toThrow("process.exit(2)");
     expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("--rollout must be a number between 1 and 100"));
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining("--rollout must be a number between 1 and 100"),
+    );
   });
 
   it("--rollout abc exits 2", async () => {
     const program = await createProgram();
     await expect(
-      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "upload", "app.aab", "--rollout", "abc"]),
+      program.parseAsync([
+        "node",
+        "gpc",
+        "--app",
+        "com.example.app",
+        "releases",
+        "upload",
+        "app.aab",
+        "--rollout",
+        "abc",
+      ]),
     ).rejects.toThrow("process.exit(2)");
     expect(exitSpy).toHaveBeenCalledWith(2);
   });
@@ -1273,12 +1415,18 @@ describe("releases upload --rollout validation", () => {
     // Extension check runs after stat (stat succeeds with 5MB mock), still exits 2 before auth
     const program = await createProgram();
     await expect(
-      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "upload", "myapp.ipa"]),
+      program.parseAsync([
+        "node",
+        "gpc",
+        "--app",
+        "com.example.app",
+        "releases",
+        "upload",
+        "myapp.ipa",
+      ]),
     ).rejects.toThrow("process.exit(2)");
     expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Expected .aab or .apk file"),
-    );
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Expected .aab or .apk file"));
   });
 
   it("spinner message includes filename and size in MB", async () => {
@@ -1288,7 +1436,15 @@ describe("releases upload --rollout validation", () => {
     vi.mocked(core.createSpinner).mockReturnValueOnce(spinnerMock as any);
 
     const program = await createProgram();
-    await program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "upload", "my-app.aab"]);
+    await program.parseAsync([
+      "node",
+      "gpc",
+      "--app",
+      "com.example.app",
+      "releases",
+      "upload",
+      "my-app.aab",
+    ]);
 
     const createSpinnerMock = vi.mocked(core.createSpinner);
     const spinnerArg = createSpinnerMock.mock.calls.at(-1)?.[0] as string | undefined;
@@ -1317,7 +1473,18 @@ describe("releases promote validation", () => {
   it("--from internal --to internal exits 2 (same track)", async () => {
     const program = await createProgram();
     await expect(
-      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "promote", "--from", "internal", "--to", "internal"]),
+      program.parseAsync([
+        "node",
+        "gpc",
+        "--app",
+        "com.example.app",
+        "releases",
+        "promote",
+        "--from",
+        "internal",
+        "--to",
+        "internal",
+      ]),
     ).rejects.toThrow("process.exit(2)");
     expect(exitSpy).toHaveBeenCalledWith(2);
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("must be different tracks"));
@@ -1326,16 +1493,44 @@ describe("releases promote validation", () => {
   it("--rollout 0 exits 2", async () => {
     const program = await createProgram();
     await expect(
-      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "promote", "--from", "internal", "--to", "production", "--rollout", "0"]),
+      program.parseAsync([
+        "node",
+        "gpc",
+        "--app",
+        "com.example.app",
+        "releases",
+        "promote",
+        "--from",
+        "internal",
+        "--to",
+        "production",
+        "--rollout",
+        "0",
+      ]),
     ).rejects.toThrow("process.exit(2)");
     expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("--rollout must be a number between 1 and 100"));
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining("--rollout must be a number between 1 and 100"),
+    );
   });
 
   it("--rollout 101 exits 2", async () => {
     const program = await createProgram();
     await expect(
-      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "promote", "--from", "internal", "--to", "production", "--rollout", "101"]),
+      program.parseAsync([
+        "node",
+        "gpc",
+        "--app",
+        "com.example.app",
+        "releases",
+        "promote",
+        "--from",
+        "internal",
+        "--to",
+        "production",
+        "--rollout",
+        "101",
+      ]),
     ).rejects.toThrow("process.exit(2)");
     expect(exitSpy).toHaveBeenCalledWith(2);
   });
@@ -1361,16 +1556,42 @@ describe("releases rollout increase --to validation", () => {
   it("--to 0 exits 2", async () => {
     const program = await createProgram();
     await expect(
-      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "rollout", "increase", "--track", "production", "--to", "0"]),
+      program.parseAsync([
+        "node",
+        "gpc",
+        "--app",
+        "com.example.app",
+        "releases",
+        "rollout",
+        "increase",
+        "--track",
+        "production",
+        "--to",
+        "0",
+      ]),
     ).rejects.toThrow("process.exit(2)");
     expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("--to must be a number between 1 and 100"));
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining("--to must be a number between 1 and 100"),
+    );
   });
 
   it("--to 101 exits 2", async () => {
     const program = await createProgram();
     await expect(
-      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "rollout", "increase", "--track", "production", "--to", "101"]),
+      program.parseAsync([
+        "node",
+        "gpc",
+        "--app",
+        "com.example.app",
+        "releases",
+        "rollout",
+        "increase",
+        "--track",
+        "production",
+        "--to",
+        "101",
+      ]),
     ).rejects.toThrow("process.exit(2)");
     expect(exitSpy).toHaveBeenCalledWith(2);
   });
@@ -1380,8 +1601,18 @@ describe("releases rollout increase --to validation", () => {
 
     const program = await createProgram();
     await program.parseAsync([
-      "node", "gpc", "--app", "com.example.app", "--dry-run",
-      "releases", "rollout", "increase", "--track", "production", "--to", "25",
+      "node",
+      "gpc",
+      "--app",
+      "com.example.app",
+      "--dry-run",
+      "releases",
+      "rollout",
+      "increase",
+      "--track",
+      "production",
+      "--to",
+      "25",
     ]);
 
     // printDryRun calls formatOutput(data, format) — formatOutput mock returns JSON.stringify(data)
@@ -1400,7 +1631,13 @@ describe("releases status userFraction display", () => {
   it("renders userFraction 0.1 as '10%'", async () => {
     const core = await import("@gpc-cli/core");
     vi.mocked(core.getReleasesStatus).mockResolvedValueOnce([
-      { track: "production", status: "completed", name: "v1.0", versionCodes: ["100"], userFraction: 0.1 },
+      {
+        track: "production",
+        status: "completed",
+        name: "v1.0",
+        versionCodes: ["100"],
+        userFraction: 0.1,
+      },
     ] as any);
     vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
@@ -1411,9 +1648,9 @@ describe("releases status userFraction display", () => {
     // formatOutput mock returns JSON.stringify(data); check what it was called with
     const formatOutputMock = vi.mocked(core.formatOutput);
     const rowsArg = formatOutputMock.mock.calls.at(-1)?.[0] as unknown[];
-    expect(rowsArg).toEqual(expect.arrayContaining([
-      expect.objectContaining({ userFraction: "10%" }),
-    ]));
+    expect(rowsArg).toEqual(
+      expect.arrayContaining([expect.objectContaining({ userFraction: "10%" })]),
+    );
   });
 
   it("renders undefined userFraction as '—'", async () => {
@@ -1429,9 +1666,9 @@ describe("releases status userFraction display", () => {
 
     const formatOutputMock = vi.mocked(core.formatOutput);
     const rowsArg = formatOutputMock.mock.calls.at(-1)?.[0] as unknown[];
-    expect(rowsArg).toEqual(expect.arrayContaining([
-      expect.objectContaining({ userFraction: "—" }),
-    ]));
+    expect(rowsArg).toEqual(
+      expect.arrayContaining([expect.objectContaining({ userFraction: "—" })]),
+    );
   });
 
   it("sorts production before internal by default", async () => {
@@ -1475,7 +1712,19 @@ describe("releases notes set honest stub", () => {
   it("exits 1 with 'not yet implemented' message", async () => {
     const program = await createProgram();
     await expect(
-      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "notes", "set", "--track", "internal", "--notes", "Test notes"]),
+      program.parseAsync([
+        "node",
+        "gpc",
+        "--app",
+        "com.example.app",
+        "releases",
+        "notes",
+        "set",
+        "--track",
+        "internal",
+        "--notes",
+        "Test notes",
+      ]),
     ).rejects.toThrow("process.exit(1)");
     expect(exitSpy).toHaveBeenCalledWith(1);
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("not implemented"));
@@ -1484,7 +1733,19 @@ describe("releases notes set honest stub", () => {
   it("error message includes suggestion to use --notes with upload/publish", async () => {
     const program = await createProgram();
     await expect(
-      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "notes", "set", "--track", "internal", "--notes", "Test notes"]),
+      program.parseAsync([
+        "node",
+        "gpc",
+        "--app",
+        "com.example.app",
+        "releases",
+        "notes",
+        "set",
+        "--track",
+        "internal",
+        "--notes",
+        "Test notes",
+      ]),
     ).rejects.toThrow("process.exit(1)");
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("gpc releases upload"));
   });
@@ -1513,7 +1774,9 @@ describe("gpc status --days validation", () => {
       program.parseAsync(["node", "gpc", "--app", "com.example.app", "status", "--days", "0"]),
     ).rejects.toThrow("process.exit(2)");
     expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("--days must be a positive integer"));
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining("--days must be a positive integer"),
+    );
   });
 
   it("--days -1 exits 2", async () => {
@@ -1541,7 +1804,16 @@ describe("gpc status --watch + --since-last warning", () => {
     (core as any).runWatchLoop = vi.fn().mockResolvedValue(undefined);
 
     const program = await createProgram();
-    await program.parseAsync(["node", "gpc", "--app", "com.example.app", "status", "--watch", "10", "--since-last"]);
+    await program.parseAsync([
+      "node",
+      "gpc",
+      "--app",
+      "com.example.app",
+      "status",
+      "--watch",
+      "10",
+      "--since-last",
+    ]);
 
     const stderrOutput = stderrSpy.mock.calls.map((c) => String(c[0])).join("");
     expect(stderrOutput).toContain("--since-last is not supported with --watch");
@@ -1579,9 +1851,9 @@ describe("gpc docs routing", () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
 
     const program = await createProgram();
-    await expect(
-      program.parseAsync(["node", "gpc", "docs", "bogus-topic"]),
-    ).rejects.toThrow("process.exit(2)");
+    await expect(program.parseAsync(["node", "gpc", "docs", "bogus-topic"])).rejects.toThrow(
+      "process.exit(2)",
+    );
     expect(exitSpy).toHaveBeenCalledWith(2);
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Unknown topic"));
   });
@@ -1724,9 +1996,7 @@ describe("GPC_DEBUG env var (Bug E fix)", () => {
     // Simulate bin.ts GPC_DEBUG handling: set verbose without touching argv
     program.setOptionValueWithSource("verbose", true, "env");
     // Should parse cleanly with no extra positional args
-    await expect(
-      program.parseAsync(["node", "test", "apps", "list"])
-    ).resolves.not.toThrow();
+    await expect(program.parseAsync(["node", "test", "apps", "list"])).resolves.not.toThrow();
     vi.restoreAllMocks();
   });
 });

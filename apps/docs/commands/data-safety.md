@@ -11,11 +11,11 @@ outline: deep
 
 ## Commands
 
-| Command                                           | Description                                    |
-| ------------------------------------------------- | ---------------------------------------------- |
-| [`data-safety get`](#data-safety-get)             | View current data safety declarations          |
-| [`data-safety update`](#data-safety-update)       | Update declarations from a JSON file           |
-| [`data-safety export`](#data-safety-export)       | Export declarations to a local directory        |
+| Command                                     | Description                              |
+| ------------------------------------------- | ---------------------------------------- |
+| [`data-safety get`](#data-safety-get)       | View current data safety declarations    |
+| [`data-safety update`](#data-safety-update) | Update declarations from a JSON file     |
+| [`data-safety export`](#data-safety-export) | Export declarations to a local directory |
 
 ## `data-safety get`
 
@@ -29,10 +29,10 @@ gpc data-safety get [options]
 
 ### Options
 
-| Flag       | Short | Type     | Default | Description                        |
-| ---------- | ----- | -------- | ------- | ---------------------------------- |
-| `--app`    |       | `string` |         | App package name                   |
-| `--json`   |       | `flag`   |         | Output as JSON                     |
+| Flag     | Short | Type     | Default | Description      |
+| -------- | ----- | -------- | ------- | ---------------- |
+| `--app`  |       | `string` |         | App package name |
+| `--json` |       | `flag`   |         | Output as JSON   |
 
 ### Example
 
@@ -108,11 +108,11 @@ gpc data-safety update --file <path> [options]
 
 ### Options
 
-| Flag       | Short | Type     | Default        | Description                        |
-| ---------- | ----- | -------- | -------------- | ---------------------------------- |
-| `--file`   | `-f`  | `string` | **(required)** | Path to JSON declarations file     |
-| `--app`    |       | `string` |                | App package name                   |
-| `--json`   |       | `flag`   |                | Output as JSON                     |
+| Flag     | Short | Type     | Default        | Description                    |
+| -------- | ----- | -------- | -------------- | ------------------------------ |
+| `--file` | `-f`  | `string` | **(required)** | Path to JSON declarations file |
+| `--app`  |       | `string` |                | App package name               |
+| `--json` |       | `flag`   |                | Output as JSON                 |
 
 ### Example
 
@@ -175,10 +175,10 @@ gpc data-safety export --dir <path> [options]
 
 ### Options
 
-| Flag       | Short | Type     | Default        | Description                        |
-| ---------- | ----- | -------- | -------------- | ---------------------------------- |
-| `--dir`    | `-d`  | `string` | **(required)** | Output directory                   |
-| `--app`    |       | `string` |                | App package name                   |
+| Flag    | Short | Type     | Default        | Description      |
+| ------- | ----- | -------- | -------------- | ---------------- |
+| `--dir` | `-d`  | `string` | **(required)** | Output directory |
+| `--app` |       | `string` |                | App package name |
 
 ### Example
 
@@ -194,11 +194,11 @@ The exported file can be edited and re-applied with `data-safety update --file .
 
 ## Errors
 
-| Code | Exit | Description                                                        |
-| ---- | ---- | ------------------------------------------------------------------ |
-| `VALIDATION_FAILED`       | 2 | The JSON file has invalid data types, missing required fields, or unknown purposes |
-| `INVALID_DELETION_URL`    | 2 | The data deletion request URL is malformed or unreachable          |
-| `API_ERROR`               | 4 | Google Play API rejected the update                                |
+| Code                   | Exit | Description                                                                        |
+| ---------------------- | ---- | ---------------------------------------------------------------------------------- |
+| `VALIDATION_FAILED`    | 2    | The JSON file has invalid data types, missing required fields, or unknown purposes |
+| `INVALID_DELETION_URL` | 2    | The data deletion request URL is malformed or unreachable                          |
+| `API_ERROR`            | 4    | Google Play API rejected the update                                                |
 
 ## Related
 

@@ -26,7 +26,9 @@ export function registerQuotaCommand(program: Command): void {
 
         console.log(`\nAPI Quota Usage`);
         console.log(`${"─".repeat(45)}`);
-        console.log(`Daily:   ${usage.dailyCallsUsed.toLocaleString()} / ${usage.dailyCallsLimit.toLocaleString()} (${dailyPct}%)`);
+        console.log(
+          `Daily:   ${usage.dailyCallsUsed.toLocaleString()} / ${usage.dailyCallsLimit.toLocaleString()} (${dailyPct}%)`,
+        );
         console.log(`         Remaining: ${usage.dailyCallsRemaining.toLocaleString()}`);
         console.log(`Minute:  ${usage.minuteCallsUsed} / ${usage.minuteCallsLimit} (${minPct}%)`);
         console.log(`         Remaining: ${usage.minuteCallsRemaining}`);

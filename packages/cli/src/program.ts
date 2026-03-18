@@ -167,16 +167,18 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
 
   // "Did you mean?" suggestions for unknown commands
   function levenshtein(a: string, b: string): number {
-    const m = a.length, n = b.length;
+    const m = a.length,
+      n = b.length;
     const dp: number[][] = Array.from({ length: m + 1 }, (_, i) =>
-      Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0))
+      Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
     );
     const cell = (r: number, c: number): number => dp[r]?.[c] ?? 0;
     for (let i = 1; i <= m; i++) {
       for (let j = 1; j <= n; j++) {
-        (dp[i] as number[])[j] = a[i - 1] === b[j - 1]
-          ? cell(i - 1, j - 1)
-          : 1 + Math.min(cell(i - 1, j), cell(i, j - 1), cell(i - 1, j - 1));
+        (dp[i] as number[])[j] =
+          a[i - 1] === b[j - 1]
+            ? cell(i - 1, j - 1)
+            : 1 + Math.min(cell(i - 1, j), cell(i, j - 1), cell(i - 1, j - 1));
       }
     }
     return cell(m, n);
@@ -185,7 +187,9 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
   program.on("command:*", (operands: string[]) => {
     const cmd = operands[0] ?? "";
     const names = Object.keys(commandLoaders);
-    const best = names.map(name => ({ name, d: levenshtein(cmd, name) })).sort((a, b) => a.d - b.d)[0];
+    const best = names
+      .map((name) => ({ name, d: levenshtein(cmd, name) }))
+      .sort((a, b) => a.d - b.d)[0];
     console.error(`Error: Unknown command "${cmd}".`);
     if (best && best.d <= 3) console.error(`Did you mean: gpc ${best.name}?`);
     console.error(`Run "gpc --help" to see all commands.`);

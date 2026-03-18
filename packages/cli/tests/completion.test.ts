@@ -59,9 +59,7 @@ describe("getCommandTree", () => {
 
   it("includes nested subcommands for releases rollout", () => {
     const tree = getCommandTree();
-    const rolloutSubs = Object.keys(
-      tree["releases"]?.subcommands?.["rollout"]?.subcommands ?? {},
-    );
+    const rolloutSubs = Object.keys(tree["releases"]?.subcommands?.["rollout"]?.subcommands ?? {});
     expect(rolloutSubs).toEqual(["increase", "halt", "resume", "complete"]);
   });
 
@@ -126,7 +124,10 @@ describe("getCommandTree", () => {
 
   it("every entry has a description", () => {
     const tree = getCommandTree();
-    function checkDescriptions(defs: Record<string, { description: string; subcommands?: Record<string, any> }>, path: string) {
+    function checkDescriptions(
+      defs: Record<string, { description: string; subcommands?: Record<string, any> }>,
+      path: string,
+    ) {
       for (const [name, def] of Object.entries(defs)) {
         expect(def.description, `${path}.${name} should have a description`).toBeTruthy();
         if (def.subcommands) {

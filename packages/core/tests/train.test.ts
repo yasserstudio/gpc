@@ -51,7 +51,9 @@ vi.mock("@gpc-cli/config", () => ({
 describe("readTrainState", () => {
   it("returns null when state file does not exist", async () => {
     const fs = await import("node:fs/promises");
-    vi.mocked(fs.readFile).mockRejectedValueOnce(Object.assign(new Error("ENOENT"), { code: "ENOENT" }));
+    vi.mocked(fs.readFile).mockRejectedValueOnce(
+      Object.assign(new Error("ENOENT"), { code: "ENOENT" }),
+    );
     const { readTrainState } = await import("../src/utils/train-state.js");
     const result = await readTrainState("com.example.app");
     expect(result).toBeNull();
@@ -117,10 +119,9 @@ describe("writeTrainState", () => {
       stages: [],
     };
     await writeTrainState("com.example.app", state);
-    expect(fs.mkdir).toHaveBeenCalledWith(
-      expect.stringContaining("/tmp/gpc-test-cache"),
-      { recursive: true },
-    );
+    expect(fs.mkdir).toHaveBeenCalledWith(expect.stringContaining("/tmp/gpc-test-cache"), {
+      recursive: true,
+    });
   });
 });
 

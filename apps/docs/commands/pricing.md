@@ -90,28 +90,28 @@ gpc pricing convert --from USD --amount 9.99 --output json \
 
 Google Play supports the following ISO 4217 currencies for regional pricing. This is a reference of the most common codes:
 
-| Code  | Currency                | Regions                  |
-| ----- | ----------------------- | ------------------------ |
-| `USD` | US Dollar               | US, EC, SV, PA, PR       |
-| `EUR` | Euro                    | DE, FR, ES, IT, NL + 15  |
-| `GBP` | British Pound           | GB                       |
-| `JPY` | Japanese Yen            | JP                       |
-| `KRW` | South Korean Won        | KR                       |
-| `BRL` | Brazilian Real          | BR                       |
-| `INR` | Indian Rupee            | IN                       |
-| `RUB` | Russian Ruble           | RU                       |
-| `TRY` | Turkish Lira            | TR                       |
-| `AUD` | Australian Dollar       | AU                       |
-| `CAD` | Canadian Dollar         | CA                       |
-| `MXN` | Mexican Peso            | MX                       |
-| `IDR` | Indonesian Rupiah       | ID                       |
-| `PLN` | Polish Zloty            | PL                       |
-| `ZAR` | South African Rand      | ZA                       |
-| `SEK` | Swedish Krona           | SE                       |
-| `SGD` | Singapore Dollar        | SG                       |
-| `HKD` | Hong Kong Dollar        | HK                       |
-| `TWD` | New Taiwan Dollar       | TW                       |
-| `SAR` | Saudi Riyal             | SA                       |
+| Code  | Currency           | Regions                 |
+| ----- | ------------------ | ----------------------- |
+| `USD` | US Dollar          | US, EC, SV, PA, PR      |
+| `EUR` | Euro               | DE, FR, ES, IT, NL + 15 |
+| `GBP` | British Pound      | GB                      |
+| `JPY` | Japanese Yen       | JP                      |
+| `KRW` | South Korean Won   | KR                      |
+| `BRL` | Brazilian Real     | BR                      |
+| `INR` | Indian Rupee       | IN                      |
+| `RUB` | Russian Ruble      | RU                      |
+| `TRY` | Turkish Lira       | TR                      |
+| `AUD` | Australian Dollar  | AU                      |
+| `CAD` | Canadian Dollar    | CA                      |
+| `MXN` | Mexican Peso       | MX                      |
+| `IDR` | Indonesian Rupiah  | ID                      |
+| `PLN` | Polish Zloty       | PL                      |
+| `ZAR` | South African Rand | ZA                      |
+| `SEK` | Swedish Krona      | SE                      |
+| `SGD` | Singapore Dollar   | SG                      |
+| `HKD` | Hong Kong Dollar   | HK                      |
+| `TWD` | New Taiwan Dollar  | TW                      |
+| `SAR` | Saudi Riyal        | SA                      |
 
 For the full list of supported regions and currencies, see the [Google Play Console help center](https://support.google.com/googleplay/android-developer/answer/9306917).
 

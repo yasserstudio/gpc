@@ -70,15 +70,22 @@ describe("reviews reply command", () => {
     const program = makeProgram();
     registerReviewsCommands(program);
 
-    await program.parseAsync(
-      ["node", "gpc", "reviews", "reply", "review-123", "--text", "Thank you!", "--no-interactive"]
-    );
+    await program.parseAsync([
+      "node",
+      "gpc",
+      "reviews",
+      "reply",
+      "review-123",
+      "--text",
+      "Thank you!",
+      "--no-interactive",
+    ]);
 
     expect(mockReplyToReview).toHaveBeenCalledWith(
       expect.anything(),
       "com.example.app",
       "review-123",
-      "Thank you!"
+      "Thank you!",
     );
 
     const logCalls = (console.log as ReturnType<typeof vi.fn>).mock.calls.flat();
@@ -92,9 +99,17 @@ describe("reviews reply command", () => {
     const program = makeProgram();
     registerReviewsCommands(program);
 
-    await program.parseAsync(
-      ["node", "gpc", "reviews", "reply", "review-456", "--text", "Thanks!", "--dry-run", "--no-interactive"]
-    );
+    await program.parseAsync([
+      "node",
+      "gpc",
+      "reviews",
+      "reply",
+      "review-456",
+      "--text",
+      "Thanks!",
+      "--dry-run",
+      "--no-interactive",
+    ]);
 
     expect(mockReplyToReview).not.toHaveBeenCalled();
     const logCalls = (console.log as ReturnType<typeof vi.fn>).mock.calls.flat();
@@ -108,9 +123,18 @@ describe("reviews reply command", () => {
     const program = makeProgram();
     registerReviewsCommands(program);
 
-    await program.parseAsync(
-      ["node", "gpc", "reviews", "reply", "review-789", "--text", "Thanks!", "--output", "json", "--no-interactive"]
-    );
+    await program.parseAsync([
+      "node",
+      "gpc",
+      "reviews",
+      "reply",
+      "review-789",
+      "--text",
+      "Thanks!",
+      "--output",
+      "json",
+      "--no-interactive",
+    ]);
 
     const logCalls = (console.log as ReturnType<typeof vi.fn>).mock.calls.flat();
     // In JSON mode, no char count line should appear
@@ -118,7 +142,12 @@ describe("reviews reply command", () => {
 
     // Should have JSON output
     const jsonLine = logCalls.find((c: unknown) => {
-      try { JSON.parse(String(c)); return true; } catch { return false; }
+      try {
+        JSON.parse(String(c));
+        return true;
+      } catch {
+        return false;
+      }
     });
     expect(jsonLine).toBeDefined();
   });
@@ -135,9 +164,16 @@ describe("reviews reply command", () => {
     registerReviewsCommands(program);
 
     await expect(
-      program.parseAsync(
-        ["node", "gpc", "reviews", "reply", "review-000", "--text", "Hello", "--no-interactive"]
-      )
+      program.parseAsync([
+        "node",
+        "gpc",
+        "reviews",
+        "reply",
+        "review-000",
+        "--text",
+        "Hello",
+        "--no-interactive",
+      ]),
     ).rejects.toThrow("process.exit");
 
     expect(exitSpy).toHaveBeenCalledWith(expect.any(Number));

@@ -47,7 +47,9 @@ export function registerRecoveryCommands(program: Command): void {
 
       try {
         if (options.versionCode === undefined) {
-          console.error("Error: --version-code is required. The API requires a version code to filter recovery actions.");
+          console.error(
+            "Error: --version-code is required. The API requires a version code to filter recovery actions.",
+          );
           console.error("Usage: gpc recovery list --version-code <code>");
           process.exit(2);
         }
@@ -94,7 +96,9 @@ export function registerRecoveryCommands(program: Command): void {
 
       try {
         await cancelRecoveryAction(client, packageName, id);
-        console.log(formatOutput({ success: true, appRecoveryId: id, action: "cancelled" }, format));
+        console.log(
+          formatOutput({ success: true, appRecoveryId: id, action: "cancelled" }, format),
+        );
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

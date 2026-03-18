@@ -37,25 +37,25 @@ Plus: device tiers, internal sharing, data safety, recovery actions, external tr
 
 ## Why GPC Over Alternatives?
 
-| Feature              | GPC                                                  | Fastlane supply        | gradle-play-publisher | Console UI     |
-| -------------------- | ---------------------------------------------------- | ---------------------- | --------------------- | -------------- |
-| **API endpoints**    | 187                                                  | ~20                    | ~15                   | All (manual)   |
-| **Language**         | TypeScript (Node.js)                                 | Ruby                   | Kotlin (Gradle)       | Browser        |
-| **Install**          | `npm install -g @gpc-cli/cli` or standalone binary   | `gem install fastlane` | Gradle plugin         | None           |
-| **Releases**         | Upload, promote, rollout, halt, resume, complete     | Upload, promote        | Upload, promote       | Manual         |
-| **Listings**         | Pull/push, images, Fastlane format compatible        | Pull/push, images      | Listings only         | Manual         |
-| **Reviews**          | List, filter, reply, export CSV                      | None                   | None                  | Manual         |
-| **Vitals**           | Crashes, ANR, startup, rendering, battery, memory    | None                   | None                  | View only      |
-| **CI quality gates** | `--threshold` flag, exit code 6                      | None                   | None                  | None           |
-| **Subscriptions**    | Full CRUD, base plans, offers, price migration       | None                   | None                  | Manual         |
-| **In-app products**  | CRUD, bulk sync from files                           | None                   | None                  | Manual         |
-| **Purchases**        | Verify, acknowledge, consume, refund                 | None                   | None                  | Manual         |
-| **Reports**          | Financial and stats CSV download                     | None                   | None                  | Download       |
-| **Plugins**          | SDK with lifecycle hooks                             | Lanes + actions        | None                  | None           |
-| **Output formats**   | `table`, `json`, `yaml`, `markdown`                  | Stdout                 | Stdout                | N/A            |
-| **Dry run**          | All write operations                                 | None                   | None                  | N/A            |
-| **Auth methods**     | Service account, OAuth, ADC, env var                 | Service account        | Service account       | Google account |
-| **Cold start**       | <500ms                                               | 2-3s                   | 3-5s                  | 5-10s          |
+| Feature              | GPC                                                | Fastlane supply        | gradle-play-publisher | Console UI     |
+| -------------------- | -------------------------------------------------- | ---------------------- | --------------------- | -------------- |
+| **API endpoints**    | 187                                                | ~20                    | ~15                   | All (manual)   |
+| **Language**         | TypeScript (Node.js)                               | Ruby                   | Kotlin (Gradle)       | Browser        |
+| **Install**          | `npm install -g @gpc-cli/cli` or standalone binary | `gem install fastlane` | Gradle plugin         | None           |
+| **Releases**         | Upload, promote, rollout, halt, resume, complete   | Upload, promote        | Upload, promote       | Manual         |
+| **Listings**         | Pull/push, images, Fastlane format compatible      | Pull/push, images      | Listings only         | Manual         |
+| **Reviews**          | List, filter, reply, export CSV                    | None                   | None                  | Manual         |
+| **Vitals**           | Crashes, ANR, startup, rendering, battery, memory  | None                   | None                  | View only      |
+| **CI quality gates** | `--threshold` flag, exit code 6                    | None                   | None                  | None           |
+| **Subscriptions**    | Full CRUD, base plans, offers, price migration     | None                   | None                  | Manual         |
+| **In-app products**  | CRUD, bulk sync from files                         | None                   | None                  | Manual         |
+| **Purchases**        | Verify, acknowledge, consume, refund               | None                   | None                  | Manual         |
+| **Reports**          | Financial and stats CSV download                   | None                   | None                  | Download       |
+| **Plugins**          | SDK with lifecycle hooks                           | Lanes + actions        | None                  | None           |
+| **Output formats**   | `table`, `json`, `yaml`, `markdown`                | Stdout                 | Stdout                | N/A            |
+| **Dry run**          | All write operations                               | None                   | None                  | N/A            |
+| **Auth methods**     | Service account, OAuth, ADC, env var               | Service account        | Service account       | Google account |
+| **Cold start**       | <500ms                                             | 2-3s                   | 3-5s                  | 5-10s          |
 
 ## Architecture
 

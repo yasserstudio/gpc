@@ -117,10 +117,10 @@ gpc subscriptions create --file <path>
 
 ### Options
 
-| Flag         | Short | Type      | Default        | Description                                  |
-| ------------ | ----- | --------- | -------------- | -------------------------------------------- |
-| `--file`     |       | `string`  | **(required)** | Path to JSON file with subscription data     |
-| `--activate` |       | `boolean` | `false`        | Activate all base plans after creation       |
+| Flag         | Short | Type      | Default        | Description                              |
+| ------------ | ----- | --------- | -------------- | ---------------------------------------- |
+| `--file`     |       | `string`  | **(required)** | Path to JSON file with subscription data |
+| `--activate` |       | `boolean` | `false`        | Activate all base plans after creation   |
 
 The `--activate` flag creates the subscription and then activates all draft base plans in a single step, so you don't need a separate `subscriptions base-plans activate` call.
 
@@ -546,9 +546,9 @@ gpc subscriptions diff <product-id> --file <path>
 
 ### Options
 
-| Flag     | Short | Type     | Default        | Description                              |
-| -------- | ----- | -------- | -------------- | ---------------------------------------- |
-| `--file` |       | `string` | **(required)** | Path to local JSON file to compare       |
+| Flag     | Short | Type     | Default        | Description                        |
+| -------- | ----- | -------- | -------------- | ---------------------------------- |
+| `--file` |       | `string` | **(required)** | Path to local JSON file to compare |
 
 ### Example
 

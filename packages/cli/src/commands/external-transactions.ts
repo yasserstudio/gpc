@@ -100,10 +100,7 @@ export function registerExternalTransactionsCommands(program: Command): void {
     .command("refund <id>")
     .description("Refund an external transaction")
     .option("--full", "Full refund")
-    .option(
-      "--partial-amount <micros>",
-      "Partial refund pre-tax amount in micros (e.g., 1990000)",
-    )
+    .option("--partial-amount <micros>", "Partial refund pre-tax amount in micros (e.g., 1990000)")
     .option("--currency <code>", "Currency code for partial refund (e.g. USD)")
     .action(async (id: string, options) => {
       const config = await loadConfig();
@@ -112,16 +109,16 @@ export function registerExternalTransactionsCommands(program: Command): void {
 
       const refundData: Record<string, unknown> = {};
       if (options.full) {
-        refundData['fullRefund'] = {};
+        refundData["fullRefund"] = {};
       } else if (options.partialAmount) {
-        refundData['partialRefund'] = {
+        refundData["partialRefund"] = {
           refundPreTaxAmount: {
             priceMicros: options.partialAmount,
             currency: options.currency,
           },
         };
       } else {
-        refundData['fullRefund'] = {};
+        refundData["fullRefund"] = {};
       }
 
       await requireConfirm(`Refund external transaction "${id}"?`, program);

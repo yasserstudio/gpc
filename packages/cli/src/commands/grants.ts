@@ -11,7 +11,9 @@ import { requireConfirm } from "../prompt.js";
 function resolveDeveloperId(devIdArg: string | undefined, config: GpcConfig): string {
   const id = devIdArg || config.developerId;
   if (!id) {
-    console.error("Error: No developer ID. Use --developer-id <id> or gpc config set developerId <id>");
+    console.error(
+      "Error: No developer ID. Use --developer-id <id> or gpc config set developerId <id>",
+    );
     process.exit(2);
   }
   return id;
@@ -58,7 +60,10 @@ export function registerGrantsCommands(program: Command): void {
     .command("create <email>")
     .description("Grant app-level permissions to a user")
     .requiredOption("--package <packageName>", "App package name")
-    .requiredOption("--permissions <list>", "Comma-separated permissions (e.g. CAN_MANAGE_RELEASES,VIEW_APP_INFORMATION)")
+    .requiredOption(
+      "--permissions <list>",
+      "Comma-separated permissions (e.g. CAN_MANAGE_RELEASES,VIEW_APP_INFORMATION)",
+    )
     .action(async (email: string, options) => {
       const config = await loadConfig();
       const developerId = resolveDeveloperId(grants.opts()["developerId"], config);
@@ -67,8 +72,14 @@ export function registerGrantsCommands(program: Command): void {
 
       if (isDryRun(program)) {
         printDryRun(
-          { command: "grants create", action: "grant permissions", target: `${email}/${options.package}`, details: { permissions: perms } },
-          format, formatOutput,
+          {
+            command: "grants create",
+            action: "grant permissions",
+            target: `${email}/${options.package}`,
+            details: { permissions: perms },
+          },
+          format,
+          formatOutput,
         );
         return;
       }
@@ -97,8 +108,14 @@ export function registerGrantsCommands(program: Command): void {
 
       if (isDryRun(program)) {
         printDryRun(
-          { command: "grants update", action: "update permissions", target: `${email}/${options.package}`, details: { permissions: perms } },
-          format, formatOutput,
+          {
+            command: "grants update",
+            action: "update permissions",
+            target: `${email}/${options.package}`,
+            details: { permissions: perms },
+          },
+          format,
+          formatOutput,
         );
         return;
       }
@@ -127,8 +144,13 @@ export function registerGrantsCommands(program: Command): void {
 
       if (isDryRun(program)) {
         printDryRun(
-          { command: "grants delete", action: "remove grant", target: `${email}/${options.package}` },
-          format, formatOutput,
+          {
+            command: "grants delete",
+            action: "remove grant",
+            target: `${email}/${options.package}`,
+          },
+          format,
+          formatOutput,
         );
         return;
       }

@@ -39,7 +39,10 @@ function parseConventionalCommit(subject: string): ParsedCommit {
   return { type: "other", message: subject.trim() };
 }
 
-function formatNotes(commits: ParsedCommit[], maxLength: number): { text: string; truncated: boolean } {
+function formatNotes(
+  commits: ParsedCommit[],
+  maxLength: number,
+): { text: string; truncated: boolean } {
   const groups = new Map<string, string[]>();
 
   for (const commit of commits) {
@@ -90,9 +93,7 @@ async function gitExec(args: string[]): Promise<string> {
   }
 }
 
-export async function generateNotesFromGit(
-  options?: GitNotesOptions,
-): Promise<GitReleaseNotes> {
+export async function generateNotesFromGit(options?: GitNotesOptions): Promise<GitReleaseNotes> {
   const language = options?.language || "en-US";
   const maxLength = options?.maxLength ?? DEFAULT_MAX_LENGTH;
   let since = options?.since;

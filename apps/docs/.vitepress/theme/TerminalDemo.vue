@@ -14,7 +14,7 @@ const props = withDefaults(
     title?: string;
     delay?: number; // ms between lines
   }>(),
-  { title: "terminal", delay: 180 }
+  { title: "terminal", delay: 180 },
 );
 
 const visible = ref<boolean[]>([]);
@@ -22,9 +22,12 @@ const visible = ref<boolean[]>([]);
 onMounted(() => {
   visible.value = props.lines.map(() => false);
   props.lines.forEach((_, i) => {
-    setTimeout(() => {
-      visible.value[i] = true;
-    }, 400 + i * props.delay);
+    setTimeout(
+      () => {
+        visible.value[i] = true;
+      },
+      400 + i * props.delay,
+    );
   });
 });
 </script>
@@ -88,7 +91,7 @@ onMounted(() => {
     0 0 0 1px rgba(0, 0, 0, 0.3),
     0 16px 48px rgba(0, 0, 0, 0.4),
     0 0 40px rgba(77, 149, 241, 0.06);
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
   font-size: 0.82rem;
   overflow: hidden;
   margin: 24px 0;
@@ -109,13 +112,19 @@ onMounted(() => {
   border-radius: 50%;
   flex-shrink: 0;
 }
-.td-red    { background: #ff5f57; }
-.td-yellow { background: #febc2e; }
-.td-green  { background: #28c840; }
+.td-red {
+  background: #ff5f57;
+}
+.td-yellow {
+  background: #febc2e;
+}
+.td-green {
+  background: #28c840;
+}
 
 .td-title {
   margin-left: auto;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.28);
   letter-spacing: 0.02em;
@@ -132,7 +141,9 @@ onMounted(() => {
   gap: 8px;
   opacity: 0;
   transform: translateX(-6px);
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
   min-height: 1.9em;
 }
 
@@ -146,26 +157,62 @@ onMounted(() => {
 }
 
 /* Tokens */
-.td-prompt   { color: #4d95f1; font-weight: 600; flex-shrink: 0; }
-.td-cmd-text { color: #e6edf3; }
-.td-ok-icon  { color: #3fb950; flex-shrink: 0; }
-.td-ok-text  { color: #8b949e; }
-.td-warn-icon  { color: #d29922; flex-shrink: 0; }
-.td-warn-text  { color: #d29922; }
-.td-err-icon   { color: #f85149; flex-shrink: 0; }
-.td-err-text   { color: #f85149; }
-.td-out-text   { color: #8b949e; }
-.td-section-text { color: #e6edf3; font-weight: 600; }
-.td-divider-line { color: rgba(255,255,255,0.08); font-size: 0.65rem; }
+.td-prompt {
+  color: #4d95f1;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.td-cmd-text {
+  color: #e6edf3;
+}
+.td-ok-icon {
+  color: #3fb950;
+  flex-shrink: 0;
+}
+.td-ok-text {
+  color: #8b949e;
+}
+.td-warn-icon {
+  color: #d29922;
+  flex-shrink: 0;
+}
+.td-warn-text {
+  color: #d29922;
+}
+.td-err-icon {
+  color: #f85149;
+  flex-shrink: 0;
+}
+.td-err-text {
+  color: #f85149;
+}
+.td-out-text {
+  color: #8b949e;
+}
+.td-section-text {
+  color: #e6edf3;
+  font-weight: 600;
+}
+.td-divider-line {
+  color: rgba(255, 255, 255, 0.08);
+  font-size: 0.65rem;
+}
 
-.td-cursor-line { gap: 8px; }
+.td-cursor-line {
+  gap: 8px;
+}
 .td-cursor {
   color: #4d95f1;
   animation: blink 1s step-end infinite;
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 </style>

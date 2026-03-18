@@ -1,5 +1,12 @@
 export { GpcError, ConfigError, ApiError, NetworkError } from "./errors.js";
-export { detectOutputFormat, formatOutput, formatJunit, redactSensitive, SENSITIVE_KEYS, maybePaginate } from "./output.js";
+export {
+  detectOutputFormat,
+  formatOutput,
+  formatJunit,
+  redactSensitive,
+  SENSITIVE_KEYS,
+  maybePaginate,
+} from "./output.js";
 export type { CommandContext } from "./context.js";
 export { PluginManager, discoverPlugins } from "./plugins.js";
 export type { LoadedPlugin, DiscoverPluginsOptions } from "./plugins.js";
@@ -16,7 +23,12 @@ export {
   uploadExternallyHosted,
   diffReleases,
 } from "./commands/releases.js";
-export type { UploadResult, ReleaseStatusResult, DryRunUploadResult, ReleaseDiff } from "./commands/releases.js";
+export type {
+  UploadResult,
+  ReleaseStatusResult,
+  DryRunUploadResult,
+  ReleaseDiff,
+} from "./commands/releases.js";
 export {
   getListings,
   updateListing,
@@ -34,9 +46,26 @@ export {
   updateAppDetails,
   exportImages,
 } from "./commands/listings.js";
-export type { ListingsResult, PushResult, DryRunResult, ExportImagesOptions, ExportImagesSummary } from "./commands/listings.js";
-export { lintListings, lintListing, wordDiff, formatWordDiff, DEFAULT_LIMITS } from "./utils/listing-text.js";
-export type { ListingLintResult, FieldLintResult, ListingFieldLimits, DiffToken } from "./utils/listing-text.js";
+export type {
+  ListingsResult,
+  PushResult,
+  DryRunResult,
+  ExportImagesOptions,
+  ExportImagesSummary,
+} from "./commands/listings.js";
+export {
+  lintListings,
+  lintListing,
+  wordDiff,
+  formatWordDiff,
+  DEFAULT_LIMITS,
+} from "./utils/listing-text.js";
+export type {
+  ListingLintResult,
+  FieldLintResult,
+  ListingFieldLimits,
+  DiffToken,
+} from "./utils/listing-text.js";
 export {
   detectFastlane,
   parseFastfile,
@@ -63,8 +92,18 @@ export { publish } from "./commands/publish.js";
 export type { PublishOptions, PublishResult, DryRunPublishResult } from "./commands/publish.js";
 export { readListingsFromDir, writeListingsToDir, diffListings } from "./utils/fastlane.js";
 export type { ListingDiff } from "./utils/fastlane.js";
-export { listReviews, getReview, replyToReview, exportReviews, analyzeReviews } from "./commands/reviews.js";
-export type { ReviewsFilterOptions, ReviewExportOptions, ReviewAnalysis } from "./commands/reviews.js";
+export {
+  listReviews,
+  getReview,
+  replyToReview,
+  exportReviews,
+  analyzeReviews,
+} from "./commands/reviews.js";
+export type {
+  ReviewsFilterOptions,
+  ReviewExportOptions,
+  ReviewAnalysis,
+} from "./commands/reviews.js";
 export type { ListSubscriptionsOptions, SubscriptionAnalytics } from "./commands/subscriptions.js";
 export { getSubscriptionAnalytics } from "./commands/subscriptions.js";
 export type { ListIapOptions } from "./commands/iap.js";
@@ -184,11 +223,7 @@ export {
   getExternalTransaction,
   refundExternalTransaction,
 } from "./commands/external-transactions.js";
-export {
-  listDeviceTiers,
-  getDeviceTier,
-  createDeviceTier,
-} from "./commands/device-tiers.js";
+export { listDeviceTiers, getDeviceTier, createDeviceTier } from "./commands/device-tiers.js";
 export {
   listOneTimeProducts,
   getOneTimeProduct,
@@ -204,7 +239,13 @@ export {
 } from "./commands/one-time-products.js";
 export type { OneTimeProductDiff } from "./commands/one-time-products.js";
 export { createSpinner } from "./utils/spinner.js";
-export { startTrain, getTrainStatus, pauseTrain, abortTrain, advanceTrain } from "./commands/train.js";
+export {
+  startTrain,
+  getTrainStatus,
+  pauseTrain,
+  abortTrain,
+  advanceTrain,
+} from "./commands/train.js";
 export { listLeaderboards, listAchievements, listEvents } from "./commands/games.js";
 export { listEnterpriseApps, createEnterpriseApp } from "./commands/enterprise.js";
 export type { TrainConfig, TrainState } from "./commands/train.js";
@@ -215,7 +256,16 @@ export { safePath, safePathWithin } from "./utils/safe-path.js";
 export { sortResults } from "./utils/sort.js";
 export { scaffoldPlugin } from "./commands/plugin-scaffold.js";
 export type { ScaffoldOptions, ScaffoldResult } from "./commands/plugin-scaffold.js";
-export { initAudit, writeAuditLog, createAuditEntry, redactAuditArgs, SENSITIVE_ARG_KEYS, listAuditEvents, searchAuditEvents, clearAuditLog } from "./audit.js";
+export {
+  initAudit,
+  writeAuditLog,
+  createAuditEntry,
+  redactAuditArgs,
+  SENSITIVE_ARG_KEYS,
+  listAuditEvents,
+  searchAuditEvents,
+  clearAuditLog,
+} from "./audit.js";
 export type { AuditEntry } from "./audit.js";
 export {
   sendWebhook,
@@ -236,8 +286,19 @@ export {
 } from "./commands/purchase-options.js";
 export { batchSyncInAppProducts } from "./commands/iap.js";
 export type { BatchSyncResult } from "./commands/iap.js";
-export { analyzeBundle, compareBundles, topFiles, checkBundleSize } from "./commands/bundle-analysis.js";
-export type { BundleEntry, BundleAnalysis, BundleComparison, BundleSizeConfig, BundleSizeCheckResult } from "./commands/bundle-analysis.js";
+export {
+  analyzeBundle,
+  compareBundles,
+  topFiles,
+  checkBundleSize,
+} from "./commands/bundle-analysis.js";
+export type {
+  BundleEntry,
+  BundleAnalysis,
+  BundleComparison,
+  BundleSizeConfig,
+  BundleSizeCheckResult,
+} from "./commands/bundle-analysis.js";
 export {
   getAppStatus,
   formatStatusTable,

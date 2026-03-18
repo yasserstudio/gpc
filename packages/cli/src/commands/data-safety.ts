@@ -3,10 +3,7 @@ import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
-import {
-  importDataSafety,
-  formatOutput,
-} from "@gpc-cli/core";
+import { importDataSafety, formatOutput } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { getOutputFormat } from "../format.js";
 
@@ -25,22 +22,24 @@ async function getClient(config: GpcConfig) {
 }
 
 export function registerDataSafetyCommands(program: Command): void {
-  const dataSafety = program
-    .command("data-safety")
-    .description("Manage data safety declarations");
+  const dataSafety = program.command("data-safety").description("Manage data safety declarations");
 
   // Get — not supported by Google Play API (no GET endpoint for data safety)
   dataSafety
     .command("get")
     .description("Get the current data safety declaration")
     .action(async () => {
-      console.error("Error: The Google Play Developer API does not provide a GET endpoint for data safety declarations.");
+      console.error(
+        "Error: The Google Play Developer API does not provide a GET endpoint for data safety declarations.",
+      );
       console.error("");
       console.error("Data safety labels can only be updated (not read) via the API.");
       console.error("To view your current data safety declaration, use the Google Play Console:");
       console.error("  https://play.google.com/console → App content → Data safety");
       console.error("");
-      console.error("To update data safety via the API, use: gpc data-safety update --file <csv-file>");
+      console.error(
+        "To update data safety via the API, use: gpc data-safety update --file <csv-file>",
+      );
       process.exit(2);
     });
 
@@ -84,7 +83,9 @@ export function registerDataSafetyCommands(program: Command): void {
     .description("Export data safety declaration to a JSON file")
     .option("--output <path>", "Output file path", "data-safety.json")
     .action(async () => {
-      console.error("Error: The Google Play Developer API does not provide a GET endpoint for data safety declarations.");
+      console.error(
+        "Error: The Google Play Developer API does not provide a GET endpoint for data safety declarations.",
+      );
       console.error("Data safety labels cannot be exported via the API.");
       console.error("");
       console.error("To export your data safety declaration, use the Google Play Console:");

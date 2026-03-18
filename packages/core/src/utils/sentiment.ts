@@ -4,9 +4,9 @@
  */
 
 export interface SentimentResult {
-  score: number;        // -1 to +1
+  score: number; // -1 to +1
   label: "positive" | "negative" | "neutral";
-  magnitude: number;    // 0 to 1 (confidence)
+  magnitude: number; // 0 to 1 (confidence)
 }
 
 export interface TopicCluster {
@@ -36,26 +36,134 @@ export interface ReviewAnalysis {
 
 // Simple lexicon-based sentiment analysis
 const POSITIVE_WORDS = new Set([
-  "great", "excellent", "amazing", "awesome", "fantastic", "love", "good", "best",
-  "perfect", "wonderful", "helpful", "easy", "fast", "smooth", "reliable", "clean",
-  "beautiful", "intuitive", "works", "recommend", "useful", "thank", "thanks",
-  "brilliant", "superb", "flawless", "outstanding", "delightful", "nice",
+  "great",
+  "excellent",
+  "amazing",
+  "awesome",
+  "fantastic",
+  "love",
+  "good",
+  "best",
+  "perfect",
+  "wonderful",
+  "helpful",
+  "easy",
+  "fast",
+  "smooth",
+  "reliable",
+  "clean",
+  "beautiful",
+  "intuitive",
+  "works",
+  "recommend",
+  "useful",
+  "thank",
+  "thanks",
+  "brilliant",
+  "superb",
+  "flawless",
+  "outstanding",
+  "delightful",
+  "nice",
 ]);
 
 const NEGATIVE_WORDS = new Set([
-  "bad", "terrible", "awful", "horrible", "worst", "hate", "broken", "crash", "crashes",
-  "bug", "bugs", "slow", "laggy", "freeze", "freezes", "error", "errors", "fail", "fails",
-  "useless", "disappointing", "disappointed", "frustrating", "frustration", "annoying",
-  "problem", "problems", "issue", "issues", "fix", "please", "not working", "doesn't work",
-  "stopped", "uninstall", "deleted", "waste", "rubbish", "garbage", "terrible",
+  "bad",
+  "terrible",
+  "awful",
+  "horrible",
+  "worst",
+  "hate",
+  "broken",
+  "crash",
+  "crashes",
+  "bug",
+  "bugs",
+  "slow",
+  "laggy",
+  "freeze",
+  "freezes",
+  "error",
+  "errors",
+  "fail",
+  "fails",
+  "useless",
+  "disappointing",
+  "disappointed",
+  "frustrating",
+  "frustration",
+  "annoying",
+  "problem",
+  "problems",
+  "issue",
+  "issues",
+  "fix",
+  "please",
+  "not working",
+  "doesn't work",
+  "stopped",
+  "uninstall",
+  "deleted",
+  "waste",
+  "rubbish",
+  "garbage",
+  "terrible",
 ]);
 
 const STOP_WORDS = new Set([
-  "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with",
-  "is", "it", "this", "that", "was", "are", "be", "been", "have", "has", "had",
-  "do", "does", "did", "will", "would", "could", "should", "may", "might",
-  "i", "me", "my", "we", "you", "he", "she", "they", "them", "their", "its",
-  "not", "no", "very", "so", "just", "really", "app", "application", "update",
+  "the",
+  "a",
+  "an",
+  "and",
+  "or",
+  "but",
+  "in",
+  "on",
+  "at",
+  "to",
+  "for",
+  "of",
+  "with",
+  "is",
+  "it",
+  "this",
+  "that",
+  "was",
+  "are",
+  "be",
+  "been",
+  "have",
+  "has",
+  "had",
+  "do",
+  "does",
+  "did",
+  "will",
+  "would",
+  "could",
+  "should",
+  "may",
+  "might",
+  "i",
+  "me",
+  "my",
+  "we",
+  "you",
+  "he",
+  "she",
+  "they",
+  "them",
+  "their",
+  "its",
+  "not",
+  "no",
+  "very",
+  "so",
+  "just",
+  "really",
+  "app",
+  "application",
+  "update",
 ]);
 
 /** Analyze sentiment of a single text. */
@@ -84,16 +192,16 @@ export function analyzeSentiment(text: string): SentimentResult {
 /** Cluster reviews into topics based on keyword co-occurrence. */
 export function clusterTopics(texts: string[]): TopicCluster[] {
   const TOPIC_KEYWORDS: Record<string, string[]> = {
-    "performance": ["slow", "lag", "laggy", "freeze", "fast", "speed", "quick", "smooth"],
-    "crashes": ["crash", "crashes", "crash", "crashing", "force close", "stops", "stopped"],
+    performance: ["slow", "lag", "laggy", "freeze", "fast", "speed", "quick", "smooth"],
+    crashes: ["crash", "crashes", "crash", "crashing", "force close", "stops", "stopped"],
     "ui/ux": ["ui", "design", "interface", "layout", "button", "screen", "menu", "navigation"],
-    "battery": ["battery", "drain", "power", "charging", "drain"],
-    "updates": ["update", "updated", "version", "new version", "after update"],
-    "notifications": ["notification", "notifications", "alert", "alerts", "push"],
+    battery: ["battery", "drain", "power", "charging", "drain"],
+    updates: ["update", "updated", "version", "new version", "after update"],
+    notifications: ["notification", "notifications", "alert", "alerts", "push"],
     "login/auth": ["login", "sign in", "logout", "password", "account", "auth"],
     "feature requests": ["please add", "would be nice", "missing", "need", "wish", "want"],
-    "bugs": ["bug", "bugs", "issue", "error", "problem", "glitch", "broken"],
-    "pricing": ["price", "pricing", "expensive", "cheap", "subscription", "pay", "cost", "free"],
+    bugs: ["bug", "bugs", "issue", "error", "problem", "glitch", "broken"],
+    pricing: ["price", "pricing", "expensive", "cheap", "subscription", "pay", "cost", "free"],
   };
 
   const clusterMap = new Map<string, { count: number; totalScore: number }>();
@@ -128,7 +236,10 @@ export function keywordFrequency(texts: string[], topN = 20): KeywordFrequency[]
   const freq = new Map<string, number>();
 
   for (const text of texts) {
-    const words = text.toLowerCase().split(/\W+/).filter((w) => w.length > 3 && !STOP_WORDS.has(w));
+    const words = text
+      .toLowerCase()
+      .split(/\W+/)
+      .filter((w) => w.length > 3 && !STOP_WORDS.has(w));
     for (const word of words) {
       freq.set(word, (freq.get(word) ?? 0) + 1);
     }
@@ -141,9 +252,7 @@ export function keywordFrequency(texts: string[], topN = 20): KeywordFrequency[]
 }
 
 /** Full review analysis: sentiment, topics, keywords, rating distribution. */
-export function analyzeReviews(
-  reviews: { text: string; rating?: number }[],
-): ReviewAnalysis {
+export function analyzeReviews(reviews: { text: string; rating?: number }[]): ReviewAnalysis {
   if (reviews.length === 0) {
     return {
       totalReviews: 0,

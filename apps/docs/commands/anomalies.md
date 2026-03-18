@@ -11,9 +11,9 @@ outline: deep
 
 ## Commands
 
-| Command                               | Description                              |
-| ------------------------------------- | ---------------------------------------- |
-| [`anomalies list`](#anomalies-list)   | List detected anomalies in app vitals    |
+| Command                             | Description                           |
+| ----------------------------------- | ------------------------------------- |
+| [`anomalies list`](#anomalies-list) | List detected anomalies in app vitals |
 
 ## `anomalies list`
 
@@ -33,11 +33,11 @@ No command-specific options. Uses global `--app` and `--output` flags.
 
 The output table shows:
 
-| Column              | Description                                          |
-| ------------------- | ---------------------------------------------------- |
-| `name`              | Anomaly resource name (API identifier)               |
-| `metricSet`         | Which metric set the anomaly was detected in         |
-| `aggregationPeriod` | Time period used for detection (e.g. `DAILY`)        |
+| Column              | Description                                   |
+| ------------------- | --------------------------------------------- |
+| `name`              | Anomaly resource name (API identifier)        |
+| `metricSet`         | Which metric set the anomaly was detected in  |
+| `aggregationPeriod` | Time period used for detection (e.g. `DAILY`) |
 
 When no anomalies are detected, the command prints: `No anomalies detected.`
 

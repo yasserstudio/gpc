@@ -1,5 +1,11 @@
 import { stat } from "node:fs/promises";
-import type { PlayApiClient, Release, Track, ExternallyHostedApk, ExternallyHostedApkResponse } from "@gpc-cli/api";
+import type {
+  PlayApiClient,
+  Release,
+  Track,
+  ExternallyHostedApk,
+  ExternallyHostedApkResponse,
+} from "@gpc-cli/api";
 import { ApiError } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
 import { validateUploadFile } from "../utils/file-validation.js";
@@ -75,8 +81,7 @@ export async function uploadRelease(
   const validation = await validateUploadFile(filePath);
 
   if (options.dryRun) {
-    const plannedStatus = options.status ||
-      (options.userFraction ? "inProgress" : "completed");
+    const plannedStatus = options.status || (options.userFraction ? "inProgress" : "completed");
 
     // Fetch current track state without modifying anything
     let currentReleases: DryRunUploadResult["currentReleases"] = [];
@@ -125,7 +130,9 @@ export async function uploadRelease(
   try {
     const { size } = await stat(filePath);
     fileSize = size;
-  } catch { /* ignore — file was validated above */ }
+  } catch {
+    /* ignore — file was validated above */
+  }
 
   if (options.onProgress) options.onProgress(0, fileSize);
 
@@ -288,12 +295,13 @@ export async function updateRollout(
 
     switch (action) {
       case "increase":
-        if (!userFraction) throw new GpcError(
-          "--to <percentage> is required for rollout increase",
-          "ROLLOUT_MISSING_FRACTION",
-          2,
-          "Specify the target rollout percentage with --to, e.g.: gpc rollout increase --to 0.5",
-        );
+        if (!userFraction)
+          throw new GpcError(
+            "--to <percentage> is required for rollout increase",
+            "ROLLOUT_MISSING_FRACTION",
+            2,
+            "Specify the target rollout percentage with --to, e.g.: gpc rollout increase --to 0.5",
+          );
         if (userFraction <= 0 || userFraction > 1) {
           throw new GpcError(
             "Rollout percentage must be between 0 and 1 (e.g., 0.1 for 10%)",

@@ -6,15 +6,15 @@
    ================================================================ */
 
 /* ── Fonts ─────────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap");
 
 /* ── Custom Properties ─────────────────────────────────────────── */
 
 :root {
   /* Typography */
-  --vp-font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --vp-font-family-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
-  --gpc-font-display: 'Inter', system-ui, sans-serif;
+  --vp-font-family-base: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --vp-font-family-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+  --gpc-font-display: "Inter", system-ui, sans-serif;
 
   /* Brand — light */
   --vp-c-brand-1: #1a73e8;
@@ -23,10 +23,10 @@
   --vp-c-brand-soft: rgba(26, 115, 232, 0.09);
 
   /* Backgrounds — light */
-  --vp-c-bg:       #f6f8fc;
-  --vp-c-bg-alt:   #ecf1f9;
-  --vp-c-bg-elv:   #ffffff;
-  --vp-c-bg-soft:  #e7eef6;
+  --vp-c-bg: #f6f8fc;
+  --vp-c-bg-alt: #ecf1f9;
+  --vp-c-bg-elv: #ffffff;
+  --vp-c-bg-soft: #e7eef6;
   --vp-c-default-soft: #e7eef6;
 
   /* Text — light */
@@ -36,27 +36,33 @@
 
   /* Borders — light */
   --vp-c-divider: #c8d8ee;
-  --vp-c-border:  #b0c8e8;
-  --vp-c-gutter:  #dbe6f4;
+  --vp-c-border: #b0c8e8;
+  --vp-c-gutter: #dbe6f4;
 
   /* Hero */
   --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: linear-gradient(115deg, #115bbf 0%, #1a73e8 30%, #4d95f1 68%, #d3e3fd 100%);
+  --vp-home-hero-name-background: linear-gradient(
+    115deg,
+    #115bbf 0%,
+    #1a73e8 30%,
+    #4d95f1 68%,
+    #d3e3fd 100%
+  );
   --vp-home-hero-image-background-image: none;
   --vp-home-hero-image-filter: none;
 
   /* Code */
-  --vp-code-block-bg:              #090f1a;
-  --vp-code-line-highlight-color:  rgba(26, 115, 232, 0.11);
+  --vp-code-block-bg: #090f1a;
+  --vp-code-line-highlight-color: rgba(26, 115, 232, 0.11);
 
   /* Badges */
-  --vp-badge-tip-bg:   rgba(26, 115, 232, 0.11);
+  --vp-badge-tip-bg: rgba(26, 115, 232, 0.11);
   --vp-badge-tip-text: #1a73e8;
 
   /* Callouts */
-  --vp-custom-block-tip-bg:      rgba(26, 115, 232, 0.06);
-  --vp-custom-block-tip-border:  rgba(26, 115, 232, 0.35);
-  --vp-custom-block-tip-text:    #0c1e40;
+  --vp-custom-block-tip-bg: rgba(26, 115, 232, 0.06);
+  --vp-custom-block-tip-border: rgba(26, 115, 232, 0.35);
+  --vp-custom-block-tip-text: #0c1e40;
   --vp-custom-block-tip-code-bg: rgba(26, 115, 232, 0.08);
 
   /* Nav */
@@ -66,15 +72,15 @@
   --vp-sidebar-width: 276px;
 
   /* Shadows */
-  --vp-shadow-1: 0 2px 8px  rgba(10, 40, 80, 0.07);
+  --vp-shadow-1: 0 2px 8px rgba(10, 40, 80, 0.07);
   --vp-shadow-2: 0 4px 20px rgba(10, 40, 80, 0.11);
   --vp-shadow-3: 0 8px 40px rgba(10, 40, 80, 0.15);
 
   /* Internal tokens */
-  --gpc-accent:     #1a73e8;
+  --gpc-accent: #1a73e8;
   --gpc-accent-dim: rgba(26, 115, 232, 0.13);
-  --gpc-radius:     8px;
-  --gpc-radius-lg:  14px;
+  --gpc-radius: 8px;
+  --gpc-radius-lg: 14px;
 }
 
 .dark {
@@ -85,10 +91,10 @@
   --vp-c-brand-soft: rgba(77, 149, 241, 0.09);
 
   /* Backgrounds — dark */
-  --vp-c-bg:       #090a0f;
-  --vp-c-bg-alt:   #0d1018;
-  --vp-c-bg-elv:   #111520;
-  --vp-c-bg-soft:  #0f1318;
+  --vp-c-bg: #090a0f;
+  --vp-c-bg-alt: #0d1018;
+  --vp-c-bg-elv: #111520;
+  --vp-c-bg-soft: #0f1318;
   --vp-c-default-soft: #111520;
 
   /* Text — dark */
@@ -98,34 +104,33 @@
 
   /* Borders — dark */
   --vp-c-divider: #161c2e;
-  --vp-c-border:  #1c2640;
-  --vp-c-gutter:  #0d1018;
+  --vp-c-border: #1c2640;
+  --vp-c-gutter: #0d1018;
 
   /* Hero */
   --vp-home-hero-name-background: linear-gradient(115deg, #4d95f1 0%, #8fbdf7 48%, #d3e3fd 100%);
 
   /* Code */
-  --vp-code-block-bg:              #04060e;
-  --vp-code-line-highlight-color:  rgba(77, 149, 241, 0.08);
+  --vp-code-block-bg: #04060e;
+  --vp-code-line-highlight-color: rgba(77, 149, 241, 0.08);
 
   /* Badges */
-  --vp-badge-tip-bg:   rgba(77, 149, 241, 0.12);
+  --vp-badge-tip-bg: rgba(77, 149, 241, 0.12);
   --vp-badge-tip-text: #6eaaf5;
 
   /* Callouts */
-  --vp-custom-block-tip-bg:      rgba(77, 149, 241, 0.06);
-  --vp-custom-block-tip-border:  rgba(77, 149, 241, 0.28);
-  --vp-custom-block-tip-text:    #c4d0ec;
+  --vp-custom-block-tip-bg: rgba(77, 149, 241, 0.06);
+  --vp-custom-block-tip-border: rgba(77, 149, 241, 0.28);
+  --vp-custom-block-tip-text: #c4d0ec;
   --vp-custom-block-tip-code-bg: rgba(77, 149, 241, 0.08);
 
   /* Nav */
-  --vp-nav-bg-color: rgba(9, 10, 15, 0.90);
+  --vp-nav-bg-color: rgba(9, 10, 15, 0.9);
 
   /* Tokens */
-  --gpc-accent:     #4d95f1;
+  --gpc-accent: #4d95f1;
   --gpc-accent-dim: rgba(77, 149, 241, 0.12);
 }
-
 
 /* ================================================================
    GLOBAL BASE
@@ -140,13 +145,27 @@
   scrollbar-color: rgba(77, 149, 241, 0.4) transparent;
 }
 
-::-webkit-scrollbar        { width: 4px; height: 4px; }
-::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background-color: rgba(26, 115, 232, 0.4); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background-color: #1a73e8; }
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(26, 115, 232, 0.4);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #1a73e8;
+}
 
-.dark ::-webkit-scrollbar-thumb { background-color: rgba(77, 149, 241, 0.35); }
-.dark ::-webkit-scrollbar-thumb:hover { background-color: #4d95f1; }
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(77, 149, 241, 0.35);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: #4d95f1;
+}
 
 ::selection {
   background-color: var(--gpc-accent-dim);
@@ -155,7 +174,10 @@
 
 html {
   scroll-behavior: smooth;
-  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  font-feature-settings:
+    "kern" 1,
+    "liga" 1,
+    "calt" 1;
 }
 
 :focus-visible {
@@ -163,7 +185,6 @@ html {
   outline-offset: 2px;
   border-radius: 4px;
 }
-
 
 /* ================================================================
    TYPOGRAPHY
@@ -222,11 +243,14 @@ html {
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
   color: var(--vp-c-brand-1);
-  transition: color 0.15s ease, opacity 0.15s ease;
+  transition:
+    color 0.15s ease,
+    opacity 0.15s ease;
 }
 
-.vp-doc a:hover { opacity: 0.8; }
-
+.vp-doc a:hover {
+  opacity: 0.8;
+}
 
 /* ================================================================
    NAVIGATION BAR
@@ -269,7 +293,6 @@ html {
   color: var(--vp-c-brand-1) !important;
 }
 
-
 /* ================================================================
    SIDEBAR
    ================================================================ */
@@ -288,7 +311,7 @@ html {
   font-family: var(--gpc-font-display) !important;
   font-size: 0.68rem !important;
   font-weight: 700 !important;
-  letter-spacing: 0.10em !important;
+  letter-spacing: 0.1em !important;
   text-transform: uppercase !important;
   color: var(--vp-c-text-3) !important;
   padding-top: 22px;
@@ -301,7 +324,9 @@ html {
   font-weight: 400;
   border-radius: 6px;
   padding: 4px 10px;
-  transition: color 0.13s ease, background 0.13s ease;
+  transition:
+    color 0.13s ease,
+    background 0.13s ease;
 }
 
 .VPSidebarItem.level-1 > .item > .link:hover,
@@ -318,7 +343,6 @@ html {
   border-left: 2px solid var(--vp-c-brand-1);
   padding-left: 8px !important;
 }
-
 
 /* ================================================================
    HOME — HERO
@@ -337,13 +361,15 @@ html {
 
 /* Dot grid background */
 .VPHero::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background:
     radial-gradient(ellipse 60% 80% at 30% 50%, rgba(26, 115, 232, 0.06) 0%, transparent 65%),
     radial-gradient(circle at 1px 1px, rgba(26, 115, 232, 0.07) 1px, transparent 0);
-  background-size: 100% 100%, 28px 28px;
+  background-size:
+    100% 100%,
+    28px 28px;
   pointer-events: none;
   z-index: 0;
 }
@@ -351,8 +377,10 @@ html {
 .dark .VPHero::before {
   background:
     radial-gradient(ellipse 60% 80% at 30% 50%, rgba(77, 149, 241, 0.09) 0%, transparent 65%),
-    radial-gradient(circle at 1px 1px, rgba(77, 149, 241, 0.10) 1px, transparent 0);
-  background-size: 100% 100%, 28px 28px;
+    radial-gradient(circle at 1px 1px, rgba(77, 149, 241, 0.1) 1px, transparent 0);
+  background-size:
+    100% 100%,
+    28px 28px;
 }
 
 .VPHero .container {
@@ -375,8 +403,12 @@ html {
 }
 
 @keyframes gradientSweep {
-  0%   { background-position: 0%   center; }
-  100% { background-position: 300% center; }
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 300% center;
+  }
 }
 
 .VPHero .text {
@@ -398,14 +430,28 @@ html {
 }
 
 /* Staggered entry animations */
-.VPHero .name      { animation: heroUp 0.65s ease both; }
-.VPHero .text      { animation: heroUp 0.65s 0.10s ease both; }
-.VPHero .tagline   { animation: heroUp 0.65s 0.20s ease both; }
-.VPHero .actions   { animation: heroUp 0.65s 0.32s ease both; }
+.VPHero .name {
+  animation: heroUp 0.65s ease both;
+}
+.VPHero .text {
+  animation: heroUp 0.65s 0.1s ease both;
+}
+.VPHero .tagline {
+  animation: heroUp 0.65s 0.2s ease both;
+}
+.VPHero .actions {
+  animation: heroUp 0.65s 0.32s ease both;
+}
 
 @keyframes heroUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .VPHero .actions {
@@ -424,7 +470,10 @@ html {
   padding: 10px 24px !important;
   background: var(--vp-c-brand-1) !important;
   border-color: var(--vp-c-brand-1) !important;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.15s ease !important;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.15s ease !important;
 }
 
 .VPButton.medium.brand:hover {
@@ -434,11 +483,15 @@ html {
 }
 
 .dark .VPButton.medium.brand {
-  box-shadow: 0 0 22px rgba(77, 149, 241, 0.28), 0 4px 14px rgba(0, 0, 0, 0.40) !important;
+  box-shadow:
+    0 0 22px rgba(77, 149, 241, 0.28),
+    0 4px 14px rgba(0, 0, 0, 0.4) !important;
 }
 
 .dark .VPButton.medium.brand:hover {
-  box-shadow: 0 0 34px rgba(77, 149, 241, 0.42), 0 6px 20px rgba(0, 0, 0, 0.50) !important;
+  box-shadow:
+    0 0 34px rgba(77, 149, 241, 0.42),
+    0 6px 20px rgba(0, 0, 0, 0.5) !important;
 }
 
 /* Alt buttons */
@@ -451,7 +504,10 @@ html {
   border: 1px solid var(--vp-c-border) !important;
   color: var(--vp-c-text-1) !important;
   background: transparent !important;
-  transition: border-color 0.18s ease, background 0.15s ease, transform 0.18s ease !important;
+  transition:
+    border-color 0.18s ease,
+    background 0.15s ease,
+    transform 0.18s ease !important;
 }
 
 .VPButton.medium.alt:hover {
@@ -460,7 +516,6 @@ html {
   background: var(--vp-c-brand-soft) !important;
   transform: translateY(-1px);
 }
-
 
 /* ================================================================
    HOME — FEATURES
@@ -488,31 +543,42 @@ html {
 }
 
 @media (max-width: 960px) {
-  .VPFeatures .items { grid-template-columns: repeat(2, 1fr) !important; }
+  .VPFeatures .items {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }
 @media (max-width: 640px) {
-  .VPFeatures .items { grid-template-columns: 1fr !important; }
+  .VPFeatures .items {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 .VPFeature {
   border-radius: var(--gpc-radius-lg) !important;
   border: 1px solid var(--vp-c-border) !important;
   background-color: #ffffff !important;
-  box-shadow: 0 1px 4px rgba(10, 40, 80, 0.06), 0 4px 16px rgba(10, 40, 80, 0.04) !important;
+  box-shadow:
+    0 1px 4px rgba(10, 40, 80, 0.06),
+    0 4px 16px rgba(10, 40, 80, 0.04) !important;
   padding: 28px !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease !important;
   cursor: default;
 }
 
 .VPFeature:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 24px rgba(26, 115, 232, 0.12), 0 1px 4px rgba(10, 40, 80, 0.06) !important;
+  box-shadow:
+    0 4px 24px rgba(26, 115, 232, 0.12),
+    0 1px 4px rgba(10, 40, 80, 0.06) !important;
   border-color: var(--vp-c-brand-1) !important;
 }
 
 .dark .VPFeature {
-  background: rgba(17, 21, 32, 0.80) !important;
-  border-color: rgba(77, 149, 241, 0.10) !important;
+  background: rgba(17, 21, 32, 0.8) !important;
+  border-color: rgba(77, 149, 241, 0.1) !important;
   box-shadow: none !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -520,7 +586,9 @@ html {
 
 .dark .VPFeature:hover {
   border-color: rgba(77, 149, 241, 0.36) !important;
-  box-shadow: 0 8px 48px rgba(0, 0, 0, 0.55), 0 0 24px rgba(77, 149, 241, 0.07) !important;
+  box-shadow:
+    0 8px 48px rgba(0, 0, 0, 0.55),
+    0 0 24px rgba(77, 149, 241, 0.07) !important;
 }
 
 /* Icon: solid blue background, white icon */
@@ -534,7 +602,9 @@ html {
   justify-content: center !important;
   margin-bottom: 20px !important;
   padding: 10px !important;
-  transition: background 0.2s ease, transform 0.2s ease !important;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease !important;
 }
 
 .VPFeature:hover .icon {
@@ -571,7 +641,6 @@ html {
   font-weight: 700 !important;
   letter-spacing: -0.02em !important;
 }
-
 
 /* ================================================================
    CONTENT — TABLES
@@ -625,26 +694,25 @@ html {
 }
 
 .dark .vp-doc table {
-  border-color: rgba(77, 149, 241, 0.10) !important;
+  border-color: rgba(77, 149, 241, 0.1) !important;
 }
-
 
 /* ================================================================
    CONTENT — CODE BLOCKS
    ================================================================ */
 
-.vp-doc div[class*='language-'] {
+.vp-doc div[class*="language-"] {
   border-radius: var(--gpc-radius) !important;
   margin: 20px 0 !important;
   border: 1px solid rgba(0, 0, 0, 0.12) !important;
   overflow: hidden;
 }
 
-.dark .vp-doc div[class*='language-'] {
+.dark .vp-doc div[class*="language-"] {
   border-color: rgba(77, 149, 241, 0.09) !important;
 }
 
-.vp-doc div[class*='language-'] .lang {
+.vp-doc div[class*="language-"] .lang {
   font-family: var(--gpc-font-display) !important;
   font-size: 0.68rem !important;
   font-weight: 700 !important;
@@ -655,8 +723,8 @@ html {
   right: 50px !important;
 }
 
-.dark .vp-doc div[class*='language-'] .lang {
-  color: rgba(77, 149, 241, 0.40) !important;
+.dark .vp-doc div[class*="language-"] .lang {
+  color: rgba(77, 149, 241, 0.4) !important;
 }
 
 .vp-doc pre {
@@ -669,36 +737,36 @@ html {
   font-family: var(--gpc-font-mono) !important;
 }
 
-.vp-doc div[class*='language-bash'] pre,
-.vp-doc div[class*='language-sh']   pre,
-.vp-doc div[class*='language-shell'] pre,
-.vp-doc div[class*='language-zsh']   pre {
+.vp-doc div[class*="language-bash"] pre,
+.vp-doc div[class*="language-sh"] pre,
+.vp-doc div[class*="language-shell"] pre,
+.vp-doc div[class*="language-zsh"] pre {
   font-size: 0.858rem !important;
 }
 
 /* ── Terminal chrome on shell code blocks ──────────────────────── */
 
-.vp-doc div[class*='language-bash'],
-.vp-doc div[class*='language-sh'],
-.vp-doc div[class*='language-shell'],
-.vp-doc div[class*='language-zsh'] {
+.vp-doc div[class*="language-bash"],
+.vp-doc div[class*="language-sh"],
+.vp-doc div[class*="language-shell"],
+.vp-doc div[class*="language-zsh"] {
   position: relative !important;
   padding-top: 40px !important;
   background: #0d1117 !important;
 }
 
-.vp-doc div[class*='language-bash'] pre,
-.vp-doc div[class*='language-sh'] pre,
-.vp-doc div[class*='language-shell'] pre,
-.vp-doc div[class*='language-zsh'] pre {
+.vp-doc div[class*="language-bash"] pre,
+.vp-doc div[class*="language-sh"] pre,
+.vp-doc div[class*="language-shell"] pre,
+.vp-doc div[class*="language-zsh"] pre {
   background: transparent !important;
 }
 
-.vp-doc div[class*='language-bash']::before,
-.vp-doc div[class*='language-sh']::before,
-.vp-doc div[class*='language-shell']::before,
-.vp-doc div[class*='language-zsh']::before {
-  content: 'terminal';
+.vp-doc div[class*="language-bash"]::before,
+.vp-doc div[class*="language-sh"]::before,
+.vp-doc div[class*="language-shell"]::before,
+.vp-doc div[class*="language-zsh"]::before {
+  content: "terminal";
   position: absolute;
   top: 0;
   left: 0;
@@ -715,7 +783,10 @@ html {
     radial-gradient(circle, #ff5f57 5px, transparent 5px),
     radial-gradient(circle, #febc2e 5px, transparent 5px),
     radial-gradient(circle, #28c840 5px, transparent 5px);
-  background-position: 14px center, 30px center, 46px center;
+  background-position:
+    14px center,
+    30px center,
+    46px center;
   background-repeat: no-repeat;
   font-family: var(--vp-font-family-base);
   font-size: 0.7rem;
@@ -727,18 +798,18 @@ html {
 }
 
 /* Hide the default lang label — title shown in chrome header */
-.vp-doc div[class*='language-bash'] .lang,
-.vp-doc div[class*='language-sh'] .lang,
-.vp-doc div[class*='language-shell'] .lang,
-.vp-doc div[class*='language-zsh'] .lang {
+.vp-doc div[class*="language-bash"] .lang,
+.vp-doc div[class*="language-sh"] .lang,
+.vp-doc div[class*="language-shell"] .lang,
+.vp-doc div[class*="language-zsh"] .lang {
   display: none !important;
 }
 
 /* Push copy button below terminal header */
-.vp-doc div[class*='language-bash'] > button.copy,
-.vp-doc div[class*='language-sh'] > button.copy,
-.vp-doc div[class*='language-shell'] > button.copy,
-.vp-doc div[class*='language-zsh'] > button.copy {
+.vp-doc div[class*="language-bash"] > button.copy,
+.vp-doc div[class*="language-sh"] > button.copy,
+.vp-doc div[class*="language-shell"] > button.copy,
+.vp-doc div[class*="language-zsh"] > button.copy {
   top: 50px !important;
 }
 
@@ -761,7 +832,6 @@ html {
   color: var(--vp-c-brand-3) !important;
 }
 
-
 /* ================================================================
    CONTENT — CALLOUTS
    ================================================================ */
@@ -772,10 +842,18 @@ html {
   padding: 14px 18px !important;
 }
 
-.vp-doc .custom-block.tip     { border-left: 3px solid var(--vp-c-brand-1); }
-.vp-doc .custom-block.warning { border-left: 3px solid #f59e0b; }
-.vp-doc .custom-block.danger  { border-left: 3px solid #ef4444; }
-.vp-doc .custom-block.info    { border-left: 3px solid #60a5fa; }
+.vp-doc .custom-block.tip {
+  border-left: 3px solid var(--vp-c-brand-1);
+}
+.vp-doc .custom-block.warning {
+  border-left: 3px solid #f59e0b;
+}
+.vp-doc .custom-block.danger {
+  border-left: 3px solid #ef4444;
+}
+.vp-doc .custom-block.info {
+  border-left: 3px solid #60a5fa;
+}
 
 .vp-doc .custom-block-title {
   font-family: var(--gpc-font-display) !important;
@@ -786,7 +864,6 @@ html {
   margin-bottom: 6px !important;
 }
 
-
 /* ================================================================
    TOC / OUTLINE
    ================================================================ */
@@ -795,7 +872,7 @@ html {
   font-family: var(--gpc-font-display) !important;
   font-size: 0.68rem !important;
   font-weight: 700 !important;
-  letter-spacing: 0.10em !important;
+  letter-spacing: 0.1em !important;
   text-transform: uppercase !important;
   color: var(--vp-c-text-3) !important;
 }
@@ -811,7 +888,6 @@ html {
   font-weight: 500;
 }
 
-
 /* ================================================================
    BADGES
    ================================================================ */
@@ -826,7 +902,6 @@ html {
   padding: 2px 7px !important;
   vertical-align: middle;
 }
-
 
 /* ================================================================
    DOC FOOTER
@@ -867,7 +942,6 @@ html {
   color: var(--vp-c-brand-1);
 }
 
-
 /* ================================================================
    LOCAL SEARCH — terminal aesthetic
    ================================================================ */
@@ -881,31 +955,34 @@ html {
   border: 1px solid rgba(77, 149, 241, 0.2) !important;
   background: #0d1117 !important;
   box-shadow:
-    0 0 0 1px rgba(0,0,0,0.4),
-    0 24px 80px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(0, 0, 0, 0.4),
+    0 24px 80px rgba(0, 0, 0, 0.5),
     0 0 40px rgba(77, 149, 241, 0.08) !important;
   overflow: hidden;
 }
 
 /* Terminal header bar on search */
 .VPLocalSearchBox .shell::before {
-  content: 'search';
+  content: "search";
   display: block;
   height: 40px;
   line-height: 40px;
   text-align: center;
   background: #161b22;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   background-image:
     radial-gradient(circle, #ff5f57 5px, transparent 5px),
     radial-gradient(circle, #febc2e 5px, transparent 5px),
     radial-gradient(circle, #28c840 5px, transparent 5px);
-  background-position: 14px center, 30px center, 46px center;
+  background-position:
+    14px center,
+    30px center,
+    46px center;
   background-repeat: no-repeat;
   font-family: var(--vp-font-family-base);
   font-size: 0.7rem;
   font-weight: 500;
-  color: rgba(255,255,255,0.22);
+  color: rgba(255, 255, 255, 0.22);
   letter-spacing: 0.06em;
   flex-shrink: 0;
 }
@@ -926,7 +1003,7 @@ html {
 }
 
 .VPLocalSearchBox .result {
-  border-color: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
   transition: background 0.1s ease;
 }
 
@@ -957,10 +1034,9 @@ html {
 }
 
 .VPLocalSearchBox .no-results::before {
-  content: '✗  ';
+  content: "✗  ";
   color: #f85149;
 }
-
 
 /* ================================================================
    MISC POLISH
@@ -992,7 +1068,6 @@ html {
   color: var(--vp-c-text-2);
 }
 
-
 /* ================================================================
    HOME — BODY SECTIONS (below features)
    ================================================================ */
@@ -1017,7 +1092,7 @@ html {
 }
 
 .VPHome .vp-doc h2::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 6px;
@@ -1134,7 +1209,7 @@ html {
   }
 
   /* Code blocks — full bleed on small screens */
-  .vp-doc div[class*='language-'] {
+  .vp-doc div[class*="language-"] {
     margin-left: -16px !important;
     margin-right: -16px !important;
     border-radius: 0 !important;

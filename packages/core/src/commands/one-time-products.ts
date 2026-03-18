@@ -201,7 +201,9 @@ export async function diffOneTimeProduct(
   const fieldsToCompare = ["listings", "purchaseType", "taxAndComplianceSettings"];
 
   for (const field of fieldsToCompare) {
-    const localVal = JSON.stringify((localData as unknown as Record<string, unknown>)[field] ?? null);
+    const localVal = JSON.stringify(
+      (localData as unknown as Record<string, unknown>)[field] ?? null,
+    );
     const remoteVal = JSON.stringify((remote as unknown as Record<string, unknown>)[field] ?? null);
     if (localVal !== remoteVal) {
       diffs.push({ field, local: localVal, remote: remoteVal });

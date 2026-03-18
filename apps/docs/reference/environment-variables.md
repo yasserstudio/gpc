@@ -23,13 +23,13 @@ All `GPC_*` environment variables and external variables that GPC respects.
 
 ## Output
 
-| Variable             | Type                                | Description                                                       | Default                       |
-| -------------------- | ----------------------------------- | ----------------------------------------------------------------- | ----------------------------- |
+| Variable             | Type                                         | Description                                                                                                                                              | Default                       |
+| -------------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
 | `GPC_OUTPUT`         | `table \| json \| yaml \| markdown \| junit` | Default output format. Overridden by `--output` / `-o` flag. Use `-j` / `--json` as shorthand for JSON. Use `--ci` to force JSON + no prompts (CI mode). | `table` (TTY) / `json` (pipe) |
-| `GPC_NO_COLOR`       | `boolean`                           | Disable colored output. Also respected: `NO_COLOR` (standard).    | `false`                       |
-| `NO_COLOR`           | `boolean`                           | Standard no-color.org variable. Disables all ANSI color output.   | —                             |
-| `FORCE_COLOR`        | `1 \| 2 \| 3`                       | Force colored output even when stdout is not a TTY (e.g. in CI). | —                             |
-| `GPC_NO_INTERACTIVE` | `boolean`                           | Disable interactive prompts. Auto-set when `CI=true` is detected. | Auto in CI                    |
+| `GPC_NO_COLOR`       | `boolean`                                    | Disable colored output. Also respected: `NO_COLOR` (standard).                                                                                           | `false`                       |
+| `NO_COLOR`           | `boolean`                                    | Standard no-color.org variable. Disables all ANSI color output.                                                                                          | —                             |
+| `FORCE_COLOR`        | `1 \| 2 \| 3`                                | Force colored output even when stdout is not a TTY (e.g. in CI).                                                                                         | —                             |
+| `GPC_NO_INTERACTIVE` | `boolean`                                    | Disable interactive prompts. Auto-set when `CI=true` is detected.                                                                                        | Auto in CI                    |
 
 ## Network & Retry
 
@@ -46,9 +46,9 @@ All `GPC_*` environment variables and external variables that GPC respects.
 
 ## Debug & Logging
 
-| Variable      | Type      | Description                                                                                           | Default |
-| ------------- | --------- | ----------------------------------------------------------------------------------------------------- | ------- |
-| `GPC_DEBUG`   | `boolean` | Enable debug logging. Prints internal state, request/response details, and timing info to stderr.     | `false` |
+| Variable      | Type      | Description                                                                                                    | Default |
+| ------------- | --------- | -------------------------------------------------------------------------------------------------------------- | ------- |
+| `GPC_DEBUG`   | `boolean` | Enable debug logging. Prints internal state, request/response details, and timing info to stderr.              | `false` |
 | `GPC_VERBOSE` | `boolean` | Enable verbose output. Shows additional context such as full API URLs, retry attempts, and rate-limit headers. | `false` |
 
 ```bash
@@ -61,10 +61,10 @@ GPC_VERBOSE=true gpc releases upload app.aab --track internal
 
 ## Plugins
 
-| Variable         | Type     | Description                                                                                       | Default                  |
-| ---------------- | -------- | ------------------------------------------------------------------------------------------------- | ------------------------ |
-| `GPC_PLUGIN_DIR` | `string` | Custom directory for plugin discovery. GPC scans this path for installed plugins at startup.       | `~/.config/gpc/plugins`  |
-| `GPC_AUDIT_LOG`  | `string` | File path for the audit log. When set, GPC appends a JSON line for each command invocation.       | —                        |
+| Variable         | Type     | Description                                                                                  | Default                 |
+| ---------------- | -------- | -------------------------------------------------------------------------------------------- | ----------------------- |
+| `GPC_PLUGIN_DIR` | `string` | Custom directory for plugin discovery. GPC scans this path for installed plugins at startup. | `~/.config/gpc/plugins` |
+| `GPC_AUDIT_LOG`  | `string` | File path for the audit log. When set, GPC appends a JSON line for each command invocation.  | —                       |
 
 ```bash
 # Use a project-local plugin directory

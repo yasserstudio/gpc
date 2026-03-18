@@ -1350,7 +1350,12 @@ describe("diffListingsCommand", () => {
 
     try {
       await writeListingsToDir(dir, [
-        { language: "fr-FR", title: "Titre", shortDescription: "court", fullDescription: "complet" },
+        {
+          language: "fr-FR",
+          title: "Titre",
+          shortDescription: "court",
+          fullDescription: "complet",
+        },
       ]);
 
       const { diffListingsCommand } = await import("../src/commands/listings.js");
@@ -1475,10 +1480,12 @@ describe("exportImages", () => {
 
     const imgData = [{ id: "1", url: "https://example.com/1.png", sha1: "a", sha256: "b" }];
     // Return images only for phoneScreenshots, empty for others
-    client.images.list.mockImplementation((_pkg: string, _edit: string, _lang: string, type: string) => {
-      if (type === "phoneScreenshots") return Promise.resolve(imgData);
-      return Promise.resolve([]);
-    });
+    client.images.list.mockImplementation(
+      (_pkg: string, _edit: string, _lang: string, type: string) => {
+        if (type === "phoneScreenshots") return Promise.resolve(imgData);
+        return Promise.resolve([]);
+      },
+    );
 
     // Mock fetch
     const mockFetch = vi.fn().mockResolvedValue({
@@ -2002,10 +2009,21 @@ describe("compareVitalsTrend", () => {
   it("sends non-overlapping date ranges to the API", async () => {
     const capturedQueries: { startTime: unknown; endTime: unknown }[] = [];
     const mockReporting = {
-      queryMetricSet: vi.fn().mockImplementation((_pkg: string, _metric: string, query: { timelineSpec: { startTime: unknown; endTime: unknown } }) => {
-        capturedQueries.push({ startTime: query.timelineSpec.startTime, endTime: query.timelineSpec.endTime });
-        return Promise.resolve({ rows: [] });
-      }),
+      queryMetricSet: vi
+        .fn()
+        .mockImplementation(
+          (
+            _pkg: string,
+            _metric: string,
+            query: { timelineSpec: { startTime: unknown; endTime: unknown } },
+          ) => {
+            capturedQueries.push({
+              startTime: query.timelineSpec.startTime,
+              endTime: query.timelineSpec.endTime,
+            });
+            return Promise.resolve({ rows: [] });
+          },
+        ),
     };
 
     await compareVitalsTrend(mockReporting as any, "com.test.app", "crashRateMetricSet", 7);
@@ -2028,12 +2046,22 @@ describe("compareVitalsTrend", () => {
 
   it("returns direction=improved when rate decreases", async () => {
     const mockReporting = {
-      queryMetricSet: vi.fn()
-        .mockResolvedValueOnce({ rows: [{ metrics: { crashRate: { decimalValue: { value: "0.02" } } } }] })
-        .mockResolvedValueOnce({ rows: [{ metrics: { crashRate: { decimalValue: { value: "0.05" } } } }] }),
+      queryMetricSet: vi
+        .fn()
+        .mockResolvedValueOnce({
+          rows: [{ metrics: { crashRate: { decimalValue: { value: "0.02" } } } }],
+        })
+        .mockResolvedValueOnce({
+          rows: [{ metrics: { crashRate: { decimalValue: { value: "0.05" } } } }],
+        }),
     };
 
-    const result = await compareVitalsTrend(mockReporting as any, "com.test.app", "crashRateMetricSet", 7);
+    const result = await compareVitalsTrend(
+      mockReporting as any,
+      "com.test.app",
+      "crashRateMetricSet",
+      7,
+    );
     expect(result.direction).toBe("improved");
     expect(result.current).toBe(0.02);
     expect(result.previous).toBe(0.05);
@@ -3702,9 +3730,9 @@ describe("uploadRelease – edge cases", () => {
     });
 
     const client = mockClient();
-    await expect(
-      uploadRelease(client, PKG, "/tmp/bad.aab", { track: "internal" }),
-    ).rejects.toThrow("File validation failed");
+    await expect(uploadRelease(client, PKG, "/tmp/bad.aab", { track: "internal" })).rejects.toThrow(
+      "File validation failed",
+    );
     // Should NOT have called edits.insert since validation happens first
   });
 
@@ -3712,9 +3740,9 @@ describe("uploadRelease – edge cases", () => {
     const client = mockClient();
     client.bundles.upload.mockRejectedValue(new Error("bundle upload error"));
 
-    await expect(
-      uploadRelease(client, PKG, "/tmp/app.aab", { track: "internal" }),
-    ).rejects.toThrow("bundle upload error");
+    await expect(uploadRelease(client, PKG, "/tmp/app.aab", { track: "internal" })).rejects.toThrow(
+      "bundle upload error",
+    );
 
     expect(client.edits.insert).toHaveBeenCalled();
     expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
@@ -3731,12 +3759,7 @@ describe("uploadRelease – edge cases", () => {
       mappingFile: "/tmp/mapping.txt",
     });
 
-    expect(client.deobfuscation.upload).toHaveBeenCalledWith(
-      PKG,
-      "edit-1",
-      42,
-      "/tmp/mapping.txt",
-    );
+    expect(client.deobfuscation.upload).toHaveBeenCalledWith(PKG, "edit-1", 42, "/tmp/mapping.txt");
   });
 
   it("cleans up edit when mapping file upload fails", async () => {
@@ -3790,9 +3813,9 @@ describe("promoteRelease – edge cases", () => {
       releases: [],
     });
 
-    await expect(
-      promoteRelease(client, PKG, "alpha", "production"),
-    ).rejects.toThrow('No active release found on track "alpha"');
+    await expect(promoteRelease(client, PKG, "alpha", "production")).rejects.toThrow(
+      'No active release found on track "alpha"',
+    );
     expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
   });
 
@@ -3878,9 +3901,9 @@ describe("updateRollout – edge cases", () => {
       releases: [{ versionCodes: ["42"], status: "inProgress", userFraction: 0.1 }],
     });
 
-    await expect(
-      updateRollout(client, PKG, "production", "increase", 0),
-    ).rejects.toThrow("--to <percentage> is required for rollout increase");
+    await expect(updateRollout(client, PKG, "production", "increase", 0)).rejects.toThrow(
+      "--to <percentage> is required for rollout increase",
+    );
   });
 
   it("increase throws when userFraction exceeds 1", async () => {
@@ -3890,9 +3913,9 @@ describe("updateRollout – edge cases", () => {
       releases: [{ versionCodes: ["42"], status: "inProgress", userFraction: 0.1 }],
     });
 
-    await expect(
-      updateRollout(client, PKG, "production", "increase", 1.5),
-    ).rejects.toThrow("Rollout percentage must be between 0 and 1");
+    await expect(updateRollout(client, PKG, "production", "increase", 1.5)).rejects.toThrow(
+      "Rollout percentage must be between 0 and 1",
+    );
   });
 
   it("halt preserves current userFraction from inProgress release", async () => {
@@ -3977,7 +4000,15 @@ describe("report commands – edge cases", () => {
   });
 
   it("isValidStatsDimension accepts all valid dimensions", () => {
-    for (const dim of ["country", "language", "os_version", "device", "app_version", "carrier", "overview"]) {
+    for (const dim of [
+      "country",
+      "language",
+      "os_version",
+      "device",
+      "app_version",
+      "carrier",
+      "overview",
+    ]) {
       expect(isValidStatsDimension(dim)).toBe(true);
     }
   });
@@ -4010,12 +4041,7 @@ describe("user commands – edge cases", () => {
     const client = mockUsersClient();
     const grants = [{ packageName: "com.example", appLevelPermissions: ["ADMIN" as const] }];
     await updateUser(client, "12345", "a@b.com", undefined, grants);
-    expect(client.update).toHaveBeenCalledWith(
-      "12345",
-      "a@b.com",
-      { grants },
-      "grants",
-    );
+    expect(client.update).toHaveBeenCalledWith("12345", "a@b.com", { grants }, "grants");
   });
 
   it("updateUser with no changes sends undefined updateMask", async () => {
@@ -4076,9 +4102,9 @@ describe("tester commands – edge cases", () => {
     const client = mockTesterClient();
     client.testers.get.mockRejectedValue(new Error("API fail"));
 
-    await expect(
-      removeTesters(client, "com.example", "internal", ["a@b.com"]),
-    ).rejects.toThrow("API fail");
+    await expect(removeTesters(client, "com.example", "internal", ["a@b.com"])).rejects.toThrow(
+      "API fail",
+    );
     expect(client.edits.delete).toHaveBeenCalled();
   });
 
@@ -4111,16 +4137,18 @@ describe("tester commands – edge cases", () => {
 describe("diffListings – edge cases", () => {
   it("remote-only language with empty fields produces no diffs", () => {
     const local: any[] = [];
-    const remote = [
-      { language: "ko-KR", title: "", shortDescription: "", fullDescription: "" },
-    ];
+    const remote = [{ language: "ko-KR", title: "", shortDescription: "", fullDescription: "" }];
     const diffs = diffListings(local, remote);
     expect(diffs).toHaveLength(0);
   });
 
   it("handles missing optional fields gracefully", () => {
-    const local = [{ language: "en-US", title: "App", shortDescription: "s", fullDescription: "f" }];
-    const remote = [{ language: "en-US", title: "App", shortDescription: "s", fullDescription: "f" }];
+    const local = [
+      { language: "en-US", title: "App", shortDescription: "s", fullDescription: "f" },
+    ];
+    const remote = [
+      { language: "en-US", title: "App", shortDescription: "s", fullDescription: "f" },
+    ];
     // Add a video field only to remote
     (remote[0] as any).video = "https://youtube.com/v/123";
     const diffs = diffListings(local, remote);
@@ -4130,10 +4158,20 @@ describe("diffListings – edge cases", () => {
 
   it("detects multiple field differences in same language", () => {
     const local = [
-      { language: "en-US", title: "New Title", shortDescription: "New Short", fullDescription: "f" },
+      {
+        language: "en-US",
+        title: "New Title",
+        shortDescription: "New Short",
+        fullDescription: "f",
+      },
     ];
     const remote = [
-      { language: "en-US", title: "Old Title", shortDescription: "Old Short", fullDescription: "f" },
+      {
+        language: "en-US",
+        title: "Old Title",
+        shortDescription: "Old Short",
+        fullDescription: "f",
+      },
     ];
     const diffs = diffListings(local, remote);
     expect(diffs).toHaveLength(2);
@@ -4152,7 +4190,6 @@ import {
 } from "../src/commands/data-safety.js";
 
 describe("data-safety commands", () => {
-
   const sampleDataSafety = {
     dataTypes: [
       {
@@ -4235,7 +4272,9 @@ describe("data-safety commands", () => {
   it("updateDataSafety propagates errors", async () => {
     const client = mockClient();
     client.dataSafety.update.mockRejectedValue(new Error("API error"));
-    await expect(updateDataSafety(client, "com.example", sampleDataSafety)).rejects.toThrow("API error");
+    await expect(updateDataSafety(client, "com.example", sampleDataSafety)).rejects.toThrow(
+      "API error",
+    );
   });
 
   it("importDataSafety throws on invalid JSON", async () => {
@@ -4310,12 +4349,7 @@ describe("external transactions commands", () => {
   it("refundExternalTransaction calls client.externalTransactions.refund", async () => {
     const client = mockClient();
     const refundData = { fullRefund: {} };
-    const result = await refundExternalTransaction(
-      client,
-      "com.example",
-      "ext-txn-1",
-      refundData,
-    );
+    const result = await refundExternalTransaction(client, "com.example", "ext-txn-1", refundData);
     expect(client.externalTransactions.refund).toHaveBeenCalledWith(
       "com.example",
       "ext-txn-1",
@@ -4329,11 +4363,7 @@ describe("external transactions commands", () => {
 // Device Tiers
 // ---------------------------------------------------------------------------
 
-import {
-  listDeviceTiers,
-  getDeviceTier,
-  createDeviceTier,
-} from "../src/commands/device-tiers.js";
+import { listDeviceTiers, getDeviceTier, createDeviceTier } from "../src/commands/device-tiers.js";
 
 describe("device tiers commands", () => {
   function mockClient(): any {
@@ -4342,20 +4372,31 @@ describe("device tiers commands", () => {
         list: vi.fn().mockResolvedValue([
           {
             deviceTierConfigId: "tier-1",
-            deviceGroups: [{ name: "high-end", deviceSelectors: [{ deviceRam: { minBytes: "6000000000" } }] }],
+            deviceGroups: [
+              { name: "high-end", deviceSelectors: [{ deviceRam: { minBytes: "6000000000" } }] },
+            ],
           },
           {
             deviceTierConfigId: "tier-2",
-            deviceGroups: [{ name: "low-end", deviceSelectors: [{ deviceRam: { maxBytes: "3000000000" } }] }],
+            deviceGroups: [
+              { name: "low-end", deviceSelectors: [{ deviceRam: { maxBytes: "3000000000" } }] },
+            ],
           },
         ]),
         get: vi.fn().mockResolvedValue({
           deviceTierConfigId: "tier-1",
-          deviceGroups: [{ name: "high-end", deviceSelectors: [{ deviceRam: { minBytes: "6000000000" } }] }],
+          deviceGroups: [
+            { name: "high-end", deviceSelectors: [{ deviceRam: { minBytes: "6000000000" } }] },
+          ],
         }),
         create: vi.fn().mockResolvedValue({
           deviceTierConfigId: "tier-new",
-          deviceGroups: [{ name: "mid-range", deviceSelectors: [{ deviceRam: { minBytes: "4000000000", maxBytes: "6000000000" } }] }],
+          deviceGroups: [
+            {
+              name: "mid-range",
+              deviceSelectors: [{ deviceRam: { minBytes: "4000000000", maxBytes: "6000000000" } }],
+            },
+          ],
         }),
       },
     };
@@ -4382,7 +4423,12 @@ describe("device tiers commands", () => {
     const client = mockClient();
     const config = {
       deviceTierConfigId: "",
-      deviceGroups: [{ name: "mid-range", deviceSelectors: [{ deviceRam: { minBytes: "4000000000", maxBytes: "6000000000" } }] }],
+      deviceGroups: [
+        {
+          name: "mid-range",
+          deviceSelectors: [{ deviceRam: { minBytes: "4000000000", maxBytes: "6000000000" } }],
+        },
+      ],
     };
     const result = await createDeviceTier(client, "com.example", config);
     expect(client.deviceTiers.create).toHaveBeenCalledWith("com.example", config);
@@ -4435,7 +4481,10 @@ describe("internal sharing commands", () => {
   it("uploads a bundle for internal sharing", async () => {
     const client = mockClient();
     const result = await uploadInternalSharing(client, "com.example", "/path/to/app.aab", "bundle");
-    expect(client.internalAppSharing.uploadBundle).toHaveBeenCalledWith("com.example", "/path/to/app.aab");
+    expect(client.internalAppSharing.uploadBundle).toHaveBeenCalledWith(
+      "com.example",
+      "/path/to/app.aab",
+    );
     expect(result.downloadUrl).toBe("https://play.google.com/apps/test/com.example/1");
     expect(result.fileType).toBe("bundle");
   });
@@ -4443,7 +4492,10 @@ describe("internal sharing commands", () => {
   it("uploads an APK for internal sharing", async () => {
     const client = mockClient();
     const result = await uploadInternalSharing(client, "com.example", "/path/to/app.apk", "apk");
-    expect(client.internalAppSharing.uploadApk).toHaveBeenCalledWith("com.example", "/path/to/app.apk");
+    expect(client.internalAppSharing.uploadApk).toHaveBeenCalledWith(
+      "com.example",
+      "/path/to/app.apk",
+    );
     expect(result.downloadUrl).toBe("https://play.google.com/apps/test/com.example/2");
     expect(result.fileType).toBe("apk");
   });
@@ -4464,9 +4516,9 @@ describe("internal sharing commands", () => {
 
   it("throws on unknown file extension without explicit type", async () => {
     const client = mockClient();
-    await expect(
-      uploadInternalSharing(client, "com.example", "/path/to/file.zip"),
-    ).rejects.toThrow("Cannot detect file type");
+    await expect(uploadInternalSharing(client, "com.example", "/path/to/file.zip")).rejects.toThrow(
+      "Cannot detect file type",
+    );
   });
 
   it("returns certificate fingerprint and sha256", async () => {
@@ -4516,7 +4568,9 @@ describe("generated APKs commands", () => {
 
   it("throws on invalid version code for list", async () => {
     const client = mockClient();
-    await expect(listGeneratedApks(client, "com.example", -1)).rejects.toThrow("Invalid version code");
+    await expect(listGeneratedApks(client, "com.example", -1)).rejects.toThrow(
+      "Invalid version code",
+    );
   });
 
   it("downloads a generated APK to a file", async () => {
@@ -4549,7 +4603,9 @@ describe("generated APKs commands", () => {
 
   it("throws on non-integer version code", async () => {
     const client = mockClient();
-    await expect(listGeneratedApks(client, "com.example", 1.5)).rejects.toThrow("Invalid version code");
+    await expect(listGeneratedApks(client, "com.example", 1.5)).rejects.toThrow(
+      "Invalid version code",
+    );
   });
 });
 
@@ -4614,14 +4670,24 @@ describe("one-time products commands", () => {
     const client = mockClient();
     const data = { productId: "otp1", listings: {} } as any;
     await updateOneTimeProduct(client, "com.example", "otp1", data);
-    expect(client.oneTimeProducts.update).toHaveBeenCalledWith("com.example", "otp1", data, "listings");
+    expect(client.oneTimeProducts.update).toHaveBeenCalledWith(
+      "com.example",
+      "otp1",
+      data,
+      "listings",
+    );
   });
 
   it("updateOneTimeProduct passes explicit updateMask", async () => {
     const client = mockClient();
     const data = { productId: "otp1", listings: {} } as any;
     await updateOneTimeProduct(client, "com.example", "otp1", data, "listings,purchaseType");
-    expect(client.oneTimeProducts.update).toHaveBeenCalledWith("com.example", "otp1", data, "listings,purchaseType");
+    expect(client.oneTimeProducts.update).toHaveBeenCalledWith(
+      "com.example",
+      "otp1",
+      data,
+      "listings,purchaseType",
+    );
   });
 
   it("deleteOneTimeProduct calls client.oneTimeProducts.delete", async () => {
@@ -4775,7 +4841,12 @@ describe("updateTrackConfig", () => {
         delete: vi.fn().mockResolvedValue(undefined),
       },
       tracks: {
-        update: vi.fn().mockResolvedValue({ track: "beta", releases: [{ status: "completed", versionCodes: ["100"] }] }),
+        update: vi
+          .fn()
+          .mockResolvedValue({
+            track: "beta",
+            releases: [{ status: "completed", versionCodes: ["100"] }],
+          }),
       },
     };
   }
@@ -4785,7 +4856,12 @@ describe("updateTrackConfig", () => {
     const config = { versionCodes: ["100"], status: "completed" };
     const result = await updateTrackConfig(client, "com.example", "beta", config);
     expect(client.edits.insert).toHaveBeenCalledWith("com.example");
-    expect(client.tracks.update).toHaveBeenCalledWith("com.example", "edit-1", "beta", expect.objectContaining({ status: "completed" }));
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      "com.example",
+      "edit-1",
+      "beta",
+      expect.objectContaining({ status: "completed" }),
+    );
     expect(client.edits.validate).toHaveBeenCalledWith("com.example", "edit-1");
     expect(client.edits.commit).toHaveBeenCalledWith("com.example", "edit-1");
     expect(result.track).toBe("beta");
@@ -4874,7 +4950,9 @@ describe("uploadExternallyHosted", () => {
       versionCode: 42,
       versionName: "1.0.0",
     } as any;
-    await expect(uploadExternallyHosted(client, "com.example", data)).rejects.toThrow("API failure");
+    await expect(uploadExternallyHosted(client, "com.example", data)).rejects.toThrow(
+      "API failure",
+    );
     expect(client.edits.delete).toHaveBeenCalledWith("com.example", "edit-1");
   });
 });
@@ -4891,7 +4969,8 @@ describe("diffReleases", () => {
       },
       tracks: {
         get: vi.fn().mockImplementation((_pkg: string, _edit: string, track: string) => {
-          if (track === "internal") return { track: "internal", releases: fromRelease ? [fromRelease] : [] };
+          if (track === "internal")
+            return { track: "internal", releases: fromRelease ? [fromRelease] : [] };
           return { track: "production", releases: toRelease ? [toRelease] : [] };
         }),
       },
@@ -4935,7 +5014,13 @@ describe("purchase-options commands", () => {
     return {
       purchaseOptions: {
         list: vi.fn().mockResolvedValue({ purchaseOptions: [] }),
-        get: vi.fn().mockResolvedValue({ purchaseOptionId: "po-1", packageName: "com.example", productId: "prod1" }),
+        get: vi
+          .fn()
+          .mockResolvedValue({
+            purchaseOptionId: "po-1",
+            packageName: "com.example",
+            productId: "prod1",
+          }),
         create: vi.fn().mockResolvedValue({ purchaseOptionId: "po-1" }),
         activate: vi.fn().mockResolvedValue({ purchaseOptionId: "po-1" }),
         deactivate: vi.fn().mockResolvedValue({ purchaseOptionId: "po-1" }),
@@ -4959,7 +5044,11 @@ describe("purchase-options commands", () => {
 
   it("createPurchaseOption calls client.purchaseOptions.create", async () => {
     const client = mockClient();
-    const data = { packageName: "com.example", productId: "prod1", purchaseOptionId: "po-1" } as any;
+    const data = {
+      packageName: "com.example",
+      productId: "prod1",
+      purchaseOptionId: "po-1",
+    } as any;
     await createPurchaseOption(client, "com.example", data);
     expect(client.purchaseOptions.create).toHaveBeenCalledWith("com.example", data);
   });
@@ -5004,9 +5093,9 @@ describe("purchase-options commands", () => {
         create: vi.fn().mockRejectedValue(new Error("bad request")),
       },
     };
-    await expect(
-      createPurchaseOption(client as any, "com.example", {} as any),
-    ).rejects.toThrow("Failed to create purchase option");
+    await expect(createPurchaseOption(client as any, "com.example", {} as any)).rejects.toThrow(
+      "Failed to create purchase option",
+    );
   });
 });
 
@@ -5025,7 +5114,9 @@ describe("iap batch sync", () => {
         create: vi.fn().mockResolvedValue({ sku: "coins100" }),
         update: vi.fn().mockResolvedValue({ sku: "coins100" }),
         delete: vi.fn().mockResolvedValue(undefined),
-        batchUpdate: vi.fn().mockResolvedValue({ inappproducts: [{ sku: "coins100" }, { sku: "gems50" }] }),
+        batchUpdate: vi
+          .fn()
+          .mockResolvedValue({ inappproducts: [{ sku: "coins100" }, { sku: "gems50" }] }),
         batchGet: vi.fn().mockResolvedValue([{ sku: "coins100" }]),
       },
     };
@@ -5072,11 +5163,21 @@ describe("iap batch sync", () => {
     const dir = await mkdtemp(join(tmpdir(), "gpc-batch-"));
     await writeFile(
       join(dir, "coins100.json"),
-      JSON.stringify({ sku: "coins100", status: "active", purchaseType: "managedUser", defaultPrice: { currencyCode: "USD", units: "1" } }),
+      JSON.stringify({
+        sku: "coins100",
+        status: "active",
+        purchaseType: "managedUser",
+        defaultPrice: { currencyCode: "USD", units: "1" },
+      }),
     );
     await writeFile(
       join(dir, "gems50.json"),
-      JSON.stringify({ sku: "gems50", status: "active", purchaseType: "managedUser", defaultPrice: { currencyCode: "USD", units: "2" } }),
+      JSON.stringify({
+        sku: "gems50",
+        status: "active",
+        purchaseType: "managedUser",
+        defaultPrice: { currencyCode: "USD", units: "2" },
+      }),
     );
 
     const client = mockClient();

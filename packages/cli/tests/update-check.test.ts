@@ -132,10 +132,7 @@ describe("checkForUpdate", () => {
   });
 
   it("handles network errors gracefully (returns null)", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockRejectedValue(new Error("network error")),
-    );
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network error")));
 
     const { checkForUpdate } = await import("../src/update-check.js");
     const result = await checkForUpdate("0.9.5");
@@ -162,7 +159,10 @@ describe("checkForUpdate", () => {
       vi.fn().mockImplementation(
         () =>
           new Promise((_, reject) => {
-            setTimeout(() => reject(new DOMException("The operation was aborted.", "AbortError")), 10);
+            setTimeout(
+              () => reject(new DOMException("The operation was aborted.", "AbortError")),
+              10,
+            );
           }),
       ),
     );

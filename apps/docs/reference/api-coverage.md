@@ -197,112 +197,112 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 ## Play Developer Reporting API (Vitals)
 
-| API Endpoint                             | Method | GPC Command                      |
-| ---------------------------------------- | ------ | -------------------------------- |
-| `crashRateMetricSet.query`                    | POST   | `gpc vitals crashes`             |
-| `anrRateMetricSet.query`                      | POST   | `gpc vitals anr`                 |
-| `slowStartRateMetricSet.query`                | POST   | `gpc vitals startup`             |
-| `slowRenderingRateMetricSet.query`            | POST   | `gpc vitals rendering`           |
-| `excessiveWakeupRateMetricSet.query`          | POST   | `gpc vitals battery`             |
-| `stuckBackgroundWakelockRateMetricSet.query`  | POST   | `gpc vitals memory`              |
-| `anomalies.list`                         | GET    | `gpc vitals anomalies`           |
-| `errorIssues.search`                     | GET    | `gpc vitals errors search`       |
-| `errorReports.search`                    | GET    | `gpc vitals errors reports`      |
+| API Endpoint                                 | Method | GPC Command                 |
+| -------------------------------------------- | ------ | --------------------------- |
+| `crashRateMetricSet.query`                   | POST   | `gpc vitals crashes`        |
+| `anrRateMetricSet.query`                     | POST   | `gpc vitals anr`            |
+| `slowStartRateMetricSet.query`               | POST   | `gpc vitals startup`        |
+| `slowRenderingRateMetricSet.query`           | POST   | `gpc vitals rendering`      |
+| `excessiveWakeupRateMetricSet.query`         | POST   | `gpc vitals battery`        |
+| `stuckBackgroundWakelockRateMetricSet.query` | POST   | `gpc vitals memory`         |
+| `anomalies.list`                             | GET    | `gpc vitals anomalies`      |
+| `errorIssues.search`                         | GET    | `gpc vitals errors search`  |
+| `errorReports.search`                        | GET    | `gpc vitals errors reports` |
 
 ## App Recovery Actions
 
-| API Endpoint                  | Method | GPC Command              |
-| ----------------------------- | ------ | ------------------------ |
-| `apprecovery.list`            | GET    | `gpc recovery list`      |
-| `apprecovery.cancel`          | POST   | `gpc recovery cancel`    |
-| `apprecovery.deploy`          | POST   | `gpc recovery deploy`    |
+| API Endpoint         | Method | GPC Command           |
+| -------------------- | ------ | --------------------- |
+| `apprecovery.list`   | GET    | `gpc recovery list`   |
+| `apprecovery.cancel` | POST   | `gpc recovery cancel` |
+| `apprecovery.deploy` | POST   | `gpc recovery deploy` |
 
 ## Data Safety
 
-| API Endpoint                  | Method | GPC Command              |
-| ----------------------------- | ------ | ------------------------ |
-| `dataSafety.get`              | GET    | `gpc data-safety get`    |
-| `dataSafety.update`           | PUT    | `gpc data-safety update` |
+| API Endpoint        | Method | GPC Command              |
+| ------------------- | ------ | ------------------------ |
+| `dataSafety.get`    | GET    | `gpc data-safety get`    |
+| `dataSafety.update` | PUT    | `gpc data-safety update` |
 
 ## External Transactions
 
-| API Endpoint                        | Method | GPC Command                |
-| ----------------------------------- | ------ | -------------------------- |
-| `externaltransactions.createExternalTransaction` | POST   | `gpc ext-txn create`       |
-| `externaltransactions.getExternalTransaction`    | GET    | `gpc ext-txn get`          |
-| `externaltransactions.refundExternalTransaction` | POST   | `gpc ext-txn refund`       |
+| API Endpoint                                     | Method | GPC Command          |
+| ------------------------------------------------ | ------ | -------------------- |
+| `externaltransactions.createExternalTransaction` | POST   | `gpc ext-txn create` |
+| `externaltransactions.getExternalTransaction`    | GET    | `gpc ext-txn get`    |
+| `externaltransactions.refundExternalTransaction` | POST   | `gpc ext-txn refund` |
 
 ## Device Tiers
 
-| API Endpoint                         | Method | GPC Command                          |
-| ------------------------------------ | ------ | ------------------------------------ |
-| `deviceTierConfigs.list`             | GET    | `gpc device-tiers list`              |
-| `deviceTierConfigs.get`              | GET    | `gpc device-tiers get <config-id>`   |
-| `deviceTierConfigs.create`           | POST   | `gpc device-tiers create --file`     |
+| API Endpoint               | Method | GPC Command                        |
+| -------------------------- | ------ | ---------------------------------- |
+| `deviceTierConfigs.list`   | GET    | `gpc device-tiers list`            |
+| `deviceTierConfigs.get`    | GET    | `gpc device-tiers get <config-id>` |
+| `deviceTierConfigs.create` | POST   | `gpc device-tiers create --file`   |
 
 ## Internal App Sharing
 
-| API Endpoint                                | Method | GPC Command                            |
-| ------------------------------------------- | ------ | -------------------------------------- |
-| `internalappsharing.artifacts.uploadbundle`  | POST   | `gpc internal-sharing upload <file>`   |
-| `internalappsharing.artifacts.uploadapk`     | POST   | `gpc internal-sharing upload <file>`   |
+| API Endpoint                                | Method | GPC Command                          |
+| ------------------------------------------- | ------ | ------------------------------------ |
+| `internalappsharing.artifacts.uploadbundle` | POST   | `gpc internal-sharing upload <file>` |
+| `internalappsharing.artifacts.uploadapk`    | POST   | `gpc internal-sharing upload <file>` |
 
 ## Generated APKs
 
-| API Endpoint                   | Method | GPC Command                                  |
-| ------------------------------ | ------ | -------------------------------------------- |
-| `generatedapks.list`           | GET    | `gpc generated-apks list <version-code>`     |
-| `generatedapks.download`       | GET    | `gpc generated-apks download <vc> <apk-id>`  |
+| API Endpoint             | Method | GPC Command                                 |
+| ------------------------ | ------ | ------------------------------------------- |
+| `generatedapks.list`     | GET    | `gpc generated-apks list <version-code>`    |
+| `generatedapks.download` | GET    | `gpc generated-apks download <vc> <apk-id>` |
 
 ## One-Time Products
 
-| API Endpoint                            | Method | GPC Command                   |
-| --------------------------------------- | ------ | ----------------------------- |
-| `monetization.oneTimeProducts.list`     | GET    | `gpc otp list`                |
-| `monetization.oneTimeProducts.get`      | GET    | `gpc otp get <id>`            |
-| `monetization.oneTimeProducts.create`   | POST   | `gpc otp create`              |
-| `monetization.oneTimeProducts.patch`    | PATCH  | `gpc otp update <id>`         |
-| `monetization.oneTimeProducts.delete`   | DELETE | `gpc otp delete <id>`         |
-| `oneTimeProducts.offers.list`           | GET    | `gpc otp offers list`         |
-| `oneTimeProducts.offers.get`            | GET    | `gpc otp offers get`          |
-| `oneTimeProducts.offers.create`         | POST   | `gpc otp offers create`       |
-| `oneTimeProducts.offers.patch`          | PATCH  | `gpc otp offers update`       |
-| `oneTimeProducts.offers.delete`         | DELETE | `gpc otp offers delete`       |
+| API Endpoint                          | Method | GPC Command             |
+| ------------------------------------- | ------ | ----------------------- |
+| `monetization.oneTimeProducts.list`   | GET    | `gpc otp list`          |
+| `monetization.oneTimeProducts.get`    | GET    | `gpc otp get <id>`      |
+| `monetization.oneTimeProducts.create` | POST   | `gpc otp create`        |
+| `monetization.oneTimeProducts.patch`  | PATCH  | `gpc otp update <id>`   |
+| `monetization.oneTimeProducts.delete` | DELETE | `gpc otp delete <id>`   |
+| `oneTimeProducts.offers.list`         | GET    | `gpc otp offers list`   |
+| `oneTimeProducts.offers.get`          | GET    | `gpc otp offers get`    |
+| `oneTimeProducts.offers.create`       | POST   | `gpc otp offers create` |
+| `oneTimeProducts.offers.patch`        | PATCH  | `gpc otp offers update` |
+| `oneTimeProducts.offers.delete`       | DELETE | `gpc otp offers delete` |
 
 ## Purchase Options
 
-| API Endpoint                           | Method | GPC Command                              |
-| -------------------------------------- | ------ | ---------------------------------------- |
-| `purchaseOptions.list`                 | GET    | `gpc purchase-options list`              |
-| `purchaseOptions.get`                  | GET    | `gpc purchase-options get <id>`          |
-| `purchaseOptions.create`               | POST   | `gpc purchase-options create`            |
-| `purchaseOptions.activate`             | POST   | `gpc purchase-options activate <id>`     |
-| `purchaseOptions.deactivate`           | POST   | `gpc purchase-options deactivate <id>`   |
+| API Endpoint                 | Method | GPC Command                            |
+| ---------------------------- | ------ | -------------------------------------- |
+| `purchaseOptions.list`       | GET    | `gpc purchase-options list`            |
+| `purchaseOptions.get`        | GET    | `gpc purchase-options get <id>`        |
+| `purchaseOptions.create`     | POST   | `gpc purchase-options create`          |
+| `purchaseOptions.activate`   | POST   | `gpc purchase-options activate <id>`   |
+| `purchaseOptions.deactivate` | POST   | `gpc purchase-options deactivate <id>` |
 
 ## Coverage Summary
 
-| Domain                                      | Endpoints | API       |
-| ------------------------------------------- | --------- | --------- |
-| Edits (bundles, APKs, tracks)               | 15        | Publisher |
-| Edits (listings, images, details)           | 14        | Publisher |
-| Edits (testers, country, expansion)         | 8         | Publisher |
-| Reviews                                     | 3         | Publisher |
-| Vitals + Anomalies                          | 19        | Reporting |
-| In-App Products                             | 9         | Publisher |
-| Subscriptions + Base Plans + Offers         | 25        | Publisher |
-| Purchases (v1 + v2)                         | 15        | Publisher |
-| Orders                                      | 3         | Publisher |
-| Monetization (pricing)                      | 1         | Publisher |
-| Users + Grants                              | 8         | Publisher |
-| Reports                                     | 3         | Publisher |
-| App Recovery                                | 3         | Publisher |
-| Data Safety                                 | 2         | Publisher |
-| External Transactions                       | 3         | Publisher |
-| Device Tiers                                | 3         | Publisher |
-| Internal App Sharing                        | 2         | Publisher |
-| Generated APKs                              | 2         | Publisher |
-| One-Time Products + Offers                  | 10        | Publisher |
-| Purchase Options                            | 5         | Publisher |
-| Other (system APKs)                         | 3         | Publisher |
-| Error Issues + Reports                      | 2         | Reporting |
-| **Total**                                   | **~197**  |           |
+| Domain                              | Endpoints | API       |
+| ----------------------------------- | --------- | --------- |
+| Edits (bundles, APKs, tracks)       | 15        | Publisher |
+| Edits (listings, images, details)   | 14        | Publisher |
+| Edits (testers, country, expansion) | 8         | Publisher |
+| Reviews                             | 3         | Publisher |
+| Vitals + Anomalies                  | 19        | Reporting |
+| In-App Products                     | 9         | Publisher |
+| Subscriptions + Base Plans + Offers | 25        | Publisher |
+| Purchases (v1 + v2)                 | 15        | Publisher |
+| Orders                              | 3         | Publisher |
+| Monetization (pricing)              | 1         | Publisher |
+| Users + Grants                      | 8         | Publisher |
+| Reports                             | 3         | Publisher |
+| App Recovery                        | 3         | Publisher |
+| Data Safety                         | 2         | Publisher |
+| External Transactions               | 3         | Publisher |
+| Device Tiers                        | 3         | Publisher |
+| Internal App Sharing                | 2         | Publisher |
+| Generated APKs                      | 2         | Publisher |
+| One-Time Products + Offers          | 10        | Publisher |
+| Purchase Options                    | 5         | Publisher |
+| Other (system APKs)                 | 3         | Publisher |
+| Error Issues + Reports              | 2         | Reporting |
+| **Total**                           | **~197**  |           |

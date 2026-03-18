@@ -418,12 +418,7 @@ describe("createServiceAccountAuth – token and project", () => {
 // ---------------------------------------------------------------------------
 // Token cache edge cases
 // ---------------------------------------------------------------------------
-import {
-  getCachedToken,
-  setCachedToken,
-  clearTokenCache,
-  acquireToken,
-} from "../src/token-cache";
+import { getCachedToken, setCachedToken, clearTokenCache, acquireToken } from "../src/token-cache";
 
 describe("token cache – edge cases", () => {
   let cacheDir: string;
@@ -522,6 +517,8 @@ describe("token cache – edge cases", () => {
   });
 
   it("setCachedToken throws on invalid cache key", async () => {
-    await expect(setCachedToken(cacheDir, "bad/key", "tok", 3600)).rejects.toThrow("Invalid cache key");
+    await expect(setCachedToken(cacheDir, "bad/key", "tok", 3600)).rejects.toThrow(
+      "Invalid cache key",
+    );
   });
 });

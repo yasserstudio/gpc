@@ -4,7 +4,7 @@ withDefaults(
     title?: string;
     command?: string;
   }>(),
-  { title: "terminal" }
+  { title: "terminal" },
 );
 </script>
 
@@ -36,7 +36,7 @@ withDefaults(
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.3),
     0 8px 32px rgba(0, 0, 0, 0.3);
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
   font-size: 0.82rem;
   overflow: hidden;
   margin: 24px 0;
@@ -57,13 +57,19 @@ withDefaults(
   border-radius: 50%;
   flex-shrink: 0;
 }
-.to-red    { background: #ff5f57; }
-.to-yellow { background: #febc2e; }
-.to-green  { background: #28c840; }
+.to-red {
+  background: #ff5f57;
+}
+.to-yellow {
+  background: #febc2e;
+}
+.to-green {
+  background: #28c840;
+}
 
 .to-title {
   margin-left: auto;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.28);
   letter-spacing: 0.02em;
@@ -81,8 +87,14 @@ withDefaults(
   color: #e6edf3;
 }
 
-.to-prompt   { color: #4d95f1; font-weight: 600; flex-shrink: 0; }
-.to-cmd-text { color: #e6edf3; }
+.to-prompt {
+  color: #4d95f1;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.to-cmd-text {
+  color: #e6edf3;
+}
 
 .to-output {
   color: #8b949e;
@@ -90,11 +102,21 @@ withDefaults(
 }
 
 /* Slot content token classes — usable inside <TerminalOutput> */
-:slotted(.ok)   { color: #3fb950; }
-:slotted(.warn) { color: #d29922; }
-:slotted(.err)  { color: #f85149; }
-:slotted(.val)  { color: #79c0ff; }
-:slotted(.dim)  { color: #484f58; }
+:slotted(.ok) {
+  color: #3fb950;
+}
+:slotted(.warn) {
+  color: #d29922;
+}
+:slotted(.err) {
+  color: #f85149;
+}
+:slotted(.val) {
+  color: #79c0ff;
+}
+:slotted(.dim) {
+  color: #484f58;
+}
 :slotted(.label) {
   color: #7ee787;
   font-weight: 600;
@@ -102,5 +124,8 @@ withDefaults(
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
-:slotted(.stars) { color: #d29922; letter-spacing: 1px; }
+:slotted(.stars) {
+  color: #d29922;
+  letter-spacing: 1px;
+}
 </style>

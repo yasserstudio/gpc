@@ -161,7 +161,13 @@ export function registerOneTimeProductsCommands(program: Command): void {
 
       try {
         const data = await readJsonFile(options.file);
-        const result = await updateOneTimeProduct(client, packageName, productId, data as any, options.updateMask);
+        const result = await updateOneTimeProduct(
+          client,
+          packageName,
+          productId,
+          data as any,
+          options.updateMask,
+        );
         console.log(formatOutput(result, format));
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -286,36 +292,49 @@ export function registerOneTimeProductsCommands(program: Command): void {
     .description("Update an offer from JSON file")
     .requiredOption("--file <path>", "JSON file with offer data")
     .option("--update-mask <fields>", "Comma-separated field mask")
-    .action(async (productId: string, offerId: string, options: { file: string; updateMask?: string }) => {
-      const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = getOutputFormat(program, config);
+    .action(
+      async (
+        productId: string,
+        offerId: string,
+        options: { file: string; updateMask?: string },
+      ) => {
+        const config = await loadConfig();
+        const packageName = resolvePackageName(program.opts()["app"], config);
+        const format = getOutputFormat(program, config);
 
-      if (isDryRun(program)) {
-        printDryRun(
-          {
-            command: "one-time-products offers update",
-            action: "update offer",
-            target: `${productId}/${offerId}`,
-            details: { file: options.file },
-          },
-          format,
-          formatOutput,
-        );
-        return;
-      }
+        if (isDryRun(program)) {
+          printDryRun(
+            {
+              command: "one-time-products offers update",
+              action: "update offer",
+              target: `${productId}/${offerId}`,
+              details: { file: options.file },
+            },
+            format,
+            formatOutput,
+          );
+          return;
+        }
 
-      const client = await getClient(config);
+        const client = await getClient(config);
 
-      try {
-        const data = await readJsonFile(options.file);
-        const result = await updateOneTimeOffer(client, packageName, productId, offerId, data as any, options.updateMask);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
-    });
+        try {
+          const data = await readJsonFile(options.file);
+          const result = await updateOneTimeOffer(
+            client,
+            packageName,
+            productId,
+            offerId,
+            data as any,
+            options.updateMask,
+          );
+          console.log(formatOutput(result, format));
+        } catch (error) {
+          console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+          process.exit(4);
+        }
+      },
+    );
 
   offers
     .command("delete <product-id> <offer-id>")
@@ -363,7 +382,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       try {
-        const localData = await readJsonFile(options.file) as OneTimeProduct;
+        const localData = (await readJsonFile(options.file)) as OneTimeProduct;
         const diffs = await diffOneTimeProduct(client, packageName, productId, localData);
         if (diffs.length === 0) {
           console.log("No differences found.");

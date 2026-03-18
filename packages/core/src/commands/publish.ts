@@ -49,11 +49,11 @@ export async function publish(
   });
 
   if (options.dryRun) {
-    const upload = await uploadRelease(client, packageName, filePath, {
+    const upload = (await uploadRelease(client, packageName, filePath, {
       track: options.track || "internal",
       userFraction: options.rolloutPercent ? options.rolloutPercent / 100 : undefined,
       dryRun: true,
-    }) as DryRunUploadResult;
+    })) as DryRunUploadResult;
 
     return { dryRun: true, validation, upload };
   }

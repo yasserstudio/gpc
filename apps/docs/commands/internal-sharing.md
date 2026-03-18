@@ -11,9 +11,9 @@ outline: deep
 
 ## Commands
 
-| Command                                                       | Description                                    |
-| ------------------------------------------------------------- | ---------------------------------------------- |
-| [`internal-sharing upload`](#internal-sharing-upload)         | Upload an AAB or APK for internal sharing      |
+| Command                                               | Description                               |
+| ----------------------------------------------------- | ----------------------------------------- |
+| [`internal-sharing upload`](#internal-sharing-upload) | Upload an AAB or APK for internal sharing |
 
 ## `internal-sharing upload`
 
@@ -27,11 +27,11 @@ gpc internal-sharing upload <file> [options]
 
 ### Options
 
-| Flag       | Short | Type     | Default      | Description                                  |
-| ---------- | ----- | -------- | ------------ | -------------------------------------------- |
-| `--type`   | `-t`  | `string` | auto-detect  | File type: `bundle` (AAB) or `apk`           |
-| `--app`    |       | `string` |              | App package name                             |
-| `--json`   |       | `flag`   |              | Output as JSON                               |
+| Flag     | Short | Type     | Default     | Description                        |
+| -------- | ----- | -------- | ----------- | ---------------------------------- |
+| `--type` | `-t`  | `string` | auto-detect | File type: `bundle` (AAB) or `apk` |
+| `--app`  |       | `string` |             | App package name                   |
+| `--json` |       | `flag`   |             | Output as JSON                     |
 
 ### Example
 
@@ -92,12 +92,12 @@ Internal app sharing must be enabled in the Google Play Console under **Settings
 
 ## Errors
 
-| Code | Exit | Description                                                        |
-| ---- | ---- | ------------------------------------------------------------------ |
-| `UPLOAD_QUOTA_EXCEEDED`    | 4 | Too many internal sharing uploads in the time window   |
-| `FILE_TOO_LARGE`           | 2 | The file exceeds the maximum upload size (150 MB AAB, 100 MB APK) |
-| `INVALID_BUNDLE`           | 2 | The AAB or APK is malformed or unsigned                |
-| `INTERNAL_SHARING_DISABLED`| 4 | Internal app sharing is not enabled for this app       |
+| Code                        | Exit | Description                                                       |
+| --------------------------- | ---- | ----------------------------------------------------------------- |
+| `UPLOAD_QUOTA_EXCEEDED`     | 4    | Too many internal sharing uploads in the time window              |
+| `FILE_TOO_LARGE`            | 2    | The file exceeds the maximum upload size (150 MB AAB, 100 MB APK) |
+| `INVALID_BUNDLE`            | 2    | The AAB or APK is malformed or unsigned                           |
+| `INTERNAL_SHARING_DISABLED` | 4    | Internal app sharing is not enabled for this app                  |
 
 ## Related
 

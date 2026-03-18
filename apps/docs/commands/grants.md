@@ -31,9 +31,9 @@ gpc grants create user@example.com \
 
 **Options:**
 
-| Option | Description |
-|--------|-------------|
-| `--package <name>` | App package name (required) |
+| Option                 | Description                                 |
+| ---------------------- | ------------------------------------------- |
+| `--package <name>`     | App package name (required)                 |
 | `--permissions <list>` | Comma-separated permission names (required) |
 
 **Available permissions:**
@@ -67,8 +67,8 @@ gpc grants delete user@example.com --package com.example.app
 
 ## Global Options
 
-| Option | Description |
-|--------|-------------|
+| Option                | Description                             |
+| --------------------- | --------------------------------------- |
 | `--developer-id <id>` | Developer account ID (overrides config) |
 
 ## See Also

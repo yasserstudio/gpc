@@ -6,7 +6,10 @@ import { loadConfig, getCacheDir } from "@gpc-cli/config";
 import { formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 
-async function askQuestion(rl: ReturnType<typeof createInterface>, question: string): Promise<string> {
+async function askQuestion(
+  rl: ReturnType<typeof createInterface>,
+  question: string,
+): Promise<string> {
   return new Promise((resolve) => {
     rl.question(question, (answer) => resolve(answer.trim()));
   });
@@ -38,7 +41,10 @@ async function runLoginWizard(): Promise<void> {
     let saPath = "";
     while (!saPath) {
       const input = await askQuestion(rl, "\nPath to service account JSON key: ");
-      if (!input) { console.log("  Path is required."); continue; }
+      if (!input) {
+        console.log("  Path is required.");
+        continue;
+      }
       try {
         await access(input);
         saPath = input;
@@ -51,7 +57,10 @@ async function runLoginWizard(): Promise<void> {
     const profileName = await askQuestion(rl, "\nProfile name (optional, press Enter to skip): ");
 
     // Step 4: default package name
-    const packageName = await askQuestion(rl, "Default package name (optional, e.g. com.example.app): ");
+    const packageName = await askQuestion(
+      rl,
+      "Default package name (optional, e.g. com.example.app): ",
+    );
 
     // Apply settings
     const { loadServiceAccountKey: loadKey } = await import("@gpc-cli/auth");
@@ -59,7 +68,10 @@ async function runLoginWizard(): Promise<void> {
 
     if (profileName) {
       const { setProfileConfig } = await import("@gpc-cli/config");
-      await setProfileConfig(profileName, { auth: { serviceAccount: saPath }, ...(packageName && { app: packageName }) });
+      await setProfileConfig(profileName, {
+        auth: { serviceAccount: saPath },
+        ...(packageName && { app: packageName }),
+      });
       console.log(`\nProfile "${profileName}" configured with ${key.client_email}`);
     } else {
       const { setConfigValue } = await import("@gpc-cli/config");
@@ -107,7 +119,8 @@ export function registerAuthCommands(program: Command): void {
         } else {
           // Interactive wizard when no flags provided and in interactive mode
           const opts = program.opts();
-          const interactive = opts["interactive"] !== false && opts["ci"] !== true && process.stdin.isTTY;
+          const interactive =
+            opts["interactive"] !== false && opts["ci"] !== true && process.stdin.isTTY;
           if (interactive) {
             await runLoginWizard();
           } else {

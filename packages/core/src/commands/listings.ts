@@ -115,9 +115,7 @@ export async function pullListings(
 }
 
 /** Lint local listing directory against Play Store character limits (no API call). */
-export async function lintLocalListings(
-  dir: string,
-): Promise<ListingLintResult[]> {
+export async function lintLocalListings(dir: string): Promise<ListingLintResult[]> {
   const localListings = await readListingsFromDir(dir);
   return lintListings(
     localListings.map((l) => ({

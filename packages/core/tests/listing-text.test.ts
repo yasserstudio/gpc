@@ -41,9 +41,7 @@ describe("lintListings – single listing", () => {
 
   it("marks field as 'over' when exceeding limit", () => {
     const longTitle = "A".repeat(31);
-    const results = lintListings([
-      { language: "en-US", fields: { title: longTitle } },
-    ]);
+    const results = lintListings([{ language: "en-US", fields: { title: longTitle } }]);
     const titleField = results[0]!.fields.find((f) => f.field === "title");
     expect(titleField?.status).toBe("over");
     expect(results[0]!.valid).toBe(false);
@@ -52,9 +50,7 @@ describe("lintListings – single listing", () => {
   it("marks field as 'warn' when over 80% of limit", () => {
     // 25 chars is 83% of 30 (title limit) — should be warn
     const warnTitle = "A".repeat(25);
-    const results = lintListings([
-      { language: "en-US", fields: { title: warnTitle } },
-    ]);
+    const results = lintListings([{ language: "en-US", fields: { title: warnTitle } }]);
     const titleField = results[0]!.fields.find((f) => f.field === "title");
     expect(titleField?.status).toBe("warn");
   });
@@ -62,9 +58,7 @@ describe("lintListings – single listing", () => {
   it("marks field as 'ok' when under 80% of limit", () => {
     // 20 chars is 67% of 30 (title limit) — ok
     const okTitle = "A".repeat(20);
-    const results = lintListings([
-      { language: "en-US", fields: { title: okTitle } },
-    ]);
+    const results = lintListings([{ language: "en-US", fields: { title: okTitle } }]);
     const titleField = results[0]!.fields.find((f) => f.field === "title");
     expect(titleField?.status).toBe("ok");
   });
@@ -72,9 +66,7 @@ describe("lintListings – single listing", () => {
   it("handles exact limit as ok (not warn)", () => {
     // Exactly 30 chars = 100% — should be 'over' since it exceeds limit... wait, exactly at limit is ok
     const exactTitle = "A".repeat(30);
-    const results = lintListings([
-      { language: "en-US", fields: { title: exactTitle } },
-    ]);
+    const results = lintListings([{ language: "en-US", fields: { title: exactTitle } }]);
     const titleField = results[0]!.fields.find((f) => f.field === "title");
     // 30 chars, limit 30 → not over (<=)
     expect(titleField?.status).not.toBe("over");
@@ -87,9 +79,7 @@ describe("lintListings – single listing", () => {
   });
 
   it("includes char count and limit in result", () => {
-    const results = lintListings([
-      { language: "en-US", fields: { title: "Hello" } },
-    ]);
+    const results = lintListings([{ language: "en-US", fields: { title: "Hello" } }]);
     const titleField = results[0]!.fields.find((f) => f.field === "title");
     expect(titleField?.chars).toBe(5);
     expect(titleField?.limit).toBe(DEFAULT_LIMITS.title);
