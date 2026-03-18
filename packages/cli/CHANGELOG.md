@@ -1,5 +1,27 @@
 # @gpc-cli/cli
 
+## 0.9.35
+
+### Patch Changes
+
+- v0.9.35 — The Big One: Full Pre-1.0 Feature Release
+
+  Bug fixes: version reporting (Bug J), stale edit session auto-retry (Bug I), vitals lmk metrics (Bug H), Windows installer (Bug K), docs flags (Bug L), validate color output.
+
+  Terminal UX: dynamic table width, numeric right-alignment, bold headers, spinner on status.
+
+  Onboarding: gpc auth login interactive wizard, gpc quickstart guided setup, gpc auth setup-gcp, destructive command confirmations, pager for long lists.
+
+  Listing text: gpc listings lint/analyze (local lint + remote analysis), push preflight gate, enhanced diff with word-level inline changes.
+
+  New commands: gpc grants, gpc reviews analyze (local NLP sentiment), gpc vitals compare-versions, gpc vitals watch --auto-halt-rollout, gpc train (staged rollout pipeline), gpc quota, gpc subscriptions analytics, gpc games (Play Games Services), gpc enterprise (Managed Google Play).
+
+  API additions: orders.get/batchGet, grants CRUD, refundSubscriptionV2, batchMigratePrices, GamesApiClient, EnterpriseApiClient.
+
+- Updated dependencies
+  - @gpc-cli/core@0.9.29
+  - @gpc-cli/api@1.0.19
+
 ## 0.9.34
 
 ### Patch Changes

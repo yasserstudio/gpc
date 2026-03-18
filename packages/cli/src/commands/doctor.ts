@@ -81,11 +81,39 @@ export function checkProxy(url: string | undefined): CheckResult | null {
 // Command registration
 // ---------------------------------------------------------------------------
 
+async function applyFix(check: CheckResult): Promise<string | null> {
+  switch (check.name) {
+    case "config-dir":
+    case "cache-dir": {
+      const dirMatch = check.message.match(/: (.+)$/);
+      if (!dirMatch?.[1]) return null;
+      const { mkdir } = await import("node:fs/promises");
+      await mkdir(dirMatch[1], { recursive: true, mode: check.name === "cache-dir" ? 0o700 : 0o755 });
+      return `Created ${dirMatch[1]}`;
+    }
+    case "service-account-permissions": {
+      const saPath = check.suggestion?.match(/chmod 600 (.+)$/)?.[1];
+      if (!saPath) return null;
+      const { chmod } = await import("node:fs/promises");
+      await chmod(saPath, 0o600);
+      return `Fixed permissions on ${saPath}`;
+    }
+    case "config": {
+      const { initConfig } = await import("@gpc-cli/config");
+      await initConfig({});
+      return "Initialized config file";
+    }
+    default:
+      return null;
+  }
+}
+
 export function registerDoctorCommand(program: Command): void {
   program
     .command("doctor")
     .description("Verify setup and connectivity")
-    .action(async (_opts, cmd) => {
+    .option("--fix", "Attempt to auto-fix failing checks")
+    .action(async (opts, cmd) => {
       const results: CheckResult[] = [];
       const parentOpts = cmd.parent?.opts() ?? {};
       const jsonMode = !!(parentOpts["json"] || parentOpts["output"] === "json");
@@ -346,6 +374,24 @@ export function registerDoctorCommand(program: Command): void {
       // ---------------------------------------------------------------------------
       // Output
       // ---------------------------------------------------------------------------
+
+      // Auto-fix failing checks if --fix was passed
+      if (opts["fix"]) {
+        for (const r of results) {
+          if (r.status === "fail" || r.status === "warn") {
+            try {
+              const fixMsg = await applyFix(r);
+              if (fixMsg) {
+                console.log(`  ${green("→")} Fixed: ${fixMsg}`);
+                r.status = "pass";
+                r.message += " (fixed)";
+              }
+            } catch (err) {
+              console.error(`  ${red("✗")} Could not fix "${r.name}": ${err instanceof Error ? err.message : String(err)}`);
+            }
+          }
+        }
+      }
 
       const errors = results.filter((r) => r.status === "fail").length;
       const warnings = results.filter((r) => r.status === "warn").length;

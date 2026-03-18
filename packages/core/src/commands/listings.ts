@@ -11,6 +11,8 @@ import { isValidBcp47 } from "../utils/bcp47.js";
 import { validateImage } from "../utils/image-validation.js";
 import { readListingsFromDir, writeListingsToDir, diffListings } from "../utils/fastlane.js";
 import type { ListingDiff } from "../utils/fastlane.js";
+import { lintListings, wordDiff, formatWordDiff } from "../utils/listing-text.js";
+import type { ListingLintResult } from "../utils/listing-text.js";
 
 export interface ListingsResult {
   listings: Listing[];
@@ -112,11 +114,82 @@ export async function pullListings(
   }
 }
 
+/** Lint local listing directory against Play Store character limits (no API call). */
+export async function lintLocalListings(
+  dir: string,
+): Promise<ListingLintResult[]> {
+  const localListings = await readListingsFromDir(dir);
+  return lintListings(
+    localListings.map((l) => ({
+      language: l.language,
+      fields: {
+        title: l.title,
+        shortDescription: l.shortDescription,
+        fullDescription: l.fullDescription,
+        video: l.video,
+      },
+    })),
+  );
+}
+
+/** Analyze live Play Store listings for character limit compliance (requires API). */
+export async function analyzeRemoteListings(
+  client: PlayApiClient,
+  packageName: string,
+  options?: { expectedLocales?: string[] },
+): Promise<{ results: ListingLintResult[]; missingLocales?: string[] }> {
+  const listings = await getListings(client, packageName);
+
+  const results = lintListings(
+    listings.map((l) => ({
+      language: l.language,
+      fields: {
+        title: l.title,
+        shortDescription: l.shortDescription,
+        fullDescription: l.fullDescription,
+        video: (l as unknown as Record<string, unknown>)["video"] as string | undefined,
+      },
+    })),
+  );
+
+  let missingLocales: string[] | undefined;
+  if (options?.expectedLocales) {
+    const present = new Set(listings.map((l) => l.language));
+    missingLocales = options.expectedLocales.filter((loc) => !present.has(loc));
+  }
+
+  return { results, missingLocales };
+}
+
+/** Enhanced diff: word-level inline diff for fullDescription, optional language filter. */
+export async function diffListingsEnhanced(
+  client: PlayApiClient,
+  packageName: string,
+  dir: string,
+  options?: { lang?: string; wordLevel?: boolean },
+): Promise<ListingDiff[]> {
+  const allDiffs = await diffListingsCommand(client, packageName, dir);
+  let result = allDiffs;
+  if (options?.lang) {
+    result = allDiffs.filter((d) => d.language === options.lang);
+  }
+  if (options?.wordLevel) {
+    return result.map((d) => {
+      if (d.field === "fullDescription" && d.local && d.remote) {
+        const diff = wordDiff(d.remote, d.local);
+        return { ...d, diffSummary: formatWordDiff(diff) };
+      }
+      return d;
+    });
+  }
+  return result;
+}
+
 export async function pushListings(
   client: PlayApiClient,
   packageName: string,
   dir: string,
-  options?: { dryRun?: boolean },
+  options?: { dryRun?: boolean; force?: boolean },
 ): Promise<PushResult | DryRunResult> {
   const localListings = await readListingsFromDir(dir);
 
@@ -132,6 +205,36 @@ export async function pushListings(
   // Validate all languages
   for (const listing of localListings) {
     validateLanguage(listing.language);
+  }
+
+  // Preflight lint: block push if any field exceeds limits (unless --force)
+  if (!options?.force) {
+    const lintResults = lintListings(
+      localListings.map((l) => ({
+        language: l.language,
+        fields: {
+          title: l.title,
+          shortDescription: l.shortDescription,
+          fullDescription: l.fullDescription,
+          video: (l as unknown as Record<string, unknown>)["video"] as string | undefined,
+        },
+      })),
+    );
+    const overLimit = lintResults.filter((r) => !r.valid);
+    if (overLimit.length > 0) {
+      const details = overLimit
+        .map((r) => {
+          const over = r.fields.filter((f) => f.status === "over");
+          return `${r.language}: ${over.map((f) => `${f.field} (${f.chars}/${f.limit})`).join(", ")}`;
+        })
+        .join("\n");
+      throw new GpcError(
+        `Listing push blocked: field(s) exceed character limits:\n${details}`,
+        "LISTING_CHAR_LIMIT_EXCEEDED",
+        1,
+        "Fix the character limit violations listed above, or use --force to push anyway.",
+      );
+    }
   }
 
   const edit = await client.edits.insert(packageName);

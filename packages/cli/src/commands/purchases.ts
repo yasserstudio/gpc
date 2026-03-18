@@ -12,6 +12,7 @@ import {
   cancelSubscriptionPurchase,
   deferSubscriptionPurchase,
   revokeSubscriptionPurchase,
+  refundSubscriptionV2,
   listVoidedPurchases,
   refundOrder,
   formatOutput,
@@ -244,6 +245,40 @@ export function registerPurchasesCommands(program: Command): void {
           options.expiry,
         );
         console.log(formatOutput(result, format));
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  sub
+    .command("refund <token>")
+    .description("Refund a subscription purchase (v2)")
+    .action(async (token: string) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+
+      await requireConfirm(`Refund subscription for token "${token.slice(0, 16)}..."?`, program);
+
+      if (isDryRun(program)) {
+        const format = getOutputFormat(program, config);
+        printDryRun(
+          {
+            command: "purchases subscription refund",
+            action: "refund subscription",
+            target: token,
+          },
+          format,
+          formatOutput,
+        );
+        return;
+      }
+
+      const client = await getClient(config);
+
+      try {
+        await refundSubscriptionV2(client, packageName, token);
+        console.log(`Subscription refunded.`);
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

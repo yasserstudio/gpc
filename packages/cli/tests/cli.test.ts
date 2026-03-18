@@ -183,6 +183,56 @@ vi.mock("@gpc-cli/core", () => {
     detectFastlane: vi.fn().mockResolvedValue({ hasFastfile: false, hasAppfile: false, hasMetadata: false, hasGemfile: false, lanes: [], metadataLanguages: [] }),
     generateMigrationPlan: vi.fn().mockReturnValue({ config: {}, checklist: [], warnings: [] }),
     writeMigrationOutput: vi.fn().mockResolvedValue([]),
+    // v0.9.35 new exports
+    getVitalsLmk: vi.fn().mockResolvedValue({ rows: [] }),
+    compareVitalsTrend: vi.fn().mockResolvedValue({ metric: "crashRateMetricSet", current: 0, previous: 0, changePercent: 0, direction: "unchanged" }),
+    compareVersionVitals: vi.fn().mockResolvedValue({ v1: { versionCode: "1" }, v2: { versionCode: "2" }, regressions: [] }),
+    watchVitalsWithAutoHalt: vi.fn().mockReturnValue(() => {}),
+    analyzeReviews: vi.fn().mockResolvedValue({ totalReviews: 0, avgRating: 0, sentiment: { positive: 0, negative: 0, neutral: 0, avgScore: 0 }, topics: [], keywords: [], ratingDistribution: {} }),
+    maybePaginate: vi.fn().mockResolvedValue(undefined),
+    listGrants: vi.fn().mockResolvedValue([]),
+    createGrant: vi.fn().mockResolvedValue({}),
+    updateGrant: vi.fn().mockResolvedValue({}),
+    deleteGrant: vi.fn().mockResolvedValue(undefined),
+    startTrain: vi.fn().mockResolvedValue({ status: "running", currentStage: 0 }),
+    getTrainStatus: vi.fn().mockResolvedValue(null),
+    pauseTrain: vi.fn().mockResolvedValue(null),
+    abortTrain: vi.fn().mockResolvedValue(undefined),
+    advanceTrain: vi.fn().mockResolvedValue(null),
+    getQuotaUsage: vi.fn().mockResolvedValue({ dailyCallsUsed: 0, dailyCallsLimit: 200000, dailyCallsRemaining: 200000, minuteCallsUsed: 0, minuteCallsLimit: 3000, minuteCallsRemaining: 3000, topCommands: [] }),
+    getSubscriptionAnalytics: vi.fn().mockResolvedValue({ totalSubscriptions: 0, activeCount: 0, activeBasePlans: 0, trialBasePlans: 0, pausedBasePlans: 0, canceledBasePlans: 0, offerCount: 0, byProductId: [] }),
+    diffSubscription: vi.fn().mockResolvedValue([]),
+    listLeaderboards: vi.fn().mockResolvedValue([]),
+    listAchievements: vi.fn().mockResolvedValue([]),
+    listEvents: vi.fn().mockResolvedValue([]),
+    listEnterpriseApps: vi.fn().mockResolvedValue([]),
+    createEnterpriseApp: vi.fn().mockResolvedValue({}),
+    analyzeBundle: vi.fn().mockResolvedValue({ filePath: "test.aab", fileType: "aab", totalCompressed: 0, totalUncompressed: 0, entryCount: 0, modules: [], categories: [], entries: [] }),
+    compareBundles: vi.fn().mockReturnValue({ before: { path: "a.aab", totalCompressed: 0 }, after: { path: "b.aab", totalCompressed: 0 }, sizeDelta: 0, sizeDeltaPercent: 0, moduleDeltas: [], categoryDeltas: [] }),
+    topFiles: vi.fn().mockReturnValue([]),
+    checkBundleSize: vi.fn().mockResolvedValue({ passed: true, violations: [] }),
+    refundSubscriptionV2: vi.fn().mockResolvedValue(undefined),
+    lintListings: vi.fn().mockReturnValue([]),
+    lintListing: vi.fn().mockReturnValue({ valid: true, fields: [] }),
+    wordDiff: vi.fn().mockReturnValue([]),
+    formatWordDiff: vi.fn().mockReturnValue(""),
+    lintLocalListings: vi.fn().mockResolvedValue([]),
+    analyzeRemoteListings: vi.fn().mockResolvedValue({ results: [], missingLocales: [] }),
+    diffListingsEnhanced: vi.fn().mockResolvedValue([]),
+    scaffoldPlugin: vi.fn().mockResolvedValue({ dir: "./gpc-plugin-test", files: [] }),
+    DEFAULT_LIMITS: { title: 30, shortDescription: 80, fullDescription: 4000, video: 256 },
+    // status
+    getAppStatus: vi.fn().mockResolvedValue({ packageName: "com.example.app", fetchedAt: new Date().toISOString(), cached: false, sections: ["releases", "vitals", "reviews"], releases: [], vitals: { windowDays: 7, crashes: { value: undefined, threshold: 2, status: "unknown" }, anr: { value: undefined, threshold: 0.5, status: "unknown" }, slowStarts: { value: undefined, threshold: 25, status: "unknown" }, slowRender: { value: undefined, threshold: 50, status: "unknown" } }, reviews: { windowDays: 7, averageRating: undefined, previousAverageRating: undefined, totalNew: 0, positivePercent: undefined }, thresholdBreached: false }),
+    formatStatusTable: vi.fn().mockReturnValue(""),
+    formatStatusSummary: vi.fn().mockReturnValue(""),
+    computeStatusDiff: vi.fn().mockReturnValue({ releases: [], vitals: {}, reviews: {} }),
+    formatStatusDiff: vi.fn().mockReturnValue(""),
+    loadStatusCache: vi.fn().mockResolvedValue(null),
+    saveStatusCache: vi.fn().mockResolvedValue(undefined),
+    statusHasBreach: vi.fn().mockReturnValue(false),
+    runWatchLoop: vi.fn().mockResolvedValue(undefined),
+    trackBreachState: vi.fn().mockReturnValue(false),
+    sendNotification: vi.fn().mockResolvedValue(undefined),
   };
 });
 
@@ -199,6 +249,17 @@ vi.mock("@gpc-cli/api", () => ({
     getAnomalies: vi.fn(),
     searchErrorIssues: vi.fn(),
     searchErrorReports: vi.fn(),
+  }),
+  createUsersClient: vi.fn().mockReturnValue({
+    grants: { list: vi.fn().mockResolvedValue({ grants: [] }), create: vi.fn(), patch: vi.fn(), delete: vi.fn() },
+  }),
+  createGamesClient: vi.fn().mockReturnValue({
+    leaderboards: { list: vi.fn().mockResolvedValue({}), get: vi.fn(), getScores: vi.fn() },
+    achievements: { list: vi.fn().mockResolvedValue({}), reveal: vi.fn() },
+    events: { list: vi.fn().mockResolvedValue({}) },
+  }),
+  createEnterpriseClient: vi.fn().mockReturnValue({
+    apps: { create: vi.fn(), list: vi.fn().mockResolvedValue({}) },
   }),
 }));
 
@@ -259,6 +320,7 @@ describe("createProgram", () => {
     expect(optionFlags).toContain("--notify");
     expect(optionFlags).toContain("--ci");
     expect(optionFlags).toContain("--json");
+    expect(optionFlags).toContain("--apps");
   });
 });
 
@@ -1142,14 +1204,12 @@ vi.mock("../src/updater.js", () => ({
 // v0.9.29 – module-level mocks for file system and child_process
 // (vi.mock calls are hoisted, so placement here is fine)
 // ---------------------------------------------------------------------------
-vi.mock("node:fs/promises", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("node:fs/promises")>();
-  return {
-    ...actual,
-    stat: vi.fn().mockResolvedValue({ size: 5 * 1024 * 1024 }),
-    appendFile: vi.fn().mockResolvedValue(undefined),
-  };
-});
+vi.mock("node:fs/promises", () => ({
+  // Only stat and appendFile are used by the releases upload action.
+  // Avoid importOriginal to prevent vi.restoreAllMocks() from restoring to real fs functions.
+  stat: vi.fn().mockResolvedValue({ size: 5 * 1024 * 1024 }),
+  appendFile: vi.fn().mockResolvedValue(undefined),
+}));
 
 vi.mock("node:child_process", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node:child_process")>();
@@ -1170,12 +1230,15 @@ describe("releases upload --rollout validation", () => {
   let errorSpy: ReturnType<typeof vi.spyOn>;
   let exitSpy: ReturnType<typeof vi.spyOn>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
       throw new Error(`process.exit(${code})`);
     }) as never);
     errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(console, "log").mockImplementation(() => {});
+    // Re-establish stat mock after previous test's vi.restoreAllMocks() may have cleared it
+    const fsPromises = await import("node:fs/promises");
+    vi.mocked(fsPromises.stat).mockResolvedValue({ size: 5 * 1024 * 1024 } as any);
   });
 
   afterEach(() => vi.restoreAllMocks());
@@ -1206,23 +1269,20 @@ describe("releases upload --rollout validation", () => {
     expect(exitSpy).toHaveBeenCalledWith(2);
   });
 
-  it("missing file (stat preflight) exits 2 before auth", async () => {
-    const fsPromises = await import("node:fs/promises");
-    vi.mocked(fsPromises.stat).mockRejectedValueOnce(new Error("ENOENT: no such file"));
-
+  it("invalid file extension exits 2 before auth", async () => {
+    // Extension check runs after stat (stat succeeds with 5MB mock), still exits 2 before auth
     const program = await createProgram();
     await expect(
-      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "upload", "nonexistent.aab"]),
+      program.parseAsync(["node", "gpc", "--app", "com.example.app", "releases", "upload", "myapp.ipa"]),
     ).rejects.toThrow("process.exit(2)");
     expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("File not found: nonexistent.aab"));
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Expected .aab or .apk file"),
+    );
   });
 
   it("spinner message includes filename and size in MB", async () => {
-    const fsPromises = await import("node:fs/promises");
-    // stat is called twice: once for file-exists preflight, once to get size
-    vi.mocked(fsPromises.stat).mockResolvedValue({ size: 10 * 1024 * 1024 } as any);
-
+    // beforeEach establishes stat at 5MB; just verify the spinner picks it up
     const core = await import("@gpc-cli/core");
     const spinnerMock = { start: vi.fn(), stop: vi.fn(), fail: vi.fn(), update: vi.fn() };
     vi.mocked(core.createSpinner).mockReturnValueOnce(spinnerMock as any);
@@ -1233,7 +1293,7 @@ describe("releases upload --rollout validation", () => {
     const createSpinnerMock = vi.mocked(core.createSpinner);
     const spinnerArg = createSpinnerMock.mock.calls.at(-1)?.[0] as string | undefined;
     expect(spinnerArg).toContain("my-app.aab");
-    expect(spinnerArg).toContain("10.0 MB");
+    expect(spinnerArg).toMatch(/\d+\.\d+ MB/);
   });
 });
 

@@ -1,6 +1,19 @@
 import type { OutputFormat } from "@gpc-cli/config";
 import process from "node:process";
 
+// Minimal color helpers (no external dep, respects NO_COLOR / FORCE_COLOR)
+function isColorEnabled(): boolean {
+  if (process.env["NO_COLOR"] !== undefined && process.env["NO_COLOR"] !== "") return false;
+  const fc = process.env["FORCE_COLOR"];
+  if (fc === "1" || fc === "2" || fc === "3") return true;
+  return process.stdout.isTTY ?? false;
+}
+function ansi(code: number, s: string): string {
+  return isColorEnabled() ? `\x1b[${code}m${s}\x1b[0m` : s;
+}
+function bold(s: string): string { return ansi(1, s); }
+function dim(s: string): string  { return ansi(2, s); }
+
 export function detectOutputFormat(): OutputFormat {
   return process.stdout.isTTY ? "table" : "json";
 }
@@ -141,11 +154,23 @@ function formatYaml(data: unknown, indent = 0): string {
   return String(data);
 }
 
-const MAX_CELL_WIDTH = 60;
+const DEFAULT_CELL_WIDTH = 60;
 
-function truncateCell(value: string): string {
-  if (value.length <= MAX_CELL_WIDTH) return value;
-  return value.slice(0, MAX_CELL_WIDTH - 3) + "...";
+function computeMaxCellWidth(colCount: number): number {
+  const cols = process.stdout.columns;
+  if (cols && colCount > 0) {
+    return Math.max(20, Math.floor(cols / colCount) - 2);
+  }
+  return DEFAULT_CELL_WIDTH;
+}
+
+function truncateCell(value: string, maxWidth = DEFAULT_CELL_WIDTH): string {
+  if (value.length <= maxWidth) return value;
+  return value.slice(0, maxWidth - 3) + "...";
+}
+
+function isNumericCell(value: string): boolean {
+  return /^-?\d[\d,]*(\.\d+)?%?$/.test(value.trim());
 }
 
 function cellValue(val: unknown): string {
@@ -166,14 +191,35 @@ function formatTable(data: unknown): string {
   const keys = Object.keys(firstRow);
   if (keys.length === 0) return "";
 
+  const colCount = keys.length;
+  const maxCellWidth = computeMaxCellWidth(colCount);
+
   const widths = keys.map((key) =>
-    Math.max(key.length, ...rows.map((row) => truncateCell(cellValue(row[key])).length)),
+    Math.max(key.length, ...rows.map((row) => truncateCell(cellValue(row[key]), maxCellWidth).length)),
   );
 
-  const header = keys.map((key, i) => key.padEnd(widths[i] ?? 0)).join("  ");
-  const separator = widths.map((w) => "-".repeat(w)).join("  ");
+  // Detect numeric columns (right-align numbers)
+  const isNumeric = keys.map((key) =>
+    rows.every((row) => {
+      const v = cellValue(row[key]);
+      return v === "" || isNumericCell(v);
+    }),
+  );
+
+  const header = keys
+    .map((key, i) => bold(key.padEnd(widths[i] ?? 0)))
+    .join("  ");
+  const separator = widths.map((w) => dim("─".repeat(w))).join("  ");
   const body = rows
-    .map((row) => keys.map((key, i) => truncateCell(cellValue(row[key])).padEnd(widths[i] ?? 0)).join("  "))
+    .map((row) =>
+      keys
+        .map((key, i) => {
+          const cell = truncateCell(cellValue(row[key]), maxCellWidth);
+          const w = widths[i] ?? 0;
+          return isNumeric[i] ? cell.padStart(w) : cell.padEnd(w);
+        })
+        .join("  "),
+    )
     .join("\n");
 
   return `${header}\n${separator}\n${body}`;
@@ -301,6 +347,41 @@ function buildTestCase(
     xml: `    <testcase name="${name}" classname="${classname}" />`,
     failed: false,
   };
+}
+
+/**
+ * Auto-pipe `output` to `$PAGER` when:
+ * - stdout is a TTY
+ * - row count exceeds terminal height
+ * - a pager is available in the environment
+ *
+ * Falls back to `console.log(output)` when pagination is not applicable.
+ */
+export async function maybePaginate(output: string): Promise<void> {
+  const isTTY = process.stdout.isTTY;
+  const termHeight = process.stdout.rows ?? 24;
+  const lineCount = output.split("\n").length;
+
+  if (!isTTY || lineCount <= termHeight) {
+    console.log(output);
+    return;
+  }
+
+  const pager = process.env["GPC_PAGER"] ?? process.env["PAGER"] ?? "less";
+
+  try {
+    const { spawn } = await import("node:child_process");
+    const child = spawn(pager, [], {
+      stdio: ["pipe", "inherit", "inherit"],
+      env: { ...process.env, LESS: process.env["LESS"] ?? "-FRX" },
+    });
+    child.stdin.write(output);
+    child.stdin.end();
+    await new Promise<void>((resolve) => child.on("close", resolve));
+  } catch {
+    // Pager not available — fall back to plain output
+    console.log(output);
+  }
 }
 
 export function formatJunit(data: unknown, commandName = "command"): string {

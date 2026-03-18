@@ -23,7 +23,7 @@ import {
 import { formatOutput, sortResults, createSpinner } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
-import { isInteractive, promptSelect, promptInput, requireOption } from "../prompt.js";
+import { isInteractive, promptSelect, promptInput, requireOption, requireConfirm } from "../prompt.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -374,6 +374,11 @@ export function registerReleasesCommands(program: Command): void {
           console.error(`Error: --to must be a number between 1 and 100 (got: ${options.to})`);
           process.exit(2);
         }
+      }
+
+      // Require confirmation for destructive rollout halt
+      if (action === "halt") {
+        await requireConfirm(`Halt rollout on track "${options.track}" for ${packageName}?`, program);
       }
 
       if (isDryRun(program)) {

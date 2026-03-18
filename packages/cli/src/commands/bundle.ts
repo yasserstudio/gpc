@@ -2,6 +2,8 @@ import type { Command } from "commander";
 import {
   analyzeBundle,
   compareBundles,
+  topFiles,
+  checkBundleSize,
   formatOutput,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
@@ -26,7 +28,9 @@ export function registerBundleCommands(program: Command): void {
     .command("analyze <file>")
     .description("Analyze size breakdown of an AAB or APK")
     .option("--threshold <mb>", "Fail if compressed size exceeds threshold (MB)", parseFloat)
-    .action(async (file: string, opts: { threshold?: number }) => {
+    .option("--top <n>", "Show top N largest files", (v) => parseInt(v, 10))
+    .option("--config <file>", "Check against .bundlesize.json thresholds")
+    .action(async (file: string, opts: { threshold?: number; top?: number; config?: string }) => {
       const format = getOutputFormat(program, await getConfig());
 
       try {
@@ -91,7 +95,32 @@ export function registerBundleCommands(program: Command): void {
           console.log(formatOutput(categoryRows, "table"));
         }
 
-        // Threshold check
+        // Top N files
+        if (opts.top !== undefined) {
+          const largest = topFiles(analysis, opts.top);
+          const topRows = largest.map((e) => ({
+            path: e.path,
+            compressed: formatSize(e.compressedSize),
+            uncompressed: formatSize(e.uncompressedSize),
+            category: e.category,
+          }));
+          console.log(`\nTop ${opts.top} files:`);
+          console.log(formatOutput(topRows, format === "json" ? "table" : format));
+        }
+
+        // .bundlesize.json config check
+        if (opts.config) {
+          const check = await checkBundleSize(analysis, opts.config);
+          if (!check.passed) {
+            console.error(`\nBundle size check failed:`);
+            for (const v of check.violations) {
+              console.error(`  ${v.subject}: ${formatSize(v.actual)} > max ${formatSize(v.max)}`);
+            }
+            process.exit(6);
+          }
+        }
+
+        // Legacy --threshold check
         if (opts.threshold !== undefined) {
           const thresholdBytes = opts.threshold * 1024 * 1024;
           if (analysis.totalCompressed > thresholdBytes) {

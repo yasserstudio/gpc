@@ -83,6 +83,15 @@ export async function revokeSubscriptionPurchase(
   return client.purchases.revokeSubscriptionV2(packageName, token);
 }
 
+export async function refundSubscriptionV2(
+  client: PlayApiClient,
+  packageName: string,
+  token: string,
+): Promise<void> {
+  validatePackageName(packageName);
+  return client.purchases.refundSubscriptionV2(packageName, token);
+}
+
 import type { VoidedPurchase } from "@gpc-cli/api";
 import { paginateAll } from "@gpc-cli/api";
 

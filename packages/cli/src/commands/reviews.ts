@@ -8,7 +8,9 @@ import {
   getReview,
   replyToReview,
   exportReviews,
+  analyzeReviews,
   formatOutput,
+  maybePaginate,
   sortResults,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
@@ -79,9 +81,9 @@ export function registerReviewsCommands(program: Command): void {
               thumbsUp: userComment?.["thumbsUpCount"] || 0,
             };
           });
-          console.log(formatOutput(rows, format));
+          await maybePaginate(formatOutput(rows, format));
         } else {
-          console.log(formatOutput(sorted, format));
+          await maybePaginate(formatOutput(sorted, format));
         }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -150,6 +152,65 @@ export function registerReviewsCommands(program: Command): void {
           console.log(`Reply sent (${charCount}/350 chars)`);
         }
         console.log(formatOutput(result, format));
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  reviews
+    .command("analyze")
+    .description("Analyze reviews: sentiment, topics, keywords, rating distribution")
+    .option("--stars <n>", "Filter by star rating (1-5)", parseInt)
+    .option("--lang <code>", "Filter by reviewer language")
+    .option("--since <date>", "Filter reviews after date (ISO 8601)")
+    .option("--max <n>", "Maximum number of reviews to analyze", parseInt)
+    .action(async (options) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = getOutputFormat(program, config);
+
+      try {
+        const result = await analyzeReviews(client, packageName, {
+          stars: options.stars,
+          language: options.lang,
+          since: options.since,
+          maxResults: options.max,
+        });
+
+        if (format === "json") {
+          console.log(formatOutput(result, format));
+          return;
+        }
+
+        console.log(`\nReview Analysis — ${packageName}`);
+        console.log(`${"─".repeat(50)}`);
+        console.log(`Total reviews:   ${result.totalReviews}`);
+        console.log(`Average rating:  ${result.avgRating > 0 ? result.avgRating.toFixed(2) + " ★" : "N/A"}`);
+        console.log(`\nSentiment:`);
+        console.log(`  Positive: ${result.sentiment.positive}  Negative: ${result.sentiment.negative}  Neutral: ${result.sentiment.neutral}`);
+        console.log(`  Avg score: ${result.sentiment.avgScore} (range -1 to +1)`);
+
+        if (result.topics.length > 0) {
+          console.log(`\nTop topics:`);
+          for (const t of result.topics.slice(0, 8)) {
+            const bar = t.avgScore > 0.1 ? "+" : t.avgScore < -0.1 ? "-" : "~";
+            console.log(`  [${bar}] ${t.topic.padEnd(20)} ${t.count} reviews`);
+          }
+        }
+
+        if (result.keywords.length > 0) {
+          console.log(`\nTop keywords: ${result.keywords.slice(0, 10).map((k) => k.word).join(", ")}`);
+        }
+
+        if (Object.keys(result.ratingDistribution).length > 0) {
+          console.log(`\nRating distribution:`);
+          for (let star = 5; star >= 1; star--) {
+            const count = result.ratingDistribution[star] ?? 0;
+            if (count > 0) console.log(`  ${star}★  ${count}`);
+          }
+        }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

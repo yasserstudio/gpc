@@ -258,7 +258,7 @@ describe("formatOutput – table", () => {
     expect(lines).toHaveLength(4);
     expect(lines[0]).toContain("id");
     expect(lines[0]).toContain("status");
-    expect(lines[1]).toMatch(/^-/);
+    expect(lines[1]).toMatch(/^[─-]/);
     expect(lines[2]).toContain("1");
     expect(lines[3]).toContain("fail");
   });
