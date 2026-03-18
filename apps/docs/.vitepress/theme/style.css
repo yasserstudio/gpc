@@ -329,8 +329,8 @@ html {
 }
 
 .VPHero {
-  padding-top: 80px !important;
-  padding-bottom: 80px !important;
+  padding-top: 140px !important;
+  padding-bottom: 100px !important;
   position: relative;
   overflow: hidden;
 }
