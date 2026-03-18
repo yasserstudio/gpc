@@ -189,7 +189,7 @@ export default defineConfig({
 
   themeConfig: {
     logo: "/logo.svg",
-    siteTitle: "GPC",
+    siteTitle: "Google Play Console CLI",
 
     outline: { level: [2, 3], label: "On this page" },
     externalLinkIcon: true,
