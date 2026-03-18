@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# external-transactions
-
-Manage external transactions for apps using alternative billing systems. Alias: `ext-txn`.
+<CommandHeader
+  name="gpc external-transactions"
+  description="Manage external transactions for apps using alternative billing systems."
+  usage="gpc external-transactions <subcommand> [options]"
+  :badges="['--json']"
+/>
 
 Under regulations like the EU Digital Markets Act (DMA), apps may offer alternative billing flows outside of Google Play Billing. When a user completes a purchase through an external payment provider, you must report the transaction to Google Play. These commands let you create, query, and refund those external transaction records.
 

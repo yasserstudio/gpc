@@ -100,24 +100,26 @@ gpc bundle analyze app.aab --threshold 150
 
 Every command accepts these flags:
 
-| Flag               | Short | Type      | Default | Description                                        |
-| ------------------ | ----- | --------- | ------- | -------------------------------------------------- |
-| `--output`         | `-o`  | `string`  | auto    | Output format: `table`, `json`, `yaml`, `markdown` |
-| `--quiet`          | `-q`  | `boolean` | `false` | Suppress non-essential output                      |
-| `--verbose`        | `-v`  | `boolean` | `false` | Enable debug logging                               |
-| `--profile`        | `-p`  | `string`  |         | Use a named auth profile                           |
-| `--app`            | `-a`  | `string`  |         | App package name (overrides config)                |
-| `--no-color`       |       | `boolean` | `false` | Disable colored output                             |
-| `--no-interactive` |       | `boolean` | `false` | Disable interactive prompts                        |
-| `--dry-run`        |       | `boolean` | `false` | Preview changes without executing                  |
-| `--limit`          |       | `number`  |         | Max results per page                               |
-| `--next-page`      |       | `string`  |         | Pagination token for next page                     |
-| `--retry-log`      |       | `string`  |         | Log retry attempts to file (JSONL)                 |
-| `--config`         |       | `string`  |         | Path to config file                                |
-| `--notify`         |       | `string`  |         | Send webhook on completion (`slack`, `discord`, `custom`) |
-| `--sort`           |       | `string`  |         | Sort results by field (prefix with `-` for descending)    |
-| `--version`        | `-V`  | `boolean` |         | Show version                                       |
-| `--help`           | `-h`  | `boolean` |         | Show help                                          |
+| Flag               | Short | Type      | Default | Description                                                     |
+| ------------------ | ----- | --------- | ------- | --------------------------------------------------------------- |
+| `--output`         | `-o`  | `string`  | auto    | Output format: `table`, `json`, `yaml`, `markdown`, `junit`     |
+| `--json`           | `-j`  | `boolean` |         | Shorthand for `--output json`                                   |
+| `--ci`             |       | `boolean` | `false` | CI mode: JSON output, no prompts, strict exit codes             |
+| `--quiet`          | `-q`  | `boolean` | `false` | Suppress non-essential output                                   |
+| `--verbose`        | `-v`  | `boolean` | `false` | Enable debug logging                                            |
+| `--profile`        | `-p`  | `string`  |         | Use a named auth profile                                        |
+| `--app`            | `-a`  | `string`  |         | App package name (overrides config)                             |
+| `--no-color`       |       | `boolean` | `false` | Disable colored output                                          |
+| `--no-interactive` |       | `boolean` | `false` | Disable interactive prompts                                     |
+| `--dry-run`        |       | `boolean` | `false` | Preview changes without executing                               |
+| `--limit`          |       | `number`  |         | Max results per page                                            |
+| `--next-page`      |       | `string`  |         | Pagination token for next page                                  |
+| `--retry-log`      |       | `string`  |         | Log retry attempts to file (JSONL)                              |
+| `--config`         |       | `string`  |         | Path to config file                                             |
+| `--notify`         |       | `string`  |         | Send webhook on completion (`slack`, `discord`, `custom`)       |
+| `--sort`           |       | `string`  |         | Sort results by field (prefix with `-` for descending)          |
+| `--version`        | `-V`  | `boolean` |         | Show version                                                    |
+| `--help`           | `-h`  | `boolean` |         | Show help                                                       |
 
 ## Output Behavior
 
@@ -132,6 +134,8 @@ GPC auto-detects the output environment:
 The `--output` flag overrides auto-detection in all cases.
 
 ## Output Formats
+
+GPC supports five output formats: `table`, `json`, `yaml`, `markdown`, and `junit`.
 
 ### table
 
@@ -192,6 +196,24 @@ gpc releases status --output markdown >> "$GITHUB_STEP_SUMMARY"
 ```
 
 Produces a Markdown table suitable for GitHub Actions step summaries.
+
+### junit
+
+```bash
+gpc vitals crashes --output junit > test-results.xml
+```
+
+Produces JUnit XML compatible with CI systems (Jenkins, GitHub Actions, GitLab CI). Threshold breaches appear as `<failure>` elements.
+
+### CI mode shorthand
+
+```bash
+# --ci is equivalent to --output json --no-interactive
+gpc releases status --ci
+
+# -j / --json is shorthand for --output json
+gpc apps info com.example.app -j
+```
 
 ## Error Output
 

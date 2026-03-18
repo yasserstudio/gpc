@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useData } from "vitepress";
 import DefaultTheme from "vitepress/theme";
+import BackToTop from "./BackToTop.vue";
 
 const { Layout } = DefaultTheme;
 const { page } = useData();
@@ -40,6 +41,11 @@ const isHome = () => page.value.frontmatter.layout === "home";
           <div class="t-line delay-12"><span class="t-prompt">$</span> <span class="t-cursor">▋</span></div>
         </div>
       </div>
+    </template>
+
+    <!-- Back to top -->
+    <template #layout-bottom>
+      <BackToTop />
     </template>
 
     <!-- Custom 404 -->

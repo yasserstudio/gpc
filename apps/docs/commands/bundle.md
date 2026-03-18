@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# bundle
-
-Analyze the size composition of Android App Bundles (AAB) and APKs locally -- no Java, no bundletool, no Android Studio required. GPC parses the ZIP central directory to break down compressed and uncompressed sizes by module and content category.
+<CommandHeader
+  name="gpc bundle"
+  description="Analyze the size composition of Android App Bundles and APKs locally — no Java, no bundletool, no Android Studio required."
+  usage="gpc bundle <file> [options]"
+  :badges="['--json', '--size-gate']"
+/>
 
 ## Commands
 

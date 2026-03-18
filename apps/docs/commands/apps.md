@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# apps
-
-Manage application information and details.
+<CommandHeader
+  name="gpc apps"
+  description="List and inspect apps in your Google Play developer account."
+  usage="gpc apps <subcommand> [options]"
+  :badges="['--json']"
+/>
 
 ## Commands
 

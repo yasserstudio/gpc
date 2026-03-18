@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# device-tiers
-
-Manage device tier configurations for capability-based targeting. Device tiers let you deliver different APKs, assets, or features to users based on device capabilities such as RAM, SoC model, or screen density. This is useful for optimizing app size and performance across a wide range of Android devices.
+<CommandHeader
+  name="gpc device-tiers"
+  description="Manage device tier configurations for capability-based targeting."
+  usage="gpc device-tiers <subcommand> [options]"
+  :badges="['--json', '--dry-run']"
+/>
 
 ## Commands
 

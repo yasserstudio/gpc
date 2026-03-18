@@ -165,6 +165,18 @@ export async function getVitalsMemory(
   return queryMetric(reporting, packageName, "stuckBackgroundWakelockRateMetricSet", options);
 }
 
+/** LMK-specific query: enforces DAILY aggregation as required by the API. */
+export async function getVitalsLmk(
+  reporting: ReportingApiClient,
+  packageName: string,
+  options?: VitalsQueryOptions,
+): Promise<MetricSetResponse> {
+  return queryMetric(reporting, packageName, "stuckBackgroundWakelockRateMetricSet", {
+    ...options,
+    aggregation: "DAILY",
+  });
+}
+
 export async function getVitalsAnomalies(
   reporting: ReportingApiClient,
   packageName: string,

@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# internal-sharing
-
-Upload builds for review-free internal distribution. Internal app sharing lets you quickly share AAB or APK builds with your QA team via a direct download link -- no track assignment, no review process. Each upload generates a unique URL that authorized testers can use to install the build immediately.
+<CommandHeader
+  name="gpc internal-sharing"
+  description="Upload builds for review-free internal distribution — share with testers without going through the review process."
+  usage="gpc internal-sharing <subcommand> [options]"
+  :badges="['--json', '--dry-run']"
+/>
 
 ## Commands
 

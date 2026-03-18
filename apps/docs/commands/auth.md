@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# auth
-
-Manage authentication, credentials, and named profiles.
+<CommandHeader
+  name="gpc auth"
+  description="Manage authentication, credentials, and named profiles."
+  usage="gpc auth <subcommand> [options]"
+  :badges="['--profile', '--json']"
+/>
 
 ## Commands
 

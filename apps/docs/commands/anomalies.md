@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# anomalies
-
-Detect automatically identified spikes and deviations in your app's vitals metrics.
+<CommandHeader
+  name="gpc anomalies"
+  description="Detect automatically identified spikes and deviations in your app's vitals metrics."
+  usage="gpc anomalies list [options]"
+  :badges="['--json']"
+/>
 
 ## Commands
 

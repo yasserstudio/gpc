@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# purchase-options
-
-Manage purchase options for one-time products.
+<CommandHeader
+  name="gpc purchase-options"
+  description="Manage purchase options for one-time products."
+  usage="gpc purchase-options <subcommand> [options]"
+  :badges="['--json', '--dry-run']"
+/>
 
 ::: info Relationship to one-time-products
 Purchase options are part of the modern monetization API. They define how a one-time product can be purchased (pricing phases, eligibility, regional overrides). Use [`gpc otp`](./one-time-products) to manage the products themselves, and `gpc purchase-options` to manage the purchase options attached to them.

@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# iap
-
-Manage legacy in-app products (one-time purchases, consumables, non-consumables).
+<CommandHeader
+  name="gpc iap"
+  description="Legacy in-app products command. Prefer gpc one-time-products and gpc subscriptions for new integrations."
+  usage="gpc iap <subcommand> [options]"
+  :badges="['--json', '--dry-run']"
+/>
 
 ::: warning Legacy API
 These commands use the older in-app products API. **For new products, use [`gpc otp`](./one-time-products) instead** — it provides richer features including regional pricing, product tags, and offer management.

@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# reviews
-
-Manage user reviews and ratings. List, filter, reply to, and export reviews.
+<CommandHeader
+  name="gpc reviews"
+  description="List, filter, reply to, and export user reviews and ratings."
+  usage="gpc reviews <subcommand> [options]"
+  :badges="['--json', '--stars', '--since', '--lang']"
+/>
 
 ## Commands
 

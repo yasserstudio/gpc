@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# config
-
-Manage CLI configuration. GPC looks for `.gpcrc.json` in the current directory, parent directories, and the user config directory (`~/.config/gpc/`).
+<CommandHeader
+  name="gpc config"
+  description="Manage CLI configuration: app defaults, auth profiles, output format, and project settings."
+  usage="gpc config <subcommand> [options]"
+  :badges="['--profile', '--json']"
+/>
 
 ## Commands
 

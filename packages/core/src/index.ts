@@ -72,6 +72,7 @@ export {
   getVitalsRendering,
   getVitalsBattery,
   getVitalsMemory,
+  getVitalsLmk,
   getVitalsAnomalies,
   searchVitalsErrors,
   compareVitalsTrend,

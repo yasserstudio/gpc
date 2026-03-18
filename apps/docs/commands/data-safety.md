@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# data-safety
-
-Manage data safety declarations for your app's Play Store listing. Google Play requires all apps to declare what user data they collect, how it is used, and whether it is shared with third parties. These commands let you view, update, and export those declarations programmatically.
+<CommandHeader
+  name="gpc data-safety"
+  description="Manage data safety declarations for your app's Play Store listing."
+  usage="gpc data-safety <subcommand> [options]"
+  :badges="['--json', '--dry-run']"
+/>
 
 ## Commands
 

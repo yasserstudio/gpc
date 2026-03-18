@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# install-skills
-
-Install GPC agent skills for AI-assisted Google Play workflows. The interactive wizard lets you pick which skills to install and which AI agents to configure (Claude Code, Cursor, Copilot, Windsurf, and more).
+<CommandHeader
+  name="gpc install-skills"
+  description="Install GPC agent skills for AI-assisted Google Play workflows."
+  usage="gpc install-skills [options]"
+  :badges="['--json']"
+/>
 
 ## Synopsis
 

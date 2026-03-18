@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# users
-
-Manage developer account users and their permissions. Requires a developer account ID.
+<CommandHeader
+  name="gpc users"
+  description="Manage developer account users, permissions, and grants."
+  usage="gpc users <subcommand> [options]"
+  :badges="['--json', '--dry-run', '--developer-id']"
+/>
 
 ::: warning Permission Propagation
 Permission changes can take up to 48 hours to propagate across Google Play systems. All mutation commands display this warning.

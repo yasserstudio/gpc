@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# testers
-
-Manage testers and tester groups for testing tracks. Tester operations use the Google Play edits lifecycle transparently (insert, modify, commit).
+<CommandHeader
+  name="gpc testers"
+  description="Manage testers and tester groups for testing tracks. Supports bulk CSV import and export."
+  usage="gpc testers <subcommand> [options]"
+  :badges="['--json', '--track', '--dry-run']"
+/>
 
 ## Commands
 

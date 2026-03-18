@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# vitals
-
-Monitor app vitals, crash rates, ANR, startup times, rendering performance, battery usage, and memory. Supports threshold-based CI gating with exit code 6.
+<CommandHeader
+  name="gpc vitals"
+  description="Monitor crash rates, ANR, startup times, rendering, battery, and memory. Use --threshold for CI quality gates."
+  usage="gpc vitals <subcommand> [options]"
+  :badges="['--json', '--threshold', '--days', '--watch']"
+/>
 
 ## Commands
 

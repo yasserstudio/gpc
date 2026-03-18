@@ -1,4 +1,34 @@
-import { defineConfig } from "vitepress";
+import { defineConfig, type PageData } from "vitepress";
+
+function getPageDescription(page: PageData): string {
+  const path = page.relativePath;
+  const map: Record<string, string> = {
+    "index.md": "The complete CLI for Google Play. 187 API endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
+    "guide/index.md": "Get started with GPC — the complete CLI for Google Play Developer API. Install, authenticate, and ship your first release in minutes.",
+    "guide/installation.md": "Install GPC via npm, Homebrew, or standalone binary. No Ruby, no JVM. Works on macOS, Linux, and Windows.",
+    "guide/authentication.md": "Authenticate GPC with a service account, OAuth 2.0, or Application Default Credentials. Full setup guide for Play Console.",
+    "guide/quick-start.md": "Five minutes to your first release. Authenticate, upload, promote, check vitals, and monitor reviews with GPC.",
+    "commands/index.md": "Complete command reference for GPC — the Google Play Console CLI. 30+ commands covering every Play Console operation.",
+    "commands/status.md": "gpc status — App health at a glance. Releases, vitals, and reviews in one command. Six parallel API calls in under 3 seconds.",
+    "commands/releases.md": "gpc releases — Upload AABs, promote releases, manage staged rollouts, set release notes, and compare tracks.",
+    "commands/vitals.md": "gpc vitals — Monitor crash rates, ANR, startup times, rendering, battery, and memory. Set CI threshold gates with --threshold.",
+    "commands/reviews.md": "gpc reviews — List, filter, reply to, and export user reviews. Filter by stars, language, date.",
+    "commands/listings.md": "gpc listings — Manage store metadata, screenshots, and localizations. Fastlane supply compatible.",
+    "commands/publish.md": "gpc publish — End-to-end release in one command. Upload, assign track, and commit. Use gpc validate for dry-run.",
+    "commands/subscriptions.md": "gpc subscriptions — Manage subscriptions, base plans, and offers using the modern Google Play monetization API.",
+    "ci-cd/index.md": "Integrate GPC into GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI. Semantic exit codes, JSON output, vitals gates.",
+    "ci-cd/github-actions.md": "Use GPC in GitHub Actions to automate Google Play releases, vitals monitoring, and metadata sync.",
+    "migration/from-fastlane.md": "Migrate from Fastlane supply to GPC. Command mapping, metadata migration, and CI workflow examples.",
+    "reference/environment-variables.md": "All GPC_* environment variables — authentication, output, network, debugging, and proxy configuration.",
+    "reference/exit-codes.md": "GPC semantic exit codes: 0 success, 2 usage, 3 auth, 4 API, 5 network, 6 vitals threshold breach. CI scripting patterns.",
+    "reference/changelog.md": "GPC changelog — all notable changes across every release.",
+    "advanced/architecture.md": "GPC system design, package architecture, and dependency graph.",
+    "advanced/security.md": "GPC security model — credential handling, secrets redaction, audit logging, and threat model.",
+    "advanced/plugins.md": "Build GPC plugins with lifecycle hooks and custom commands using the @gpc-cli/plugin-sdk.",
+    "advanced/sdk-usage.md": "Use @gpc-cli/api and @gpc-cli/auth as a standalone TypeScript SDK for the Google Play Developer API.",
+  };
+  return map[path] ?? `GPC documentation — ${page.title ?? "Google Play Console CLI"}`;
+}
 
 export default defineConfig({
   title: "GPC — Google Play Console CLI",
@@ -18,6 +48,8 @@ export default defineConfig({
     ["link", { rel: "icon", href: "/gpc/favicon.ico" }],
     ["link", { rel: "preconnect", href: "https://fonts.googleapis.com" }],
     ["link", { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" }],
+    ["link", { rel: "dns-prefetch", href: "https://fonts.googleapis.com" }],
+    ["link", { rel: "dns-prefetch", href: "https://fonts.gstatic.com" }],
     [
       "meta",
       { property: "og:title", content: "GPC — Google Play Console CLI" },
@@ -85,6 +117,18 @@ export default defineConfig({
   ],
 
   lastUpdated: true,
+
+  transformPageData(pageData) {
+    const desc = getPageDescription(pageData);
+    pageData.frontmatter.head ??= [];
+    pageData.frontmatter.head.push(
+      ["meta", { name: "description", content: desc }],
+      ["meta", { property: "og:description", content: desc }],
+      ["meta", { name: "twitter:description", content: desc }],
+      ["meta", { property: "og:image", content: "https://yasserstudio.github.io/gpc/og-image.png" }],
+      ["meta", { name: "twitter:image", content: "https://yasserstudio.github.io/gpc/og-image.png" }],
+    );
+  },
 
   sitemap: {
     hostname: "https://yasserstudio.github.io/gpc/",

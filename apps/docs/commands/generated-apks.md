@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# generated-apks
-
-List and download device-specific APKs generated from your app bundles. When you upload an AAB to Google Play, the platform generates split APKs optimized for specific device configurations. These commands let your QA team download and test those exact APKs on target devices.
+<CommandHeader
+  name="gpc generated-apks"
+  description="List and download device-specific APKs generated from your app bundles."
+  usage="gpc generated-apks <subcommand> [options]"
+  :badges="['--json']"
+/>
 
 ## Commands
 
