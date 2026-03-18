@@ -116,6 +116,45 @@ The interactive wizard lets you pick skills and target agents. See [Agent Skills
 
 187 endpoints across the Android Publisher API v3 and Play Developer Reporting API v1beta1. This includes apps, releases, tracks, listings, images, reviews, vitals, subscriptions, in-app products, one-time products, purchases, users, testers, device tiers, data safety, recovery, external transactions, internal sharing, and generated APKs. See [API Coverage](../reference/api-coverage) for the full endpoint map.
 
+## Color & Output
+
+### How do I disable colored output?
+
+Three ways:
+
+```bash
+# Per-command flag
+gpc status --no-color
+
+# Environment variable (standard no-color.org spec)
+NO_COLOR=1 gpc status
+
+# GPC-specific variable
+GPC_NO_COLOR=1 gpc status
+```
+
+All three disable ANSI color sequences. `NO_COLOR` is checked first per the [no-color.org](https://no-color.org) standard.
+
+### How do I force colors in CI?
+
+CI environments (where stdout is not a TTY) output no color by default. To force color — for example to preserve color in GitHub Actions logs — use `FORCE_COLOR`:
+
+```bash
+FORCE_COLOR=1 gpc vitals crashes --app com.example.myapp
+```
+
+`FORCE_COLOR` is ignored if `NO_COLOR` or `GPC_NO_COLOR` is also set.
+
+### What shows a first-run hint?
+
+When GPC detects no configuration file exists and is not running in JSON, CI, or quiet mode, it shows a one-time hint on stderr:
+
+```
+✦ First time? Run gpc config init to get set up.
+```
+
+Run `gpc config init` to start the interactive setup wizard.
+
 ## Troubleshooting
 
 ### How do I report a bug?

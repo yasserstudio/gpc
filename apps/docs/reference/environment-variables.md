@@ -27,6 +27,8 @@ All `GPC_*` environment variables and external variables that GPC respects.
 | -------------------- | ----------------------------------- | ----------------------------------------------------------------- | ----------------------------- |
 | `GPC_OUTPUT`         | `table \| json \| yaml \| markdown` | Default output format. Overridden by `--output` flag.             | `table` (TTY) / `json` (pipe) |
 | `GPC_NO_COLOR`       | `boolean`                           | Disable colored output. Also respected: `NO_COLOR` (standard).    | `false`                       |
+| `NO_COLOR`           | `boolean`                           | Standard no-color.org variable. Disables all ANSI color output.   | —                             |
+| `FORCE_COLOR`        | `1 \| 2 \| 3`                       | Force colored output even when stdout is not a TTY (e.g. in CI). | —                             |
 | `GPC_NO_INTERACTIVE` | `boolean`                           | Disable interactive prompts. Auto-set when `CI=true` is detected. | Auto in CI                    |
 
 ## Network & Retry

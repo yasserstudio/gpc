@@ -16,8 +16,9 @@ Monitor app vitals, crash rates, ANR, startup times, rendering performance, batt
 | [`vitals startup`](#vitals-startup)             | Query slow startup metrics             |
 | [`vitals rendering`](#vitals-rendering)         | Query slow rendering metrics           |
 | [`vitals battery`](#vitals-battery)             | Query excessive wakeup metrics         |
+| [`vitals wakeup`](#vitals-battery)              | Alias for `vitals battery`             |
 | [`vitals memory`](#vitals-memory)               | Query stuck wakelock metrics           |
-| [`vitals anomalies`](#vitals-anomalies)         | Detect anomalies in app vitals         |
+| [`vitals lmk`](#vitals-memory)                  | Alias for `vitals memory`              |
 | [`vitals errors search`](#vitals-errors-search) | Search error issues and reports        |
 | [`vitals compare`](#vitals-compare)             | Compare metric trend across periods    |
 
@@ -205,12 +206,13 @@ gpc vitals rendering --app com.example.myapp --dim apiLevel
 
 ## `vitals battery`
 
-Query excessive wakeup metrics (battery impact).
+Query excessive wakeup metrics (battery impact). Also available as `vitals wakeup`.
 
 ### Synopsis
 
 ```bash
 gpc vitals battery [options]
+gpc vitals wakeup [options]   # alias
 ```
 
 ### Options
@@ -231,12 +233,13 @@ gpc vitals battery --app com.example.myapp --threshold 1.0
 
 ## `vitals memory`
 
-Query stuck background wakelock metrics (memory/battery impact).
+Query stuck background wakelock metrics (memory/battery impact). Also available as `vitals lmk` (low-memory killer).
 
 ### Synopsis
 
 ```bash
 gpc vitals memory [options]
+gpc vitals lmk [options]   # alias
 ```
 
 ### Options
@@ -251,43 +254,6 @@ gpc vitals memory [options]
 
 ```bash
 gpc vitals memory --app com.example.myapp --days 30
-```
-
----
-
-## `vitals anomalies`
-
-Detect anomalies in app vitals. Returns any automatically detected spikes or deviations.
-
-### Synopsis
-
-```bash
-gpc vitals anomalies
-```
-
-### Options
-
-No command-specific options. Uses global `--app` flag.
-
-### Example
-
-```bash
-gpc vitals anomalies --app com.example.myapp
-```
-
-```json
-{
-  "anomalies": [
-    {
-      "metricSet": "crashRateMetricSet",
-      "timelineSpec": { "period": "DAILY" },
-      "dimensions": [{ "dimension": "versionCode", "value": "43" }],
-      "metric": "crashRate",
-      "anomalyValue": 4.2,
-      "baselineValue": 1.1
-    }
-  ]
-}
 ```
 
 ---
@@ -372,6 +338,7 @@ gpc vitals compare anr --app com.example.myapp --days 30
 
 ## Related
 
+- [anomalies](./anomalies) -- Automatic anomaly detection across all vitals metrics
 - [reviews](./reviews) -- User feedback monitoring
 - [CI/CD Vitals Gates](/ci-cd/vitals-gates) -- Automated quality gates
 - [Exit Codes](/reference/exit-codes) -- Exit code 6 for threshold breach

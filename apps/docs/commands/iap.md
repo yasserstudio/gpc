@@ -12,14 +12,15 @@ These commands use the older in-app products API. **For new products, use [`gpc 
 
 ## Commands
 
-| Command                     | Description                                         |
-| --------------------------- | --------------------------------------------------- |
-| [`iap list`](#iap-list)     | List in-app products                                |
-| [`iap get`](#iap-get)       | Get an in-app product by SKU                        |
-| [`iap create`](#iap-create) | Create an in-app product from JSON                  |
-| [`iap update`](#iap-update) | Update an in-app product from JSON                  |
-| [`iap delete`](#iap-delete) | Delete an in-app product                            |
-| [`iap sync`](#iap-sync)     | Sync in-app products from a directory of JSON files |
+| Command                           | Description                                         |
+| --------------------------------- | --------------------------------------------------- |
+| [`iap list`](#iap-list)           | List in-app products                                |
+| [`iap get`](#iap-get)             | Get an in-app product by SKU                        |
+| [`iap create`](#iap-create)       | Create an in-app product from JSON                  |
+| [`iap update`](#iap-update)       | Update an in-app product from JSON                  |
+| [`iap delete`](#iap-delete)       | Delete an in-app product                            |
+| [`iap sync`](#iap-sync)           | Sync in-app products from a directory of JSON files |
+| [`iap batch-get`](#iap-batch-get) | ~~Deprecated~~ — use `iap get` or `iap list`        |
 
 ## `iap list`
 
@@ -249,6 +250,22 @@ gpc iap sync --app com.example.myapp --dir ./products --dry-run
   "unchanged": 0,
   "errors": 0
 }
+```
+
+---
+
+## `iap batch-get`
+
+::: danger Permanently Deprecated
+The `inappproducts.batchGet` endpoint has been permanently blocked by Google. This command will exit immediately with an error.
+
+Use `gpc iap get <sku>` to fetch a single product, or `gpc iap list` to list all products.
+:::
+
+```bash
+gpc iap batch-get <sku> [<sku>...]
+# Error: The inappproducts batchGet endpoint is permanently blocked by Google.
+# Use `gpc iap get <sku>` or `gpc iap list` instead.
 ```
 
 ## Related
