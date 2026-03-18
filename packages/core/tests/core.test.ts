@@ -1988,6 +1988,7 @@ describe("getVitalsAnomalies", () => {
   });
 });
 
+
 describe("searchVitalsErrors", () => {
   it("calls searchErrorIssues with options", async () => {
     const reporting = mockReportingClient();

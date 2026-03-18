@@ -10,9 +10,15 @@ All notable user-facing changes to GPC are documented here. For full release det
 
 _March 2026_
 
+**Bug Fixes**
+
+- fix: `gpc vitals lmk` — correct metric names to `stuckBackgroundWakelockRate7dUserWeighted` / `28dUserWeighted`; base metric name was rejected by the API with 400 INVALID_ARGUMENT
+- fix: `gpc quickstart` — removed `--quiet` flag from internal `doctor` subprocess; Commander treated it as an unknown subcommand option causing exit 1 even when all checks passed
+- fix: `gpc quota usage` — output now matches `quota status` format; `topCommands` no longer renders as `[object Object]`
+
 **Security**
 
-- fix: Desktop notification command injection — `sendNotification` now uses `execFile` with array arguments instead of `execSync` with a shell string; eliminates double-quote injection on Windows and avoids shell parsing on Linux/macOS
+- fix: Desktop notification command injection — `sendNotification` now uses `execFile` with array arguments instead of `execSync` with a shell string; eliminates shell injection via notification title/body on all platforms
 
 ---
 
