@@ -316,6 +316,22 @@ html {
   color: var(--vp-c-text-3) !important;
   padding-top: 22px;
   padding-bottom: 4px;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+/* Section header icon */
+.VPSidebarItem.level-0 > .item > .text .si {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  opacity: 0.65;
+}
+
+.VPSidebarItem.level-0 > .item > .text .si svg {
+  width: 13px;
+  height: 13px;
 }
 
 .VPSidebarItem.level-1 > .item > .link,
