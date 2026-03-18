@@ -6,7 +6,17 @@ outline: deep
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.35 <Badge type="tip" text="latest" />
+## v0.9.36 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+**Security**
+
+- fix: Desktop notification command injection — `sendNotification` now uses `execFile` with array arguments instead of `execSync` with a shell string; eliminates double-quote injection on Windows and avoids shell parsing on Linux/macOS
+
+---
+
+## v0.9.35
 
 _March 2026_
 
