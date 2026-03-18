@@ -1,5 +1,5 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { execSync } from "node:child_process";
+import { execFile } from "node:child_process";
 import { join } from "node:path";
 import type { PlayApiClient } from "@gpc-cli/api";
 import type { ReportingApiClient } from "@gpc-cli/api";
@@ -709,19 +709,31 @@ export function sendNotification(title: string, body: string): void {
   try {
     const p = process.platform;
     if (p === "darwin") {
-      execSync(
-        `osascript -e 'display notification ${JSON.stringify(body)} with title ${JSON.stringify(title)}'`,
-        { stdio: "ignore" },
+      // execFile avoids shell parsing; AppleScript string uses JSON.stringify for safe quoting
+      execFile(
+        "osascript",
+        ["-e", `display notification ${JSON.stringify(body)} with title ${JSON.stringify(title)}`],
+        { stdio: "ignore" } as Parameters<typeof execFile>[2],
       );
     } else if (p === "linux") {
-      execSync(`notify-send ${JSON.stringify(title)} ${JSON.stringify(body)}`, {
-        stdio: "ignore",
-      });
+      // Pass title and body as separate argv elements — no shell, no escaping needed
+      execFile("notify-send", [title, body], { stdio: "ignore" } as Parameters<typeof execFile>[2]);
     } else if (p === "win32") {
-      const escaped = (s: string) => s.replace(/'/g, "''");
-      execSync(
-        `powershell -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('${escaped(body)}', '${escaped(title)}')"`,
-        { stdio: "ignore" },
+      // Escape single quotes for PowerShell literal strings; execFile skips shell parsing
+      // so no double-quote injection risk from the outer command string
+      const psEscape = (s: string) =>
+        s
+          .replace(/'/g, "''") // PS single-quote escape
+          .replace(/[\r\n]/g, " "); // strip newlines that would break the -Command string
+      execFile(
+        "powershell",
+        [
+          "-NoProfile",
+          "-NonInteractive",
+          "-Command",
+          `Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('${psEscape(body)}', '${psEscape(title)}')`,
+        ],
+        { stdio: "ignore" } as Parameters<typeof execFile>[2],
       );
     }
   } catch {
