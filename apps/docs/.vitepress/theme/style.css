@@ -329,37 +329,55 @@ html {
 }
 
 .VPHero {
-  padding-top: 88px !important;
-  padding-bottom: 80px !important;
+  padding-top: 96px !important;
+  padding-bottom: 88px !important;
   position: relative;
   overflow: hidden;
 }
 
-/* Dark mode: animated dot grid + radial glow */
-.dark .VPHero::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 100% 70% at 50% -5%, rgba(77, 149, 241, 0.08) 0%, transparent 60%),
-    radial-gradient(circle at 1px 1px, rgba(77, 149, 241, 0.13) 1px, transparent 0);
-  background-size: 100% 100%, 36px 36px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.dark .VPHero .container {
+/* Center all hero content */
+.VPHero .container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
   position: relative;
   z-index: 1;
 }
 
+.VPHero .main {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: 100% !important;
+  max-width: 780px !important;
+}
+
+/* Light mode: soft radial glow behind hero */
+.VPHero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(26, 115, 232, 0.07) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Dark mode: dot grid + stronger glow */
+.dark .VPHero::before {
+  background:
+    radial-gradient(ellipse 100% 70% at 50% -5%, rgba(77, 149, 241, 0.10) 0%, transparent 60%),
+    radial-gradient(circle at 1px 1px, rgba(77, 149, 241, 0.13) 1px, transparent 0);
+  background-size: 100% 100%, 36px 36px;
+}
+
 .VPHero .name {
   font-family: var(--gpc-font-display) !important;
-  font-size: clamp(3.8rem, 8vw, 7.5rem) !important;
+  font-size: clamp(4.5rem, 10vw, 8rem) !important;
   font-weight: 800 !important;
-  letter-spacing: -0.035em !important;
-  line-height: 0.95 !important;
-  margin-bottom: 16px !important;
+  letter-spacing: -0.04em !important;
+  line-height: 0.92 !important;
+  margin-bottom: 20px !important;
 }
 
 .VPHero .name .clip {
@@ -374,20 +392,21 @@ html {
 
 .VPHero .text {
   font-family: var(--gpc-font-display) !important;
-  font-weight: 500 !important;
-  font-size: clamp(1.05rem, 2.5vw, 1.45rem) !important;
-  letter-spacing: -0.01em !important;
-  line-height: 1.35 !important;
-  margin-bottom: 12px !important;
-  opacity: 0.92;
+  font-weight: 600 !important;
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem) !important;
+  letter-spacing: -0.015em !important;
+  line-height: 1.3 !important;
+  margin-bottom: 14px !important;
+  opacity: 0.9;
 }
 
 .VPHero .tagline {
-  font-size: clamp(0.9rem, 1.4vw, 1.02rem) !important;
-  line-height: 1.7 !important;
+  font-size: clamp(0.92rem, 1.5vw, 1.05rem) !important;
+  line-height: 1.72 !important;
   font-weight: 400;
-  max-width: 540px;
-  opacity: 0.78;
+  max-width: 520px;
+  margin: 0 auto !important;
+  opacity: 0.72;
 }
 
 /* Staggered entry animations */
@@ -404,7 +423,8 @@ html {
 .VPHero .actions {
   gap: 10px !important;
   flex-wrap: wrap;
-  margin-top: 32px !important;
+  justify-content: center !important;
+  margin-top: 36px !important;
 }
 
 /* Primary brand button */
@@ -460,31 +480,33 @@ html {
    ================================================================ */
 
 .VPFeatures {
-  padding: 8px 0 56px !important;
+  padding: 8px 0 64px !important;
 }
 
 .VPFeatures .items {
-  gap: 14px !important;
+  gap: 16px !important;
 }
 
 .VPFeature {
   border-radius: var(--gpc-radius-lg) !important;
   border: 1px solid var(--vp-c-border) !important;
-  background-color: var(--vp-c-bg-elv) !important;
-  padding: 26px !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 1px 4px rgba(10, 40, 80, 0.06), 0 4px 16px rgba(10, 40, 80, 0.04) !important;
+  padding: 28px !important;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
   cursor: default;
 }
 
 .VPFeature:hover {
   transform: translateY(-3px);
-  box-shadow: var(--vp-shadow-3);
+  box-shadow: 0 4px 24px rgba(26, 115, 232, 0.12), 0 1px 4px rgba(10, 40, 80, 0.06) !important;
   border-color: var(--vp-c-brand-1) !important;
 }
 
 .dark .VPFeature {
-  background: rgba(17, 21, 32, 0.65) !important;
+  background: rgba(17, 21, 32, 0.80) !important;
   border-color: rgba(77, 149, 241, 0.10) !important;
+  box-shadow: none !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
@@ -494,33 +516,31 @@ html {
   box-shadow: 0 8px 48px rgba(0, 0, 0, 0.55), 0 0 24px rgba(77, 149, 241, 0.07) !important;
 }
 
+/* Icon: solid blue background, white icon */
 .VPFeature .icon {
-  width: 42px !important;
-  height: 42px !important;
+  width: 44px !important;
+  height: 44px !important;
   border-radius: 10px !important;
-  background: var(--vp-c-brand-soft) !important;
+  background: var(--vp-c-brand-1) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  margin-bottom: 18px !important;
-  padding: 9px !important;
-  transition: background 0.2s ease !important;
+  margin-bottom: 20px !important;
+  padding: 10px !important;
+  transition: background 0.2s ease, transform 0.2s ease !important;
 }
 
 .VPFeature:hover .icon {
-  background: rgba(26, 115, 232, 0.15) !important;
+  background: var(--vp-c-brand-2) !important;
+  transform: scale(1.05);
+}
+
+.dark .VPFeature .icon {
+  background: rgba(77, 149, 241, 0.18) !important;
 }
 
 .dark .VPFeature:hover .icon {
-  background: rgba(77, 149, 241, 0.14) !important;
-}
-
-.VPFeature .icon img {
-  filter: invert(35%) sepia(80%) saturate(600%) hue-rotate(196deg) brightness(0.85);
-}
-
-.dark .VPFeature .icon img {
-  filter: invert(60%) sepia(50%) saturate(500%) hue-rotate(196deg) brightness(1.15);
+  background: rgba(77, 149, 241, 0.28) !important;
 }
 
 .VPFeature .title {
