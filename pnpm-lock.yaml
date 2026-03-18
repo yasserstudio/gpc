@@ -82,7 +82,7 @@ importers:
         specifier: workspace:*
         version: link:../api
       '@gpc-cli/auth':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../auth
       '@gpc-cli/config':
         specifier: workspace:*
