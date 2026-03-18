@@ -300,7 +300,7 @@ html {
 .VPSidebar {
   background-color: var(--vp-c-bg-alt) !important;
   border-right: 1px solid var(--vp-c-divider) !important;
-  padding-top: 24px !important;
+  padding-top: calc(var(--vp-nav-height) + 24px) !important;
 }
 
 .dark .VPSidebar {
@@ -1319,7 +1319,7 @@ html {
 
   /* Sidebar nav */
   .VPSidebar {
-    padding-top: 16px !important;
+    padding-top: calc(var(--vp-nav-height) + 16px) !important;
   }
 
   /* CommandHeader */
