@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# publish / validate
-
-High-level workflow commands that combine multiple operations into a single step.
+<CommandHeader
+  name="gpc publish"
+  description="High-level workflow command — upload, assign track, and commit in one step. Use gpc validate to dry-run without uploading."
+  usage="gpc publish <file> [options]"
+  :badges="['--json', '--dry-run', '--track', '--rollout']"
+/>
 
 ## Commands
 

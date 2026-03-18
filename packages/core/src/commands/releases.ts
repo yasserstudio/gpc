@@ -1,7 +1,38 @@
 import { stat } from "node:fs/promises";
 import type { PlayApiClient, Release, Track, ExternallyHostedApk, ExternallyHostedApkResponse } from "@gpc-cli/api";
+import { ApiError } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
 import { validateUploadFile } from "../utils/file-validation.js";
+
+/**
+ * Run an edit-lifecycle operation with automatic retry on expired-edit errors.
+ * If the API returns API_EDIT_EXPIRED (FAILED_PRECONDITION), the helper opens a
+ * fresh edit and retries the operation exactly once.
+ */
+async function withFreshEdit<T>(
+  client: PlayApiClient,
+  packageName: string,
+  operation: (editId: string) => Promise<T>,
+): Promise<T> {
+  const edit = await client.edits.insert(packageName);
+  try {
+    return await operation(edit.id);
+  } catch (error) {
+    if (error instanceof ApiError && error.code === "API_EDIT_EXPIRED") {
+      // Discard stale edit (best effort) and retry with a fresh one
+      await client.edits.delete(packageName, edit.id).catch(() => {});
+      const freshEdit = await client.edits.insert(packageName);
+      try {
+        return await operation(freshEdit.id);
+      } catch (retryError) {
+        await client.edits.delete(packageName, freshEdit.id).catch(() => {});
+        throw retryError;
+      }
+    }
+    await client.edits.delete(packageName, edit.id).catch(() => {});
+    throw error;
+  }
+}
 
 export interface UploadResult {
   versionCode: number;

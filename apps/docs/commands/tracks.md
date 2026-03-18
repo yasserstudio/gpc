@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# tracks
-
-Manage release tracks (internal, alpha, beta, production, and custom tracks).
+<CommandHeader
+  name="gpc tracks"
+  description="Manage release tracks — internal, alpha, beta, production, and custom tracks."
+  usage="gpc tracks <subcommand> [options]"
+  :badges="['--json']"
+/>
 
 ## Commands
 

@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# purchases
-
-Manage purchases, subscription purchases, voided purchases, and order refunds.
+<CommandHeader
+  name="gpc purchases"
+  description="Manage purchases, subscription purchases, voided purchases, and order refunds."
+  usage="gpc purchases <subcommand> [options]"
+  :badges="['--json']"
+/>
 
 ## Commands
 

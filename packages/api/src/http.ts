@@ -77,8 +77,24 @@ function resolveOption(explicit: number | undefined, envName: string, fallback: 
   return explicit ?? envInt(envName) ?? fallback;
 }
 
-function mapStatusToError(status: number, _body: string): { code: string; suggestion?: string } {
+function mapStatusToError(status: number, body: string): { code: string; suggestion?: string } {
   switch (status) {
+    case 400: {
+      // Detect FAILED_PRECONDITION: edit has expired
+      try {
+        const parsed = JSON.parse(body) as { error?: { status?: string; message?: string } };
+        if (
+          parsed?.error?.status === "FAILED_PRECONDITION" &&
+          parsed.error.message?.toLowerCase().includes("edit")
+        ) {
+          return {
+            code: "API_EDIT_EXPIRED",
+            suggestion: "The edit session has expired. Retry the operation to open a fresh edit.",
+          };
+        }
+      } catch { /* not JSON */ }
+      return { code: "API_HTTP_400", suggestion: "Check request parameters and try again." };
+    }
     case 401:
       return {
         code: "API_UNAUTHORIZED",

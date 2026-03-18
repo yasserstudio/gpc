@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# One-Time Products
-
-Manage one-time products using the modern monetization API. Alias: `otp`.
+<CommandHeader
+  name="gpc one-time-products"
+  description="Manage one-time products using the modern Google Play monetization API."
+  usage="gpc one-time-products <subcommand> [options]"
+  :badges="['--json', '--dry-run']"
+/>
 
 This is the newer replacement for the legacy in-app products API (`gpc iap`). Use this for new products.
 

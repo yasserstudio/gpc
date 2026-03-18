@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# doctor / docs / version / cache / feedback / completion
-
-Utility commands for environment verification, documentation access, version info, cache management, and shell completions.
+<CommandHeader
+  name="gpc doctor"
+  description="Utility commands: doctor (diagnose setup), docs (open docs), version, cache, feedback, and shell completion."
+  usage="gpc <doctor|docs|version|cache|feedback|completion> [options]"
+  :badges="['--json', '--check']"
+/>
 
 ## Commands
 

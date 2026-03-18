@@ -3,6 +3,7 @@ import { loadConfig } from "@gpc-cli/config";
 import { validatePreSubmission, readReleaseNotesFromDir } from "@gpc-cli/core";
 import { formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
+import { green, red, yellow } from "../colors.js";
 
 export function registerValidateCommand(program: Command): void {
   program
@@ -45,17 +46,17 @@ export function registerValidateCommand(program: Command): void {
       } else {
         const checkRows = result.checks.map((c) => ({
           check: c.name,
-          passed: c.passed ? "pass" : "FAIL",
+          passed: c.passed ? green("✓ pass") : red("✗ FAIL"),
           message: c.message,
         }));
         console.log(formatOutput(checkRows, format));
         if (result.warnings.length > 0) {
           console.log("\nWarnings:");
           for (const w of result.warnings) {
-            console.log(`  ${w}`);
+            console.log(`  ${yellow("⚠")} ${w}`);
           }
         }
-        console.log(`\n${result.valid ? "Valid" : "Invalid"}`);
+        console.log(`\n${result.valid ? green("✓ Valid") : red("✗ Invalid")}`);
       }
       process.exit(result.valid ? 0 : 1);
     });

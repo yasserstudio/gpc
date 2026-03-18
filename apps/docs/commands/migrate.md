@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# migrate
-
-Migrate from other tools to GPC.
+<CommandHeader
+  name="gpc migrate"
+  description="Migrate metadata and configuration from other tools (Fastlane, Play Console UI) to GPC."
+  usage="gpc migrate <subcommand> [options]"
+  :badges="['--dry-run', '--json']"
+/>
 
 ## Commands
 

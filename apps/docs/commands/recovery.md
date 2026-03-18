@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# recovery
-
-Manage app recovery actions for your published apps. When a critical bug affects users in production, Google Play can create recovery actions that let you push a fix to affected devices. These commands let you list pending recovery actions, deploy fixes, or cancel actions that are no longer needed.
+<CommandHeader
+  name="gpc recovery"
+  description="Manage app recovery actions to update published apps on user devices without a full release."
+  usage="gpc recovery <subcommand> [options]"
+  :badges="['--json', '--dry-run']"
+/>
 
 ## Commands
 

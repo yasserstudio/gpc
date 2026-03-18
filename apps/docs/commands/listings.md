@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# listings
-
-Manage store listings, metadata, images, and country availability.
+<CommandHeader
+  name="gpc listings"
+  description="Manage store listings, metadata, images, and country availability. Fastlane supply compatible."
+  usage="gpc listings <subcommand> [options]"
+  :badges="['--json', '--dry-run', '--locale']"
+/>
 
 ## Commands
 

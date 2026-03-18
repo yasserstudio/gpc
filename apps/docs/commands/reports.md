@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# reports
-
-Download financial and statistics reports from Google Play. Reports are delivered as CSV files via signed Google Cloud Storage URIs.
+<CommandHeader
+  name="gpc reports"
+  description="Download financial and statistics reports from Google Play."
+  usage="gpc reports download <type> [options]"
+  :badges="['--json', '--month', '--output']"
+/>
 
 ## Commands
 

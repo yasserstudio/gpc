@@ -13,6 +13,7 @@ import {
   getVitalsRendering,
   getVitalsBattery,
   getVitalsMemory,
+  getVitalsLmk,
   getVitalsAnomalies,
   searchVitalsErrors,
   compareVitalsTrend,
@@ -233,7 +234,7 @@ export function registerVitalsCommands(program: Command): void {
     vitals,
     "lmk",
     "Query low-memory kill (stuck wakelock) metrics",
-    getVitalsMemory,
+    getVitalsLmk,
     program,
   );
 

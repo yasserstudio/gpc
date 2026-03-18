@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# pricing
-
-Regional price conversion using Google Play's pricing templates.
+<CommandHeader
+  name="gpc pricing"
+  description="Regional price conversion using Google Play's pricing templates."
+  usage="gpc pricing <subcommand> [options]"
+  :badges="['--json', '--regions']"
+/>
 
 ## Commands
 

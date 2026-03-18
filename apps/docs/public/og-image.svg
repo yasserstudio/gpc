@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#090a0f"/>
+      <stop offset="100%" stop-color="#0d1117"/>
+    </linearGradient>
+    <linearGradient id="nameGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4d95f1"/>
+      <stop offset="50%" stop-color="#8fbdf7"/>
+      <stop offset="100%" stop-color="#d3e3fd"/>
+    </linearGradient>
+    <linearGradient id="topBar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1a73e8"/>
+      <stop offset="50%" stop-color="#4d95f1"/>
+      <stop offset="100%" stop-color="#8fbdf7"/>
+    </linearGradient>
+    <!-- Dot grid -->
+    <pattern id="dots" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="rgba(77,149,241,0.10)"/>
+    </pattern>
+    <!-- Radial glow -->
+    <radialGradient id="glow" cx="35%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="rgba(77,149,241,0.12)"/>
+      <stop offset="100%" stop-color="rgba(77,149,241,0)"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#dots)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- Top accent bar -->
+  <rect width="1200" height="4" fill="url(#topBar)"/>
+
+  <!-- Left content -->
+  <!-- Logo badge -->
+  <rect x="64" y="72" width="56" height="56" rx="12" fill="#1a73e8"/>
+  <text x="92" y="108" font-family="system-ui, sans-serif" font-weight="700" font-size="22" fill="white" text-anchor="middle">GPC</text>
+
+  <!-- Product name -->
+  <text x="64" y="240" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="120" fill="url(#nameGrad)" letter-spacing="-5">GPC</text>
+
+  <!-- Subtitle -->
+  <text x="64" y="295" font-family="system-ui, sans-serif" font-weight="600" font-size="28" fill="rgba(255,255,255,0.80)" letter-spacing="-0.5">Google Play Console CLI</text>
+
+  <!-- Tagline -->
+  <text x="64" y="348" font-family="system-ui, sans-serif" font-weight="400" font-size="20" fill="rgba(255,255,255,0.45)">187 API endpoints · One tool · No Ruby, no browser, no ceremony.</text>
+
+  <!-- Stats row -->
+  <rect x="64" y="405" width="140" height="48" rx="8" fill="rgba(77,149,241,0.12)" stroke="rgba(77,149,241,0.25)" stroke-width="1"/>
+  <text x="134" y="435" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#4d95f1" text-anchor="middle">187 endpoints</text>
+
+  <rect x="220" y="405" width="140" height="48" rx="8" fill="rgba(77,149,241,0.12)" stroke="rgba(77,149,241,0.25)" stroke-width="1"/>
+  <text x="290" y="435" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#4d95f1" text-anchor="middle">1,504 tests</text>
+
+  <rect x="376" y="405" width="140" height="48" rx="8" fill="rgba(77,149,241,0.12)" stroke="rgba(77,149,241,0.25)" stroke-width="1"/>
+  <text x="446" y="435" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#4d95f1" text-anchor="middle">MIT license</text>
+
+  <!-- URL -->
+  <text x="64" y="560" font-family="monospace" font-size="16" fill="rgba(255,255,255,0.28)">yasserstudio.github.io/gpc</text>
+
+  <!-- Right: terminal window -->
+  <rect x="700" y="80" width="450" height="470" rx="12" fill="#0d1117" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <!-- Terminal header -->
+  <rect x="700" y="80" width="450" height="40" rx="12" fill="#161b22"/>
+  <rect x="700" y="108" width="450" height="12" fill="#161b22"/>
+  <circle cx="728" cy="100" r="6" fill="#ff5f57"/>
+  <circle cx="748" cy="100" r="6" fill="#febc2e"/>
+  <circle cx="768" cy="100" r="6" fill="#28c840"/>
+  <text x="900" y="105" font-family="system-ui, sans-serif" font-size="12" fill="rgba(255,255,255,0.28)" text-anchor="middle">terminal</text>
+
+  <!-- Terminal content -->
+  <text x="724" y="148" font-family="monospace" font-size="13" fill="#4d95f1" font-weight="600">$</text>
+  <text x="740" y="148" font-family="monospace" font-size="13" fill="#e6edf3">gpc status</text>
+
+  <text x="724" y="180" font-family="monospace" font-size="13" fill="#e6edf3" font-weight="700">App Health</text>
+  <text x="820" y="180" font-family="monospace" font-size="13" fill="#8b949e">· com.example.app</text>
+  <text x="724" y="196" font-family="monospace" font-size="11" fill="rgba(255,255,255,0.08)">────────────────────────────────</text>
+
+  <text x="724" y="224" font-family="monospace" font-size="11" fill="#7ee787" font-weight="700" letter-spacing="1">RELEASES</text>
+  <text x="724" y="246" font-family="monospace" font-size="13" fill="#3fb950">✓</text>
+  <text x="742" y="246" font-family="monospace" font-size="13" fill="#8b949e">production</text>
+  <text x="840" y="246" font-family="monospace" font-size="13" fill="#79c0ff">v2.4.1</text>
+  <text x="900" y="246" font-family="monospace" font-size="13" fill="#484f58">100% rollout</text>
+  <text x="724" y="268" font-family="monospace" font-size="13" fill="#3fb950">✓</text>
+  <text x="742" y="268" font-family="monospace" font-size="13" fill="#8b949e">beta</text>
+  <text x="840" y="268" font-family="monospace" font-size="13" fill="#79c0ff">v2.5.0</text>
+  <text x="900" y="268" font-family="monospace" font-size="13" fill="#484f58">20% staged</text>
+
+  <text x="724" y="300" font-family="monospace" font-size="11" fill="#7ee787" font-weight="700" letter-spacing="1">VITALS</text>
+  <text x="724" y="322" font-family="monospace" font-size="13" fill="#3fb950">✓</text>
+  <text x="742" y="322" font-family="monospace" font-size="13" fill="#8b949e">crash rate</text>
+  <text x="840" y="322" font-family="monospace" font-size="13" fill="#79c0ff">0.08%</text>
+  <text x="900" y="322" font-family="monospace" font-size="13" fill="#3fb950">↓ improving</text>
+  <text x="724" y="344" font-family="monospace" font-size="13" fill="#d29922">⚠</text>
+  <text x="742" y="344" font-family="monospace" font-size="13" fill="#8b949e">cold start</text>
+  <text x="840" y="344" font-family="monospace" font-size="13" fill="#79c0ff">842ms</text>
+  <text x="900" y="344" font-family="monospace" font-size="13" fill="#d29922">↑ watch</text>
+
+  <text x="724" y="376" font-family="monospace" font-size="11" fill="#7ee787" font-weight="700" letter-spacing="1">REVIEWS</text>
+  <text x="724" y="398" font-family="monospace" font-size="13" fill="#d29922">★★★★★</text>
+  <text x="792" y="398" font-family="monospace" font-size="13" fill="#79c0ff">4.6</text>
+  <text x="830" y="398" font-family="monospace" font-size="13" fill="#484f58">│</text>
+  <text x="848" y="398" font-family="monospace" font-size="13" fill="#484f58">+23 new</text>
+
+  <text x="724" y="434" font-family="monospace" font-size="13" fill="#4d95f1" font-weight="600">$</text>
+  <text x="740" y="434" font-family="monospace" font-size="13" fill="#4d95f1">▋</text>
+</svg>

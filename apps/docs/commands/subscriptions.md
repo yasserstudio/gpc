@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# subscriptions
-
-Manage subscriptions, base plans, and subscription offers.
+<CommandHeader
+  name="gpc subscriptions"
+  description="Manage subscriptions, base plans, and subscription offers using the modern monetization API."
+  usage="gpc subscriptions <subcommand> [options]"
+  :badges="['--json', '--dry-run']"
+/>
 
 ## Commands
 

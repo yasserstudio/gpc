@@ -2,9 +2,12 @@
 outline: deep
 ---
 
-# plugins
-
-Manage GPC plugins. Plugins extend the CLI with custom commands and lifecycle hooks.
+<CommandHeader
+  name="gpc plugins"
+  description="Manage GPC plugins — install, remove, and inspect plugin lifecycle hooks and custom commands."
+  usage="gpc plugins <subcommand> [options]"
+  :badges="['--json']"
+/>
 
 ## Commands
 
