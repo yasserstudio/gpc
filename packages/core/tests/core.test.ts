@@ -55,6 +55,7 @@ import {
   getVitalsRendering,
   getVitalsBattery,
   getVitalsMemory,
+  getVitalsLmk,
   getVitalsAnomalies,
   searchVitalsErrors,
   checkThreshold,
@@ -1951,6 +1952,30 @@ describe("getVitalsMemory", () => {
       "stuckBackgroundWakelockRateMetricSet",
       expect.any(Object),
     );
+  });
+});
+
+describe("getVitalsLmk", () => {
+  it("queries stuckBackgroundWakelockRateMetricSet with DAILY aggregation", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsLmk(reporting, PKG);
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(
+      PKG,
+      "stuckBackgroundWakelockRateMetricSet",
+      expect.objectContaining({
+        timelineSpec: expect.objectContaining({ aggregationPeriod: "DAILY" }),
+      }),
+    );
+  });
+
+  it("requests the weighted metric variants (not base stuckBackgroundWakelockRate)", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsLmk(reporting, PKG);
+    const call = (reporting.queryMetricSet as ReturnType<typeof vi.fn>).mock.calls[0];
+    const query = call?.[2] as { metrics: string[] };
+    expect(query.metrics).toContain("stuckBackgroundWakelockRate7dUserWeighted");
+    expect(query.metrics).toContain("stuckBackgroundWakelockRate28dUserWeighted");
+    expect(query.metrics).not.toContain("stuckBackgroundWakelockRate");
   });
 });
 
