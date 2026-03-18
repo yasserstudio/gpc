@@ -4841,12 +4841,10 @@ describe("updateTrackConfig", () => {
         delete: vi.fn().mockResolvedValue(undefined),
       },
       tracks: {
-        update: vi
-          .fn()
-          .mockResolvedValue({
-            track: "beta",
-            releases: [{ status: "completed", versionCodes: ["100"] }],
-          }),
+        update: vi.fn().mockResolvedValue({
+          track: "beta",
+          releases: [{ status: "completed", versionCodes: ["100"] }],
+        }),
       },
     };
   }
@@ -5014,13 +5012,11 @@ describe("purchase-options commands", () => {
     return {
       purchaseOptions: {
         list: vi.fn().mockResolvedValue({ purchaseOptions: [] }),
-        get: vi
-          .fn()
-          .mockResolvedValue({
-            purchaseOptionId: "po-1",
-            packageName: "com.example",
-            productId: "prod1",
-          }),
+        get: vi.fn().mockResolvedValue({
+          purchaseOptionId: "po-1",
+          packageName: "com.example",
+          productId: "prod1",
+        }),
         create: vi.fn().mockResolvedValue({ purchaseOptionId: "po-1" }),
         activate: vi.fn().mockResolvedValue({ purchaseOptionId: "po-1" }),
         deactivate: vi.fn().mockResolvedValue({ purchaseOptionId: "po-1" }),

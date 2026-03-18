@@ -49,12 +49,10 @@ vi.mock("@gpc-cli/api", () => ({
       commit: vi.fn().mockResolvedValue({}),
     },
     tracks: {
-      get: vi
-        .fn()
-        .mockResolvedValue({
-          track: "internal",
-          releases: [{ status: "inProgress", versionCodes: ["42"], userFraction: 0.1 }],
-        }),
+      get: vi.fn().mockResolvedValue({
+        track: "internal",
+        releases: [{ status: "inProgress", versionCodes: ["42"], userFraction: 0.1 }],
+      }),
       list: vi.fn().mockResolvedValue([]),
       update: vi.fn().mockResolvedValue({}),
     },
@@ -102,16 +100,14 @@ vi.mock("@gpc-cli/core", () => {
     uploadRelease: vi
       .fn()
       .mockResolvedValue({ versionCode: 42, track: "internal", status: "completed" }),
-    getReleasesStatus: vi
-      .fn()
-      .mockResolvedValue([
-        {
-          track: "internal",
-          status: "completed",
-          versionCodes: ["42"],
-          releaseNotes: [{ language: "en-US", text: "test notes" }],
-        },
-      ]),
+    getReleasesStatus: vi.fn().mockResolvedValue([
+      {
+        track: "internal",
+        status: "completed",
+        versionCodes: ["42"],
+        releaseNotes: [{ language: "en-US", text: "test notes" }],
+      },
+    ]),
     promoteRelease: vi.fn().mockResolvedValue({}),
     updateRollout: vi.fn().mockResolvedValue({}),
     readReleaseNotesFromDir: vi.fn().mockResolvedValue([]),
