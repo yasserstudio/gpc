@@ -13,11 +13,11 @@ Under regulations like the EU Digital Markets Act (DMA), apps may offer alternat
 
 ## Commands
 
-| Command                                                               | Description                                    |
-| --------------------------------------------------------------------- | ---------------------------------------------- |
-| [`external-transactions create`](#external-transactions-create)       | Create an external transaction record          |
-| [`external-transactions get`](#external-transactions-get)             | Get details of an external transaction         |
-| [`external-transactions refund`](#external-transactions-refund)       | Refund an external transaction                 |
+| Command                                                         | Description                            |
+| --------------------------------------------------------------- | -------------------------------------- |
+| [`external-transactions create`](#external-transactions-create) | Create an external transaction record  |
+| [`external-transactions get`](#external-transactions-get)       | Get details of an external transaction |
+| [`external-transactions refund`](#external-transactions-refund) | Refund an external transaction         |
 
 ## `external-transactions create`
 
@@ -32,13 +32,13 @@ gpc ext-txn create [options]
 
 ### Options
 
-| Flag             | Short | Type     | Default        | Description                              |
-| ---------------- | ----- | -------- | -------------- | ---------------------------------------- |
-| `--token`        |       | `string` | **(required)** | External transaction token from Google   |
-| `--amount`       |       | `number` | **(required)** | Transaction amount in major currency units (e.g., 9.99) |
-| `--currency`     |       | `string` | **(required)** | ISO 4217 currency code (e.g., EUR, USD)  |
-| `--app`          |       | `string` |                | App package name                         |
-| `--json`         |       | `flag`   |                | Output as JSON                           |
+| Flag         | Short | Type     | Default        | Description                                             |
+| ------------ | ----- | -------- | -------------- | ------------------------------------------------------- |
+| `--token`    |       | `string` | **(required)** | External transaction token from Google                  |
+| `--amount`   |       | `number` | **(required)** | Transaction amount in major currency units (e.g., 9.99) |
+| `--currency` |       | `string` | **(required)** | ISO 4217 currency code (e.g., EUR, USD)                 |
+| `--app`      |       | `string` |                | App package name                                        |
+| `--json`     |       | `flag`   |                | Output as JSON                                          |
 
 ### Example
 
@@ -102,10 +102,10 @@ gpc ext-txn get <transaction-id> [options]
 
 ### Options
 
-| Flag       | Short | Type     | Default | Description                        |
-| ---------- | ----- | -------- | ------- | ---------------------------------- |
-| `--app`    |       | `string` |         | App package name                   |
-| `--json`   |       | `flag`   |         | Output as JSON                     |
+| Flag     | Short | Type     | Default | Description      |
+| -------- | ----- | -------- | ------- | ---------------- |
+| `--app`  |       | `string` |         | App package name |
+| `--json` |       | `flag`   |         | Output as JSON   |
 
 ### Example
 
@@ -161,12 +161,12 @@ gpc ext-txn refund <transaction-id> [options]
 
 ### Options
 
-| Flag          | Short | Type     | Default        | Description                                  |
-| ------------- | ----- | -------- | -------------- | -------------------------------------------- |
-| `--amount`    |       | `number` |                | Partial refund amount (omit for full refund)  |
-| `--currency`  |       | `string` |                | Currency code (required for partial refunds)  |
-| `--app`       |       | `string` |                | App package name                             |
-| `--json`      |       | `flag`   |                | Output as JSON                               |
+| Flag         | Short | Type     | Default | Description                                  |
+| ------------ | ----- | -------- | ------- | -------------------------------------------- |
+| `--amount`   |       | `number` |         | Partial refund amount (omit for full refund) |
+| `--currency` |       | `string` |         | Currency code (required for partial refunds) |
+| `--app`      |       | `string` |         | App package name                             |
+| `--json`     |       | `flag`   |         | Output as JSON                               |
 
 ### Example
 
@@ -202,12 +202,12 @@ External transaction partially refunded
 
 ## Errors
 
-| Code | Exit | Description                                                        |
-| ---- | ---- | ------------------------------------------------------------------ |
-| `INVALID_TOKEN`              | 2 | The external transaction token is invalid or expired  |
-| `TRANSACTION_NOT_FOUND`      | 4 | No transaction exists with the specified ID           |
-| `ALREADY_REFUNDED`           | 4 | The transaction has already been fully refunded       |
-| `ALTERNATIVE_BILLING_DISABLED` | 4 | Alternative billing is not enabled for this app      |
+| Code                           | Exit | Description                                          |
+| ------------------------------ | ---- | ---------------------------------------------------- |
+| `INVALID_TOKEN`                | 2    | The external transaction token is invalid or expired |
+| `TRANSACTION_NOT_FOUND`        | 4    | No transaction exists with the specified ID          |
+| `ALREADY_REFUNDED`             | 4    | The transaction has already been fully refunded      |
+| `ALTERNATIVE_BILLING_DISABLED` | 4    | Alternative billing is not enabled for this app      |
 
 ## Related
 

@@ -143,10 +143,7 @@ export function registerBundleCommands(program: Command): void {
       const format = getOutputFormat(program, await getConfig());
 
       try {
-        const [before, after] = await Promise.all([
-          analyzeBundle(file1),
-          analyzeBundle(file2),
-        ]);
+        const [before, after] = await Promise.all([analyzeBundle(file1), analyzeBundle(file2)]);
         const comparison = compareBundles(before, after);
 
         if (format === "json") {
@@ -173,9 +170,15 @@ export function registerBundleCommands(program: Command): void {
           console.log();
           console.log(`| | Path | Size |`);
           console.log(`| --- | --- | --- |`);
-          console.log(`| Before | \`${comparison.before.path}\` | ${formatSize(comparison.before.totalCompressed)} |`);
-          console.log(`| After | \`${comparison.after.path}\` | ${formatSize(comparison.after.totalCompressed)} |`);
-          console.log(`| **Delta** | | **${sign}${formatSize(comparison.sizeDelta)} (${sign}${comparison.sizeDeltaPercent}%)** |`);
+          console.log(
+            `| Before | \`${comparison.before.path}\` | ${formatSize(comparison.before.totalCompressed)} |`,
+          );
+          console.log(
+            `| After | \`${comparison.after.path}\` | ${formatSize(comparison.after.totalCompressed)} |`,
+          );
+          console.log(
+            `| **Delta** | | **${sign}${formatSize(comparison.sizeDelta)} (${sign}${comparison.sizeDeltaPercent}%)** |`,
+          );
           if (moduleRows.length > 0) {
             console.log();
             console.log(`### Module Changes`);
@@ -190,9 +193,15 @@ export function registerBundleCommands(program: Command): void {
           }
         } else {
           const sign = comparison.sizeDelta >= 0 ? "+" : "";
-          console.log(`\nBefore: ${comparison.before.path} (${formatSize(comparison.before.totalCompressed)})`);
-          console.log(`After:  ${comparison.after.path} (${formatSize(comparison.after.totalCompressed)})`);
-          console.log(`Delta:  ${sign}${formatSize(comparison.sizeDelta)} (${sign}${comparison.sizeDeltaPercent}%)\n`);
+          console.log(
+            `\nBefore: ${comparison.before.path} (${formatSize(comparison.before.totalCompressed)})`,
+          );
+          console.log(
+            `After:  ${comparison.after.path} (${formatSize(comparison.after.totalCompressed)})`,
+          );
+          console.log(
+            `Delta:  ${sign}${formatSize(comparison.sizeDelta)} (${sign}${comparison.sizeDeltaPercent}%)\n`,
+          );
 
           // Module deltas
           const moduleRows = comparison.moduleDeltas

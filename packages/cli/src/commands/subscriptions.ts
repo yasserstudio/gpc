@@ -104,14 +104,19 @@ export function registerSubscriptionsCommands(program: Command): void {
         if (format !== "json") {
           const s = result as unknown as Record<string, unknown>;
           const basePlans = s["basePlans"] as Array<Record<string, unknown>> | undefined;
-          const listings = s["listings"] as Record<string, unknown> | Array<Record<string, unknown>> | undefined;
+          const listings = s["listings"] as
+            | Record<string, unknown>
+            | Array<Record<string, unknown>>
+            | undefined;
           const listingLanguages = listings
             ? Array.isArray(listings)
               ? listings.map((l) => l["languageCode"] || l["language"] || "?").join(", ")
               : Object.keys(listings).join(", ")
             : "-";
           const listingCount = listings
-            ? Array.isArray(listings) ? listings.length : Object.keys(listings).length
+            ? Array.isArray(listings)
+              ? listings.length
+              : Object.keys(listings).length
             : 0;
           const summary = {
             productId: s["productId"],
@@ -119,7 +124,11 @@ export function registerSubscriptionsCommands(program: Command): void {
             basePlanIds: basePlans?.map((bp) => bp["basePlanId"]).join(", ") || "-",
             listings: listingCount,
             listingLanguages,
-            taxCategory: (s["taxAndComplianceSettings"] as Record<string, unknown>)?.["taxRateInfoByRegionCode"] ? "configured" : "-",
+            taxCategory: (s["taxAndComplianceSettings"] as Record<string, unknown>)?.[
+              "taxRateInfoByRegionCode"
+            ]
+              ? "configured"
+              : "-",
           };
           console.log(formatOutput(summary, format));
         } else {
@@ -392,7 +401,13 @@ export function registerSubscriptionsCommands(program: Command): void {
 
         try {
           const data = await readJsonFile(options.file);
-          const result = await migratePrices(client, packageName, productId, basePlanId, data as any);
+          const result = await migratePrices(
+            client,
+            packageName,
+            productId,
+            basePlanId,
+            data as any,
+          );
           console.log(formatOutput(result, format));
         } catch (error) {
           console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
@@ -415,7 +430,9 @@ export function registerSubscriptionsCommands(program: Command): void {
 
       try {
         const result = await listOffers(client, packageName, productId, basePlanId);
-        const offers_list = (result as unknown as Record<string, unknown>)["subscriptionOffers"] as Array<Record<string, unknown>> | undefined;
+        const offers_list = (result as unknown as Record<string, unknown>)["subscriptionOffers"] as
+          | Array<Record<string, unknown>>
+          | undefined;
         if (format !== "json") {
           if (!offers_list || offers_list.length === 0) {
             console.log("No offers found.");
@@ -658,7 +675,7 @@ export function registerSubscriptionsCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       try {
-        const localData = await readJsonFile(options.file) as Subscription;
+        const localData = (await readJsonFile(options.file)) as Subscription;
         const diffs = await diffSubscription(client, packageName, productId, localData);
         if (diffs.length === 0) {
           console.log("No differences found.");

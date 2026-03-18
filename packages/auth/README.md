@@ -60,7 +60,7 @@ const key = await loadServiceAccountKey("./service-account.json");
 const auth = createServiceAccountAuth(key);
 
 console.log(auth.getClientEmail()); // your-sa@project.iam.gserviceaccount.com
-console.log(auth.getProjectId());   // your-gcp-project-id
+console.log(auth.getProjectId()); // your-gcp-project-id
 ```
 
 `loadServiceAccountKey` accepts a file path or a raw JSON string, and validates the key structure before returning.
@@ -80,10 +80,10 @@ const auth = await resolveAuth();
 
 `resolveAuth` checks these environment variables when no explicit options are provided:
 
-| Variable | Description |
-| --- | --- |
-| `GPC_SERVICE_ACCOUNT` | File path or raw JSON string of a service account key |
-| `GOOGLE_APPLICATION_CREDENTIALS` | Standard GCP credential path (also used by ADC) |
+| Variable                         | Description                                           |
+| -------------------------------- | ----------------------------------------------------- |
+| `GPC_SERVICE_ACCOUNT`            | File path or raw JSON string of a service account key |
+| `GOOGLE_APPLICATION_CREDENTIALS` | Standard GCP credential path (also used by ADC)       |
 
 ### Resolution Order
 
@@ -131,8 +131,12 @@ const client = createApiClient({
     async getAccessToken() {
       return fetchTokenFromVault();
     },
-    getProjectId() { return "my-project"; },
-    getClientEmail() { return "custom@example.com"; },
+    getProjectId() {
+      return "my-project";
+    },
+    getClientEmail() {
+      return "custom@example.com";
+    },
   },
 });
 ```
@@ -154,21 +158,21 @@ try {
   const auth = await resolveAuth();
 } catch (error) {
   if (error instanceof AuthError) {
-    console.error(error.code);       // e.g. "AUTH_NO_CREDENTIALS"
+    console.error(error.code); // e.g. "AUTH_NO_CREDENTIALS"
     console.error(error.suggestion); // step-by-step fix
-    console.error(error.toJSON());   // structured error object
+    console.error(error.toJSON()); // structured error object
   }
 }
 ```
 
 Error codes:
 
-| Code | Meaning |
-| --- | --- |
-| `AUTH_NO_CREDENTIALS` | No credentials found via any method |
-| `AUTH_INVALID_KEY` | Service account key is malformed or missing required fields |
-| `AUTH_TOKEN_FAILED` | Token generation failed (expired key, wrong permissions, network) |
-| `AUTH_FILE_NOT_FOUND` | Service account file path does not exist |
+| Code                  | Meaning                                                           |
+| --------------------- | ----------------------------------------------------------------- |
+| `AUTH_NO_CREDENTIALS` | No credentials found via any method                               |
+| `AUTH_INVALID_KEY`    | Service account key is malformed or missing required fields       |
+| `AUTH_TOKEN_FAILED`   | Token generation failed (expired key, wrong permissions, network) |
+| `AUTH_FILE_NOT_FOUND` | Service account file path does not exist                          |
 
 ## Documentation
 

@@ -77,17 +77,17 @@ REVIEWS  (last 30 days)
 
 187 API endpoints across these command groups:
 
-| Group             | What you can do                                                                       |
-| ----------------- | ------------------------------------------------------------------------------------- |
-| **Releases**      | Upload, promote, rollout increase/halt/resume, end-to-end `publish`                  |
+| Group             | What you can do                                                                        |
+| ----------------- | -------------------------------------------------------------------------------------- |
+| **Releases**      | Upload, promote, rollout increase/halt/resume, end-to-end `publish`                    |
 | **Listings**      | Pull and push store listings, upload screenshots — works with Fastlane metadata format |
-| **Reviews**       | Filter by stars, reply to users, export to CSV                                        |
-| **Vitals**        | Crash rates, ANR, startup, rendering — with CI threshold gates                        |
-| **Bundle**        | Per-module size breakdown, build-to-build diff, size CI gates                         |
+| **Reviews**       | Filter by stars, reply to users, export to CSV                                         |
+| **Vitals**        | Crash rates, ANR, startup, rendering — with CI threshold gates                         |
+| **Bundle**        | Per-module size breakdown, build-to-build diff, size CI gates                          |
 | **Subscriptions** | Create and manage base plans, offers, and pricing                                      |
-| **IAP**           | Sync products from local files, batch get and update                                  |
-| **Purchases**     | Verify, acknowledge, cancel, refund, list voided                                      |
-| **Reports**       | Download financial and stats reports                                                  |
+| **IAP**           | Sync products from local files, batch get and update                                   |
+| **Purchases**     | Verify, acknowledge, cancel, refund, list voided                                       |
+| **Reports**       | Download financial and stats reports                                                   |
 | **Testers**       | Add, remove, import from CSV                                                           |
 | **Users**         | Invite, update, remove, manage per-app grants                                          |
 

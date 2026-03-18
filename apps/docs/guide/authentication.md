@@ -79,6 +79,7 @@ If you use `gpc vitals` commands, ensure the **Google Play Developer Reporting A
 ```bash
 gcloud services enable playdeveloperreporting.googleapis.com --project my-play-deploy-123456
 ```
+
 :::
 
 ## Service Account

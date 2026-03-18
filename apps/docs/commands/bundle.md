@@ -11,10 +11,10 @@ outline: deep
 
 ## Commands
 
-| Command                                       | Description                                      |
-| --------------------------------------------- | ------------------------------------------------ |
-| [`bundle analyze`](#bundle-analyze)           | Per-module and per-category size breakdown        |
-| [`bundle compare`](#bundle-compare)           | Size diff between two bundles or APKs             |
+| Command                             | Description                                |
+| ----------------------------------- | ------------------------------------------ |
+| [`bundle analyze`](#bundle-analyze) | Per-module and per-category size breakdown |
+| [`bundle compare`](#bundle-compare) | Size diff between two bundles or APKs      |
 
 ## `bundle analyze`
 
@@ -28,10 +28,10 @@ gpc bundle analyze <file> [options]
 
 ### Options
 
-| Flag            | Type     | Default | Description                                    |
-| --------------- | -------- | ------- | ---------------------------------------------- |
-| `--threshold`   | `number` |         | Fail if compressed size exceeds threshold (MB) |
-| `--output`      | `string` | `table` | Output format: `table`, `json`                 |
+| Flag          | Type     | Default | Description                                    |
+| ------------- | -------- | ------- | ---------------------------------------------- |
+| `--threshold` | `number` |         | Fail if compressed size exceeds threshold (MB) |
+| `--output`    | `string` | `table` | Output format: `table`, `json`                 |
 
 ### Example
 
@@ -147,11 +147,11 @@ Exit code 6 on threshold breach integrates with CI failure workflows.
 
 ## Errors
 
-| Code                  | Exit | Description                                    |
-| --------------------- | ---- | ---------------------------------------------- |
-| `FILE_NOT_FOUND`      | 1    | The specified file does not exist               |
-| `INVALID_ZIP`         | 1    | The file is not a valid ZIP archive             |
-| `THRESHOLD_BREACHED`  | 6    | Compressed size exceeds `--threshold` value     |
+| Code                 | Exit | Description                                 |
+| -------------------- | ---- | ------------------------------------------- |
+| `FILE_NOT_FOUND`     | 1    | The specified file does not exist           |
+| `INVALID_ZIP`        | 1    | The file is not a valid ZIP archive         |
+| `THRESHOLD_BREACHED` | 6    | Compressed size exceeds `--threshold` value |
 
 ## Related
 

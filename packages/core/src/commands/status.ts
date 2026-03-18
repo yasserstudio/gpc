@@ -309,27 +309,31 @@ export async function getAppStatus(
       options.vitalThresholds?.slowRenderingRate ?? DEFAULT_THRESHOLDS.slowRenderingRate,
   };
 
-  const [releasesResult, crashesResult, anrResult, slowStartResult, slowRenderResult, reviewsResult] =
-    await Promise.allSettled([
-      sections.has("releases")
-        ? getReleasesStatus(client, packageName)
-        : Promise.resolve([]),
-      sections.has("vitals")
-        ? queryVitalWithTrend(reporting, packageName, "crashRateMetricSet", days)
-        : Promise.resolve(SKIPPED_VITAL),
-      sections.has("vitals")
-        ? queryVitalWithTrend(reporting, packageName, "anrRateMetricSet", days)
-        : Promise.resolve(SKIPPED_VITAL),
-      sections.has("vitals")
-        ? queryVitalWithTrend(reporting, packageName, "slowStartRateMetricSet", days)
-        : Promise.resolve(SKIPPED_VITAL),
-      sections.has("vitals")
-        ? queryVitalWithTrend(reporting, packageName, "slowRenderingRateMetricSet", days)
-        : Promise.resolve(SKIPPED_VITAL),
-      sections.has("reviews")
-        ? listReviews(client, packageName, { maxResults: 500 })
-        : Promise.resolve([]),
-    ]);
+  const [
+    releasesResult,
+    crashesResult,
+    anrResult,
+    slowStartResult,
+    slowRenderResult,
+    reviewsResult,
+  ] = await Promise.allSettled([
+    sections.has("releases") ? getReleasesStatus(client, packageName) : Promise.resolve([]),
+    sections.has("vitals")
+      ? queryVitalWithTrend(reporting, packageName, "crashRateMetricSet", days)
+      : Promise.resolve(SKIPPED_VITAL),
+    sections.has("vitals")
+      ? queryVitalWithTrend(reporting, packageName, "anrRateMetricSet", days)
+      : Promise.resolve(SKIPPED_VITAL),
+    sections.has("vitals")
+      ? queryVitalWithTrend(reporting, packageName, "slowStartRateMetricSet", days)
+      : Promise.resolve(SKIPPED_VITAL),
+    sections.has("vitals")
+      ? queryVitalWithTrend(reporting, packageName, "slowRenderingRateMetricSet", days)
+      : Promise.resolve(SKIPPED_VITAL),
+    sections.has("reviews")
+      ? listReviews(client, packageName, { maxResults: 500 })
+      : Promise.resolve([]),
+  ]);
 
   const rawReleases = releasesResult.status === "fulfilled" ? releasesResult.value : [];
   const releases: StatusRelease[] = rawReleases.map((r) => ({
@@ -339,12 +343,9 @@ export async function getAppStatus(
     userFraction: r.userFraction ?? null,
   }));
 
-  const crashes =
-    crashesResult.status === "fulfilled" ? crashesResult.value : SKIPPED_VITAL;
-  const anr =
-    anrResult.status === "fulfilled" ? anrResult.value : SKIPPED_VITAL;
-  const slowStart =
-    slowStartResult.status === "fulfilled" ? slowStartResult.value : SKIPPED_VITAL;
+  const crashes = crashesResult.status === "fulfilled" ? crashesResult.value : SKIPPED_VITAL;
+  const anr = anrResult.status === "fulfilled" ? anrResult.value : SKIPPED_VITAL;
+  const slowStart = slowStartResult.status === "fulfilled" ? slowStartResult.value : SKIPPED_VITAL;
   const slowRender =
     slowRenderResult.status === "fulfilled" ? slowRenderResult.value : SKIPPED_VITAL;
 
@@ -359,7 +360,12 @@ export async function getAppStatus(
     releases,
     vitals: {
       windowDays: days,
-      crashes: toVitalMetric(crashes.current, thresholds.crashRate, crashes.previous, crashes.trend),
+      crashes: toVitalMetric(
+        crashes.current,
+        thresholds.crashRate,
+        crashes.previous,
+        crashes.trend,
+      ),
       anr: toVitalMetric(anr.current, thresholds.anrRate, anr.previous, anr.trend),
       slowStarts: toVitalMetric(
         slowStart.current,
@@ -512,8 +518,7 @@ export function formatStatusSummary(status: AppStatus): string {
   const parts: string[] = [status.packageName];
 
   // Latest non-draft release
-  const latestRelease =
-    status.releases.find((r) => r.status !== "draft") ?? status.releases[0];
+  const latestRelease = status.releases.find((r) => r.status !== "draft") ?? status.releases[0];
   if (latestRelease) {
     parts.push(`v${latestRelease.versionCode} ${latestRelease.track}`);
   }
@@ -591,8 +596,7 @@ export function formatStatusDiff(diff: StatusDiff, since: string): string {
     lines.push(`  Version:    ${diff.versionCode.from ?? "—"} → ${diff.versionCode.to ?? "—"}`);
   }
 
-  const fmtRate = (v: number | null): string =>
-    v !== null ? `${(v * 100).toFixed(2)}%` : "—";
+  const fmtRate = (v: number | null): string => (v !== null ? `${(v * 100).toFixed(2)}%` : "—");
 
   const fmtDelta = (d: number | null, lowerIsBetter = true): string => {
     if (d === null || Math.abs(d) < 0.0001) return "no change";
@@ -609,10 +613,8 @@ export function formatStatusDiff(diff: StatusDiff, since: string): string {
   );
 
   const ratingDelta = diff.averageRating.delta;
-  const prevR =
-    diff.averageRating.from !== null ? `${diff.averageRating.from.toFixed(1)}★` : "—";
-  const currR =
-    diff.averageRating.to !== null ? `${diff.averageRating.to.toFixed(1)}★` : "—";
+  const prevR = diff.averageRating.from !== null ? `${diff.averageRating.from.toFixed(1)}★` : "—";
+  const currR = diff.averageRating.to !== null ? `${diff.averageRating.to.toFixed(1)}★` : "—";
   const ratingStr =
     ratingDelta === null || Math.abs(ratingDelta) < 0.05
       ? "no change"

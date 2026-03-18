@@ -37,33 +37,33 @@ gpc status [options]
 
 ## Options
 
-| Flag | Type | Default | Description |
-| --- | --- | --- | --- |
-| `--days <n>` | `number` | `7` | Vitals window in days (reviews always use last 30 days); must be ≥ 1, exits code 2 otherwise |
-| `--cached` | flag | off | Read from cache, skip all API calls |
-| `--refresh` | flag | off | Force live fetch, ignore cache TTL |
-| `--ttl <seconds>` | `number` | `3600` | Cache TTL override for this run |
-| `--format <fmt>` | `string` | `table` | `table` for the full view, `summary` for a one-liner |
-| `--sections <list>` | `string` | `releases,vitals,reviews` | Comma-separated sections to fetch and display |
-| `--watch [seconds]` | `number` | `30` | Poll and refresh every N seconds (min 10) |
-| `--since-last` | flag | off | Show diff from the last cached status |
-| `--all-apps` | flag | off | Run for all configured app profiles (max 5) |
-| `--notify` | flag | off | Send a desktop notification on threshold breach or clear |
-| `--output <format>` | `string` | `table` | `table` or `json` |
-| `--app <package>` | `string` | config | Override app package name |
+| Flag                | Type     | Default                   | Description                                                                                  |
+| ------------------- | -------- | ------------------------- | -------------------------------------------------------------------------------------------- |
+| `--days <n>`        | `number` | `7`                       | Vitals window in days (reviews always use last 30 days); must be ≥ 1, exits code 2 otherwise |
+| `--cached`          | flag     | off                       | Read from cache, skip all API calls                                                          |
+| `--refresh`         | flag     | off                       | Force live fetch, ignore cache TTL                                                           |
+| `--ttl <seconds>`   | `number` | `3600`                    | Cache TTL override for this run                                                              |
+| `--format <fmt>`    | `string` | `table`                   | `table` for the full view, `summary` for a one-liner                                         |
+| `--sections <list>` | `string` | `releases,vitals,reviews` | Comma-separated sections to fetch and display                                                |
+| `--watch [seconds]` | `number` | `30`                      | Poll and refresh every N seconds (min 10)                                                    |
+| `--since-last`      | flag     | off                       | Show diff from the last cached status                                                        |
+| `--all-apps`        | flag     | off                       | Run for all configured app profiles (max 5)                                                  |
+| `--notify`          | flag     | off                       | Send a desktop notification on threshold breach or clear                                     |
+| `--output <format>` | `string` | `table`                   | `table` or `json`                                                                            |
+| `--app <package>`   | `string` | config                    | Override app package name                                                                    |
 
 ## How It Works
 
 `gpc status` fires **parallel API calls** for each requested section. With all sections enabled and trend data, this is up to 10 calls total:
 
-| Section | API | Endpoint | Calls |
-| --- | --- | --- | --- |
-| Releases | Publisher API v3 | `tracks.list` | 1 |
-| Crash rate | Reporting API v1beta1 | `crashRateMetricSet.query` | 2 (current + previous period for trend) |
-| ANR rate | Reporting API v1beta1 | `anrRateMetricSet.query` | 2 |
-| Slow starts | Reporting API v1beta1 | `slowStartRateMetricSet.query` | 2 |
-| Slow render | Reporting API v1beta1 | `slowRenderingRateMetricSet.query` | 2 |
-| Reviews | Publisher API v3 | `reviews.list` | 1 |
+| Section     | API                   | Endpoint                           | Calls                                   |
+| ----------- | --------------------- | ---------------------------------- | --------------------------------------- |
+| Releases    | Publisher API v3      | `tracks.list`                      | 1                                       |
+| Crash rate  | Reporting API v1beta1 | `crashRateMetricSet.query`         | 2 (current + previous period for trend) |
+| ANR rate    | Reporting API v1beta1 | `anrRateMetricSet.query`           | 2                                       |
+| Slow starts | Reporting API v1beta1 | `slowStartRateMetricSet.query`     | 2                                       |
+| Slow render | Reporting API v1beta1 | `slowRenderingRateMetricSet.query` | 2                                       |
+| Reviews     | Publisher API v3      | `reviews.list`                     | 1                                       |
 
 Results are cached in `~/.cache/gpc/status-<packageName>.json` (XDG-compliant). Default TTL: 1 hour. Individual API failures do not abort the command — the failed section shows `—` and the exit code reflects overall health.
 
@@ -75,23 +75,23 @@ The header timestamp uses relative time: `fetched 5 min ago`, `fetched 2h ago`, 
 
 One row per track. Shows all tracks that have at least one release, ordered: `production`, `beta`, `alpha`, `internal`, then custom tracks.
 
-| Field | Description |
-| --- | --- |
-| track | Track name |
-| versionCode | Latest version code in the track |
-| status | `completed` · `inProgress` · `draft` · `halted` |
-| rollout | Staged rollout percentage, or `—` for full rollout |
+| Field       | Description                                        |
+| ----------- | -------------------------------------------------- |
+| track       | Track name                                         |
+| versionCode | Latest version code in the track                   |
+| status      | `completed` · `inProgress` · `draft` · `halted`    |
+| rollout     | Staged rollout percentage, or `—` for full rollout |
 
 ### VITALS (last N days)
 
 Four metrics from the Play Reporting API. Each shows a value, an optional trend arrow, and a threshold indicator.
 
-| Metric | Default threshold | Indicator |
-| --- | --- | --- |
-| crashes | 2% | `✓` ok · `⚠` within 20% of threshold · `✗` breached |
-| anr | 1% | same |
-| slow starts | 5% | same |
-| slow render | 10% | same |
+| Metric      | Default threshold | Indicator                                           |
+| ----------- | ----------------- | --------------------------------------------------- |
+| crashes     | 2%                | `✓` ok · `⚠` within 20% of threshold · `✗` breached |
+| anr         | 1%                | same                                                |
+| slow starts | 5%                | same                                                |
+| slow render | 10%               | same                                                |
 
 **Trend arrows** compare the current window against an equal-length prior window:
 
@@ -110,7 +110,7 @@ Configure thresholds in `.gpcrc.json`:
       "crashRate": 0.02,
       "anrRate": 0.01,
       "slowStartRate": 0.05,
-      "slowRenderingRate": 0.10
+      "slowRenderingRate": 0.1
     }
   }
 }
@@ -129,12 +129,12 @@ If any metric breaches its threshold, `gpc status` exits **code 6** — consiste
 
 Computed locally from `reviews.list` — no external service.
 
-| Field | Meaning |
-| --- | --- |
-| ★ 4.6 | Average star rating in the current window |
-| 142 new | Reviews received in the window |
-| 89% positive | Percentage with ≥ 4 stars |
-| ↑ from 4.4 | Trend vs the previous 30-day window |
+| Field        | Meaning                                   |
+| ------------ | ----------------------------------------- |
+| ★ 4.6        | Average star rating in the current window |
+| 142 new      | Reviews received in the window            |
+| 89% positive | Percentage with ≥ 4 stars                 |
+| ↑ from 4.4   | Trend vs the previous 30-day window       |
 
 When no reviews exist in the period: `No reviews in this period.`
 
@@ -225,12 +225,12 @@ Works with `--refresh` to force a fresh fetch before diffing.
 
 ## Caching
 
-| Invocation | Behaviour |
-| --- | --- |
-| `gpc status` | Use cache if fresh (< TTL), otherwise fetch live |
-| `gpc status --cached` | Always read from cache; error if none exists |
-| `--refresh` | Always fetch live, update cache |
-| `--ttl 300` | Override TTL to 5 minutes for this run |
+| Invocation            | Behaviour                                        |
+| --------------------- | ------------------------------------------------ |
+| `gpc status`          | Use cache if fresh (< TTL), otherwise fetch live |
+| `gpc status --cached` | Always read from cache; error if none exists     |
+| `--refresh`           | Always fetch live, update cache                  |
+| `--ttl 300`           | Override TTL to 5 minutes for this run           |
 
 ## Multi-App Mode
 
@@ -288,15 +288,39 @@ gpc status --output json
   "cached": false,
   "releases": [
     { "track": "production", "versionCode": "142", "status": "completed", "userFraction": null },
-    { "track": "beta",       "versionCode": "143", "status": "inProgress", "userFraction": 0.1 },
-    { "track": "internal",   "versionCode": "144", "status": "draft",      "userFraction": null }
+    { "track": "beta", "versionCode": "143", "status": "inProgress", "userFraction": 0.1 },
+    { "track": "internal", "versionCode": "144", "status": "draft", "userFraction": null }
   ],
   "vitals": {
     "windowDays": 7,
-    "crashes":    { "value": 0.008, "threshold": 0.02, "status": "ok", "previousValue": 0.015, "trend": "down" },
-    "anr":        { "value": 0.002, "threshold": 0.01, "status": "ok", "previousValue": 0.004, "trend": "down" },
-    "slowStarts": { "value": 0.021, "threshold": 0.05, "status": "ok", "previousValue": null, "trend": null },
-    "slowRender": { "value": 0.043, "threshold": 0.10, "status": "warn", "previousValue": 0.041, "trend": "up" }
+    "crashes": {
+      "value": 0.008,
+      "threshold": 0.02,
+      "status": "ok",
+      "previousValue": 0.015,
+      "trend": "down"
+    },
+    "anr": {
+      "value": 0.002,
+      "threshold": 0.01,
+      "status": "ok",
+      "previousValue": 0.004,
+      "trend": "down"
+    },
+    "slowStarts": {
+      "value": 0.021,
+      "threshold": 0.05,
+      "status": "ok",
+      "previousValue": null,
+      "trend": null
+    },
+    "slowRender": {
+      "value": 0.043,
+      "threshold": 0.1,
+      "status": "warn",
+      "previousValue": 0.041,
+      "trend": "up"
+    }
   },
   "reviews": {
     "windowDays": 30,
@@ -354,13 +378,13 @@ gpc status --watch 300 --notify --sections vitals
 
 ## Exit Codes
 
-| Code | Meaning |
-| --- | --- |
-| `0` | All clear — no threshold breaches |
-| `1` | No cached data (only when `--cached` is used) |
-| `2` | Usage error — missing package name, invalid section, watch interval too short, `--days` < 1 |
-| `4` | API error |
-| `6` | One or more vitals thresholds breached |
+| Code | Meaning                                                                                     |
+| ---- | ------------------------------------------------------------------------------------------- |
+| `0`  | All clear — no threshold breaches                                                           |
+| `1`  | No cached data (only when `--cached` is used)                                               |
+| `2`  | Usage error — missing package name, invalid section, watch interval too short, `--days` < 1 |
+| `4`  | API error                                                                                   |
+| `6`  | One or more vitals thresholds breached                                                      |
 
 ## Related Commands
 

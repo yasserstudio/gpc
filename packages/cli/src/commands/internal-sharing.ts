@@ -3,11 +3,7 @@ import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
-import {
-  uploadInternalSharing,
-  formatOutput,
-  createSpinner,
-} from "@gpc-cli/core";
+import { uploadInternalSharing, formatOutput, createSpinner } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 
@@ -43,7 +39,11 @@ export function registerInternalSharingCommands(program: Command): void {
 
       if (isDryRun(program)) {
         printDryRun(
-          { command: "internal-sharing upload", action: "upload for internal sharing", target: file },
+          {
+            command: "internal-sharing upload",
+            action: "upload for internal sharing",
+            target: file,
+          },
           format,
           formatOutput,
         );

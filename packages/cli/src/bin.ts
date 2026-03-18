@@ -19,8 +19,7 @@ const _isJsonMode =
   process.argv.includes("--ci") ||
   (process.argv.includes("--output") &&
     process.argv[process.argv.indexOf("--output") + 1] === "json") ||
-  (process.argv.includes("-o") &&
-    process.argv[process.argv.indexOf("-o") + 1] === "json");
+  (process.argv.includes("-o") && process.argv[process.argv.indexOf("-o") + 1] === "json");
 const _isQuiet = process.argv.includes("--quiet") || process.argv.includes("-q");
 
 if (!_isJsonMode && !_isQuiet && !existsSync(getUserConfigPath())) {
@@ -84,7 +83,10 @@ if (notifyOpt !== undefined && notifyOpt !== false) {
   try {
     const config = await loadConfig();
     if (config.webhooks) {
-      const commandName = process.argv.slice(2).filter((a) => !a.startsWith("--notify")).join(" ");
+      const commandName = process.argv
+        .slice(2)
+        .filter((a) => !a.startsWith("--notify"))
+        .join(" ");
       const payload: WebhookPayload = {
         command: commandName || "unknown",
         success: commandSuccess,

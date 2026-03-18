@@ -52,12 +52,8 @@ export async function detectFastlane(cwd: string): Promise<FastlaneDetection> {
   const fastlaneDir = join(cwd, "fastlane");
   const hasFastlaneDir = await fileExists(fastlaneDir);
 
-  const fastfilePath = hasFastlaneDir
-    ? join(fastlaneDir, "Fastfile")
-    : join(cwd, "Fastfile");
-  const appfilePath = hasFastlaneDir
-    ? join(fastlaneDir, "Appfile")
-    : join(cwd, "Appfile");
+  const fastfilePath = hasFastlaneDir ? join(fastlaneDir, "Fastfile") : join(cwd, "Fastfile");
+  const appfilePath = hasFastlaneDir ? join(fastlaneDir, "Appfile") : join(cwd, "Appfile");
 
   result.hasFastfile = await fileExists(fastfilePath);
   result.hasAppfile = await fileExists(appfilePath);
@@ -73,9 +69,7 @@ export async function detectFastlane(cwd: string): Promise<FastlaneDetection> {
   if (result.hasMetadata) {
     try {
       const entries = await readdir(metadataDir, { withFileTypes: true });
-      result.metadataLanguages = entries
-        .filter((e) => e.isDirectory())
-        .map((e) => e.name);
+      result.metadataLanguages = entries.filter((e) => e.isDirectory()).map((e) => e.name);
     } catch {
       result.parseWarnings.push("Could not read metadata directory — check permissions");
     }
@@ -216,9 +210,7 @@ export function generateMigrationPlan(detection: FastlaneDetection): MigrationRe
   // Lane mappings
   for (const lane of detection.lanes) {
     if (lane.gpcEquivalent) {
-      checklist.push(
-        `Replace Fastlane lane "${lane.name}" with: ${lane.gpcEquivalent} <your.aab>`,
-      );
+      checklist.push(`Replace Fastlane lane "${lane.name}" with: ${lane.gpcEquivalent} <your.aab>`);
     }
 
     if (lane.actions.includes("capture_android_screenshots")) {
@@ -320,12 +312,14 @@ export async function writeMigrationOutput(
   lines.push("|----------|-----|");
   lines.push("| `fastlane supply` | `gpc releases upload` / `gpc listings push` |");
   lines.push("| `upload_to_play_store` | `gpc releases upload` |");
-  lines.push("| `supply(track: \"internal\")` | `gpc releases upload --track internal` |");
-  lines.push("| `supply(rollout: \"0.1\")` | `gpc releases upload --rollout 10` |");
+  lines.push('| `supply(track: "internal")` | `gpc releases upload --track internal` |');
+  lines.push('| `supply(rollout: "0.1")` | `gpc releases upload --rollout 10` |');
   lines.push("| `supply(skip_upload_aab: true)` | `gpc listings push` |");
   lines.push("| `capture_android_screenshots` | No equivalent — use separate tool |");
   lines.push("");
-  lines.push("See the full migration guide: https://yasserstudio.github.io/gpc/migration/from-fastlane");
+  lines.push(
+    "See the full migration guide: https://yasserstudio.github.io/gpc/migration/from-fastlane",
+  );
   lines.push("");
 
   await writeFile(migrationPath, lines.join("\n"), "utf-8");

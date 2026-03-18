@@ -250,8 +250,17 @@ export interface PlayApiClient {
       options?: { token?: string; maxResults?: number },
     ): Promise<InAppProductsListResponse>;
     get(packageName: string, sku: string): Promise<InAppProduct>;
-    create(packageName: string, data: InAppProduct, options?: { autoConvertMissingPrices?: boolean }): Promise<InAppProduct>;
-    update(packageName: string, sku: string, data: InAppProduct, options?: { autoConvertMissingPrices?: boolean; allowMissing?: boolean }): Promise<InAppProduct>;
+    create(
+      packageName: string,
+      data: InAppProduct,
+      options?: { autoConvertMissingPrices?: boolean },
+    ): Promise<InAppProduct>;
+    update(
+      packageName: string,
+      sku: string,
+      data: InAppProduct,
+      options?: { autoConvertMissingPrices?: boolean; allowMissing?: boolean },
+    ): Promise<InAppProduct>;
     delete(packageName: string, sku: string): Promise<void>;
     batchUpdate(
       packageName: string,
@@ -332,8 +341,15 @@ export interface PlayApiClient {
     list(packageName: string, versionCode?: number): Promise<AppRecoveryAction[]>;
     cancel(packageName: string, appRecoveryId: string): Promise<void>;
     deploy(packageName: string, appRecoveryId: string): Promise<void>;
-    create(packageName: string, request: CreateAppRecoveryActionRequest): Promise<AppRecoveryAction>;
-    addTargeting(packageName: string, appRecoveryId: string, targeting: AppRecoveryTargeting): Promise<AppRecoveryAction>;
+    create(
+      packageName: string,
+      request: CreateAppRecoveryActionRequest,
+    ): Promise<AppRecoveryAction>;
+    addTargeting(
+      packageName: string,
+      appRecoveryId: string,
+      targeting: AppRecoveryTargeting,
+    ): Promise<AppRecoveryAction>;
   };
 
   externalTransactions: {
@@ -365,16 +381,8 @@ export interface PlayApiClient {
     ): Promise<OneTimeProduct>;
     delete(packageName: string, productId: string): Promise<void>;
     listOffers(packageName: string, productId: string): Promise<OneTimeOffersListResponse>;
-    getOffer(
-      packageName: string,
-      productId: string,
-      offerId: string,
-    ): Promise<OneTimeOffer>;
-    createOffer(
-      packageName: string,
-      productId: string,
-      offer: OneTimeOffer,
-    ): Promise<OneTimeOffer>;
+    getOffer(packageName: string, productId: string, offerId: string): Promise<OneTimeOffer>;
+    createOffer(packageName: string, productId: string, offer: OneTimeOffer): Promise<OneTimeOffer>;
     updateOffer(
       packageName: string,
       productId: string,
@@ -383,11 +391,7 @@ export interface PlayApiClient {
       updateMask?: string,
       regionsVersion?: string,
     ): Promise<OneTimeOffer>;
-    deleteOffer(
-      packageName: string,
-      productId: string,
-      offerId: string,
-    ): Promise<void>;
+    deleteOffer(packageName: string, productId: string, offerId: string): Promise<void>;
   };
 
   purchaseOptions: {
@@ -622,17 +626,12 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
     dataSafety: {
       async get(packageName) {
-        const { data } = await http.get<DataSafety>(
-          `/${packageName}/dataSafety`,
-        );
+        const { data } = await http.get<DataSafety>(`/${packageName}/dataSafety`);
         return data;
       },
 
       async update(packageName, body) {
-        const { data } = await http.put<DataSafety>(
-          `/${packageName}/dataSafety`,
-          body,
-        );
+        const { data } = await http.put<DataSafety>(`/${packageName}/dataSafety`, body);
         return data;
       },
     },
@@ -690,9 +689,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async get(packageName, productId) {
-        const { data } = await http.get<Subscription>(
-          `/${packageName}/subscriptions/${productId}`,
-        );
+        const { data } = await http.get<Subscription>(`/${packageName}/subscriptions/${productId}`);
         return data;
       },
 
@@ -733,9 +730,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async deleteBasePlan(packageName, productId, basePlanId) {
-        await http.delete(
-          `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}`,
-        );
+        await http.delete(`/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}`);
       },
 
       async migratePrices(packageName, productId, basePlanId, body) {
@@ -769,7 +764,15 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async updateOffer(packageName, productId, basePlanId, offerId, body, updateMask?, regionsVersion?) {
+      async updateOffer(
+        packageName,
+        productId,
+        basePlanId,
+        offerId,
+        body,
+        updateMask?,
+        regionsVersion?,
+      ) {
         const params: Record<string, string> = {};
         if (updateMask) params["updateMask"] = updateMask;
         params["regionsVersion.version"] = regionsVersion || "2022/02";
@@ -1174,10 +1177,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async create(packageName, body) {
-        const { data } = await http.post<PurchaseOption>(
-          `/${packageName}/purchaseOptions`,
-          body,
-        );
+        const { data } = await http.post<PurchaseOption>(`/${packageName}/purchaseOptions`, body);
         return data;
       },
 
@@ -1225,9 +1225,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async download(packageName, versionCode, id) {
-        return http.download(
-          `/${packageName}/generatedApks/${versionCode}/download/${id}`,
-        );
+        return http.download(`/${packageName}/generatedApks/${versionCode}/download/${id}`);
       },
     },
   };

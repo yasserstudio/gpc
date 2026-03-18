@@ -17,6 +17,7 @@ gpc doctor
 ```
 
 `gpc doctor` validates:
+
 - Node.js version compatibility
 - Authentication credentials and token validity
 - API access and permissions
@@ -48,6 +49,7 @@ Debug mode prints request/response details, timing information, and internal sta
 **Cause:** GPC cannot locate a service account key or OAuth token.
 
 **Fix:**
+
 ```bash
 # Point to your service account key
 export GPC_SERVICE_ACCOUNT=/path/to/service-account.json
@@ -63,6 +65,7 @@ gpc auth login
 **Cause:** Your OAuth token has expired and needs to be refreshed.
 
 **Fix:**
+
 ```bash
 gpc auth login
 ```
@@ -74,6 +77,7 @@ gpc auth login
 **Cause:** Your service account or user account lacks the required permissions.
 
 **Fix:**
+
 1. Open the [Google Cloud Console](https://console.cloud.google.com/)
 2. Verify the Google Play Android Developer API is enabled
 3. Check that your service account has the correct roles in Google Play Console under **Users and permissions**
@@ -89,6 +93,7 @@ gpc auth login
 **Cause:** The Reporting API requires the `playdeveloperreporting` OAuth scope. GPC v0.9.15+ requests both required scopes automatically. If you're using an older cached token, it may only have the `androidpublisher` scope.
 
 **Fix:**
+
 1. Re-authenticate to obtain a token with both scopes:
    ```bash
    gpc auth logout && gpc auth login --service-account /path/to/key.json
@@ -106,6 +111,7 @@ gpc auth login
 **Cause:** The Google Play Developer Reporting API is not enabled in your Google Cloud project. Vitals commands use a separate API from the main Android Publisher API.
 
 **Fix:**
+
 1. Enable the Reporting API:
    ```bash
    gcloud services enable playdeveloperreporting.googleapis.com --project YOUR_PROJECT_ID
@@ -123,6 +129,7 @@ gpc auth login
 **Cause:** The package name does not match any app in your developer account.
 
 **Fix:**
+
 ```bash
 # Verify the package name
 gpc apps list
@@ -138,6 +145,7 @@ gpc config get app
 **Cause:** Your credentials lack API access for the requested operation.
 
 **Fix:**
+
 1. Confirm API access is granted in Google Play Console
 2. Check that the service account has permissions for the specific app
 3. Verify the Google Play Android Developer API is enabled in Cloud Console
@@ -149,6 +157,7 @@ gpc config get app
 **Cause:** You have exceeded Google Play API rate limits.
 
 **Fix:**
+
 ```bash
 # Reduce concurrency for batch operations
 gpc <command> --concurrency 1
@@ -167,6 +176,7 @@ gpc <command> --concurrency 1
 **Cause:** Cannot connect to Google APIs. Often a proxy or firewall issue.
 
 **Fix:**
+
 ```bash
 # If behind a proxy, set proxy environment variables
 export HTTPS_PROXY=http://proxy.example.com:8080
@@ -182,6 +192,7 @@ curl -I https://androidpublisher.googleapis.com
 **Cause:** Corporate proxy or custom CA certificate not trusted.
 
 **Fix:**
+
 ```bash
 # Point to your CA certificate bundle
 export GPC_CA_CERT=/path/to/ca-bundle.crt
@@ -197,6 +208,7 @@ export NODE_EXTRA_CA_CERTS=/path/to/ca-bundle.crt
 **Cause:** DNS cannot resolve Google API hostnames.
 
 **Fix:**
+
 - Check your network connection
 - Verify DNS settings
 - Try a public DNS server (e.g., `8.8.8.8`)
@@ -212,6 +224,7 @@ export NODE_EXTRA_CA_CERTS=/path/to/ca-bundle.crt
 **Cause:** The specified profile does not exist in your configuration.
 
 **Fix:**
+
 ```bash
 # List available profiles
 gpc config profiles
@@ -230,6 +243,7 @@ gpc config set --profile production app com.example.app
 **Cause:** The configuration file contains invalid JSON or YAML.
 
 **Fix:**
+
 ```bash
 # Validate your config file
 gpc doctor
@@ -249,6 +263,7 @@ cat ~/.config/gpc/config.json | jq .
 **Cause:** GPC is trying to prompt for input in a CI environment.
 
 **Fix:**
+
 ```bash
 # Disable interactive prompts
 export GPC_NO_INTERACTIVE=1
@@ -261,6 +276,7 @@ export GPC_NO_INTERACTIVE=1
 **Cause:** The `GITHUB_STEP_SUMMARY` environment variable is not available.
 
 **Fix:**
+
 - Ensure you are running inside a GitHub Actions workflow
 - Check that the step has write permissions to the summary file
 - Verify the `--json` flag is set for structured output
@@ -274,6 +290,7 @@ export GPC_NO_INTERACTIVE=1
 **Cause:** Fixed in v0.9.18. Earlier versions did not serialize nested objects before rendering them in table or markdown format.
 
 **Fix:** Update to v0.9.18 or later:
+
 ```bash
 npm install -g @gpc-cli/cli@latest
 ```

@@ -39,11 +39,7 @@ export function registerMigrateCommands(program: Command): void {
         const detection = await detectFastlane(options.dir);
 
         if (format === "json") {
-          if (
-            !detection.hasFastfile &&
-            !detection.hasAppfile &&
-            !detection.hasMetadata
-          ) {
+          if (!detection.hasFastfile && !detection.hasAppfile && !detection.hasMetadata) {
             console.log(formatOutput({ detection, plan: null, files: [] }, format));
             return;
           }
@@ -87,11 +83,7 @@ export function registerMigrateCommands(program: Command): void {
           }
         }
 
-        if (
-          !detection.hasFastfile &&
-          !detection.hasAppfile &&
-          !detection.hasMetadata
-        ) {
+        if (!detection.hasFastfile && !detection.hasAppfile && !detection.hasMetadata) {
           console.log("\nNo Fastlane files detected in this directory. Nothing to migrate.");
           console.log("  Try: gpc migrate fastlane --dir <path-to-your-android-project>");
           return;
@@ -133,16 +125,13 @@ export function registerMigrateCommands(program: Command): void {
           Object.keys(plan.config).length > 0 &&
           (await fileExists(join(options.output, ".gpcrc.json")))
         ) {
-          const hasYes =
-            process.argv.includes("--yes") || process.argv.includes("-y");
+          const hasYes = process.argv.includes("--yes") || process.argv.includes("-y");
 
           if (!hasYes) {
             console.log(
               `\n${WARN} .gpcrc.json already exists and will be overwritten. Use --dry-run to preview first.`,
             );
-            console.log(
-              "Aborting. Pass --yes to overwrite without confirmation.",
-            );
+            console.log("Aborting. Pass --yes to overwrite without confirmation.");
             return;
           }
 

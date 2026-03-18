@@ -12,7 +12,11 @@ const mockExecFile = execFile as unknown as ReturnType<typeof vi.fn>;
 
 function setupExecFile(calls: Record<string, { stdout?: string; error?: Error }>) {
   mockExecFile.mockImplementation(
-    (_cmd: string, args: string[], callback: (err: Error | null, result: { stdout: string; stderr: string }) => void) => {
+    (
+      _cmd: string,
+      args: string[],
+      callback: (err: Error | null, result: { stdout: string; stderr: string }) => void,
+    ) => {
       const key = args.join(" ");
       for (const [pattern, result] of Object.entries(calls)) {
         if (key.includes(pattern)) {
@@ -37,13 +41,14 @@ describe("generateNotesFromGit", () => {
   it("parses conventional commits and groups by type", async () => {
     setupExecFile({
       "describe --tags": { stdout: "v1.0.0\n" },
-      "log": {
-        stdout: [
-          "feat(cli): add dry-run mode",
-          "fix(api): rate limiter accuracy",
-          "perf: faster startup time",
-          "feat: auto-update checker",
-        ].join("\n") + "\n",
+      log: {
+        stdout:
+          [
+            "feat(cli): add dry-run mode",
+            "fix(api): rate limiter accuracy",
+            "perf: faster startup time",
+            "feat: auto-update checker",
+          ].join("\n") + "\n",
       },
     });
 
@@ -64,7 +69,7 @@ describe("generateNotesFromGit", () => {
   it("strips scope from commit messages", async () => {
     setupExecFile({
       "describe --tags": { stdout: "v2.0.0\n" },
-      "log": { stdout: "feat(core): enhanced validation\n" },
+      log: { stdout: "feat(core): enhanced validation\n" },
     });
 
     const result = await generateNotesFromGit();
@@ -76,7 +81,7 @@ describe("generateNotesFromGit", () => {
   it("groups non-conventional commits under Changes", async () => {
     setupExecFile({
       "describe --tags": { stdout: "v1.0.0\n" },
-      "log": {
+      log: {
         stdout: ["update dependencies", "bump version", "feat: new feature"].join("\n") + "\n",
       },
     });
@@ -90,10 +95,13 @@ describe("generateNotesFromGit", () => {
   });
 
   it("truncates to maxLength with ellipsis and sets truncated: true", async () => {
-    const longCommits = Array.from({ length: 50 }, (_, i) => `feat: feature number ${i + 1} with a long description`);
+    const longCommits = Array.from(
+      { length: 50 },
+      (_, i) => `feat: feature number ${i + 1} with a long description`,
+    );
     setupExecFile({
       "describe --tags": { stdout: "v1.0.0\n" },
-      "log": { stdout: longCommits.join("\n") + "\n" },
+      log: { stdout: longCommits.join("\n") + "\n" },
     });
 
     const result = await generateNotesFromGit({ maxLength: 100 });
@@ -105,15 +113,15 @@ describe("generateNotesFromGit", () => {
 
   it("uses custom since ref", async () => {
     setupExecFile({
-      "log": { stdout: "fix: a bug\n" },
+      log: { stdout: "fix: a bug\n" },
     });
 
     const result = await generateNotesFromGit({ since: "abc123" });
 
     expect(result.since).toBe("abc123");
     // Should NOT call git describe since `since` was provided
-    const describeCall = mockExecFile.mock.calls.find(
-      (call: unknown[]) => (call[1] as string[]).includes("describe"),
+    const describeCall = mockExecFile.mock.calls.find((call: unknown[]) =>
+      (call[1] as string[]).includes("describe"),
     );
     expect(describeCall).toBeUndefined();
   });
@@ -121,7 +129,7 @@ describe("generateNotesFromGit", () => {
   it("defaults language to en-US", async () => {
     setupExecFile({
       "describe --tags": { stdout: "v1.0.0\n" },
-      "log": { stdout: "fix: something\n" },
+      log: { stdout: "fix: something\n" },
     });
 
     const result = await generateNotesFromGit();
@@ -132,7 +140,7 @@ describe("generateNotesFromGit", () => {
   it("accepts custom language", async () => {
     setupExecFile({
       "describe --tags": { stdout: "v1.0.0\n" },
-      "log": { stdout: "fix: something\n" },
+      log: { stdout: "fix: something\n" },
     });
 
     const result = await generateNotesFromGit({ language: "de-DE" });
@@ -152,7 +160,11 @@ describe("generateNotesFromGit", () => {
   it("throws when git is not available", async () => {
     const err = Object.assign(new Error("spawn git ENOENT"), { code: "ENOENT" });
     mockExecFile.mockImplementation(
-      (_cmd: string, _args: string[], callback: (err: Error | null, result: { stdout: string; stderr: string }) => void) => {
+      (
+        _cmd: string,
+        _args: string[],
+        callback: (err: Error | null, result: { stdout: string; stderr: string }) => void,
+      ) => {
         callback(err, { stdout: "", stderr: "" });
       },
     );
@@ -163,7 +175,7 @@ describe("generateNotesFromGit", () => {
   it("returns empty message when no commits since tag", async () => {
     setupExecFile({
       "describe --tags": { stdout: "v3.0.0\n" },
-      "log": { stdout: "\n" },
+      log: { stdout: "\n" },
     });
 
     const result = await generateNotesFromGit();
@@ -174,10 +186,13 @@ describe("generateNotesFromGit", () => {
   });
 
   it("respects default maxLength of 500 and sets truncated when exceeded", async () => {
-    const longCommits = Array.from({ length: 200 }, (_, i) => `feat: this is feature ${i + 1} with description`);
+    const longCommits = Array.from(
+      { length: 200 },
+      (_, i) => `feat: this is feature ${i + 1} with description`,
+    );
     setupExecFile({
       "describe --tags": { stdout: "v1.0.0\n" },
-      "log": { stdout: longCommits.join("\n") + "\n" },
+      log: { stdout: longCommits.join("\n") + "\n" },
     });
 
     const result = await generateNotesFromGit();
@@ -189,7 +204,7 @@ describe("generateNotesFromGit", () => {
   it("sets truncated: false when notes fit within limit", async () => {
     setupExecFile({
       "describe --tags": { stdout: "v1.0.0\n" },
-      "log": { stdout: "feat: small feature\nfix: tiny bug\n" },
+      log: { stdout: "feat: small feature\nfix: tiny bug\n" },
     });
 
     const result = await generateNotesFromGit();
@@ -200,13 +215,9 @@ describe("generateNotesFromGit", () => {
   it("orders sections: New, Fixed, Improved, Changes", async () => {
     setupExecFile({
       "describe --tags": { stdout: "v1.0.0\n" },
-      "log": {
-        stdout: [
-          "update readme",
-          "perf: speed up",
-          "fix: a crash",
-          "feat: a feature",
-        ].join("\n") + "\n",
+      log: {
+        stdout:
+          ["update readme", "perf: speed up", "fix: a crash", "feat: a feature"].join("\n") + "\n",
       },
     });
 

@@ -23,7 +23,13 @@ import {
 import { formatOutput, sortResults, createSpinner } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
-import { isInteractive, promptSelect, promptInput, requireOption, requireConfirm } from "../prompt.js";
+import {
+  isInteractive,
+  promptSelect,
+  promptInput,
+  requireOption,
+  requireConfirm,
+} from "../prompt.js";
 
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
@@ -63,7 +69,11 @@ export function registerReleasesCommands(program: Command): void {
     .option("--notes-from-git", "Generate release notes from git commit history")
     .option("--since <ref>", "Git ref to start from (tag, SHA) — used with --notes-from-git")
     .option("--retry-log <path>", "Write retry log entries to file (JSONL)")
-    .option("--timeout <ms>", "Upload timeout in milliseconds (auto-scales with file size by default)", parseInt)
+    .option(
+      "--timeout <ms>",
+      "Upload timeout in milliseconds (auto-scales with file size by default)",
+      parseInt,
+    )
     .action(async (file: string, options) => {
       try {
         await stat(file);
@@ -80,7 +90,9 @@ export function registerReleasesCommands(program: Command): void {
 
       const noteSources = [options.notes, options.notesDir, options.notesFromGit].filter(Boolean);
       if (noteSources.length > 1) {
-        console.error("Error: Cannot combine --notes, --notes-dir, and --notes-from-git. Use only one.");
+        console.error(
+          "Error: Cannot combine --notes, --notes-dir, and --notes-from-git. Use only one.",
+        );
         process.exit(2);
       }
       const config = await loadConfig();
@@ -113,7 +125,9 @@ export function registerReleasesCommands(program: Command): void {
       if (options.rollout !== undefined) {
         const rollout = Number(options.rollout);
         if (!Number.isFinite(rollout) || rollout < 1 || rollout > 100) {
-          console.error(`Error: --rollout must be a number between 1 and 100 (got: ${options.rollout})`);
+          console.error(
+            `Error: --rollout must be a number between 1 and 100 (got: ${options.rollout})`,
+          );
           process.exit(2);
         }
       }
@@ -133,7 +147,9 @@ export function registerReleasesCommands(program: Command): void {
         const startTime = Date.now();
         progressInterval = setInterval(() => {
           const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
-          process.stderr.write(`\r  ${FRAMES[frame % FRAMES.length]} Uploading ${basename(file)}  ${sizeMB} MB  (${elapsed}s)  `);
+          process.stderr.write(
+            `\r  ${FRAMES[frame % FRAMES.length]} Uploading ${basename(file)}  ${sizeMB} MB  (${elapsed}s)  `,
+          );
           frame++;
         }, 120);
       }
@@ -186,12 +202,18 @@ export function registerReleasesCommands(program: Command): void {
           mappingFile: options.mapping,
           onProgress,
         });
-        if (progressInterval) { clearInterval(progressInterval); process.stderr.write(`\r  ✓ Uploaded ${basename(file)}  ${sizeMB} MB\n`); }
+        if (progressInterval) {
+          clearInterval(progressInterval);
+          process.stderr.write(`\r  ✓ Uploaded ${basename(file)}  ${sizeMB} MB\n`);
+        }
         spinner.stop("Upload complete");
         console.log(formatOutput(result, format));
         auditEntry.success = true;
       } catch (error) {
-        if (progressInterval) { clearInterval(progressInterval); process.stderr.write("\n"); }
+        if (progressInterval) {
+          clearInterval(progressInterval);
+          process.stderr.write("\n");
+        }
         spinner.fail("Upload failed");
         auditEntry.success = false;
         auditEntry.error = error instanceof Error ? error.message : String(error);
@@ -219,14 +241,20 @@ export function registerReleasesCommands(program: Command): void {
         const TRACK_ORDER = ["production", "beta", "alpha", "internal"];
         const rawStatuses = await getReleasesStatus(client, packageName, options.track);
         const statuses = options.track
-          ? (Array.isArray(rawStatuses) ? rawStatuses.filter((s: any) => s.track === options.track) : rawStatuses)
+          ? Array.isArray(rawStatuses)
+            ? rawStatuses.filter((s: any) => s.track === options.track)
+            : rawStatuses
           : rawStatuses;
         const sorted = Array.isArray(statuses)
           ? options.sort
             ? sortResults(statuses, options.sort)
             : [...statuses].sort((a, b) => {
-                const ai = TRACK_ORDER.indexOf(String((a as unknown as Record<string, unknown>)["track"] ?? ""));
-                const bi = TRACK_ORDER.indexOf(String((b as unknown as Record<string, unknown>)["track"] ?? ""));
+                const ai = TRACK_ORDER.indexOf(
+                  String((a as unknown as Record<string, unknown>)["track"] ?? ""),
+                );
+                const bi = TRACK_ORDER.indexOf(
+                  String((b as unknown as Record<string, unknown>)["track"] ?? ""),
+                );
                 return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
               })
           : statuses;
@@ -237,10 +265,13 @@ export function registerReleasesCommands(program: Command): void {
               track: sr["track"] || "-",
               status: sr["status"] || "-",
               name: sr["name"] || "-",
-              versionCodes: Array.isArray(sr["versionCodes"]) ? (sr["versionCodes"] as unknown[]).join(", ") : "-",
-              userFraction: sr["userFraction"] !== undefined
-                ? `${Math.round(Number(sr["userFraction"]) * 100)}%`
-                : "—",
+              versionCodes: Array.isArray(sr["versionCodes"])
+                ? (sr["versionCodes"] as unknown[]).join(", ")
+                : "-",
+              userFraction:
+                sr["userFraction"] !== undefined
+                  ? `${Math.round(Number(sr["userFraction"]) * 100)}%`
+                  : "—",
             };
           });
           console.log(formatOutput(rows, format));
@@ -289,14 +320,18 @@ export function registerReleasesCommands(program: Command): void {
       );
 
       if (options.from === options.to) {
-        console.error(`Error: --from and --to must be different tracks (both are "${options.from}")`);
+        console.error(
+          `Error: --from and --to must be different tracks (both are "${options.from}")`,
+        );
         process.exit(2);
       }
 
       if (options.rollout !== undefined) {
         const rollout = Number(options.rollout);
         if (!Number.isFinite(rollout) || rollout < 1 || rollout > 100) {
-          console.error(`Error: --rollout must be a number between 1 and 100 (got: ${options.rollout})`);
+          console.error(
+            `Error: --rollout must be a number between 1 and 100 (got: ${options.rollout})`,
+          );
           process.exit(2);
         }
       }
@@ -381,12 +416,17 @@ export function registerReleasesCommands(program: Command): void {
 
       // Require confirmation for destructive rollout halt
       if (action === "halt") {
-        await requireConfirm(`Halt rollout on track "${options.track}" for ${packageName}?`, program);
+        await requireConfirm(
+          `Halt rollout on track "${options.track}" for ${packageName}?`,
+          program,
+        );
       }
 
       if (isDryRun(program)) {
         if (action === "increase" && options.vitalsGate) {
-          console.error("Warning: --vitals-gate is ignored in --dry-run mode. Gate will run on live execution.");
+          console.error(
+            "Warning: --vitals-gate is ignored in --dry-run mode. Gate will run on live execution.",
+          );
         }
         printDryRun(
           {
@@ -416,22 +456,32 @@ export function registerReleasesCommands(program: Command): void {
         if (action === "increase" && options.vitalsGate) {
           const threshold = (config as any).vitals?.thresholds?.crashRate;
           if (!threshold) {
-            console.error("Warning: --vitals-gate requires vitals.thresholds.crashRate in config. Skipping gate.");
+            console.error(
+              "Warning: --vitals-gate requires vitals.thresholds.crashRate in config. Skipping gate.",
+            );
           } else {
             try {
               const { auth: authConfig } = config;
-              const vitalsAuth = await resolveAuth({ serviceAccountPath: authConfig?.serviceAccount });
+              const vitalsAuth = await resolveAuth({
+                serviceAccountPath: authConfig?.serviceAccount,
+              });
               const reportingClient = createReportingClient({ auth: vitalsAuth });
-              const vitalsResult = await getVitalsCrashes(reportingClient, packageName, { days: 1 });
+              const vitalsResult = await getVitalsCrashes(reportingClient, packageName, {
+                days: 1,
+              });
               const latest = (vitalsResult as any).data?.[0]?.crashRate;
               const check = checkThreshold(latest, threshold);
               if (check.breached) {
                 await updateRollout(client, packageName, options.track, "halt");
-                console.error(`Vitals gate: crash rate ${String(latest)}% > threshold ${String(threshold)}%. Rollout halted.`);
+                console.error(
+                  `Vitals gate: crash rate ${String(latest)}% > threshold ${String(threshold)}%. Rollout halted.`,
+                );
                 process.exit(6);
               }
             } catch (vitalsErr) {
-              console.error(`Warning: Vitals gate check failed: ${vitalsErr instanceof Error ? vitalsErr.message : String(vitalsErr)}`);
+              console.error(
+                `Warning: Vitals gate check failed: ${vitalsErr instanceof Error ? vitalsErr.message : String(vitalsErr)}`,
+              );
             }
           }
         }
@@ -457,9 +507,9 @@ export function registerReleasesCommands(program: Command): void {
       if (action === "set") {
         console.error(
           "Error: gpc releases notes set is not implemented as a standalone command.\n" +
-          "Use --notes, --notes-dir, or --notes-from-git with:\n" +
-          "  gpc releases upload\n" +
-          "  gpc publish"
+            "Use --notes, --notes-dir, or --notes-from-git with:\n" +
+            "  gpc releases upload\n" +
+            "  gpc publish",
         );
         process.exit(1);
       }
@@ -473,7 +523,7 @@ export function registerReleasesCommands(program: Command): void {
         const statuses = await getReleasesStatus(client, packageName, track);
         const notes = Array.isArray(statuses)
           ? statuses.flatMap((s: any) => s.releaseNotes ?? [])
-          : (statuses as any).releaseNotes ?? [];
+          : ((statuses as any).releaseNotes ?? []);
         if (notes.length === 0) {
           console.log("No release notes found.");
           return;

@@ -110,11 +110,18 @@ function registerMetricCommand(
             const startTime = rowR["startTime"] as Record<string, unknown> | undefined;
             const metrics = rowR["metrics"] as Record<string, Record<string, unknown>> | undefined;
             const flat: Record<string, unknown> = {
-              date: startTime ? `${startTime["year"]}-${String(startTime["month"]).padStart(2, "0")}-${String(startTime["day"]).padStart(2, "0")}` : "-",
+              date: startTime
+                ? `${startTime["year"]}-${String(startTime["month"]).padStart(2, "0")}-${String(startTime["day"]).padStart(2, "0")}`
+                : "-",
             };
             if (metrics) {
               for (const [key, val] of Object.entries(metrics)) {
-                flat[key] = (val as Record<string, unknown>)?.["decimalValue"] !== undefined ? (val as Record<string, Record<string, unknown>>)?.["decimalValue"]?.["value"] ?? "-" : "-";
+                flat[key] =
+                  (val as Record<string, unknown>)?.["decimalValue"] !== undefined
+                    ? ((val as Record<string, Record<string, unknown>>)?.["decimalValue"]?.[
+                        "value"
+                      ] ?? "-")
+                    : "-";
               }
             }
             const dims = rowR["dimensions"] as Record<string, unknown> | undefined;
@@ -134,12 +141,23 @@ function registerMetricCommand(
         const configKey = THRESHOLD_CONFIG_KEYS[name];
         const configThreshold = configKey
           ? (config as unknown as Record<string, unknown>)["vitals"]
-            ? ((config as unknown as Record<string, unknown>)["vitals"] as Record<string, unknown>)["thresholds"]
-              ? (((config as unknown as Record<string, unknown>)["vitals"] as Record<string, unknown>)["thresholds"] as Record<string, unknown>)[configKey]
+            ? ((config as unknown as Record<string, unknown>)["vitals"] as Record<string, unknown>)[
+                "thresholds"
+              ]
+              ? (
+                  (
+                    (config as unknown as Record<string, unknown>)["vitals"] as Record<
+                      string,
+                      unknown
+                    >
+                  )["thresholds"] as Record<string, unknown>
+                )[configKey]
               : undefined
             : undefined
           : undefined;
-        const threshold = options.threshold ?? (configThreshold !== undefined ? Number(configThreshold) : undefined);
+        const threshold =
+          options.threshold ??
+          (configThreshold !== undefined ? Number(configThreshold) : undefined);
         if (threshold !== undefined) {
           const latestRow = result.rows?.[result.rows.length - 1];
           const metricKeys = latestRow?.metrics ? Object.keys(latestRow.metrics) : [];
@@ -189,9 +207,15 @@ export function registerVitalsCommands(program: Command): void {
           const rows = Object.entries(overview).map(([metric, data]) => {
             const metricRows = data as Record<string, unknown>[] | undefined;
             const latest = metricRows?.[metricRows.length - 1];
-            const metrics = latest?.["metrics"] as Record<string, Record<string, unknown>> | undefined;
+            const metrics = latest?.["metrics"] as
+              | Record<string, Record<string, unknown>>
+              | undefined;
             const firstKey = metrics ? Object.keys(metrics)[0] : undefined;
-            const value = firstKey ? (metrics?.[firstKey]?.["decimalValue"] as Record<string, unknown> | undefined)?.["value"] : undefined;
+            const value = firstKey
+              ? (metrics?.[firstKey]?.["decimalValue"] as Record<string, unknown> | undefined)?.[
+                  "value"
+                ]
+              : undefined;
             return {
               metric,
               dataPoints: metricRows?.length || 0,
@@ -277,7 +301,9 @@ export function registerVitalsCommands(program: Command): void {
           filter: options.filter,
           maxResults: options.max,
         });
-        const issues = (result as unknown as Record<string, unknown>)["errorIssues"] as unknown[] | undefined;
+        const issues = (result as unknown as Record<string, unknown>)["errorIssues"] as
+          | unknown[]
+          | undefined;
         if (format !== "json" && (!issues || issues.length === 0)) {
           console.log("No error issues found.");
           return;
@@ -364,14 +390,14 @@ export function registerVitalsCommands(program: Command): void {
           const s2 = val2 !== undefined ? (val2 * 100).toFixed(3) + "%" : "N/A";
           const isRegression = result.regressions.includes(key as string);
           const change =
-            val1 !== undefined && val2 !== undefined
-              ? ((val2 - val1) / val1) * 100
-              : undefined;
+            val1 !== undefined && val2 !== undefined ? ((val2 - val1) / val1) * 100 : undefined;
           const changeStr =
-            change !== undefined
-              ? (change > 0 ? "+" : "") + change.toFixed(1) + "%"
-              : "N/A";
-          const colorFn = isRegression ? red : change !== undefined && change < -1 ? green : (s: string) => s;
+            change !== undefined ? (change > 0 ? "+" : "") + change.toFixed(1) + "%" : "N/A";
+          const colorFn = isRegression
+            ? red
+            : change !== undefined && change < -1
+              ? green
+              : (s: string) => s;
           console.log(
             `${label.padEnd(22)} ${s1.padEnd(15)} ${colorFn(s2.padEnd(15))} ${colorFn(changeStr)}`,
           );
@@ -392,7 +418,11 @@ export function registerVitalsCommands(program: Command): void {
     .command("watch")
     .description("Monitor vitals continuously and optionally auto-halt rollout on breach")
     .requiredOption("--threshold <value>", "Breach threshold value", parseFloat)
-    .option("--metric <name>", "Metric to monitor (crashes, anr, startup, rendering, battery, memory)", "crashes")
+    .option(
+      "--metric <name>",
+      "Metric to monitor (crashes, anr, startup, rendering, battery, memory)",
+      "crashes",
+    )
     .option("--interval <seconds>", "Polling interval in seconds", (v) => parseInt(v, 10), 300)
     .option("--auto-halt-rollout", "Automatically halt rollout if threshold is breached")
     .option("--track <name>", "Track to halt rollout on (required with --auto-halt-rollout)")
@@ -446,7 +476,9 @@ export function registerVitalsCommands(program: Command): void {
                 await updateRollout(apiClient, packageName, options.track as string, "halt");
                 console.error(`${red("⚠")} Rollout halted on track "${options.track}".`);
               } catch (err) {
-                console.error(`Failed to halt rollout: ${err instanceof Error ? err.message : String(err)}`);
+                console.error(
+                  `Failed to halt rollout: ${err instanceof Error ? err.message : String(err)}`,
+                );
               }
               stop();
               process.exit(6);

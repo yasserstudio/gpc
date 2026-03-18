@@ -15,13 +15,13 @@ Purchase options are part of the modern monetization API. They define how a one-
 
 ## Commands
 
-| Command                                                         | Description                |
-| --------------------------------------------------------------- | -------------------------- |
-| [`purchase-options list`](#purchase-options-list)               | List purchase options      |
-| [`purchase-options get`](#purchase-options-get)                 | Get a purchase option      |
-| [`purchase-options create`](#purchase-options-create)           | Create a purchase option   |
-| [`purchase-options activate`](#purchase-options-activate)       | Activate a purchase option |
-| [`purchase-options deactivate`](#purchase-options-deactivate)   | Deactivate a purchase option |
+| Command                                                       | Description                  |
+| ------------------------------------------------------------- | ---------------------------- |
+| [`purchase-options list`](#purchase-options-list)             | List purchase options        |
+| [`purchase-options get`](#purchase-options-get)               | Get a purchase option        |
+| [`purchase-options create`](#purchase-options-create)         | Create a purchase option     |
+| [`purchase-options activate`](#purchase-options-activate)     | Activate a purchase option   |
+| [`purchase-options deactivate`](#purchase-options-deactivate) | Deactivate a purchase option |
 
 ## `purchase-options list`
 
@@ -35,9 +35,9 @@ gpc purchase-options list [options]
 
 ### Options
 
-| Flag     | Short | Type     | Default | Description                                        |
-| -------- | ----- | -------- | ------- | -------------------------------------------------- |
-| `--sort` |       | `string` |         | Sort by field (prefix with `-` for descending)     |
+| Flag     | Short | Type     | Default | Description                                    |
+| -------- | ----- | -------- | ------- | ---------------------------------------------- |
+| `--sort` |       | `string` |         | Sort by field (prefix with `-` for descending) |
 
 ### Example
 
@@ -77,8 +77,8 @@ gpc purchase-options create --file <path>
 
 ### Options
 
-| Flag     | Short | Type     | Default        | Description                              |
-| -------- | ----- | -------- | -------------- | ---------------------------------------- |
+| Flag     | Short | Type     | Default        | Description                                 |
+| -------- | ----- | -------- | -------------- | ------------------------------------------- |
 | `--file` |       | `string` | **(required)** | Path to JSON file with purchase option data |
 
 ### Example

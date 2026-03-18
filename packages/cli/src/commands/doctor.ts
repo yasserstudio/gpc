@@ -88,7 +88,10 @@ async function applyFix(check: CheckResult): Promise<string | null> {
       const dirMatch = check.message.match(/: (.+)$/);
       if (!dirMatch?.[1]) return null;
       const { mkdir } = await import("node:fs/promises");
-      await mkdir(dirMatch[1], { recursive: true, mode: check.name === "cache-dir" ? 0o700 : 0o755 });
+      await mkdir(dirMatch[1], {
+        recursive: true,
+        mode: check.name === "cache-dir" ? 0o700 : 0o755,
+      });
       return `Created ${dirMatch[1]}`;
     }
     case "service-account-permissions": {
@@ -148,7 +151,8 @@ export function registerDoctorCommand(program: Command): void {
           name: "config",
           status: "fail",
           message: "Configuration could not be loaded",
-          suggestion: "Run gpc config init to create a config file, or check .gpcrc.json for syntax errors",
+          suggestion:
+            "Run gpc config init to create a config file, or check .gpcrc.json for syntax errors",
         });
       }
 
@@ -313,10 +317,7 @@ export function registerDoctorCommand(program: Command): void {
       }
 
       // 9. DNS resolution — both API endpoints
-      const dnsHosts = [
-        "androidpublisher.googleapis.com",
-        "playdeveloperreporting.googleapis.com",
-      ];
+      const dnsHosts = ["androidpublisher.googleapis.com", "playdeveloperreporting.googleapis.com"];
       for (const host of dnsHosts) {
         try {
           await lookup(host);
@@ -387,7 +388,9 @@ export function registerDoctorCommand(program: Command): void {
                 r.message += " (fixed)";
               }
             } catch (err) {
-              console.error(`  ${red("✗")} Could not fix "${r.name}": ${err instanceof Error ? err.message : String(err)}`);
+              console.error(
+                `  ${red("✗")} Could not fix "${r.name}": ${err instanceof Error ? err.message : String(err)}`,
+              );
             }
           }
         }

@@ -17,10 +17,7 @@ export interface CustomAppsListResponse {
 
 export interface EnterpriseApiClient {
   apps: {
-    create(
-      organizationId: string,
-      app: Partial<CustomApp>,
-    ): Promise<CustomApp>;
+    create(organizationId: string, app: Partial<CustomApp>): Promise<CustomApp>;
     list(organizationId: string): Promise<CustomAppsListResponse>;
   };
 }
@@ -31,16 +28,11 @@ export function createEnterpriseClient(options: ApiClientOptions): EnterpriseApi
   return {
     apps: {
       async create(organizationId, app) {
-        const { data } = await http.post<CustomApp>(
-          `/${organizationId}/apps`,
-          app,
-        );
+        const { data } = await http.post<CustomApp>(`/${organizationId}/apps`, app);
         return data;
       },
       async list(organizationId) {
-        const { data } = await http.get<CustomAppsListResponse>(
-          `/${organizationId}/apps`,
-        );
+        const { data } = await http.get<CustomAppsListResponse>(`/${organizationId}/apps`);
         return data;
       },
     },

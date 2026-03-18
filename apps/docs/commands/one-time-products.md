@@ -130,11 +130,26 @@ Override prices per region by adding `regionalConfigs` to the offer payload. Eac
 {
   "offerId": "regional_promo",
   "regionalConfigs": {
-    "US": { "newSubscriberAvailability": true, "price": { "currencyCode": "USD", "units": "4", "nanos": 990000000 } },
-    "GB": { "newSubscriberAvailability": true, "price": { "currencyCode": "GBP", "units": "3", "nanos": 990000000 } },
-    "JP": { "newSubscriberAvailability": true, "price": { "currencyCode": "JPY", "units": "700", "nanos": 0 } },
-    "IN": { "newSubscriberAvailability": true, "price": { "currencyCode": "INR", "units": "349", "nanos": 0 } },
-    "BR": { "newSubscriberAvailability": true, "price": { "currencyCode": "BRL", "units": "24", "nanos": 990000000 } }
+    "US": {
+      "newSubscriberAvailability": true,
+      "price": { "currencyCode": "USD", "units": "4", "nanos": 990000000 }
+    },
+    "GB": {
+      "newSubscriberAvailability": true,
+      "price": { "currencyCode": "GBP", "units": "3", "nanos": 990000000 }
+    },
+    "JP": {
+      "newSubscriberAvailability": true,
+      "price": { "currencyCode": "JPY", "units": "700", "nanos": 0 }
+    },
+    "IN": {
+      "newSubscriberAvailability": true,
+      "price": { "currencyCode": "INR", "units": "349", "nanos": 0 }
+    },
+    "BR": {
+      "newSubscriberAvailability": true,
+      "price": { "currencyCode": "BRL", "units": "24", "nanos": 990000000 }
+    }
   },
   "pricingPhases": {
     "pricingPhases": [
@@ -162,13 +177,13 @@ Output shows each field that differs between local and remote. Use `--output jso
 
 ## Options
 
-| Option          | Type     | Description                                        |
-| --------------- | -------- | -------------------------------------------------- |
-| `--file`        | `string` | Path to JSON file                                  |
-| `--update-mask` | `string` | Comma-separated field mask (for update commands)    |
-| `--sort`        | `string` | Sort field for list output                         |
-| `--output`      | `string` | Output format                                      |
-| `--app`         | `string` | App package name                                   |
+| Option          | Type     | Description                                      |
+| --------------- | -------- | ------------------------------------------------ |
+| `--file`        | `string` | Path to JSON file                                |
+| `--update-mask` | `string` | Comma-separated field mask (for update commands) |
+| `--sort`        | `string` | Sort field for list output                       |
+| `--output`      | `string` | Output format                                    |
+| `--app`         | `string` | App package name                                 |
 
 ## Related
 

@@ -51,7 +51,11 @@ export function registerEnterpriseCommands(program: Command): void {
 
       if (isDryRun(program)) {
         printDryRun(
-          { command: "enterprise create", action: "create enterprise app", target: options.title as string },
+          {
+            command: "enterprise create",
+            action: "create enterprise app",
+            target: options.title as string,
+          },
           format,
           formatOutput,
         );

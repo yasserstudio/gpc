@@ -11,11 +11,11 @@ outline: deep
 
 ## Commands
 
-| Command                                         | Description                                    |
-| ------------------------------------------------ | ---------------------------------------------- |
-| [`device-tiers list`](#device-tiers-list)         | List all device tier configurations            |
-| [`device-tiers get`](#device-tiers-get)           | Get details of a specific tier configuration   |
-| [`device-tiers create`](#device-tiers-create)     | Create a new device tier configuration         |
+| Command                                       | Description                                  |
+| --------------------------------------------- | -------------------------------------------- |
+| [`device-tiers list`](#device-tiers-list)     | List all device tier configurations          |
+| [`device-tiers get`](#device-tiers-get)       | Get details of a specific tier configuration |
+| [`device-tiers create`](#device-tiers-create) | Create a new device tier configuration       |
 
 ## `device-tiers list`
 
@@ -29,11 +29,11 @@ gpc device-tiers list [options]
 
 ### Options
 
-| Flag       | Short | Type     | Default | Description                        |
-| ---------- | ----- | -------- | ------- | ---------------------------------- |
-| `--app`    |       | `string` |         | App package name                   |
-| `--limit`  |       | `number` | `25`    | Maximum number of results          |
-| `--json`   |       | `flag`   |         | Output as JSON                     |
+| Flag      | Short | Type     | Default | Description               |
+| --------- | ----- | -------- | ------- | ------------------------- |
+| `--app`   |       | `string` |         | App package name          |
+| `--limit` |       | `number` | `25`    | Maximum number of results |
+| `--json`  |       | `flag`   |         | Output as JSON            |
 
 ### Example
 
@@ -68,9 +68,7 @@ gpc device-tiers list --app com.example.myapp --json
       "deviceGroups": [
         {
           "name": "high_end",
-          "deviceSelectors": [
-            { "deviceRam": { "minBytes": "6442450944" } }
-          ]
+          "deviceSelectors": [{ "deviceRam": { "minBytes": "6442450944" } }]
         },
         {
           "name": "mid_range",
@@ -80,9 +78,7 @@ gpc device-tiers list --app com.example.myapp --json
         },
         {
           "name": "low_end",
-          "deviceSelectors": [
-            { "deviceRam": { "maxBytes": "3221225471" } }
-          ]
+          "deviceSelectors": [{ "deviceRam": { "maxBytes": "3221225471" } }]
         }
       ]
     }
@@ -104,10 +100,10 @@ gpc device-tiers get <config-id> [options]
 
 ### Options
 
-| Flag       | Short | Type     | Default | Description                        |
-| ---------- | ----- | -------- | ------- | ---------------------------------- |
-| `--app`    |       | `string` |         | App package name                   |
-| `--json`   |       | `flag`   |         | Output as JSON                     |
+| Flag     | Short | Type     | Default | Description      |
+| -------- | ----- | -------- | ------- | ---------------- |
+| `--app`  |       | `string` |         | App package name |
+| `--json` |       | `flag`   |         | Output as JSON   |
 
 ### Example
 
@@ -142,11 +138,11 @@ gpc device-tiers create --file <path> [options]
 
 ### Options
 
-| Flag       | Short | Type     | Default        | Description                        |
-| ---------- | ----- | -------- | -------------- | ---------------------------------- |
-| `--file`   | `-f`  | `string` | **(required)** | Path to JSON config file           |
-| `--app`    |       | `string` |                | App package name                   |
-| `--json`   |       | `flag`   |                | Output as JSON                     |
+| Flag     | Short | Type     | Default        | Description              |
+| -------- | ----- | -------- | -------------- | ------------------------ |
+| `--file` | `-f`  | `string` | **(required)** | Path to JSON config file |
+| `--app`  |       | `string` |                | App package name         |
+| `--json` |       | `flag`   |                | Output as JSON           |
 
 ### Example
 
@@ -160,9 +156,7 @@ Create a configuration file (`tiers.json`):
       "deviceSelectors": [
         {
           "deviceRam": { "minBytes": "8589934592" },
-          "includedSystemOnChips": [
-            { "make": "Qualcomm", "model": "SM8550" }
-          ]
+          "includedSystemOnChips": [{ "make": "Qualcomm", "model": "SM8550" }]
         }
       ]
     },
@@ -199,11 +193,11 @@ Created device tier configuration: dt-config-3
 
 ## Errors
 
-| Code | Exit | Description                                                        |
-| ---- | ---- | ------------------------------------------------------------------ |
-| `DEVICE_TIER_CONFIG_NOT_FOUND` | 4 | The specified config ID does not exist for this app |
-| `INVALID_DEVICE_TIER_CONFIG`   | 2 | The JSON file is missing required fields or has invalid selectors |
-| `API_ERROR`                    | 4 | Google Play API rejected the request                |
+| Code                           | Exit | Description                                                       |
+| ------------------------------ | ---- | ----------------------------------------------------------------- |
+| `DEVICE_TIER_CONFIG_NOT_FOUND` | 4    | The specified config ID does not exist for this app               |
+| `INVALID_DEVICE_TIER_CONFIG`   | 2    | The JSON file is missing required fields or has invalid selectors |
+| `API_ERROR`                    | 4    | Google Play API rejected the request                              |
 
 ## Related
 

@@ -88,22 +88,25 @@ export function wordDiff(before: string, after: string): DiffToken[] {
 
   // LCS DP
   const dp: number[][] = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0) as number[]);
-  const cell = (r: number, c: number): number => (dp[r]?.[c] ?? 0);
+  const cell = (r: number, c: number): number => dp[r]?.[c] ?? 0;
   for (let i = 1; i <= m; i++) {
     for (let j = 1; j <= n; j++) {
-      (dp[i] as number[])[j] = aTokens[i - 1] === bTokens[j - 1]
-        ? (cell(i - 1, j - 1) + 1)
-        : Math.max(cell(i - 1, j), cell(i, j - 1));
+      (dp[i] as number[])[j] =
+        aTokens[i - 1] === bTokens[j - 1]
+          ? cell(i - 1, j - 1) + 1
+          : Math.max(cell(i - 1, j), cell(i, j - 1));
     }
   }
 
   // Backtrack
   const result: DiffToken[] = [];
-  let i = m, j = n;
+  let i = m,
+    j = n;
   while (i > 0 || j > 0) {
     if (i > 0 && j > 0 && aTokens[i - 1] === bTokens[j - 1]) {
       result.unshift({ text: aTokens[i - 1] ?? "", type: "equal" });
-      i--; j--;
+      i--;
+      j--;
     } else if (j > 0 && (i === 0 || cell(i, j - 1) >= cell(i - 1, j))) {
       result.unshift({ text: bTokens[j - 1] ?? "", type: "insert" });
       j--;

@@ -3,12 +3,7 @@ import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
-import {
-  listDeviceTiers,
-  getDeviceTier,
-  createDeviceTier,
-  formatOutput,
-} from "@gpc-cli/core";
+import { listDeviceTiers, getDeviceTier, createDeviceTier, formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { readFile } from "node:fs/promises";
@@ -40,7 +35,9 @@ export function registerDeviceTiersCommands(program: Command): void {
 
       try {
         const result = await listDeviceTiers(client, packageName);
-        const configs = (result as unknown as Record<string, unknown>)["deviceTierConfigs"] as Record<string, unknown>[] | undefined;
+        const configs = (result as unknown as Record<string, unknown>)["deviceTierConfigs"] as
+          | Record<string, unknown>[]
+          | undefined;
         if (format !== "json" && (!configs || configs.length === 0)) {
           console.log("No device tier configs found.");
           return;
@@ -48,7 +45,9 @@ export function registerDeviceTiersCommands(program: Command): void {
         if (format !== "json" && configs) {
           const rows = configs.map((c) => ({
             deviceTierConfigId: c["deviceTierConfigId"] || "-",
-            deviceGroups: Array.isArray(c["deviceGroups"]) ? (c["deviceGroups"] as unknown[]).length : 0,
+            deviceGroups: Array.isArray(c["deviceGroups"])
+              ? (c["deviceGroups"] as unknown[]).length
+              : 0,
             deviceTierSet: c["deviceTierSet"] ? "yes" : "no",
           }));
           console.log(formatOutput(rows, format));
@@ -88,7 +87,11 @@ export function registerDeviceTiersCommands(program: Command): void {
 
       if (isDryRun(program)) {
         printDryRun(
-          { command: "device-tiers create", action: "create device tier config from", target: opts.file },
+          {
+            command: "device-tiers create",
+            action: "create device tier config from",
+            target: opts.file,
+          },
           format,
           formatOutput,
         );

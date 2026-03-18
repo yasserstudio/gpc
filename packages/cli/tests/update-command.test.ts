@@ -40,9 +40,15 @@ vi.mock("@gpc-cli/core", () => {
     async runOnError() {}
     async runBeforeRequest() {}
     async runAfterResponse() {}
-    getRegisteredCommands() { return []; }
-    getLoadedPlugins() { return []; }
-    hasRequestHooks() { return false; }
+    getRegisteredCommands() {
+      return [];
+    }
+    getLoadedPlugins() {
+      return [];
+    }
+    hasRequestHooks() {
+      return false;
+    }
     reset() {}
   }
   return {
@@ -121,11 +127,9 @@ function makeDefaultResult(overrides: Record<string, unknown> = {}) {
 }
 
 function mockExit() {
-  return vi
-    .spyOn(process, "exit")
-    .mockImplementation((code?: number) => {
-      throw new Error(`process.exit(${code ?? 0})`);
-    }) as unknown as ReturnType<typeof vi.spyOn>;
+  return vi.spyOn(process, "exit").mockImplementation((code?: number) => {
+    throw new Error(`process.exit(${code ?? 0})`);
+  }) as unknown as ReturnType<typeof vi.spyOn>;
 }
 
 async function run(args: string[]) {
@@ -136,7 +140,9 @@ async function run(args: string[]) {
 
 function savedArgv() {
   const orig = process.argv;
-  return () => { process.argv = orig; };
+  return () => {
+    process.argv = orig;
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -199,7 +205,9 @@ describe("gpc update --check", () => {
   it("outputs structured JSON with --output json", async () => {
     mockCheckForUpdate.mockResolvedValueOnce(makeCheckResult());
     await run(["update", "--check", "--output", "json"]);
-    const jsonOut = logSpy.mock.calls.flat().find((s) => typeof s === "string" && s.startsWith("{"));
+    const jsonOut = logSpy.mock.calls
+      .flat()
+      .find((s) => typeof s === "string" && s.startsWith("{"));
     expect(jsonOut).toBeDefined();
     const parsed = JSON.parse(jsonOut as string);
     expect(parsed.updateAvailable).toBe(true);
@@ -294,7 +302,9 @@ describe("gpc update (execute)", () => {
   it("outputs JSON on success with --output json", async () => {
     mockCheckForUpdate.mockResolvedValueOnce(makeCheckResult({ installMethod: "npm" }));
     await run(["update", "--output", "json"]);
-    const jsonOut = logSpy.mock.calls.flat().find((s) => typeof s === "string" && s.startsWith("{"));
+    const jsonOut = logSpy.mock.calls
+      .flat()
+      .find((s) => typeof s === "string" && s.startsWith("{"));
     expect(jsonOut).toBeDefined();
     const parsed = JSON.parse(jsonOut as string);
     expect(parsed.success).toBe(true);

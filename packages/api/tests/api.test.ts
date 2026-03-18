@@ -197,7 +197,8 @@ describe("createHttpClient", () => {
   });
 
   it("strips HTML from error body on 404", async () => {
-    const htmlBody = '<!DOCTYPE html><html><body><h1>Not Found</h1><p>The requested URL was not found.</p></body></html>';
+    const htmlBody =
+      "<!DOCTYPE html><html><body><h1>Not Found</h1><p>The requested URL was not found.</p></body></html>";
     mockFetch.mockResolvedValueOnce(
       new Response(htmlBody, { status: 404, headers: { "Content-Type": "text/html" } }),
     );
@@ -904,9 +905,7 @@ describe("monetization API endpoints", () => {
       const client = makeClient();
       await client.subscriptions.deactivateBasePlan(PKG, "sub1", "bp1");
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toBe(
-        `${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1:deactivate`,
-      );
+      expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1:deactivate`);
       expect(init.method).toBe("POST");
     });
 
@@ -937,7 +936,13 @@ describe("monetization API endpoints", () => {
     });
 
     it("createOffer passes offerId as query param", async () => {
-      const offer = { productId: "sub1", basePlanId: "bp1", offerId: "o1", state: "DRAFT", phases: [] };
+      const offer = {
+        productId: "sub1",
+        basePlanId: "bp1",
+        offerId: "o1",
+        state: "DRAFT",
+        phases: [],
+      };
       mockFetch.mockResolvedValueOnce(mockResponse(offer));
       const client = makeClient();
       await client.subscriptions.createOffer(PKG, "sub1", "bp1", offer as any, "o1");
@@ -950,9 +955,7 @@ describe("monetization API endpoints", () => {
       const client = makeClient();
       await client.subscriptions.activateOffer(PKG, "sub1", "bp1", "o1");
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toBe(
-        `${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1/offers/o1:activate`,
-      );
+      expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1/offers/o1:activate`);
       expect(init.method).toBe("POST");
     });
   });
@@ -1013,7 +1016,10 @@ describe("monetization API endpoints", () => {
       const product = { sku: "coins100", status: "active" };
       mockFetch.mockResolvedValueOnce(mockResponse(product));
       const client = makeClient();
-      await client.inappproducts.update(PKG, "coins100", product as any, { autoConvertMissingPrices: true, allowMissing: true });
+      await client.inappproducts.update(PKG, "coins100", product as any, {
+        autoConvertMissingPrices: true,
+        allowMissing: true,
+      });
       const [url] = mockFetch.mock.calls[0];
       expect(url).toContain("autoConvertMissingPrices=true");
       expect(url).toContain("allowMissing=true");
@@ -1262,7 +1268,9 @@ describe("monetization API endpoints", () => {
     it("deviceTiers.create calls POST /{pkg}/deviceTierConfigs", async () => {
       const config = {
         deviceTierConfigId: "tier-new",
-        deviceGroups: [{ name: "mid", deviceSelectors: [{ deviceRam: { minBytes: "4000000000" } }] }],
+        deviceGroups: [
+          { name: "mid", deviceSelectors: [{ deviceRam: { minBytes: "4000000000" } }] },
+        ],
       };
       mockFetch.mockResolvedValueOnce(mockResponse(config));
       const client = makeClient();
@@ -1420,7 +1428,9 @@ describe("externalTransactions API endpoints", () => {
     const refundResult = { externalTransactionId: "txn1", transactionState: "REFUNDED" };
     mockFetch.mockResolvedValueOnce(mockResponse(refundResult));
     const client = makeClient();
-    const result = await client.externalTransactions.refund(PKG, "txn1", { partialRefund: {} } as any);
+    const result = await client.externalTransactions.refund(PKG, "txn1", {
+      partialRefund: {},
+    } as any);
     expect(result).toEqual(refundResult);
     const [url, init] = mockFetch.mock.calls[0];
     expect(url).toBe(`${BASE_URL}/${PKG}/externalTransactions/txn1:refund`);
@@ -1742,9 +1752,7 @@ describe("client coverage gaps", () => {
     const result = await client.subscriptions.deactivateOffer(PKG, "sub1", "bp1", "o1");
     expect(result).toEqual({ offerId: "o1", state: "INACTIVE" });
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(
-      `${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1/offers/o1:deactivate`,
-    );
+    expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions/sub1/basePlans/bp1/offers/o1:deactivate`);
     expect(init.method).toBe("POST");
   });
 
@@ -1792,7 +1800,15 @@ describe("client coverage gaps", () => {
     const offer = { offerId: "o1", state: "ACTIVE" };
     mockFetch.mockResolvedValueOnce(mockResponse(offer));
     const client = makeClient();
-    await client.subscriptions.updateOffer(PKG, "sub1", "bp1", "o1", offer as any, undefined, "2023.1");
+    await client.subscriptions.updateOffer(
+      PKG,
+      "sub1",
+      "bp1",
+      "o1",
+      offer as any,
+      undefined,
+      "2023.1",
+    );
     const [url] = mockFetch.mock.calls[0];
     expect(url).toContain("regionsVersion.version=2023.1");
   });
@@ -1851,7 +1867,10 @@ describe("client coverage gaps", () => {
 
   // 14. appRecovery.addTargeting
   it("appRecovery.addTargeting calls POST /{packageName}/appRecoveries/{id}:addTargeting", async () => {
-    const updated = { appRecoveryId: "rec1", targeting: { versionList: { versionCodes: ["100"] } } };
+    const updated = {
+      appRecoveryId: "rec1",
+      targeting: { versionList: { versionCodes: ["100"] } },
+    };
     mockFetch.mockResolvedValueOnce(mockResponse(updated));
     const client = makeClient();
     const targeting = { versionList: { versionCodes: ["100"] } };
@@ -2270,7 +2289,9 @@ describe("internalAppSharing", () => {
   });
 
   it("uploadBundle sends application/octet-stream content type", async () => {
-    mockFetch.mockResolvedValueOnce(mockResponse({ certificateFingerprint: "", downloadUrl: "", sha256: "" }));
+    mockFetch.mockResolvedValueOnce(
+      mockResponse({ certificateFingerprint: "", downloadUrl: "", sha256: "" }),
+    );
     const client = makeClient();
     await client.internalAppSharing.uploadBundle(PKG, "/path/to/app.aab");
     const [, init] = mockFetch.mock.calls[0];
@@ -2301,7 +2322,12 @@ describe("generatedApks", () => {
 
   it("list calls GET /{pkg}/generatedApks/{versionCode}", async () => {
     const apks = [
-      { generatedApkId: "apk-1", variantId: 1, moduleName: "base", certificateSha256Fingerprint: "AA" },
+      {
+        generatedApkId: "apk-1",
+        variantId: 1,
+        moduleName: "base",
+        certificateSha256Fingerprint: "AA",
+      },
     ];
     mockFetch.mockResolvedValueOnce(mockResponse({ generatedApks: apks }));
     const client = makeClient();
@@ -2322,7 +2348,10 @@ describe("generatedApks", () => {
   it("download calls GET /{pkg}/generatedApks/{versionCode}/download/{id}", async () => {
     const buffer = new ArrayBuffer(512);
     mockFetch.mockResolvedValueOnce(
-      new Response(buffer, { status: 200, headers: { "Content-Type": "application/octet-stream" } }),
+      new Response(buffer, {
+        status: 200,
+        headers: { "Content-Type": "application/octet-stream" },
+      }),
     );
     const client = makeClient();
     const result = await client.generatedApks.download(PKG, 42, "apk-1");

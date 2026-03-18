@@ -35,16 +35,16 @@ gpc releases upload <file> [options]
 
 ### Options
 
-| Flag          | Short | Type     | Default    | Description                                                         |
-| ------------- | ----- | -------- | ---------- | ------------------------------------------------------------------- |
-| `--track`     |       | `string` | `internal` | Target track (`internal`, `alpha`, `beta`, `production`, or custom) |
-| `--rollout`   |       | `number` |            | Staged rollout percentage (1-100)                                   |
-| `--notes`     |       | `string` |            | Release notes text (en-US)                                          |
-| `--name`      |       | `string` |            | Release name                                                        |
-| `--mapping`   |       | `string` |            | Path to ProGuard/R8 mapping file for deobfuscation                  |
+| Flag               | Short | Type     | Default    | Description                                                         |
+| ------------------ | ----- | -------- | ---------- | ------------------------------------------------------------------- |
+| `--track`          |       | `string` | `internal` | Target track (`internal`, `alpha`, `beta`, `production`, or custom) |
+| `--rollout`        |       | `number` |            | Staged rollout percentage (1-100)                                   |
+| `--notes`          |       | `string` |            | Release notes text (en-US)                                          |
+| `--name`           |       | `string` |            | Release name                                                        |
+| `--mapping`        |       | `string` |            | Path to ProGuard/R8 mapping file for deobfuscation                  |
 | `--notes-dir`      |       | `string` |            | Directory with per-language release notes (`<dir>/<lang>.txt`)      |
 | `--notes-from-git` |       | flag     |            | Generate release notes from git commit history                      |
-| `--since`          |       | `string` |            | Git ref to start from (tag, SHA) — used with `--notes-from-git`    |
+| `--since`          |       | `string` |            | Git ref to start from (tag, SHA) — used with `--notes-from-git`     |
 | `--retry-log`      |       | `string` |            | Write retry log entries to file (JSONL)                             |
 
 ::: tip Validation
@@ -341,8 +341,8 @@ gpc releases diff [options]
 
 | Flag     | Short | Type     | Default      | Description  |
 | -------- | ----- | -------- | ------------ | ------------ |
-| `--from` |       | `string` | `internal`   | Source track  |
-| `--to`   |       | `string` | `production` | Target track  |
+| `--from` |       | `string` | `internal`   | Source track |
+| `--to`   |       | `string` | `production` | Target track |
 
 ### Example
 

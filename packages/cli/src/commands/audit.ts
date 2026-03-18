@@ -19,13 +19,27 @@ function formatAuditTimestamp(iso: string): string {
   const diffMin = Math.floor(diffMs / 60000);
   if (diffMin < 60) return diffMin < 1 ? "just now" : `${diffMin} min ago`;
   const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
+  if (diffHr < 24)
+    return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
   const diffDays = Math.floor(diffHr / 24);
   if (diffDays < 7) {
     const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     return `${days[date.getDay()]} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
   }
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
 }
 
@@ -122,7 +136,9 @@ export function registerAuditCommands(program: Command): void {
           dryRun,
         });
         if (dryRun) {
-          console.log(`[dry-run] Would delete ${result.deleted} entries, ${result.remaining} would remain.`);
+          console.log(
+            `[dry-run] Would delete ${result.deleted} entries, ${result.remaining} would remain.`,
+          );
         } else {
           console.log(`Deleted ${result.deleted} entries. ${result.remaining} remaining.`);
         }

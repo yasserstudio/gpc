@@ -9,7 +9,9 @@ const FILE_TYPES: Record<string, (name: string) => boolean> = {
   update: (name) => name === "update-check.json",
 };
 
-async function getCacheFiles(cacheDir: string): Promise<{ name: string; path: string; size: number; mtime: Date }[]> {
+async function getCacheFiles(
+  cacheDir: string,
+): Promise<{ name: string; path: string; size: number; mtime: Date }[]> {
   let entries: string[];
   try {
     entries = await readdir(cacheDir);
@@ -26,7 +28,9 @@ async function getCacheFiles(cacheDir: string): Promise<{ name: string; path: st
       if (info.isFile()) {
         files.push({ name: entry, path: filePath, size: info.size, mtime: info.mtime });
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
   return files;
 }
@@ -73,11 +77,12 @@ export function registerCacheCommand(program: Command): void {
       for (const f of files) {
         const ageMs = now - f.mtime.getTime();
         const ageMins = Math.floor(ageMs / 60000);
-        const ageStr = ageMins < 60
-          ? `${ageMins}m ago`
-          : ageMins < 1440
-            ? `${Math.floor(ageMins / 60)}h ago`
-            : `${Math.floor(ageMins / 1440)}d ago`;
+        const ageStr =
+          ageMins < 60
+            ? `${ageMins}m ago`
+            : ageMins < 1440
+              ? `${Math.floor(ageMins / 60)}h ago`
+              : `${Math.floor(ageMins / 1440)}d ago`;
         const type = fileType(f.name);
         console.log(`  ${f.name}  [${type}]  ${formatBytes(f.size)}  ${ageStr}`);
       }
@@ -96,7 +101,9 @@ export function registerCacheCommand(program: Command): void {
       if (opts.type) {
         const matcher = FILE_TYPES[opts.type];
         if (!matcher) {
-          console.error(`Error: Unknown cache type "${opts.type}". Valid types: ${Object.keys(FILE_TYPES).join(", ")}`);
+          console.error(
+            `Error: Unknown cache type "${opts.type}". Valid types: ${Object.keys(FILE_TYPES).join(", ")}`,
+          );
           process.exit(2);
         }
         toDelete = allFiles.filter((f) => matcher(f.name));
@@ -114,7 +121,9 @@ export function registerCacheCommand(program: Command): void {
         }
         const { createInterface } = await import("node:readline");
         const rl = createInterface({ input: process.stdin, output: process.stdout });
-        const answer = await new Promise<string>((resolve) => rl.question("Proceed? [y/N] ", resolve));
+        const answer = await new Promise<string>((resolve) =>
+          rl.question("Proceed? [y/N] ", resolve),
+        );
         rl.close();
         if (answer.toLowerCase() !== "y") {
           console.log("Aborted.");
@@ -127,7 +136,9 @@ export function registerCacheCommand(program: Command): void {
         try {
           await unlink(f.path);
           removed++;
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       }
       console.log(`Removed ${removed} file(s).`);
     });

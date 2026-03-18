@@ -32,14 +32,15 @@ gpc enterprise --org 123456789 create --title "My App" --lang en_US
 
 **Options:**
 
-| Option | Description |
-|--------|-------------|
-| `--title <title>` | App title (required) |
-| `--lang <code>` | Language code (default: `en_US`) |
+| Option            | Description                      |
+| ----------------- | -------------------------------- |
+| `--title <title>` | App title (required)             |
+| `--lang <code>`   | Language code (default: `en_US`) |
 
 ## Finding Your Organization ID
 
 Your Google Workspace or Cloud Identity organization ID can be found in:
+
 - Google Admin Console → Account → Profile
 - Google Cloud Console → IAM & Admin → Settings
 

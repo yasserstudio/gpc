@@ -109,21 +109,15 @@ export function registerUpdateCommand(program: Command): void {
           const assetName = getPlatformAsset();
           if (!assetName) {
             spinner.fail();
-            console.error(
-              `Error: Unsupported platform: ${process.platform}/${process.arch}`,
-            );
-            console.error(
-              `Download manually: ${result.release.html_url}`,
-            );
+            console.error(`Error: Unsupported platform: ${process.platform}/${process.arch}`);
+            console.error(`Download manually: ${result.release.html_url}`);
             process.exit(1);
           }
 
           const assetObj = result.release.assets.find((a) => a.name === assetName);
           if (!assetObj) {
             spinner.fail();
-            console.error(
-              `Error: No binary found for ${assetName} in release ${result.latestTag}`,
-            );
+            console.error(`Error: No binary found for ${assetName} in release ${result.latestTag}`);
             console.error(`Check: ${result.release.html_url}`);
             process.exit(1);
           }

@@ -38,9 +38,11 @@ defineProps<{
 }
 
 .ch-wrap::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 3px;
   background: linear-gradient(90deg, #1a73e8 0%, #4d95f1 50%, #8fbdf7 100%);
 }
@@ -61,14 +63,14 @@ defineProps<{
 
 .ch-dollar {
   color: #4d95f1;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-weight: 600;
   font-size: 1.05rem;
   flex-shrink: 0;
 }
 
 .ch-name {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 1.25rem;
   font-weight: 600;
   color: #e6edf3;
@@ -82,7 +84,7 @@ defineProps<{
 }
 
 .ch-badge {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 0.7rem;
   padding: 2px 8px;
   border-radius: 4px;
@@ -93,7 +95,7 @@ defineProps<{
 }
 
 .ch-desc {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 0.95rem;
   color: #8b949e;
   line-height: 1.6;
@@ -111,7 +113,7 @@ defineProps<{
 }
 
 .ch-usage-label {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -121,7 +123,7 @@ defineProps<{
 }
 
 .ch-usage-code {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 0.82rem;
   color: #79c0ff;
   background: none;

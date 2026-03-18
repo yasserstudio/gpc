@@ -97,9 +97,7 @@ export async function getVitalsOverview(
   ];
 
   const results = await Promise.allSettled(
-    metricSets.map(([metric]) =>
-      reporting.queryMetricSet(packageName, metric, buildQuery(metric)),
-    ),
+    metricSets.map(([metric]) => reporting.queryMetricSet(packageName, metric, buildQuery(metric))),
   );
 
   const overview: VitalsOverview = {};

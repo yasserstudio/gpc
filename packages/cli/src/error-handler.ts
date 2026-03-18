@@ -11,7 +11,9 @@ interface TypedError {
 }
 
 function isTypedError(error: unknown): error is Error & TypedError {
-  return error instanceof Error && "code" in error && typeof (error as TypedError).code === "string";
+  return (
+    error instanceof Error && "code" in error && typeof (error as TypedError).code === "string"
+  );
 }
 
 const AUTH_KEYWORDS = ["AUTH", "UNAUTHENTICATED", "PERMISSION_DENIED", "401", "403"];

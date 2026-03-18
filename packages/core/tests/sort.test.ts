@@ -33,11 +33,7 @@ describe("sortResults", () => {
       { meta: { date: "2024-02-10" } },
     ];
     const result = sortResults(items, "meta.date");
-    expect(result.map((i) => i.meta.date)).toEqual([
-      "2024-01-15",
-      "2024-02-10",
-      "2024-03-01",
-    ]);
+    expect(result.map((i) => i.meta.date)).toEqual(["2024-01-15", "2024-02-10", "2024-03-01"]);
   });
 
   it("sorts descending by nested field", () => {

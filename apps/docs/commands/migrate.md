@@ -11,9 +11,9 @@ outline: deep
 
 ## Commands
 
-| Command                                       | Description                    |
-| --------------------------------------------- | ------------------------------ |
-| [`migrate fastlane`](#migrate-fastlane)       | Migrate from Fastlane to GPC  |
+| Command                                 | Description                  |
+| --------------------------------------- | ---------------------------- |
+| [`migrate fastlane`](#migrate-fastlane) | Migrate from Fastlane to GPC |
 
 ## `migrate fastlane`
 
@@ -29,12 +29,12 @@ gpc migrate fastlane [options]
 
 ### Options
 
-| Flag        | Short | Type      | Default | Description                                       |
-| ----------- | ----- | --------- | ------- | ------------------------------------------------- |
-| `--dir`     |       | `string`  | `.`     | Directory containing Fastlane files               |
-| `--output`  |       | `string`  | `.`     | Output directory for migration files              |
-| `--dry-run` |       | `boolean` | `false` | Preview migration plan without writing any files  |
-| `--yes`     | `-y`  | `boolean` | `false` | Overwrite existing `.gpcrc.json` without prompting|
+| Flag        | Short | Type      | Default | Description                                        |
+| ----------- | ----- | --------- | ------- | -------------------------------------------------- |
+| `--dir`     |       | `string`  | `.`     | Directory containing Fastlane files                |
+| `--output`  |       | `string`  | `.`     | Output directory for migration files               |
+| `--dry-run` |       | `boolean` | `false` | Preview migration plan without writing any files   |
+| `--yes`     | `-y`  | `boolean` | `false` | Overwrite existing `.gpcrc.json` without prompting |
 
 ::: warning Overwrite protection
 If a `.gpcrc.json` already exists in the output directory, the command will abort with a warning unless `--yes` is passed. This prevents accidental overwrites of existing GPC configuration.
@@ -98,9 +98,7 @@ gpc migrate fastlane --output json
     "hasMetadata": true,
     "hasGemfile": true,
     "packageName": "com.example.myapp",
-    "lanes": [
-      { "name": "deploy", "gpcEquivalent": "gpc releases upload" }
-    ],
+    "lanes": [{ "name": "deploy", "gpcEquivalent": "gpc releases upload" }],
     "metadataLanguages": ["en-US", "ja-JP"]
   },
   "plan": {
@@ -115,13 +113,13 @@ gpc migrate fastlane --output json
 
 For a full mapping of Fastlane commands to GPC equivalents, see [Migrating from Fastlane](/migration/from-fastlane).
 
-| Fastlane                              | GPC                                          |
-| ------------------------------------- | --------------------------------------------- |
-| `fastlane supply --aab app.aab`       | `gpc releases upload app.aab`                 |
-| `fastlane supply --track beta`        | `gpc releases upload app.aab --track beta`    |
-| `fastlane supply --rollout 0.1`       | `gpc releases upload app.aab --rollout 10`    |
-| `fastlane supply metadata`            | `gpc listings push --dir metadata`             |
-| `fastlane supply download_metadata`   | `gpc listings pull --dir metadata`             |
+| Fastlane                                 | GPC                                         |
+| ---------------------------------------- | ------------------------------------------- |
+| `fastlane supply --aab app.aab`          | `gpc releases upload app.aab`               |
+| `fastlane supply --track beta`           | `gpc releases upload app.aab --track beta`  |
+| `fastlane supply --rollout 0.1`          | `gpc releases upload app.aab --rollout 10`  |
+| `fastlane supply metadata`               | `gpc listings push --dir metadata`          |
+| `fastlane supply download_metadata`      | `gpc listings pull --dir metadata`          |
 | `fastlane supply --skip_upload_metadata` | `gpc releases upload app.aab` (no metadata) |
 
 ::: tip Rollout Percentage

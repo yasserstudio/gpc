@@ -34,7 +34,9 @@ async function getClient(config: GpcConfig) {
 }
 
 export function registerIapCommands(program: Command): void {
-  const iap = program.command("iap").description("Manage in-app products (uses one-time products API)");
+  const iap = program
+    .command("iap")
+    .description("Manage in-app products (uses one-time products API)");
 
   iap
     .command("list")
@@ -49,7 +51,9 @@ export function registerIapCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      console.error("Note: Using oneTimeProducts API (inappproducts endpoint is deprecated, shutdown Aug 2027)");
+      console.error(
+        "Note: Using oneTimeProducts API (inappproducts endpoint is deprecated, shutdown Aug 2027)",
+      );
 
       try {
         const result = await listOneTimeProducts(client, packageName);
@@ -73,7 +77,9 @@ export function registerIapCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      console.error("Note: Using oneTimeProducts API (inappproducts endpoint is deprecated, shutdown Aug 2027)");
+      console.error(
+        "Note: Using oneTimeProducts API (inappproducts endpoint is deprecated, shutdown Aug 2027)",
+      );
 
       try {
         const result = await getOneTimeProduct(client, packageName, sku);
@@ -225,7 +231,7 @@ export function registerIapCommands(program: Command): void {
     .action(async (_options) => {
       console.error(
         "Note: The inappproducts batchGet endpoint is permanently blocked by Google Play (returns 403 PERMISSION_DENIED).\n" +
-        "Use `gpc iap get <sku>` for a single product, or `gpc iap list` for all products."
+          "Use `gpc iap get <sku>` for a single product, or `gpc iap list` for all products.",
       );
       process.exit(1);
     });

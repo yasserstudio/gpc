@@ -159,11 +159,7 @@ describe("API Coverage Audit — PlayApiClient", () => {
   });
 
   describe("externalTransactions namespace", () => {
-    assertMethods(
-      client.externalTransactions,
-      ["create", "get", "refund"],
-      "externalTransactions",
-    );
+    assertMethods(client.externalTransactions, ["create", "get", "refund"], "externalTransactions");
   });
 
   describe("deviceTiers namespace", () => {
@@ -198,11 +194,7 @@ describe("API Coverage Audit — PlayApiClient", () => {
   });
 
   describe("internalAppSharing namespace", () => {
-    assertMethods(
-      client.internalAppSharing,
-      ["uploadBundle", "uploadApk"],
-      "internalAppSharing",
-    );
+    assertMethods(client.internalAppSharing, ["uploadBundle", "uploadApk"], "internalAppSharing");
   });
 
   describe("generatedApks namespace", () => {

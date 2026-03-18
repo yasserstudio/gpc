@@ -1,8 +1,4 @@
-import type {
-  PlayApiClient,
-  ExternalTransaction,
-  ExternalTransactionRefund,
-} from "@gpc-cli/api";
+import type { PlayApiClient, ExternalTransaction, ExternalTransactionRefund } from "@gpc-cli/api";
 
 export async function createExternalTransaction(
   client: PlayApiClient,

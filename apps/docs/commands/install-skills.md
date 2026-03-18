@@ -17,12 +17,12 @@ gpc install-skills [options]
 
 ## Options
 
-| Option | Description |
-|--------|-------------|
-| `-l, --list` | List available skills without installing |
-| `-y, --yes` | Skip confirmation prompts |
-| `-g, --global` | Install skills globally (user-level) instead of project-level |
-| `--all` | Install all skills to all agents without prompts |
+| Option          | Description                                                   |
+| --------------- | ------------------------------------------------------------- |
+| `-l, --list`    | List available skills without installing                      |
+| `-y, --yes`     | Skip confirmation prompts                                     |
+| `-g, --global`  | Install skills globally (user-level) instead of project-level |
+| `--all`         | Install all skills to all agents without prompts              |
 | `--repo <repo>` | Custom skills repository (default: `yasserstudio/gpc-skills`) |
 
 ## Examples
@@ -34,6 +34,7 @@ gpc install-skills
 ```
 
 The wizard walks you through:
+
 1. Cloning the skills repository
 2. Selecting which skills to install (13 available)
 3. Choosing target agents (Claude Code, Cursor, Copilot, etc.)
@@ -61,27 +62,28 @@ gpc install-skills -g -y
 
 ## Available Skills
 
-| Skill | Description |
-|-------|-------------|
-| `gpc-setup` | Auth, config, profiles, `gpc doctor` |
-| `gpc-release-flow` | Upload, releases, rollouts, promote |
-| `gpc-metadata-sync` | Store listings, images, Fastlane compat |
-| `gpc-vitals-monitoring` | Crashes, ANR, reviews, reports |
-| `gpc-ci-integration` | GitHub Actions, GitLab CI, exit codes |
-| `gpc-monetization` | Subscriptions, IAP, offers, pricing |
-| `gpc-user-management` | Users, permissions, testers |
-| `gpc-migrate-fastlane` | Fastlane-to-GPC migration |
-| `gpc-plugin-development` | Plugin SDK, hooks, permissions |
-| `gpc-troubleshooting` | Exit codes, error catalog, debug |
-| `gpc-sdk-usage` | @gpc-cli/api and @gpc-cli/auth as SDK |
-| `gpc-multi-app` | Multiple apps, profiles, batch ops |
-| `gpc-security` | Credential storage, rotation, audit |
+| Skill                    | Description                             |
+| ------------------------ | --------------------------------------- |
+| `gpc-setup`              | Auth, config, profiles, `gpc doctor`    |
+| `gpc-release-flow`       | Upload, releases, rollouts, promote     |
+| `gpc-metadata-sync`      | Store listings, images, Fastlane compat |
+| `gpc-vitals-monitoring`  | Crashes, ANR, reviews, reports          |
+| `gpc-ci-integration`     | GitHub Actions, GitLab CI, exit codes   |
+| `gpc-monetization`       | Subscriptions, IAP, offers, pricing     |
+| `gpc-user-management`    | Users, permissions, testers             |
+| `gpc-migrate-fastlane`   | Fastlane-to-GPC migration               |
+| `gpc-plugin-development` | Plugin SDK, hooks, permissions          |
+| `gpc-troubleshooting`    | Exit codes, error catalog, debug        |
+| `gpc-sdk-usage`          | @gpc-cli/api and @gpc-cli/auth as SDK   |
+| `gpc-multi-app`          | Multiple apps, profiles, batch ops      |
+| `gpc-security`           | Credential storage, rotation, audit     |
 
 ## How Skills Work
 
 Skills are structured guides installed to `.agents/skills/` that teach AI coding assistants how to use GPC. They are not plugins — they don't modify CLI behavior. Instead, they provide context and procedures that AI assistants follow when helping you with Google Play tasks.
 
 Each skill contains:
+
 - `SKILL.md` — instructions and procedures
 - `references/` — detailed documentation for specific topics
 - `scripts/` — detection scripts for environment checks

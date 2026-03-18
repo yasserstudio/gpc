@@ -44,7 +44,8 @@ function detectCategory(path: string): string {
     lower.endsWith("/resources.arsc") ||
     lower.endsWith("/resources.pb") ||
     /^(([^/]+\/)?res\/)/.test(lower)
-  ) return "resources";
+  )
+    return "resources";
   // assets
   if (/^(([^/]+\/)?assets\/)/.test(lower)) return "assets";
   // native libs
@@ -54,7 +55,8 @@ function detectCategory(path: string): string {
     lower === "androidmanifest.xml" ||
     lower.endsWith("/androidmanifest.xml") ||
     /^(([^/]+\/)?manifest\/)/.test(lower)
-  ) return "manifest";
+  )
+    return "manifest";
   // signing
   if (lower.startsWith("meta-inf/") || lower === "meta-inf") return "signing";
   return "other";
@@ -171,9 +173,16 @@ export async function analyzeBundle(filePath: string): Promise<BundleAnalysis> {
   }));
 
   // Aggregate by module
-  const moduleMap = new Map<string, { compressedSize: number; uncompressedSize: number; entries: number }>();
+  const moduleMap = new Map<
+    string,
+    { compressedSize: number; uncompressedSize: number; entries: number }
+  >();
   for (const entry of entries) {
-    const existing = moduleMap.get(entry.module) ?? { compressedSize: 0, uncompressedSize: 0, entries: 0 };
+    const existing = moduleMap.get(entry.module) ?? {
+      compressedSize: 0,
+      uncompressedSize: 0,
+      entries: 0,
+    };
     existing.compressedSize += entry.compressedSize;
     existing.uncompressedSize += entry.uncompressedSize;
     existing.entries += 1;
@@ -181,9 +190,16 @@ export async function analyzeBundle(filePath: string): Promise<BundleAnalysis> {
   }
 
   // Aggregate by category
-  const categoryMap = new Map<string, { compressedSize: number; uncompressedSize: number; entries: number }>();
+  const categoryMap = new Map<
+    string,
+    { compressedSize: number; uncompressedSize: number; entries: number }
+  >();
   for (const entry of entries) {
-    const existing = categoryMap.get(entry.category) ?? { compressedSize: 0, uncompressedSize: 0, entries: 0 };
+    const existing = categoryMap.get(entry.category) ?? {
+      compressedSize: 0,
+      uncompressedSize: 0,
+      entries: 0,
+    };
     existing.compressedSize += entry.compressedSize;
     existing.uncompressedSize += entry.uncompressedSize;
     existing.entries += 1;
@@ -215,31 +231,36 @@ export async function analyzeBundle(filePath: string): Promise<BundleAnalysis> {
 
 export function compareBundles(before: BundleAnalysis, after: BundleAnalysis): BundleComparison {
   const sizeDelta = after.totalCompressed - before.totalCompressed;
-  const sizeDeltaPercent = before.totalCompressed > 0
-    ? Math.round(((sizeDelta / before.totalCompressed) * 100) * 10) / 10
-    : 0;
+  const sizeDeltaPercent =
+    before.totalCompressed > 0
+      ? Math.round((sizeDelta / before.totalCompressed) * 100 * 10) / 10
+      : 0;
 
   // Module deltas
   const allModules = new Set([
     ...before.modules.map((m) => m.name),
     ...after.modules.map((m) => m.name),
   ]);
-  const moduleDeltas = [...allModules].map((module) => {
-    const b = before.modules.find((m) => m.name === module)?.compressedSize ?? 0;
-    const a = after.modules.find((m) => m.name === module)?.compressedSize ?? 0;
-    return { module, before: b, after: a, delta: a - b };
-  }).sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+  const moduleDeltas = [...allModules]
+    .map((module) => {
+      const b = before.modules.find((m) => m.name === module)?.compressedSize ?? 0;
+      const a = after.modules.find((m) => m.name === module)?.compressedSize ?? 0;
+      return { module, before: b, after: a, delta: a - b };
+    })
+    .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
 
   // Category deltas
   const allCategories = new Set([
     ...before.categories.map((c) => c.name),
     ...after.categories.map((c) => c.name),
   ]);
-  const categoryDeltas = [...allCategories].map((category) => {
-    const b = before.categories.find((c) => c.name === category)?.compressedSize ?? 0;
-    const a = after.categories.find((c) => c.name === category)?.compressedSize ?? 0;
-    return { category, before: b, after: a, delta: a - b };
-  }).sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+  const categoryDeltas = [...allCategories]
+    .map((category) => {
+      const b = before.categories.find((c) => c.name === category)?.compressedSize ?? 0;
+      const a = after.categories.find((c) => c.name === category)?.compressedSize ?? 0;
+      return { category, before: b, after: a, delta: a - b };
+    })
+    .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
 
   return {
     before: { path: before.filePath, totalCompressed: before.totalCompressed },
@@ -252,13 +273,8 @@ export function compareBundles(before: BundleAnalysis, after: BundleAnalysis): B
 }
 
 /** Return the top N largest files by compressed size. */
-export function topFiles(
-  analysis: BundleAnalysis,
-  n: number = 20,
-): BundleEntry[] {
-  return [...analysis.entries]
-    .sort((a, b) => b.compressedSize - a.compressedSize)
-    .slice(0, n);
+export function topFiles(analysis: BundleAnalysis, n: number = 20): BundleEntry[] {
+  return [...analysis.entries].sort((a, b) => b.compressedSize - a.compressedSize).slice(0, n);
 }
 
 export interface BundleSizeConfig {
@@ -286,7 +302,10 @@ export async function checkBundleSize(
 
   const violations: BundleSizeCheckResult["violations"] = [];
 
-  if (config.maxTotalCompressed !== undefined && analysis.totalCompressed > config.maxTotalCompressed) {
+  if (
+    config.maxTotalCompressed !== undefined &&
+    analysis.totalCompressed > config.maxTotalCompressed
+  ) {
     violations.push({
       subject: "total",
       actual: analysis.totalCompressed,

@@ -35,7 +35,8 @@ function sanitizeSubscription(data: Subscription): Subscription {
   if (cleaned.basePlans) {
     cleaned.basePlans = cleaned.basePlans.map((bp) => {
       const { state: _state, archived: _archived, ...cleanBp } = bp;
-      void _state; void _archived;
+      void _state;
+      void _archived;
       // Coerce Money.units to string in regional configs
       if (cleanBp.regionalConfigs) {
         cleanBp.regionalConfigs = cleanBp.regionalConfigs.map((rc) => ({
@@ -74,7 +75,8 @@ function autoFixProrationMode(data: Subscription): void {
   for (const bp of data.basePlans) {
     const mode = bp.autoRenewingBasePlanType?.prorationMode;
     if (mode && !mode.startsWith(PRORATION_MODE_PREFIX)) {
-      if (bp.autoRenewingBasePlanType) bp.autoRenewingBasePlanType.prorationMode = `${PRORATION_MODE_PREFIX}${mode}`;
+      if (bp.autoRenewingBasePlanType)
+        bp.autoRenewingBasePlanType.prorationMode = `${PRORATION_MODE_PREFIX}${mode}`;
     }
     if (bp.autoRenewingBasePlanType?.prorationMode) {
       const fullMode = bp.autoRenewingBasePlanType.prorationMode;
@@ -294,7 +296,13 @@ export async function createOffer(
   validatePackageName(packageName);
   validateSku(productId);
   const sanitized = sanitizeOffer(data);
-  return client.subscriptions.createOffer(packageName, productId, basePlanId, sanitized, data.offerId);
+  return client.subscriptions.createOffer(
+    packageName,
+    productId,
+    basePlanId,
+    sanitized,
+    data.offerId,
+  );
 }
 
 const OFFER_ID_FIELDS = new Set(["productId", "basePlanId", "offerId"]);
@@ -371,7 +379,9 @@ export async function diffSubscription(
   const fieldsToCompare = ["listings", "basePlans", "taxAndComplianceSettings"];
 
   for (const field of fieldsToCompare) {
-    const localVal = JSON.stringify((localData as unknown as Record<string, unknown>)[field] ?? null);
+    const localVal = JSON.stringify(
+      (localData as unknown as Record<string, unknown>)[field] ?? null,
+    );
     const remoteVal = JSON.stringify((remote as unknown as Record<string, unknown>)[field] ?? null);
     if (localVal !== remoteVal) {
       diffs.push({ field, local: localVal, remote: remoteVal });
@@ -453,7 +463,11 @@ export async function getSubscriptionAnalytics(
     // Count offers across all base plans
     for (const bp of basePlans) {
       try {
-        const offersResp = await client.subscriptions.listOffers(packageName, sub.productId, bp.basePlanId);
+        const offersResp = await client.subscriptions.listOffers(
+          packageName,
+          sub.productId,
+          bp.basePlanId,
+        );
         const offers = offersResp.subscriptionOffers ?? [];
         subOfferCount += offers.length;
         totalOffers += offers.length;
@@ -464,7 +478,7 @@ export async function getSubscriptionAnalytics(
 
     byProductId.push({
       productId: sub.productId,
-      state: (sub as unknown as Record<string, unknown>)["state"] as string ?? "UNKNOWN",
+      state: ((sub as unknown as Record<string, unknown>)["state"] as string) ?? "UNKNOWN",
       basePlanCount: basePlans.length,
       offerCount: subOfferCount,
     });

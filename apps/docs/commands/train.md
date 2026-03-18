@@ -15,32 +15,32 @@ Create `.gpcrc-train.json` in your project root:
 ```json
 {
   "stages": [
-    { "track": "internal",   "rollout": 100 },
-    { "track": "alpha",      "rollout": 100, "after": "2d" },
-    { "track": "production", "rollout": 10,  "after": "7d" },
+    { "track": "internal", "rollout": 100 },
+    { "track": "alpha", "rollout": 100, "after": "2d" },
+    { "track": "production", "rollout": 10, "after": "7d" },
     { "track": "production", "rollout": 100, "after": "14d" }
   ],
   "gates": {
     "crashes": { "max": 1.5 },
-    "anr":     { "max": 0.5 }
+    "anr": { "max": 0.5 }
   }
 }
 ```
 
 **Stage fields:**
 
-| Field | Description |
-|-------|-------------|
-| `track` | Target track name (`internal`, `alpha`, `beta`, `production`) |
-| `rollout` | Rollout percentage (1–100) |
-| `after` | Minimum delay before this stage runs: `"2d"` (days), `"4h"` (hours), `"30m"` (minutes) |
+| Field     | Description                                                                            |
+| --------- | -------------------------------------------------------------------------------------- |
+| `track`   | Target track name (`internal`, `alpha`, `beta`, `production`)                          |
+| `rollout` | Rollout percentage (1–100)                                                             |
+| `after`   | Minimum delay before this stage runs: `"2d"` (days), `"4h"` (hours), `"30m"` (minutes) |
 
 **Gate fields:**
 
-| Gate | Description |
-|------|-------------|
+| Gate          | Description                              |
+| ------------- | ---------------------------------------- |
 | `crashes.max` | Maximum crash rate % (e.g. `1.5` = 1.5%) |
-| `anr.max` | Maximum ANR rate % |
+| `anr.max`     | Maximum ANR rate %                       |
 
 If a gate fails during `advance`, the train is automatically **paused**.
 
@@ -75,6 +75,7 @@ gpc train advance
 ```
 
 GPC checks:
+
 1. Has the `after` delay elapsed since the previous stage?
 2. Do vitals gates pass?
 

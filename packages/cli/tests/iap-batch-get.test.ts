@@ -20,13 +20,13 @@ describe("iap batch-get deprecation notice", () => {
     program.option("-a, --app <package>", "App package name");
     registerIapCommands(program);
 
-    await expect(
-      program.parseAsync(["node", "gpc", "iap", "batch-get"])
-    ).rejects.toThrow("process.exit");
+    await expect(program.parseAsync(["node", "gpc", "iap", "batch-get"])).rejects.toThrow(
+      "process.exit",
+    );
 
     expect(exitSpy).toHaveBeenCalledWith(1);
     expect(console.error).toHaveBeenCalledWith(
-      expect.stringContaining("permanently blocked by Google Play")
+      expect.stringContaining("permanently blocked by Google Play"),
     );
   });
 
@@ -40,9 +40,9 @@ describe("iap batch-get deprecation notice", () => {
     program.option("-a, --app <package>", "App package name");
     registerIapCommands(program);
 
-    await expect(
-      program.parseAsync(["node", "gpc", "iap", "batch-get"])
-    ).rejects.toThrow("process.exit");
+    await expect(program.parseAsync(["node", "gpc", "iap", "batch-get"])).rejects.toThrow(
+      "process.exit",
+    );
 
     // Both alternatives mentioned in the single deprecation message
     const errorCalls = (console.error as ReturnType<typeof vi.fn>).mock.calls;
@@ -63,9 +63,9 @@ describe("iap batch-get deprecation notice", () => {
     program.option("-a, --app <package>", "App package name");
     registerIapCommands(program);
 
-    await expect(
-      program.parseAsync(["node", "gpc", "iap", "batch-get"])
-    ).rejects.toThrow("process.exit");
+    await expect(program.parseAsync(["node", "gpc", "iap", "batch-get"])).rejects.toThrow(
+      "process.exit",
+    );
 
     expect(mockFetch).not.toHaveBeenCalled();
     vi.unstubAllGlobals();

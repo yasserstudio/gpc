@@ -67,6 +67,7 @@ VitePress docs site: https://yasserstudio.github.io/gpc/
 Source: `apps/docs/` — single source of truth for all documentation (guide, commands, CI/CD, advanced, migration, reference)
 
 Key pages for contributors:
+
 - `apps/docs/advanced/architecture.md` — system design, package graph
 - `apps/docs/advanced/conventions.md` — code style, git, testing
 - `apps/docs/advanced/security.md` — credential handling, threat model

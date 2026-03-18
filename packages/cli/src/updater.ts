@@ -72,7 +72,9 @@ export function detectInstallMethod(): InstallMethod {
     try {
       const resolved = realpathSync(process.execPath).toLowerCase();
       if (resolved.includes("cellar") || resolved.includes("homebrew")) return "homebrew";
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     return "binary";
   }
 
@@ -162,9 +164,7 @@ export async function fetchLatestRelease(): Promise<GithubRelease> {
 
   if (response.status === 429) {
     throw Object.assign(
-      new Error(
-        "GitHub API rate limit exceeded. Set GPC_GITHUB_TOKEN to increase the limit.",
-      ),
+      new Error("GitHub API rate limit exceeded. Set GPC_GITHUB_TOKEN to increase the limit."),
       { code: "UPDATE_RATE_LIMITED", exitCode: 4 },
     );
   }
@@ -300,11 +300,7 @@ export async function updateViaBrew(options: { silent?: boolean } = {}): Promise
 // ---------------------------------------------------------------------------
 
 function isPermissionError(err: unknown): boolean {
-  return (
-    err instanceof Error &&
-    "code" in err &&
-    (err.code === "EACCES" || err.code === "EPERM")
-  );
+  return err instanceof Error && "code" in err && (err.code === "EACCES" || err.code === "EPERM");
 }
 
 async function sha256File(filePath: string): Promise<string> {
@@ -389,7 +385,10 @@ export async function updateBinaryInPlace(
         dest,
       );
     } else {
-      await pipeline(Readable.fromWeb(response.body as Parameters<typeof Readable.fromWeb>[0]), dest);
+      await pipeline(
+        Readable.fromWeb(response.body as Parameters<typeof Readable.fromWeb>[0]),
+        dest,
+      );
     }
 
     // 2. Verify checksum (skip if no checksum available)
@@ -434,14 +433,11 @@ export async function updateBinaryInPlace(
     await unlink(tmpPath).catch(() => {});
 
     if (isPermissionError(err)) {
-      throw Object.assign(
-        new Error(`Permission denied replacing ${currentBinaryPath}`),
-        {
-          code: "UPDATE_PERMISSION_DENIED",
-          exitCode: 1,
-          suggestion: `Run with elevated permissions: sudo gpc update`,
-        },
-      );
+      throw Object.assign(new Error(`Permission denied replacing ${currentBinaryPath}`), {
+        code: "UPDATE_PERMISSION_DENIED",
+        exitCode: 1,
+        suggestion: `Run with elevated permissions: sudo gpc update`,
+      });
     }
     throw err;
   }

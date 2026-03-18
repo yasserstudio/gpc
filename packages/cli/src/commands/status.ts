@@ -107,10 +107,7 @@ function applyStatusColors(status: AppStatus): AppStatus {
   };
 }
 
-function makeRenderer(
-  format: string,
-  displayFormat: string,
-): (status: AppStatus) => string {
+function makeRenderer(format: string, displayFormat: string): (status: AppStatus) => string {
   return (status: AppStatus): string => {
     if (format === "json") {
       const sectionSet = new Set(status.sections);
@@ -289,7 +286,9 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
   const save = (status: AppStatus) => saveStatusCache(packageName, status, opts.ttl);
 
   if (watchInterval !== null && opts.sinceLast) {
-    process.stderr.write("Warning: --since-last is not supported with --watch and will be ignored.\n");
+    process.stderr.write(
+      "Warning: --since-last is not supported with --watch and will be ignored.\n",
+    );
   }
 
   // --watch: hand off entirely to runWatchLoop

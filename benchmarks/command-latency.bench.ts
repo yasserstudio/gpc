@@ -71,7 +71,14 @@ async function measureAsync(name: string, fn: () => Promise<void> | void): Promi
 }
 
 function printTable(results: BenchResult[], baseline: BaselineData | null): void {
-  const header = ["Metric", "Avg (ms)", "Min (ms)", "Max (ms)", baseline ? "Baseline (ms)" : "", baseline ? "Delta" : ""]
+  const header = [
+    "Metric",
+    "Avg (ms)",
+    "Min (ms)",
+    "Max (ms)",
+    baseline ? "Baseline (ms)" : "",
+    baseline ? "Delta" : "",
+  ]
     .filter(Boolean)
     .map((h) => h.padEnd(22))
     .join(" | ");

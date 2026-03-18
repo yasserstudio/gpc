@@ -32,12 +32,12 @@ await client.edits.delete("com.example.app", edit.id);
 
 ## Client Factories
 
-| Factory | Purpose |
-| --- | --- |
-| `createApiClient(options)` | Core Play API -- apps, releases, listings, monetization, purchases |
-| `createReportingClient(options)` | Vitals, crash rates, ANR, error reporting |
-| `createUsersClient(options)` | Developer account users and permission grants |
-| `createHttpClient(options)` | Low-level HTTP with auth, retry, and rate limiting |
+| Factory                          | Purpose                                                            |
+| -------------------------------- | ------------------------------------------------------------------ |
+| `createApiClient(options)`       | Core Play API -- apps, releases, listings, monetization, purchases |
+| `createReportingClient(options)` | Vitals, crash rates, ANR, error reporting                          |
+| `createUsersClient(options)`     | Developer account users and permission grants                      |
+| `createHttpClient(options)`      | Low-level HTTP with auth, retry, and rate limiting                 |
 
 All factories accept `ApiClientOptions`:
 
@@ -45,10 +45,10 @@ All factories accept `ApiClientOptions`:
 import type { ApiClientOptions } from "@gpc-cli/api";
 
 const options: ApiClientOptions = {
-  auth,                    // Required: { getAccessToken(): Promise<string> }
-  maxRetries: 3,           // Default retry count
-  timeout: 30_000,         // Request timeout in ms
-  rateLimiter: undefined,  // Optional custom rate limiter
+  auth, // Required: { getAccessToken(): Promise<string> }
+  maxRetries: 3, // Default retry count
+  timeout: 30_000, // Request timeout in ms
+  rateLimiter: undefined, // Optional custom rate limiter
   onRetry: (entry) => console.warn(`Retry #${entry.attempt}: ${entry.error}`),
 };
 ```
@@ -118,12 +118,13 @@ await client.edits.commit("com.example.app", edit.id);
 const edit = await client.edits.insert("com.example.app");
 
 const screenshots = await client.images.list(
-  "com.example.app", edit.id, "en-US", "phoneScreenshots",
+  "com.example.app",
+  edit.id,
+  "en-US",
+  "phoneScreenshots",
 );
 
-await client.images.upload(
-  "com.example.app", edit.id, "en-US", "featureGraphic", "./feature.png",
-);
+await client.images.upload("com.example.app", edit.id, "en-US", "featureGraphic", "./feature.png");
 
 await client.images.deleteAll("com.example.app", edit.id, "en-US", "phoneScreenshots");
 await client.edits.commit("com.example.app", edit.id);
@@ -145,15 +146,23 @@ await client.subscriptions.deactivateBasePlan("com.example.app", "premium_monthl
 
 ```typescript
 const { subscriptionOffers } = await client.subscriptions.listOffers(
-  "com.example.app", "premium_monthly", "p1m",
+  "com.example.app",
+  "premium_monthly",
+  "p1m",
 );
 
 const offer = await client.subscriptions.getOffer(
-  "com.example.app", "premium_monthly", "p1m", "intro_offer",
+  "com.example.app",
+  "premium_monthly",
+  "p1m",
+  "intro_offer",
 );
 
 await client.subscriptions.activateOffer(
-  "com.example.app", "premium_monthly", "p1m", "intro_offer",
+  "com.example.app",
+  "premium_monthly",
+  "p1m",
+  "intro_offer",
 );
 ```
 
@@ -175,9 +184,7 @@ await client.inappproducts.create("com.example.app", {
 
 ```typescript
 // Verify a product purchase
-const purchase = await client.purchases.getProduct(
-  "com.example.app", "coins_100", purchaseToken,
-);
+const purchase = await client.purchases.getProduct("com.example.app", "coins_100", purchaseToken);
 
 // Acknowledge it
 await client.purchases.acknowledgeProduct("com.example.app", "coins_100", purchaseToken);
@@ -270,10 +277,9 @@ await client.edits.commit("com.example.app", edit.id);
 ### Monetization
 
 ```typescript
-const { convertedRegionPrices } = await client.monetization.convertRegionPrices(
-  "com.example.app",
-  { price: { currencyCode: "USD", units: "9", nanos: 990_000_000 } },
-);
+const { convertedRegionPrices } = await client.monetization.convertRegionPrices("com.example.app", {
+  price: { currencyCode: "USD", units: "9", nanos: 990_000_000 },
+});
 ```
 
 ### Deobfuscation
@@ -347,10 +353,10 @@ try {
   await client.tracks.get("com.example.app", editId, "production");
 } catch (error) {
   if (error instanceof ApiError) {
-    console.error(error.code);       // e.g. "API_NOT_FOUND"
-    console.error(error.statusCode);  // e.g. 404
-    console.error(error.suggestion);  // actionable fix
-    console.error(error.toJSON());    // structured error object
+    console.error(error.code); // e.g. "API_NOT_FOUND"
+    console.error(error.statusCode); // e.g. 404
+    console.error(error.suggestion); // actionable fix
+    console.error(error.toJSON()); // structured error object
   }
 }
 ```

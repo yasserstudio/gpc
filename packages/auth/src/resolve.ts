@@ -7,9 +7,7 @@ import type { AuthClient, AuthOptions } from "./types.js";
 const ANDROID_PUBLISHER_SCOPE = "https://www.googleapis.com/auth/androidpublisher";
 const REPORTING_SCOPE = "https://www.googleapis.com/auth/playdeveloperreporting";
 
-async function tryApplicationDefaultCredentials(
-  cachePath?: string,
-): Promise<AuthClient | null> {
+async function tryApplicationDefaultCredentials(cachePath?: string): Promise<AuthClient | null> {
   try {
     const auth = new GoogleAuth({
       scopes: [ANDROID_PUBLISHER_SCOPE, REPORTING_SCOPE],

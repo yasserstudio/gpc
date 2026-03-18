@@ -59,10 +59,7 @@ function formatPublishOutput(result: PublishResult, format: OutputFormat): strin
       ? ` (${Math.round(Number((upload as Record<string, unknown>)["userFraction"]) * 100)}% rollout)`
       : "";
 
-  const lines = [
-    "Published successfully\n",
-    ...formatChecks(result.validation.checks),
-  ];
+  const lines = ["Published successfully\n", ...formatChecks(result.validation.checks)];
   for (const w of result.validation.warnings) {
     lines.push(`  ${WARN} ${w}`);
   }
@@ -76,10 +73,7 @@ function formatPublishOutput(result: PublishResult, format: OutputFormat): strin
 function formatDryRunOutput(result: DryRunPublishResult, format: OutputFormat): string {
   if (format !== "table") return formatOutput(result, format);
 
-  const lines = [
-    "Dry run — no changes made\n",
-    ...formatChecks(result.validation.checks),
-  ];
+  const lines = ["Dry run — no changes made\n", ...formatChecks(result.validation.checks)];
   for (const w of result.validation.warnings) {
     lines.push(`  ${WARN} ${w}`);
   }
@@ -92,7 +86,8 @@ function formatDryRunOutput(result: DryRunPublishResult, format: OutputFormat): 
     lines.push(`  Current   (no releases on this track)`);
   } else {
     for (const r of u.currentReleases) {
-      const fraction = r.userFraction !== undefined ? ` (${Math.round(r.userFraction * 100)}%)` : "";
+      const fraction =
+        r.userFraction !== undefined ? ` (${Math.round(r.userFraction * 100)}%)` : "";
       lines.push(`  Current   ${r.versionCodes.join(", ")} · ${r.status}${fraction}`);
     }
   }

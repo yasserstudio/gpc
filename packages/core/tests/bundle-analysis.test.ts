@@ -9,7 +9,9 @@ import { tmpdir } from "node:os";
  * Builds a minimal ZIP buffer with central directory entries.
  * Files have zero-length content — only the CD metadata matters for analysis.
  */
-function buildTestZip(files: { name: string; compressedSize: number; uncompressedSize: number }[]): Buffer {
+function buildTestZip(
+  files: { name: string; compressedSize: number; uncompressedSize: number }[],
+): Buffer {
   const localHeaders: Buffer[] = [];
   const cdEntries: Buffer[] = [];
   let localOffset = 0;
@@ -147,7 +149,15 @@ describe("analyzeBundle", () => {
 
     const result = await analyzeBundle(filePath);
     const catNames = result.categories.map((c) => c.name).sort();
-    expect(catNames).toEqual(["assets", "dex", "manifest", "native-libs", "other", "resources", "signing"]);
+    expect(catNames).toEqual([
+      "assets",
+      "dex",
+      "manifest",
+      "native-libs",
+      "other",
+      "resources",
+      "signing",
+    ]);
   });
 
   it("handles resources.pb in AAB", async () => {
@@ -250,13 +260,21 @@ describe("compareBundles", () => {
 
   it("handles zero before size for percent calculation", () => {
     const before: BundleAnalysis = {
-      filePath: "empty.aab", fileType: "aab",
-      totalCompressed: 0, totalUncompressed: 0, entryCount: 0,
-      modules: [], categories: [], entries: [],
+      filePath: "empty.aab",
+      fileType: "aab",
+      totalCompressed: 0,
+      totalUncompressed: 0,
+      entryCount: 0,
+      modules: [],
+      categories: [],
+      entries: [],
     };
     const after: BundleAnalysis = {
-      filePath: "new.aab", fileType: "aab",
-      totalCompressed: 5000, totalUncompressed: 10000, entryCount: 2,
+      filePath: "new.aab",
+      fileType: "aab",
+      totalCompressed: 5000,
+      totalUncompressed: 10000,
+      entryCount: 2,
       modules: [{ name: "base", compressedSize: 5000, uncompressedSize: 10000, entries: 2 }],
       categories: [{ name: "dex", compressedSize: 5000, uncompressedSize: 10000, entries: 2 }],
       entries: [],
@@ -269,7 +287,11 @@ describe("compareBundles", () => {
 
   it("threshold detection — analyze returns size for checking", async () => {
     const zip = buildTestZip([
-      { name: "classes.dex", compressedSize: 160 * 1024 * 1024, uncompressedSize: 200 * 1024 * 1024 },
+      {
+        name: "classes.dex",
+        compressedSize: 160 * 1024 * 1024,
+        uncompressedSize: 200 * 1024 * 1024,
+      },
     ]);
     const filePath = join(testDir, "large.apk");
     await writeFile(filePath, zip);

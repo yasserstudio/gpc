@@ -31,95 +31,95 @@ gpc bundle analyze app.aab --threshold 150
 
 ### Core Workflow
 
-| Command                                       | Description                                           |
-| --------------------------------------------- | ----------------------------------------------------- |
-| [`status`](./status)                          | Releases + vitals + reviews in one unified snapshot   |
-| [`publish`](./publish)                        | End-to-end validate, upload, and release              |
-| [`validate`](./publish#gpc-validate)          | Pre-submission checks                                 |
-| [`releases`](./releases)                      | Upload, promote, rollout, release notes, diff         |
-| [`tracks`](./tracks)                          | Track configuration and management                    |
-| [`listings`](./listings)                      | Store listings, metadata, images                      |
+| Command                              | Description                                         |
+| ------------------------------------ | --------------------------------------------------- |
+| [`status`](./status)                 | Releases + vitals + reviews in one unified snapshot |
+| [`publish`](./publish)               | End-to-end validate, upload, and release            |
+| [`validate`](./publish#gpc-validate) | Pre-submission checks                               |
+| [`releases`](./releases)             | Upload, promote, rollout, release notes, diff       |
+| [`tracks`](./tracks)                 | Track configuration and management                  |
+| [`listings`](./listings)             | Store listings, metadata, images                    |
 
 ### Monitoring
 
-| Command                                       | Description                                           |
-| --------------------------------------------- | ----------------------------------------------------- |
-| [`reviews`](./reviews)                        | User reviews and ratings                              |
-| [`vitals`](./vitals)                          | Crash rates, ANR, startup, rendering, battery, memory |
-| [`anomalies`](./anomalies)                    | Automatically detected vitals anomalies               |
+| Command                    | Description                                           |
+| -------------------------- | ----------------------------------------------------- |
+| [`reviews`](./reviews)     | User reviews and ratings                              |
+| [`vitals`](./vitals)       | Crash rates, ANR, startup, rendering, battery, memory |
+| [`anomalies`](./anomalies) | Automatically detected vitals anomalies               |
 
 ### Monetization
 
-| Command                                       | Description                                           |
-| --------------------------------------------- | ----------------------------------------------------- |
-| [`subscriptions`](./subscriptions)            | Subscriptions, base plans, offers                     |
-| [`one-time-products`](./one-time-products)    | One-time products and offers (alias: `otp`)           |
-| [`purchase-options`](./purchase-options)       | Purchase option management for one-time products      |
-| [`iap`](./iap)                                | In-app products (legacy API)                          |
-| [`purchases`](./purchases)                    | Purchase verification, acknowledgment, refunds        |
-| [`pricing`](./pricing)                        | Regional price conversion                             |
+| Command                                    | Description                                      |
+| ------------------------------------------ | ------------------------------------------------ |
+| [`subscriptions`](./subscriptions)         | Subscriptions, base plans, offers                |
+| [`one-time-products`](./one-time-products) | One-time products and offers (alias: `otp`)      |
+| [`purchase-options`](./purchase-options)   | Purchase option management for one-time products |
+| [`iap`](./iap)                             | In-app products (legacy API)                     |
+| [`purchases`](./purchases)                 | Purchase verification, acknowledgment, refunds   |
+| [`pricing`](./pricing)                     | Regional price conversion                        |
 
 ### Reporting & Team
 
-| Command                                       | Description                                           |
-| --------------------------------------------- | ----------------------------------------------------- |
-| [`reports`](./reports)                        | Financial and stats report downloads                  |
-| [`testers`](./testers)                        | Tester management by track                            |
-| [`users`](./users)                            | Developer account users and permissions               |
+| Command                | Description                             |
+| ---------------------- | --------------------------------------- |
+| [`reports`](./reports) | Financial and stats report downloads    |
+| [`testers`](./testers) | Tester management by track              |
+| [`users`](./users)     | Developer account users and permissions |
 
 ### Distribution
 
-| Command                                       | Description                                           |
-| --------------------------------------------- | ----------------------------------------------------- |
-| [`bundle`](./bundle)                          | Local AAB/APK size analysis and comparison            |
-| [`internal-sharing`](./internal-sharing)      | Review-free QA distribution                           |
-| [`generated-apks`](./generated-apks)          | Device-specific APK downloads                         |
-| [`device-tiers`](./device-tiers)              | Device capability targeting                           |
+| Command                                  | Description                                |
+| ---------------------------------------- | ------------------------------------------ |
+| [`bundle`](./bundle)                     | Local AAB/APK size analysis and comparison |
+| [`internal-sharing`](./internal-sharing) | Review-free QA distribution                |
+| [`generated-apks`](./generated-apks)     | Device-specific APK downloads              |
+| [`device-tiers`](./device-tiers)         | Device capability targeting                |
 
 ### Compliance & Recovery
 
-| Command                                       | Description                                           |
-| --------------------------------------------- | ----------------------------------------------------- |
-| [`data-safety`](./data-safety)                | Data safety declarations                              |
-| [`recovery`](./recovery)                      | App recovery actions                                  |
-| [`external-transactions`](./external-transactions) | External transactions (alternative billing)      |
+| Command                                            | Description                                 |
+| -------------------------------------------------- | ------------------------------------------- |
+| [`data-safety`](./data-safety)                     | Data safety declarations                    |
+| [`recovery`](./recovery)                           | App recovery actions                        |
+| [`external-transactions`](./external-transactions) | External transactions (alternative billing) |
 
 ### System
 
-| Command                                       | Description                                           |
-| --------------------------------------------- | ----------------------------------------------------- |
-| [`auth`](./auth)                              | Authentication and profiles                           |
-| [`apps`](./apps)                              | App info and configuration                            |
-| [`config`](./config)                          | CLI configuration                                     |
-| [`plugins`](./plugins)                        | Plugin management                                     |
-| [`migrate`](./migrate)                        | Migrate from Fastlane to GPC                          |
-| [`doctor` / `docs` / `completion`](./utility) | Diagnostics, documentation, shell completions         |
-| [`install-skills`](./install-skills)          | Install AI agent skills for GPC workflows             |
+| Command                                       | Description                                   |
+| --------------------------------------------- | --------------------------------------------- |
+| [`auth`](./auth)                              | Authentication and profiles                   |
+| [`apps`](./apps)                              | App info and configuration                    |
+| [`config`](./config)                          | CLI configuration                             |
+| [`plugins`](./plugins)                        | Plugin management                             |
+| [`migrate`](./migrate)                        | Migrate from Fastlane to GPC                  |
+| [`doctor` / `docs` / `completion`](./utility) | Diagnostics, documentation, shell completions |
+| [`install-skills`](./install-skills)          | Install AI agent skills for GPC workflows     |
 
 ## Global Flags
 
 Every command accepts these flags:
 
-| Flag               | Short | Type      | Default | Description                                                     |
-| ------------------ | ----- | --------- | ------- | --------------------------------------------------------------- |
-| `--output`         | `-o`  | `string`  | auto    | Output format: `table`, `json`, `yaml`, `markdown`, `junit`     |
-| `--json`           | `-j`  | `boolean` |         | Shorthand for `--output json`                                   |
-| `--ci`             |       | `boolean` | `false` | CI mode: JSON output, no prompts, strict exit codes             |
-| `--quiet`          | `-q`  | `boolean` | `false` | Suppress non-essential output                                   |
-| `--verbose`        | `-v`  | `boolean` | `false` | Enable debug logging                                            |
-| `--profile`        | `-p`  | `string`  |         | Use a named auth profile                                        |
-| `--app`            | `-a`  | `string`  |         | App package name (overrides config)                             |
-| `--no-color`       |       | `boolean` | `false` | Disable colored output                                          |
-| `--no-interactive` |       | `boolean` | `false` | Disable interactive prompts                                     |
-| `--dry-run`        |       | `boolean` | `false` | Preview changes without executing                               |
-| `--limit`          |       | `number`  |         | Max results per page                                            |
-| `--next-page`      |       | `string`  |         | Pagination token for next page                                  |
-| `--retry-log`      |       | `string`  |         | Log retry attempts to file (JSONL)                              |
-| `--config`         |       | `string`  |         | Path to config file                                             |
-| `--notify`         |       | `string`  |         | Send webhook on completion (`slack`, `discord`, `custom`)       |
-| `--sort`           |       | `string`  |         | Sort results by field (prefix with `-` for descending)          |
-| `--version`        | `-V`  | `boolean` |         | Show version                                                    |
-| `--help`           | `-h`  | `boolean` |         | Show help                                                       |
+| Flag               | Short | Type      | Default | Description                                                 |
+| ------------------ | ----- | --------- | ------- | ----------------------------------------------------------- |
+| `--output`         | `-o`  | `string`  | auto    | Output format: `table`, `json`, `yaml`, `markdown`, `junit` |
+| `--json`           | `-j`  | `boolean` |         | Shorthand for `--output json`                               |
+| `--ci`             |       | `boolean` | `false` | CI mode: JSON output, no prompts, strict exit codes         |
+| `--quiet`          | `-q`  | `boolean` | `false` | Suppress non-essential output                               |
+| `--verbose`        | `-v`  | `boolean` | `false` | Enable debug logging                                        |
+| `--profile`        | `-p`  | `string`  |         | Use a named auth profile                                    |
+| `--app`            | `-a`  | `string`  |         | App package name (overrides config)                         |
+| `--no-color`       |       | `boolean` | `false` | Disable colored output                                      |
+| `--no-interactive` |       | `boolean` | `false` | Disable interactive prompts                                 |
+| `--dry-run`        |       | `boolean` | `false` | Preview changes without executing                           |
+| `--limit`          |       | `number`  |         | Max results per page                                        |
+| `--next-page`      |       | `string`  |         | Pagination token for next page                              |
+| `--retry-log`      |       | `string`  |         | Log retry attempts to file (JSONL)                          |
+| `--config`         |       | `string`  |         | Path to config file                                         |
+| `--notify`         |       | `string`  |         | Send webhook on completion (`slack`, `discord`, `custom`)   |
+| `--sort`           |       | `string`  |         | Sort results by field (prefix with `-` for descending)      |
+| `--version`        | `-V`  | `boolean` |         | Show version                                                |
+| `--help`           | `-h`  | `boolean` |         | Show help                                                   |
 
 ## Output Behavior
 

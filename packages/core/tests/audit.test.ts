@@ -2,7 +2,14 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { readFile, rm, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { initAudit, writeAuditLog, createAuditEntry, listAuditEvents, searchAuditEvents, clearAuditLog } from "../src/audit";
+import {
+  initAudit,
+  writeAuditLog,
+  createAuditEntry,
+  listAuditEvents,
+  searchAuditEvents,
+  clearAuditLog,
+} from "../src/audit";
 
 describe("audit logging", () => {
   let testDir: string;

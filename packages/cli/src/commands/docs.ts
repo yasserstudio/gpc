@@ -2,18 +2,18 @@ import type { Command } from "commander";
 import { execFile } from "node:child_process";
 
 const PAGE_MAP: Record<string, string> = {
-  releases:      "commands/releases",
-  status:        "commands/status",
-  vitals:        "commands/vitals",
-  reviews:       "commands/reviews",
-  listings:      "commands/listings",
+  releases: "commands/releases",
+  status: "commands/status",
+  vitals: "commands/vitals",
+  reviews: "commands/reviews",
+  listings: "commands/listings",
   subscriptions: "commands/subscriptions",
-  bundle:        "commands/bundle",
-  users:         "commands/users",
-  audit:         "commands/audit",
-  config:        "commands/config",
-  doctor:        "commands/doctor",
-  publish:       "commands/publish",
+  bundle: "commands/bundle",
+  users: "commands/users",
+  audit: "commands/audit",
+  config: "commands/config",
+  doctor: "commands/doctor",
+  publish: "commands/publish",
 };
 
 const BASE = "https://yasserstudio.github.io/gpc/";

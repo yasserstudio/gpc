@@ -55,7 +55,9 @@ export function registerPurchasesCommands(program: Command): void {
             orderId: r["orderId"] || "-",
             purchaseState: r["purchaseState"] ?? "-",
             consumptionState: r["consumptionState"] ?? "-",
-            purchaseTime: r["purchaseTimeMillis"] ? new Date(Number(r["purchaseTimeMillis"])).toISOString() : "-",
+            purchaseTime: r["purchaseTimeMillis"]
+              ? new Date(Number(r["purchaseTimeMillis"])).toISOString()
+              : "-",
             acknowledged: r["acknowledgementState"] ?? "-",
           };
           console.log(formatOutput(row, format));
@@ -323,7 +325,9 @@ export function registerPurchasesCommands(program: Command): void {
     .description("List voided purchases")
     .option("--start-time <time>", "Start time (milliseconds)")
     .option("--end-time <time>", "End time (milliseconds)")
-    .addOption(new Option("--max-results <n>", "Maximum results per page").argParser(parseInt).hideHelp())
+    .addOption(
+      new Option("--max-results <n>", "Maximum results per page").argParser(parseInt).hideHelp(),
+    )
     .option("--limit <n>", "Maximum total results", parseInt)
     .option("--next-page <token>", "Resume from page token")
     .action(async (options) => {
@@ -341,12 +345,16 @@ export function registerPurchasesCommands(program: Command): void {
           nextPage: options.nextPage,
         });
         if (format !== "json") {
-          const purchases = (result as Record<string, unknown>)["voidedPurchases"] as Record<string, unknown>[] | undefined;
+          const purchases = (result as Record<string, unknown>)["voidedPurchases"] as
+            | Record<string, unknown>[]
+            | undefined;
           if (purchases && purchases.length > 0) {
             const rows = purchases.map((p) => ({
               orderId: p["orderId"] || "-",
               purchaseToken: String(p["purchaseToken"] || "-").slice(0, 16) + "...",
-              voidedTime: p["voidedTimeMillis"] ? new Date(Number(p["voidedTimeMillis"])).toISOString() : "-",
+              voidedTime: p["voidedTimeMillis"]
+                ? new Date(Number(p["voidedTimeMillis"])).toISOString()
+                : "-",
               voidedSource: p["voidedSource"] ?? "-",
               voidedReason: p["voidedReason"] ?? "-",
             }));
