@@ -6,6 +6,24 @@ outline: deep
 
 This guide walks through the five most common GPC operations in under 5 minutes: authenticate, upload, promote, check vitals, and monitor reviews.
 
+<TerminalDemo title="quick-start" :lines="[
+  { type: 'cmd',  text: 'gpc auth login --service-account key.json' },
+  { type: 'ok',   text: 'Authenticated as deploy@project.iam.gserviceaccount.com' },
+  { type: 'gap' },
+  { type: 'cmd',  text: 'gpc releases upload app.aab --track internal' },
+  { type: 'ok',   text: 'Uploaded · version 42 · 18.4 MB' },
+  { type: 'gap' },
+  { type: 'cmd',  text: 'gpc releases promote --from internal --to production --rollout 10' },
+  { type: 'ok',   text: 'Promoted to production · 10% staged rollout' },
+  { type: 'gap' },
+  { type: 'cmd',  text: 'gpc status' },
+  { type: 'section', text: 'App Health · com.example.app' },
+  { type: 'divider' },
+  { type: 'ok',   text: 'production  v2.4.1  100% rollout' },
+  { type: 'ok',   text: 'crash rate  0.08%  ↓ improving' },
+  { type: 'warn', text: 'cold start  842ms  ↑ watch' },
+]" />
+
 ## Prerequisites
 
 - GPC installed ([Installation](/guide/installation))
