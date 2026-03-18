@@ -4,7 +4,7 @@ outline: deep
 
 # Quick Start
 
-This guide walks through the five most common GPC operations in under 5 minutes: authenticate, upload, promote, check vitals, and monitor reviews.
+Five minutes to your first release. This guide covers the most common GPC operations: authenticate, upload, promote, check vitals, and monitor reviews.
 
 <TerminalDemo title="quick-start" :lines="[
   { type: 'cmd',  text: 'gpc auth login --service-account key.json' },
@@ -289,7 +289,7 @@ Reply sent to review abc123def456
 
 ## Interactive Mode
 
-When you omit required options on write commands, GPC prompts you interactively:
+When you omit required options on write commands, GPC prompts you interactively. In CI, missing options fail fast with a clear error message — GPC never hangs waiting for input.
 
 ```bash
 # No --track specified — GPC asks which track to use
@@ -305,7 +305,7 @@ gpc subscriptions delete premium_monthly
 # ? Delete subscription "premium_monthly"? This cannot be undone. (y/N)
 ```
 
-To skip all prompts (required in CI), use the `--yes` flag or set the environment variable:
+To skip all prompts in CI, use the `--yes` flag or set the environment variable:
 
 ```bash
 gpc releases upload app.aab --track beta --yes
@@ -315,7 +315,7 @@ GPC_NO_INTERACTIVE=1 gpc releases upload app.aab --track beta
 
 ## Dry Run
 
-Preview what a write command would do without making any changes:
+Ship nothing. Learn everything. Preview what any write command would do against real Play Console data without making any changes:
 
 ```bash
 gpc releases upload app.aab --track beta --dry-run
@@ -370,7 +370,8 @@ gpc releases status --output json
 
 ## Next Steps
 
-- [Authentication](/guide/authentication) -- Full guide to all 4 auth methods and Play Console setup
-- [Configuration](/guide/configuration) -- Config files, environment variables, and profiles
-- [Commands](/commands/) -- Complete command reference
-- [CI/CD Integration](/ci-cd/) -- GitHub Actions, GitLab CI, and more
+- [Authentication](/guide/authentication) — Full guide to all 4 auth methods and Play Console setup
+- [Configuration](/guide/configuration) — Config files, environment variables, and profiles
+- [Commands](/commands/) — Complete command reference
+- [CI/CD Integration](/ci-cd/) — GitHub Actions, GitLab CI, and more
+- [Migration from Fastlane](/migration/from-fastlane) — Already using Fastlane? Most commands map one-to-one
