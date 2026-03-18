@@ -58,7 +58,7 @@ export function registerPricingCommands(program: Command): void {
       try {
         const result = await convertRegionPrices(client, packageName, options.from, options.amount);
         if (format !== "json") {
-          const prices = (result as Record<string, unknown>)["convertedRegionPrices"] as Record<string, Record<string, unknown>> | undefined;
+          const prices = (result as unknown as Record<string, unknown>)["convertedRegionPrices"] as Record<string, Record<string, unknown>> | undefined;
           if (prices) {
             const rows = Object.entries(prices).map(([region, data]) => {
               const money = data["price"] as Record<string, unknown> | undefined;

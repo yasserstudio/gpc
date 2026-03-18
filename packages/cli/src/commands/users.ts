@@ -62,7 +62,7 @@ export function registerUsersCommands(program: Command): void {
           result.users = sortResults(result.users, options.sort);
         }
         if (format !== "json") {
-          const users = (result.users || []) as Record<string, unknown>[];
+          const users = (result.users || []) as unknown as Record<string, unknown>[];
           if (users.length === 0) {
             console.log("No users found.");
           } else {

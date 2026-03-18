@@ -67,7 +67,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
           }
           const summary = products.map((p: OneTimeProduct) => ({
             productId: p.productId,
-            purchaseType: (p as Record<string, unknown>)["purchaseType"] || "-",
+            purchaseType: (p as unknown as Record<string, unknown>)["purchaseType"] || "-",
             listings: p.listings ? Object.keys(p.listings).length : 0,
             firstTitle: p.listings ? Object.values(p.listings)[0]?.title || "-" : "-",
           }));

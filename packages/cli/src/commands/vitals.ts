@@ -105,18 +105,19 @@ function registerMetricCommand(
           return;
         }
         if (format !== "json" && result.rows) {
-          const rows = result.rows.map((row: Record<string, unknown>) => {
-            const startTime = row["startTime"] as Record<string, unknown> | undefined;
-            const metrics = row["metrics"] as Record<string, Record<string, unknown>> | undefined;
+          const rows = result.rows.map((row: unknown) => {
+            const rowR = row as Record<string, unknown>;
+            const startTime = rowR["startTime"] as Record<string, unknown> | undefined;
+            const metrics = rowR["metrics"] as Record<string, Record<string, unknown>> | undefined;
             const flat: Record<string, unknown> = {
               date: startTime ? `${startTime["year"]}-${String(startTime["month"]).padStart(2, "0")}-${String(startTime["day"]).padStart(2, "0")}` : "-",
             };
             if (metrics) {
               for (const [key, val] of Object.entries(metrics)) {
-                flat[key] = val?.["decimalValue"]?.["value"] ?? "-";
+                flat[key] = (val as Record<string, unknown>)?.["decimalValue"] !== undefined ? (val as Record<string, Record<string, unknown>>)?.["decimalValue"]?.["value"] ?? "-" : "-";
               }
             }
-            const dims = row["dimensions"] as Record<string, unknown> | undefined;
+            const dims = rowR["dimensions"] as Record<string, unknown> | undefined;
             if (dims) {
               for (const [key, val] of Object.entries(dims)) {
                 flat[key] = (val as Record<string, unknown>)?.["stringValue"] ?? "-";
@@ -132,9 +133,9 @@ function registerMetricCommand(
         // Check threshold from flag or config
         const configKey = THRESHOLD_CONFIG_KEYS[name];
         const configThreshold = configKey
-          ? (config as Record<string, unknown>)["vitals"]
-            ? ((config as Record<string, unknown>)["vitals"] as Record<string, unknown>)["thresholds"]
-              ? (((config as Record<string, unknown>)["vitals"] as Record<string, unknown>)["thresholds"] as Record<string, unknown>)[configKey]
+          ? (config as unknown as Record<string, unknown>)["vitals"]
+            ? ((config as unknown as Record<string, unknown>)["vitals"] as Record<string, unknown>)["thresholds"]
+              ? (((config as unknown as Record<string, unknown>)["vitals"] as Record<string, unknown>)["thresholds"] as Record<string, unknown>)[configKey]
               : undefined
             : undefined
           : undefined;
@@ -190,7 +191,7 @@ export function registerVitalsCommands(program: Command): void {
             const latest = metricRows?.[metricRows.length - 1];
             const metrics = latest?.["metrics"] as Record<string, Record<string, unknown>> | undefined;
             const firstKey = metrics ? Object.keys(metrics)[0] : undefined;
-            const value = firstKey ? metrics?.[firstKey]?.["decimalValue"]?.["value"] : undefined;
+            const value = firstKey ? (metrics?.[firstKey]?.["decimalValue"] as Record<string, unknown> | undefined)?.["value"] : undefined;
             return {
               metric,
               dataPoints: metricRows?.length || 0,
@@ -276,7 +277,7 @@ export function registerVitalsCommands(program: Command): void {
           filter: options.filter,
           maxResults: options.max,
         });
-        const issues = (result as Record<string, unknown>)["errorIssues"] as unknown[] | undefined;
+        const issues = (result as unknown as Record<string, unknown>)["errorIssues"] as unknown[] | undefined;
         if (format !== "json" && (!issues || issues.length === 0)) {
           console.log("No error issues found.");
           return;
@@ -357,8 +358,8 @@ export function registerVitalsCommands(program: Command): void {
         console.log(`${"─".repeat(60)}`);
 
         for (const [key, label] of metrics) {
-          const val1 = result.v1[key];
-          const val2 = result.v2[key];
+          const val1 = result.v1[key] as number | undefined;
+          const val2 = result.v2[key] as number | undefined;
           const s1 = val1 !== undefined ? (val1 * 100).toFixed(3) + "%" : "N/A";
           const s2 = val2 !== undefined ? (val2 * 100).toFixed(3) + "%" : "N/A";
           const isRegression = result.regressions.includes(key as string);
@@ -442,7 +443,7 @@ export function registerVitalsCommands(program: Command): void {
                 const { updateRollout } = await import("@gpc-cli/core");
                 const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
                 const apiClient = createApiClient({ auth });
-                await updateRollout(apiClient, packageName, options.track as string, 0);
+                await updateRollout(apiClient, packageName, options.track as string, "halt");
                 console.error(`${red("⚠")} Rollout halted on track "${options.track}".`);
               } catch (err) {
                 console.error(`Failed to halt rollout: ${err instanceof Error ? err.message : String(err)}`);

@@ -47,7 +47,7 @@ export function registerGeneratedApksCommands(program: Command): void {
       try {
         const result = await listGeneratedApks(client, packageName, versionCode);
         if (format !== "json") {
-          const apks = (result as Record<string, unknown>)["generatedApks"] as Array<Record<string, unknown>> | undefined;
+          const apks = (result as unknown as Record<string, unknown>)["generatedApks"] as Array<Record<string, unknown>> | undefined;
           if (apks && apks.length > 0) {
             const rows = apks.map((apk) => ({
               id: apk["generatedApkId"] || "-",
