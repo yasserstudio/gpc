@@ -472,6 +472,20 @@ html {
 
 .VPFeatures .items {
   gap: 16px !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+}
+
+@media (max-width: 960px) {
+  .VPFeatures .items {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .VPFeatures .items {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 .VPFeature {
