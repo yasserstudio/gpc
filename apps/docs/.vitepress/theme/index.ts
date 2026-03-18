@@ -6,6 +6,7 @@ import TerminalOutput from "./TerminalOutput.vue";
 import CommandHeader from "./CommandHeader.vue";
 import BackToTop from "./BackToTop.vue";
 import CopyForAI from "./CopyForAI.vue";
+import AnnouncementBanner from "./AnnouncementBanner.vue";
 
 export default {
   ...DefaultTheme,
@@ -16,5 +17,6 @@ export default {
     app.component("CommandHeader", CommandHeader);
     app.component("BackToTop", BackToTop);
     app.component("CopyForAI", CopyForAI);
+    app.component("AnnouncementBanner", AnnouncementBanner);
   },
 };

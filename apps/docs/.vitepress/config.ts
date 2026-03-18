@@ -83,12 +83,17 @@ export default defineConfig({
     "The complete CLI for Google Play. 187 API endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
 
   base: "/gpc/",
+  lang: "en-US",
+  cleanUrls: true,
+  metaChunk: true,
 
   markdown: {
     theme: {
       light: "github-light",
       dark: "github-dark-dimmed",
     },
+    lineNumbers: true,
+    image: { lazyLoading: true },
   },
 
   head: [
@@ -186,6 +191,17 @@ export default defineConfig({
     logo: "/logo.svg",
     siteTitle: "GPC",
 
+    outline: { level: [2, 3], label: "On this page" },
+    externalLinkIcon: true,
+    darkModeSwitchLabel: "Theme",
+    sidebarMenuLabel: "Navigation",
+    returnToTopLabel: "Back to top",
+    docFooter: { prev: "Previous", next: "Next" },
+    lastUpdated: {
+      text: "Last updated",
+      formatOptions: { dateStyle: "short" },
+    },
+
     nav: [
       { text: "Guide", link: "/guide/" },
       { text: "Commands", link: "/commands/" },
@@ -235,6 +251,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.layers, "Core Workflow"),
+          collapsed: true,
           items: [
             { text: "status", link: "/commands/status" },
             { text: "publish / validate", link: "/commands/publish" },
@@ -245,6 +262,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.activity, "Monitoring"),
+          collapsed: true,
           items: [
             { text: "reviews", link: "/commands/reviews" },
             { text: "vitals", link: "/commands/vitals" },
@@ -253,6 +271,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.dollar, "Monetization"),
+          collapsed: true,
           items: [
             { text: "subscriptions", link: "/commands/subscriptions" },
             {
@@ -267,6 +286,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.users, "Reporting & Team"),
+          collapsed: true,
           items: [
             { text: "reports", link: "/commands/reports" },
             { text: "testers", link: "/commands/testers" },
@@ -276,6 +296,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.pkg, "Distribution"),
+          collapsed: true,
           items: [
             { text: "bundle", link: "/commands/bundle" },
             { text: "internal-sharing", link: "/commands/internal-sharing" },
@@ -287,6 +308,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.shieldCheck, "Compliance & Recovery"),
+          collapsed: true,
           items: [
             { text: "data-safety", link: "/commands/data-safety" },
             { text: "recovery", link: "/commands/recovery" },
@@ -298,6 +320,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.cpu, "Automation"),
+          collapsed: true,
           items: [
             { text: "train", link: "/commands/train" },
             { text: "quota", link: "/commands/quota" },
@@ -305,6 +328,7 @@ export default defineConfig({
         },
         {
           text: si(ICONS.settings, "System"),
+          collapsed: true,
           items: [
             { text: "auth", link: "/commands/auth" },
             { text: "apps", link: "/commands/apps" },

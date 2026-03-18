@@ -1089,6 +1089,39 @@ html {
 }
 
 /* ================================================================
+   WIDE PAGE (pageClass: wide-page) — hides aside for table-heavy pages
+   ================================================================ */
+
+.wide-page .VPDoc .aside {
+  display: none !important;
+}
+
+.wide-page .VPDoc .content-container {
+  max-width: 100% !important;
+}
+
+/* ================================================================
+   LINE NUMBERS — de-emphasize so they don't compete with content
+   ================================================================ */
+
+.vp-doc div[class*="language-"] .line-numbers-wrapper {
+  padding-top: 18px !important;
+  border-right: 1px solid rgba(100, 130, 180, 0.15) !important;
+}
+
+.dark .vp-doc div[class*="language-"] .line-numbers-wrapper {
+  border-right-color: rgba(77, 149, 241, 0.1) !important;
+}
+
+/* Offset line numbers in terminal chrome blocks */
+.vp-doc div[class*="language-bash"] .line-numbers-wrapper,
+.vp-doc div[class*="language-sh"] .line-numbers-wrapper,
+.vp-doc div[class*="language-shell"] .line-numbers-wrapper,
+.vp-doc div[class*="language-zsh"] .line-numbers-wrapper {
+  top: 40px !important;
+}
+
+/* ================================================================
    MISC POLISH
    ================================================================ */
 
