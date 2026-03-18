@@ -342,17 +342,15 @@ html {
   color: var(--vp-c-brand-1) !important;
   background: var(--vp-c-brand-soft) !important;
   box-shadow:
-    0 0 0 1px rgba(26, 115, 232, 0.18),
-    0 0 14px rgba(26, 115, 232, 0.22),
-    0 2px 6px rgba(26, 115, 232, 0.1) !important;
+    inset 2px 0 0 rgba(26, 115, 232, 0.9),
+    inset 10px 0 20px rgba(26, 115, 232, 0.18) !important;
 }
 
 .dark .VPSidebarItem.level-1.is-active > .item > .link,
 .dark .VPSidebarItem.level-2.is-active > .item > .link {
   box-shadow:
-    0 0 0 1px rgba(77, 149, 241, 0.22),
-    0 0 18px rgba(77, 149, 241, 0.28),
-    0 2px 8px rgba(77, 149, 241, 0.14) !important;
+    inset 2px 0 0 rgba(77, 149, 241, 0.9),
+    inset 10px 0 20px rgba(77, 149, 241, 0.22) !important;
 }
 
 /* ================================================================
