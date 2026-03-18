@@ -102,7 +102,7 @@ export function registerSubscriptionsCommands(program: Command): void {
       try {
         const result = await getSubscription(client, packageName, productId);
         if (format !== "json") {
-          const s = result as Record<string, unknown>;
+          const s = result as unknown as Record<string, unknown>;
           const basePlans = s["basePlans"] as Array<Record<string, unknown>> | undefined;
           const listings = s["listings"] as Record<string, unknown> | Array<Record<string, unknown>> | undefined;
           const listingLanguages = listings
@@ -415,7 +415,7 @@ export function registerSubscriptionsCommands(program: Command): void {
 
       try {
         const result = await listOffers(client, packageName, productId, basePlanId);
-        const offers_list = (result as Record<string, unknown>)["subscriptionOffers"] as Array<Record<string, unknown>> | undefined;
+        const offers_list = (result as unknown as Record<string, unknown>)["subscriptionOffers"] as Array<Record<string, unknown>> | undefined;
         if (format !== "json") {
           if (!offers_list || offers_list.length === 0) {
             console.log("No offers found.");

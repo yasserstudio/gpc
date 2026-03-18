@@ -67,12 +67,13 @@ export function registerReviewsCommands(program: Command): void {
         }
         const sorted = sortResults(result, options.sort);
         if (format !== "json" && Array.isArray(sorted)) {
-          const rows = sorted.map((r: Record<string, unknown>) => {
-            const comments = r["comments"] as Record<string, unknown>[] | undefined;
+          const rows = sorted.map((r: unknown) => {
+            const rv = r as Record<string, unknown>;
+            const comments = rv["comments"] as Record<string, unknown>[] | undefined;
             const userComment = comments?.[0]?.["userComment"] as Record<string, unknown> | undefined;
             return {
-              reviewId: r["reviewId"] || "-",
-              author: r["authorName"] || "-",
+              reviewId: rv["reviewId"] || "-",
+              author: rv["authorName"] || "-",
               stars: userComment?.["starRating"] || "-",
               text: String(userComment?.["text"] || "-").slice(0, 80),
               lastModified: userComment?.["lastModified"]

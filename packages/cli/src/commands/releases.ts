@@ -225,21 +225,24 @@ export function registerReleasesCommands(program: Command): void {
           ? options.sort
             ? sortResults(statuses, options.sort)
             : [...statuses].sort((a, b) => {
-                const ai = TRACK_ORDER.indexOf(String((a as Record<string, unknown>)["track"] ?? ""));
-                const bi = TRACK_ORDER.indexOf(String((b as Record<string, unknown>)["track"] ?? ""));
+                const ai = TRACK_ORDER.indexOf(String((a as unknown as Record<string, unknown>)["track"] ?? ""));
+                const bi = TRACK_ORDER.indexOf(String((b as unknown as Record<string, unknown>)["track"] ?? ""));
                 return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
               })
           : statuses;
         if (format !== "json" && Array.isArray(sorted)) {
-          const rows = sorted.map((s: Record<string, unknown>) => ({
-            track: s["track"] || "-",
-            status: s["status"] || "-",
-            name: s["name"] || "-",
-            versionCodes: Array.isArray(s["versionCodes"]) ? (s["versionCodes"] as unknown[]).join(", ") : "-",
-            userFraction: s["userFraction"] !== undefined
-              ? `${Math.round(Number(s["userFraction"]) * 100)}%`
-              : "—",
-          }));
+          const rows = sorted.map((s: unknown) => {
+            const sr = s as Record<string, unknown>;
+            return {
+              track: sr["track"] || "-",
+              status: sr["status"] || "-",
+              name: sr["name"] || "-",
+              versionCodes: Array.isArray(sr["versionCodes"]) ? (sr["versionCodes"] as unknown[]).join(", ") : "-",
+              userFraction: sr["userFraction"] !== undefined
+                ? `${Math.round(Number(sr["userFraction"]) * 100)}%`
+                : "—",
+            };
+          });
           console.log(formatOutput(rows, format));
         } else {
           console.log(formatOutput(sorted, format));
@@ -507,7 +510,7 @@ export function registerReleasesCommands(program: Command): void {
         const result = await uploadExternallyHosted(
           client,
           packageName,
-          apkConfig as ExternallyHostedApk,
+          apkConfig as unknown as ExternallyHostedApk,
         );
         console.log(formatOutput(result, format));
       } catch (error) {

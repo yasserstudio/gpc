@@ -40,7 +40,7 @@ export function registerDeviceTiersCommands(program: Command): void {
 
       try {
         const result = await listDeviceTiers(client, packageName);
-        const configs = (result as Record<string, unknown>)["deviceTierConfigs"] as Record<string, unknown>[] | undefined;
+        const configs = (result as unknown as Record<string, unknown>)["deviceTierConfigs"] as Record<string, unknown>[] | undefined;
         if (format !== "json" && (!configs || configs.length === 0)) {
           console.log("No device tier configs found.");
           return;

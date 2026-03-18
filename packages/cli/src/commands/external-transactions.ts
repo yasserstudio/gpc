@@ -112,16 +112,16 @@ export function registerExternalTransactionsCommands(program: Command): void {
 
       const refundData: Record<string, unknown> = {};
       if (options.full) {
-        refundData.fullRefund = {};
+        refundData['fullRefund'] = {};
       } else if (options.partialAmount) {
-        refundData.partialRefund = {
+        refundData['partialRefund'] = {
           refundPreTaxAmount: {
             priceMicros: options.partialAmount,
             currency: options.currency,
           },
         };
       } else {
-        refundData.fullRefund = {};
+        refundData['fullRefund'] = {};
       }
 
       await requireConfirm(`Refund external transaction "${id}"?`, program);

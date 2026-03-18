@@ -37,7 +37,7 @@ export function registerAnomaliesCommands(program: Command): void {
       try {
         const result = await getVitalsAnomalies(reporting, packageName);
         const items =
-          (result as Record<string, unknown>)["anomalies"] as unknown[] | undefined;
+          (result as unknown as Record<string, unknown>)["anomalies"] as unknown[] | undefined;
 
         if (format !== "json") {
           if (!items || items.length === 0) {

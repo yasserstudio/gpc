@@ -50,7 +50,7 @@ export function registerPurchasesCommands(program: Command): void {
       try {
         const result = await getProductPurchase(client, packageName, productId, token);
         if (format !== "json") {
-          const r = result as Record<string, unknown>;
+          const r = result as unknown as Record<string, unknown>;
           const row = {
             orderId: r["orderId"] || "-",
             purchaseState: r["purchaseState"] ?? "-",
@@ -149,7 +149,7 @@ export function registerPurchasesCommands(program: Command): void {
       try {
         const result = await getSubscriptionPurchase(client, packageName, token);
         if (format !== "json") {
-          const r = result as Record<string, unknown>;
+          const r = result as unknown as Record<string, unknown>;
           const lineItems = r["lineItems"] as Record<string, unknown>[] | undefined;
           const row = {
             subscriptionState: r["subscriptionState"] || "-",

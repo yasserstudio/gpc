@@ -287,12 +287,12 @@ export function registerListingsCommands(program: Command): void {
           console.log(formatOutput(diffs, format));
         } else {
           for (const diff of diffs) {
-            const charInfo = (diff as Record<string, unknown>)["chars"]
-              ? ` (${(diff as Record<string, unknown>)["chars"]} chars)`
+            const charInfo = (diff as unknown as Record<string, unknown>)["chars"]
+              ? ` (${(diff as unknown as Record<string, unknown>)["chars"]} chars)`
               : "";
             console.log(`[${diff.language}] ${diff.field}:${charInfo}`);
-            if ((diff as Record<string, unknown>)["diffSummary"]) {
-              console.log(`  ${(diff as Record<string, unknown>)["diffSummary"]}`);
+            if ((diff as unknown as Record<string, unknown>)["diffSummary"]) {
+              console.log(`  ${(diff as unknown as Record<string, unknown>)["diffSummary"]}`);
             } else {
               console.log(green(`  + local:  ${diff.local || "(empty)"}`));
               console.log(red(`  - remote: ${diff.remote || "(empty)"}`));
@@ -590,7 +590,7 @@ export function registerListingsCommands(program: Command): void {
 
       try {
         const result = await getCountryAvailability(client, packageName, options.track);
-        const countries = (result as Record<string, unknown>)["countryTargeting"] as unknown[] | undefined;
+        const countries = (result as unknown as Record<string, unknown>)["countryTargeting"] as unknown[] | undefined;
         if (format !== "json" && (!countries || (Array.isArray(countries) && countries.length === 0)) && Object.keys(result as object).length === 0) {
           console.log("No availability data.");
           return;
