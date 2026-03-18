@@ -46,6 +46,7 @@ gpc bundle analyze app.aab --threshold 150
 | --------------------------------------------- | ----------------------------------------------------- |
 | [`reviews`](./reviews)                        | User reviews and ratings                              |
 | [`vitals`](./vitals)                          | Crash rates, ANR, startup, rendering, battery, memory |
+| [`anomalies`](./anomalies)                    | Automatically detected vitals anomalies               |
 
 ### Monetization
 

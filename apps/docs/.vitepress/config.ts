@@ -7,8 +7,17 @@ export default defineConfig({
 
   base: "/gpc/",
 
+  markdown: {
+    theme: {
+      light: "github-light",
+      dark:  "github-dark-dimmed",
+    },
+  },
+
   head: [
     ["link", { rel: "icon", href: "/gpc/favicon.ico" }],
+    ["link", { rel: "preconnect", href: "https://fonts.googleapis.com" }],
+    ["link", { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" }],
     [
       "meta",
       { property: "og:title", content: "GPC — Google Play Console CLI" },
@@ -125,6 +134,7 @@ export default defineConfig({
           items: [
             { text: "reviews", link: "/commands/reviews" },
             { text: "vitals", link: "/commands/vitals" },
+            { text: "anomalies", link: "/commands/anomalies" },
           ],
         },
         {

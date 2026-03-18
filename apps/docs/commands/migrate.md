@@ -26,10 +26,16 @@ gpc migrate fastlane [options]
 
 ### Options
 
-| Flag       | Short | Type     | Default | Description                             |
-| ---------- | ----- | -------- | ------- | --------------------------------------- |
-| `--dir`    |       | `string` | `.`     | Directory containing Fastlane files     |
-| `--output` |       | `string` | `.`     | Output directory for migration files    |
+| Flag        | Short | Type      | Default | Description                                       |
+| ----------- | ----- | --------- | ------- | ------------------------------------------------- |
+| `--dir`     |       | `string`  | `.`     | Directory containing Fastlane files               |
+| `--output`  |       | `string`  | `.`     | Output directory for migration files              |
+| `--dry-run` |       | `boolean` | `false` | Preview migration plan without writing any files  |
+| `--yes`     | `-y`  | `boolean` | `false` | Overwrite existing `.gpcrc.json` without prompting|
+
+::: warning Overwrite protection
+If a `.gpcrc.json` already exists in the output directory, the command will abort with a warning unless `--yes` is passed. This prevents accidental overwrites of existing GPC configuration.
+:::
 
 ### Example
 
