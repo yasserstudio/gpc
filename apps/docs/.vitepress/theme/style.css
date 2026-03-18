@@ -365,8 +365,8 @@ html {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 60% 80% at 30% 50%, rgba(26, 115, 232, 0.06) 0%, transparent 65%),
-    radial-gradient(circle at 1px 1px, rgba(26, 115, 232, 0.07) 1px, transparent 0);
+    radial-gradient(ellipse 60% 80% at 30% 50%, rgba(26, 115, 232, 0.14) 0%, transparent 65%),
+    radial-gradient(circle at 1px 1px, rgba(26, 115, 232, 0.18) 1px, transparent 0);
   background-size:
     100% 100%,
     28px 28px;
@@ -811,6 +811,26 @@ html {
 .vp-doc div[class*="language-shell"] .lang,
 .vp-doc div[class*="language-zsh"] .lang {
   display: none !important;
+}
+
+/* Force dark-theme Shiki token colors inside terminal blocks.
+   The terminal background is always #0d1117 (dark), regardless of
+   light/dark mode. VitePress Shiki dual-theme sets --shiki-light and
+   --shiki-dark inline on each <span>. Without this override, light mode
+   activates --shiki-light (designed for white bg) and text is invisible. */
+.vp-doc div[class*="language-bash"] pre,
+.vp-doc div[class*="language-sh"] pre,
+.vp-doc div[class*="language-shell"] pre,
+.vp-doc div[class*="language-zsh"] pre {
+  color: #adbac7 !important;
+}
+
+.vp-doc div[class*="language-bash"] code span,
+.vp-doc div[class*="language-sh"] code span,
+.vp-doc div[class*="language-shell"] code span,
+.vp-doc div[class*="language-zsh"] code span {
+  color: var(--shiki-dark, #adbac7) !important;
+  background-color: var(--shiki-dark-bg, transparent) !important;
 }
 
 /* Push copy button below terminal header */
