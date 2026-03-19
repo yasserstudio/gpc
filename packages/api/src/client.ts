@@ -65,6 +65,7 @@ import type {
   PurchaseOptionsListResponse,
   InAppProductsBatchUpdateRequest,
   InAppProductsBatchUpdateResponse,
+  ResumableUploadOptions,
 } from "./types.js";
 
 export interface PlayApiClient {
@@ -84,7 +85,7 @@ export interface PlayApiClient {
 
   bundles: {
     list(packageName: string, editId: string): Promise<Bundle[]>;
-    upload(packageName: string, editId: string, filePath: string, uploadOptions?: import("./types.js").ResumableUploadOptions): Promise<Bundle>;
+    upload(packageName: string, editId: string, filePath: string, uploadOptions?: ResumableUploadOptions): Promise<Bundle>;
   };
 
   tracks: {
