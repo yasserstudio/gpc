@@ -310,7 +310,7 @@ gpc users invite user@company.com --developer-id <id> --role ADMIN
 gpc users invite user@company.com --developer-id <id> --role RELEASE_MANAGER
 gpc users remove user@company.com --developer-id <id>
 gpc users grants list --developer-id <id>
-gpc users grants add --developer-id <id> --email user@co.com --app com.example.app
+gpc users grants add --developer-id <id> --email user@example.com --app com.example.app
 ```
 
 Roles: ADMIN, RELEASE_MANAGER, GLOBAL_VIEWER, DEVELOPER, GAME_WIZARD
