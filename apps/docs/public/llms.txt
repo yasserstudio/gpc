@@ -56,7 +56,7 @@ gpc subscriptions list                                 # List subscriptions
 gpc purchases get <token>                              # Verify a purchase token
 gpc pricing convert --from USD --amount 9.99           # Regional price conversion
 gpc reports download financial --month 2026-02         # Download financial report
-gpc users invite user@co.com --developer-id <id> --role ADMIN  # Invite user
+gpc users invite user@example.com --developer-id <id> --role ADMIN  # Invite user
 gpc testers import --track beta --file testers.csv     # Bulk tester import
 gpc publish app.aab --track beta --notes "Bug fixes"   # End-to-end release
 gpc anomalies list                                     # List Android vitals anomalies
