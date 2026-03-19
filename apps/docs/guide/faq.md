@@ -53,10 +53,6 @@ GPC covers 187 API endpoints — Fastlane supply covers about 20. GPC gives you 
 
 GPC reads Fastlane's `metadata/` directory format natively, so migration starts with zero file changes. See [Migrating from Fastlane](../migration/from-fastlane) for a step-by-step guide.
 
-### What about the gplay Go CLI?
-
-gplay is a solid tool with good API coverage. GPC differentiates with publishable TypeScript SDK packages (`@gpc-cli/api`, `@gpc-cli/auth`) for programmatic use, a plugin system with lifecycle hooks, interactive mode, and native integration with the Node.js ecosystem. If your CI already has Node.js, GPC is a drop-in.
-
 ### Why TypeScript and not Go?
 
 Android developers already have Node.js — React Native, build tools, linters. `npm install` is in every CI pipeline. And `@gpc-cli/api` works as a standalone typed SDK in any Node.js project — build dashboards, Slack bots, or custom automation on top of the same API client GPC uses. A Go binary can't offer that.

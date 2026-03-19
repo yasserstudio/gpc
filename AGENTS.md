@@ -8,13 +8,13 @@ This project uses [agent skills](https://github.com/anthropics/skills) for AI-as
 
 Installed via `npx skills add coreyhaines31/marketingskills`
 
-Used for branding, content strategy, launch planning, and growth. See `design/marketing/` for outputs.
+Used for branding, content strategy, launch planning, and growth.
 
-### Google Play CLI Skills
+### GPC Skills (15 skills)
 
-Installed via `npx skills add tamtom/gplay-cli-skills`
+Installed via `gpc install-skills` or `npx skills add yasserstudio/gpc-skills`
 
-Reference skills for Google Play Console operations. See global CLAUDE.md for details.
+Reference skills for Google Play Console operations. See CLAUDE.md for the full skill table.
 
 ## For Contributors
 
@@ -24,5 +24,5 @@ To install skills locally:
 
 ```bash
 npx skills add coreyhaines31/marketingskills
-npx skills add tamtom/gplay-cli-skills
+npx skills add yasserstudio/gpc-skills
 ```

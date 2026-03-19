@@ -73,11 +73,7 @@ Key pages for contributors:
 - `apps/docs/advanced/security.md` — credential handling, threat model
 - `apps/docs/roadmap.md` — phased implementation plan
 
-Private docs in `.dev/` (gitignored):
-
-- `.dev/marketing/` — branding, launch, content, pricing
-- `.dev/engineering/` — implementation strategy, GitHub automation, agent skills
-- `.dev/HONEST_ASSESSMENT.md`, `.dev/COMPARISON_WITH_ASC_CLI.md`
+Private docs in `.dev/` (gitignored) — internal use only.
 
 ## GPC Skills
 
