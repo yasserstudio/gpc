@@ -43,7 +43,14 @@ interface ResumableUploadContext {
   maxRetries: number;
   baseDelay: number;
   maxDelay: number;
-  onRetry?: (info: { attempt: number; method: string; path: string; error: string; delayMs: number; timestamp: string }) => void;
+  onRetry?: (info: {
+    attempt: number;
+    method: string;
+    path: string;
+    error: string;
+    delayMs: number;
+    timestamp: string;
+  }) => void;
 }
 
 /**

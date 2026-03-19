@@ -25,14 +25,16 @@ function mockCtx(tokenOverride?: string) {
 function createMockFileHandle(totalBytes: number) {
   let readCalls = 0;
   return {
-    read: vi.fn().mockImplementation((buf: Buffer, _offset: number, length: number, position: number) => {
-      const remaining = Math.max(0, totalBytes - position);
-      const bytesRead = Math.min(length, remaining);
-      // Fill buffer with dummy data
-      if (bytesRead > 0) buf.fill(0x41, 0, bytesRead);
-      readCalls++;
-      return Promise.resolve({ bytesRead });
-    }),
+    read: vi
+      .fn()
+      .mockImplementation((buf: Buffer, _offset: number, length: number, position: number) => {
+        const remaining = Math.max(0, totalBytes - position);
+        const bytesRead = Math.min(length, remaining);
+        // Fill buffer with dummy data
+        if (bytesRead > 0) buf.fill(0x41, 0, bytesRead);
+        readCalls++;
+        return Promise.resolve({ bytesRead });
+      }),
     close: vi.fn().mockResolvedValue(undefined),
   };
 }
@@ -63,9 +65,7 @@ describe("resumableUpload", () => {
 
     // 2. Upload single chunk → complete
     const bundle = { versionCode: 42, sha256: "abc" };
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify(bundle), { status: 200 }),
-    );
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(bundle), { status: 200 }));
 
     const ctx = mockCtx();
     const result = await resumableUpload(
@@ -113,9 +113,7 @@ describe("resumableUpload", () => {
 
     // Chunk 4 (final, partial): 200 OK
     const bundle = { versionCode: 1 };
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify(bundle), { status: 200 }),
-    );
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(bundle), { status: 200 }));
 
     const progressEvents: { percent: number; bytesUploaded: number }[] = [];
     const result = await resumableUpload(
@@ -144,7 +142,9 @@ describe("resumableUpload", () => {
     expect(chunk1.headers["Content-Range"]).toBe(`bytes 0-${chunkSize - 1}/${fileSize}`);
     // Chunk 2: bytes chunkSize-(2*chunkSize-1)/total
     const chunk2 = mockFetch.mock.calls[2][1];
-    expect(chunk2.headers["Content-Range"]).toBe(`bytes ${chunkSize}-${2 * chunkSize - 1}/${fileSize}`);
+    expect(chunk2.headers["Content-Range"]).toBe(
+      `bytes ${chunkSize}-${2 * chunkSize - 1}/${fileSize}`,
+    );
   });
 
   it("throws UPLOAD_SESSION_NOT_FOUND on 404 from chunk upload", async () => {
@@ -163,9 +163,15 @@ describe("resumableUpload", () => {
     mockFetch.mockResolvedValueOnce(new Response("", { status: 404 }));
 
     await expect(
-      resumableUpload("https://upload.example.com/bundles", "/tmp/app.aab", "application/octet-stream", mockCtx(), {
-        chunkSize: 8 * 1024 * 1024,
-      }),
+      resumableUpload(
+        "https://upload.example.com/bundles",
+        "/tmp/app.aab",
+        "application/octet-stream",
+        mockCtx(),
+        {
+          chunkSize: 8 * 1024 * 1024,
+        },
+      ),
     ).rejects.toThrow(/session.*not found/i);
   });
 
@@ -185,9 +191,15 @@ describe("resumableUpload", () => {
     mockFetch.mockResolvedValueOnce(new Response("", { status: 410 }));
 
     await expect(
-      resumableUpload("https://upload.example.com/bundles", "/tmp/app.aab", "application/octet-stream", mockCtx(), {
-        chunkSize: 8 * 1024 * 1024,
-      }),
+      resumableUpload(
+        "https://upload.example.com/bundles",
+        "/tmp/app.aab",
+        "application/octet-stream",
+        mockCtx(),
+        {
+          chunkSize: 8 * 1024 * 1024,
+        },
+      ),
     ).rejects.toThrow(/session.*expired/i);
   });
 
@@ -217,9 +229,7 @@ describe("resumableUpload", () => {
 
     // Chunk 2 retry: 200 (complete)
     const bundle = { versionCode: 99 };
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify(bundle), { status: 200 }),
-    );
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(bundle), { status: 200 }));
 
     const ctx = mockCtx();
     const result = await resumableUpload(
@@ -238,14 +248,18 @@ describe("resumableUpload", () => {
     mockStat.mockResolvedValue({ size: 1024 * 1024 });
     mockOpen.mockResolvedValue(createMockFileHandle(1024 * 1024));
 
-    mockFetch.mockResolvedValueOnce(
-      new Response("Forbidden", { status: 403 }),
-    );
+    mockFetch.mockResolvedValueOnce(new Response("Forbidden", { status: 403 }));
 
     await expect(
-      resumableUpload("https://upload.example.com/bundles", "/tmp/app.aab", "application/octet-stream", mockCtx(), {
-        chunkSize: 8 * 1024 * 1024,
-      }),
+      resumableUpload(
+        "https://upload.example.com/bundles",
+        "/tmp/app.aab",
+        "application/octet-stream",
+        mockCtx(),
+        {
+          chunkSize: 8 * 1024 * 1024,
+        },
+      ),
     ).rejects.toThrow(/initiate resumable upload/i);
   });
 
@@ -257,9 +271,15 @@ describe("resumableUpload", () => {
     mockFetch.mockResolvedValueOnce(new Response("", { status: 200 }));
 
     await expect(
-      resumableUpload("https://upload.example.com/bundles", "/tmp/app.aab", "application/octet-stream", mockCtx(), {
-        chunkSize: 8 * 1024 * 1024,
-      }),
+      resumableUpload(
+        "https://upload.example.com/bundles",
+        "/tmp/app.aab",
+        "application/octet-stream",
+        mockCtx(),
+        {
+          chunkSize: 8 * 1024 * 1024,
+        },
+      ),
     ).rejects.toThrow(/session URI/i);
   });
 
@@ -268,9 +288,15 @@ describe("resumableUpload", () => {
     mockOpen.mockResolvedValue(createMockFileHandle(1024 * 1024));
 
     await expect(
-      resumableUpload("https://upload.example.com/bundles", "/tmp/app.aab", "application/octet-stream", mockCtx(), {
-        chunkSize: 300000, // Not a multiple of 256 KB
-      }),
+      resumableUpload(
+        "https://upload.example.com/bundles",
+        "/tmp/app.aab",
+        "application/octet-stream",
+        mockCtx(),
+        {
+          chunkSize: 300000, // Not a multiple of 256 KB
+        },
+      ),
     ).rejects.toThrow(/multiple of 256 KB/i);
   });
 
@@ -286,9 +312,7 @@ describe("resumableUpload", () => {
 
     // Upload chunk: complete
     const bundle = { versionCode: 7 };
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify(bundle), { status: 200 }),
-    );
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(bundle), { status: 200 }));
 
     const result = await resumableUpload(
       "https://upload.example.com/bundles",
@@ -337,7 +361,12 @@ describe("resumableUpload", () => {
       mockCtx(),
       {
         chunkSize,
-        onProgress: (e) => events.push({ percent: e.percent, bytesPerSecond: e.bytesPerSecond, etaSeconds: e.etaSeconds }),
+        onProgress: (e) =>
+          events.push({
+            percent: e.percent,
+            bytesPerSecond: e.bytesPerSecond,
+            etaSeconds: e.etaSeconds,
+          }),
       },
     );
 

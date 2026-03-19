@@ -58,23 +58,23 @@ GPC ships with 15 agent skills covering every workflow:
 
 Not sure which skill to use? Find your task below:
 
-| I want to...                                          | Skill                    |
-| ----------------------------------------------------- | ------------------------ |
-| Get started with GPC for the first time               | `gpc-onboarding`         |
-| Set up authentication or run `gpc doctor`             | `gpc-setup`              |
-| Upload an AAB or manage releases                      | `gpc-release-flow`       |
-| Automate staged rollouts with gates                   | `gpc-train`              |
-| Update store listings or screenshots                  | `gpc-metadata-sync`      |
-| Monitor crash rates or ANR                            | `gpc-vitals-monitoring`  |
-| Add GPC to GitHub Actions or GitLab CI                | `gpc-ci-integration`     |
-| Manage subscriptions or in-app purchases              | `gpc-monetization`       |
-| Invite users, manage testers, or control app grants   | `gpc-user-management`    |
-| Migrate from Fastlane supply                          | `gpc-migrate-fastlane`   |
-| Build a GPC plugin                                    | `gpc-plugin-development` |
-| Debug errors or fix common issues                     | `gpc-troubleshooting`    |
-| Use GPC packages as a TypeScript SDK                  | `gpc-sdk-usage`          |
-| Manage multiple apps with profiles                    | `gpc-multi-app`          |
-| Audit credentials or rotate keys                      | `gpc-security`           |
+| I want to...                                        | Skill                    |
+| --------------------------------------------------- | ------------------------ |
+| Get started with GPC for the first time             | `gpc-onboarding`         |
+| Set up authentication or run `gpc doctor`           | `gpc-setup`              |
+| Upload an AAB or manage releases                    | `gpc-release-flow`       |
+| Automate staged rollouts with gates                 | `gpc-train`              |
+| Update store listings or screenshots                | `gpc-metadata-sync`      |
+| Monitor crash rates or ANR                          | `gpc-vitals-monitoring`  |
+| Add GPC to GitHub Actions or GitLab CI              | `gpc-ci-integration`     |
+| Manage subscriptions or in-app purchases            | `gpc-monetization`       |
+| Invite users, manage testers, or control app grants | `gpc-user-management`    |
+| Migrate from Fastlane supply                        | `gpc-migrate-fastlane`   |
+| Build a GPC plugin                                  | `gpc-plugin-development` |
+| Debug errors or fix common issues                   | `gpc-troubleshooting`    |
+| Use GPC packages as a TypeScript SDK                | `gpc-sdk-usage`          |
+| Manage multiple apps with profiles                  | `gpc-multi-app`          |
+| Audit credentials or rotate keys                    | `gpc-security`           |
 
 ## Skill Structure
 

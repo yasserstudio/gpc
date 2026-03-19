@@ -85,7 +85,12 @@ export interface PlayApiClient {
 
   bundles: {
     list(packageName: string, editId: string): Promise<Bundle[]>;
-    upload(packageName: string, editId: string, filePath: string, uploadOptions?: ResumableUploadOptions): Promise<Bundle>;
+    upload(
+      packageName: string,
+      editId: string,
+      filePath: string,
+      uploadOptions?: ResumableUploadOptions,
+    ): Promise<Bundle>;
   };
 
   tracks: {

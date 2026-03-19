@@ -26,9 +26,15 @@ vi.mock("@gpc-cli/core", () => {
     async runOnError() {}
     async runBeforeRequest() {}
     async runAfterResponse() {}
-    getRegisteredCommands() { return []; }
-    getLoadedPlugins() { return []; }
-    hasRequestHooks() { return false; }
+    getRegisteredCommands() {
+      return [];
+    }
+    getLoadedPlugins() {
+      return [];
+    }
+    hasRequestHooks() {
+      return false;
+    }
     reset() {}
   }
   return {

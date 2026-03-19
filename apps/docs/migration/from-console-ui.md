@@ -112,16 +112,16 @@ Map common Google Play Console browser tasks to GPC CLI commands. Every operatio
 
 ### Users and Testers
 
-| Play Console UI       | GPC Command                                                                       | Notes    |
-| --------------------- | --------------------------------------------------------------------------------- | -------- |
-| View team members     | `gpc users list --developer-id <id>`                                              |          |
+| Play Console UI       | GPC Command                                                                            | Notes    |
+| --------------------- | -------------------------------------------------------------------------------------- | -------- |
+| View team members     | `gpc users list --developer-id <id>`                                                   |          |
 | Invite team member    | `gpc users invite user@example.com --developer-id <id> --role ADMIN`                   |          |
 | Update permissions    | `gpc users update user@example.com --developer-id <id> --role CAN_VIEW_FINANCIAL_DATA` |          |
 | Remove team member    | `gpc users remove user@example.com --developer-id <id>`                                |          |
-| View testers on track | `gpc testers list --track internal`                                               |          |
+| View testers on track | `gpc testers list --track internal`                                                    |          |
 | Add testers           | `gpc testers add user@example.com --track internal`                                    |          |
 | Remove testers        | `gpc testers remove user@example.com --track internal`                                 |          |
-| Bulk add testers      | `gpc testers import --track internal --file testers.csv`                          | From CSV |
+| Bulk add testers      | `gpc testers import --track internal --file testers.csv`                               | From CSV |
 
 ### App Overview
 

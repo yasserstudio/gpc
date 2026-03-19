@@ -68,7 +68,12 @@ export interface HttpClient {
   patch<T>(path: string, body?: unknown): Promise<ApiResponse<T>>;
   delete<T>(path: string): Promise<ApiResponse<T>>;
   upload<T>(path: string, filePath: string, contentType: string): Promise<ApiResponse<T>>;
-  uploadResumable<T>(path: string, filePath: string, contentType: string, options?: ResumableUploadOptions): Promise<ApiResponse<T>>;
+  uploadResumable<T>(
+    path: string,
+    filePath: string,
+    contentType: string,
+    options?: ResumableUploadOptions,
+  ): Promise<ApiResponse<T>>;
   uploadInternal<T>(path: string, filePath: string, contentType: string): Promise<ApiResponse<T>>;
   download(path: string): Promise<ArrayBuffer>;
 }
@@ -475,7 +480,12 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     upload<T>(path: string, filePath: string, contentType: string) {
       return uploadRequest<T>(path, filePath, contentType);
     },
-    async uploadResumable<T>(path: string, filePath: string, contentType: string, uploadOptions?: ResumableUploadOptions) {
+    async uploadResumable<T>(
+      path: string,
+      filePath: string,
+      contentType: string,
+      uploadOptions?: ResumableUploadOptions,
+    ) {
       const safeFilePath = validateFilePath(filePath);
       const fileStats = await stat(safeFilePath);
 
@@ -483,20 +493,38 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
       const threshold = envInt("GPC_UPLOAD_RESUMABLE_THRESHOLD") ?? RESUMABLE_THRESHOLD;
       if (fileStats.size < threshold && !uploadOptions?.resumeSessionUri) {
         // Fire progress callbacks for consistency
-        uploadOptions?.onProgress?.({ bytesUploaded: 0, totalBytes: fileStats.size, percent: 0, bytesPerSecond: 0, etaSeconds: 0 });
+        uploadOptions?.onProgress?.({
+          bytesUploaded: 0,
+          totalBytes: fileStats.size,
+          percent: 0,
+          bytesPerSecond: 0,
+          etaSeconds: 0,
+        });
         const result = await uploadRequest<T>(path, safeFilePath, contentType);
-        uploadOptions?.onProgress?.({ bytesUploaded: fileStats.size, totalBytes: fileStats.size, percent: 100, bytesPerSecond: 0, etaSeconds: 0 });
+        uploadOptions?.onProgress?.({
+          bytesUploaded: fileStats.size,
+          totalBytes: fileStats.size,
+          percent: 100,
+          bytesPerSecond: 0,
+          etaSeconds: 0,
+        });
         return result;
       }
 
       const uploadUrl = `${UPLOAD_BASE_URL}${path}`;
-      return resumableUpload<T>(uploadUrl, safeFilePath, contentType, {
-        getAccessToken: () => options.auth.getAccessToken(),
-        maxRetries,
-        baseDelay,
-        maxDelay,
-        onRetry,
-      }, uploadOptions);
+      return resumableUpload<T>(
+        uploadUrl,
+        safeFilePath,
+        contentType,
+        {
+          getAccessToken: () => options.auth.getAccessToken(),
+          maxRetries,
+          baseDelay,
+          maxDelay,
+          onRetry,
+        },
+        uploadOptions,
+      );
     },
     uploadInternal<T>(path: string, filePath: string, contentType: string) {
       return uploadRequest<T>(path, filePath, contentType, INTERNAL_SHARING_UPLOAD_BASE_URL);

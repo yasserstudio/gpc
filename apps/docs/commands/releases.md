@@ -60,8 +60,8 @@ In interactive terminals, uploads show a real-time progress bar:
 
 ### File Size Limits
 
-| File Type | Max Size | Notes |
-| --------- | -------- | ----- |
+| File Type | Max Size | Notes                 |
+| --------- | -------- | --------------------- |
 | AAB       | 2 GB     | Google Play API limit |
 | APK       | 1 GB     | Google Play API limit |
 
