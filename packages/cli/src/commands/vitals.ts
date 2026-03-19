@@ -67,7 +67,7 @@ const THRESHOLD_CONFIG_KEYS: Record<string, string> = {
 };
 
 function validateDimension(dim: string): ReportingDimension {
-  if (!VALID_DIMENSIONS.includes(dim)) {
+  if (!(VALID_DIMENSIONS as readonly string[]).includes(dim)) {
     console.error(`Error: Invalid dimension "${dim}".`);
     console.error(`Valid dimensions: ${VALID_DIMENSIONS.join(", ")}`);
     process.exit(2);
