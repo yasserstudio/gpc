@@ -153,9 +153,12 @@ export function registerReleasesCommands(program: Command): void {
             const bar = "█".repeat(filled) + "░".repeat(BAR_WIDTH - filled);
             const uploaded = formatBytes(event.bytesUploaded);
             const total = formatBytes(event.totalBytes);
-            const speed = event.bytesPerSecond > 0 ? `${formatBytes(event.bytesPerSecond)}/s` : "...";
+            const speed =
+              event.bytesPerSecond > 0 ? `${formatBytes(event.bytesPerSecond)}/s` : "...";
             const eta = event.etaSeconds > 0 ? `ETA ${event.etaSeconds}s` : "";
-            process.stderr.write(`\r  ${bar}  ${event.percent}%  ${uploaded}/${total}  ${speed}  ${eta}\x1b[K`);
+            process.stderr.write(
+              `\r  ${bar}  ${event.percent}%  ${uploaded}/${total}  ${speed}  ${eta}\x1b[K`,
+            );
           }
         : undefined;
 
@@ -527,9 +530,12 @@ export function registerReleasesCommands(program: Command): void {
           ? statuses.flatMap((s: any) => s.releaseNotes ?? [])
           : ((statuses as any).releaseNotes ?? []);
         if (notes.length === 0) {
-          const hasCompleted = Array.isArray(statuses) && statuses.some((s: any) => s.status === "completed");
+          const hasCompleted =
+            Array.isArray(statuses) && statuses.some((s: any) => s.status === "completed");
           if (hasCompleted) {
-            console.log(`No release notes found on track "${track}". Notes may not be retained for completed releases. Try: gpc releases diff --from ${track} --to ${track}`);
+            console.log(
+              `No release notes found on track "${track}". Notes may not be retained for completed releases. Try: gpc releases diff --from ${track} --to ${track}`,
+            );
           } else {
             console.log("No release notes found.");
           }

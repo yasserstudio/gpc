@@ -475,7 +475,12 @@ describe("uploadRelease", () => {
     });
 
     expect(client.edits.insert).toHaveBeenCalledWith(PKG);
-    expect(client.bundles.upload).toHaveBeenCalledWith(PKG, "edit-1", "/tmp/app.aab", expect.any(Object));
+    expect(client.bundles.upload).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "/tmp/app.aab",
+      expect.any(Object),
+    );
     expect(client.tracks.update).toHaveBeenCalledWith(
       PKG,
       "edit-1",
@@ -1988,7 +1993,6 @@ describe("getVitalsAnomalies", () => {
     expect(reporting.getAnomalies).toHaveBeenCalledWith(PKG);
   });
 });
-
 
 describe("searchVitalsErrors", () => {
   it("calls searchErrorIssues with options", async () => {

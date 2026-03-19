@@ -109,7 +109,10 @@ function registerMetricCommand(
           const rows = result.rows.map((row: unknown) => {
             const rowR = row as Record<string, unknown>;
             const startTime = rowR["startTime"] as Record<string, unknown> | undefined;
-            const metrics = rowR["metrics"] as Record<string, Record<string, unknown>> | unknown[] | undefined;
+            const metrics = rowR["metrics"] as
+              | Record<string, Record<string, unknown>>
+              | unknown[]
+              | undefined;
             const flat: Record<string, unknown> = {
               date: startTime
                 ? `${startTime["year"]}-${String(startTime["month"]).padStart(2, "0")}-${String(startTime["day"]).padStart(2, "0")}`

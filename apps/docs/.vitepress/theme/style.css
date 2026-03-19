@@ -341,7 +341,9 @@ html {
 /* Collapsible caret — smaller, subtler */
 .VPSidebarItem.level-0 > .item > .caret {
   opacity: 0.4;
-  transition: opacity 0.15s ease, transform 0.2s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.2s ease;
 }
 
 .VPSidebarItem.level-0 > .item > .caret:hover,

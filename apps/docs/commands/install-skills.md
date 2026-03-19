@@ -62,23 +62,23 @@ gpc install-skills -g -y
 
 ## Available Skills
 
-| Skill                    | Description                                               |
-| ------------------------ | --------------------------------------------------------- |
-| `gpc-setup`              | Auth, config, profiles, `gpc doctor`                      |
-| `gpc-onboarding`         | First-run setup, `gpc quickstart`, interactive auth wizard|
-| `gpc-release-flow`       | Upload, releases, rollouts, promote                       |
-| `gpc-train`              | Automated staged rollout pipeline with gates              |
-| `gpc-metadata-sync`      | Store listings, images, Fastlane compat                   |
-| `gpc-vitals-monitoring`  | Crashes, ANR, reviews, reports                            |
-| `gpc-ci-integration`     | GitHub Actions, GitLab CI, exit codes                     |
-| `gpc-monetization`       | Subscriptions, IAP, offers, pricing, analytics            |
-| `gpc-user-management`    | Users, permissions, grants, testers                       |
-| `gpc-migrate-fastlane`   | Fastlane-to-GPC migration                                 |
-| `gpc-plugin-development` | Plugin SDK, hooks, permissions                            |
-| `gpc-troubleshooting`    | Exit codes, error catalog, debug                          |
-| `gpc-sdk-usage`          | @gpc-cli/api and @gpc-cli/auth as SDK                     |
-| `gpc-multi-app`          | Multiple apps, profiles, batch ops                        |
-| `gpc-security`           | Credential storage, rotation, audit                       |
+| Skill                    | Description                                                |
+| ------------------------ | ---------------------------------------------------------- |
+| `gpc-setup`              | Auth, config, profiles, `gpc doctor`                       |
+| `gpc-onboarding`         | First-run setup, `gpc quickstart`, interactive auth wizard |
+| `gpc-release-flow`       | Upload, releases, rollouts, promote                        |
+| `gpc-train`              | Automated staged rollout pipeline with gates               |
+| `gpc-metadata-sync`      | Store listings, images, Fastlane compat                    |
+| `gpc-vitals-monitoring`  | Crashes, ANR, reviews, reports                             |
+| `gpc-ci-integration`     | GitHub Actions, GitLab CI, exit codes                      |
+| `gpc-monetization`       | Subscriptions, IAP, offers, pricing, analytics             |
+| `gpc-user-management`    | Users, permissions, grants, testers                        |
+| `gpc-migrate-fastlane`   | Fastlane-to-GPC migration                                  |
+| `gpc-plugin-development` | Plugin SDK, hooks, permissions                             |
+| `gpc-troubleshooting`    | Exit codes, error catalog, debug                           |
+| `gpc-sdk-usage`          | @gpc-cli/api and @gpc-cli/auth as SDK                      |
+| `gpc-multi-app`          | Multiple apps, profiles, batch ops                         |
+| `gpc-security`           | Credential storage, rotation, audit                        |
 
 ## How Skills Work
 

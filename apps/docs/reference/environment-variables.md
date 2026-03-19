@@ -33,19 +33,19 @@ All `GPC_*` environment variables and external variables that GPC respects.
 
 ## Network & Retry
 
-| Variable          | Type      | Description                                                                      | Default |
-| ----------------- | --------- | -------------------------------------------------------------------------------- | ------- |
-| `GPC_MAX_RETRIES`                | `integer` | Maximum retry attempts on transient errors (408, 429, 5xx).                                                             | `5`     |
-| `GPC_TIMEOUT`                    | `integer` | Request timeout in milliseconds.                                                                                        | `30000` |
-| `GPC_BASE_DELAY`                 | `integer` | Base retry delay in milliseconds (exponential backoff).                                                                 | `1000`  |
-| `GPC_MAX_DELAY`                  | `integer` | Maximum retry delay in milliseconds.                                                                                    | `60000` |
-| `GPC_UPLOAD_TIMEOUT`             | `integer` | Upload timeout in milliseconds. If unset, auto-scales: 30s + 1s per MB.                                                | Auto    |
-| `GPC_UPLOAD_CHUNK_SIZE`          | `integer` | Resumable upload chunk size in bytes. Must be a multiple of 256 KB (262144). Larger chunks = fewer requests, more RAM.  | `8388608` (8 MB) |
-| `GPC_UPLOAD_RESUMABLE_THRESHOLD` | `integer` | File size threshold in bytes for switching from simple to resumable upload.                                               | `5242880` (5 MB) |
-| `GPC_RATE_LIMIT`                 | `integer` | Client-side requests per second.                                                                                        | `50`    |
-| `GPC_CA_CERT`                    | `string`  | Path to custom CA certificate file (PEM format). For corporate proxies.                                                 | —       |
-| `HTTPS_PROXY`                    | `string`  | HTTP proxy URL (e.g., `https://proxy.corp:8080`). Also respected: `https_proxy`.                                        | —       |
-| `NO_PROXY`                       | `string`  | Comma-separated list of hosts to bypass proxy.                                                                          | —       |
+| Variable                         | Type      | Description                                                                                                            | Default          |
+| -------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| `GPC_MAX_RETRIES`                | `integer` | Maximum retry attempts on transient errors (408, 429, 5xx).                                                            | `5`              |
+| `GPC_TIMEOUT`                    | `integer` | Request timeout in milliseconds.                                                                                       | `30000`          |
+| `GPC_BASE_DELAY`                 | `integer` | Base retry delay in milliseconds (exponential backoff).                                                                | `1000`           |
+| `GPC_MAX_DELAY`                  | `integer` | Maximum retry delay in milliseconds.                                                                                   | `60000`          |
+| `GPC_UPLOAD_TIMEOUT`             | `integer` | Upload timeout in milliseconds. If unset, auto-scales: 30s + 1s per MB.                                                | Auto             |
+| `GPC_UPLOAD_CHUNK_SIZE`          | `integer` | Resumable upload chunk size in bytes. Must be a multiple of 256 KB (262144). Larger chunks = fewer requests, more RAM. | `8388608` (8 MB) |
+| `GPC_UPLOAD_RESUMABLE_THRESHOLD` | `integer` | File size threshold in bytes for switching from simple to resumable upload.                                            | `5242880` (5 MB) |
+| `GPC_RATE_LIMIT`                 | `integer` | Client-side requests per second.                                                                                       | `50`             |
+| `GPC_CA_CERT`                    | `string`  | Path to custom CA certificate file (PEM format). For corporate proxies.                                                | —                |
+| `HTTPS_PROXY`                    | `string`  | HTTP proxy URL (e.g., `https://proxy.corp:8080`). Also respected: `https_proxy`.                                       | —                |
+| `NO_PROXY`                       | `string`  | Comma-separated list of hosts to bypass proxy.                                                                         | —                |
 
 ## Debug & Logging
 

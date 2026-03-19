@@ -7,7 +7,7 @@ const state = ref<"idle" | "loading" | "copied" | "error">("idle");
 
 const rawUrl = computed(
   () =>
-    `https://raw.githubusercontent.com/yasserstudio/gpc/main/apps/docs/${page.value.relativePath}`
+    `https://raw.githubusercontent.com/yasserstudio/gpc/main/apps/docs/${page.value.relativePath}`,
 );
 
 async function copyAsMarkdown() {
@@ -50,7 +50,9 @@ async function copyAsMarkdown() {
           stroke-linecap="round"
           stroke-linejoin="round"
         >
-          <path d="M12 3v3M12 18v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M3 12h3M18 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" />
+          <path
+            d="M12 3v3M12 18v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M3 12h3M18 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"
+          />
         </svg>
         <svg
           v-else-if="state === 'copied'"
@@ -74,7 +76,9 @@ async function copyAsMarkdown() {
           stroke-linecap="round"
           stroke-linejoin="round"
         >
-          <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
       </span>
 
@@ -155,6 +159,8 @@ async function copyAsMarkdown() {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

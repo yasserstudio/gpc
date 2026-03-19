@@ -93,7 +93,10 @@ export async function uploadRelease(
     dryRun?: boolean;
     onProgress?: (uploaded: number, total: number) => void;
     onUploadProgress?: (event: UploadProgressEvent) => void;
-    uploadOptions?: Pick<ResumableUploadOptions, "chunkSize" | "resumeSessionUri" | "maxResumeAttempts">;
+    uploadOptions?: Pick<
+      ResumableUploadOptions,
+      "chunkSize" | "resumeSessionUri" | "maxResumeAttempts"
+    >;
   },
 ): Promise<UploadResult | DryRunUploadResult> {
   // Validate file before upload
