@@ -88,11 +88,13 @@ Install: `gpc install-skills` (interactive wizard) or `npx skills add yasserstud
 | Skill                    | When to Use                                                                     |
 | ------------------------ | ------------------------------------------------------------------------------- |
 | `gpc-setup`              | Auth (service account, OAuth, ADC), config, profiles, `gpc doctor`              |
+| `gpc-onboarding`         | First-run setup, `gpc quickstart`, `gpc auth login` wizard, `gpc doctor --fix`  |
 | `gpc-release-flow`       | Upload AAB, releases, rollouts, promote, `gpc publish`                          |
+| `gpc-train`              | Automated staged rollout pipeline, time gates, crash/ANR gates                  |
 | `gpc-metadata-sync`      | Store listings, images, Fastlane metadata compat, pull/push                     |
 | `gpc-vitals-monitoring`  | Crashes, ANR, vitals thresholds, reviews, reports                               |
 | `gpc-ci-integration`     | GitHub Actions, GitLab CI, env vars, JSON output, exit codes                    |
-| `gpc-monetization`       | Subscriptions, IAP, base plans, offers, purchases, pricing, regional conversion |
+| `gpc-monetization`       | Subscriptions, IAP, base plans, offers, purchases, pricing, analytics           |
 | `gpc-user-management`    | Developer account users, permissions, grants, testers, CSV import               |
 | `gpc-migrate-fastlane`   | Fastlane-to-GPC migration, command mapping, CI migration                        |
 | `gpc-plugin-development` | Plugin SDK, lifecycle hooks, permissions, custom commands                       |
