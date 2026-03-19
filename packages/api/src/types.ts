@@ -232,7 +232,8 @@ export type ReportingDimension =
   | "deviceGlEsVersion"
   | "deviceVulkanVersion"
   | "deviceOpenGlVersion"
-  | "deviceBrand";
+  | "deviceBrand"
+  | "startType";
 
 export type ReportingAggregation = "DAILY" | "HOURLY";
 
@@ -812,4 +813,30 @@ export interface InAppProductsBatchUpdateResponse {
 export interface InAppProductsBatchGetRequest {
   packageName: string;
   sku: string[];
+}
+
+// --- Resumable Upload ---
+
+export interface UploadProgressEvent {
+  /** Bytes uploaded so far */
+  bytesUploaded: number;
+  /** Total file size in bytes */
+  totalBytes: number;
+  /** Percentage 0-100 */
+  percent: number;
+  /** Bytes per second throughput */
+  bytesPerSecond: number;
+  /** Estimated seconds remaining */
+  etaSeconds: number;
+}
+
+export interface ResumableUploadOptions {
+  /** Chunk size in bytes. Must be a multiple of 256 KB. Default: 8 MB */
+  chunkSize?: number;
+  /** Progress callback fired after each chunk */
+  onProgress?: (event: UploadProgressEvent) => void;
+  /** Existing session URI to resume a previous upload */
+  resumeSessionUri?: string;
+  /** Maximum resume attempts per chunk before giving up. Default: 5 */
+  maxResumeAttempts?: number;
 }

@@ -93,7 +93,7 @@ When an error occurs with `--output json`, the response follows this structure:
 | `AUTH_*`    | Authentication errors       | 3         |
 | `API_*`     | Google Play API errors      | 4         |
 | `CONFIG_*`  | Configuration errors        | 1         |
-| `UPLOAD_*`  | File upload errors          | 1         |
+| `UPLOAD_*`  | File upload errors          | 4         |
 | `NETWORK_*` | Network/connectivity errors | 5         |
 | `PLUGIN_*`  | Plugin system errors        | 10        |
 
@@ -113,5 +113,10 @@ When an error occurs with `--output json`, the response follows this structure:
 | `API_SERVER_ERROR`          | 5xx — Google server error               | GPC retries automatically                             |
 | `API_TIMEOUT`               | Request exceeded timeout                | Increase `GPC_TIMEOUT` or check network               |
 | `API_NETWORK_ERROR`         | Connection failed                       | Check internet connection and proxy settings          |
+| `UPLOAD_INITIATE_FAILED`    | Could not start resumable upload        | Check credentials and package name                    |
+| `UPLOAD_SESSION_NOT_FOUND`  | Upload session expired or invalid (404) | Start a new upload                                    |
+| `UPLOAD_SESSION_EXPIRED`    | Upload session is gone (410)            | Start a new upload from the beginning                 |
+| `UPLOAD_CHUNK_FAILED`       | Chunk upload failed after max retries   | Retry; session URI is valid for 1 week                |
+| `UPLOAD_INVALID_CHUNK_SIZE` | Chunk size not a multiple of 256 KB     | Use a valid chunk size (e.g., 8388608 for 8 MB)       |
 | `CONFIG_INVALID`            | Config file has invalid schema          | Run `gpc config show` to see resolved config          |
 | `PLUGIN_INVALID_PERMISSION` | Plugin requests unknown permission      | Check plugin manifest                                 |

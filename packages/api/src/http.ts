@@ -1,7 +1,8 @@
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 import { resolve, isAbsolute } from "node:path";
 import { PlayApiError } from "./errors.js";
-import type { ApiClientOptions, ApiResponse } from "./types.js";
+import { resumableUpload, RESUMABLE_THRESHOLD } from "./resumable-upload.js";
+import type { ApiClientOptions, ApiResponse, ResumableUploadOptions } from "./types.js";
 
 /** Strip HTML tags and collapse whitespace from a string. */
 function stripHtml(text: string): string {
@@ -67,6 +68,7 @@ export interface HttpClient {
   patch<T>(path: string, body?: unknown): Promise<ApiResponse<T>>;
   delete<T>(path: string): Promise<ApiResponse<T>>;
   upload<T>(path: string, filePath: string, contentType: string): Promise<ApiResponse<T>>;
+  uploadResumable<T>(path: string, filePath: string, contentType: string, options?: ResumableUploadOptions): Promise<ApiResponse<T>>;
   uploadInternal<T>(path: string, filePath: string, contentType: string): Promise<ApiResponse<T>>;
   download(path: string): Promise<ArrayBuffer>;
 }
@@ -139,7 +141,7 @@ function mapStatusToError(status: number, body: string): { code: string; suggest
 }
 
 function isRetryable(status: number): boolean {
-  return status === 429 || status >= 500;
+  return status === 408 || status === 429 || status >= 500;
 }
 
 function jitteredDelay(base: number, attempt: number, max: number): number {
@@ -149,7 +151,7 @@ function jitteredDelay(base: number, attempt: number, max: number): number {
 }
 
 export function createHttpClient(options: ApiClientOptions): HttpClient {
-  const maxRetries = resolveOption(options.maxRetries, "GPC_MAX_RETRIES", 3);
+  const maxRetries = resolveOption(options.maxRetries, "GPC_MAX_RETRIES", 5);
   const timeout = resolveOption(options.timeout, "GPC_TIMEOUT", 30_000);
   const uploadTimeoutExplicit = options.uploadTimeout ?? envInt("GPC_UPLOAD_TIMEOUT");
   const baseDelay = resolveOption(options.baseDelay, "GPC_BASE_DELAY", 1_000);
@@ -472,6 +474,29 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     },
     upload<T>(path: string, filePath: string, contentType: string) {
       return uploadRequest<T>(path, filePath, contentType);
+    },
+    async uploadResumable<T>(path: string, filePath: string, contentType: string, uploadOptions?: ResumableUploadOptions) {
+      const safeFilePath = validateFilePath(filePath);
+      const fileStats = await stat(safeFilePath);
+
+      // For small files, fall back to simple upload (less overhead)
+      const threshold = envInt("GPC_UPLOAD_RESUMABLE_THRESHOLD") ?? RESUMABLE_THRESHOLD;
+      if (fileStats.size < threshold && !uploadOptions?.resumeSessionUri) {
+        // Fire progress callbacks for consistency
+        uploadOptions?.onProgress?.({ bytesUploaded: 0, totalBytes: fileStats.size, percent: 0, bytesPerSecond: 0, etaSeconds: 0 });
+        const result = await uploadRequest<T>(path, safeFilePath, contentType);
+        uploadOptions?.onProgress?.({ bytesUploaded: fileStats.size, totalBytes: fileStats.size, percent: 100, bytesPerSecond: 0, etaSeconds: 0 });
+        return result;
+      }
+
+      const uploadUrl = `${UPLOAD_BASE_URL}${path}`;
+      return resumableUpload<T>(uploadUrl, safeFilePath, contentType, {
+        getAccessToken: () => options.auth.getAccessToken(),
+        maxRetries,
+        baseDelay,
+        maxDelay,
+        onRetry,
+      }, uploadOptions);
     },
     uploadInternal<T>(path: string, filePath: string, contentType: string) {
       return uploadRequest<T>(path, filePath, contentType, INTERNAL_SHARING_UPLOAD_BASE_URL);

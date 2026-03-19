@@ -37,8 +37,8 @@ const METRIC_SET_METRICS: Record<VitalsMetricSet, string[]> = {
   slowStartRateMetricSet: ["slowStartRate", "distinctUsers"],
   slowRenderingRateMetricSet: ["slowRenderingRate", "distinctUsers"],
   excessiveWakeupRateMetricSet: ["excessiveWakeupRate", "distinctUsers"],
-  // API requires the weighted variants — base `stuckBackgroundWakelockRate` is not a valid metric
   stuckBackgroundWakelockRateMetricSet: [
+    "stuckBackgroundWakelockRate",
     "stuckBackgroundWakelockRate7dUserWeighted",
     "stuckBackgroundWakelockRate28dUserWeighted",
     "distinctUsers",
@@ -141,7 +141,12 @@ export async function getVitalsStartup(
   packageName: string,
   options?: VitalsQueryOptions,
 ): Promise<MetricSetResponse> {
-  return queryMetric(reporting, packageName, "slowStartRateMetricSet", options);
+  // API requires startType as a dimension for slowStartRateMetricSet;
+  // auto-include it if no dimension is explicitly specified
+  const opts = options?.dimension
+    ? options
+    : { ...options, dimension: "startType" as ReportingDimension };
+  return queryMetric(reporting, packageName, "slowStartRateMetricSet", opts);
 }
 
 export async function getVitalsRendering(

@@ -31,6 +31,7 @@ export const RATE_LIMIT_BUCKETS: Record<string, RateLimitBucket> = {
     refillRate: 6_000,
     refillIntervalMs: 86_400_000,
   },
+  reporting: { name: "reporting", maxTokens: 10, refillRate: 10, refillIntervalMs: 1_000 },
 };
 
 export function createRateLimiter(buckets?: RateLimitBucket[]): RateLimiter {

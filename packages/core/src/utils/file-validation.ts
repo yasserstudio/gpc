@@ -1,4 +1,4 @@
-import { readFile, stat } from "node:fs/promises";
+import { open, stat } from "node:fs/promises";
 import { extname } from "node:path";
 
 export interface FileValidationResult {
@@ -12,8 +12,8 @@ export interface FileValidationResult {
 // ZIP magic bytes: PK\x03\x04
 const ZIP_MAGIC = Buffer.from([0x50, 0x4b, 0x03, 0x04]);
 
-const MAX_APK_SIZE = 150 * 1024 * 1024; // 150 MB
-const MAX_AAB_SIZE = 500 * 1024 * 1024; // 500 MB (Play Store limit for AABs)
+const MAX_APK_SIZE = 1024 * 1024 * 1024; // 1 GB (Google Play API limit)
+const MAX_AAB_SIZE = 2 * 1024 * 1024 * 1024; // 2 GB (Google Play API limit)
 const LARGE_FILE_THRESHOLD = 100 * 1024 * 1024; // 100 MB — warn about upload time
 
 export async function validateUploadFile(filePath: string): Promise<FileValidationResult> {
@@ -49,11 +49,11 @@ export async function validateUploadFile(filePath: string): Promise<FileValidati
   // Check size limits
   if (fileType === "apk" && sizeBytes > MAX_APK_SIZE) {
     errors.push(
-      `APK exceeds 150 MB limit (${formatSize(sizeBytes)}). Consider using AAB format instead.`,
+      `APK exceeds 1 GB limit (${formatSize(sizeBytes)}). Consider using AAB format instead.`,
     );
   }
   if (fileType === "aab" && sizeBytes > MAX_AAB_SIZE) {
-    errors.push(`AAB exceeds 500 MB limit (${formatSize(sizeBytes)}).`);
+    errors.push(`AAB exceeds 2 GB limit (${formatSize(sizeBytes)}).`);
   }
 
   if (sizeBytes > LARGE_FILE_THRESHOLD && errors.length === 0) {
@@ -62,13 +62,15 @@ export async function validateUploadFile(filePath: string): Promise<FileValidati
     );
   }
 
-  // Check magic bytes (ZIP format — both AAB and APK are ZIP-based)
+  // Check magic bytes — only read first 4 bytes, not the entire file
   if (sizeBytes > 0) {
+    let fh;
     try {
-      const fd = await readFile(filePath, { flag: "r" });
-      const header = fd.subarray(0, 4);
+      fh = await open(filePath, "r");
+      const buf = Buffer.alloc(4);
+      await fh.read(buf, 0, 4, 0);
 
-      if (!header.equals(ZIP_MAGIC)) {
+      if (!buf.equals(ZIP_MAGIC)) {
         errors.push(
           "File does not have valid ZIP magic bytes (PK\\x03\\x04). " +
             "Both AAB and APK files must be valid ZIP archives.",
@@ -76,6 +78,8 @@ export async function validateUploadFile(filePath: string): Promise<FileValidati
       }
     } catch {
       errors.push("Unable to read file header for validation");
+    } finally {
+      await fh?.close();
     }
   }
 

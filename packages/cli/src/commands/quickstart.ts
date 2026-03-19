@@ -61,7 +61,9 @@ export function registerQuickstartCommand(program: Command): void {
           const { spawnSync } = await import("node:child_process");
           // stdout/stderr captured via "pipe" — no need for --quiet flag
           // (--quiet after the subcommand name is treated as an unknown subcommand option)
-          const result = spawnSync(process.execPath, [process.argv[1] ?? "gpc", "doctor"], {
+          // Use "gpc" directly — process.execPath + process.argv[1] fails when
+          // installed via Homebrew (Bun-compiled binary can't be re-run under Node)
+          const result = spawnSync("gpc", ["doctor"], {
             stdio: "pipe",
             encoding: "utf-8",
           });

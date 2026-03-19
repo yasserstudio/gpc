@@ -5,7 +5,7 @@ import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient, createReportingClient } from "@gpc-cli/api";
-import type { RetryLogEntry, ExternallyHostedApk } from "@gpc-cli/api";
+import type { RetryLogEntry, ExternallyHostedApk, UploadProgressEvent } from "@gpc-cli/api";
 import {
   uploadRelease,
   getReleasesStatus,
@@ -136,24 +136,28 @@ export function registerReleasesCommands(program: Command): void {
       const jsonMode = format === "json";
       const client = await getClient(config, options.retryLog, options.timeout);
 
-      // The API layer buffers the full file before sending, so byte-level streaming progress
-      // isn't available. Use a time-based animation instead.
       const showProgress = !jsonMode && process.stderr.isTTY && !program.opts()["quiet"];
       const sizeMB = (fileSize / (1024 * 1024)).toFixed(1);
-      const FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
-      let progressInterval: ReturnType<typeof setInterval> | undefined;
-      if (showProgress) {
-        let frame = 0;
-        const startTime = Date.now();
-        progressInterval = setInterval(() => {
-          const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
-          process.stderr.write(
-            `\r  ${FRAMES[frame % FRAMES.length]} Uploading ${basename(file)}  ${sizeMB} MB  (${elapsed}s)  `,
-          );
-          frame++;
-        }, 120);
+
+      function formatBytes(bytes: number): string {
+        if (bytes >= 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+        if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+        if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${bytes} B`;
       }
-      const onProgress = undefined;
+
+      const BAR_WIDTH = 20;
+      const onUploadProgress = showProgress
+        ? (event: UploadProgressEvent) => {
+            const filled = Math.round((event.percent / 100) * BAR_WIDTH);
+            const bar = "█".repeat(filled) + "░".repeat(BAR_WIDTH - filled);
+            const uploaded = formatBytes(event.bytesUploaded);
+            const total = formatBytes(event.totalBytes);
+            const speed = event.bytesPerSecond > 0 ? `${formatBytes(event.bytesPerSecond)}/s` : "...";
+            const eta = event.etaSeconds > 0 ? `ETA ${event.etaSeconds}s` : "";
+            process.stderr.write(`\r  ${bar}  ${event.percent}%  ${uploaded}/${total}  ${speed}  ${eta}\x1b[K`);
+          }
+        : undefined;
 
       if (isDryRun(program)) {
         try {
@@ -200,18 +204,16 @@ export function registerReleasesCommands(program: Command): void {
           releaseNotes,
           releaseName: options.name,
           mappingFile: options.mapping,
-          onProgress,
+          onUploadProgress,
         });
-        if (progressInterval) {
-          clearInterval(progressInterval);
-          process.stderr.write(`\r  ✓ Uploaded ${basename(file)}  ${sizeMB} MB\n`);
+        if (showProgress) {
+          process.stderr.write(`\r  ✓ Uploaded ${basename(file)}  ${sizeMB} MB\x1b[K\n`);
         }
         spinner.stop("Upload complete");
         console.log(formatOutput(result, format));
         auditEntry.success = true;
       } catch (error) {
-        if (progressInterval) {
-          clearInterval(progressInterval);
+        if (showProgress) {
           process.stderr.write("\n");
         }
         spinner.fail("Upload failed");
@@ -525,7 +527,12 @@ export function registerReleasesCommands(program: Command): void {
           ? statuses.flatMap((s: any) => s.releaseNotes ?? [])
           : ((statuses as any).releaseNotes ?? []);
         if (notes.length === 0) {
-          console.log("No release notes found.");
+          const hasCompleted = Array.isArray(statuses) && statuses.some((s: any) => s.status === "completed");
+          if (hasCompleted) {
+            console.log(`No release notes found on track "${track}". Notes may not be retained for completed releases. Try: gpc releases diff --from ${track} --to ${track}`);
+          } else {
+            console.log("No release notes found.");
+          }
           return;
         }
         console.log(formatOutput(notes, format));

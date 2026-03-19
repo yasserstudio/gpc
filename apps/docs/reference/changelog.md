@@ -7,7 +7,41 @@ pageClass: wide-page
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.37 <Badge type="tip" text="latest" />
+## v0.9.38 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+**Resumable Uploads**
+
+- feat: Google-recommended resumable upload protocol for AAB/APK uploads — files are streamed in 8 MB chunks instead of buffering the entire file in memory
+- feat: Automatic resume on failure — interrupted uploads resume from the last successful byte using the session URI (valid for 1 week)
+- feat: Real-time upload progress bar with byte-level tracking, throughput, and ETA: `████████░░░░ 58% 120/207 MB 2.4 MB/s ETA 36s`
+- feat: Files under 5 MB automatically use simple upload (less overhead); files >= 5 MB use resumable upload
+- feat: New env vars: `GPC_UPLOAD_CHUNK_SIZE` (chunk size in bytes, must be multiple of 256 KB) and `GPC_UPLOAD_RESUMABLE_THRESHOLD` (file size threshold for resumable upload)
+
+**Google Best Practices Compliance**
+
+- fix: Upload file size limits corrected to match Google's API limits — AAB max raised from 500 MB to **2 GB**, APK max raised from 150 MB to **1 GB**
+- fix: File validation now reads only 4 bytes for magic number check instead of loading the entire file into memory
+- fix: HTTP 408 (Request Timeout) is now retried — previously only 429 and 5xx were retried
+- fix: Default max retries raised from 3 to **5** (Google recommends 5–10)
+- feat: Reporting API rate limiting — new `reporting` bucket enforces Google's 10 queries/sec limit on all vitals/metrics endpoints
+- feat: Edit session expiry warning — warns when an edit is within 5 minutes of expiring before starting long operations
+- feat: `getSubscriptionV1()` now emits a `DeprecationWarning` — Google deprecated `purchases.subscriptions.get` (shutdown August 2027), recommending `getSubscriptionV2()` instead
+- fix: `inappproducts.list` no longer sends deprecated `maxResults` parameter — Google ignores it; only `token` (pageToken) is used for pagination
+
+**Bug Fixes**
+
+- fix: `gpc quickstart` exits 1 even when `gpc doctor` passes — was spawning `node <bun-binary> doctor` which fails on Homebrew/binary installs; now spawns `gpc doctor` directly **(Bug M)**
+- fix: `gpc vitals lmk` and `gpc vitals memory` — 400 INVALID_ARGUMENT from API; added base `stuckBackgroundWakelockRate` metric alongside the weighted variants **(Bug H)**
+- fix: `gpc vitals crashes/anr/wakeup/battery` table headers showed array indices (`0`, `1`, `2`) instead of metric names — added defensive handling for array-format API responses **(Bug T)**
+- fix: `gpc vitals startup` — 400 INVALID_ARGUMENT because `startType` was rejected as invalid dimension; added `startType` to valid dimensions and auto-includes it for startup queries **(Bug U)**
+- fix: `gpc pricing convert` — raw 400 FAILED_PRECONDITION on apps with no monetization; now shows friendly error message **(Bug R)**
+- fix: `gpc releases notes get` — improved empty-notes message for completed releases with hint to use `gpc releases diff` **(Improvement S)**
+
+---
+
+## v0.9.37
 
 _March 2026_
 
