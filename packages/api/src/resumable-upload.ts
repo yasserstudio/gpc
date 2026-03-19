@@ -1,7 +1,7 @@
 import { open, stat } from "node:fs/promises";
 import type { FileHandle } from "node:fs/promises";
 import { PlayApiError } from "./errors.js";
-import type { ApiResponse, ResumableUploadOptions, UploadProgressEvent } from "./types.js";
+import type { ApiResponse, ResumableUploadOptions } from "./types.js";
 
 /** 256 KB — Google requires chunk sizes to be multiples of this. */
 const CHUNK_ALIGNMENT = 256 * 1024;

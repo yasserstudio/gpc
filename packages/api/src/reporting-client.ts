@@ -38,7 +38,8 @@ export interface ReportingApiClient {
 
 export function createReportingClient(options: ApiClientOptions): ReportingApiClient {
   const http = createHttpClient({ ...options, baseUrl: REPORTING_BASE_URL });
-  const limiter = options.rateLimiter ?? createRateLimiter([RATE_LIMIT_BUCKETS["reporting"]!]);
+  const reportingBucket = RATE_LIMIT_BUCKETS["reporting"];
+  const limiter = options.rateLimiter ?? createRateLimiter(reportingBucket ? [reportingBucket] : []);
 
   return {
     async queryMetricSet(packageName, metricSet, query) {
