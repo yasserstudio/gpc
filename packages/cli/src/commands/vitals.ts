@@ -52,6 +52,7 @@ const VALID_DIMENSIONS: ReportingDimension[] = [
   "deviceVulkanVersion",
   "deviceOpenGlVersion",
   "deviceBrand",
+  "startType", // Required dimension for slowStartRateMetricSet
 ];
 
 const THRESHOLD_CONFIG_KEYS: Record<string, string> = {
@@ -66,7 +67,7 @@ const THRESHOLD_CONFIG_KEYS: Record<string, string> = {
 };
 
 function validateDimension(dim: string): ReportingDimension {
-  if (!VALID_DIMENSIONS.includes(dim as ReportingDimension)) {
+  if (!VALID_DIMENSIONS.includes(dim)) {
     console.error(`Error: Invalid dimension "${dim}".`);
     console.error(`Valid dimensions: ${VALID_DIMENSIONS.join(", ")}`);
     process.exit(2);
@@ -108,13 +109,13 @@ function registerMetricCommand(
           const rows = result.rows.map((row: unknown) => {
             const rowR = row as Record<string, unknown>;
             const startTime = rowR["startTime"] as Record<string, unknown> | undefined;
-            const metrics = rowR["metrics"] as Record<string, Record<string, unknown>> | undefined;
+            const metrics = rowR["metrics"] as Record<string, Record<string, unknown>> | unknown[] | undefined;
             const flat: Record<string, unknown> = {
               date: startTime
                 ? `${startTime["year"]}-${String(startTime["month"]).padStart(2, "0")}-${String(startTime["day"]).padStart(2, "0")}`
                 : "-",
             };
-            if (metrics) {
+            if (metrics && !Array.isArray(metrics)) {
               for (const [key, val] of Object.entries(metrics)) {
                 flat[key] =
                   (val as Record<string, unknown>)?.["decimalValue"] !== undefined
@@ -123,11 +124,31 @@ function registerMetricCommand(
                       ] ?? "-")
                     : "-";
               }
+            } else if (Array.isArray(metrics)) {
+              // Fallback: if API returns metrics as array, use metric names from config
+              for (let i = 0; i < metrics.length; i++) {
+                const val = metrics[i] as Record<string, unknown> | undefined;
+                const metricName = val?.["metric"] as string | undefined;
+                const key = metricName ?? `metric${i}`;
+                flat[key] =
+                  (val as Record<string, unknown>)?.["decimalValue"] !== undefined
+                    ? ((val as Record<string, Record<string, unknown>>)?.["decimalValue"]?.[
+                        "value"
+                      ] ?? "-")
+                    : "-";
+              }
             }
-            const dims = rowR["dimensions"] as Record<string, unknown> | undefined;
-            if (dims) {
+            const dims = rowR["dimensions"] as Record<string, unknown> | unknown[] | undefined;
+            if (dims && !Array.isArray(dims)) {
               for (const [key, val] of Object.entries(dims)) {
                 flat[key] = (val as Record<string, unknown>)?.["stringValue"] ?? "-";
+              }
+            } else if (Array.isArray(dims)) {
+              // Fallback: if API returns dimensions as array
+              for (let i = 0; i < dims.length; i++) {
+                const val = dims[i] as Record<string, unknown> | undefined;
+                const dimName = val?.["dimension"] as string | undefined;
+                flat[dimName ?? `dim${i}`] = val?.["stringValue"] ?? val?.["int64Value"] ?? "-";
               }
             }
             return flat;

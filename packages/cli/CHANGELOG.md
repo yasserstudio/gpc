@@ -1,5 +1,14 @@
 # @gpc-cli/cli
 
+## 0.9.38
+
+### Patch Changes
+
+- Resumable uploads, Google best practices compliance, bug fixes
+- Updated dependencies
+  - @gpc-cli/core@0.9.32
+  - @gpc-cli/api@1.0.21
+
 ## 0.9.37
 
 ### Patch Changes

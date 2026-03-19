@@ -7,6 +7,125 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.38
+
+- feat: Google-recommended resumable upload protocol (8 MB chunks, auto-resume, real-time progress bar)
+- fix: Upload file size limits corrected to Google's API limits (2 GB AAB, 1 GB APK)
+- fix: HTTP 408 now retried; default max retries raised to 5
+- feat: Reporting API rate limiting (10 queries/sec)
+- feat: Edit session expiry warning
+- fix: `gpc quickstart` exits 1 on Homebrew/binary installs (Bug M)
+- fix: `gpc vitals lmk` / `memory` 400 INVALID_ARGUMENT (Bug H)
+- fix: `gpc vitals crashes/anr` table headers showed indices instead of names (Bug T)
+- fix: `gpc vitals startup` missing `startType` dimension (Bug U)
+- fix: `gpc pricing convert` raw 400 on apps without monetization (Bug R)
+- 1,566 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.37...v0.9.38)
+
+---
+
+## v0.9.37
+
+- security: `gpc plugins install/uninstall` — execSync → spawnSync (no shell injection)
+- fix: PlayApiError rename (was ApiError, naming collision)
+- fix: runWatchLoop throws instead of process.exit(2)
+- fix: workspace:* lockfile consistency
+- 1,555 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.36...v0.9.37)
+
+---
+
+## v0.9.36
+
+- fix: `gpc vitals lmk` 400 INVALID_ARGUMENT (Bug H)
+- fix: `gpc quickstart` exit 1 from --quiet in doctor spawn (Bug M)
+- security: `sendNotification` execSync → execFile (Bug N)
+- fix: `gpc quota usage` [object Object] (Bug O)
+- 1,551 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.35...v0.9.36)
+
+---
+
+## v0.9.35
+
+- feat: Terminal UX (dynamic table width, bold headers, spinner)
+- feat: Onboarding wizard, `gpc quickstart`, `gpc auth login` interactive
+- feat: `gpc listings lint/analyze/push` preflight, `gpc grants`, `gpc train`, `gpc quota`
+- feat: `gpc reviews analyze`, `gpc vitals compare-versions`, `gpc vitals watch --auto-halt-rollout`
+- feat: `gpc subscriptions analytics`, `gpc games`, `gpc enterprise`
+- fix: Bugs I/J/K/L
+- 1,536 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.34...v0.9.35)
+
+---
+
+## v0.9.34
+
+- feat: Color output (✓/✗/⚠), onboarding (first-run banner, auth error hints)
+- feat: `gpc reviews reply`, `gpc anomalies list`, `gpc vitals wakeup`, `gpc vitals lmk`
+- fix: Bug F (iap batch-get deprecation), Bug G (migrate fastlane overwrite guard)
+- 1,504 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.33...v0.9.34)
+
+---
+
+## v0.9.33
+
+- fix: `gpc version --json` (Bug D), `GPC_DEBUG=1` argv mutation (Bug E)
+- docs: Product name "GPC — Google Play Console CLI" across all surfaces
+- 1,467 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.32...v0.9.33)
+
+---
+
+## v0.9.32
+
+- feat: Live upload progress bar, `gpc releases notes get`, `--vitals-gate`, "Did you mean?" suggestions
+- feat: `gpc version --json`, `gpc cache`, `gpc auth token`, `gpc feedback`
+- feat: `GPC_DEBUG`/`GPC_NO_COLOR` env vars, release notes 500-char warning
+- fix: 5 bug fixes
+- 1,461 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.31...v0.9.32)
+
+---
+
+## v0.9.31
+
+- feat: Live binary download progress bar for `gpc update`
+- fix: Silence npm/brew stdout in JSON mode, skip passive update check on `gpc update`
+- 1,453 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.30...v0.9.31)
+
+---
+
+## v0.9.30
+
+- feat: `gpc update` self-update command (npm/Homebrew/binary, SHA-256 checksums, `--check` for CI)
+- 1,453 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.29...v0.9.30)
+
+---
+
+## v0.9.29
+
+- fix(releases): --rollout validation, notes set error, file-exists guard, rollout % display
+- fix(status): --sections cache filter, --days validation, --watch+--since-last warning, relative timestamps
+- feat(docs): `gpc docs [topic]` routing
+- 1,420 tests
+
+[Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.28...v0.9.29)
+
+---
+
 ## v0.9.28
 
 - fix: `gpc audit clear --dry-run` no longer deletes entries — global `--dry-run` was consumed at the root program level before the subcommand action ran, so `options.dryRun` was always `undefined`. Entries were deleted even when `--dry-run` was passed. Same root cause as the `gpc doctor --json` bug fixed in v0.9.25.

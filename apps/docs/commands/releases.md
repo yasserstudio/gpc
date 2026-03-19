@@ -27,6 +27,8 @@ outline: deep
 
 Upload an AAB or APK file and assign it to a track. Creates an edit, uploads the bundle, assigns the track, and commits.
 
+GPC uses Google's **resumable upload protocol** — files are streamed in 8 MB chunks, never buffered entirely in memory. If a network interruption occurs, the upload resumes from the last successful byte. Files under 5 MB use simple upload for efficiency.
+
 ### Synopsis
 
 ```bash
@@ -45,10 +47,26 @@ gpc releases upload <file> [options]
 | `--notes-dir`      |       | `string` |            | Directory with per-language release notes (`<dir>/<lang>.txt`)      |
 | `--notes-from-git` |       | flag     |            | Generate release notes from git commit history                      |
 | `--since`          |       | `string` |            | Git ref to start from (tag, SHA) — used with `--notes-from-git`     |
+| `--timeout`        |       | `number` |            | Upload timeout in milliseconds (auto-scales with file size)         |
 | `--retry-log`      |       | `string` |            | Write retry log entries to file (JSONL)                             |
 
+### Upload Progress
+
+In interactive terminals, uploads show a real-time progress bar:
+
+```
+  ████████████░░░░░░░░  58%  120.3/207.5 MB  2.4 MB/s  ETA 36s
+```
+
+### File Size Limits
+
+| File Type | Max Size | Notes |
+| --------- | -------- | ----- |
+| AAB       | 2 GB     | Google Play API limit |
+| APK       | 1 GB     | Google Play API limit |
+
 ::: tip Validation
-The file path is verified before authentication. If the file does not exist, the command exits code 2 immediately — no API calls are made.
+The file is validated before any API calls: existence, extension (.aab/.apk), ZIP magic bytes, and size limits. Invalid files exit code 2 immediately.
 `--rollout` must be between 1–100. Values outside that range exit code 2.
 :::
 

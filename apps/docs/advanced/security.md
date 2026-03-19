@@ -158,12 +158,14 @@ Redaction is applied before formatting and cannot be disabled.
 
 ### Client-Side Rate Limiting
 
-| Bucket           | Default Limit | Protects Against             |
-| ---------------- | ------------- | ---------------------------- |
-| General API      | 50 req/s      | Exceeding 3,000/min quota    |
-| Reviews GET      | 3 req/s       | Exceeding 200/hour quota     |
-| Reviews POST     | 1 req/s       | Exceeding 2,000/day quota    |
-| Voided purchases | 1 req/s       | Exceeding 30/30s burst quota |
+| Bucket           | Default Limit  | Protects Against              |
+| ---------------- | -------------- | ----------------------------- |
+| General API      | 200 req/s      | Exceeding 3,000/min quota     |
+| Reviews GET      | 200 req/hr     | Exceeding 200/hour quota      |
+| Reviews POST     | 2,000 req/day  | Exceeding 2,000/day quota     |
+| Voided burst     | 30 req/30s     | Exceeding 30/30s burst quota  |
+| Voided daily     | 6,000 req/day  | Exceeding 6,000/day quota     |
+| Reporting API    | 10 req/s       | Exceeding 10/sec quota        |
 
 ## Input Validation
 
@@ -172,7 +174,7 @@ Redaction is applied before formatting and cannot be disabled.
 | Input          | Validation                                                        | Reject Example          |
 | -------------- | ----------------------------------------------------------------- | ----------------------- |
 | Package names  | Android format: `[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+` | `invalid`               |
-| File paths     | Existence and type check before upload                            | `/nonexistent/file.aab` |
+| File paths     | Existence, type, ZIP magic bytes, size (2 GB AAB / 1 GB APK)     | `/nonexistent/file.aab` |
 | Track names    | Known tracks + custom track format                                | `unknown-track`         |
 | Language codes | BCP 47 validation                                                 | `xx-YY`                 |
 | Arguments      | No shell expansion passed to API                                  | --                      |

@@ -86,7 +86,15 @@ export function registerPricingCommands(program: Command): void {
           console.log(formatOutput(result, format));
         }
       } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        const { PlayApiError } = await import("@gpc-cli/api");
+        if (error instanceof PlayApiError && (error.code === "API_HTTP_400" || error.code === "API_EDIT_EXPIRED")) {
+          console.error(
+            "Error: Price conversion is not available for this app. " +
+              "Ensure the app has monetization configured in Google Play Console (at least one paid product or subscription).",
+          );
+        } else {
+          console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        }
         process.exit(4);
       }
     });

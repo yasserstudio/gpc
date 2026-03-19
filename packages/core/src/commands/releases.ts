@@ -5,10 +5,27 @@ import type {
   Track,
   ExternallyHostedApk,
   ExternallyHostedApkResponse,
+  UploadProgressEvent,
+  ResumableUploadOptions,
 } from "@gpc-cli/api";
+import type { AppEdit } from "@gpc-cli/api";
 import { PlayApiError } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
 import { validateUploadFile } from "../utils/file-validation.js";
+
+/** Warn if edit is within 5 minutes of expiry. */
+function warnIfEditExpiring(edit: AppEdit): void {
+  if (!edit.expiryTimeSeconds) return;
+  const expiryMs = Number(edit.expiryTimeSeconds) * 1000;
+  const remainingMs = expiryMs - Date.now();
+  if (remainingMs < 5 * 60 * 1000 && remainingMs > 0) {
+    const minutes = Math.round(remainingMs / 60_000);
+    process.emitWarning?.(
+      `Edit session expires in ~${minutes} minute${minutes !== 1 ? "s" : ""}. Long uploads may fail. Consider starting a fresh operation.`,
+      "EditExpiryWarning",
+    );
+  }
+}
 
 /**
  * Run an edit-lifecycle operation with automatic retry on expired-edit errors.
@@ -75,6 +92,8 @@ export async function uploadRelease(
     mappingFile?: string;
     dryRun?: boolean;
     onProgress?: (uploaded: number, total: number) => void;
+    onUploadProgress?: (event: UploadProgressEvent) => void;
+    uploadOptions?: Pick<ResumableUploadOptions, "chunkSize" | "resumeSessionUri" | "maxResumeAttempts">;
   },
 ): Promise<UploadResult | DryRunUploadResult> {
   // Validate file before upload
@@ -137,10 +156,16 @@ export async function uploadRelease(
   if (options.onProgress) options.onProgress(0, fileSize);
 
   const edit = await client.edits.insert(packageName);
+  warnIfEditExpiring(edit);
   try {
-    // Upload the bundle
-    const bundle = await client.bundles.upload(packageName, edit.id, filePath);
-    if (options.onProgress) options.onProgress(fileSize, fileSize);
+    // Upload the bundle with resumable upload protocol
+    const bundle = await client.bundles.upload(packageName, edit.id, filePath, {
+      ...options.uploadOptions,
+      onProgress: (event) => {
+        if (options.onProgress) options.onProgress(event.bytesUploaded, event.totalBytes);
+        if (options.onUploadProgress) options.onUploadProgress(event);
+      },
+    });
 
     // Upload mapping file if provided
     if (options.mappingFile) {

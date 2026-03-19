@@ -84,7 +84,7 @@ export interface PlayApiClient {
 
   bundles: {
     list(packageName: string, editId: string): Promise<Bundle[]>;
-    upload(packageName: string, editId: string, filePath: string): Promise<Bundle>;
+    upload(packageName: string, editId: string, filePath: string, uploadOptions?: import("./types.js").ResumableUploadOptions): Promise<Bundle>;
   };
 
   tracks: {
@@ -479,11 +479,12 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data.bundles;
       },
 
-      async upload(packageName, editId, filePath) {
-        const { data } = await http.upload<Bundle>(
+      async upload(packageName, editId, filePath, uploadOptions) {
+        const { data } = await http.uploadResumable<Bundle>(
           `/${packageName}/edits/${editId}/bundles`,
           filePath,
           "application/octet-stream",
+          uploadOptions,
         );
         if (!data || !data.versionCode) {
           throw new PlayApiError(
@@ -804,9 +805,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
     inappproducts: {
       async list(packageName, options?) {
+        // Note: maxResults and startIndex are deprecated and ignored by Google for inappproducts.list.
+        // Server determines page size. Only token (pageToken) is supported for pagination.
         const params: Record<string, string> = {};
         if (options?.token) params["token"] = options.token;
-        if (options?.maxResults) params["maxResults"] = String(options.maxResults);
         const hasParams = Object.keys(params).length > 0;
         const { data } = await http.get<InAppProductsListResponse>(
           `/${packageName}/inappproducts`,
@@ -895,6 +897,12 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async getSubscriptionV1(packageName, subscriptionId, token) {
+        if (typeof process !== "undefined" && process.emitWarning) {
+          process.emitWarning(
+            "purchases.subscriptions.get (v1) is deprecated by Google (shutdown Aug 2027). Use getSubscriptionV2() instead.",
+            "DeprecationWarning",
+          );
+        }
         const { data } = await http.get<SubscriptionPurchase>(
           `/${packageName}/purchases/subscriptions/${subscriptionId}/tokens/${token}`,
         );

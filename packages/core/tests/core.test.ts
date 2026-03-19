@@ -475,7 +475,7 @@ describe("uploadRelease", () => {
     });
 
     expect(client.edits.insert).toHaveBeenCalledWith(PKG);
-    expect(client.bundles.upload).toHaveBeenCalledWith(PKG, "edit-1", "/tmp/app.aab");
+    expect(client.bundles.upload).toHaveBeenCalledWith(PKG, "edit-1", "/tmp/app.aab", expect.any(Object));
     expect(client.tracks.update).toHaveBeenCalledWith(
       PKG,
       "edit-1",
@@ -1968,14 +1968,15 @@ describe("getVitalsLmk", () => {
     );
   });
 
-  it("requests the weighted metric variants (not base stuckBackgroundWakelockRate)", async () => {
+  it("requests the base rate and weighted metric variants", async () => {
     const reporting = mockReportingClient();
     await getVitalsLmk(reporting, PKG);
     const call = (reporting.queryMetricSet as ReturnType<typeof vi.fn>).mock.calls[0];
     const query = call?.[2] as { metrics: string[] };
+    expect(query.metrics).toContain("stuckBackgroundWakelockRate");
     expect(query.metrics).toContain("stuckBackgroundWakelockRate7dUserWeighted");
     expect(query.metrics).toContain("stuckBackgroundWakelockRate28dUserWeighted");
-    expect(query.metrics).not.toContain("stuckBackgroundWakelockRate");
+    expect(query.metrics).toContain("distinctUsers");
   });
 });
 

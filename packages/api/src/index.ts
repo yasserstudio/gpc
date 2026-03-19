@@ -25,6 +25,7 @@ export type { RateLimitBucket, RateLimiter } from "./rate-limiter.js";
 export { paginate, paginateAll, paginateParallel } from "./paginate.js";
 export type { PaginateOptions } from "./paginate.js";
 export { PlayApiError } from "./errors.js";
+export { RESUMABLE_THRESHOLD } from "./resumable-upload.js";
 export type {
   ApiClientOptions,
   ApiResponse,
@@ -137,4 +138,6 @@ export type {
   InAppProductsBatchUpdateRequest,
   InAppProductsBatchUpdateResponse,
   InAppProductsBatchGetRequest,
+  UploadProgressEvent,
+  ResumableUploadOptions,
 } from "./types.js";

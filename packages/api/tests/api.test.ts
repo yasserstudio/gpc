@@ -7,6 +7,11 @@ import { createUsersClient } from "../src/users-client";
 
 vi.mock("node:fs/promises", () => ({
   readFile: vi.fn().mockResolvedValue(Buffer.from("fake-aab-content")),
+  stat: vi.fn().mockResolvedValue({ size: 1024 }), // Small file → falls through to simple upload
+  open: vi.fn().mockResolvedValue({
+    read: vi.fn().mockResolvedValue({ bytesRead: 4 }),
+    close: vi.fn().mockResolvedValue(undefined),
+  }),
 }));
 
 const BASE_URL = "https://androidpublisher.googleapis.com/androidpublisher/v3/applications";
