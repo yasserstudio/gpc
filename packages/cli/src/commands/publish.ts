@@ -1,6 +1,6 @@
 import { resolvePackageName } from "../resolve.js";
 import { appendFile, stat } from "node:fs/promises";
-import type { GpcConfig, OutputFormat } from "@gpc-cli/config";
+import type { OutputFormat } from "@gpc-cli/config";
 import type { Command } from "commander";
 import { loadConfig, getCacheDir } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";

@@ -1,6 +1,5 @@
 import type { Command } from "commander";
 import { loadConfig, setConfigValue, getUserConfigPath, initConfig } from "@gpc-cli/config";
-import type { GpcConfig } from "@gpc-cli/config";
 import { formatOutput, writeAuditLog, createAuditEntry } from "@gpc-cli/core";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";

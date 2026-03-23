@@ -1,5 +1,16 @@
 # @gpc-cli/core
 
+## 0.9.34
+
+### Patch Changes
+
+- Bug fixes and code quality improvements.
+  - fix: `gpc vitals lmk` and `gpc vitals memory` — 400 INVALID_ARGUMENT (wrong metric field names)
+  - fix: `gpc releases notes get` — fallback for completed releases that don't return notes
+  - fix: `gpc subscriptions list` — show "No subscriptions found." when empty
+  - fix: `console.warn` in core replaced with `process.emitWarning`
+  - refactor: extracted `resolvePackageName` and `getClient` to shared utility (-183 lines)
+
 ## 0.9.33
 
 ### Patch Changes
