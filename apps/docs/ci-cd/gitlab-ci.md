@@ -39,6 +39,7 @@ release:
   before_script:
     - npm install -g @gpc-cli/cli
   script:
+    - gpc preflight app/build/outputs/bundle/release/app-release.aab --fail-on error --json
     - |
       gpc releases upload \
         app/build/outputs/bundle/release/app-release.aab \

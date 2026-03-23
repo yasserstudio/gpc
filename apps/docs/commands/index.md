@@ -96,8 +96,8 @@ gpc bundle analyze app.aab --threshold 150
 | [`migrate`](./migrate)                        | Migrate from Fastlane to GPC                    |
 | [`doctor` / `docs` / `completion`](./utility) | Diagnostics, documentation, shell completions   |
 | [`install-skills`](./install-skills)          | Install AI agent skills for GPC workflows       |
-| [`init`](#)                                   | Scaffold project config, metadata, CI templates |
-| [`diff`](#)                                   | Preview release state and pending changes       |
+| [`init`](./init)                              | Scaffold project config, metadata, CI templates |
+| [`diff`](./diff)                              | Preview release state and pending changes       |
 
 ## Global Flags
 
