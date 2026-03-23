@@ -20,6 +20,9 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 - feat: Size scanner — download size warnings, per-category breakdown
 - feat: `.preflightrc.json` configuration — custom thresholds, allowed permissions, disabled rules, severity overrides
 - feat: `--fail-on <severity>` flag for CI gating (exit code 6 on threshold breach)
+- feat: `gpc init` — scaffold project config, metadata directory, and CI templates
+- feat: `gpc diff` — read-only preview of release state and pending changes
+- feat: `--copy-notes-from <track>` on `gpc releases upload` and `gpc releases promote`
 
 ---
 

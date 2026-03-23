@@ -45,7 +45,7 @@ e2e/               → End-to-end tests
 - Phase 10 ✓ — `gpc preflight` pre-submission compliance scanner (9 scanners, offline AAB policy checks)
 - Published to npm: `npm install -g @gpc-cli/cli`
 - Current version: v0.9.39 — pre-release series (`0.9.x` → `1.0.0` public launch)
-- 1,677 total tests, 7 packages building, 90%+ line coverage on all core packages
+- 1,692 total tests, 7 packages building, 90%+ line coverage on all core packages
 - GitHub Releases: umbrella `v*` tags only, user-facing notes (see `apps/docs/advanced/conventions.md` for template)
 
 ## Testing
