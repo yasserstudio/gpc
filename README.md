@@ -17,7 +17,8 @@
 <p align="center">
 The complete CLI for Google Play — 187 API endpoints, one tool.<br>
 Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.<br>
-<strong>Free and open-source. MIT licensed.</strong>
+<strong>Plus an offline compliance scanner that catches policy violations before you upload.</strong><br>
+Free and open-source. MIT licensed.
 </p>
 
 <!-- ![demo](./assets/demo.gif) -->
@@ -115,7 +116,7 @@ GPC covers the **entire Google Play Developer API** in one CLI — that's 187 en
 | CI/CD native        | JSON + exit codes + env vars | Partial         | Gradle tasks          | No           |
 | Plugin system       | Yes                          | No              | No                    | No           |
 | Interactive mode    | Yes (guided prompts)         | No              | No                    | N/A          |
-| Preflight scanner   | 9 offline policy scanners    | No              | No                    | No           |
+| Preflight scanner   | **9 offline policy scanners**| No              | No                    | No           |
 | Test suite          | 1,710 tests, 90%+ coverage   | —               | —                     | —            |
 
 Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
@@ -123,6 +124,21 @@ Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gp
 ---
 
 ## What You Can Do
+
+### Preflight compliance scanner
+
+**No other tool does this.** Scan your AAB against Google Play policies before uploading — entirely offline, no API calls, no bundletool, no Java. Catches issues that would cause rejection or extended review.
+
+```bash
+gpc preflight app.aab                                      # Run all 9 scanners
+gpc preflight app.aab --fail-on error --json               # CI quality gate (exit code 6)
+gpc preflight manifest app.aab                             # Target SDK, debuggable, exported
+gpc preflight permissions app.aab                          # 18 restricted permissions audit
+gpc preflight metadata fastlane/metadata/android           # Store listing compliance
+gpc preflight codescan app/src                             # Secrets, billing SDKs, tracking
+```
+
+9 scanners run in parallel: **manifest** (target SDK, debuggable, testOnly, cleartext, exported, foreground service types), **permissions** (18 restricted permissions with policy URLs), **native-libs** (64-bit compliance), **metadata** (listing limits, screenshots, privacy policy), **secrets** (AWS, Google, Stripe keys), **billing** (non-Play SDKs), **privacy** (tracking SDKs, Advertising ID), **policy** (Families/COPPA, financial, health, UGC), **size** (download warnings). Configure with `.preflightrc.json`.
 
 ### Ship releases
 
@@ -138,21 +154,6 @@ gpc releases rollout halt --track production               # Emergency brake
 gpc releases count                                         # Release stats per track
 gpc validate app.aab --track beta                          # Pre-submission checks
 ```
-
-### Preflight compliance scanner
-
-Catch policy violations before they reach Google Play review — entirely offline, no API calls.
-
-```bash
-gpc preflight app.aab                                      # Run all 9 scanners
-gpc preflight app.aab --fail-on error --json               # CI quality gate (exit code 6)
-gpc preflight manifest app.aab                             # Manifest checks only
-gpc preflight permissions app.aab                          # Permissions audit only
-gpc preflight metadata fastlane/metadata/android           # Store listing checks
-gpc preflight codescan app/src                             # Secrets, billing, privacy
-```
-
-Checks target SDK, debuggable/testOnly flags, 64-bit compliance, 18 restricted permissions, hardcoded secrets, non-Play billing SDKs, tracking SDKs, listing character limits, app size, and more. Configure thresholds and allowed permissions in `.preflightrc.json`.
 
 ### Monitor app health
 

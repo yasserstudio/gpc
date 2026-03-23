@@ -23,10 +23,15 @@ features:
     title: The Entire Google Play API
     details: "187 endpoints — releases, rollouts, metadata, vitals, reviews, subscriptions, purchases, reports, users, testers, and more. Nothing left out. Fastlane covers ~20."
   - icon:
+      src: /icons/shield.svg
+      wrap: true
+    title: Preflight Compliance Scanner
+    details: "No other tool does this. Scan your AAB against Google Play policies before uploading — offline, no API calls. 9 scanners check target SDK, permissions, 64-bit libs, secrets, billing SDKs, tracking, app size, and more."
+  - icon:
       src: /icons/terminal.svg
       wrap: true
     title: CI/CD Native
-    details: "JSON output when piped, formatted tables in your terminal. Semantic exit codes (0–6) your pipeline can branch on. Env var config. --dry-run on every write. No wrapper scripts needed."
+    details: "JSON output when piped, formatted tables in your terminal. Semantic exit codes (0–6) your pipeline can branch on. Env var config. --dry-run on every write. Preflight gates before upload."
   - icon:
       src: /icons/package.svg
       wrap: true
@@ -40,13 +45,8 @@ features:
   - icon:
       src: /icons/plug.svg
       wrap: true
-    title: Plugin System + SDK
-    details: "Build Slack notifications, custom release gates, or internal dashboards — extend GPC with lifecycle hooks and custom commands. Or import @gpc-cli/api directly as a typed SDK."
-  - icon:
-      src: /icons/shield.svg
-      wrap: true
-    title: 1,710 Tests. 90%+ Coverage.
-    details: "Security-audited credential handling, automatic secrets redaction, and audit logging for every write operation. Every write command supports --dry-run. Free and open-source. MIT licensed."
+    title: 1,710 Tests. Plugin System. SDK.
+    details: "90%+ coverage across 7 packages. Extend GPC with lifecycle hooks and custom commands. Or import @gpc-cli/api directly as a typed SDK. Security-audited. MIT licensed."
 ---
 
 ## Install
@@ -98,7 +98,8 @@ gpc reviews list --stars 1-3 --since 7d
 | **Purchases**    | Verification, acknowledgment, refunds, voided purchases                      |
 | **Reports**      | Financial and stats CSV downloads                                            |
 | **Team**         | Testers, users, permissions, CSV bulk import                                 |
+| **Compliance**   | Preflight scanner (9 checks), data safety, recovery actions                  |
 | **Analysis**     | Bundle size breakdown, cross-build comparison, size CI gates                 |
-| **More**         | Device tiers, internal sharing, data safety, recovery, external transactions |
+| **More**         | Device tiers, internal sharing, external transactions, project scaffolding   |
 
 [View the full command reference →](/commands/)
