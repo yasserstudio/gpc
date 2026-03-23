@@ -1,5 +1,26 @@
 # @gpc-cli/cli
 
+## 0.9.39
+
+### Patch Changes
+
+- Preflight compliance scanner, new commands, status improvements, and bug fixes.
+  - `gpc preflight` — scan your AAB against Google Play policies before uploading (9 scanners, offline)
+  - `gpc init` — scaffold project config, metadata directory, and CI templates
+  - `gpc diff` — read-only preview of release state and pending changes
+  - `gpc releases count` — aggregate release stats per track
+  - `--copy-notes-from` on `gpc releases upload` and `gpc releases promote`
+  - `gpc status --review-days` — configurable reviews window
+  - `gpc status --threshold` — one-off threshold overrides from CLI
+  - `gpc status --watch` elapsed time footer with live countdown
+  - `gpc feedback` enhanced with audit log context and `--print` flag
+  - `gpc releases promote` auto-retries on 409 Conflict
+  - fix: `gpc diff --from/--to` type mismatch
+  - fix: `--review-days` validation
+
+- Updated dependencies
+  - @gpc-cli/core@0.9.33
+
 ## 0.9.38
 
 ### Patch Changes
