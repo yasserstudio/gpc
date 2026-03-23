@@ -18,7 +18,12 @@ export function registerFeedbackCommand(program: Command): void {
         const events = await listAuditEvents({ limit: 3 });
         if (events.length > 0) {
           lastCommand = events
-            .map((e) => `\`${e.command}${e.args ? " " + e.args : ""}\` (${e.timestamp})`)
+            .map((e) => {
+              const args = e.args && Object.keys(e.args).length > 0
+                ? " " + Object.entries(e.args).map(([k, v]) => `--${k} ${v}`).join(" ")
+                : "";
+              return `\`${e.command}${args}\` (${e.timestamp})`;
+            })
             .join("\n- ");
         }
       } catch {
