@@ -99,8 +99,6 @@ function getPageDescription(page: PageData): string {
       "Build GPC plugins with lifecycle hooks and custom commands using the @gpc-cli/plugin-sdk.",
     "advanced/sdk-usage.md":
       "Use @gpc-cli/api and @gpc-cli/auth as a standalone TypeScript SDK for the Google Play Developer API.",
-    "roadmap.md":
-      "GPC roadmap — v1.0.0 stable release, gpc preflight compliance scanner, and future plans for the Google Play Console CLI.",
     "commands/preflight.md":
       "gpc preflight — Scan your AAB against Google Play policies before submission. Offline, free, CI-ready. The missing compliance tool for Android.",
     "commands/init.md":
@@ -248,7 +246,6 @@ export default defineConfig({
         ],
       },
       { text: "Advanced", link: "/advanced/architecture" },
-      { text: "Roadmap", link: "/roadmap" },
       {
         text: "Reference",
         items: [
