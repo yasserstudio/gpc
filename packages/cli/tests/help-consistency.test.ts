@@ -293,6 +293,7 @@ const EXPECTED_TOP_LEVEL_COMMANDS = [
   "enterprise",
   "preflight",
   "init",
+  "diff",
 ];
 
 describe("help text consistency", () => {

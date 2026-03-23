@@ -160,6 +160,9 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     enterprise: async () => {
       (await import("./commands/enterprise.js")).registerEnterpriseCommands(program);
     },
+    diff: async () => {
+      (await import("./commands/diff.js")).registerDiffCommand(program);
+    },
     init: async () => {
       (await import("./commands/init.js")).registerInitCommand(program);
     },
