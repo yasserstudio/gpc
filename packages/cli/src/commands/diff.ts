@@ -41,10 +41,10 @@ export function registerDiffCommand(program: Command): void {
         sections["releases"] = releases;
 
         // Track-to-track diff if specified
-        let trackDiff: ReleaseDiff[] | undefined;
+        let trackDiff: { fromTrack: string; toTrack: string; diffs: ReleaseDiff[] } | undefined;
         if (options.from && options.to) {
           trackDiff = await diffReleases(client, packageName, options.from, options.to);
-          sections["trackDiff"] = { from: options.from, to: options.to, diff: trackDiff };
+          sections["trackDiff"] = trackDiff;
         }
 
         // Metadata diff if specified
@@ -84,11 +84,11 @@ export function registerDiffCommand(program: Command): void {
 
         // Track diff
         if (trackDiff) {
-          console.log(bold(`Track Diff: ${options.from} → ${options.to}`));
-          if (trackDiff.length === 0) {
+          console.log(bold(`Track Diff: ${trackDiff.fromTrack} → ${trackDiff.toTrack}`));
+          if (trackDiff.diffs.length === 0) {
             console.log(dim("  No differences"));
           } else {
-            for (const d of trackDiff) {
+            for (const d of trackDiff.diffs) {
               console.log(
                 `  ${d.field.padEnd(16)} ${red(d.track1Value || "(empty)")} → ${green(d.track2Value || "(empty)")}`,
               );
