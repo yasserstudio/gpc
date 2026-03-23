@@ -31,7 +31,7 @@ export function registerDiffCommand(program: Command): void {
       const format = getOutputFormat(program, config);
 
       const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
-      const client = createApiClient(auth);
+      const client = createApiClient({ auth });
 
       try {
         const sections: Record<string, unknown> = {};
