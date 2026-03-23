@@ -219,10 +219,12 @@ export function registerStatusCommand(program: Command): void {
         const config = await loadConfig();
         const format = getOutputFormat(program, config);
         const render = makeRenderer(format, opts.format);
-        let vitalThresholds = resolveVitalThresholds(config as unknown as Record<string, unknown>);
+        let vitalThresholds: RunCtx["vitalThresholds"] = resolveVitalThresholds(
+          config as unknown as Record<string, unknown>,
+        );
         if (opts.threshold) {
           const overrides = parseThresholdOverrides(opts.threshold);
-          vitalThresholds = { ...vitalThresholds, ...overrides };
+          vitalThresholds = { ...vitalThresholds, ...overrides } as RunCtx["vitalThresholds"];
         }
         const watchInterval = resolveWatchInterval(opts.watch);
         const packages = resolvePackages(program, config, opts.allApps);
@@ -285,6 +287,7 @@ interface RunCtx {
   packageName: string;
   opts: {
     days: number;
+    reviewDays: number;
     cached?: boolean;
     refresh?: boolean;
     ttl: number;
