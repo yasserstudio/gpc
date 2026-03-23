@@ -27,7 +27,9 @@
     "@gpc-cli/api": "workspace:*",
     "@gpc-cli/auth": "workspace:*",
     "@gpc-cli/config": "workspace:*",
-    "@gpc-cli/plugin-sdk": "workspace:*"
+    "@gpc-cli/plugin-sdk": "workspace:*",
+    "protobufjs": "^8.0.0",
+    "yauzl": "^3.2.1"
   },
   "keywords": [
     "google-play",
@@ -42,7 +44,8 @@
     "access": "public"
   },
   "devDependencies": {
-    "@types/node": "^25.3.5"
+    "@types/node": "^25.3.5",
+    "@types/yauzl": "^2.10.3"
   },
   "repository": {
     "type": "git",

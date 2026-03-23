@@ -16,7 +16,7 @@ GPC uses semantic exit codes so CI pipelines can distinguish error types and rea
 | `3`  | Auth Error       | No credentials, expired token, invalid key, revoked access                             | Re-authenticate or check secrets |
 | `4`  | API Error        | Google Play API returned an error (rate limit, permission denied, not found, conflict) | Check permissions or retry       |
 | `5`  | Network Error    | DNS failure, timeout, connection refused, proxy error                                  | Check connectivity               |
-| `6`  | Threshold Breach | Vitals metric exceeded the specified threshold                                         | Halt rollout, investigate vitals |
+| `6`  | Threshold Breach | Vitals metric exceeded threshold, or `preflight --fail-on` severity breached           | Halt rollout or fix preflight findings |
 | `10` | Plugin Error     | Plugin failed to load, invalid permissions, runtime error in plugin                    | Check plugin config              |
 
 ## CI Scripting Patterns

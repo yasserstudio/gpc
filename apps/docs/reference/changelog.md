@@ -7,7 +7,29 @@ pageClass: wide-page
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.38 <Badge type="tip" text="latest" />
+## v0.9.39 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+**`gpc preflight` — Pre-Submission Compliance Scanner (Phase 10)**
+
+The first free, offline, CLI-first AAB compliance scanner for Android. No bundletool, no aapt2, no Java required — pure TypeScript.
+
+- feat: `gpc preflight app.aab` — run all 9 scanners against an AAB file in parallel
+- feat: `gpc preflight manifest` — check targetSdk, debuggable, testOnly, cleartext traffic, missing `exported`, foreground service types
+- feat: `gpc preflight permissions` — audit 18 restricted permissions (SMS, call log, background location, photo/video, QUERY_ALL_PACKAGES, and more)
+- feat: `gpc preflight metadata <dir>` — validate store listing character limits, missing title, screenshot count, privacy policy URL
+- feat: `gpc preflight codescan <dir>` — scan source for hardcoded secrets (AWS, Google, Stripe), non-Play billing SDKs, and tracking SDKs
+- feat: Native library 64-bit compliance check (arm64-v8a required if armeabi-v7a present)
+- feat: Policy heuristics — Families/COPPA, financial apps, health apps, UGC, overlay permissions
+- feat: App size analysis with download size warnings and per-category breakdown
+- feat: `.preflightrc.json` configuration — custom thresholds, allowed permissions, disabled rules, severity overrides
+- feat: `--fail-on <severity>` flag for CI gating (exit code 6 on threshold breach)
+- feat: Protobuf-based AAB manifest parser — decodes AndroidManifest.xml directly from AAB without external tools
+
+---
+
+## v0.9.38
 
 _March 2026_
 
