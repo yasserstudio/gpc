@@ -39,7 +39,9 @@ gpc status [options]
 
 | Flag                | Type     | Default                   | Description                                                                                  |
 | ------------------- | -------- | ------------------------- | -------------------------------------------------------------------------------------------- |
-| `--days <n>`        | `number` | `7`                       | Vitals window in days (reviews always use last 30 days); must be ≥ 1, exits code 2 otherwise |
+| `--days <n>`        | `number` | `7`                       | Vitals window in days; must be ≥ 1, exits code 2 otherwise                                   |
+| `--review-days <n>` | `number` | `30`                      | Reviews window in days                                                                       |
+| `--threshold <spec>` | `string` | config                   | Override thresholds: `crashes=1.5,anr=0.5` (percent values)                                  |
 | `--cached`          | flag     | off                       | Read from cache, skip all API calls                                                          |
 | `--refresh`         | flag     | off                       | Force live fetch, ignore cache TTL                                                           |
 | `--ttl <seconds>`   | `number` | `3600`                    | Cache TTL override for this run                                                              |

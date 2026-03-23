@@ -45,7 +45,7 @@ features:
   - icon:
       src: /icons/shield.svg
       wrap: true
-    title: 1,692 Tests. 90%+ Coverage.
+    title: 1,694 Tests. 90%+ Coverage.
     details: "Security-audited credential handling, automatic secrets redaction, and audit logging for every write operation. Every write command supports --dry-run. Free and open-source. MIT licensed."
 ---
 
