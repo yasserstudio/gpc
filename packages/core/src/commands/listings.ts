@@ -299,10 +299,8 @@ export async function uploadImage(
       "Check image dimensions, file size, and format. Google Play requires PNG or JPEG images within specific size limits per image type.",
     );
   }
-  if (imageCheck.warnings.length > 0) {
-    for (const w of imageCheck.warnings) {
-      console.warn(`Warning: ${w}`);
-    }
+  for (const w of imageCheck.warnings) {
+    process.emitWarning?.(w, "ImageUploadWarning");
   }
 
   const edit = await client.edits.insert(packageName);
