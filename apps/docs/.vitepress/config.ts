@@ -454,7 +454,7 @@ export default defineConfig({
 
     socialLinks: [
       { icon: "github", link: "https://github.com/yasserstudio/gpc" },
-      { icon: "x", link: "https://x.com/yasserstudio" },
+      { icon: "x", link: "https://x.com/yassersstudio" },
     ],
 
     editLink: {
