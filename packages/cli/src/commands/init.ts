@@ -10,11 +10,11 @@ export function registerInitCommand(program: Command): void {
     .command("init")
     .description("Scaffold project config, metadata, and CI templates")
     .option("--app <package>", "Android package name (e.g. com.example.app)")
-    .option("--ci <platform>", "Generate CI template: github, gitlab")
+    .option("--ci-template <platform>", "Generate CI template: github, gitlab")
     .option("--force", "Overwrite existing files")
     .action(async (options) => {
       let app = options["app"] as string | undefined;
-      let ci = options["ci"] as "github" | "gitlab" | undefined;
+      let ci = options["ciTemplate"] as "github" | "gitlab" | undefined;
 
       // Interactive prompts when TTY
       if (isInteractive(program) && !app) {
@@ -28,7 +28,7 @@ export function registerInitCommand(program: Command): void {
       }
 
       if (ci && ci !== "github" && ci !== "gitlab") {
-        console.error(`Error: Invalid --ci value "${ci}". Use: github, gitlab`);
+        console.error(`Error: Invalid --ci-template value "${ci}". Use: github, gitlab`);
         process.exit(2);
       }
 

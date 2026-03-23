@@ -24,7 +24,7 @@ gpc init [options]
 | Option            | Description                                 | Default                |
 | ----------------- | ------------------------------------------- | ---------------------- |
 | `--app <name>`    | Android package name (e.g. com.example.app) | prompted interactively |
-| `--ci <platform>` | Generate CI template: `github` or `gitlab`  | prompted interactively |
+| `--ci-template <platform>` | Generate CI template: `github` or `gitlab` | prompted interactively |
 | `--force`         | Overwrite existing files                    | skip existing          |
 
 ## What It Creates
