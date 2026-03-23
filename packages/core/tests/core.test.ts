@@ -1980,9 +1980,9 @@ describe("getVitalsLmk", () => {
     await getVitalsLmk(reporting, PKG);
     const call = (reporting.queryMetricSet as ReturnType<typeof vi.fn>).mock.calls[0];
     const query = call?.[2] as { metrics: string[] };
-    expect(query.metrics).toContain("stuckBackgroundWakelockRate");
-    expect(query.metrics).toContain("stuckBackgroundWakelockRate7dUserWeighted");
-    expect(query.metrics).toContain("stuckBackgroundWakelockRate28dUserWeighted");
+    expect(query.metrics).toContain("stuckBgWakelockRate");
+    expect(query.metrics).toContain("stuckBgWakelockRate7dUserWeighted");
+    expect(query.metrics).toContain("stuckBgWakelockRate28dUserWeighted");
     expect(query.metrics).toContain("distinctUsers");
   });
 });

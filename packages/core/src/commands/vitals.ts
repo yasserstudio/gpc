@@ -38,9 +38,9 @@ const METRIC_SET_METRICS: Record<VitalsMetricSet, string[]> = {
   slowRenderingRateMetricSet: ["slowRenderingRate", "distinctUsers"],
   excessiveWakeupRateMetricSet: ["excessiveWakeupRate", "distinctUsers"],
   stuckBackgroundWakelockRateMetricSet: [
-    "stuckBackgroundWakelockRate",
-    "stuckBackgroundWakelockRate7dUserWeighted",
-    "stuckBackgroundWakelockRate28dUserWeighted",
+    "stuckBgWakelockRate",
+    "stuckBgWakelockRate7dUserWeighted",
+    "stuckBgWakelockRate28dUserWeighted",
     "distinctUsers",
   ],
   errorCountMetricSet: ["errorReportCount", "distinctUsers"],
