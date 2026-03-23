@@ -52,6 +52,38 @@ function resolveVitalThresholds(config: Record<string, unknown>) {
   };
 }
 
+const THRESHOLD_KEYS: Record<string, string> = {
+  crashes: "crashRate",
+  crash: "crashRate",
+  anr: "anrRate",
+  "slow-starts": "slowStartRate",
+  "slow-start": "slowStartRate",
+  "slow-render": "slowRenderingRate",
+  "slow-rendering": "slowRenderingRate",
+};
+
+function parseThresholdOverrides(
+  raw: string,
+): Record<string, number> {
+  const result: Record<string, number> = {};
+  for (const pair of raw.split(",")) {
+    const [key, val] = pair.split("=").map((s) => s.trim());
+    if (!key || !val) continue;
+    const mapped = THRESHOLD_KEYS[key.toLowerCase()];
+    if (!mapped) {
+      console.error(`Error: Unknown threshold "${key}". Valid: crashes, anr, slow-starts, slow-render`);
+      process.exit(2);
+    }
+    const n = parseFloat(val);
+    if (isNaN(n) || n < 0) {
+      console.error(`Error: Invalid threshold value "${val}" for ${key}. Must be a positive number (percent).`);
+      process.exit(2);
+    }
+    result[mapped] = n / 100; // Convert percent to decimal
+  }
+  return result;
+}
+
 function resolvePackages(
   program: Command,
   config: { app?: string; profiles?: Record<string, { app?: string }> },
@@ -133,6 +165,7 @@ export function registerStatusCommand(program: Command): void {
     .command("status")
     .description("Unified app health snapshot: releases, vitals, and reviews")
     .option("--days <n>", "Vitals window in days", (v) => parseInt(v, 10), 7)
+    .option("--review-days <n>", "Reviews window in days", (v) => parseInt(v, 10), 30)
     .option("--cached", "Use last fetched data, skip API calls")
     .option("--refresh", "Force live fetch, ignore cache TTL")
     .option("--ttl <seconds>", "Cache TTL in seconds", (v) => parseInt(v, 10), 3600)
@@ -146,9 +179,11 @@ export function registerStatusCommand(program: Command): void {
     .option("--since-last", "Show diff from last cached status")
     .option("--all-apps", "Run status for all configured app profiles (max 5)")
     .option("--notify", "Send desktop notification on threshold breach or clear")
+    .option("--threshold <overrides>", "Override vitals thresholds: crashes=1.5,anr=0.5 (percent)")
     .action(
       async (opts: {
         days: number;
+        reviewDays: number;
         cached?: boolean;
         refresh?: boolean;
         ttl: number;
@@ -157,6 +192,7 @@ export function registerStatusCommand(program: Command): void {
         watch?: string | boolean;
         sinceLast?: boolean;
         allApps?: boolean;
+        threshold?: string;
         notify?: boolean;
       }) => {
         if (!VALID_FORMATS.has(opts.format)) {
@@ -174,9 +210,13 @@ export function registerStatusCommand(program: Command): void {
         const config = await loadConfig();
         const format = getOutputFormat(program, config);
         const render = makeRenderer(format, opts.format);
-        const vitalThresholds = resolveVitalThresholds(
+        let vitalThresholds = resolveVitalThresholds(
           config as unknown as Record<string, unknown>,
         );
+        if (opts.threshold) {
+          const overrides = parseThresholdOverrides(opts.threshold);
+          vitalThresholds = { ...vitalThresholds, ...overrides };
+        }
         const watchInterval = resolveWatchInterval(opts.watch);
         const packages = resolvePackages(program, config, opts.allApps);
 
@@ -278,6 +318,7 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
     const { client, reporting } = await ctx.makeClients();
     return getAppStatus(client, reporting, packageName, {
       days: opts.days,
+      reviewDays: opts.reviewDays,
       sections,
       vitalThresholds: vitalThresholds ?? undefined,
     });

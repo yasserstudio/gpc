@@ -61,6 +61,7 @@ export interface StatusDiff {
 
 export interface GetAppStatusOptions {
   days?: number;
+  reviewDays?: number;
   sections?: string[]; // "releases" | "vitals" | "reviews"
   vitalThresholds?: {
     crashRate?: number;
@@ -300,6 +301,7 @@ export async function getAppStatus(
   options: GetAppStatusOptions = {},
 ): Promise<AppStatus> {
   const days = options.days ?? 7;
+  const reviewDays = options.reviewDays ?? 30;
   const sections = new Set(options.sections ?? ["releases", "vitals", "reviews"]);
   const thresholds = {
     crashRate: options.vitalThresholds?.crashRate ?? DEFAULT_THRESHOLDS.crashRate,
@@ -350,7 +352,7 @@ export async function getAppStatus(
     slowRenderResult.status === "fulfilled" ? slowRenderResult.value : SKIPPED_VITAL;
 
   const rawReviews = reviewsResult.status === "fulfilled" ? reviewsResult.value : [];
-  const reviews = computeReviewSentiment(rawReviews, 30);
+  const reviews = computeReviewSentiment(rawReviews, reviewDays);
 
   return {
     packageName,
@@ -645,6 +647,7 @@ export async function runWatchLoop(opts: WatchOptions): Promise<void> {
 
   while (running) {
     process.stdout.write("\x1b[2J\x1b[H"); // clear terminal
+    const fetchedAt = Date.now();
 
     try {
       const status = await opts.fetch();
@@ -654,10 +657,13 @@ export async function runWatchLoop(opts: WatchOptions): Promise<void> {
       console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
     }
 
-    console.log(`\n[gpc status] Refreshing in ${opts.intervalSeconds}s… (Ctrl+C to stop)`);
-
-    // Sleep in 1s ticks so SIGINT is responsive
+    // Sleep in 1s ticks so SIGINT is responsive, update footer with elapsed time
     for (let i = 0; i < opts.intervalSeconds && running; i++) {
+      const elapsed = Math.round((Date.now() - fetchedAt) / 1000);
+      const remaining = opts.intervalSeconds - i;
+      process.stdout.write(
+        `\r[gpc status] Fetched ${elapsed}s ago · refreshing in ${remaining}s (Ctrl+C to stop)\x1b[K`,
+      );
       await new Promise<void>((r) => setTimeout(r, 1000));
     }
   }

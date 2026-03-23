@@ -289,6 +289,24 @@ describe("getAppStatus", () => {
 
     expect((client.reviews.list as ReturnType<typeof vi.fn>).mock.calls).toHaveLength(0);
   });
+
+  it("respects reviewDays option", async () => {
+    const client = makePlayClient();
+    const reporting = makeReportingClient({ crashes: 0.005 });
+
+    const status = await getAppStatus(client, reporting, "com.example.app", { reviewDays: 14 });
+
+    expect(status.reviews.windowDays).toBe(14);
+  });
+
+  it("defaults reviewDays to 30", async () => {
+    const client = makePlayClient();
+    const reporting = makeReportingClient({ crashes: 0.005 });
+
+    const status = await getAppStatus(client, reporting, "com.example.app");
+
+    expect(status.reviews.windowDays).toBe(30);
+  });
 });
 
 // ---------------------------------------------------------------------------
