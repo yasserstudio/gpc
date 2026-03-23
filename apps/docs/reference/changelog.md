@@ -11,44 +11,46 @@ All notable user-facing changes to GPC are documented here. For full release det
 
 _March 2026_
 
-**`gpc preflight` — Pre-Submission Compliance Scanner (Phase 10)**
+### Preflight Compliance Scanner
 
-The first free, offline, CLI-first AAB compliance scanner for Android. No bundletool, no aapt2, no Java required — pure TypeScript.
+Scan your AAB against Google Play policies before uploading — entirely offline, no API calls, no bundletool, no Java.
 
-- feat: `gpc preflight app.aab` — run all 9 scanners against an AAB file in parallel
-- feat: `gpc preflight manifest` — check targetSdk, debuggable, testOnly, cleartext traffic, missing `exported`, foreground service types
-- feat: `gpc preflight permissions` — audit 18 restricted permissions (SMS, call log, background location, photo/video, QUERY_ALL_PACKAGES, and more)
-- feat: `gpc preflight metadata <dir>` — validate store listing character limits, missing title, screenshot count, privacy policy URL
-- feat: `gpc preflight codescan <dir>` — scan source for hardcoded secrets (AWS, Google, Stripe), non-Play billing SDKs, and tracking SDKs
-- feat: Native library 64-bit compliance check (arm64-v8a required if armeabi-v7a present)
+- feat: `gpc preflight app.aab` — run all 9 scanners in parallel
+- feat: `gpc preflight manifest app.aab` — target SDK, debuggable, testOnly, cleartext traffic, missing `exported`, foreground service types
+- feat: `gpc preflight permissions app.aab` — 18 restricted permissions (SMS, call log, background location, photo/video, and more)
+- feat: `gpc preflight metadata <dir>` — store listing character limits, missing title, screenshots, privacy policy URL
+- feat: `gpc preflight codescan <dir>` — hardcoded secrets (AWS, Google, Stripe), non-Play billing SDKs, tracking SDKs
+- feat: 64-bit native library compliance (arm64-v8a required if armeabi-v7a present)
 - feat: Policy heuristics — Families/COPPA, financial apps, health apps, UGC, overlay permissions
 - feat: App size analysis with download size warnings and per-category breakdown
-- feat: `.preflightrc.json` configuration — custom thresholds, allowed permissions, disabled rules, severity overrides
-- feat: `--fail-on <severity>` flag for CI gating (exit code 6 on threshold breach)
-- feat: Protobuf-based AAB manifest parser — decodes AndroidManifest.xml directly from AAB without external tools
+- feat: `.preflightrc.json` for custom thresholds, allowed permissions, disabled rules, severity overrides
+- feat: `--fail-on <severity>` for CI gating (exit code 6 on threshold breach)
 
-**New Commands**
+### New Commands
 
-- feat: `gpc init` — scaffold project config (`.gpcrc.json`, `.preflightrc.json`), metadata directory, and CI templates (GitHub Actions, GitLab CI)
-- feat: `gpc diff` — read-only preview of current release state across all tracks, track-to-track comparison, and local vs remote metadata diff
+- feat: `gpc init` — scaffold `.gpcrc.json`, `.preflightrc.json`, metadata directory, and CI templates (GitHub Actions, GitLab CI) in one command
+- feat: `gpc diff` — read-only preview of release state across all tracks, track-to-track comparison (`--from`/`--to`), and local vs remote metadata diff (`--metadata`)
+- feat: `gpc releases count` — aggregate release stats per track with status breakdown
 
-**Release Notes**
+### Release Notes
 
 - feat: `--copy-notes-from <track>` on `gpc releases upload` and `gpc releases promote` — copy release notes from another track's latest release
 
-**Status Improvements**
+### Status Improvements
 
-- feat: `--review-days <n>` on `gpc status` — configurable reviews window (was hardcoded to 30 days)
-- feat: `--threshold crashes=1.5,anr=0.5` on `gpc status` — one-off threshold overrides from CLI (percent values)
+- feat: `--review-days <n>` — configurable reviews window (was hardcoded to 30 days)
+- feat: `--threshold crashes=1.5,anr=0.5` — one-off threshold overrides from CLI (percent values)
 - feat: Watch mode footer now shows elapsed time and live countdown: `Fetched 45s ago · refreshing in 15s`
 
-**More Features**
+### Other Improvements
 
-- feat: `gpc releases count` — aggregate release stats per track with status breakdown
-- feat: `gpc feedback` — enhanced with audit log context, shell info, CI detection, and `--print` flag
-- feat: Auto-retry on 409 Conflict for `gpc releases promote` — recovers from stale edits in CI
-- fix: `gpc diff --from/--to` type mismatch that would crash on track-to-track comparison
-- fix: `--review-days` validation (must be positive integer)
+- feat: `gpc feedback` now includes last 3 commands from audit log, shell info, CI detection, and a `--print` flag for CI environments
+- feat: `gpc releases promote` auto-retries once on 409 Conflict (stale edit) — reduces failed CI runs
+
+### Bug Fixes
+
+- fix: `gpc diff --from/--to` would crash on track-to-track comparison (type mismatch in return value)
+- fix: `--review-days` accepted invalid values (now validates like `--days`)
 
 ---
 

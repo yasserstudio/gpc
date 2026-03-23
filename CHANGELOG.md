@@ -9,28 +9,27 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ## v0.9.39
 
-- feat: `gpc preflight` — pre-submission compliance scanner (9 scanners, offline, no external tools)
-- feat: Protobuf-based AAB manifest parser — decodes AndroidManifest.xml directly from AAB
-- feat: Manifest scanner — targetSdk, debuggable, testOnly, cleartext, missing exported, foreground service types
-- feat: Permissions scanner — 18 restricted permissions audit with policy URLs
-- feat: Native libs scanner — 64-bit ARM compliance check
-- feat: Metadata scanner — listing character limits, screenshots, privacy policy URL
-- feat: Code scanners — hardcoded secrets, non-Play billing SDKs, tracking SDKs
-- feat: Policy scanner — Families/COPPA, financial, health, UGC heuristics
-- feat: Size scanner — download size warnings, per-category breakdown
-- feat: `.preflightrc.json` configuration — custom thresholds, allowed permissions, disabled rules, severity overrides
-- feat: `--fail-on <severity>` flag for CI gating (exit code 6 on threshold breach)
-- feat: `gpc init` — scaffold project config, metadata directory, and CI templates
-- feat: `gpc diff` — read-only preview of release state and pending changes
+Preflight compliance scanner, new commands, status improvements, and bug fixes.
+
+- feat: `gpc preflight` — scan your AAB against Google Play policies before uploading (9 scanners, offline, no external tools)
+- feat: `gpc preflight manifest` — target SDK, debuggable, testOnly, cleartext, missing exported, foreground service types
+- feat: `gpc preflight permissions` — 18 restricted permissions with policy URLs
+- feat: `gpc preflight metadata` — store listing character limits, screenshots, privacy policy URL
+- feat: `gpc preflight codescan` — hardcoded secrets, non-Play billing SDKs, tracking SDKs
+- feat: 64-bit native library compliance, policy heuristics, app size analysis
+- feat: `.preflightrc.json` for custom thresholds, allowed permissions, disabled rules, severity overrides
+- feat: `--fail-on <severity>` for CI gating (exit code 6 on threshold breach)
+- feat: `gpc init` — scaffold project config, metadata directory, and CI templates in one command
+- feat: `gpc diff` — read-only preview of release state, track-to-track comparison, local vs remote metadata
+- feat: `gpc releases count` — aggregate release stats per track with status breakdown
 - feat: `--copy-notes-from <track>` on `gpc releases upload` and `gpc releases promote`
-- feat: `gpc status --review-days <n>` — configurable reviews window (was hardcoded 30 days)
+- feat: `gpc status --review-days` — configurable reviews window (was hardcoded to 30 days)
 - feat: `gpc status --threshold crashes=1.5,anr=0.5` — one-off threshold overrides from CLI
-- feat: `gpc status --watch` elapsed time footer with live countdown
-- feat: `gpc releases count` — aggregate release stats per track
-- feat: `gpc feedback` enhanced with audit log context and `--print` flag
-- feat: Auto-retry on 409 Conflict for `gpc releases promote`
-- fix: `gpc diff --from/--to` type mismatch
-- fix: `--review-days` validation
+- feat: `gpc status --watch` now shows elapsed time with live countdown
+- feat: `gpc feedback` now includes recent commands, shell info, CI detection, and `--print` flag
+- feat: `gpc releases promote` auto-retries on 409 Conflict (stale edit recovery)
+- fix: `gpc diff --from/--to` would crash on track-to-track comparison
+- fix: `--review-days` accepted invalid values
 
 ---
 
