@@ -26,6 +26,11 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 - feat: `gpc status --review-days <n>` — configurable reviews window (was hardcoded 30 days)
 - feat: `gpc status --threshold crashes=1.5,anr=0.5` — one-off threshold overrides from CLI
 - feat: `gpc status --watch` elapsed time footer with live countdown
+- feat: `gpc releases count` — aggregate release stats per track
+- feat: `gpc feedback` enhanced with audit log context and `--print` flag
+- feat: Auto-retry on 409 Conflict for `gpc releases promote`
+- fix: `gpc diff --from/--to` type mismatch
+- fix: `--review-days` validation
 
 ---
 
