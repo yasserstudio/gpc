@@ -372,6 +372,8 @@ export default defineConfig({
               link: "/commands/utility",
             },
             { text: "install-skills", link: "/commands/install-skills" },
+            { text: "init", link: "/commands/init" },
+            { text: "diff", link: "/commands/diff" },
           ],
         },
       ],

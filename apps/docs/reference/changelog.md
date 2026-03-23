@@ -27,6 +27,15 @@ The first free, offline, CLI-first AAB compliance scanner for Android. No bundle
 - feat: `--fail-on <severity>` flag for CI gating (exit code 6 on threshold breach)
 - feat: Protobuf-based AAB manifest parser — decodes AndroidManifest.xml directly from AAB without external tools
 
+**New Commands**
+
+- feat: `gpc init` — scaffold project config (`.gpcrc.json`, `.preflightrc.json`), metadata directory, and CI templates (GitHub Actions, GitLab CI)
+- feat: `gpc diff` — read-only preview of current release state across all tracks, track-to-track comparison, and local vs remote metadata diff
+
+**Release Notes**
+
+- feat: `--copy-notes-from <track>` on `gpc releases upload` and `gpc releases promote` — copy release notes from another track's latest release
+
 ---
 
 ## v0.9.38
