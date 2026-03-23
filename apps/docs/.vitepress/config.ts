@@ -103,6 +103,10 @@ function getPageDescription(page: PageData): string {
       "GPC roadmap — v1.0.0 stable release, gpc preflight compliance scanner, and future plans for the Google Play Console CLI.",
     "commands/preflight.md":
       "gpc preflight — Scan your AAB against Google Play policies before submission. Offline, free, CI-ready. The missing compliance tool for Android.",
+    "commands/init.md":
+      "gpc init — Scaffold project config, metadata directory, and CI templates for Google Play Console CLI.",
+    "commands/diff.md":
+      "gpc diff — Preview release state and pending changes before publishing. Read-only, no mutations.",
   };
   return map[path] ?? `GPC documentation — ${page.title ?? "Google Play Console CLI"}`;
 }

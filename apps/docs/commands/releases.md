@@ -22,6 +22,7 @@ outline: deep
 | [`releases rollout complete`](#releases-rollout-complete) | Complete a staged rollout to 100%    |
 | [`releases notes set`](#releases-notes-set)               | Set release notes for a track        |
 | [`releases diff`](#releases-diff)                         | Compare releases between two tracks  |
+| [`releases count`](#releases-count)                       | Count releases per track             |
 
 ## `releases upload`
 
@@ -46,6 +47,7 @@ gpc releases upload <file> [options]
 | `--mapping`        |       | `string` |            | Path to ProGuard/R8 mapping file for deobfuscation                  |
 | `--notes-dir`      |       | `string` |            | Directory with per-language release notes (`<dir>/<lang>.txt`)      |
 | `--notes-from-git` |       | flag     |            | Generate release notes from git commit history                      |
+| `--copy-notes-from`|       | `string` |            | Copy release notes from another track's latest release              |
 | `--since`          |       | `string` |            | Git ref to start from (tag, SHA) — used with `--notes-from-git`     |
 | `--timeout`        |       | `number` |            | Upload timeout in milliseconds (auto-scales with file size)         |
 | `--retry-log`      |       | `string` |            | Write retry log entries to file (JSONL)                             |
@@ -178,6 +180,7 @@ gpc releases promote --from <track> --to <track> [options]
 | `--to`      |       | `string` | **(required)** | Target track                                           |
 | `--rollout` |       | `number` |                | Staged rollout percentage (1-100) for the target track |
 | `--notes`   |       | `string` |                | Release notes text (en-US)                             |
+| `--copy-notes-from` | | `string` |             | Copy release notes from another track's latest release |
 
 ::: tip Validation
 `--from` and `--to` must be different tracks. Passing the same value for both exits code 2.
@@ -388,6 +391,37 @@ Comparing releases: beta → production
 ```
 
 Use `--output json` for structured diff output. Returns "No differences found" when tracks have identical latest releases.
+
+---
+
+## `releases count`
+
+Show the number of releases per track with a status breakdown.
+
+### Synopsis
+
+```bash
+gpc releases count [options]
+```
+
+### Options
+
+| Flag      | Type     | Description             |
+| --------- | -------- | ----------------------- |
+| `--track` | `string` | Filter to a single track |
+
+### Examples
+
+```bash
+# Count across all tracks
+gpc releases count
+
+# Single track
+gpc releases count --track beta
+
+# JSON for scripting
+gpc releases count --output json
+```
 
 ---
 
