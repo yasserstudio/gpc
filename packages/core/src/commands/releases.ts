@@ -457,6 +457,37 @@ export async function updateTrackConfig(
   }
 }
 
+/**
+ * Fetch release notes from the latest active release on a given track.
+ * Opens and discards an edit — read-only, no mutations.
+ */
+export async function fetchReleaseNotes(
+  client: PlayApiClient,
+  packageName: string,
+  track: string,
+): Promise<{ language: string; text: string }[]> {
+  const edit = await client.edits.insert(packageName);
+  try {
+    const trackData = await client.tracks.get(packageName, edit.id, track);
+    const release = trackData.releases?.find(
+      (r) => r.status === "completed" || r.status === "inProgress",
+    ) ?? trackData.releases?.[0];
+
+    if (!release) {
+      throw new GpcError(
+        `No release found on track "${track}" to copy notes from`,
+        "RELEASE_NOT_FOUND",
+        1,
+        `Ensure there is a release on the "${track}" track.`,
+      );
+    }
+
+    return release.releaseNotes ?? [];
+  } finally {
+    await client.edits.delete(packageName, edit.id).catch(() => {});
+  }
+}
+
 export interface ReleaseDiff {
   field: string;
   track1Value: string;

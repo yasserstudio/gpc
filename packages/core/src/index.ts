@@ -22,6 +22,7 @@ export {
   updateTrackConfig,
   uploadExternallyHosted,
   diffReleases,
+  fetchReleaseNotes,
 } from "./commands/releases.js";
 export type {
   UploadResult,

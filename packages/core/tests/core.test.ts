@@ -32,6 +32,7 @@ import {
   updateTrackConfig,
   uploadExternallyHosted,
   diffReleases,
+  fetchReleaseNotes,
 } from "../src/commands/releases.js";
 import {
   getListings,
@@ -3918,6 +3919,65 @@ describe("promoteRelease – edge cases", () => {
         releaseNotes: [],
       }),
     );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// fetchReleaseNotes
+// ---------------------------------------------------------------------------
+describe("fetchReleaseNotes", () => {
+  it("returns release notes from the latest completed release", async () => {
+    const client = mockClient();
+    const notes = [
+      { language: "en-US", text: "Bug fixes" },
+      { language: "fr-FR", text: "Corrections" },
+    ];
+    client.tracks.get.mockResolvedValue({
+      track: "beta",
+      releases: [{ versionCodes: ["42"], status: "completed", releaseNotes: notes }],
+    });
+
+    const result = await fetchReleaseNotes(client, PKG, "beta");
+    expect(result).toEqual(notes);
+    // Should discard the edit (read-only)
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+  });
+
+  it("returns empty array when release has no notes", async () => {
+    const client = mockClient();
+    client.tracks.get.mockResolvedValue({
+      track: "internal",
+      releases: [{ versionCodes: ["1"], status: "completed" }],
+    });
+
+    const result = await fetchReleaseNotes(client, PKG, "internal");
+    expect(result).toEqual([]);
+  });
+
+  it("throws when track has no releases", async () => {
+    const client = mockClient();
+    client.tracks.get.mockResolvedValue({
+      track: "alpha",
+      releases: [],
+    });
+
+    await expect(fetchReleaseNotes(client, PKG, "alpha")).rejects.toThrow(
+      'No release found on track "alpha"',
+    );
+  });
+
+  it("prefers completed/inProgress over draft releases", async () => {
+    const client = mockClient();
+    client.tracks.get.mockResolvedValue({
+      track: "beta",
+      releases: [
+        { versionCodes: ["10"], status: "draft", releaseNotes: [{ language: "en-US", text: "draft" }] },
+        { versionCodes: ["9"], status: "completed", releaseNotes: [{ language: "en-US", text: "live" }] },
+      ],
+    });
+
+    const result = await fetchReleaseNotes(client, PKG, "beta");
+    expect(result).toEqual([{ language: "en-US", text: "live" }]);
   });
 });
 
