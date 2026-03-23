@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-1677_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-1694_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
@@ -132,6 +132,7 @@ From first upload to full production rollout — in one pipeline, without touchi
 gpc publish app.aab --track beta --notes "Bug fixes"      # End-to-end flow
 gpc releases upload app.aab --track internal               # Upload to any track
 gpc releases promote --from beta --to production --rollout 5
+gpc releases promote --from beta --to production --copy-notes-from beta
 gpc releases rollout increase --track production --to 50
 gpc releases rollout halt --track production               # Emergency brake
 gpc validate app.aab --track beta                          # Pre-submission checks
@@ -158,10 +159,11 @@ Know if something broke before your users do.
 
 ```bash
 gpc status                                 # Releases + vitals + reviews in one view
+gpc status --threshold crashes=1.5,anr=0.5 # One-off threshold overrides
+gpc status --review-days 14               # Custom reviews window (default 30)
+gpc status --watch 60                      # Live polling with elapsed time footer
 gpc vitals crashes --threshold 2.0         # Exit code 6 if breached — CI gates
 gpc vitals compare crashes --days 7        # This week vs last week
-gpc vitals anr --version 142
-watch -n 60 gpc status --cached            # Poll every 60 seconds (shell)
 ```
 
 ### Manage store listings
@@ -212,6 +214,26 @@ gpc bundle analyze app.aab --threshold 150   # Exit code 6 if > 150 MB — CI ga
 gpc testers add user@example.com --track internal
 gpc testers import --track beta --file testers.csv
 gpc users list --developer-id <id>
+```
+
+### Project setup
+
+Bootstrap a new project with config, metadata directories, and CI templates in one command.
+
+```bash
+gpc init                              # Interactive — prompts for package name and CI
+gpc init --app com.example.app        # Non-interactive
+gpc init --app com.example.app --ci github  # Include GitHub Actions workflow
+```
+
+### Preview before publishing
+
+See what's live and what would change — without mutating anything.
+
+```bash
+gpc diff                                        # Release status across all tracks
+gpc diff --from internal --to production        # Compare two tracks
+gpc diff --metadata fastlane/metadata/android   # Local vs remote listings
 ```
 
 See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 187 endpoints — including reports, purchases, data safety, device tiers, internal sharing, external transactions, and recovery actions.
