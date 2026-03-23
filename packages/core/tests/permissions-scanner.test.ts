@@ -39,18 +39,14 @@ describe("permissionsScanner", () => {
   });
 
   it("flags SMS permissions as critical", async () => {
-    const findings = await permissionsScanner.scan(
-      makeCtx(["android.permission.READ_SMS"]),
-    );
+    const findings = await permissionsScanner.scan(makeCtx(["android.permission.READ_SMS"]));
     const f = findings.find((f) => f.ruleId.includes("read_sms"));
     expect(f).toBeDefined();
     expect(f!.severity).toBe("critical");
   });
 
   it("flags CALL_LOG permissions as critical", async () => {
-    const findings = await permissionsScanner.scan(
-      makeCtx(["android.permission.READ_CALL_LOG"]),
-    );
+    const findings = await permissionsScanner.scan(makeCtx(["android.permission.READ_CALL_LOG"]));
     const f = findings.find((f) => f.ruleId.includes("read_call_log"));
     expect(f).toBeDefined();
     expect(f!.severity).toBe("critical");
@@ -90,10 +86,7 @@ describe("permissionsScanner", () => {
 
   it("respects allowedPermissions whitelist", async () => {
     const findings = await permissionsScanner.scan(
-      makeCtx(
-        ["android.permission.READ_SMS"],
-        ["android.permission.READ_SMS"],
-      ),
+      makeCtx(["android.permission.READ_SMS"], ["android.permission.READ_SMS"]),
     );
     // Should not flag READ_SMS since it's allowed
     expect(findings.find((f) => f.ruleId.includes("READ_SMS"))).toBeUndefined();

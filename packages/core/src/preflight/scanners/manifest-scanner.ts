@@ -32,8 +32,10 @@ export const manifestScanner: PreflightScanner = {
         ruleId: "debuggable-true",
         severity: "critical",
         title: "App is marked as debuggable",
-        message: "android:debuggable=\"true\" is set in the manifest. Google Play rejects debuggable release builds.",
-        suggestion: "Remove android:debuggable from your manifest or set it to false. Release builds should never be debuggable.",
+        message:
+          'android:debuggable="true" is set in the manifest. Google Play rejects debuggable release builds.',
+        suggestion:
+          "Remove android:debuggable from your manifest or set it to false. Release builds should never be debuggable.",
       });
     }
 
@@ -44,8 +46,10 @@ export const manifestScanner: PreflightScanner = {
         ruleId: "testOnly-true",
         severity: "critical",
         title: "App is marked as testOnly",
-        message: "android:testOnly=\"true\" is set in the manifest. Google Play rejects testOnly builds.",
-        suggestion: "Remove android:testOnly from your manifest. This flag is only for development builds.",
+        message:
+          'android:testOnly="true" is set in the manifest. Google Play rejects testOnly builds.',
+        suggestion:
+          "Remove android:testOnly from your manifest. This flag is only for development builds.",
       });
     }
 
@@ -68,8 +72,10 @@ export const manifestScanner: PreflightScanner = {
         ruleId: "cleartext-traffic",
         severity: "warning",
         title: "Cleartext HTTP traffic is allowed",
-        message: "android:usesCleartextTraffic=\"true\" allows unencrypted HTTP connections. This is a security risk.",
-        suggestion: "Set android:usesCleartextTraffic=\"false\" and use HTTPS. If specific domains need HTTP, use a network security config.",
+        message:
+          'android:usesCleartextTraffic="true" allows unencrypted HTTP connections. This is a security risk.',
+        suggestion:
+          'Set android:usesCleartextTraffic="false" and use HTTPS. If specific domains need HTTP, use a network security config.',
         policyUrl: "https://developer.android.com/privacy-and-security/security-config",
       });
     }
@@ -92,7 +98,8 @@ export const manifestScanner: PreflightScanner = {
             title: `Missing android:exported on ${comp.name}`,
             message: `Component "${comp.name}" has an intent-filter but no android:exported attribute. This is required for apps targeting API 31+.`,
             suggestion: `Add android:exported="true" or android:exported="false" to the <activity>, <service>, <receiver>, or <provider> declaration for "${comp.name}".`,
-            policyUrl: "https://developer.android.com/about/versions/12/behavior-changes-12#exported",
+            policyUrl:
+              "https://developer.android.com/about/versions/12/behavior-changes-12#exported",
           });
         }
       }
@@ -112,7 +119,8 @@ export const manifestScanner: PreflightScanner = {
               title: `Missing foregroundServiceType on ${service.name}`,
               message: `Service "${service.name}" does not declare android:foregroundServiceType. This is required for apps targeting API 34+.`,
               suggestion: `Add android:foregroundServiceType to the <service> declaration. Valid types: camera, connectedDevice, dataSync, health, location, mediaPlayback, mediaProcessing, mediaProjection, microphone, phoneCall, remoteMessaging, shortService, specialUse, systemExempted.`,
-              policyUrl: "https://developer.android.com/about/versions/14/changes/fgs-types-required",
+              policyUrl:
+                "https://developer.android.com/about/versions/14/changes/fgs-types-required",
             });
           }
         }
@@ -127,7 +135,8 @@ export const manifestScanner: PreflightScanner = {
         severity: "info",
         title: `minSdkVersion ${manifest.minSdk} is very low`,
         message: `minSdkVersion ${manifest.minSdk} means your app supports very old devices (pre-Lollipop). This limits split APK support and modern features.`,
-        suggestion: "Consider raising minSdkVersion to 21 or higher to take advantage of modern Android features and better app size optimization.",
+        suggestion:
+          "Consider raising minSdkVersion to 21 or higher to take advantage of modern Android features and better app size optimization.",
       });
     }
 

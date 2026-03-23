@@ -15,27 +15,27 @@ outline: deep
 
 **9 scanners** run in parallel:
 
-| Scanner | What it checks |
-|---------|---------------|
-| **manifest** | targetSdk, debuggable, testOnly, cleartext traffic, missing `exported`, foreground service types |
-| **permissions** | 18 restricted permissions (SMS, call log, background location, photo/video, etc.) |
-| **native-libs** | 64-bit compliance (arm64-v8a required if armeabi-v7a present) |
-| **metadata** | Store listing character limits, missing title, screenshots, privacy policy URL |
-| **secrets** | Hardcoded API keys (AWS, Google, Stripe, private keys) |
-| **billing** | Non-Play billing SDKs (Stripe, Braintree, PayPal) |
-| **privacy** | Tracking SDKs (Facebook, Adjust, AppsFlyer), Advertising ID, data collection |
-| **policy** | Families/COPPA, financial apps, health apps, UGC, overlay permissions |
-| **size** | Download size warnings, large native libs, large assets |
+| Scanner         | What it checks                                                                                   |
+| --------------- | ------------------------------------------------------------------------------------------------ |
+| **manifest**    | targetSdk, debuggable, testOnly, cleartext traffic, missing `exported`, foreground service types |
+| **permissions** | 18 restricted permissions (SMS, call log, background location, photo/video, etc.)                |
+| **native-libs** | 64-bit compliance (arm64-v8a required if armeabi-v7a present)                                    |
+| **metadata**    | Store listing character limits, missing title, screenshots, privacy policy URL                   |
+| **secrets**     | Hardcoded API keys (AWS, Google, Stripe, private keys)                                           |
+| **billing**     | Non-Play billing SDKs (Stripe, Braintree, PayPal)                                                |
+| **privacy**     | Tracking SDKs (Facebook, Adjust, AppsFlyer), Advertising ID, data collection                     |
+| **policy**      | Families/COPPA, financial apps, health apps, UGC, overlay permissions                            |
+| **size**        | Download size warnings, large native libs, large assets                                          |
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| [`preflight`](#gpc-preflight) | Run all scanners on an AAB file |
-| [`preflight manifest`](#preflight-manifest) | Manifest scanner only |
-| [`preflight permissions`](#preflight-permissions) | Permissions scanner only |
-| [`preflight metadata`](#preflight-metadata) | Metadata/listing scanner only |
-| [`preflight codescan`](#preflight-codescan) | Source code scanners (secrets, billing, privacy) |
+| Command                                           | Description                                      |
+| ------------------------------------------------- | ------------------------------------------------ |
+| [`preflight`](#gpc-preflight)                     | Run all scanners on an AAB file                  |
+| [`preflight manifest`](#preflight-manifest)       | Manifest scanner only                            |
+| [`preflight permissions`](#preflight-permissions) | Permissions scanner only                         |
+| [`preflight metadata`](#preflight-metadata)       | Metadata/listing scanner only                    |
+| [`preflight codescan`](#preflight-codescan)       | Source code scanners (secrets, billing, privacy) |
 
 ## `gpc preflight`
 
@@ -49,14 +49,14 @@ gpc preflight <file.aab> [options]
 
 ### Options
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--fail-on <severity>` | Fail if any finding meets severity: `critical`, `error`, `warning`, `info` | `error` |
-| `--scanners <names>` | Comma-separated scanner names to run | all |
-| `--metadata <dir>` | Path to metadata directory (Fastlane format) | — |
-| `--source <dir>` | Path to source directory for code scanning | — |
-| `--config <path>` | Path to `.preflightrc.json` | `.preflightrc.json` |
-| `--json` | Output as JSON | — |
+| Option                 | Description                                                                | Default             |
+| ---------------------- | -------------------------------------------------------------------------- | ------------------- |
+| `--fail-on <severity>` | Fail if any finding meets severity: `critical`, `error`, `warning`, `info` | `error`             |
+| `--scanners <names>`   | Comma-separated scanner names to run                                       | all                 |
+| `--metadata <dir>`     | Path to metadata directory (Fastlane format)                               | —                   |
+| `--source <dir>`       | Path to source directory for code scanning                                 | —                   |
+| `--config <path>`      | Path to `.preflightrc.json`                                                | `.preflightrc.json` |
+| `--json`               | Output as JSON                                                             | —                   |
 
 ### Examples
 
@@ -79,12 +79,12 @@ gpc preflight app.aab --config .preflight-strict.json
 
 ### Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| `0` | All checks passed |
-| `1` | Runtime error (file not found, invalid AAB) |
-| `2` | Usage error (invalid flags, unknown scanner name) |
-| `6` | Threshold breached (findings at or above `--fail-on` severity) |
+| Code | Meaning                                                        |
+| ---- | -------------------------------------------------------------- |
+| `0`  | All checks passed                                              |
+| `1`  | Runtime error (file not found, invalid AAB)                    |
+| `2`  | Usage error (invalid flags, unknown scanner name)              |
+| `6`  | Threshold breached (findings at or above `--fail-on` severity) |
 
 ## `preflight manifest`
 
@@ -117,6 +117,7 @@ gpc preflight metadata fastlane/metadata/android
 Checks: title/description character limits, missing title, screenshot count, privacy policy URL.
 
 Expected directory structure:
+
 ```
 metadata/android/
 ├── en-US/
@@ -146,12 +147,12 @@ Scans `.kt`, `.java`, `.ts`, `.js`, `.xml`, `.json`, `.gradle`, `.properties` fi
 
 Findings are ranked by severity:
 
-| Severity | Meaning | Example |
-|----------|---------|---------|
-| **critical** | Will cause rejection | debuggable=true, missing 64-bit libs, hardcoded secrets |
-| **error** | Likely causes rejection or extended review | QUERY_ALL_PACKAGES, missing exported, restricted permissions |
-| **warning** | May cause issues | cleartext traffic, large download size, tracking SDKs |
-| **info** | Best practice | minSdk advisory, data safety reminders, size breakdown |
+| Severity     | Meaning                                    | Example                                                      |
+| ------------ | ------------------------------------------ | ------------------------------------------------------------ |
+| **critical** | Will cause rejection                       | debuggable=true, missing 64-bit libs, hardcoded secrets      |
+| **error**    | Likely causes rejection or extended review | QUERY_ALL_PACKAGES, missing exported, restricted permissions |
+| **warning**  | May cause issues                           | cleartext traffic, large download size, tracking SDKs        |
+| **info**     | Best practice                              | minSdk advisory, data safety reminders, size breakdown       |
 
 ## Configuration
 
@@ -162,26 +163,22 @@ Create a `.preflightrc.json` in your project root:
   "failOn": "error",
   "targetSdkMinimum": 35,
   "maxDownloadSizeMb": 150,
-  "allowedPermissions": [
-    "android.permission.READ_SMS"
-  ],
-  "disabledRules": [
-    "cleartext-traffic"
-  ],
+  "allowedPermissions": ["android.permission.READ_SMS"],
+  "disabledRules": ["cleartext-traffic"],
   "severityOverrides": {
     "billing-stripe-sdk": "info"
   }
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `failOn` | `string` | Severity threshold: `critical`, `error`, `warning`, `info` |
-| `targetSdkMinimum` | `number` | Minimum required targetSdkVersion (default: 35) |
-| `maxDownloadSizeMb` | `number` | Download size warning threshold in MB (default: 150) |
-| `allowedPermissions` | `string[]` | Permissions to skip (e.g., approved via declaration form) |
-| `disabledRules` | `string[]` | Rule IDs to suppress entirely |
-| `severityOverrides` | `object` | Override severity for specific rule IDs |
+| Field                | Type       | Description                                                |
+| -------------------- | ---------- | ---------------------------------------------------------- |
+| `failOn`             | `string`   | Severity threshold: `critical`, `error`, `warning`, `info` |
+| `targetSdkMinimum`   | `number`   | Minimum required targetSdkVersion (default: 35)            |
+| `maxDownloadSizeMb`  | `number`   | Download size warning threshold in MB (default: 150)       |
+| `allowedPermissions` | `string[]` | Permissions to skip (e.g., approved via declaration form)  |
+| `disabledRules`      | `string[]` | Rule IDs to suppress entirely                              |
+| `severityOverrides`  | `object`   | Override severity for specific rule IDs                    |
 
 ## CI/CD Integration
 

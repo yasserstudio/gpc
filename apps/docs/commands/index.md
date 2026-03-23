@@ -78,26 +78,26 @@ gpc bundle analyze app.aab --threshold 150
 
 ### Compliance & Recovery
 
-| Command                                            | Description                                          |
-| -------------------------------------------------- | ---------------------------------------------------- |
-| [`preflight`](./preflight)                         | Offline AAB compliance scanner (9 scanners, CI-ready)|
-| [`data-safety`](./data-safety)                     | Data safety declarations                             |
-| [`recovery`](./recovery)                           | App recovery actions                                 |
-| [`external-transactions`](./external-transactions) | External transactions (alternative billing)          |
+| Command                                            | Description                                           |
+| -------------------------------------------------- | ----------------------------------------------------- |
+| [`preflight`](./preflight)                         | Offline AAB compliance scanner (9 scanners, CI-ready) |
+| [`data-safety`](./data-safety)                     | Data safety declarations                              |
+| [`recovery`](./recovery)                           | App recovery actions                                  |
+| [`external-transactions`](./external-transactions) | External transactions (alternative billing)           |
 
 ### System
 
-| Command                                       | Description                                   |
-| --------------------------------------------- | --------------------------------------------- |
-| [`auth`](./auth)                              | Authentication and profiles                   |
-| [`apps`](./apps)                              | App info and configuration                    |
-| [`config`](./config)                          | CLI configuration                             |
-| [`plugins`](./plugins)                        | Plugin management                             |
-| [`migrate`](./migrate)                        | Migrate from Fastlane to GPC                  |
-| [`doctor` / `docs` / `completion`](./utility) | Diagnostics, documentation, shell completions |
-| [`install-skills`](./install-skills)          | Install AI agent skills for GPC workflows     |
+| Command                                       | Description                                     |
+| --------------------------------------------- | ----------------------------------------------- |
+| [`auth`](./auth)                              | Authentication and profiles                     |
+| [`apps`](./apps)                              | App info and configuration                      |
+| [`config`](./config)                          | CLI configuration                               |
+| [`plugins`](./plugins)                        | Plugin management                               |
+| [`migrate`](./migrate)                        | Migrate from Fastlane to GPC                    |
+| [`doctor` / `docs` / `completion`](./utility) | Diagnostics, documentation, shell completions   |
+| [`install-skills`](./install-skills)          | Install AI agent skills for GPC workflows       |
 | [`init`](#)                                   | Scaffold project config, metadata, CI templates |
-| [`diff`](#)                                   | Preview release state and pending changes      |
+| [`diff`](#)                                   | Preview release state and pending changes       |
 
 ## Global Flags
 

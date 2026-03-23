@@ -44,11 +44,13 @@ function buildXmlSchema(): protobuf.Root {
     .add(new protobuf.Field("columnNumber", 2, "uint32"));
 
   // Primitive item — used for compiled attribute values
-  const Primitive = new protobuf.Type("Primitive")
-    .add(new protobuf.OneOf("oneofValue").add(new protobuf.Field("intDecimalValue", 6, "int32"))
+  const Primitive = new protobuf.Type("Primitive").add(
+    new protobuf.OneOf("oneofValue")
+      .add(new protobuf.Field("intDecimalValue", 6, "int32"))
       .add(new protobuf.Field("intHexadecimalValue", 7, "uint32"))
       .add(new protobuf.Field("booleanValue", 8, "bool"))
-      .add(new protobuf.Field("floatValue", 11, "float")));
+      .add(new protobuf.Field("floatValue", 11, "float")),
+  );
 
   // Reference — points to another resource
   const Reference = new protobuf.Type("Reference")
@@ -56,14 +58,14 @@ function buildXmlSchema(): protobuf.Root {
     .add(new protobuf.Field("name", 2, "string"));
 
   // Item — compiled value of an attribute
-  const Item = new protobuf.Type("Item")
-    .add(new protobuf.OneOf("value")
+  const Item = new protobuf.Type("Item").add(
+    new protobuf.OneOf("value")
       .add(new protobuf.Field("ref", 1, "Reference"))
       .add(new protobuf.Field("str", 2, "String"))
-      .add(new protobuf.Field("prim", 4, "Primitive")));
+      .add(new protobuf.Field("prim", 4, "Primitive")),
+  );
 
-  const StringMsg = new protobuf.Type("String")
-    .add(new protobuf.Field("value", 1, "string"));
+  const StringMsg = new protobuf.Type("String").add(new protobuf.Field("value", 1, "string"));
 
   // XmlAttribute
   const XmlAttribute = new protobuf.Type("XmlAttribute")
@@ -90,9 +92,11 @@ function buildXmlSchema(): protobuf.Root {
 
   // XmlNode
   const XmlNode = new protobuf.Type("XmlNode")
-    .add(new protobuf.OneOf("node")
-      .add(new protobuf.Field("element", 1, "XmlElement"))
-      .add(new protobuf.Field("text", 2, "string")))
+    .add(
+      new protobuf.OneOf("node")
+        .add(new protobuf.Field("element", 1, "XmlElement"))
+        .add(new protobuf.Field("text", 2, "string")),
+    )
     .add(new protobuf.Field("source", 3, "Source"));
 
   ns.add(Position);
@@ -120,7 +124,11 @@ interface XmlAttr {
   name: string;
   value: string;
   resourceId: number;
-  compiledItem?: { prim?: { intDecimalValue?: number; intHexadecimalValue?: number; booleanValue?: boolean }; str?: { value?: string }; ref?: { id?: number; name?: string } };
+  compiledItem?: {
+    prim?: { intDecimalValue?: number; intHexadecimalValue?: number; booleanValue?: boolean };
+    str?: { value?: string };
+    ref?: { id?: number; name?: string };
+  };
 }
 
 interface XmlElem {
@@ -254,8 +262,10 @@ function extractComponents(appElement: XmlElem, tagName: string): ManifestCompon
 
     return {
       name: getAttrValue(compAttrs, 0x01010003) || "",
-      exported: exportedVal === undefined ? undefined : exportedVal === "true" || exportedVal === "1",
-      foregroundServiceType: tagName === "service" ? getAttrValue(compAttrs, 0x010104d1) : undefined,
+      exported:
+        exportedVal === undefined ? undefined : exportedVal === "true" || exportedVal === "1",
+      foregroundServiceType:
+        tagName === "service" ? getAttrValue(compAttrs, 0x010104d1) : undefined,
       hasIntentFilter,
     };
   });

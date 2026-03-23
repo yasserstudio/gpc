@@ -74,7 +74,13 @@ export async function initProject(options: InitOptions): Promise<InitResult> {
     null,
     2,
   );
-  await safeWrite(join(dir, ".preflightrc.json"), preflightrc + "\n", created, skipped, skipExisting);
+  await safeWrite(
+    join(dir, ".preflightrc.json"),
+    preflightrc + "\n",
+    created,
+    skipped,
+    skipExisting,
+  );
 
   // metadata/android/en-US/ listing files
   const metaDir = join(dir, "metadata", "android", "en-US");

@@ -25,13 +25,17 @@ export const sizeScanner: PreflightScanner = {
         severity: "warning",
         title: `Download size exceeds ${maxMb} MB`,
         message: `Compressed size is ${compressedMb.toFixed(1)} MB. Downloads over ${maxMb} MB show a mobile data warning to users, which reduces install rates.`,
-        suggestion: "Use Android App Bundles for split APKs, remove unused resources, enable R8/ProGuard, and compress assets.",
+        suggestion:
+          "Use Android App Bundles for split APKs, remove unused resources, enable R8/ProGuard, and compress assets.",
         policyUrl: "https://developer.android.com/topic/performance/reduce-apk-size",
       });
     }
 
     // Per-category breakdown
-    const categories = new Map<string, { compressed: number; uncompressed: number; count: number }>();
+    const categories = new Map<
+      string,
+      { compressed: number; uncompressed: number; count: number }
+    >();
     for (const entry of entries) {
       const cat = detectCategory(entry.path);
       const existing = categories.get(cat) ?? { compressed: 0, uncompressed: 0, count: 0 };
@@ -50,7 +54,8 @@ export const sizeScanner: PreflightScanner = {
         severity: "warning",
         title: "Large native libraries",
         message: `Native libraries are ${(nativeLibs.compressed / (1024 * 1024)).toFixed(1)} MB (compressed). This is the largest contributor to download size.`,
-        suggestion: "Review which native libraries are bundled. Consider using dynamic feature modules for optional native code.",
+        suggestion:
+          "Review which native libraries are bundled. Consider using dynamic feature modules for optional native code.",
       });
     }
 
@@ -63,7 +68,8 @@ export const sizeScanner: PreflightScanner = {
         severity: "info",
         title: "Large assets directory",
         message: `Assets are ${(assets.compressed / (1024 * 1024)).toFixed(1)} MB (compressed). Consider using Play Asset Delivery for large assets.`,
-        suggestion: "Move large assets to Play Asset Delivery (install-time, fast-follow, or on-demand packs).",
+        suggestion:
+          "Move large assets to Play Asset Delivery (install-time, fast-follow, or on-demand packs).",
         policyUrl: "https://developer.android.com/guide/playcore/asset-delivery",
       });
     }
@@ -90,7 +96,8 @@ function detectCategory(path: string): string {
   const lower = path.toLowerCase();
   if (lower.endsWith(".dex") || /\/dex\//.test(lower)) return "dex";
   if (/\/lib\/[^/]+\/[^/]+\.so$/.test(lower)) return "native-libs";
-  if (/\/res\//.test(lower) || lower.endsWith("/resources.pb") || lower.endsWith("/resources.arsc")) return "resources";
+  if (/\/res\//.test(lower) || lower.endsWith("/resources.pb") || lower.endsWith("/resources.arsc"))
+    return "resources";
   if (/\/assets\//.test(lower)) return "assets";
   if (lower.includes("androidmanifest.xml") || /\/manifest\//.test(lower)) return "manifest";
   if (lower.startsWith("meta-inf/")) return "signing";

@@ -22,18 +22,24 @@ describe("billingScanner", () => {
   });
 
   it("returns no findings for clean code", async () => {
-    await writeFile(join(tmpDir, "App.kt"), `
+    await writeFile(
+      join(tmpDir, "App.kt"),
+      `
       import com.android.billingclient.api.BillingClient
       class App { }
-    `);
+    `,
+    );
     const findings = await billingScanner.scan(makeCtx(tmpDir));
     expect(findings).toEqual([]);
   });
 
   it("detects Stripe SDK in Kotlin", async () => {
-    await writeFile(join(tmpDir, "Payment.kt"), `
+    await writeFile(
+      join(tmpDir, "Payment.kt"),
+      `
       import com.stripe.android.PaymentConfiguration
-    `);
+    `,
+    );
     const findings = await billingScanner.scan(makeCtx(tmpDir));
     const f = findings.find((f) => f.ruleId === "billing-stripe-sdk");
     expect(f).toBeDefined();
@@ -41,25 +47,34 @@ describe("billingScanner", () => {
   });
 
   it("detects Stripe SDK in package.json", async () => {
-    await writeFile(join(tmpDir, "package.json"), `{
+    await writeFile(
+      join(tmpDir, "package.json"),
+      `{
       "dependencies": { "@stripe/stripe-react-native": "^1.0.0" }
-    }`);
+    }`,
+    );
     const findings = await billingScanner.scan(makeCtx(tmpDir));
     expect(findings.some((f) => f.ruleId === "billing-stripe-sdk")).toBe(true);
   });
 
   it("detects Braintree SDK", async () => {
-    await writeFile(join(tmpDir, "build.gradle"), `
+    await writeFile(
+      join(tmpDir, "build.gradle"),
+      `
       implementation 'com.braintreepayments.api:card:4.0.0'
-    `);
+    `,
+    );
     const findings = await billingScanner.scan(makeCtx(tmpDir));
     expect(findings.some((f) => f.ruleId === "billing-braintree-sdk")).toBe(true);
   });
 
   it("detects PayPal SDK", async () => {
-    await writeFile(join(tmpDir, "build.gradle"), `
+    await writeFile(
+      join(tmpDir, "build.gradle"),
+      `
       implementation 'com.paypal.checkout:android-sdk:1.0.0'
-    `);
+    `,
+    );
     const findings = await billingScanner.scan(makeCtx(tmpDir));
     expect(findings.some((f) => f.ruleId === "billing-paypal-sdk")).toBe(true);
   });

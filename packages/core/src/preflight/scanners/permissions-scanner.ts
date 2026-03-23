@@ -1,6 +1,11 @@
 // Named exports only. No default export.
 
-import type { PreflightScanner, PreflightContext, PreflightFinding, FindingSeverity } from "../types.js";
+import type {
+  PreflightScanner,
+  PreflightContext,
+  PreflightFinding,
+  FindingSeverity,
+} from "../types.js";
 
 interface RestrictedPermission {
   permission: string;
@@ -17,8 +22,10 @@ const RESTRICTED_PERMISSIONS: RestrictedPermission[] = [
     permission: "android.permission.READ_SMS",
     severity: "critical",
     title: "READ_SMS requires declaration form",
-    message: "READ_SMS is restricted to default SMS/phone/assistant handler apps. Google Play requires a Permissions Declaration Form and may reject apps using this permission without approval.",
-    suggestion: "Remove READ_SMS unless your app is a default SMS handler. Use the SMS Retriever API or one-tap SMS consent for OTP verification.",
+    message:
+      "READ_SMS is restricted to default SMS/phone/assistant handler apps. Google Play requires a Permissions Declaration Form and may reject apps using this permission without approval.",
+    suggestion:
+      "Remove READ_SMS unless your app is a default SMS handler. Use the SMS Retriever API or one-tap SMS consent for OTP verification.",
     policyUrl: "https://support.google.com/googleplay/android-developer/answer/10208820",
   },
   {
@@ -83,8 +90,10 @@ const RESTRICTED_PERMISSIONS: RestrictedPermission[] = [
     permission: "android.permission.QUERY_ALL_PACKAGES",
     severity: "error",
     title: "QUERY_ALL_PACKAGES requires justification",
-    message: "QUERY_ALL_PACKAGES grants broad package visibility. Google Play requires justification and may reject apps using this without approval.",
-    suggestion: "Replace with targeted <queries> elements in your manifest to declare specific packages you need to interact with.",
+    message:
+      "QUERY_ALL_PACKAGES grants broad package visibility. Google Play requires justification and may reject apps using this without approval.",
+    suggestion:
+      "Replace with targeted <queries> elements in your manifest to declare specific packages you need to interact with.",
     policyUrl: "https://support.google.com/googleplay/android-developer/answer/10158779",
   },
   // All files access
@@ -92,8 +101,10 @@ const RESTRICTED_PERMISSIONS: RestrictedPermission[] = [
     permission: "android.permission.MANAGE_EXTERNAL_STORAGE",
     severity: "error",
     title: "MANAGE_EXTERNAL_STORAGE (All Files Access) requires declaration form",
-    message: "All Files Access is restricted to file managers, backup apps, antivirus, and document management apps.",
-    suggestion: "Use scoped storage APIs or the Storage Access Framework (SAF) instead. Only use MANAGE_EXTERNAL_STORAGE if your app's core functionality requires broad file access.",
+    message:
+      "All Files Access is restricted to file managers, backup apps, antivirus, and document management apps.",
+    suggestion:
+      "Use scoped storage APIs or the Storage Access Framework (SAF) instead. Only use MANAGE_EXTERNAL_STORAGE if your app's core functionality requires broad file access.",
     policyUrl: "https://support.google.com/googleplay/android-developer/answer/10467955",
   },
   // Background location
@@ -101,8 +112,10 @@ const RESTRICTED_PERMISSIONS: RestrictedPermission[] = [
     permission: "android.permission.ACCESS_BACKGROUND_LOCATION",
     severity: "error",
     title: "ACCESS_BACKGROUND_LOCATION requires declaration and review",
-    message: "Background location access requires a Permissions Declaration Form, privacy policy, and video demonstration. Extended review times apply.",
-    suggestion: "Use foreground location with a foreground service instead. Only use background location if it is essential to your app's core functionality.",
+    message:
+      "Background location access requires a Permissions Declaration Form, privacy policy, and video demonstration. Extended review times apply.",
+    suggestion:
+      "Use foreground location with a foreground service instead. Only use background location if it is essential to your app's core functionality.",
     policyUrl: "https://support.google.com/googleplay/android-developer/answer/9799150",
   },
   // Photo/video permissions (May 2025 enforcement)
@@ -110,16 +123,20 @@ const RESTRICTED_PERMISSIONS: RestrictedPermission[] = [
     permission: "android.permission.READ_MEDIA_IMAGES",
     severity: "error",
     title: "READ_MEDIA_IMAGES requires declaration or photo picker",
-    message: "Photo/Video Permissions policy requires either an approved declaration form or use of the Android photo picker for one-time image access.",
-    suggestion: "Use the Android photo picker (ACTION_PICK_IMAGES) for profile pictures and one-time use. Only declare READ_MEDIA_IMAGES if your app's core functionality requires broad gallery access.",
+    message:
+      "Photo/Video Permissions policy requires either an approved declaration form or use of the Android photo picker for one-time image access.",
+    suggestion:
+      "Use the Android photo picker (ACTION_PICK_IMAGES) for profile pictures and one-time use. Only declare READ_MEDIA_IMAGES if your app's core functionality requires broad gallery access.",
     policyUrl: "https://support.google.com/googleplay/android-developer/answer/14115180",
   },
   {
     permission: "android.permission.READ_MEDIA_VIDEO",
     severity: "error",
     title: "READ_MEDIA_VIDEO requires declaration or photo picker",
-    message: "Photo/Video Permissions policy requires either an approved declaration form or use of the Android photo picker for one-time video access.",
-    suggestion: "Use the Android photo picker for one-time video selection. Only declare READ_MEDIA_VIDEO if your app's core functionality requires broad video access.",
+    message:
+      "Photo/Video Permissions policy requires either an approved declaration form or use of the Android photo picker for one-time video access.",
+    suggestion:
+      "Use the Android photo picker for one-time video selection. Only declare READ_MEDIA_VIDEO if your app's core functionality requires broad video access.",
     policyUrl: "https://support.google.com/googleplay/android-developer/answer/14115180",
   },
   // Install packages
@@ -127,8 +144,10 @@ const RESTRICTED_PERMISSIONS: RestrictedPermission[] = [
     permission: "android.permission.REQUEST_INSTALL_PACKAGES",
     severity: "error",
     title: "REQUEST_INSTALL_PACKAGES requires justification",
-    message: "REQUEST_INSTALL_PACKAGES is restricted to apps whose core purpose is installing other packages.",
-    suggestion: "Remove REQUEST_INSTALL_PACKAGES unless your app is an app store, package manager, or OTA updater.",
+    message:
+      "REQUEST_INSTALL_PACKAGES is restricted to apps whose core purpose is installing other packages.",
+    suggestion:
+      "Remove REQUEST_INSTALL_PACKAGES unless your app is an app store, package manager, or OTA updater.",
     policyUrl: "https://support.google.com/googleplay/android-developer/answer/12085295",
   },
   // Exact alarm
@@ -136,8 +155,10 @@ const RESTRICTED_PERMISSIONS: RestrictedPermission[] = [
     permission: "android.permission.USE_EXACT_ALARM",
     severity: "warning",
     title: "USE_EXACT_ALARM is restricted",
-    message: "USE_EXACT_ALARM is only for alarm, timer, and calendar apps. Google Play may reject apps using this without justification.",
-    suggestion: "Use SCHEDULE_EXACT_ALARM instead if possible, or remove exact alarm usage if your app does not need precise timing.",
+    message:
+      "USE_EXACT_ALARM is only for alarm, timer, and calendar apps. Google Play may reject apps using this without justification.",
+    suggestion:
+      "Use SCHEDULE_EXACT_ALARM instead if possible, or remove exact alarm usage if your app does not need precise timing.",
     policyUrl: "https://developer.android.com/about/versions/14/changes/schedule-exact-alarms",
   },
   // Full-screen intent
@@ -145,7 +166,8 @@ const RESTRICTED_PERMISSIONS: RestrictedPermission[] = [
     permission: "android.permission.USE_FULL_SCREEN_INTENT",
     severity: "warning",
     title: "USE_FULL_SCREEN_INTENT requires declaration",
-    message: "Full-screen intents are restricted to alarm and calling apps on Android 14+. A declaration form is required.",
+    message:
+      "Full-screen intents are restricted to alarm and calling apps on Android 14+. A declaration form is required.",
     suggestion: "Remove USE_FULL_SCREEN_INTENT unless your app is an alarm clock or calling app.",
     policyUrl: "https://support.google.com/googleplay/android-developer/answer/13392821",
   },
@@ -154,8 +176,10 @@ const RESTRICTED_PERMISSIONS: RestrictedPermission[] = [
     permission: "android.permission.BIND_ACCESSIBILITY_SERVICE",
     severity: "error",
     title: "BIND_ACCESSIBILITY_SERVICE requires declaration and justification",
-    message: "Accessibility services must support users with disabilities. A declaration form and detailed justification are required.",
-    suggestion: "Only use BIND_ACCESSIBILITY_SERVICE if your app genuinely assists users with disabilities. Misuse leads to rejection.",
+    message:
+      "Accessibility services must support users with disabilities. A declaration form and detailed justification are required.",
+    suggestion:
+      "Only use BIND_ACCESSIBILITY_SERVICE if your app genuinely assists users with disabilities. Misuse leads to rejection.",
     policyUrl: "https://support.google.com/googleplay/android-developer/answer/10964491",
   },
   // VPN
@@ -163,7 +187,8 @@ const RESTRICTED_PERMISSIONS: RestrictedPermission[] = [
     permission: "android.permission.BIND_VPN_SERVICE",
     severity: "error",
     title: "BIND_VPN_SERVICE is restricted to VPN apps",
-    message: "BIND_VPN_SERVICE is only for apps whose core functionality is providing VPN services.",
+    message:
+      "BIND_VPN_SERVICE is only for apps whose core functionality is providing VPN services.",
     suggestion: "Remove BIND_VPN_SERVICE unless your app is a VPN provider.",
     policyUrl: "https://support.google.com/googleplay/android-developer/answer/9888170",
   },
@@ -225,7 +250,8 @@ export const permissionsScanner: PreflightScanner = {
         severity: "info",
         title: "Data Safety declaration reminder",
         message: `Your app declares permissions that imply collecting: ${collectedData.join(", ")}. Ensure your Data Safety form in Play Console accurately reflects this data collection.`,
-        suggestion: "Review your Data Safety declaration at Play Console > Policy > App content > Data safety.",
+        suggestion:
+          "Review your Data Safety declaration at Play Console > Policy > App content > Data safety.",
         policyUrl: "https://support.google.com/googleplay/android-developer/answer/10787469",
       });
     }

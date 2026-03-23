@@ -100,10 +100,13 @@ describe("runPreflight orchestrator", () => {
 
   it("loads config from .preflightrc.json", async () => {
     const configPath = join(tmpDir, ".preflightrc.json");
-    await writeFile(configPath, JSON.stringify({
-      targetSdkMinimum: 34,
-      disabledRules: ["cleartext-traffic"],
-    }));
+    await writeFile(
+      configPath,
+      JSON.stringify({
+        targetSdkMinimum: 34,
+        disabledRules: ["cleartext-traffic"],
+      }),
+    );
 
     mockedReadAab.mockResolvedValue({
       manifest: cleanManifest({ targetSdk: 34, usesCleartextTraffic: true }),
@@ -123,9 +126,12 @@ describe("runPreflight orchestrator", () => {
 
   it("applies severity overrides from config", async () => {
     const configPath = join(tmpDir, ".preflightrc.json");
-    await writeFile(configPath, JSON.stringify({
-      severityOverrides: { "targetSdk-below-minimum": "warning" },
-    }));
+    await writeFile(
+      configPath,
+      JSON.stringify({
+        severityOverrides: { "targetSdk-below-minimum": "warning" },
+      }),
+    );
 
     mockedReadAab.mockResolvedValue({
       manifest: cleanManifest({ targetSdk: 33 }),

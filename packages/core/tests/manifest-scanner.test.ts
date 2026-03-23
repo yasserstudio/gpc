@@ -24,7 +24,10 @@ function makeManifest(overrides: Partial<ParsedManifest> = {}): ParsedManifest {
   };
 }
 
-function makeCtx(manifest: ParsedManifest, configOverrides: Partial<typeof DEFAULT_PREFLIGHT_CONFIG> = {}): PreflightContext {
+function makeCtx(
+  manifest: ParsedManifest,
+  configOverrides: Partial<typeof DEFAULT_PREFLIGHT_CONFIG> = {},
+): PreflightContext {
   return {
     manifest,
     config: { ...DEFAULT_PREFLIGHT_CONFIG, ...configOverrides },
@@ -89,23 +92,24 @@ describe("manifestScanner", () => {
 
   it("does not flag cleartext traffic on API < 28", async () => {
     const findings = await manifestScanner.scan(
-      makeCtx(
-        makeManifest({ usesCleartextTraffic: true, targetSdk: 27 }),
-        { targetSdkMinimum: 27 },
-      ),
+      makeCtx(makeManifest({ usesCleartextTraffic: true, targetSdk: 27 }), {
+        targetSdkMinimum: 27,
+      }),
     );
     expect(findings.find((f) => f.ruleId === "cleartext-traffic")).toBeUndefined();
   });
 
   it("flags missing exported on components with intent filters (API 31+)", async () => {
     const findings = await manifestScanner.scan(
-      makeCtx(makeManifest({
-        targetSdk: 35,
-        activities: [
-          { name: ".MainActivity", exported: undefined, hasIntentFilter: true },
-          { name: ".OtherActivity", exported: true, hasIntentFilter: true },
-        ],
-      })),
+      makeCtx(
+        makeManifest({
+          targetSdk: 35,
+          activities: [
+            { name: ".MainActivity", exported: undefined, hasIntentFilter: true },
+            { name: ".OtherActivity", exported: true, hasIntentFilter: true },
+          ],
+        }),
+      ),
     );
     const f = findings.filter((f) => f.ruleId === "missing-exported");
     expect(f).toHaveLength(1);
@@ -114,23 +118,27 @@ describe("manifestScanner", () => {
 
   it("does not flag missing exported without intent filters", async () => {
     const findings = await manifestScanner.scan(
-      makeCtx(makeManifest({
-        targetSdk: 35,
-        activities: [{ name: ".InternalActivity", exported: undefined, hasIntentFilter: false }],
-      })),
+      makeCtx(
+        makeManifest({
+          targetSdk: 35,
+          activities: [{ name: ".InternalActivity", exported: undefined, hasIntentFilter: false }],
+        }),
+      ),
     );
     expect(findings.find((f) => f.ruleId === "missing-exported")).toBeUndefined();
   });
 
   it("flags missing foregroundServiceType on API 34+", async () => {
     const findings = await manifestScanner.scan(
-      makeCtx(makeManifest({
-        targetSdk: 35,
-        permissions: ["android.permission.FOREGROUND_SERVICE"],
-        services: [
-          { name: ".MyService", hasIntentFilter: false, foregroundServiceType: undefined },
-        ],
-      })),
+      makeCtx(
+        makeManifest({
+          targetSdk: 35,
+          permissions: ["android.permission.FOREGROUND_SERVICE"],
+          services: [
+            { name: ".MyService", hasIntentFilter: false, foregroundServiceType: undefined },
+          ],
+        }),
+      ),
     );
     const f = findings.find((f) => f.ruleId === "foreground-service-type-missing");
     expect(f).toBeDefined();
@@ -139,13 +147,15 @@ describe("manifestScanner", () => {
 
   it("does not flag foregroundServiceType when declared", async () => {
     const findings = await manifestScanner.scan(
-      makeCtx(makeManifest({
-        targetSdk: 35,
-        permissions: ["android.permission.FOREGROUND_SERVICE"],
-        services: [
-          { name: ".MyService", hasIntentFilter: false, foregroundServiceType: "location" },
-        ],
-      })),
+      makeCtx(
+        makeManifest({
+          targetSdk: 35,
+          permissions: ["android.permission.FOREGROUND_SERVICE"],
+          services: [
+            { name: ".MyService", hasIntentFilter: false, foregroundServiceType: "location" },
+          ],
+        }),
+      ),
     );
     expect(findings.find((f) => f.ruleId === "foreground-service-type-missing")).toBeUndefined();
   });

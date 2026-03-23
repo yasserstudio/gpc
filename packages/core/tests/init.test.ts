@@ -105,7 +105,9 @@ describe("initProject", () => {
 
   it("does not generate CI template when ci is undefined", async () => {
     const result = await initProject({ dir: tmpDir });
-    expect(result.created.every((f) => !f.includes("workflow") && !f.includes("gitlab"))).toBe(true);
+    expect(result.created.every((f) => !f.includes("workflow") && !f.includes("gitlab"))).toBe(
+      true,
+    );
   });
 
   it("returns correct counts", async () => {

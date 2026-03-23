@@ -4,13 +4,8 @@ import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
-import {
-  getReleasesStatus,
-  diffReleases,
-  diffListingsCommand,
-  formatOutput,
-} from "@gpc-cli/core";
-import type { ReleaseStatusResult, ReleaseDiff } from "@gpc-cli/core";
+import { getReleasesStatus, diffReleases, diffListingsCommand, formatOutput } from "@gpc-cli/core";
+import type { ReleaseDiff } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { green, red, yellow, dim, bold } from "../colors.js";
 
@@ -74,14 +69,15 @@ export function registerDiffCommand(program: Command): void {
           console.log(dim("  No releases found"));
         } else {
           for (const r of releases) {
-            const statusColor = r.status === "completed" ? green
-              : r.status === "inProgress" ? yellow
-              : dim;
+            const statusColor =
+              r.status === "completed" ? green : r.status === "inProgress" ? yellow : dim;
             const fraction = r.userFraction
               ? ` ${yellow(`${Math.round(r.userFraction * 100)}%`)}`
               : "";
             const versions = r.versionCodes.join(", ");
-            console.log(`  ${r.track.padEnd(14)} ${statusColor(r.status.padEnd(12))} v${versions}${fraction}`);
+            console.log(
+              `  ${r.track.padEnd(14)} ${statusColor(r.status.padEnd(12))} v${versions}${fraction}`,
+            );
           }
         }
         console.log("");
@@ -93,7 +89,9 @@ export function registerDiffCommand(program: Command): void {
             console.log(dim("  No differences"));
           } else {
             for (const d of trackDiff) {
-              console.log(`  ${d.field.padEnd(16)} ${red(d.track1Value || "(empty)")} → ${green(d.track2Value || "(empty)")}`);
+              console.log(
+                `  ${d.field.padEnd(16)} ${red(d.track1Value || "(empty)")} → ${green(d.track2Value || "(empty)")}`,
+              );
             }
           }
           console.log("");
@@ -105,16 +103,18 @@ export function registerDiffCommand(program: Command): void {
           if (metadataDiff.length === 0) {
             console.log(dim("  No differences — local matches remote"));
           } else {
-            for (const d of metadataDiff as Array<{ language: string; field: string; status: string }>) {
-              const icon = d.status === "added" ? green("+")
-                : d.status === "removed" ? red("-")
-                : yellow("~");
+            for (const d of metadataDiff as Array<{
+              language: string;
+              field: string;
+              status: string;
+            }>) {
+              const icon =
+                d.status === "added" ? green("+") : d.status === "removed" ? red("-") : yellow("~");
               console.log(`  ${icon} ${d.language}/${d.field}: ${d.status}`);
             }
           }
           console.log("");
         }
-
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

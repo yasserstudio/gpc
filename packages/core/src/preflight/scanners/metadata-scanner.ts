@@ -27,7 +27,8 @@ const RECOMMENDED_PHONE_SCREENSHOTS = 4;
 
 export const metadataScanner: PreflightScanner = {
   name: "metadata",
-  description: "Checks store listing metadata for character limits, required fields, and screenshots",
+  description:
+    "Checks store listing metadata for character limits, required fields, and screenshots",
   requires: ["metadataDir"],
 
   async scan(ctx: PreflightContext): Promise<PreflightFinding[]> {
@@ -44,7 +45,8 @@ export const metadataScanner: PreflightScanner = {
         severity: "error",
         title: "Metadata directory not found",
         message: `Cannot read metadata directory: ${dir}`,
-        suggestion: "Check the path to your metadata directory. Expected Fastlane format: <dir>/<lang>/title.txt, short_description.txt, etc.",
+        suggestion:
+          "Check the path to your metadata directory. Expected Fastlane format: <dir>/<lang>/title.txt, short_description.txt, etc.",
       });
       return findings;
     }
@@ -122,9 +124,7 @@ export const metadataScanner: PreflightScanner = {
         const ssPath = join(langDir, "images", ssDir);
         try {
           const ssEntries = await readdir(ssPath);
-          const imageFiles = ssEntries.filter((f) =>
-            /\.(png|jpe?g|webp)$/i.test(f),
-          );
+          const imageFiles = ssEntries.filter((f) => /\.(png|jpe?g|webp)$/i.test(f));
           totalScreenshots += imageFiles.length;
           if (ssDir === "phoneScreenshots") {
             phoneScreenshots = imageFiles.length;
@@ -167,7 +167,8 @@ export const metadataScanner: PreflightScanner = {
         ruleId: "listing-no-privacy-policy",
         severity: "warning",
         title: "No privacy policy URL",
-        message: "No privacy_policy_url.txt found in metadata. A privacy policy is required for most apps on Google Play.",
+        message:
+          "No privacy_policy_url.txt found in metadata. A privacy policy is required for most apps on Google Play.",
         suggestion: `Create ${defaultLang}/privacy_policy_url.txt with a link to your privacy policy.`,
         policyUrl: "https://support.google.com/googleplay/android-developer/answer/9859455",
       });

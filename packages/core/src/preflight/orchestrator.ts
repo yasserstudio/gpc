@@ -83,9 +83,7 @@ export async function runPreflight(options: PreflightOptions): Promise<Preflight
   });
 
   // Run all applicable scanners in parallel — use allSettled so one failure doesn't stop others
-  const settled = await Promise.allSettled(
-    applicableScanners.map((scanner) => scanner.scan(ctx)),
-  );
+  const settled = await Promise.allSettled(applicableScanners.map((scanner) => scanner.scan(ctx)));
 
   // Flatten findings, report scanner failures as error findings
   let findings: PreflightFinding[] = [];

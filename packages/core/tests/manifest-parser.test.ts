@@ -6,19 +6,21 @@ import { decodeManifest } from "../src/preflight/manifest-parser";
  * Build a minimal protobuf-encoded AndroidManifest.xml for testing.
  * This creates the same protobuf structure that the AAPT2 toolchain produces.
  */
-function buildTestManifest(opts: {
-  packageName?: string;
-  versionCode?: number;
-  versionName?: string;
-  minSdk?: number;
-  targetSdk?: number;
-  debuggable?: boolean;
-  testOnly?: boolean;
-  usesCleartextTraffic?: boolean;
-  permissions?: string[];
-  activities?: Array<{ name: string; exported?: boolean; hasIntentFilter?: boolean }>;
-  services?: Array<{ name: string; foregroundServiceType?: string }>;
-} = {}): Buffer {
+function buildTestManifest(
+  opts: {
+    packageName?: string;
+    versionCode?: number;
+    versionName?: string;
+    minSdk?: number;
+    targetSdk?: number;
+    debuggable?: boolean;
+    testOnly?: boolean;
+    usesCleartextTraffic?: boolean;
+    permissions?: string[];
+    activities?: Array<{ name: string; exported?: boolean; hasIntentFilter?: boolean }>;
+    services?: Array<{ name: string; foregroundServiceType?: string }>;
+  } = {},
+): Buffer {
   const root = new protobuf.Root();
   const ns = root.define("aapt.pb");
 
@@ -28,22 +30,23 @@ function buildTestManifest(opts: {
   const Source = new protobuf.Type("Source")
     .add(new protobuf.Field("pathIdx", 1, "uint32"))
     .add(new protobuf.Field("position", 2, "Position"));
-  const Primitive = new protobuf.Type("Primitive")
-    .add(new protobuf.OneOf("oneofValue")
+  const Primitive = new protobuf.Type("Primitive").add(
+    new protobuf.OneOf("oneofValue")
       .add(new protobuf.Field("intDecimalValue", 6, "int32"))
       .add(new protobuf.Field("intHexadecimalValue", 7, "uint32"))
       .add(new protobuf.Field("booleanValue", 8, "bool"))
-      .add(new protobuf.Field("floatValue", 11, "float")));
+      .add(new protobuf.Field("floatValue", 11, "float")),
+  );
   const Reference = new protobuf.Type("Reference")
     .add(new protobuf.Field("id", 1, "uint32"))
     .add(new protobuf.Field("name", 2, "string"));
-  const StringMsg = new protobuf.Type("String")
-    .add(new protobuf.Field("value", 1, "string"));
-  const Item = new protobuf.Type("Item")
-    .add(new protobuf.OneOf("value")
+  const StringMsg = new protobuf.Type("String").add(new protobuf.Field("value", 1, "string"));
+  const Item = new protobuf.Type("Item").add(
+    new protobuf.OneOf("value")
       .add(new protobuf.Field("ref", 1, "Reference"))
       .add(new protobuf.Field("str", 2, "String"))
-      .add(new protobuf.Field("prim", 4, "Primitive")));
+      .add(new protobuf.Field("prim", 4, "Primitive")),
+  );
   const XmlAttribute = new protobuf.Type("XmlAttribute")
     .add(new protobuf.Field("namespaceUri", 1, "string"))
     .add(new protobuf.Field("name", 2, "string"))
@@ -62,13 +65,23 @@ function buildTestManifest(opts: {
     .add(new protobuf.Field("attribute", 4, "XmlAttribute", "repeated"))
     .add(new protobuf.Field("child", 5, "XmlNode", "repeated"));
   const XmlNode = new protobuf.Type("XmlNode")
-    .add(new protobuf.OneOf("node")
-      .add(new protobuf.Field("element", 1, "XmlElement"))
-      .add(new protobuf.Field("text", 2, "string")))
+    .add(
+      new protobuf.OneOf("node")
+        .add(new protobuf.Field("element", 1, "XmlElement"))
+        .add(new protobuf.Field("text", 2, "string")),
+    )
     .add(new protobuf.Field("source", 3, "Source"));
 
-  ns.add(Position).add(Source).add(Primitive).add(Reference).add(StringMsg)
-    .add(Item).add(XmlAttribute).add(XmlNamespace).add(XmlElement).add(XmlNode);
+  ns.add(Position)
+    .add(Source)
+    .add(Primitive)
+    .add(Reference)
+    .add(StringMsg)
+    .add(Item)
+    .add(XmlAttribute)
+    .add(XmlNamespace)
+    .add(XmlElement)
+    .add(XmlNode);
 
   function attr(name: string, resourceId: number, value: string, compiled?: object): object {
     const a: Record<string, unknown> = {
@@ -102,7 +115,12 @@ function buildTestManifest(opts: {
       name: "uses-sdk",
       attribute: [
         attr("minSdkVersion", 0x0101020c, String(opts.minSdk ?? 24), intPrim(opts.minSdk ?? 24)),
-        attr("targetSdkVersion", 0x01010270, String(opts.targetSdk ?? 35), intPrim(opts.targetSdk ?? 35)),
+        attr(
+          "targetSdkVersion",
+          0x01010270,
+          String(opts.targetSdk ?? 35),
+          intPrim(opts.targetSdk ?? 35),
+        ),
       ],
       child: [],
     },
@@ -122,19 +140,26 @@ function buildTestManifest(opts: {
   // <application>
   const appAttrs: object[] = [];
   if (opts.debuggable !== undefined) {
-    appAttrs.push(attr("debuggable", 0x0101001e, String(opts.debuggable), boolPrim(opts.debuggable)));
+    appAttrs.push(
+      attr("debuggable", 0x0101001e, String(opts.debuggable), boolPrim(opts.debuggable)),
+    );
   }
   if (opts.usesCleartextTraffic !== undefined) {
-    appAttrs.push(attr("usesCleartextTraffic", 0x010103f0, String(opts.usesCleartextTraffic), boolPrim(opts.usesCleartextTraffic)));
+    appAttrs.push(
+      attr(
+        "usesCleartextTraffic",
+        0x010103f0,
+        String(opts.usesCleartextTraffic),
+        boolPrim(opts.usesCleartextTraffic),
+      ),
+    );
   }
 
   const appChildren: object[] = [];
 
   // Activities
   for (const act of opts.activities ?? []) {
-    const actAttrs: object[] = [
-      attr("name", 0x01010003, act.name, strItem(act.name)),
-    ];
+    const actAttrs: object[] = [attr("name", 0x01010003, act.name, strItem(act.name))];
     if (act.exported !== undefined) {
       actAttrs.push(attr("exported", 0x0101002b, String(act.exported), boolPrim(act.exported)));
     }
@@ -155,11 +180,16 @@ function buildTestManifest(opts: {
 
   // Services
   for (const svc of opts.services ?? []) {
-    const svcAttrs: object[] = [
-      attr("name", 0x01010003, svc.name, strItem(svc.name)),
-    ];
+    const svcAttrs: object[] = [attr("name", 0x01010003, svc.name, strItem(svc.name))];
     if (svc.foregroundServiceType) {
-      svcAttrs.push(attr("foregroundServiceType", 0x010104d1, svc.foregroundServiceType, strItem(svc.foregroundServiceType)));
+      svcAttrs.push(
+        attr(
+          "foregroundServiceType",
+          0x010104d1,
+          svc.foregroundServiceType,
+          strItem(svc.foregroundServiceType),
+        ),
+      );
     }
     appChildren.push({
       element: { name: "service", attribute: svcAttrs, child: [] },
@@ -172,7 +202,12 @@ function buildTestManifest(opts: {
 
   // Root <manifest> node
   const manifestAttrs: object[] = [
-    { namespaceUri: "", name: "package", value: opts.packageName ?? "com.example.test", resourceId: 0 },
+    {
+      namespaceUri: "",
+      name: "package",
+      value: opts.packageName ?? "com.example.test",
+      resourceId: 0,
+    },
     attr("versionCode", 0x0101000f, String(opts.versionCode ?? 1), intPrim(opts.versionCode ?? 1)),
     attr("versionName", 0x01010010, opts.versionName ?? "1.0", strItem(opts.versionName ?? "1.0")),
   ];
@@ -302,12 +337,14 @@ describe("decodeManifest", () => {
     const XmlNamespace = new protobuf.Type("XmlNamespace")
       .add(new protobuf.Field("prefix", 1, "string"))
       .add(new protobuf.Field("uri", 2, "string"));
-    const XmlAttribute = new protobuf.Type("XmlAttribute")
-      .add(new protobuf.Field("name", 2, "string"));
-    const XmlNode = new protobuf.Type("XmlNode")
-      .add(new protobuf.OneOf("node")
+    const XmlAttribute = new protobuf.Type("XmlAttribute").add(
+      new protobuf.Field("name", 2, "string"),
+    );
+    const XmlNode = new protobuf.Type("XmlNode").add(
+      new protobuf.OneOf("node")
         .add(new protobuf.Field("element", 1, "XmlElement"))
-        .add(new protobuf.Field("text", 2, "string")));
+        .add(new protobuf.Field("text", 2, "string")),
+    );
     ns.add(XmlElement).add(XmlNamespace).add(XmlAttribute).add(XmlNode);
 
     const NodeType = root.lookupType("aapt.pb.XmlNode");

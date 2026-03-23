@@ -90,7 +90,12 @@ export function registerReleasesCommands(program: Command): void {
         process.exit(2);
       }
 
-      const noteSources = [options.notes, options.notesDir, options.notesFromGit, options.copyNotesFrom].filter(Boolean);
+      const noteSources = [
+        options.notes,
+        options.notesDir,
+        options.notesFromGit,
+        options.copyNotesFrom,
+      ].filter(Boolean);
       if (noteSources.length > 1) {
         console.error(
           "Error: Cannot combine --notes, --notes-dir, --notes-from-git, and --copy-notes-from. Use only one.",
