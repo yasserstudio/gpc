@@ -7,6 +7,22 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.39
+
+- feat: `gpc preflight` — pre-submission compliance scanner (9 scanners, offline, no external tools)
+- feat: Protobuf-based AAB manifest parser — decodes AndroidManifest.xml directly from AAB
+- feat: Manifest scanner — targetSdk, debuggable, testOnly, cleartext, missing exported, foreground service types
+- feat: Permissions scanner — 18 restricted permissions audit with policy URLs
+- feat: Native libs scanner — 64-bit ARM compliance check
+- feat: Metadata scanner — listing character limits, screenshots, privacy policy URL
+- feat: Code scanners — hardcoded secrets, non-Play billing SDKs, tracking SDKs
+- feat: Policy scanner — Families/COPPA, financial, health, UGC heuristics
+- feat: Size scanner — download size warnings, per-category breakdown
+- feat: `.preflightrc.json` configuration — custom thresholds, allowed permissions, disabled rules, severity overrides
+- feat: `--fail-on <severity>` flag for CI gating (exit code 6 on threshold breach)
+
+---
+
 ## v0.9.38
 
 - feat: Google-recommended resumable upload protocol (8 MB chunks, auto-resume, real-time progress bar)

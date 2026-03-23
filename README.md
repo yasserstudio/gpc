@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-1551_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-1677_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
@@ -115,7 +115,8 @@ GPC covers the **entire Google Play Developer API** in one CLI — that's 187 en
 | CI/CD native        | JSON + exit codes + env vars | Partial         | Gradle tasks          | No           |
 | Plugin system       | Yes                          | No              | No                    | No           |
 | Interactive mode    | Yes (guided prompts)         | No              | No                    | N/A          |
-| Test suite          | 1,566 tests, 90%+ coverage   | —               | —                     | —            |
+| Preflight scanner   | 9 offline policy scanners    | No              | No                    | No           |
+| Test suite          | 1,677 tests, 90%+ coverage   | —               | —                     | —            |
 
 Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
 
@@ -135,6 +136,21 @@ gpc releases rollout increase --track production --to 50
 gpc releases rollout halt --track production               # Emergency brake
 gpc validate app.aab --track beta                          # Pre-submission checks
 ```
+
+### Preflight compliance scanner
+
+Catch policy violations before they reach Google Play review — entirely offline, no API calls.
+
+```bash
+gpc preflight app.aab                                      # Run all 9 scanners
+gpc preflight app.aab --fail-on error --json               # CI quality gate (exit code 6)
+gpc preflight manifest app.aab                             # Manifest checks only
+gpc preflight permissions app.aab                          # Permissions audit only
+gpc preflight metadata fastlane/metadata/android           # Store listing checks
+gpc preflight codescan app/src                             # Secrets, billing, privacy
+```
+
+Checks target SDK, debuggable/testOnly flags, 64-bit compliance, 18 restricted permissions, hardcoded secrets, non-Play billing SDKs, tracking SDKs, listing character limits, app size, and more. Configure thresholds and allowed permissions in `.preflightrc.json`.
 
 ### Monitor app health
 
@@ -211,6 +227,9 @@ Drop GPC into any pipeline. JSON output, semantic exit codes (0–6), env var co
 ```yaml
 - name: Install GPC
   run: npm install -g @gpc-cli/cli
+
+- name: Preflight Compliance Check
+  run: gpc preflight app.aab --fail-on error
 
 - name: Upload to Internal Track
   env:
@@ -410,7 +429,7 @@ git clone https://github.com/yasserstudio/gpc.git
 cd gpc
 pnpm install
 pnpm build
-pnpm test    # 1,566 tests across 7 packages
+pnpm test    # 1,677 tests across 7 packages
 ```
 
 ---
