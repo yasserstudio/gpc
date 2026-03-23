@@ -135,6 +135,7 @@ gpc releases promote --from beta --to production --rollout 5
 gpc releases promote --from beta --to production --copy-notes-from beta
 gpc releases rollout increase --track production --to 50
 gpc releases rollout halt --track production               # Emergency brake
+gpc releases count                                         # Release stats per track
 gpc validate app.aab --track beta                          # Pre-submission checks
 ```
 
