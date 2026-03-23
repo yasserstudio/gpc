@@ -308,6 +308,11 @@ export function registerReleasesCommands(program: Command): void {
     .option("--notes <text>", "Release notes")
     .option("--copy-notes-from <track>", "Copy release notes from another track")
     .action(async (options) => {
+      if (options.notes && options.copyNotesFrom) {
+        console.error("Error: Cannot combine --notes and --copy-notes-from. Use only one.");
+        process.exit(2);
+      }
+
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const format = getOutputFormat(program, config);
