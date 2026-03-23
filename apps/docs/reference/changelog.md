@@ -7,7 +7,18 @@ pageClass: wide-page
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.40 <Badge type="tip" text="latest" />
+## v0.9.41 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- fix: `gpc vitals lmk` and `gpc vitals memory` — 400 INVALID_ARGUMENT (wrong metric field names since v0.9.36)
+- fix: `gpc releases notes get` — now shows notes for completed releases
+- fix: `gpc subscriptions list` — shows "No subscriptions found." when empty
+- refactor: extracted duplicate `resolvePackageName` and `getClient` across 21 CLI files (-183 lines)
+
+---
+
+## v0.9.40
 
 _March 2026_
 

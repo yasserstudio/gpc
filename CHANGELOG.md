@@ -7,6 +7,18 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.41
+
+Bug fixes, code quality, and zero open bugs.
+
+- fix: `gpc vitals lmk` and `gpc vitals memory` — 400 INVALID_ARGUMENT (metric field names were wrong since v0.9.36)
+- fix: `gpc releases notes get` — now shows notes for completed releases (fallback to raw track data)
+- fix: `gpc subscriptions list` — shows "No subscriptions found." when empty instead of blank output
+- fix: Image upload warnings use `process.emitWarning` instead of `console.warn` in library code
+- refactor: extracted `resolvePackageName` and `getClient` to shared utility across 21 CLI command files (-183 lines)
+
+---
+
 ## v0.9.40
 
 Bug fixes from v0.9.39 live testing.

@@ -1,5 +1,4 @@
 import { resolvePackageName, getClient } from "../resolve.js";
-import type { GpcConfig } from "@gpc-cli/config";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 
