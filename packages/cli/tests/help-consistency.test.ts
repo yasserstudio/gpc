@@ -291,6 +291,8 @@ const EXPECTED_TOP_LEVEL_COMMANDS = [
   "quota",
   "games",
   "enterprise",
+  "preflight",
+  "init",
 ];
 
 describe("help text consistency", () => {

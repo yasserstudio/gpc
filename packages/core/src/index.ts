@@ -253,6 +253,20 @@ export { getQuotaUsage } from "./commands/quota.js";
 export type { QuotaUsage } from "./commands/quota.js";
 export type { Spinner } from "./utils/spinner.js";
 export { safePath, safePathWithin } from "./utils/safe-path.js";
+export { initProject } from "./commands/init.js";
+export type { InitOptions, InitResult } from "./commands/init.js";
+export { runPreflight, getAllScannerNames } from "./preflight/index.js";
+export { loadPreflightConfig } from "./preflight/index.js";
+export type {
+  FindingSeverity,
+  PreflightFinding,
+  PreflightResult,
+  PreflightOptions,
+  PreflightConfig,
+  PreflightScanner,
+  ParsedManifest,
+} from "./preflight/index.js";
+export { DEFAULT_PREFLIGHT_CONFIG, SEVERITY_ORDER } from "./preflight/index.js";
 export { sortResults } from "./utils/sort.js";
 export { scaffoldPlugin } from "./commands/plugin-scaffold.js";
 export type { ScaffoldOptions, ScaffoldResult } from "./commands/plugin-scaffold.js";
