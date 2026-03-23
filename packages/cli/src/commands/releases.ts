@@ -17,6 +17,7 @@ import {
   createAuditEntry,
   uploadExternallyHosted,
   diffReleases,
+  fetchReleaseNotes,
   getVitalsCrashes,
   checkThreshold,
 } from "@gpc-cli/core";
@@ -67,6 +68,7 @@ export function registerReleasesCommands(program: Command): void {
     .option("--mapping <file>", "ProGuard/R8 mapping file for deobfuscation")
     .option("--notes-dir <dir>", "Read release notes from directory (<dir>/<lang>.txt)")
     .option("--notes-from-git", "Generate release notes from git commit history")
+    .option("--copy-notes-from <track>", "Copy release notes from another track")
     .option("--since <ref>", "Git ref to start from (tag, SHA) — used with --notes-from-git")
     .option("--retry-log <path>", "Write retry log entries to file (JSONL)")
     .option(
@@ -88,10 +90,10 @@ export function registerReleasesCommands(program: Command): void {
         process.exit(2);
       }
 
-      const noteSources = [options.notes, options.notesDir, options.notesFromGit].filter(Boolean);
+      const noteSources = [options.notes, options.notesDir, options.notesFromGit, options.copyNotesFrom].filter(Boolean);
       if (noteSources.length > 1) {
         console.error(
-          "Error: Cannot combine --notes, --notes-dir, and --notes-from-git. Use only one.",
+          "Error: Cannot combine --notes, --notes-dir, --notes-from-git, and --copy-notes-from. Use only one.",
         );
         process.exit(2);
       }
@@ -192,7 +194,9 @@ export function registerReleasesCommands(program: Command): void {
 
       try {
         let releaseNotes: { language: string; text: string }[] | undefined;
-        if (options.notesFromGit) {
+        if (options.copyNotesFrom) {
+          releaseNotes = await fetchReleaseNotes(client, packageName, options.copyNotesFrom);
+        } else if (options.notesFromGit) {
           const gitNotes = await generateNotesFromGit({ since: options.since });
           releaseNotes = [{ language: gitNotes.language, text: gitNotes.text }];
         } else if (options.notesDir) {
@@ -297,6 +301,7 @@ export function registerReleasesCommands(program: Command): void {
     .option("--to <track>", "Target track")
     .option("--rollout <percent>", "Staged rollout percentage")
     .option("--notes <text>", "Release notes")
+    .option("--copy-notes-from <track>", "Copy release notes from another track")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -358,9 +363,16 @@ export function registerReleasesCommands(program: Command): void {
       const client = await getClient(config);
 
       try {
+        let releaseNotes: { language: string; text: string }[] | undefined;
+        if (options.copyNotesFrom) {
+          releaseNotes = await fetchReleaseNotes(client, packageName, options.copyNotesFrom);
+        } else if (options.notes) {
+          releaseNotes = [{ language: "en-US", text: options.notes }];
+        }
+
         const result = await promoteRelease(client, packageName, options.from, options.to, {
           userFraction: options.rollout ? Number(options.rollout) / 100 : undefined,
-          releaseNotes: options.notes ? [{ language: "en-US", text: options.notes }] : undefined,
+          releaseNotes,
         });
         console.log(formatOutput(result, format));
       } catch (error) {
