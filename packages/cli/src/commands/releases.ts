@@ -628,4 +628,50 @@ export function registerReleasesCommands(program: Command): void {
         process.exit(4);
       }
     });
+
+  // Count
+  releases
+    .command("count")
+    .description("Count releases per track")
+    .option("--track <track>", "Filter to a specific track")
+    .action(async (options) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = getOutputFormat(program, config);
+
+      try {
+        const statuses = await getReleasesStatus(client, packageName, options.track);
+
+        // Group by track
+        const trackCounts = new Map<string, { total: number; statuses: Record<string, number> }>();
+        for (const r of statuses) {
+          const entry = trackCounts.get(r.track) ?? { total: 0, statuses: {} };
+          entry.total++;
+          entry.statuses[r.status] = (entry.statuses[r.status] ?? 0) + 1;
+          trackCounts.set(r.track, entry);
+        }
+
+        if (format === "json") {
+          const data = Object.fromEntries(
+            [...trackCounts.entries()].map(([track, info]) => [track, info]),
+          );
+          console.log(formatOutput(data, format));
+        } else {
+          const rows = [...trackCounts.entries()].map(([track, info]) => ({
+            track,
+            releases: info.total,
+            ...info.statuses,
+          }));
+          if (rows.length === 0) {
+            console.log("No releases found.");
+          } else {
+            console.log(formatOutput(rows, format));
+          }
+        }
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
 }
