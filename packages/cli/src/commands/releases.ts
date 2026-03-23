@@ -547,20 +547,25 @@ export function registerReleasesCommands(program: Command): void {
         const client = await getClient(config);
         const format = getOutputFormat(program, config);
         const track = options.track ?? "internal";
+
+        // Try getReleasesStatus first (has all releases), then fallback to fetchReleaseNotes
         const statuses = await getReleasesStatus(client, packageName, track);
-        const notes = Array.isArray(statuses)
+        let notes = Array.isArray(statuses)
           ? statuses.flatMap((s: any) => s.releaseNotes ?? [])
           : ((statuses as any).releaseNotes ?? []);
+
+        // Fallback: fetchReleaseNotes reads the raw track data which may have notes
+        // even when getReleasesStatus doesn't (e.g. completed releases)
         if (notes.length === 0) {
-          const hasCompleted =
-            Array.isArray(statuses) && statuses.some((s: any) => s.status === "completed");
-          if (hasCompleted) {
-            console.log(
-              `No release notes found on track "${track}". Notes may not be retained for completed releases. Try: gpc releases diff --from ${track} --to ${track}`,
-            );
-          } else {
-            console.log("No release notes found.");
+          try {
+            notes = await fetchReleaseNotes(client, packageName, track);
+          } catch {
+            // No release found on track — fall through to empty message
           }
+        }
+
+        if (notes.length === 0) {
+          console.log(`No release notes found on track "${track}".`);
           return;
         }
         console.log(formatOutput(notes, format));
