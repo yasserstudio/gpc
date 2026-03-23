@@ -33,7 +33,7 @@ GPC is a TypeScript monorepo with a layered architecture. Each package has a sin
 gpc/
 ├── packages/
 │   ├── cli/            # CLI entry point (bin: gpc), Commander.js commands
-│   ├── core/           # Business logic, orchestration, plugin manager
+│   ├── core/           # Business logic, orchestration, plugin manager, preflight scanners
 │   ├── api/            # Google Play Developer API v3 typed client
 │   ├── auth/           # Authentication strategies (SA, OAuth, ADC)
 │   ├── config/         # Configuration loading, validation, profiles
