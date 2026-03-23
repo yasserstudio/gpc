@@ -1,5 +1,14 @@
 # @gpc-cli/cli
 
+## 0.9.40
+
+### Patch Changes
+
+- Bug fixes from v0.9.39 live testing.
+  - fix: `gpc init --ci-template` renamed from `--ci` to avoid collision with global `--ci` flag
+  - fix: `gpc feedback --print` showed `[object Object]` for audit log args
+  - fix: `gpc releases promote --notes` + `--copy-notes-from` accepted silently instead of exiting 2
+
 ## 0.9.39
 
 ### Patch Changes
