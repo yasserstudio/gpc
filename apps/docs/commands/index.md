@@ -78,11 +78,12 @@ gpc bundle analyze app.aab --threshold 150
 
 ### Compliance & Recovery
 
-| Command                                            | Description                                 |
-| -------------------------------------------------- | ------------------------------------------- |
-| [`data-safety`](./data-safety)                     | Data safety declarations                    |
-| [`recovery`](./recovery)                           | App recovery actions                        |
-| [`external-transactions`](./external-transactions) | External transactions (alternative billing) |
+| Command                                            | Description                                          |
+| -------------------------------------------------- | ---------------------------------------------------- |
+| [`preflight`](./preflight)                         | Offline AAB compliance scanner (9 scanners, CI-ready)|
+| [`data-safety`](./data-safety)                     | Data safety declarations                             |
+| [`recovery`](./recovery)                           | App recovery actions                                 |
+| [`external-transactions`](./external-transactions) | External transactions (alternative billing)          |
 
 ### System
 

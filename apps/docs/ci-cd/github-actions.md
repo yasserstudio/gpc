@@ -133,6 +133,9 @@ jobs:
       - name: Install GPC
         run: npm install -g @gpc-cli/cli
 
+      - name: Preflight compliance check
+        run: gpc preflight app-release.aab --fail-on error --json
+
       - name: Upload to internal track
         run: |
           gpc releases upload app-release.aab \

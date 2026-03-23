@@ -341,7 +341,7 @@ export default defineConfig({
           text: si(ICONS.shieldCheck, "Compliance & Recovery"),
           collapsed: false,
           items: [
-            { text: "preflight 🔜", link: "/commands/preflight" },
+            { text: "preflight", link: "/commands/preflight" },
             { text: "data-safety", link: "/commands/data-safety" },
             { text: "recovery", link: "/commands/recovery" },
             {
