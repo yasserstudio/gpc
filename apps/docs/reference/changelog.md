@@ -36,6 +36,12 @@ The first free, offline, CLI-first AAB compliance scanner for Android. No bundle
 
 - feat: `--copy-notes-from <track>` on `gpc releases upload` and `gpc releases promote` — copy release notes from another track's latest release
 
+**Status Improvements**
+
+- feat: `--review-days <n>` on `gpc status` — configurable reviews window (was hardcoded to 30 days)
+- feat: `--threshold crashes=1.5,anr=0.5` on `gpc status` — one-off threshold overrides from CLI (percent values)
+- feat: Watch mode footer now shows elapsed time and live countdown: `Fetched 45s ago · refreshing in 15s`
+
 ---
 
 ## v0.9.38

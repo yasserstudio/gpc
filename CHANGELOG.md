@@ -23,6 +23,9 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 - feat: `gpc init` — scaffold project config, metadata directory, and CI templates
 - feat: `gpc diff` — read-only preview of release state and pending changes
 - feat: `--copy-notes-from <track>` on `gpc releases upload` and `gpc releases promote`
+- feat: `gpc status --review-days <n>` — configurable reviews window (was hardcoded 30 days)
+- feat: `gpc status --threshold crashes=1.5,anr=0.5` — one-off threshold overrides from CLI
+- feat: `gpc status --watch` elapsed time footer with live countdown
 
 ---
 

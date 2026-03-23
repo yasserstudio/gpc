@@ -116,7 +116,7 @@ GPC covers the **entire Google Play Developer API** in one CLI — that's 187 en
 | Plugin system       | Yes                          | No              | No                    | No           |
 | Interactive mode    | Yes (guided prompts)         | No              | No                    | N/A          |
 | Preflight scanner   | 9 offline policy scanners    | No              | No                    | No           |
-| Test suite          | 1,692 tests, 90%+ coverage   | —               | —                     | —            |
+| Test suite          | 1,694 tests, 90%+ coverage   | —               | —                     | —            |
 
 Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
 
@@ -429,7 +429,7 @@ git clone https://github.com/yasserstudio/gpc.git
 cd gpc
 pnpm install
 pnpm build
-pnpm test    # 1,692 tests across 7 packages
+pnpm test    # 1,694 tests across 7 packages
 ```
 
 ---
