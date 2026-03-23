@@ -34,6 +34,7 @@ import {
   diffReleases,
   fetchReleaseNotes,
 } from "../src/commands/releases.js";
+import { PlayApiError } from "@gpc-cli/api";
 import {
   getListings,
   updateListing,
@@ -3919,6 +3920,31 @@ describe("promoteRelease – edge cases", () => {
         releaseNotes: [],
       }),
     );
+  });
+
+  it("retries on 409 Conflict with a fresh edit", async () => {
+    const client = mockClient();
+    let callCount = 0;
+    client.edits.insert.mockImplementation(async () => {
+      callCount++;
+      return { id: `edit-${callCount}`, expiryTimeSeconds: "3600" };
+    });
+
+    // First call to tracks.get fails with 409, second succeeds
+    client.tracks.get
+      .mockRejectedValueOnce(new PlayApiError("Conflict", "EDIT_CONFLICT", 409, "Edit was stale"))
+      .mockResolvedValueOnce({
+        track: "internal",
+        releases: [{ versionCodes: ["42"], status: "completed" }],
+      });
+
+    const result = await promoteRelease(client, PKG, "internal", "production");
+
+    expect(result.track).toBe("production");
+    // Should have created 2 edits (original + retry)
+    expect(client.edits.insert).toHaveBeenCalledTimes(2);
+    // Should have cleaned up the stale edit
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
   });
 });
 
