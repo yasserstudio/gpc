@@ -38,7 +38,11 @@ export function registerFeedbackCommand(program: Command): void {
         sections.push("", "**Recent commands:**", "- " + lastCommand);
       }
 
-      sections.push("", "**Describe the issue:**", "<!-- Replace this with your bug description -->");
+      sections.push(
+        "",
+        "**Describe the issue:**",
+        "<!-- Replace this with your bug description -->",
+      );
 
       const body = sections.join("\n");
 

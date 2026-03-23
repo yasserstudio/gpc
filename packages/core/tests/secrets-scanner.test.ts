@@ -27,10 +27,7 @@ describe("secretsScanner", () => {
   });
 
   it("returns no findings for clean code", async () => {
-    await writeFile(
-      join(tmpDir, "App.kt"),
-      `class App { fun main() { println("Hello") } }`,
-    );
+    await writeFile(join(tmpDir, "App.kt"), `class App { fun main() { println("Hello") } }`);
     const findings = await secretsScanner.scan(makeCtx(tmpDir));
     expect(findings).toEqual([]);
   });

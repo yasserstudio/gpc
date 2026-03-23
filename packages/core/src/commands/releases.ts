@@ -26,8 +26,7 @@ async function withRetryOnConflict<T>(
   try {
     return await operation(edit);
   } catch (error) {
-    const isConflict =
-      error instanceof PlayApiError && error.statusCode === 409;
+    const isConflict = error instanceof PlayApiError && error.statusCode === 409;
     if (!isConflict) {
       await client.edits.delete(packageName, edit.id).catch(() => {});
       throw error;

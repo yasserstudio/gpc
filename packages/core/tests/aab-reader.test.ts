@@ -65,7 +65,10 @@ function createMockZipfile(entries: Array<{ fileName: string; data?: Buffer }>) 
     }
   };
 
-  emitter.openReadStream = (_entry: unknown, cb: (err: Error | null, stream?: Readable) => void) => {
+  emitter.openReadStream = (
+    _entry: unknown,
+    cb: (err: Error | null, stream?: Readable) => void,
+  ) => {
     const e = entries[idx - 1];
     const stream = new Readable({
       read() {
@@ -102,15 +105,15 @@ describe("readAab", () => {
   });
 
   it("throws when manifest is missing", async () => {
-    const zipfile = createMockZipfile([
-      { fileName: "base/dex/classes.dex" },
-    ]);
+    const zipfile = createMockZipfile([{ fileName: "base/dex/classes.dex" }]);
 
     mockedOpen.mockImplementation((_path, _opts, cb: any) => {
       cb(null, zipfile);
     });
 
-    await expect(readAab("/fake/app.aab")).rejects.toThrow("missing base/manifest/AndroidManifest.xml");
+    await expect(readAab("/fake/app.aab")).rejects.toThrow(
+      "missing base/manifest/AndroidManifest.xml",
+    );
   });
 
   it("throws when ZIP fails to open", async () => {
