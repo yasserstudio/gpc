@@ -73,8 +73,13 @@ export function registerSubscriptionsCommands(program: Command): void {
         if (options.sort) {
           result.subscriptions = sortResults(result.subscriptions, options.sort);
         }
+        const subs = result.subscriptions || [];
         if (format !== "json") {
-          const summary = (result.subscriptions || []).map((s: Subscription) => ({
+          if (subs.length === 0) {
+            console.log("No subscriptions found.");
+            return;
+          }
+          const summary = subs.map((s: Subscription) => ({
             productId: s.productId,
             basePlans: s.basePlans?.length || 0,
             listings: s.listings ? Object.keys(s.listings).length : 0,
@@ -82,7 +87,7 @@ export function registerSubscriptionsCommands(program: Command): void {
           }));
           console.log(formatOutput(summary, format));
         } else {
-          console.log(formatOutput(result, format));
+          console.log(formatOutput(subs.length === 0 ? { subscriptions: [] } : result, format));
         }
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
