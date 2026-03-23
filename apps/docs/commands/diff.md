@@ -23,11 +23,11 @@ gpc diff [options]
 
 ## Options
 
-| Option              | Description                                        | Default |
-| ------------------- | -------------------------------------------------- | ------- |
-| `--from <track>`    | Compare releases from this track                   | —       |
-| `--to <track>`      | Compare releases to this track                     | —       |
-| `--metadata <dir>`  | Compare local metadata directory vs remote listings | —       |
+| Option             | Description                                         | Default |
+| ------------------ | --------------------------------------------------- | ------- |
+| `--from <track>`   | Compare releases from this track                    | —       |
+| `--to <track>`     | Compare releases to this track                      | —       |
+| `--metadata <dir>` | Compare local metadata directory vs remote listings | —       |
 
 ## Examples
 

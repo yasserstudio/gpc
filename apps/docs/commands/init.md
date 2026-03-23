@@ -21,11 +21,11 @@ gpc init [options]
 
 ## Options
 
-| Option          | Description                                  | Default              |
-| --------------- | -------------------------------------------- | -------------------- |
-| `--app <name>`  | Android package name (e.g. com.example.app)  | prompted interactively |
-| `--ci <platform>` | Generate CI template: `github` or `gitlab` | prompted interactively |
-| `--force`       | Overwrite existing files                     | skip existing        |
+| Option            | Description                                 | Default                |
+| ----------------- | ------------------------------------------- | ---------------------- |
+| `--app <name>`    | Android package name (e.g. com.example.app) | prompted interactively |
+| `--ci <platform>` | Generate CI template: `github` or `gitlab`  | prompted interactively |
+| `--force`         | Overwrite existing files                    | skip existing          |
 
 ## What It Creates
 
@@ -41,11 +41,13 @@ metadata/android/en-US/
 ```
 
 With `--ci github`:
+
 ```
 .github/workflows/gpc-release.yml  # Build → preflight → upload pipeline
 ```
 
 With `--ci gitlab`:
+
 ```
 .gitlab-ci-gpc.yml                 # Build → preflight → release stages
 ```

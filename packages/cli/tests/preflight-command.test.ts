@@ -31,17 +31,19 @@ vi.mock("@gpc-cli/core", async () => {
       passed: true,
       durationMs: 42,
     }),
-    getAllScannerNames: vi.fn().mockReturnValue([
-      "manifest",
-      "permissions",
-      "native-libs",
-      "metadata",
-      "secrets",
-      "billing",
-      "privacy",
-      "policy",
-      "size",
-    ]),
+    getAllScannerNames: vi
+      .fn()
+      .mockReturnValue([
+        "manifest",
+        "permissions",
+        "native-libs",
+        "metadata",
+        "secrets",
+        "billing",
+        "privacy",
+        "policy",
+        "size",
+      ]),
     formatOutput: vi.fn().mockReturnValue("{}"),
   };
 });
@@ -88,9 +90,7 @@ describe("gpc preflight CLI", () => {
     await program.parseAsync(["node", "gpc", "preflight", "app.aab", "--fail-on", "warning"], {
       from: "node",
     });
-    expect(mockedRunPreflight).toHaveBeenCalledWith(
-      expect.objectContaining({ failOn: "warning" }),
-    );
+    expect(mockedRunPreflight).toHaveBeenCalledWith(expect.objectContaining({ failOn: "warning" }));
   });
 
   it("passes --scanners to runPreflight", async () => {
@@ -115,10 +115,9 @@ describe("gpc preflight CLI", () => {
 
   it("exits 2 for unknown scanner name", async () => {
     const program = await createProgram();
-    await program.parseAsync(
-      ["node", "gpc", "preflight", "app.aab", "--scanners", "nonexistent"],
-      { from: "node" },
-    );
+    await program.parseAsync(["node", "gpc", "preflight", "app.aab", "--scanners", "nonexistent"], {
+      from: "node",
+    });
     expect(exitSpy).toHaveBeenCalledWith(2);
     expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Unknown scanner"));
   });
