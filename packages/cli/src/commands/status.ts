@@ -209,6 +209,13 @@ export function registerStatusCommand(program: Command): void {
           process.exit(2);
         }
 
+        if (!Number.isFinite(opts.reviewDays) || opts.reviewDays < 1) {
+          console.error(
+            `Error: --review-days must be a positive integer (got: ${opts.reviewDays})`,
+          );
+          process.exit(2);
+        }
+
         const config = await loadConfig();
         const format = getOutputFormat(program, config);
         const render = makeRenderer(format, opts.format);
