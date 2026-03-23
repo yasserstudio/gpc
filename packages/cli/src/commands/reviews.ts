@@ -1,8 +1,8 @@
+import { resolvePackageName, getClient } from "../resolve.js";
 import type { Command } from "commander";
 import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
-import { resolveAuth } from "@gpc-cli/auth";
-import { createApiClient } from "@gpc-cli/api";
+
 import {
   listReviews,
   getReview,
@@ -17,19 +17,7 @@ import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, requireOption } from "../prompt.js";
 
-function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
-  const name = packageArg || config.app;
-  if (!name) {
-    console.error("Error: No package name. Use --app <package> or gpc config set app <package>");
-    process.exit(2);
-  }
-  return name;
-}
 
-async function getClient(config: GpcConfig) {
-  const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
-  return createApiClient({ auth });
-}
 
 export function registerReviewsCommands(program: Command): void {
   const reviews = program.command("reviews").description("Manage user reviews and ratings");

@@ -1,3 +1,4 @@
+import { resolvePackageName } from "../resolve.js";
 import { appendFile, stat } from "node:fs/promises";
 import type { GpcConfig, OutputFormat } from "@gpc-cli/config";
 import type { Command } from "commander";
@@ -21,14 +22,6 @@ const PASS = "\u2713";
 const FAIL = "\u2717";
 const WARN = "\u26A0";
 
-function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
-  const name = packageArg || config.app;
-  if (!name) {
-    console.error("Error: No package name. Use --app <package> or gpc config set app <package>");
-    process.exit(2);
-  }
-  return name;
-}
 
 // ---------------------------------------------------------------------------
 // Output formatters
