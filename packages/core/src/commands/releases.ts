@@ -13,6 +13,37 @@ import { PlayApiError } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
 import { validateUploadFile } from "../utils/file-validation.js";
 
+/**
+ * Retry an edit-based operation once if it fails with 409 Conflict (stale edit).
+ * Automatically discards the stale edit and creates a fresh one on retry.
+ */
+async function withRetryOnConflict<T>(
+  client: PlayApiClient,
+  packageName: string,
+  operation: (edit: AppEdit) => Promise<T>,
+): Promise<T> {
+  const edit = await client.edits.insert(packageName);
+  try {
+    return await operation(edit);
+  } catch (error) {
+    const isConflict =
+      error instanceof PlayApiError && error.statusCode === 409;
+    if (!isConflict) {
+      await client.edits.delete(packageName, edit.id).catch(() => {});
+      throw error;
+    }
+    // Discard stale edit, retry with fresh one
+    await client.edits.delete(packageName, edit.id).catch(() => {});
+    const freshEdit = await client.edits.insert(packageName);
+    try {
+      return await operation(freshEdit);
+    } catch (retryError) {
+      await client.edits.delete(packageName, freshEdit.id).catch(() => {});
+      throw retryError;
+    }
+  }
+}
+
 /** Warn if edit is within 5 minutes of expiry. */
 function warnIfEditExpiring(edit: AppEdit): void {
   if (!edit.expiryTimeSeconds) return;
@@ -246,8 +277,17 @@ export async function promoteRelease(
   toTrack: string,
   options?: { userFraction?: number; releaseNotes?: { language: string; text: string }[] },
 ): Promise<ReleaseStatusResult> {
-  const edit = await client.edits.insert(packageName);
-  try {
+  // Validate inputs before opening an edit
+  if (options?.userFraction && (options.userFraction <= 0 || options.userFraction > 1)) {
+    throw new GpcError(
+      "Rollout percentage must be between 0 and 1 (e.g., 0.1 for 10%)",
+      "RELEASE_INVALID_FRACTION",
+      2,
+      "Use a decimal value like 0.1 for 10%, 0.5 for 50%, or 1.0 for 100%.",
+    );
+  }
+
+  return withRetryOnConflict(client, packageName, async (edit) => {
     // Get current release from source track
     const sourceTrack = await client.tracks.get(packageName, edit.id, fromTrack);
     const currentRelease = sourceTrack.releases?.find(
@@ -263,15 +303,6 @@ export async function promoteRelease(
       );
     }
 
-    // Create release on target track
-    if (options?.userFraction && (options.userFraction <= 0 || options.userFraction > 1)) {
-      throw new GpcError(
-        "Rollout percentage must be between 0 and 1 (e.g., 0.1 for 10%)",
-        "RELEASE_INVALID_FRACTION",
-        2,
-        "Use a decimal value like 0.1 for 10%, 0.5 for 50%, or 1.0 for 100%.",
-      );
-    }
     const release: Release = {
       versionCodes: currentRelease.versionCodes,
       status: (options?.userFraction ? "inProgress" : "completed") as Release["status"],
@@ -289,10 +320,7 @@ export async function promoteRelease(
       versionCodes: release.versionCodes,
       userFraction: release.userFraction,
     };
-  } catch (error) {
-    await client.edits.delete(packageName, edit.id).catch(() => {});
-    throw error;
-  }
+  });
 }
 
 export async function updateRollout(
