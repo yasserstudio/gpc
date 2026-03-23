@@ -1,25 +1,13 @@
+import { resolvePackageName, getClient } from "../resolve.js";
 import type { Command } from "commander";
 import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
-import { resolveAuth } from "@gpc-cli/auth";
-import { createApiClient } from "@gpc-cli/api";
+
 import { uploadInternalSharing, formatOutput, createSpinner } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 
-function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
-  const name = packageArg || config.app;
-  if (!name) {
-    console.error("Error: No package name. Use --app <package> or gpc config set app <package>");
-    process.exit(2);
-  }
-  return name;
-}
 
-async function getClient(config: GpcConfig) {
-  const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
-  return createApiClient({ auth });
-}
 
 export function registerInternalSharingCommands(program: Command): void {
   const cmd = program

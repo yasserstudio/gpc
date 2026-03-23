@@ -1,24 +1,12 @@
+import { resolvePackageName, getClient } from "../resolve.js";
 import type { Command } from "commander";
 import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
-import { resolveAuth } from "@gpc-cli/auth";
-import { createApiClient } from "@gpc-cli/api";
+
 import { convertRegionPrices, formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 
-function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
-  const name = packageArg || config.app;
-  if (!name) {
-    console.error("Error: No package name. Use --app <package> or gpc config set app <package>");
-    process.exit(2);
-  }
-  return name;
-}
 
-async function getClient(config: GpcConfig) {
-  const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
-  return createApiClient({ auth });
-}
 
 export function registerPricingCommands(program: Command): void {
   const pricing = program.command("pricing").description("Pricing and regional price conversion");

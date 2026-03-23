@@ -1,9 +1,9 @@
+import { resolvePackageName, getClient } from "../resolve.js";
 import type { GpcConfig } from "@gpc-cli/config";
 import type { Command } from "commander";
 import { Option } from "commander";
 import { loadConfig } from "@gpc-cli/config";
-import { resolveAuth } from "@gpc-cli/auth";
-import { createApiClient } from "@gpc-cli/api";
+
 import type { Subscription } from "@gpc-cli/api";
 import {
   listSubscriptions,
@@ -32,19 +32,7 @@ import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
 import { readJsonFile } from "../json.js";
 
-function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
-  const name = packageArg || config.app;
-  if (!name) {
-    console.error("Error: No package name. Use --app <package> or gpc config set app <package>");
-    process.exit(2);
-  }
-  return name;
-}
 
-async function getClient(config: GpcConfig) {
-  const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
-  return createApiClient({ auth });
-}
 
 export function registerSubscriptionsCommands(program: Command): void {
   const subs = program.command("subscriptions").description("Manage subscriptions and base plans");

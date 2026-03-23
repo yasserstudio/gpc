@@ -1,3 +1,4 @@
+import { resolvePackageName } from "../resolve.js";
 // Named exports only. No default export.
 
 import type { Command } from "commander";
@@ -9,14 +10,6 @@ import type { ReleaseDiff } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { green, red, yellow, dim, bold } from "../colors.js";
 
-function resolvePackageName(cliApp: string | undefined, config: { app?: string }): string {
-  const pkg = cliApp || config.app || process.env["GPC_APP"];
-  if (!pkg) {
-    console.error("Error: No package name. Use --app, set GPC_APP, or add 'app' to .gpcrc.json");
-    process.exit(2);
-  }
-  return pkg;
-}
 
 export function registerDiffCommand(program: Command): void {
   program

@@ -1,24 +1,17 @@
+import { resolvePackageName } from "../resolve.js";
 import type { Command } from "commander";
-import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createGamesClient } from "@gpc-cli/api";
 import { listLeaderboards, listAchievements, listEvents, formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 
-function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
-  const name = packageArg || config.app;
-  if (!name) {
-    console.error("Error: No package name. Use --app <package> or gpc config set app <package>");
-    process.exit(2);
-  }
-  return name;
-}
-
-async function getClient(config: GpcConfig) {
+async function getGamesClient(config: { auth?: { serviceAccount?: string } }) {
   const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
   return createGamesClient({ auth });
 }
+
+
 
 export function registerGamesCommands(program: Command): void {
   const games = program
@@ -31,7 +24,7 @@ export function registerGamesCommands(program: Command): void {
     .action(async () => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const client = await getClient(config);
+      const client = await getGamesClient(config);
       const format = getOutputFormat(program, config);
 
       try {
@@ -53,7 +46,7 @@ export function registerGamesCommands(program: Command): void {
     .action(async () => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const client = await getClient(config);
+      const client = await getGamesClient(config);
       const format = getOutputFormat(program, config);
 
       try {
@@ -75,7 +68,7 @@ export function registerGamesCommands(program: Command): void {
     .action(async () => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const client = await getClient(config);
+      const client = await getGamesClient(config);
       const format = getOutputFormat(program, config);
 
       try {
