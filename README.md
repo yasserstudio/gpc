@@ -225,7 +225,7 @@ Bootstrap a new project with config, metadata directories, and CI templates in o
 ```bash
 gpc init                              # Interactive — prompts for package name and CI
 gpc init --app com.example.app        # Non-interactive
-gpc init --app com.example.app --ci github  # Include GitHub Actions workflow
+gpc init --app com.example.app --ci-template github  # Include GitHub Actions workflow
 ```
 
 ### Preview before publishing
