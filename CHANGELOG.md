@@ -7,6 +7,16 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.40
+
+Bug fixes from v0.9.39 live testing.
+
+- fix: `gpc init --ci-template` renamed from `--ci` to avoid collision with global `--ci` flag
+- fix: `gpc feedback --print` showed `[object Object]` for audit log command args
+- fix: `gpc releases promote --notes` + `--copy-notes-from` now exits 2 as mutually exclusive
+
+---
+
 ## v0.9.39
 
 Preflight compliance scanner, new commands, status improvements, and bug fixes.

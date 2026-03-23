@@ -7,7 +7,17 @@ pageClass: wide-page
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.39 <Badge type="tip" text="latest" />
+## v0.9.40 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- fix: `gpc init --ci-template` renamed from `--ci` to avoid collision with global `--ci` flag
+- fix: `gpc feedback --print` showed `[object Object]` for audit log command args
+- fix: `gpc releases promote --notes` + `--copy-notes-from` now exits 2 as mutually exclusive
+
+---
+
+## v0.9.39
 
 _March 2026_
 
