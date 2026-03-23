@@ -469,9 +469,9 @@ export async function fetchReleaseNotes(
   const edit = await client.edits.insert(packageName);
   try {
     const trackData = await client.tracks.get(packageName, edit.id, track);
-    const release = trackData.releases?.find(
-      (r) => r.status === "completed" || r.status === "inProgress",
-    ) ?? trackData.releases?.[0];
+    const release =
+      trackData.releases?.find((r) => r.status === "completed" || r.status === "inProgress") ??
+      trackData.releases?.[0];
 
     if (!release) {
       throw new GpcError(

@@ -4,8 +4,15 @@ import { readdir, stat } from "node:fs/promises";
 import { join, extname } from "node:path";
 
 const DEFAULT_SKIP_DIRS = new Set([
-  ".git", "node_modules", "build", "dist", ".gradle",
-  "__pycache__", ".idea", ".vscode", "vendor",
+  ".git",
+  "node_modules",
+  "build",
+  "dist",
+  ".gradle",
+  "__pycache__",
+  ".idea",
+  ".vscode",
+  "vendor",
 ]);
 
 /**

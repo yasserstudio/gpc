@@ -45,8 +45,10 @@ export const nativeLibsScanner: PreflightScanner = {
         ruleId: "missing-arm64",
         severity: "critical",
         title: "Missing arm64-v8a native libraries",
-        message: "App includes armeabi-v7a (32-bit ARM) native libraries but is missing arm64-v8a (64-bit ARM). Google Play requires 64-bit support for all apps with native code.",
-        suggestion: "Build your native libraries for arm64-v8a. In build.gradle: ndk { abiFilters 'armeabi-v7a', 'arm64-v8a' }",
+        message:
+          "App includes armeabi-v7a (32-bit ARM) native libraries but is missing arm64-v8a (64-bit ARM). Google Play requires 64-bit support for all apps with native code.",
+        suggestion:
+          "Build your native libraries for arm64-v8a. In build.gradle: ndk { abiFilters 'armeabi-v7a', 'arm64-v8a' }",
         policyUrl: "https://developer.android.com/google/play/requirements/64-bit",
       });
     }
@@ -57,15 +59,19 @@ export const nativeLibsScanner: PreflightScanner = {
         ruleId: "missing-x86_64",
         severity: "warning",
         title: "Missing x86_64 native libraries",
-        message: "App includes x86 (32-bit) native libraries but is missing x86_64 (64-bit). While ARM is required, x86_64 is recommended for emulator and Chromebook support.",
-        suggestion: "Add x86_64 to your ABI filters if you support x86: ndk { abiFilters 'x86', 'x86_64' }",
+        message:
+          "App includes x86 (32-bit) native libraries but is missing x86_64 (64-bit). While ARM is required, x86_64 is recommended for emulator and Chromebook support.",
+        suggestion:
+          "Add x86_64 to your ABI filters if you support x86: ndk { abiFilters 'x86', 'x86_64' }",
         policyUrl: "https://developer.android.com/google/play/requirements/64-bit",
       });
     }
 
     // Report detected ABIs
     const detectedAbis = KNOWN_ABIS.filter((abi) => abisFound.has(abi));
-    const unknownAbis = [...abisFound].filter((abi) => !(KNOWN_ABIS as readonly string[]).includes(abi));
+    const unknownAbis = [...abisFound].filter(
+      (abi) => !(KNOWN_ABIS as readonly string[]).includes(abi),
+    );
 
     const abiList = [...detectedAbis, ...unknownAbis].join(", ");
     const sizeMb = (totalNativeSize / (1024 * 1024)).toFixed(1);
@@ -86,7 +92,8 @@ export const nativeLibsScanner: PreflightScanner = {
         severity: "warning",
         title: "Large native libraries",
         message: `Native libraries total ${sizeMb} MB (uncompressed). This significantly increases download size.`,
-        suggestion: "Consider using Android App Bundles to deliver only the required ABI per device. Review if all native libraries are necessary.",
+        suggestion:
+          "Consider using Android App Bundles to deliver only the required ABI per device. Review if all native libraries are necessary.",
       });
     }
 

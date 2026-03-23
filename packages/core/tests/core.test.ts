@@ -3971,8 +3971,16 @@ describe("fetchReleaseNotes", () => {
     client.tracks.get.mockResolvedValue({
       track: "beta",
       releases: [
-        { versionCodes: ["10"], status: "draft", releaseNotes: [{ language: "en-US", text: "draft" }] },
-        { versionCodes: ["9"], status: "completed", releaseNotes: [{ language: "en-US", text: "live" }] },
+        {
+          versionCodes: ["10"],
+          status: "draft",
+          releaseNotes: [{ language: "en-US", text: "draft" }],
+        },
+        {
+          versionCodes: ["9"],
+          status: "completed",
+          releaseNotes: [{ language: "en-US", text: "live" }],
+        },
       ],
     });
 

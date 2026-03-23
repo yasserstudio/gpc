@@ -1,11 +1,7 @@
 // Named exports only. No default export.
 
 import type { Command } from "commander";
-import {
-  runPreflight,
-  getAllScannerNames,
-  formatOutput,
-} from "@gpc-cli/core";
+import { runPreflight, getAllScannerNames, formatOutput } from "@gpc-cli/core";
 import type { FindingSeverity } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { loadConfig } from "@gpc-cli/config";
@@ -35,7 +31,11 @@ export function registerPreflightCommand(program: Command): void {
   const cmd = program
     .command("preflight [file]")
     .description("Pre-submission compliance scanner for AAB files (offline)")
-    .option("--fail-on <severity>", "Fail if any finding meets or exceeds severity: critical, error, warning, info", "error")
+    .option(
+      "--fail-on <severity>",
+      "Fail if any finding meets or exceeds severity: critical, error, warning, info",
+      "error",
+    )
     .option("--scanners <names>", "Comma-separated scanner names to run (default: all)")
     .option("--metadata <dir>", "Path to metadata directory (Fastlane format) for listing checks")
     .option("--source <dir>", "Path to source directory for code scanning")
@@ -68,7 +68,11 @@ export function registerPreflightCommand(program: Command): void {
     .description("Run metadata scanner on a listings directory")
     .option("--fail-on <severity>", "Fail threshold", "error")
     .action(async (dir: string, options) => {
-      await runPreflightAction(program, undefined, { ...options, metadata: dir, scanners: "metadata" });
+      await runPreflightAction(program, undefined, {
+        ...options,
+        metadata: dir,
+        scanners: "metadata",
+      });
     });
 
   // Subcommand: preflight codescan
@@ -98,7 +102,9 @@ async function runPreflightAction(
   const failOn = options["failOn"] as FindingSeverity | undefined;
   const validSeverities = new Set(["critical", "error", "warning", "info"]);
   if (failOn && !validSeverities.has(failOn)) {
-    console.error(`Error: Invalid --fail-on value "${failOn}". Use: critical, error, warning, info`);
+    console.error(
+      `Error: Invalid --fail-on value "${failOn}". Use: critical, error, warning, info`,
+    );
     process.exit(2);
   }
 
@@ -107,7 +113,9 @@ async function runPreflightAction(
     const known = new Set(getAllScannerNames());
     const unknown = scannerNames.filter((s) => !known.has(s));
     if (unknown.length > 0) {
-      console.error(`Error: Unknown scanner(s): ${unknown.join(", ")}. Available: ${getAllScannerNames().join(", ")}`);
+      console.error(
+        `Error: Unknown scanner(s): ${unknown.join(", ")}. Available: ${getAllScannerNames().join(", ")}`,
+      );
       process.exit(2);
     }
   }
@@ -140,7 +148,10 @@ async function runPreflightAction(
         // Group by severity
         for (const finding of result.findings) {
           const icon = SEVERITY_ICONS[finding.severity];
-          const label = severityColor(finding.severity, `${icon} ${finding.severity.toUpperCase()}`);
+          const label = severityColor(
+            finding.severity,
+            `${icon} ${finding.severity.toUpperCase()}`,
+          );
           console.log(`${label}  ${finding.title}`);
           console.log(`        ${dim(finding.message)}`);
           if (finding.suggestion) {

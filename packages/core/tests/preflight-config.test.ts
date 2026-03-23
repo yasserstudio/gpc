@@ -27,14 +27,17 @@ describe("loadPreflightConfig", () => {
 
   it("loads valid config file", async () => {
     const configPath = join(tmpDir, ".preflightrc.json");
-    await writeFile(configPath, JSON.stringify({
-      failOn: "warning",
-      targetSdkMinimum: 34,
-      maxDownloadSizeMb: 200,
-      allowedPermissions: ["android.permission.READ_SMS"],
-      disabledRules: ["cleartext-traffic"],
-      severityOverrides: { "debuggable-true": "warning" },
-    }));
+    await writeFile(
+      configPath,
+      JSON.stringify({
+        failOn: "warning",
+        targetSdkMinimum: 34,
+        maxDownloadSizeMb: 200,
+        allowedPermissions: ["android.permission.READ_SMS"],
+        disabledRules: ["cleartext-traffic"],
+        severityOverrides: { "debuggable-true": "warning" },
+      }),
+    );
 
     const config = await loadPreflightConfig(configPath);
     expect(config.failOn).toBe("warning");
@@ -54,11 +57,14 @@ describe("loadPreflightConfig", () => {
 
   it("ignores unknown or invalid fields", async () => {
     const configPath = join(tmpDir, ".preflightrc.json");
-    await writeFile(configPath, JSON.stringify({
-      failOn: "notavalidseverity",
-      targetSdkMinimum: -1,
-      unknownField: true,
-    }));
+    await writeFile(
+      configPath,
+      JSON.stringify({
+        failOn: "notavalidseverity",
+        targetSdkMinimum: -1,
+        unknownField: true,
+      }),
+    );
 
     const config = await loadPreflightConfig(configPath);
     // Invalid failOn should be ignored, keeping default
@@ -69,9 +75,12 @@ describe("loadPreflightConfig", () => {
 
   it("handles partial config (only some fields)", async () => {
     const configPath = join(tmpDir, ".preflightrc.json");
-    await writeFile(configPath, JSON.stringify({
-      disabledRules: ["minSdk-below-21"],
-    }));
+    await writeFile(
+      configPath,
+      JSON.stringify({
+        disabledRules: ["minSdk-below-21"],
+      }),
+    );
 
     const config = await loadPreflightConfig(configPath);
     expect(config.disabledRules).toEqual(["minSdk-below-21"]);

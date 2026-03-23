@@ -37,22 +37,22 @@ gpc status [options]
 
 ## Options
 
-| Flag                | Type     | Default                   | Description                                                                                  |
-| ------------------- | -------- | ------------------------- | -------------------------------------------------------------------------------------------- |
-| `--days <n>`        | `number` | `7`                       | Vitals window in days; must be ≥ 1, exits code 2 otherwise                                   |
-| `--review-days <n>` | `number` | `30`                      | Reviews window in days                                                                       |
-| `--threshold <spec>` | `string` | config                   | Override thresholds: `crashes=1.5,anr=0.5` (percent values)                                  |
-| `--cached`          | flag     | off                       | Read from cache, skip all API calls                                                          |
-| `--refresh`         | flag     | off                       | Force live fetch, ignore cache TTL                                                           |
-| `--ttl <seconds>`   | `number` | `3600`                    | Cache TTL override for this run                                                              |
-| `--format <fmt>`    | `string` | `table`                   | `table` for the full view, `summary` for a one-liner                                         |
-| `--sections <list>` | `string` | `releases,vitals,reviews` | Comma-separated sections to fetch and display                                                |
-| `--watch [seconds]` | `number` | `30`                      | Poll and refresh every N seconds (min 10)                                                    |
-| `--since-last`      | flag     | off                       | Show diff from the last cached status                                                        |
-| `--all-apps`        | flag     | off                       | Run for all configured app profiles (max 5)                                                  |
-| `--notify`          | flag     | off                       | Send a desktop notification on threshold breach or clear                                     |
-| `--output <format>` | `string` | `table`                   | `table` or `json`                                                                            |
-| `--app <package>`   | `string` | config                    | Override app package name                                                                    |
+| Flag                 | Type     | Default                   | Description                                                 |
+| -------------------- | -------- | ------------------------- | ----------------------------------------------------------- |
+| `--days <n>`         | `number` | `7`                       | Vitals window in days; must be ≥ 1, exits code 2 otherwise  |
+| `--review-days <n>`  | `number` | `30`                      | Reviews window in days                                      |
+| `--threshold <spec>` | `string` | config                    | Override thresholds: `crashes=1.5,anr=0.5` (percent values) |
+| `--cached`           | flag     | off                       | Read from cache, skip all API calls                         |
+| `--refresh`          | flag     | off                       | Force live fetch, ignore cache TTL                          |
+| `--ttl <seconds>`    | `number` | `3600`                    | Cache TTL override for this run                             |
+| `--format <fmt>`     | `string` | `table`                   | `table` for the full view, `summary` for a one-liner        |
+| `--sections <list>`  | `string` | `releases,vitals,reviews` | Comma-separated sections to fetch and display               |
+| `--watch [seconds]`  | `number` | `30`                      | Poll and refresh every N seconds (min 10)                   |
+| `--since-last`       | flag     | off                       | Show diff from the last cached status                       |
+| `--all-apps`         | flag     | off                       | Run for all configured app profiles (max 5)                 |
+| `--notify`           | flag     | off                       | Send a desktop notification on threshold breach or clear    |
+| `--output <format>`  | `string` | `table`                   | `table` or `json`                                           |
+| `--app <package>`    | `string` | config                    | Override app package name                                   |
 
 ## How It Works
 

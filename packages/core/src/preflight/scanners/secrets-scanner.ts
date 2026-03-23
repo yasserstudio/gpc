@@ -1,7 +1,12 @@
 // Named exports only. No default export.
 
 import { readFile } from "node:fs/promises";
-import type { PreflightScanner, PreflightContext, PreflightFinding, FindingSeverity } from "../types.js";
+import type {
+  PreflightScanner,
+  PreflightContext,
+  PreflightFinding,
+  FindingSeverity,
+} from "../types.js";
 import { collectSourceFiles } from "../scan-files.js";
 
 interface SecretPattern {
@@ -25,14 +30,16 @@ const SECRET_PATTERNS: SecretPattern[] = [
     name: "Google API Key",
     pattern: /AIza[0-9A-Za-z\-_]{35}/,
     severity: "critical",
-    suggestion: "Move Google API keys to local.properties or environment variables. Restrict keys in Google Cloud Console.",
+    suggestion:
+      "Move Google API keys to local.properties or environment variables. Restrict keys in Google Cloud Console.",
   },
   {
     ruleId: "secret-stripe-key",
     name: "Stripe Secret Key",
     pattern: /sk_live_[0-9a-zA-Z]{24,}/,
     severity: "critical",
-    suggestion: "Never ship Stripe secret keys in client code. Use your backend server for Stripe API calls.",
+    suggestion:
+      "Never ship Stripe secret keys in client code. Use your backend server for Stripe API calls.",
   },
   {
     ruleId: "secret-stripe-restricted",
@@ -46,27 +53,40 @@ const SECRET_PATTERNS: SecretPattern[] = [
     name: "Private Key",
     pattern: /-----BEGIN\s+(RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----/,
     severity: "critical",
-    suggestion: "Remove private keys from source code. Store them in a secure key management system.",
+    suggestion:
+      "Remove private keys from source code. Store them in a secure key management system.",
   },
   {
     ruleId: "secret-firebase-key",
     name: "Firebase API Key in code",
     pattern: /["']AIza[0-9A-Za-z\-_]{35}["']/,
     severity: "warning",
-    suggestion: "Firebase API keys in client code are normal for google-services.json, but verify they are restricted in Google Cloud Console.",
+    suggestion:
+      "Firebase API keys in client code are normal for google-services.json, but verify they are restricted in Google Cloud Console.",
   },
   {
     ruleId: "secret-generic-token",
     name: "Generic API Token",
-    pattern: /(?:api[_-]?key|api[_-]?secret|auth[_-]?token|access[_-]?token)\s*[:=]\s*["'][a-zA-Z0-9\-_]{20,}["']/i,
+    pattern:
+      /(?:api[_-]?key|api[_-]?secret|auth[_-]?token|access[_-]?token)\s*[:=]\s*["'][a-zA-Z0-9\-_]{20,}["']/i,
     severity: "warning",
-    suggestion: "Avoid hardcoding tokens. Use BuildConfig fields, environment variables, or a secrets manager.",
+    suggestion:
+      "Avoid hardcoding tokens. Use BuildConfig fields, environment variables, or a secrets manager.",
   },
 ];
 
 const SCAN_EXTENSIONS = new Set([
-  ".ts", ".js", ".tsx", ".jsx", ".kt", ".java",
-  ".xml", ".json", ".properties", ".yaml", ".yml",
+  ".ts",
+  ".js",
+  ".tsx",
+  ".jsx",
+  ".kt",
+  ".java",
+  ".xml",
+  ".json",
+  ".properties",
+  ".yaml",
+  ".yml",
   ".gradle",
 ]);
 
@@ -114,4 +134,3 @@ export const secretsScanner: PreflightScanner = {
     return findings;
   },
 };
-

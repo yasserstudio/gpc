@@ -23,11 +23,7 @@ export function registerInitCommand(program: Command): void {
       }
 
       if (isInteractive(program) && !ci) {
-        const ciChoice = await promptSelect("Generate CI template?", [
-          "none",
-          "github",
-          "gitlab",
-        ]);
+        const ciChoice = await promptSelect("Generate CI template?", ["none", "github", "gitlab"]);
         if (ciChoice !== "none") ci = ciChoice as "github" | "gitlab";
       }
 
@@ -59,7 +55,9 @@ export function registerInitCommand(program: Command): void {
       }
 
       console.log("");
-      console.log(`${green("✓")} Project initialized (${result.created.length} file${result.created.length === 1 ? "" : "s"} created)`);
+      console.log(
+        `${green("✓")} Project initialized (${result.created.length} file${result.created.length === 1 ? "" : "s"} created)`,
+      );
 
       if (result.created.some((f) => f.includes(".gpcrc.json"))) {
         console.log(dim("\nNext steps:"));

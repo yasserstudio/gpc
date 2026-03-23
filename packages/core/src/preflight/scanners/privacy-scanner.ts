@@ -10,9 +10,15 @@ interface TrackingSdk {
 }
 
 const TRACKING_SDKS: TrackingSdk[] = [
-  { name: "Facebook SDK", pattern: /(?:com\.facebook\.sdk|com\.facebook\.android|FacebookSdk\.sdkInitialize)/i },
+  {
+    name: "Facebook SDK",
+    pattern: /(?:com\.facebook\.sdk|com\.facebook\.android|FacebookSdk\.sdkInitialize)/i,
+  },
   { name: "Adjust SDK", pattern: /(?:com\.adjust\.sdk|AdjustConfig|AdjustEvent)/i },
-  { name: "AppsFlyer SDK", pattern: /(?:com\.appsflyer|AppsFlyerLib|AppsFlyerConversionListener)/i },
+  {
+    name: "AppsFlyer SDK",
+    pattern: /(?:com\.appsflyer|AppsFlyerLib|AppsFlyerConversionListener)/i,
+  },
   { name: "Amplitude SDK", pattern: /(?:com\.amplitude|AmplitudeClient|@amplitude\/analytics)/i },
   { name: "Mixpanel SDK", pattern: /(?:com\.mixpanel|MixpanelAPI|@mixpanel)/i },
   { name: "Branch SDK", pattern: /(?:io\.branch\.referral|Branch\.getInstance)/i },
@@ -21,8 +27,15 @@ const TRACKING_SDKS: TrackingSdk[] = [
 ];
 
 const SCAN_EXTENSIONS = new Set([
-  ".kt", ".java", ".xml", ".gradle",
-  ".ts", ".js", ".tsx", ".jsx", ".json",
+  ".kt",
+  ".java",
+  ".xml",
+  ".gradle",
+  ".ts",
+  ".js",
+  ".tsx",
+  ".jsx",
+  ".json",
 ]);
 
 export const privacyScanner: PreflightScanner = {
@@ -50,9 +63,7 @@ export const privacyScanner: PreflightScanner = {
 
         if (sdk.pattern.test(content)) {
           detectedSdks.add(sdk.name);
-          const relativePath = filePath.startsWith(dir)
-            ? filePath.slice(dir.length + 1)
-            : filePath;
+          const relativePath = filePath.startsWith(dir) ? filePath.slice(dir.length + 1) : filePath;
 
           findings.push({
             scanner: "privacy",
@@ -60,14 +71,19 @@ export const privacyScanner: PreflightScanner = {
             severity: "warning",
             title: `${sdk.name} detected`,
             message: `${sdk.name} found in ${relativePath}. This SDK typically collects analytics or attribution data that must be declared in your Data Safety form.`,
-            suggestion: "Ensure your Data Safety declaration accurately lists all data types collected by this SDK.",
+            suggestion:
+              "Ensure your Data Safety declaration accurately lists all data types collected by this SDK.",
             policyUrl: "https://support.google.com/googleplay/android-developer/answer/10787469",
           });
         }
       }
 
       // Check for ADVERTISING_ID
-      if (content.includes("AD_ID") || content.includes("ADVERTISING_ID") || content.includes("AdvertisingIdClient")) {
+      if (
+        content.includes("AD_ID") ||
+        content.includes("ADVERTISING_ID") ||
+        content.includes("AdvertisingIdClient")
+      ) {
         if (!detectedSdks.has("_ad_id")) {
           detectedSdks.add("_ad_id");
           findings.push({
@@ -75,8 +91,10 @@ export const privacyScanner: PreflightScanner = {
             ruleId: "advertising-id-usage",
             severity: "warning",
             title: "Advertising ID usage detected",
-            message: "Your app appears to access the Advertising ID. This must be declared in your Data Safety form under 'Device or other IDs'.",
-            suggestion: "Declare Advertising ID collection in Play Console > Data safety. If your app targets children, Advertising ID usage is restricted.",
+            message:
+              "Your app appears to access the Advertising ID. This must be declared in your Data Safety form under 'Device or other IDs'.",
+            suggestion:
+              "Declare Advertising ID collection in Play Console > Data safety. If your app targets children, Advertising ID usage is restricted.",
             policyUrl: "https://support.google.com/googleplay/android-developer/answer/11043825",
           });
         }
@@ -110,7 +128,8 @@ export const privacyScanner: PreflightScanner = {
           severity: "info",
           title: "Data collection cross-reference",
           message: `Your app requests permissions for: ${collectedTypes.join(", ")}. Combined with ${detectedSdks.size} tracking SDK(s), ensure your Data Safety form declares all collected data types.`,
-          suggestion: "Review your Data Safety form at Play Console > Policy > App content > Data safety.",
+          suggestion:
+            "Review your Data Safety form at Play Console > Policy > App content > Data safety.",
           policyUrl: "https://support.google.com/googleplay/android-developer/answer/10787469",
         });
       }
@@ -119,4 +138,3 @@ export const privacyScanner: PreflightScanner = {
     return findings;
   },
 };
-

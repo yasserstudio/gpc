@@ -20,9 +20,7 @@ export async function loadPreflightConfig(configPath?: string): Promise<Prefligh
   try {
     parsed = JSON.parse(raw) as Record<string, unknown>;
   } catch {
-    throw new Error(
-      `Invalid JSON in ${path}. Check the file for syntax errors.`,
-    );
+    throw new Error(`Invalid JSON in ${path}. Check the file for syntax errors.`);
   }
 
   const config: PreflightConfig = { ...DEFAULT_PREFLIGHT_CONFIG };
@@ -53,7 +51,9 @@ export async function loadPreflightConfig(configPath?: string): Promise<Prefligh
 
   if (typeof parsed["severityOverrides"] === "object" && parsed["severityOverrides"] !== null) {
     const overrides: Record<string, FindingSeverity> = {};
-    for (const [key, val] of Object.entries(parsed["severityOverrides"] as Record<string, unknown>)) {
+    for (const [key, val] of Object.entries(
+      parsed["severityOverrides"] as Record<string, unknown>,
+    )) {
       if (typeof val === "string" && VALID_SEVERITIES.has(val)) {
         overrides[key] = val as FindingSeverity;
       }

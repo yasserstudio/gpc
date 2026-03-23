@@ -48,34 +48,46 @@ describe("privacyScanner", () => {
   });
 
   it("detects Facebook SDK", async () => {
-    await writeFile(join(tmpDir, "App.kt"), `
+    await writeFile(
+      join(tmpDir, "App.kt"),
+      `
       import com.facebook.sdk.FacebookSdk
-    `);
+    `,
+    );
     const findings = await privacyScanner.scan(makeCtx(tmpDir));
     expect(findings.some((f) => f.ruleId === "tracking-facebook-sdk")).toBe(true);
   });
 
   it("detects Adjust SDK", async () => {
-    await writeFile(join(tmpDir, "Tracker.kt"), `
+    await writeFile(
+      join(tmpDir, "Tracker.kt"),
+      `
       import com.adjust.sdk.Adjust
       val config = AdjustConfig(this, "token", AdjustConfig.ENVIRONMENT_PRODUCTION)
-    `);
+    `,
+    );
     const findings = await privacyScanner.scan(makeCtx(tmpDir));
     expect(findings.some((f) => f.ruleId === "tracking-adjust-sdk")).toBe(true);
   });
 
   it("detects AppsFlyer SDK", async () => {
-    await writeFile(join(tmpDir, "Analytics.java"), `
+    await writeFile(
+      join(tmpDir, "Analytics.java"),
+      `
       import com.appsflyer.AppsFlyerLib;
-    `);
+    `,
+    );
     const findings = await privacyScanner.scan(makeCtx(tmpDir));
     expect(findings.some((f) => f.ruleId === "tracking-appsflyer-sdk")).toBe(true);
   });
 
   it("detects Advertising ID usage", async () => {
-    await writeFile(join(tmpDir, "AdHelper.kt"), `
+    await writeFile(
+      join(tmpDir, "AdHelper.kt"),
+      `
       val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context)
-    `);
+    `,
+    );
     const findings = await privacyScanner.scan(makeCtx(tmpDir));
     expect(findings.some((f) => f.ruleId === "advertising-id-usage")).toBe(true);
   });
