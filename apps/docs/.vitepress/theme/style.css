@@ -1505,15 +1505,22 @@ html {
   .VPHero .actions {
     flex-direction: column !important;
     align-items: stretch !important;
-    gap: 8px !important;
+    gap: 6px !important;
+    margin-top: 20px !important;
+  }
+
+  .VPHero .actions .action {
+    width: 100% !important;
   }
 
   .VPButton.medium.brand,
   .VPButton.medium.alt {
-    padding: 11px 20px !important;
+    padding: 10px 20px !important;
     font-size: 0.85rem !important;
     text-align: center !important;
     justify-content: center !important;
+    display: block !important;
+    width: 100% !important;
   }
 
   /* Button icons — hide on small screens */
