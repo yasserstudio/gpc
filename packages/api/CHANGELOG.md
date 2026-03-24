@@ -1,5 +1,11 @@
 # @gpc-cli/api
 
+## 1.0.22
+
+### Patch Changes
+
+- fix: resumable upload final chunk completion detection and hardening
+
 ## 1.0.21
 
 ### Patch Changes
