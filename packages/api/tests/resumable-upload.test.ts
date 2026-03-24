@@ -378,4 +378,84 @@ describe("resumableUpload", () => {
     // ETA for second event (100%) should be 0 (no bytes remaining)
     expect(events[1]!.etaSeconds).toBeLessThanOrEqual(0);
   });
+
+  it("recovers when final chunk times out but server has all bytes", async () => {
+    const chunkSize = 256 * 1024;
+    const fileSize = chunkSize + 128 * 1024; // 1.5 chunks — final chunk is partial
+    const sessionUri = "https://upload.example.com/session/final-chunk-timeout";
+    const bundle = { versionCode: 142, sha256: "abc123" };
+
+    mockStat.mockResolvedValue({ size: fileSize });
+    mockOpen.mockResolvedValue(createMockFileHandle(fileSize));
+
+    // Initiate
+    mockFetch.mockResolvedValueOnce(
+      new Response("", { status: 200, headers: { Location: sessionUri } }),
+    );
+
+    // Chunk 1: 308 (accepted)
+    mockFetch.mockResolvedValueOnce(new Response("", { status: 308 }));
+
+    // Chunk 2 (final, partial): network timeout → returns undefined
+    mockFetch.mockRejectedValueOnce(new Error("network timeout"));
+
+    // Retry: query progress → 200 (server has all bytes, upload complete)
+    mockFetch.mockResolvedValueOnce(new Response("", { status: 200 }));
+
+    // fetchCompletionResponse → 200 with bundle data
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify(bundle), { status: 200 }),
+    );
+
+    const ctx = mockCtx();
+    const result = await resumableUpload(
+      "https://upload.example.com/bundles",
+      "/tmp/app.aab",
+      "application/octet-stream",
+      ctx,
+      { chunkSize },
+    );
+
+    expect(result.data).toEqual(bundle);
+    expect(result.status).toBe(200);
+  });
+
+  it("recovers via post-loop query when all bytes sent but no completion captured", async () => {
+    const chunkSize = 256 * 1024;
+    const fileSize = chunkSize; // exactly one chunk
+    const sessionUri = "https://upload.example.com/session/post-loop-recovery";
+    const bundle = { versionCode: 200 };
+
+    mockStat.mockResolvedValue({ size: fileSize });
+    mockOpen.mockResolvedValue(createMockFileHandle(fileSize));
+
+    // Initiate
+    mockFetch.mockResolvedValueOnce(
+      new Response("", { status: 200, headers: { Location: sessionUri } }),
+    );
+
+    // Chunk 1: 308 (accepted, not final — but it IS the last chunk)
+    // This simulates a race where server returns 308 instead of 200 on the final chunk
+    mockFetch.mockResolvedValueOnce(new Response("", { status: 308 }));
+
+    // Post-loop: queryProgress → 200 (server confirms complete)
+    mockFetch.mockResolvedValueOnce(new Response("", { status: 200 }));
+
+    // Post-loop: fetchCompletionResponse → 200 with bundle
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify(bundle), { status: 200 }),
+    );
+
+    const ctx = mockCtx();
+    const result = await resumableUpload(
+      "https://upload.example.com/bundles",
+      "/tmp/app.aab",
+      "application/octet-stream",
+      ctx,
+      { chunkSize },
+    );
+
+    expect(result.data).toEqual(bundle);
+    expect(result.status).toBe(200);
+  });
 });

@@ -116,8 +116,20 @@ export async function resumableUpload<T>(
           // Query server for actual progress before retrying
           try {
             const serverOffset = await queryProgress(sessionUri, totalBytes, ctx);
+            if (serverOffset >= totalBytes) {
+              // Upload is fully complete — server has all bytes
+              // Fetch the completion response via one more query
+              const completionResult = await fetchCompletionResponse<T>(sessionUri, totalBytes, ctx);
+              if (completionResult) {
+                result = completionResult;
+                break;
+              }
+              // If we can't get the response, treat as complete without body
+              result = { complete: true, response: { data: {} as T, status: 200 } };
+              break;
+            }
             if (serverOffset >= offset + bytesRead) {
-              // Server already has this chunk, advance
+              // Server already has this chunk but upload not finished, advance
               result = { complete: false };
               break;
             }
@@ -176,12 +188,27 @@ export async function resumableUpload<T>(
       }
     }
 
-    // Should not reach here — last chunk should have returned complete
+    // All bytes sent but no completion response captured — verify with server
+    try {
+      const serverOffset = await queryProgress(sessionUri, totalBytes, ctx);
+      if (serverOffset >= totalBytes) {
+        // Upload IS complete — server confirmed. Fetch the resource.
+        const completionResult = await fetchCompletionResponse<T>(sessionUri, totalBytes, ctx);
+        if (completionResult?.response) {
+          return completionResult.response;
+        }
+        // Server confirmed complete but no parseable body — return empty
+        return { data: {} as T, status: 200 };
+      }
+    } catch {
+      // Query failed — fall through to error
+    }
+
     throw new PlayApiError(
       "Upload finished sending all bytes but did not receive a completion response",
       "UPLOAD_NO_COMPLETION",
       undefined,
-      "This is unexpected. Try uploading again.",
+      `The upload session may still be valid. Resume with: --resume-uri "${sessionUri}"`,
     );
   } finally {
     await fh?.close();
@@ -329,6 +356,39 @@ async function sendChunk<T>(
     response.status,
     "The upload encountered an unexpected error.",
   );
+}
+
+/**
+ * When queryProgress confirms the upload is complete (200/201),
+ * re-query the session to get the final resource response body.
+ */
+async function fetchCompletionResponse<T>(
+  sessionUri: string,
+  totalBytes: number,
+  ctx: ResumableUploadContext,
+): Promise<ChunkResult<T> | undefined> {
+  const token = await ctx.getAccessToken();
+  try {
+    const response = await fetch(sessionUri, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Length": "0",
+        "Content-Range": `bytes */${totalBytes}`,
+      },
+    });
+
+    if (response.status === 200 || response.status === 201) {
+      const text = await response.text();
+      const data = text ? (JSON.parse(text) as T) : ({} as T);
+      return { complete: true, response: { data, status: response.status } };
+    }
+
+    await response.body?.cancel();
+    return undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 async function queryProgress(
