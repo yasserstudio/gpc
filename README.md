@@ -395,5 +395,9 @@ pnpm test    # 1,737 tests across 7 packages
 ---
 
 <p align="center">
+  <sub>Made by <a href="https://yasser.studio">Yasser's Studio</a> · <a href="https://x.com/yassersstudio">@yassersstudio</a></sub>
+</p>
+
+<p align="center">
   <sub>GPC is an independent, open-source project. Not affiliated with, endorsed by, or sponsored by Google LLC. "Google Play" and the Google Play logo are trademarks of Google LLC. "Android" and "Google" are trademarks of Google LLC.</sub>
 </p>
