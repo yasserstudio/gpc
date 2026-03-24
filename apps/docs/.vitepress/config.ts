@@ -129,7 +129,7 @@ export default defineConfig({
   },
 
   head: [
-    ["link", { rel: "icon", href: "/gpc/favicon.svg", type: "image/svg+xml" }],
+    ["link", { rel: "icon", href: "/gpc/favicon.png", type: "image/png" }],
     ["link", { rel: "preconnect", href: "https://fonts.googleapis.com" }],
     ["link", { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" }],
     ["link", { rel: "dns-prefetch", href: "https://fonts.googleapis.com" }],
@@ -220,7 +220,7 @@ export default defineConfig({
   },
 
   themeConfig: {
-    logo: "/logo.svg",
+    logo: "/logo.png",
     siteTitle: "Google Play Console CLI",
 
     outline: { level: [2, 3], label: "On this page" },

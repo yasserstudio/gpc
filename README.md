@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./assets/icon-200.png" alt="GPC icon" width="120">
+</p>
+
 # GPC — Google Play Console CLI
 
 <p align="center">
