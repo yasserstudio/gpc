@@ -52,11 +52,26 @@ export async function runPreflight(options: PreflightOptions): Promise<Preflight
   const ctx: PreflightContext = { config };
 
   // Open AAB if provided
+  const earlyFindings: PreflightFinding[] = [];
   if (options.aabPath) {
     ctx.aabPath = options.aabPath;
     const aab = await readAab(options.aabPath);
     ctx.manifest = aab.manifest;
     ctx.zipEntries = aab.entries;
+
+    // If manifest had a parse error, emit a warning and clear manifest
+    // so manifest-dependent scanners are skipped gracefully
+    if (aab.manifest._parseError) {
+      earlyFindings.push({
+        scanner: "manifest-parser",
+        ruleId: "manifest-parse-error",
+        severity: "warning",
+        title: "Manifest could not be fully parsed",
+        message: aab.manifest._parseError,
+        suggestion: "Manifest-dependent scanners (manifest, permissions, policy, privacy) were skipped. Other scanners (native-libs, size, secrets, billing) still ran.",
+      });
+      ctx.manifest = undefined;
+    }
   }
 
   if (options.metadataDir) ctx.metadataDir = options.metadataDir;
@@ -86,7 +101,7 @@ export async function runPreflight(options: PreflightOptions): Promise<Preflight
   const settled = await Promise.allSettled(applicableScanners.map((scanner) => scanner.scan(ctx)));
 
   // Flatten findings, report scanner failures as error findings
-  let findings: PreflightFinding[] = [];
+  let findings: PreflightFinding[] = [...earlyFindings];
   for (let i = 0; i < settled.length; i++) {
     const result = settled[i]!;
     if (result.status === "fulfilled") {

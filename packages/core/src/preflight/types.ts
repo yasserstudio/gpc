@@ -81,6 +81,8 @@ export interface ParsedManifest {
   services: ManifestComponent[];
   receivers: ManifestComponent[];
   providers: ManifestComponent[];
+  /** Set when the manifest could not be fully parsed — manifest-dependent scanners should skip. */
+  _parseError?: string;
 }
 
 export interface ManifestFeature {

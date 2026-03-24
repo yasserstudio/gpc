@@ -25,9 +25,43 @@ export async function readAab(aabPath: string): Promise<AabContents> {
     );
   }
 
-  const manifest = decodeManifest(manifestBuf);
+  let manifest: ParsedManifest;
+  try {
+    manifest = decodeManifest(manifestBuf);
+  } catch (err) {
+    // Some AABs have manifests that protobufjs cannot fully parse
+    // (e.g., larger bundles with complex resource tables).
+    // Fall back to a minimal manifest so non-manifest scanners can still run.
+    const errMsg = err instanceof Error ? err.message : String(err);
+    if (errMsg.includes("index out of range") || errMsg.includes("invalid wire type")) {
+      manifest = createFallbackManifest();
+      manifest._parseError = `Manifest could not be fully parsed: ${errMsg}. Manifest-dependent checks will be skipped.`;
+    } else {
+      throw err;
+    }
+  }
 
   return { manifest, entries };
+}
+
+function createFallbackManifest(): ParsedManifest {
+  return {
+    packageName: "",
+    versionCode: 0,
+    versionName: "",
+    minSdk: 0,
+    targetSdk: 0,
+    debuggable: false,
+    testOnly: false,
+    usesCleartextTraffic: false,
+    extractNativeLibs: true,
+    permissions: [],
+    features: [],
+    activities: [],
+    services: [],
+    receivers: [],
+    providers: [],
+  };
 }
 
 /**
