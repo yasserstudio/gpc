@@ -22,6 +22,13 @@
     "bench": "tsx benchmarks/startup.bench.ts && tsx benchmarks/command-latency.bench.ts",
     "license:check": "tsx scripts/check-licenses.ts"
   },
+  "prettier": {
+    "semi": true,
+    "singleQuote": false,
+    "trailingComma": "all",
+    "tabWidth": 2,
+    "printWidth": 100
+  },
   "devDependencies": {
     "@changesets/cli": "^2.30.0",
     "@eslint/js": "^10.0.1",
