@@ -7,6 +7,28 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.43
+
+Upload fix and enhanced error messages.
+
+- fix: **resumable uploads now work** — Node.js `fetch` was following HTTP 308 as a redirect (RFC 7238), breaking Google's "Resume Incomplete" protocol on every chunked upload. Added `X-GUploader-No-308` header (same fix as Google's official Go client library).
+- fix: upload completion detection — when the final chunk response is lost to a timeout, GPC queries the server to confirm and recover the bundle resource
+- fix: upload progress queries now have a 30-second timeout (were unbounded)
+- fix: malformed server responses during upload no longer crash with a raw `SyntaxError`
+- feat: 12 smart error messages for common API failures — duplicate version code, version code too low, package mismatch, app not found, insufficient permissions, edit conflict, bundle too large, invalid bundle, track not found, release notes too long, rollout already completed, edit expired. Each with a clear message and actionable fix commands.
+
+---
+
+## v0.9.42
+
+Upload fix (partial — root cause found in v0.9.43).
+
+- fix: upload completion detection recovery and post-loop server verification
+- fix: 30-second timeouts on upload progress queries
+- fix: safe JSON parsing for malformed server responses
+
+---
+
 ## v0.9.41
 
 Bug fixes, code quality, and zero open bugs.
