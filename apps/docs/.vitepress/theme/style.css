@@ -455,17 +455,27 @@ html {
 }
 
 .VPHero .name .clip {
-  background-size: 300% auto !important;
-  animation: gradientSweep 7s linear infinite;
-  filter: drop-shadow(0 2px 12px rgba(46, 66, 147, 0.35));
+  background-image: linear-gradient(
+    115deg,
+    #1a2260 0%,
+    #2e4293 25%,
+    #4a5eb8 40%,
+    #aab8f0 50%,
+    #4a5eb8 60%,
+    #2e4293 75%,
+    #1a2260 100%
+  ) !important;
+  background-size: 200% auto !important;
+  animation: shimmer 4s ease-in-out infinite;
+  filter: drop-shadow(0 2px 16px rgba(46, 66, 147, 0.4));
 }
 
-@keyframes gradientSweep {
+@keyframes shimmer {
   0% {
-    background-position: 0% center;
+    background-position: 100% center;
   }
   100% {
-    background-position: 300% center;
+    background-position: -100% center;
   }
 }
 
