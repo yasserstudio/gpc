@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Question / Discussion
-    url: https://github.com/YOUR_USERNAME/gpc/discussions
+    url: https://github.com/yasserstudio/gpc/discussions
     about: Ask questions and discuss ideas
   - name: Documentation
-    url: https://gpc.dev
+    url: https://yasserstudio.github.io/gpc/
     about: Read the documentation
