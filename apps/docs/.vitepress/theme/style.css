@@ -2,7 +2,7 @@
    GPC Documentation — "Signal Blue" Design System
    Aesthetic: Obsidian Terminal × Technical Editorial
    Dark:  #090a0f base · #4d95f1 accent · Inter + JetBrains Mono
-   Light: #f6f8fc base · #1a73e8 accent
+   Light: #f6f8fc base · #2e4293 accent
    ================================================================ */
 
 /* ── Fonts ─────────────────────────────────────────────────────── */
@@ -17,10 +17,10 @@
   --gpc-font-display: "Inter", system-ui, sans-serif;
 
   /* Brand — light */
-  --vp-c-brand-1: #1a73e8;
-  --vp-c-brand-2: #1567d3;
-  --vp-c-brand-3: #115bbf;
-  --vp-c-brand-soft: rgba(26, 115, 232, 0.09);
+  --vp-c-brand-1: #2e4293;
+  --vp-c-brand-2: #263883;
+  --vp-c-brand-3: #1e2e73;
+  --vp-c-brand-soft: rgba(46, 66, 147, 0.09);
 
   /* Backgrounds — light */
   --vp-c-bg: #f6f8fc;
@@ -43,27 +43,27 @@
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: linear-gradient(
     115deg,
-    #115bbf 0%,
-    #1a73e8 30%,
-    #4d95f1 68%,
-    #d3e3fd 100%
+    #1e2e73 0%,
+    #2e4293 30%,
+    #5a6fbf 68%,
+    #c8d0f0 100%
   );
   --vp-home-hero-image-background-image: none;
   --vp-home-hero-image-filter: none;
 
   /* Code */
   --vp-code-block-bg: #090f1a;
-  --vp-code-line-highlight-color: rgba(26, 115, 232, 0.11);
+  --vp-code-line-highlight-color: rgba(46, 66, 147, 0.11);
 
   /* Badges */
-  --vp-badge-tip-bg: rgba(26, 115, 232, 0.11);
-  --vp-badge-tip-text: #1a73e8;
+  --vp-badge-tip-bg: rgba(46, 66, 147, 0.11);
+  --vp-badge-tip-text: #2e4293;
 
   /* Callouts */
-  --vp-custom-block-tip-bg: rgba(26, 115, 232, 0.06);
-  --vp-custom-block-tip-border: rgba(26, 115, 232, 0.35);
+  --vp-custom-block-tip-bg: rgba(46, 66, 147, 0.06);
+  --vp-custom-block-tip-border: rgba(46, 66, 147, 0.35);
   --vp-custom-block-tip-text: #0c1e40;
-  --vp-custom-block-tip-code-bg: rgba(26, 115, 232, 0.08);
+  --vp-custom-block-tip-code-bg: rgba(46, 66, 147, 0.08);
 
   /* Nav */
   --vp-nav-bg-color: rgba(246, 248, 252, 0.88);
@@ -77,8 +77,8 @@
   --vp-shadow-3: 0 8px 40px rgba(10, 40, 80, 0.15);
 
   /* Internal tokens */
-  --gpc-accent: #1a73e8;
-  --gpc-accent-dim: rgba(26, 115, 232, 0.13);
+  --gpc-accent: #2e4293;
+  --gpc-accent-dim: rgba(46, 66, 147, 0.13);
   --gpc-radius: 8px;
   --gpc-radius-lg: 14px;
 }
@@ -138,7 +138,7 @@
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(26, 115, 232, 0.5) transparent;
+  scrollbar-color: rgba(46, 66, 147, 0.5) transparent;
 }
 
 .dark * {
@@ -153,11 +153,11 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(26, 115, 232, 0.4);
+  background-color: rgba(46, 66, 147, 0.4);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #1a73e8;
+  background-color: #2e4293;
 }
 
 .dark ::-webkit-scrollbar-thumb {
@@ -422,8 +422,8 @@ html {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 60% 80% at 30% 50%, rgba(26, 115, 232, 0.14) 0%, transparent 65%),
-    radial-gradient(circle at 1px 1px, rgba(26, 115, 232, 0.18) 1px, transparent 0);
+    radial-gradient(ellipse 60% 80% at 30% 50%, rgba(46, 66, 147, 0.14) 0%, transparent 65%),
+    radial-gradient(circle at 1px 1px, rgba(46, 66, 147, 0.18) 1px, transparent 0);
   background-size:
     100% 100%,
     28px 28px;
@@ -636,7 +636,7 @@ html {
 .VPFeature:hover {
   transform: translateY(-3px);
   box-shadow:
-    0 4px 24px rgba(26, 115, 232, 0.12),
+    0 4px 24px rgba(46, 66, 147, 0.12),
     0 1px 4px rgba(10, 40, 80, 0.06) !important;
   border-color: var(--vp-c-brand-1) !important;
 }

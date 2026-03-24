@@ -44,7 +44,7 @@ defineProps<{
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #1a73e8 0%, #4d95f1 50%, #8fbdf7 100%);
+  background: linear-gradient(90deg, #2e4293 0%, #5a6fbf 50%, #8b9de0 100%);
 }
 
 .ch-top {
