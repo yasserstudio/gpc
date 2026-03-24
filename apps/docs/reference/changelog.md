@@ -11,7 +11,8 @@ All notable user-facing changes to GPC are documented here. For full release det
 
 _March 2026_
 
-- fix: AAB uploads now complete reliably — the resumable upload protocol no longer fails when the final chunk response times out. All uploads over 5 MB were affected.
+- fix: **resumable uploads now work correctly** — Node.js `fetch` was silently following HTTP 308 as a redirect (RFC 7238), breaking Google's "Resume Incomplete" protocol. Added `X-GUploader-No-308` header (same fix as Google's official Go client) so the server uses `X-Http-Status-Code-Override: 308` instead of a real 308 status.
+- fix: upload completion detection — when the final chunk response is lost to a timeout, GPC now queries the server to confirm and recover the bundle resource.
 - fix: upload progress queries now have a 30-second timeout (were unbounded)
 - fix: malformed server responses during upload no longer crash with a raw `SyntaxError`
 - feat: smart error messages for 12 common API failure scenarios — duplicate version code, version code too low, package mismatch, app not found, insufficient permissions, edit conflict, bundle too large, invalid bundle, track not found, release notes too long, rollout already completed, edit expired. Each error includes a clear message and actionable fix with exact commands.
