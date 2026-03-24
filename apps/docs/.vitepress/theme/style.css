@@ -723,60 +723,58 @@ html {
 }
 
 /* Icon: solid blue background, white icon */
-.VPFeature .icon {
+/* Feature icon — 3D PNG with colored blob */
+.VPFeature .box > .VPImage {
   width: 56px !important;
   height: 56px !important;
-  border-radius: 50% !important;
-  background: transparent !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin-bottom: 20px !important;
-  padding: 0 !important;
   position: relative;
-  transition: transform 0.25s ease !important;
+  z-index: 1;
+  margin-bottom: 16px !important;
+  transition: transform 0.25s ease;
 }
 
-.VPFeature .icon::before {
-  content: "";
-  position: absolute;
-  inset: -12px;
-  border-radius: 50%;
-  filter: blur(18px);
-  opacity: 0.35;
-  z-index: -1;
-  transition: opacity 0.25s ease;
-}
-
-.VPFeature:hover .icon {
+.VPFeature:hover .box > .VPImage {
   transform: scale(1.08);
 }
 
-.VPFeature:hover .icon::before {
+/* Blob glow behind each icon */
+.VPFeature .box {
+  position: relative;
+}
+
+.VPFeature .box::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  filter: blur(20px);
+  opacity: 0.3;
+  z-index: 0;
+  transition: opacity 0.25s ease;
+}
+
+.VPFeature:hover .box::before {
   opacity: 0.5;
 }
 
-.VPFeature .icon img {
-  width: 56px !important;
-  height: 56px !important;
-  object-fit: contain;
-}
-
 /* Colored blobs per feature — matched to icon dominant color */
-.VPFeature:nth-child(1) .icon::before { background: #4285f4; } /* goal — blue/red target */
-.VPFeature:nth-child(2) .icon::before { background: #ea4335; } /* shield — red/silver */
-.VPFeature:nth-child(3) .icon::before { background: #f9ab00; } /* lightning — gold */
-.VPFeature:nth-child(4) .icon::before { background: #f29900; } /* box — orange */
-.VPFeature:nth-child(5) .icon::before { background: #34a853; } /* analytics — green/purple */
-.VPFeature:nth-child(6) .icon::before { background: #34a853; } /* plug — green/yellow */
+.VPFeatures .item:nth-child(1) .box::before { background: #4285f4; }
+.VPFeatures .item:nth-child(2) .box::before { background: #ea4335; }
+.VPFeatures .item:nth-child(3) .box::before { background: #f9ab00; }
+.VPFeatures .item:nth-child(4) .box::before { background: #f29900; }
+.VPFeatures .item:nth-child(5) .box::before { background: #34a853; }
+.VPFeatures .item:nth-child(6) .box::before { background: #34a853; }
 
-/* Dark mode — stronger glow */
-.dark .VPFeature .icon::before {
-  opacity: 0.25;
+/* Dark mode — subtler glow */
+.dark .VPFeature .box::before {
+  opacity: 0.2;
 }
 
-.dark .VPFeature:hover .icon::before {
-  opacity: 0.45;
+.dark .VPFeature:hover .box::before {
+  opacity: 0.4;
 }
 
 .VPFeature .title {
