@@ -236,6 +236,60 @@ type PluginPermission =
 4. Error handlers in plugins are wrapped -- a failing handler cannot crash GPC
 5. Plugin approval can be revoked: `gpc plugins revoke <name>`
 
+## Repository Security
+
+### Branch Protection
+
+The `main` branch is protected with the following rules:
+
+| Rule                    | Setting  | Why                                        |
+| ----------------------- | -------- | ------------------------------------------ |
+| Required status checks  | `check`, `analyze` | CI + CodeQL must pass before merge |
+| Strict status checks    | Enabled  | Branch must be up-to-date with `main`      |
+| Force pushes            | Disabled | Prevents history rewriting                 |
+| Deletions               | Disabled | Prevents accidental branch deletion        |
+| Enforce admins          | Disabled | Repo owner can bypass for emergencies      |
+
+### Secret Scanning
+
+GitHub secret scanning is enabled on the repository. It monitors all pushes for 200+ secret patterns including:
+
+- Google API keys (`AIza...`)
+- AWS access keys (`AKIA...`)
+- Stripe keys (`sk_live_...`, `sk_test_...`)
+- npm tokens (`npm_...`)
+- GitHub tokens (`ghp_...`, `gho_...`, `github_pat_...`)
+- Private keys (PEM format)
+
+Push protection blocks any commit containing a detected secret before it reaches the remote.
+
+### Automated Security
+
+| Tool         | Trigger             | What it checks                          |
+| ------------ | ------------------- | --------------------------------------- |
+| CodeQL       | Every push and PR   | Static analysis for JS/TS vulnerabilities |
+| Dependabot   | Weekly              | Dependency version and security updates |
+| Secret scan  | Every push          | 200+ secret patterns in code            |
+| `pnpm audit` | CI pipeline         | Known CVEs in dependency tree           |
+
+### History Hygiene
+
+- Private strategy documents are never committed to the repository
+- Internal docs live in `.dev/` (gitignored) — never tracked by git
+- Machine-specific files (`.vscode/`, `AGENTS.md`, agent skills) are gitignored
+- Benchmark results are gitignored (only scripts are tracked)
+
+### What's Tracked vs Gitignored
+
+| Tracked (visible on GitHub)          | Gitignored (local only)                |
+| ------------------------------------ | -------------------------------------- |
+| `.github/` (workflows, templates)    | `.dev/` (private docs, strategy)       |
+| `.changeset/` (versioning config)    | `.agents/`, `.claude/skills` (AI tools)|
+| `.gitignore`, `.npmrc`               | `.vscode/` (editor settings)           |
+| `CLAUDE.md` (project instructions)   | `AGENTS.md` (agent skill metadata)     |
+| `SECURITY.md` (disclosure policy)    | `.turbo/` (build cache)                |
+| Source code, tests, docs             | `node_modules/`, `dist/`, `.env`       |
+
 ## CI/CD Security Guidelines
 
 ### Secrets Management
