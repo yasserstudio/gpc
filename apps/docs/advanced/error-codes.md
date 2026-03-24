@@ -134,19 +134,40 @@ Exit code: `3`
 
 Exit code: `4`
 
-| Code                      | HTTP Status | Cause                                     | Fix                                            |
-| ------------------------- | ----------- | ----------------------------------------- | ---------------------------------------------- |
-| `API_RATE_LIMITED`        | 429         | Too many requests                         | Wait and retry; reduce `GPC_RATE_LIMIT`        |
-| `API_NOT_FOUND`           | 404         | Resource not found                        | Verify the package name or resource exists     |
-| `API_PERMISSION_DENIED`   | 403         | Service account lacks required permission | Grant permission in Play Console > Users       |
-| `API_UNAUTHORIZED`        | 401         | Invalid or expired token                  | Re-authenticate                                |
-| `API_VALIDATION_FAILED`   | 400         | Edit validation failed before commit      | Check error details for specific field issues  |
-| `API_EDIT_CONFLICT`       | 409         | Another edit in progress or Console used  | Retry the operation (GPC creates fresh edits)  |
-| `API_QUOTA_EXCEEDED`      | 429         | Daily or per-minute quota hit             | Wait for quota reset or request increase       |
-| `API_INVALID_ARGUMENT`    | 400         | API rejected a field value                | Check the error message for the specific field |
-| `API_PRECONDITION_FAILED` | 412         | Required state not met                    | Check release status, version codes, etc.      |
-| `API_SERVER_ERROR`        | 5xx         | Google server error                       | Auto-retried with exponential backoff          |
-| `API_TIMEOUT`             | --          | Request exceeded timeout                  | Increase `GPC_TIMEOUT`                         |
+GPC pattern-matches Google Play API error responses to provide specific, actionable error messages instead of raw API errors.
+
+#### Upload & Release Errors
+
+| Code | HTTP | What happened | What to do |
+| --- | --- | --- | --- |
+| `API_DUPLICATE_VERSION_CODE` | 400/403 | Version code already uploaded | Increment `versionCode` in build.gradle and rebuild. Check current: `gpc releases status --track production` |
+| `API_VERSION_CODE_TOO_LOW` | 400/403 | Version code lower than current | Google Play requires increasing version codes. Check current: `gpc releases status --track <track>` |
+| `API_PACKAGE_NAME_MISMATCH` | 400/403 | AAB package doesn't match target app | Verify `applicationId` in build.gradle matches the app. Check: `gpc config show` |
+| `API_BUNDLE_TOO_LARGE` | 400/413 | File exceeds Google's size limit | AAB max: 2 GB, APK max: 1 GB. Check: `gpc preflight <file>` |
+| `API_INVALID_BUNDLE` | 400 | Corrupted or malformed AAB/APK | Ensure properly signed. Validate: `gpc preflight <file>`. Rebuild: `./gradlew bundleRelease` |
+| `API_RELEASE_NOTES_TOO_LONG` | 400 | Release notes exceed 500 chars | Shorten per language. Preview: `gpc releases notes get --track <track>` |
+| `API_ROLLOUT_ALREADY_COMPLETED` | 400 | Release already at 100% rollout | Deploy a new version: `gpc releases upload --track <track>` |
+
+#### Access & Session Errors
+
+| Code | HTTP | What happened | What to do |
+| --- | --- | --- | --- |
+| `API_APP_NOT_FOUND` | 404 | App not in developer account | Verify package name. List apps: `gpc apps list` |
+| `API_TRACK_NOT_FOUND` | 404 | Track doesn't exist | Built-in: internal, alpha, beta, production. List custom: `gpc tracks list` |
+| `API_INSUFFICIENT_PERMISSIONS` | 403 | Service account missing permissions | Grant permissions in Play Console → Users and permissions. Verify: `gpc doctor` |
+| `API_EDIT_CONFLICT` | 409 | Another edit session open | Wait and retry. GPC auto-retries once. Or discard stale edit in Play Console |
+| `API_EDIT_EXPIRED` | 400 | Edit session timed out (~1 hour) | Retry — GPC opens a fresh edit automatically |
+
+#### General API Errors
+
+| Code | HTTP | What happened | What to do |
+| --- | --- | --- | --- |
+| `API_UNAUTHORIZED` | 401 | Invalid or expired token | Re-authenticate: `gpc auth login`. Run: `gpc doctor` |
+| `API_FORBIDDEN` | 403 | Generic permission denied | Check service account permissions. Run: `gpc doctor` |
+| `API_NOT_FOUND` | 404 | Resource not found | Verify package name and resource IDs. Run: `gpc apps list` |
+| `API_RATE_LIMITED` | 429 | Too many requests | GPC retries automatically with exponential backoff |
+| `API_SERVER_ERROR` | 5xx | Google server error | GPC retries automatically with exponential backoff |
+| `API_TIMEOUT` | -- | Request exceeded timeout | Increase timeout: `GPC_TIMEOUT=60000` |
 
 ### CONFIG\_\* -- Configuration Errors
 
@@ -238,22 +259,35 @@ interface GpcError {
 
 ## Common Error Scenarios
 
+### "Version code already used" on upload
+
+```
+Error [API_DUPLICATE_VERSION_CODE]: Version code 142 has already been uploaded to this app.
+
+  Increment versionCode in your build.gradle (or build.gradle.kts) and rebuild.
+  Check the current version with: gpc releases status --track production
+```
+
+**Fix:** Open `app/build.gradle` and increment `versionCode`. Rebuild and upload again.
+
 ### "Permission denied" on upload
 
 ```
-Error: API_PERMISSION_DENIED
-Message: The caller does not have permission
-Suggestion: Grant 'Release apps to testing tracks' to the service account in Play Console
+Error [API_INSUFFICIENT_PERMISSIONS]: The service account does not have permission for this operation.
+
+  In Google Play Console → Users and permissions → find your service account email.
+  Grant the required permissions (e.g., 'Release to production' for uploads).
+  Run gpc doctor to verify your credentials and permissions.
 ```
 
-**Fix:** Go to Play Console > Users and permissions > invite the service account email > grant "Release apps to testing tracks" (or "Release to production" for production track).
+**Fix:** Go to Play Console → Users and permissions → find the service account email → grant "Release to production" or "Release to testing tracks".
 
 ### "No credentials found" in CI
 
 ```
-Error: AUTH_MISSING_CREDENTIALS
-Message: No authentication credentials found
-Suggestion: Set GPC_SERVICE_ACCOUNT environment variable or run 'gpc auth login'
+Error [AUTH_MISSING_CREDENTIALS]: No authentication credentials found.
+
+  Set GPC_SERVICE_ACCOUNT environment variable or run 'gpc auth login'
 ```
 
 **Fix:** Ensure the `GPC_SERVICE_ACCOUNT` secret is set in your CI provider and passed as an environment variable to the job.
@@ -261,19 +295,33 @@ Suggestion: Set GPC_SERVICE_ACCOUNT environment variable or run 'gpc auth login'
 ### "Edit conflict" during release
 
 ```
-Error: API_EDIT_CONFLICT
-Message: Edit was invalidated by a concurrent change
-Suggestion: Retry the operation. Avoid making changes in Play Console during CI releases.
+Error [API_EDIT_CONFLICT]: An edit conflict occurred — another edit session is open for this app.
+
+  This usually means another process has an open edit (CI pipeline, Play Console, or another gpc instance).
+  Wait a few minutes and retry — GPC will auto-retry once.
+  Or discard the stale edit in the Google Play Console.
 ```
 
 **Fix:** Retry the command. If it persists, ensure no one is making changes in the Play Console web UI while the CI pipeline is running.
 
+### "App not found" on first use
+
+```
+Error [API_APP_NOT_FOUND]: This app was not found in your Google Play developer account.
+
+  Verify the package name is correct.
+  Ensure the app has been created in the Google Play Console.
+  List available apps with: gpc apps list
+```
+
+**Fix:** Double-check the package name with `gpc config show`. If the app is new, create it in the Play Console first, then invite the service account.
+
 ### "Threshold breach" halting rollout
 
 ```
-Error: THRESHOLD_CRASH_RATE
-Message: Crash rate 2.4% exceeds threshold 2.0%
-Suggestion: Investigate crash clusters with 'gpc vitals crashes' and consider halting the rollout
+Error [THRESHOLD_CRASH_RATE]: Crash rate 2.4% exceeds threshold 2.0%.
+
+  Investigate crash clusters with 'gpc vitals crashes' and consider halting the rollout.
 ```
 
-**Fix:** Run `gpc vitals crashes --json` to identify crash clusters. Consider halting the rollout with `gpc releases rollout halt --track production`.
+**Fix:** Run `gpc vitals crashes --json` to identify crash clusters. Halt the rollout with `gpc releases rollout halt --track production`.

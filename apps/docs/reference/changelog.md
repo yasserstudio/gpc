@@ -14,6 +14,7 @@ _March 2026_
 - fix: AAB uploads now complete reliably — the resumable upload protocol no longer fails when the final chunk response times out. All uploads over 5 MB were affected.
 - fix: upload progress queries now have a 30-second timeout (were unbounded)
 - fix: malformed server responses during upload no longer crash with a raw `SyntaxError`
+- feat: smart error messages for 12 common API failure scenarios — duplicate version code, version code too low, package mismatch, app not found, insufficient permissions, edit conflict, bundle too large, invalid bundle, track not found, release notes too long, rollout already completed, edit expired. Each error includes a clear message and actionable fix with exact commands.
 
 ---
 

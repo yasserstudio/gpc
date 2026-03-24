@@ -84,6 +84,52 @@ gpc auth login
 
 ---
 
+### Upload & Release Errors
+
+#### Version code already used
+
+**Symptom:** `Error [API_DUPLICATE_VERSION_CODE]: Version code 142 has already been uploaded to this app.`
+
+**Cause:** You're uploading an AAB/APK with a `versionCode` that was already uploaded.
+
+**Fix:**
+
+1. Check current versions: `gpc releases status --track production`
+2. Increment `versionCode` in your `app/build.gradle`
+3. Rebuild and upload again
+
+#### Package name mismatch
+
+**Symptom:** `Error [API_PACKAGE_NAME_MISMATCH]: The package name in the uploaded bundle does not match the target app.`
+
+**Cause:** The `applicationId` in your AAB doesn't match the app you're uploading to.
+
+**Fix:**
+
+1. Check configured app: `gpc config show`
+2. Verify `applicationId` in `build.gradle` matches
+3. Or specify explicitly: `gpc releases upload app.aab --app com.example.correct`
+
+#### Upload timeout on large files
+
+**Symptom:** `Error [API_TIMEOUT]` during AAB upload
+
+**Cause:** Large files need more time than the default 30-second timeout.
+
+**Fix:**
+
+```bash
+# Increase timeout (milliseconds)
+GPC_TIMEOUT=120000 gpc releases upload large-app.aab --track internal
+
+# Or use environment variable permanently
+export GPC_UPLOAD_TIMEOUT=300000
+```
+
+GPC uses resumable uploads for files over 5 MB. If a chunk fails, it auto-resumes from where it left off.
+
+---
+
 ### API Errors
 
 #### 403/401 on Vitals or Error Issues commands
