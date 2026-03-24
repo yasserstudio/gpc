@@ -1365,7 +1365,7 @@ html {
 @media (max-width: 960px) {
   .VPHero {
     padding-top: 80px !important;
-    padding-bottom: 64px !important;
+    padding-bottom: 48px !important;
   }
 
   .VPHero .name {
@@ -1378,6 +1378,12 @@ html {
 
   .VPHero .tagline {
     max-width: 100% !important;
+    font-size: 0.88rem !important;
+  }
+
+  /* Hide hero terminal on tablet — too cramped side by side */
+  .VPHero .image {
+    display: none !important;
   }
 }
 
@@ -1385,8 +1391,12 @@ html {
 @media (max-width: 768px) {
   /* Hero */
   .VPHero {
-    padding-top: 56px !important;
-    padding-bottom: 48px !important;
+    padding-top: 48px !important;
+    padding-bottom: 40px !important;
+  }
+
+  .VPHero .image {
+    display: none !important;
   }
 
   .VPHero .name {
@@ -1399,11 +1409,27 @@ html {
   }
 
   .VPHero .tagline {
-    font-size: 0.9rem !important;
+    font-size: 0.85rem !important;
+    line-height: 1.6 !important;
   }
 
   .VPHero .actions {
     justify-content: flex-start !important;
+  }
+
+  /* Feature blob — smaller on mobile */
+  .VPFeature .box::before {
+    width: 80px;
+    height: 80px;
+    top: -20px;
+    left: -20px;
+    filter: blur(22px);
+  }
+
+  /* Feature icon — slightly smaller */
+  .VPFeature .box > .VPImage {
+    width: 48px !important;
+    height: 48px !important;
   }
 
   /* Feature cards */
@@ -1460,12 +1486,20 @@ html {
 /* ── Small mobile (≤ 480px) ───────────────────────────────────── */
 @media (max-width: 480px) {
   .VPHero {
-    padding-top: 44px !important;
-    padding-bottom: 40px !important;
+    padding-top: 36px !important;
+    padding-bottom: 32px !important;
   }
 
   .VPHero .name {
     font-size: clamp(2.2rem, 15vw, 3.2rem) !important;
+  }
+
+  .VPHero .text {
+    font-size: 0.9rem !important;
+  }
+
+  .VPHero .tagline {
+    font-size: 0.8rem !important;
   }
 
   .VPHero .actions {
@@ -1477,9 +1511,28 @@ html {
   .VPButton.medium.brand,
   .VPButton.medium.alt {
     padding: 11px 20px !important;
-    font-size: 0.9rem !important;
+    font-size: 0.85rem !important;
     text-align: center !important;
     justify-content: center !important;
+  }
+
+  /* Button icons — hide on small screens */
+  .VPHero .actions .VPButton::before {
+    display: none !important;
+  }
+
+  /* Feature blob — even smaller */
+  .VPFeature .box::before {
+    width: 60px;
+    height: 60px;
+    top: -15px;
+    left: -15px;
+    filter: blur(18px);
+  }
+
+  .VPFeature .box > .VPImage {
+    width: 40px !important;
+    height: 40px !important;
   }
 
   /* Sidebar nav */
