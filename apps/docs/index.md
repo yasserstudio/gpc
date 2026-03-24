@@ -45,7 +45,7 @@ features:
   - icon:
       src: /icons/plug.svg
       wrap: true
-    title: 1,710 Tests. Plugin System. SDK.
+    title: 1,737 Tests. Plugin System. SDK.
     details: "90%+ coverage across 7 packages. Extend GPC with lifecycle hooks and custom commands. Or import @gpc-cli/api directly as a typed SDK. Security-audited. MIT licensed."
 ---
 
