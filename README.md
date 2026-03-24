@@ -2,6 +2,10 @@
   <img src="./assets/icon-200.png" alt="GPC icon" width="120">
 </p>
 
+<p align="center">
+  <sub>by</sub> <a href="https://yasser.studio"><img src="./assets/yasser-studio-logo.png" alt="Yasser's Studio" height="18" valign="middle"></a>
+</p>
+
 # GPC — Google Play Console CLI
 
 <p align="center">
