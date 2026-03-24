@@ -560,8 +560,8 @@ html {
   font-weight: 600 !important;
   font-size: 0.895rem !important;
   letter-spacing: 0.01em !important;
-  border-radius: 10px !important;
-  padding: 12px 28px !important;
+  border-radius: 999px !important;
+  padding: 12px 30px !important;
   background: linear-gradient(135deg, var(--vp-c-brand-1), var(--vp-c-brand-3)) !important;
   border: 1px solid rgba(46, 66, 147, 0.3) !important;
   box-shadow: 0 2px 8px rgba(46, 66, 147, 0.2) !important;
@@ -603,8 +603,8 @@ html {
   font-family: var(--gpc-font-display) !important;
   font-weight: 500 !important;
   font-size: 0.895rem !important;
-  border-radius: 10px !important;
-  padding: 12px 28px !important;
+  border-radius: 999px !important;
+  padding: 12px 30px !important;
   border: 1px solid var(--vp-c-border) !important;
   color: var(--vp-c-text-1) !important;
   background: rgba(46, 66, 147, 0.04) !important;
