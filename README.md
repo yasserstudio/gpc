@@ -18,7 +18,7 @@
 
 <p align="center"><strong>Ship Android apps from your terminal.</strong></p>
 
-<p align="center"><sub>Built for Android developers, vibe coders, release engineers, and DevOps teams who ship to Google Play.</sub></p>
+<p align="center"><sub>Built for Android developers, vibe coders, release engineers, DevOps teams — and iOS developers who have no idea how the Play Console works.</sub></p>
 
 <p align="center">
 The complete CLI for Google Play — 187 API endpoints, one tool.<br>
