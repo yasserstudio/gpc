@@ -21,7 +21,9 @@ Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.
 Free and open-source. MIT licensed.
 </p>
 
-<!-- ![demo](./assets/demo.gif) -->
+<p align="center">
+  <img src="./assets/demo.svg" alt="gpc status — releases, vitals, reviews at a glance" width="680">
+</p>
 
 ---
 

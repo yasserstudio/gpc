@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 520" fill="none">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap');
+    .bg { fill: #0d1117; }
+    .header { fill: #161b22; }
+    .border { stroke: rgba(255,255,255,0.08); stroke-width: 1; fill: none; }
+    .dot-red { fill: #ff5f57; }
+    .dot-yellow { fill: #febc2e; }
+    .dot-green { fill: #28c840; }
+    .title { fill: rgba(255,255,255,0.28); font-family: 'Inter', system-ui, sans-serif; font-size: 11px; }
+    .prompt { fill: #4d95f1; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; }
+    .cmd { fill: #e6edf3; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; }
+    .section { fill: #e6edf3; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; }
+    .label { fill: #7ee787; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+    .ok { fill: #3fb950; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .warn { fill: #d29922; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .val { fill: #79c0ff; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .dim { fill: #8b949e; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .muted { fill: #484f58; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .good { fill: #3fb950; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .stars { fill: #d29922; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .divider { fill: rgba(255,255,255,0.1); font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+    .cursor { fill: #4d95f1; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+    .cursor { animation: blink 1.2s step-end infinite; }
+  </style>
+
+  <!-- Window -->
+  <rect class="bg" x="0" y="0" width="680" height="520" rx="12"/>
+  <rect class="border" x="0" y="0" width="680" height="520" rx="12"/>
+
+  <!-- Header bar -->
+  <rect class="header" x="1" y="1" width="678" height="38" rx="12"/>
+  <rect class="header" x="1" y="27" width="678" height="12"/>
+  <line x1="1" y1="39" x2="679" y2="39" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+  <!-- Traffic lights -->
+  <circle class="dot-red" cx="20" cy="20" r="6"/>
+  <circle class="dot-yellow" cx="40" cy="20" r="6"/>
+  <circle class="dot-green" cx="60" cy="20" r="6"/>
+  <text class="title" x="635" y="24" text-anchor="end">terminal</text>
+
+  <!-- Line 1: $ gpc status -->
+  <text class="prompt" x="24" y="72">$</text>
+  <text class="cmd" x="40" y="72">gpc status</text>
+
+  <!-- Line 2: App info -->
+  <text class="section" x="24" y="100">App Health</text>
+  <text class="dim" x="130" y="100">· com.example.app</text>
+
+  <!-- Divider -->
+  <text class="divider" x="24" y="118">────────────────────────────────────────────────────</text>
+
+  <!-- RELEASES section -->
+  <text class="label" x="24" y="146">RELEASES</text>
+
+  <text class="ok" x="24" y="170">✓</text>
+  <text class="dim" x="44" y="170">production</text>
+  <text class="val" x="160" y="170">v2.4.1</text>
+  <text class="dim" x="230" y="170">completed</text>
+  <text class="muted" x="340" y="170">100%</text>
+
+  <text class="ok" x="24" y="194">✓</text>
+  <text class="dim" x="44" y="194">beta</text>
+  <text class="val" x="160" y="194">v2.5.0</text>
+  <text class="dim" x="230" y="194">inProgress</text>
+  <text class="muted" x="340" y="194">20% staged</text>
+
+  <text class="ok" x="24" y="218">✓</text>
+  <text class="dim" x="44" y="218">internal</text>
+  <text class="val" x="160" y="218">v2.5.1</text>
+  <text class="dim" x="230" y="218">draft</text>
+
+  <!-- VITALS section -->
+  <text class="label" x="24" y="254">VITALS</text>
+  <text class="muted" x="88" y="254">(last 7 days)</text>
+
+  <text class="ok" x="24" y="278">✓</text>
+  <text class="dim" x="44" y="278">crashes</text>
+  <text class="val" x="160" y="278">0.08%</text>
+  <text class="good" x="230" y="278">↓ improving</text>
+
+  <text class="ok" x="24" y="302">✓</text>
+  <text class="dim" x="44" y="302">ANR rate</text>
+  <text class="val" x="160" y="302">0.01%</text>
+  <text class="muted" x="230" y="302">stable</text>
+
+  <text class="warn" x="24" y="326">⚠</text>
+  <text class="dim" x="44" y="326">cold start</text>
+  <text class="val" x="160" y="326">842ms</text>
+  <text class="warn" x="230" y="326">↑ watch</text>
+
+  <text class="ok" x="24" y="350">✓</text>
+  <text class="dim" x="44" y="350">slow render</text>
+  <text class="val" x="160" y="350">2.1%</text>
+  <text class="muted" x="230" y="350">stable</text>
+
+  <!-- REVIEWS section -->
+  <text class="label" x="24" y="386">REVIEWS</text>
+  <text class="muted" x="100" y="386">(last 30 days)</text>
+
+  <text class="stars" x="24" y="410">★★★★★</text>
+  <text class="val" x="110" y="410">4.6</text>
+  <text class="muted" x="146" y="410">│</text>
+  <text class="dim" x="166" y="410">142 new</text>
+  <text class="muted" x="260" y="410">│</text>
+  <text class="good" x="280" y="410">89% positive</text>
+  <text class="muted" x="416" y="410">│</text>
+  <text class="good" x="436" y="410">↑ from 4.4</text>
+
+  <!-- PREFLIGHT line -->
+  <text class="label" x="24" y="446">PREFLIGHT</text>
+  <text class="ok" x="24" y="470">✓</text>
+  <text class="dim" x="44" y="470">9 scanners passed — no policy violations</text>
+
+  <!-- Cursor line -->
+  <text class="prompt" x="24" y="502">$</text>
+  <text class="cursor" x="40" y="502">▋</text>
+</svg>
