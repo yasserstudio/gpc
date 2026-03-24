@@ -7,6 +7,15 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.44
+
+Changelog command and preflight fix.
+
+- feat: `gpc changelog` — view release history from the terminal (table, detail, JSON). No auth required — uses public GitHub Releases API.
+- fix: `gpc preflight` no longer crashes on large/complex AABs — graceful fallback when manifest cannot be parsed, skips manifest scanners, runs all others.
+
+---
+
 ## v0.9.43
 
 Upload fix and enhanced error messages.

@@ -165,7 +165,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
         license: "https://opensource.org/licenses/MIT",
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.43",
+        softwareVersion: "0.9.44",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: { "@type": "Person", name: "yasserstudio", url: "https://github.com/yasserstudio" },

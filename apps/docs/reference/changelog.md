@@ -7,7 +7,16 @@ pageClass: wide-page
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.43 <Badge type="tip" text="latest" />
+## v0.9.44 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- feat: `gpc changelog` — view release history from the terminal. Table view, detail view, JSON output. No auth required.
+- fix: `gpc preflight` no longer crashes on large/complex AABs — manifest parse errors emit a warning and skip manifest-dependent scanners. Other scanners still run.
+
+---
+
+## v0.9.43
 
 _March 2026_
 

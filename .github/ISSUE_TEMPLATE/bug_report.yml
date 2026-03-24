@@ -12,7 +12,7 @@ body:
     attributes:
       label: GPC Version
       description: Run `gpc --version` to get this
-      placeholder: "0.9.43"
+      placeholder: "0.9.44"
     validations:
       required: true
 
