@@ -17,22 +17,34 @@ hero:
       link: https://github.com/yasserstudio/gpc
 
 features:
-  - icon: 🎯
+  - icon:
+      src: /icons/layers.svg
+      wrap: true
     title: 187 API Endpoints
     details: "Releases, vitals, reviews, subscriptions, purchases, reports, and more. Fastlane covers ~20. GPC covers everything."
-  - icon: 🛡️
+  - icon:
+      src: /icons/shield.svg
+      wrap: true
     title: Preflight Scanner
     details: "9 offline policy checks on your AAB before upload. Catches rejections before they happen. No other tool does this."
-  - icon: ⚡
+  - icon:
+      src: /icons/terminal.svg
+      wrap: true
     title: CI/CD Native
     details: "JSON output when piped. Semantic exit codes. Env var config. --dry-run on every write. Drop into any pipeline."
-  - icon: 📦
+  - icon:
+      src: /icons/package.svg
+      wrap: true
     title: No Ruby. No JVM. No Browser.
     details: "One npm install, brew install, or standalone binary. Under 500ms cold start. macOS, Linux, Windows."
-  - icon: 📊
+  - icon:
+      src: /icons/activity.svg
+      wrap: true
     title: Full Picture in One Command
     details: "gpc status — releases, vitals, and reviews in 3 seconds. Exit code 6 if any threshold is breached."
-  - icon: 🔌
+  - icon:
+      src: /icons/plug.svg
+      wrap: true
     title: Plugin System + SDK
     details: "1,737 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK. MIT licensed."
 ---
