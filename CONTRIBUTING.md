@@ -7,17 +7,20 @@ Thanks for your interest in contributing to GPC! This guide will help you get st
 ### Prerequisites
 
 - Node.js 20+
-- pnpm 9+
+- pnpm 9+ (installed automatically via [Corepack](https://nodejs.org/api/corepack.html) — run `corepack enable` first)
 - Git
 
 ### Getting Started
 
 ```bash
+# Enable Corepack (ships with Node.js 20+)
+corepack enable
+
 # Clone the repository
 git clone https://github.com/yasserstudio/gpc.git
 cd gpc
 
-# Install dependencies
+# Install dependencies (Corepack auto-selects the correct pnpm version)
 pnpm install
 
 # Build all packages
@@ -99,9 +102,9 @@ Scopes: `cli`, `core`, `api`, `auth`, `config`, `plugin-sdk`, `ci`, `docs`
 ## Testing
 
 ```bash
-pnpm test                           # All tests
-pnpm test --filter @gpc-cli/api         # Single package
-pnpm test -- --watch                # Watch mode
+pnpm test                                          # All tests
+pnpm test --filter @gpc-cli/api                    # Single package
+pnpm --filter @gpc-cli/core exec vitest --watch    # Watch mode (single package)
 ```
 
 ## Code Style

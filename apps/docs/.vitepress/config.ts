@@ -129,7 +129,7 @@ export default defineConfig({
   },
 
   head: [
-    ["link", { rel: "icon", href: "/gpc/favicon.ico" }],
+    ["link", { rel: "icon", href: "/gpc/favicon.svg", type: "image/svg+xml" }],
     ["link", { rel: "preconnect", href: "https://fonts.googleapis.com" }],
     ["link", { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" }],
     ["link", { rel: "dns-prefetch", href: "https://fonts.googleapis.com" }],
@@ -163,7 +163,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
         license: "https://opensource.org/licenses/MIT",
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.38",
+        softwareVersion: "0.9.41",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: { "@type": "Person", name: "yasserstudio", url: "https://github.com/yasserstudio" },
