@@ -17,36 +17,24 @@ hero:
       link: https://github.com/yasserstudio/gpc
 
 features:
-  - icon:
-      src: /icons/layers.svg
-      wrap: true
-    title: The Entire Google Play API
-    details: "187 endpoints — releases, rollouts, metadata, vitals, reviews, subscriptions, purchases, reports, users, testers, and more. Nothing left out. Fastlane covers ~20."
-  - icon:
-      src: /icons/shield.svg
-      wrap: true
-    title: Preflight Compliance Scanner
-    details: "No other tool does this. Scan your AAB against Google Play policies before uploading — offline, no API calls. 9 scanners check target SDK, permissions, 64-bit libs, secrets, billing SDKs, tracking, app size, and more."
-  - icon:
-      src: /icons/terminal.svg
-      wrap: true
+  - icon: 🎯
+    title: 187 API Endpoints
+    details: "Releases, vitals, reviews, subscriptions, purchases, reports, and more. Fastlane covers ~20. GPC covers everything."
+  - icon: 🛡️
+    title: Preflight Scanner
+    details: "9 offline policy checks on your AAB before upload. Catches rejections before they happen. No other tool does this."
+  - icon: ⚡
     title: CI/CD Native
-    details: "JSON output when piped, formatted tables in your terminal. Semantic exit codes (0–6) your pipeline can branch on. Env var config. --dry-run on every write. Preflight gates before upload."
-  - icon:
-      src: /icons/package.svg
-      wrap: true
+    details: "JSON output when piped. Semantic exit codes. Env var config. --dry-run on every write. Drop into any pipeline."
+  - icon: 📦
     title: No Ruby. No JVM. No Browser.
-    details: "One npm install. Or a standalone binary with no runtime at all. Under 500ms cold start — faster than opening a browser tab. macOS, Linux, and Windows."
-  - icon:
-      src: /icons/activity.svg
-      wrap: true
+    details: "One npm install, brew install, or standalone binary. Under 500ms cold start. macOS, Linux, Windows."
+  - icon: 📊
     title: Full Picture in One Command
-    details: "gpc status shows releases, vitals, and reviews without opening a browser — 6 parallel API calls, results in under 3 seconds. Exit code 6 if any vital threshold is breached."
-  - icon:
-      src: /icons/plug.svg
-      wrap: true
-    title: 1,737 Tests. Plugin System. SDK.
-    details: "90%+ coverage across 7 packages. Extend GPC with lifecycle hooks and custom commands. Or import @gpc-cli/api directly as a typed SDK. Security-audited. MIT licensed."
+    details: "gpc status — releases, vitals, and reviews in 3 seconds. Exit code 6 if any threshold is breached."
+  - icon: 🔌
+    title: Plugin System + SDK
+    details: "1,737 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK. MIT licensed."
 ---
 
 ## Install
