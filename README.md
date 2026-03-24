@@ -3,7 +3,8 @@
 </p>
 
 <p align="center">
-  <a href="https://yasser.studio"><img src="./assets/yasser-studio-logo.svg" alt="Yasser's Studio" height="40"></a>
+  <sub>by</sub><br>
+  <a href="https://yasser.studio"><img src="./assets/yasser-studio-logo.svg" alt="Yasser's Studio" height="30"></a>
 </p>
 
 # GPC — Google Play Console CLI
