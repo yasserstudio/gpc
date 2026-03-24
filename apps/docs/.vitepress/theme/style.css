@@ -43,10 +43,10 @@
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: linear-gradient(
     115deg,
-    #1e2e73 0%,
-    #2e4293 30%,
-    #5a6fbf 68%,
-    #c8d0f0 100%
+    #1a2260 0%,
+    #2e4293 35%,
+    #4a5eb8 70%,
+    #6b7fd4 100%
   );
   --vp-home-hero-image-background-image: none;
   --vp-home-hero-image-filter: none;
@@ -457,6 +457,7 @@ html {
 .VPHero .name .clip {
   background-size: 300% auto !important;
   animation: gradientSweep 7s linear infinite;
+  filter: drop-shadow(0 2px 12px rgba(46, 66, 147, 0.35));
 }
 
 @keyframes gradientSweep {
