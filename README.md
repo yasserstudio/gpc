@@ -142,6 +142,10 @@ gpc preflight codescan app/src                             # Secrets, billing SD
 
 9 scanners run in parallel: **manifest** (target SDK, debuggable, testOnly, cleartext, exported, foreground service types), **permissions** (18 restricted permissions with policy URLs), **native-libs** (64-bit compliance), **metadata** (listing limits, screenshots, privacy policy), **secrets** (AWS, Google, Stripe keys), **billing** (non-Play SDKs), **privacy** (tracking SDKs, Advertising ID), **policy** (Families/COPPA, financial, health, UGC), **size** (download warnings). Configure with `.preflightrc.json`.
 
+<p align="center">
+  <img src="./assets/preflight.svg" alt="gpc preflight — 9 offline compliance scanners" width="680">
+</p>
+
 ### Ship releases
 
 From first upload to full production rollout — in one pipeline, without touching a browser.
