@@ -452,6 +452,13 @@ html {
   letter-spacing: -0.04em !important;
   line-height: 0.92 !important;
   margin-bottom: 18px !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.VPHero .text {
+  max-width: 100% !important;
+  width: 100% !important;
 }
 
 .VPHero .name .clip {
@@ -589,10 +596,10 @@ html {
 .VPButton.medium.brand {
   font-family: var(--gpc-font-display) !important;
   font-weight: 600 !important;
-  font-size: 0.895rem !important;
+  font-size: 0.85rem !important;
   letter-spacing: 0.01em !important;
   border-radius: 999px !important;
-  padding: 12px 30px !important;
+  padding: 10px 24px !important;
   background: linear-gradient(135deg, var(--vp-c-brand-1), var(--vp-c-brand-3)) !important;
   border: 1px solid rgba(46, 66, 147, 0.3) !important;
   box-shadow: 0 2px 8px rgba(46, 66, 147, 0.2) !important;
@@ -633,9 +640,9 @@ html {
 .VPButton.medium.alt {
   font-family: var(--gpc-font-display) !important;
   font-weight: 500 !important;
-  font-size: 0.895rem !important;
+  font-size: 0.85rem !important;
   border-radius: 999px !important;
-  padding: 12px 30px !important;
+  padding: 10px 24px !important;
   border: 1px solid var(--vp-c-border) !important;
   color: var(--vp-c-text-1) !important;
   background: rgba(46, 66, 147, 0.04) !important;
