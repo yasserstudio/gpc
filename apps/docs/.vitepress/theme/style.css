@@ -745,15 +745,19 @@ html {
 .VPFeature .box::before {
   content: "";
   position: absolute;
-  top: -4px;
-  left: -4px;
-  width: 64px;
-  height: 64px;
+  top: -30px;
+  left: -30px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  filter: blur(20px);
-  opacity: 0.3;
+  filter: blur(28px);
+  opacity: 0.35;
   z-index: 0;
   transition: opacity 0.25s ease;
+}
+
+.VPFeature .box {
+  overflow: hidden;
 }
 
 .VPFeature:hover .box::before {
