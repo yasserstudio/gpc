@@ -534,31 +534,41 @@ html {
   font-weight: 600 !important;
   font-size: 0.895rem !important;
   letter-spacing: 0.01em !important;
-  border-radius: var(--gpc-radius) !important;
-  padding: 10px 24px !important;
-  background: var(--vp-c-brand-1) !important;
-  border-color: var(--vp-c-brand-1) !important;
+  border-radius: 10px !important;
+  padding: 12px 28px !important;
+  background: linear-gradient(135deg, var(--vp-c-brand-1), var(--vp-c-brand-3)) !important;
+  border: 1px solid rgba(46, 66, 147, 0.3) !important;
+  box-shadow: 0 2px 8px rgba(46, 66, 147, 0.2) !important;
   transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    background 0.15s ease !important;
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease !important;
 }
 
 .VPButton.medium.brand:hover {
-  background: var(--vp-c-brand-2) !important;
-  border-color: var(--vp-c-brand-2) !important;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 16px rgba(46, 66, 147, 0.35),
+    0 0 24px rgba(46, 66, 147, 0.15) !important;
+  filter: brightness(1.1);
+}
+
+.VPButton.medium.brand:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(46, 66, 147, 0.2) !important;
 }
 
 .dark .VPButton.medium.brand {
+  background: linear-gradient(135deg, #4d6ad0, #2e4293) !important;
+  border: 1px solid rgba(77, 106, 208, 0.3) !important;
   box-shadow:
-    0 0 22px rgba(77, 149, 241, 0.28),
+    0 0 22px rgba(77, 106, 208, 0.28),
     0 4px 14px rgba(0, 0, 0, 0.4) !important;
 }
 
 .dark .VPButton.medium.brand:hover {
   box-shadow:
-    0 0 34px rgba(77, 149, 241, 0.42),
+    0 0 34px rgba(77, 106, 208, 0.42),
     0 6px 20px rgba(0, 0, 0, 0.5) !important;
 }
 
@@ -567,22 +577,41 @@ html {
   font-family: var(--gpc-font-display) !important;
   font-weight: 500 !important;
   font-size: 0.895rem !important;
-  border-radius: var(--gpc-radius) !important;
-  padding: 10px 24px !important;
+  border-radius: 10px !important;
+  padding: 12px 28px !important;
   border: 1px solid var(--vp-c-border) !important;
   color: var(--vp-c-text-1) !important;
-  background: transparent !important;
+  background: rgba(46, 66, 147, 0.04) !important;
+  backdrop-filter: blur(4px);
   transition:
-    border-color 0.18s ease,
-    background 0.15s ease,
-    transform 0.18s ease !important;
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease !important;
 }
 
 .VPButton.medium.alt:hover {
   border-color: var(--vp-c-brand-1) !important;
   color: var(--vp-c-brand-1) !important;
   background: var(--vp-c-brand-soft) !important;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 66, 147, 0.1) !important;
+}
+
+.VPButton.medium.alt:active {
+  transform: translateY(0);
+}
+
+.dark .VPButton.medium.alt {
+  background: rgba(77, 106, 208, 0.06) !important;
+  border-color: rgba(77, 106, 208, 0.2) !important;
+}
+
+.dark .VPButton.medium.alt:hover {
+  background: rgba(77, 106, 208, 0.12) !important;
+  border-color: rgba(77, 106, 208, 0.4) !important;
+  color: #8ba3e8 !important;
 }
 
 /* ================================================================
