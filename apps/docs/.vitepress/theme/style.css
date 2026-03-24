@@ -1197,6 +1197,13 @@ html {
   padding: 0 24px 64px;
 }
 
+/* Hero terminal demo — wider, entrance animation */
+.VPHome .vp-doc > .td-window:first-child {
+  max-width: 680px;
+  margin: -20px auto 48px;
+  animation: heroUp 0.65s 0.5s ease both;
+}
+
 .VPHome .vp-doc h2 {
   font-size: 1.5rem !important;
   font-weight: 700 !important;
