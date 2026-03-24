@@ -306,7 +306,12 @@ async function sendChunk<T>(
   // 200 or 201 — upload complete
   if (response.status === 200 || response.status === 201) {
     const text = await response.text();
-    const data = text ? (JSON.parse(text) as T) : ({} as T);
+    let data: T;
+    try {
+      data = text ? (JSON.parse(text) as T) : ({} as T);
+    } catch {
+      data = {} as T; // Malformed JSON — still treat as complete
+    }
     return { complete: true, response: { data, status: response.status } };
   }
 
@@ -368,6 +373,8 @@ async function fetchCompletionResponse<T>(
   ctx: ResumableUploadContext,
 ): Promise<ChunkResult<T> | undefined> {
   const token = await ctx.getAccessToken();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 30_000);
   try {
     const response = await fetch(sessionUri, {
       method: "PUT",
@@ -376,11 +383,17 @@ async function fetchCompletionResponse<T>(
         "Content-Length": "0",
         "Content-Range": `bytes */${totalBytes}`,
       },
+      signal: controller.signal,
     });
 
     if (response.status === 200 || response.status === 201) {
       const text = await response.text();
-      const data = text ? (JSON.parse(text) as T) : ({} as T);
+      let data: T;
+      try {
+        data = text ? (JSON.parse(text) as T) : ({} as T);
+      } catch {
+        data = {} as T;
+      }
       return { complete: true, response: { data, status: response.status } };
     }
 
@@ -388,6 +401,8 @@ async function fetchCompletionResponse<T>(
     return undefined;
   } catch {
     return undefined;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -397,15 +412,22 @@ async function queryProgress(
   ctx: ResumableUploadContext,
 ): Promise<number> {
   const token = await ctx.getAccessToken();
-
-  const response = await fetch(sessionUri, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Length": "0",
-      "Content-Range": `bytes */${totalBytes}`,
-    },
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 30_000);
+  let response: Response;
+  try {
+    response = await fetch(sessionUri, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Length": "0",
+        "Content-Range": `bytes */${totalBytes}`,
+      },
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timer);
+  }
 
   // 308 — partial upload, Range header tells us where we are
   if (response.status === 308) {
