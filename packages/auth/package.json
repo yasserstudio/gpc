@@ -40,7 +40,7 @@
     "@types/node": "^25.3.5"
   },
   "dependencies": {
-    "google-auth-library": "^10.6.1"
+    "google-auth-library": "^10.6.2"
   },
   "repository": {
     "type": "git",
