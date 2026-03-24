@@ -7,11 +7,11 @@ hero:
   tagline: "Ship Android apps from your terminal. The entire Google Play API in one tool — no Ruby, no browser, no ceremony. Built for Android developers, vibe coders, release engineers, DevOps teams — and iOS developers who have no idea how the Play Console works."
   actions:
     - theme: brand
-      text: Get Started
-      link: /guide/
+      text: Install in 30 seconds
+      link: /guide/installation
     - theme: alt
-      text: View Commands
-      link: /commands/
+      text: Quick Start
+      link: /guide/quick-start
     - theme: alt
       text: GitHub
       link: https://github.com/yasserstudio/gpc
