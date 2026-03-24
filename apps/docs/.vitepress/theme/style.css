@@ -724,31 +724,59 @@ html {
 
 /* Icon: solid blue background, white icon */
 .VPFeature .icon {
-  width: 44px !important;
-  height: 44px !important;
-  border-radius: 10px !important;
-  background: var(--vp-c-brand-1) !important;
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 50% !important;
+  background: transparent !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   margin-bottom: 20px !important;
-  padding: 10px !important;
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease !important;
+  padding: 0 !important;
+  position: relative;
+  transition: transform 0.25s ease !important;
+}
+
+.VPFeature .icon::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  filter: blur(18px);
+  opacity: 0.35;
+  z-index: -1;
+  transition: opacity 0.25s ease;
 }
 
 .VPFeature:hover .icon {
-  background: var(--vp-c-brand-2) !important;
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
-.dark .VPFeature .icon {
-  background: rgba(77, 149, 241, 0.18) !important;
+.VPFeature:hover .icon::before {
+  opacity: 0.5;
 }
 
-.dark .VPFeature:hover .icon {
-  background: rgba(77, 149, 241, 0.28) !important;
+.VPFeature .icon img {
+  width: 56px !important;
+  height: 56px !important;
+  object-fit: contain;
+}
+
+/* Colored blobs per feature — matched to icon dominant color */
+.VPFeature:nth-child(1) .icon::before { background: #4285f4; } /* goal — blue/red target */
+.VPFeature:nth-child(2) .icon::before { background: #ea4335; } /* shield — red/silver */
+.VPFeature:nth-child(3) .icon::before { background: #f9ab00; } /* lightning — gold */
+.VPFeature:nth-child(4) .icon::before { background: #f29900; } /* box — orange */
+.VPFeature:nth-child(5) .icon::before { background: #34a853; } /* analytics — green/purple */
+.VPFeature:nth-child(6) .icon::before { background: #34a853; } /* plug — green/yellow */
+
+/* Dark mode — stronger glow */
+.dark .VPFeature .icon::before {
+  opacity: 0.25;
+}
+
+.dark .VPFeature:hover .icon::before {
+  opacity: 0.45;
 }
 
 .VPFeature .title {
