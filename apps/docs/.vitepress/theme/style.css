@@ -1402,7 +1402,7 @@ html {
 /* ── Tablet (≤ 960px) ─────────────────────────────────────────── */
 @media (max-width: 960px) {
   .VPHero {
-    padding-top: 80px !important;
+    padding-top: 100px !important;
     padding-bottom: 48px !important;
   }
 
@@ -1429,8 +1429,8 @@ html {
 @media (max-width: 768px) {
   /* Hero */
   .VPHero {
-    padding-top: 48px !important;
-    padding-bottom: 40px !important;
+    padding-top: 72px !important;
+    padding-bottom: 36px !important;
   }
 
   .VPHero .image {
@@ -1440,27 +1440,29 @@ html {
   .VPHero .name {
     font-size: clamp(2.6rem, 13vw, 4rem) !important;
     letter-spacing: -0.025em !important;
+    margin-bottom: 10px !important;
   }
 
   .VPHero .text {
     font-size: 1rem !important;
+    margin-bottom: 8px !important;
   }
 
   .VPHero .tagline {
-    font-size: 0.85rem !important;
-    line-height: 1.6 !important;
+    font-size: 0.82rem !important;
+    line-height: 1.55 !important;
   }
 
   .VPHero .actions {
     justify-content: flex-start !important;
-    margin-top: 20px !important;
+    margin-top: 16px !important;
     gap: 8px !important;
   }
 
   .VPButton.medium.brand,
   .VPButton.medium.alt {
-    padding: 10px 22px !important;
-    font-size: 0.85rem !important;
+    padding: 9px 20px !important;
+    font-size: 0.82rem !important;
   }
 
   /* Feature blob — smaller on mobile */
@@ -1532,22 +1534,23 @@ html {
 /* ── Small mobile (≤ 480px) ───────────────────────────────────── */
 @media (max-width: 480px) {
   .VPHero {
-    padding-top: 24px !important;
-    padding-bottom: 24px !important;
+    padding-top: 56px !important;
+    padding-bottom: 20px !important;
   }
 
   .VPHero .name {
-    font-size: 2.4rem !important;
-    margin-bottom: 8px !important;
-  }
-
-  .VPHero .text {
-    font-size: 0.9rem !important;
+    font-size: 2.2rem !important;
     margin-bottom: 6px !important;
   }
 
+  .VPHero .text {
+    font-size: 0.88rem !important;
+    margin-bottom: 4px !important;
+  }
+
   .VPHero .tagline {
-    font-size: 0.78rem !important;
+    font-size: 0.75rem !important;
+    line-height: 1.5 !important;
   }
 
   .VPHero .actions {
