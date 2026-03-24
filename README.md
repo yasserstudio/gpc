@@ -27,34 +27,6 @@ Free and open-source. MIT licensed.
 
 ---
 
-## App health at a glance
-
-Everything you'd check in releases, vitals, crashes, and reviews — without opening a browser:
-
-```
-$ gpc status
-
-App: com.example.myapp · My App  (fetched 10:42:01 AM)
-
-RELEASES
-  production   v1.4.2   completed    —
-  beta         v1.5.0   inProgress  10%
-  internal     v1.5.1   draft        —
-
-VITALS  (last 7 days)
-  crashes     0.80%  ✓    anr         0.20%  ✓
-  slow starts 2.10%  ✓    slow render 4.30%  ⚠
-
-REVIEWS  (last 30 days)
-  ★ 4.6   142 new   89% positive   ↑ from 4.4
-```
-
-6 parallel API calls. Results in under 3 seconds. Cached for 1 hour — `--cached` skips the network entirely.
-
-Exit code 6 if any vitals threshold is breached — use it as a quality gate in your CI pipeline.
-
----
-
 ## Install
 
 ```bash
@@ -69,30 +41,6 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 ```
 
 Free. Open-source. No account required beyond your existing Google Play service account.
-
----
-
-## Quick Start
-
-```bash
-# Authenticate
-gpc auth login --service-account path/to/key.json
-
-# Verify your setup
-gpc doctor
-
-# App health at a glance — releases, vitals, and reviews in one command
-gpc status
-
-# Upload and release
-gpc releases upload app.aab --track internal
-
-# Promote to production with staged rollout
-gpc releases promote --from internal --to production --rollout 10
-
-# Monitor reviews
-gpc reviews list --stars 1-3 --since 7d
-```
 
 ---
 
@@ -122,6 +70,30 @@ GPC covers the **entire Google Play Developer API** in one CLI — that's 187 en
 | Test suite          | 1,710 tests, 90%+ coverage   | —               | —                     | —            |
 
 Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
+
+---
+
+## Quick Start
+
+```bash
+# Authenticate
+gpc auth login --service-account path/to/key.json
+
+# Verify your setup
+gpc doctor
+
+# App health at a glance — releases, vitals, and reviews in one command
+gpc status
+
+# Upload and release
+gpc releases upload app.aab --track internal
+
+# Promote to production with staged rollout
+gpc releases promote --from internal --to production --rollout 10
+
+# Monitor reviews
+gpc reviews list --stars 1-3 --since 7d
+```
 
 ---
 
@@ -291,73 +263,13 @@ See the full [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/) for GitH
 
 ---
 
-## Output
+## Developer Experience
 
-GPC auto-detects your environment:
-
-- **Terminal:** formatted tables you can read
-- **Piped or CI:** structured JSON your scripts can parse
-
-Override when you need to:
-
-```bash
-gpc releases status --output json
-gpc releases status --output yaml
-gpc releases status --output markdown    # For $GITHUB_STEP_SUMMARY
-```
-
----
-
-## Authentication
-
-Four options — pick the one that fits. Works with your existing Google Play service account — no new credentials or extra permissions required.
-
-| Method               | Best for                              |
-| -------------------- | ------------------------------------- |
-| Service account      | CI/CD pipelines, automation           |
-| OAuth                | Local development, quick setup        |
-| Environment variable | Docker, ephemeral environments        |
-| ADC                  | GCP-hosted runners (Cloud Build, GKE) |
-
-```bash
-# Service account (recommended for CI/CD)
-gpc auth login --service-account path/to/key.json
-
-# OAuth (interactive — no service account setup needed)
-gpc auth login
-
-# Environment variable
-export GPC_SERVICE_ACCOUNT=/path/to/key.json
-
-# Application Default Credentials (GCP environments)
-gpc auth login --adc
-```
-
-Manage multiple accounts with `gpc auth profiles`, `gpc auth switch`, `gpc auth whoami`.
-
----
-
-## Dry Run
-
-Ship nothing. Learn everything. Every write command supports `--dry-run` — run your pipeline against real Play Console data without publishing a thing:
-
-```bash
-gpc releases upload app.aab --track beta --dry-run
-gpc listings push --dir metadata/ --dry-run
-```
-
----
-
-## Interactive Mode
-
-Missing a flag? GPC asks. In your terminal, missing required options trigger guided prompts. In CI, they fail fast with clear error messages — GPC never hangs waiting for input.
-
-```bash
-gpc releases promote                               # Prompts: Source track? Target track?
-gpc releases promote --from beta --to production   # No prompts
-```
-
-Disable all prompts: `--no-interactive` or `GPC_NO_INTERACTIVE=1`.
+- **Smart output** — formatted tables in your terminal, structured JSON when piped or in CI. Override with `--output json|yaml|markdown`.
+- **Dry run everything** — every write command supports `--dry-run`. Run your full pipeline against real data without publishing a thing.
+- **Interactive prompts** — miss a required flag and GPC asks. In CI, it fails fast instead — never hangs waiting for input. Disable with `--no-interactive`.
+- **Four auth methods** — service account, OAuth, env var, or Application Default Credentials. Works with your existing Google Play service account.
+- **Multiple accounts** — `gpc auth profiles`, `gpc auth switch`, `gpc auth whoami`.
 
 ---
 
