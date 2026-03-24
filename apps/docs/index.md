@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "GPC"
   text: "Google Play Console CLI"
-  tagline: "Ship Android apps from your terminal. The entire Google Play API in one tool — no Ruby, no browser, no ceremony."
+  tagline: "Ship Android apps from your terminal. The entire Google Play API in one tool — no Ruby, no browser, no ceremony. Built for Android developers, vibe coders, release engineers, DevOps teams — and iOS developers who have no idea how the Play Console works."
   actions:
     - theme: brand
       text: Get Started
