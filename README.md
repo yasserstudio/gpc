@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <sub>by</sub><br>
+  by<br>
   <a href="https://yasser.studio"><img src="./assets/yasser-studio-logo.svg" alt="Yasser's Studio" height="30"></a>
 </p>
 
