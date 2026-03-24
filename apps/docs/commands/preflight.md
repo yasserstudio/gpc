@@ -208,3 +208,19 @@ preflight:
       - preflight.json
     when: always
 ```
+
+## Notes
+
+### Manifest parsing limitations
+
+Some large or complex AABs have manifests that cannot be fully decoded. When this happens, GPC does **not** crash — instead it:
+
+1. Emits a **warning** finding: "Manifest could not be fully parsed"
+2. **Skips** manifest-dependent scanners (manifest, permissions, policy, privacy)
+3. **Runs** all other scanners normally (native-libs, size, secrets, billing)
+
+You still get partial results. To run manifest checks, try the metadata scanner instead:
+
+```bash
+gpc preflight --metadata fastlane/metadata/android
+```

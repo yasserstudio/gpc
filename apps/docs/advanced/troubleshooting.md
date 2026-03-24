@@ -130,6 +130,24 @@ GPC uses resumable uploads for files over 5 MB. If a chunk fails, it auto-resume
 
 ---
 
+### Preflight Errors
+
+#### "Manifest could not be fully parsed" warning
+
+**Symptom:** `gpc preflight app.aab` shows a warning instead of manifest scan results
+
+**Cause:** Some large or complex AABs have binary manifests that the protobuf decoder cannot fully parse.
+
+**What happens:** GPC does not crash. Manifest-dependent scanners (manifest, permissions, policy, privacy) are skipped. All other scanners (native-libs, size, secrets, billing) still run and produce results.
+
+**Workaround:** Run metadata checks separately:
+
+```bash
+gpc preflight --metadata fastlane/metadata/android
+```
+
+---
+
 ### API Errors
 
 #### 403/401 on Vitals or Error Issues commands
