@@ -109,7 +109,7 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
   }
 
   // — Duplicate version code (400/403)
-  if (errorMsg.includes("version code") && errorMsg.includes("already been used")) {
+  if ((status === 400 || status === 403) && errorMsg.includes("version code") && errorMsg.includes("already been used")) {
     const match = errorMsg.match(/version code (\d+)/);
     const vc = match?.[1] ?? "?";
     return {
@@ -124,6 +124,7 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
 
   // — Version code too low (400/403)
   if (
+    (status === 400 || status === 403) &&
     errorMsg.includes("version code") &&
     (errorMsg.includes("lower") || errorMsg.includes("not allowed") || errorMsg.includes("not greater"))
   ) {
@@ -140,6 +141,7 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
 
   // — Package name mismatch (400/403)
   if (
+    (status === 400 || status === 403) &&
     (errorMsg.includes("package name") || errorMsg.includes("applicationid")) &&
     errorMsg.includes("does not match")
   ) {
@@ -206,8 +208,8 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
   // — Bundle too large (400/413)
   if (
     status === 413 ||
-    errorMsg.includes("too large") ||
-    errorMsg.includes("exceeds") && errorMsg.includes("size")
+    ((status === 400 || status === 403) &&
+      (errorMsg.includes("too large") || (errorMsg.includes("exceeds") && errorMsg.includes("size"))))
   ) {
     return {
       code: "API_BUNDLE_TOO_LARGE",
@@ -222,10 +224,12 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
 
   // — Invalid bundle/APK (400)
   if (
-    errorMsg.includes("invalid bundle") ||
-    errorMsg.includes("invalid apk") ||
-    errorMsg.includes("unable to parse") ||
-    errorMsg.includes("malformed")
+    status === 400 &&
+    (errorMsg.includes("invalid bundle") ||
+      errorMsg.includes("invalid apk") ||
+      errorMsg.includes("unable to parse") ||
+      errorMsg.includes("malformed apk") ||
+      errorMsg.includes("malformed bundle"))
   ) {
     return {
       code: "API_INVALID_BUNDLE",
@@ -253,7 +257,7 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
   }
 
   // — Release notes too long (400)
-  if (errorMsg.includes("release notes") && (errorMsg.includes("too long") || errorMsg.includes("character") || errorMsg.includes("500"))) {
+  if (status === 400 && errorMsg.includes("release notes") && (errorMsg.includes("too long") || errorMsg.includes("character limit"))) {
     return {
       code: "API_RELEASE_NOTES_TOO_LONG",
       message: "Release notes exceed the 500-character limit.",
@@ -265,7 +269,7 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
   }
 
   // — Rollout already completed (400)
-  if (errorMsg.includes("cannot change rollout") || (errorMsg.includes("release") && errorMsg.includes("already completed"))) {
+  if (status === 400 && (errorMsg.includes("cannot change rollout") || (errorMsg.includes("release") && errorMsg.includes("already completed")))) {
     return {
       code: "API_ROLLOUT_ALREADY_COMPLETED",
       message: "The release is already at full rollout (100%) and cannot be changed.",
@@ -277,7 +281,7 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
   }
 
   // — Edit expired (400 FAILED_PRECONDITION)
-  if (errorMsg.includes("edit") && (errorMsg.includes("expired") || errorMsg.includes("precondition"))) {
+  if (status === 400 && errorMsg.includes("edit") && (errorMsg.includes("expired") || errorMsg.includes("failed_precondition"))) {
     return {
       code: "API_EDIT_EXPIRED",
       message: "The edit session has expired.",
