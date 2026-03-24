@@ -757,7 +757,7 @@ html {
 }
 
 .VPFeature .box {
-  overflow: hidden;
+  overflow: visible;
 }
 
 .VPFeature:hover .box::before {
