@@ -1,5 +1,13 @@
 # @gpc-cli/cli
 
+## 0.9.44
+
+### Patch Changes
+
+- feat: gpc changelog command + fix: preflight graceful fallback on large AABs
+- Updated dependencies
+  - @gpc-cli/core@0.9.37
+
 ## 0.9.43
 
 ### Patch Changes
