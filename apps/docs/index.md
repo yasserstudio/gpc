@@ -18,33 +18,27 @@ hero:
 
 features:
   - icon:
-      src: /icons/layers.svg
-      wrap: true
+      src: /icons/goal.png
     title: 187 API Endpoints
     details: "Releases, vitals, reviews, subscriptions, purchases, reports, and more. Fastlane covers ~20. GPC covers everything."
   - icon:
-      src: /icons/shield.svg
-      wrap: true
+      src: /icons/shield.png
     title: Preflight Scanner
     details: "9 offline policy checks on your AAB before upload. Catches rejections before they happen. No other tool does this."
   - icon:
-      src: /icons/terminal.svg
-      wrap: true
+      src: /icons/lightning-bolt.png
     title: CI/CD Native
     details: "JSON output when piped. Semantic exit codes. Env var config. --dry-run on every write. Drop into any pipeline."
   - icon:
-      src: /icons/package.svg
-      wrap: true
+      src: /icons/delivery-box.png
     title: No Ruby. No JVM. No Browser.
     details: "One npm install, brew install, or standalone binary. Under 500ms cold start. macOS, Linux, Windows."
   - icon:
-      src: /icons/activity.svg
-      wrap: true
+      src: /icons/analytics.png
     title: Full Picture in One Command
     details: "gpc status — releases, vitals, and reviews in 3 seconds. Exit code 6 if any threshold is breached."
   - icon:
-      src: /icons/plug.svg
-      wrap: true
+      src: /icons/plug.png
     title: Plugin System + SDK
     details: "1,737 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK. MIT licensed."
 ---
