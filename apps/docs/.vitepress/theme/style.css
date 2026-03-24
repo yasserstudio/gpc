@@ -1415,6 +1415,14 @@ html {
 
   .VPHero .actions {
     justify-content: flex-start !important;
+    margin-top: 20px !important;
+    gap: 8px !important;
+  }
+
+  .VPButton.medium.brand,
+  .VPButton.medium.alt {
+    padding: 10px 22px !important;
+    font-size: 0.85rem !important;
   }
 
   /* Feature blob — smaller on mobile */
@@ -1486,41 +1494,37 @@ html {
 /* ── Small mobile (≤ 480px) ───────────────────────────────────── */
 @media (max-width: 480px) {
   .VPHero {
-    padding-top: 36px !important;
-    padding-bottom: 32px !important;
+    padding-top: 24px !important;
+    padding-bottom: 24px !important;
   }
 
   .VPHero .name {
-    font-size: clamp(2.2rem, 15vw, 3.2rem) !important;
+    font-size: 2.4rem !important;
+    margin-bottom: 8px !important;
   }
 
   .VPHero .text {
     font-size: 0.9rem !important;
+    margin-bottom: 6px !important;
   }
 
   .VPHero .tagline {
-    font-size: 0.8rem !important;
+    font-size: 0.78rem !important;
   }
 
   .VPHero .actions {
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 6px !important;
-    margin-top: 20px !important;
-  }
-
-  .VPHero .actions .action {
-    width: 100% !important;
+    margin-top: 16px !important;
   }
 
   .VPButton.medium.brand,
   .VPButton.medium.alt {
-    padding: 10px 20px !important;
-    font-size: 0.85rem !important;
+    padding: 10px 16px !important;
+    font-size: 0.82rem !important;
     text-align: center !important;
-    justify-content: center !important;
-    display: block !important;
-    width: 100% !important;
+    border-radius: 999px !important;
   }
 
   /* Button icons — hide on small screens */
