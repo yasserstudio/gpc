@@ -7,7 +7,17 @@ pageClass: wide-page
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.41 <Badge type="tip" text="latest" />
+## v0.9.42 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- fix: AAB uploads now complete reliably — the resumable upload protocol no longer fails when the final chunk response times out. All uploads over 5 MB were affected.
+- fix: upload progress queries now have a 30-second timeout (were unbounded)
+- fix: malformed server responses during upload no longer crash with a raw `SyntaxError`
+
+---
+
+## v0.9.41
 
 _March 2026_
 

@@ -52,7 +52,7 @@
   <text x="134" y="435" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#4d95f1" text-anchor="middle">187 endpoints</text>
 
   <rect x="220" y="405" width="140" height="48" rx="8" fill="rgba(77,149,241,0.12)" stroke="rgba(77,149,241,0.25)" stroke-width="1"/>
-  <text x="290" y="435" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#4d95f1" text-anchor="middle">1,737 tests</text>
+  <text x="290" y="435" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#4d95f1" text-anchor="middle">1,739 tests</text>
 
   <rect x="376" y="405" width="140" height="48" rx="8" fill="rgba(77,149,241,0.12)" stroke="rgba(77,149,241,0.25)" stroke-width="1"/>
   <text x="446" y="435" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#4d95f1" text-anchor="middle">MIT license</text>

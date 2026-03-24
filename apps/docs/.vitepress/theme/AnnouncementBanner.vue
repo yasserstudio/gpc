@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 
-const STORAGE_KEY = "gpc-banner-dismissed-v0941";
+const STORAGE_KEY = "gpc-banner-dismissed-v0942";
 const visible = ref(false);
 
 onMounted(() => {
@@ -18,7 +18,7 @@ function dismiss() {
   <div v-if="visible" class="ann-banner" role="banner">
     <span class="ann-badge">Pre-release</span>
     <span class="ann-text">
-      v0.9.41 is out —
+      v0.9.42 is out —
       <a
         href="https://github.com/yasserstudio/gpc"
         target="_blank"
