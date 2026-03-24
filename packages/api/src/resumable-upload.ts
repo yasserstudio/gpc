@@ -6,6 +6,25 @@ import type { ApiResponse, ResumableUploadOptions } from "./types.js";
 /** 256 KB — Google requires chunk sizes to be multiples of this. */
 const CHUNK_ALIGNMENT = 256 * 1024;
 
+/**
+ * Google's resumable upload protocol uses HTTP 308 for "Resume Incomplete",
+ * but RFC 7238 standardized 308 as "Permanent Redirect". Node.js fetch
+ * follows 308 redirects automatically, so GPC would never see the raw 308.
+ *
+ * Google's solution: send `X-GUploader-No-308: yes` on every request.
+ * The server then replies with 200 OK and sets the response header
+ * `X-Http-Status-Code-Override: 308` instead of using a real 308 status.
+ *
+ * This matches the behavior of Google's official Go client library.
+ * See: google-api-go-client/internal/gensupport/resumable.go
+ */
+const GUPLOADER_NO_308_HEADER = "X-GUploader-No-308";
+
+/** Check if a 200 response is actually a "308 Resume Incomplete" in disguise. */
+function isResumeIncomplete(response: Response): boolean {
+  return response.headers.get("X-Http-Status-Code-Override") === "308";
+}
+
 /** 8 MB — default chunk size (multiple of 256 KB). */
 const DEFAULT_CHUNK_SIZE = 8 * 1024 * 1024;
 
@@ -292,9 +311,11 @@ async function sendChunk<T>(
         Authorization: `Bearer ${token}`,
         "Content-Length": String(chunk.byteLength),
         "Content-Range": contentRange,
+        [GUPLOADER_NO_308_HEADER]: "yes",
       },
       body: chunk,
       signal: controller.signal,
+      redirect: "manual", // Belt-and-suspenders: don't follow redirects even without the header
     });
   } catch {
     // Network error or timeout — caller will retry
@@ -303,21 +324,29 @@ async function sendChunk<T>(
     clearTimeout(timer);
   }
 
-  // 200 or 201 — upload complete
+  // With X-GUploader-No-308, Google sends 200 OK for both "chunk accepted"
+  // and "upload complete". Distinguish via X-Http-Status-Code-Override header.
   if (response.status === 200 || response.status === 201) {
+    // Check if this is really a "308 Resume Incomplete" disguised as 200
+    if (isResumeIncomplete(response)) {
+      await response.body?.cancel();
+      return { complete: false };
+    }
+
+    // Genuine 200/201 — upload complete, parse the resource body
     const text = await response.text();
     let data: T;
     try {
       data = text ? (JSON.parse(text) as T) : ({} as T);
     } catch {
-      data = {} as T; // Malformed JSON — still treat as complete
+      data = {} as T;
     }
     return { complete: true, response: { data, status: response.status } };
   }
 
-  // 308 Resume Incomplete — chunk accepted, continue
+  // Real 308 (fallback if X-GUploader-No-308 not honored) — chunk accepted
   if (response.status === 308) {
-    await response.body?.cancel(); // Consume response to free connection
+    await response.body?.cancel();
     return { complete: false };
   }
 
@@ -344,13 +373,13 @@ async function sendChunk<T>(
   // 401 — token expired, refresh and retry
   if (response.status === 401) {
     await response.body?.cancel();
-    return undefined; // Caller will retry, which will get a fresh token
+    return undefined;
   }
 
   // 5xx or 429 — retryable
   if (response.status === 429 || response.status >= 500) {
     await response.body?.cancel();
-    return undefined; // Caller will retry
+    return undefined;
   }
 
   // Non-retryable error
@@ -382,11 +411,14 @@ async function fetchCompletionResponse<T>(
         Authorization: `Bearer ${token}`,
         "Content-Length": "0",
         "Content-Range": `bytes */${totalBytes}`,
+        [GUPLOADER_NO_308_HEADER]: "yes",
       },
       signal: controller.signal,
+      redirect: "manual",
     });
 
-    if (response.status === 200 || response.status === 201) {
+    // Genuine 200/201 (not a disguised 308) — upload complete with resource body
+    if ((response.status === 200 || response.status === 201) && !isResumeIncomplete(response)) {
       const text = await response.text();
       let data: T;
       try {
@@ -422,29 +454,30 @@ async function queryProgress(
         Authorization: `Bearer ${token}`,
         "Content-Length": "0",
         "Content-Range": `bytes */${totalBytes}`,
+        [GUPLOADER_NO_308_HEADER]: "yes",
       },
       signal: controller.signal,
+      redirect: "manual",
     });
   } finally {
     clearTimeout(timer);
   }
 
-  // 308 — partial upload, Range header tells us where we are
-  if (response.status === 308) {
+  // With X-GUploader-No-308, a "308 Resume Incomplete" arrives as 200
+  // with X-Http-Status-Code-Override: 308. Check the Range header for progress.
+  if (response.status === 308 || isResumeIncomplete(response)) {
     await response.body?.cancel();
     const range = response.headers.get("Range");
     if (range) {
-      // Format: "bytes=0-12345"
       const match = range.match(/bytes=0-(\d+)/);
       if (match) {
-        return Number(match[1]) + 1; // Next byte to upload
+        return Number(match[1]) + 1;
       }
     }
-    // No Range header means server has received 0 bytes
     return 0;
   }
 
-  // 200/201 — upload is actually complete
+  // Genuine 200/201 without override — upload is actually complete
   if (response.status === 200 || response.status === 201) {
     await response.body?.cancel();
     return totalBytes;

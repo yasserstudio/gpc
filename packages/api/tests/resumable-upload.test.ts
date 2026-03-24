@@ -39,6 +39,18 @@ function createMockFileHandle(totalBytes: number) {
   };
 }
 
+/**
+ * Create a mock "308 Resume Incomplete" response.
+ * With X-GUploader-No-308, the server sends 200 OK with the override header.
+ */
+function resumeIncompleteResponse(rangeEnd?: number): Response {
+  const headers: Record<string, string> = { "X-Http-Status-Code-Override": "308" };
+  if (rangeEnd !== undefined) {
+    headers["Range"] = `bytes=0-${rangeEnd}`;
+  }
+  return new Response("", { status: 200, headers });
+}
+
 describe("resumableUpload", () => {
   let mockFetch: ReturnType<typeof vi.fn>;
 
@@ -108,7 +120,7 @@ describe("resumableUpload", () => {
 
     // Chunks 1-3: 308 Resume Incomplete
     for (let i = 0; i < 3; i++) {
-      mockFetch.mockResolvedValueOnce(new Response("", { status: 308 }));
+      mockFetch.mockResolvedValueOnce(resumeIncompleteResponse());
     }
 
     // Chunk 4 (final, partial): 200 OK
@@ -217,14 +229,14 @@ describe("resumableUpload", () => {
     );
 
     // Chunk 1: 308 (success)
-    mockFetch.mockResolvedValueOnce(new Response("", { status: 308 }));
+    mockFetch.mockResolvedValueOnce(resumeIncompleteResponse());
 
     // Chunk 2: 500 (server error → retry)
     mockFetch.mockResolvedValueOnce(new Response("", { status: 500 }));
 
     // Resume query: 308 with Range indicating chunk 1 received
     mockFetch.mockResolvedValueOnce(
-      new Response("", { status: 308, headers: { Range: `bytes=0-${chunkSize - 1}` } }),
+      resumeIncompleteResponse(chunkSize - 1),
     );
 
     // Chunk 2 retry: 200 (complete)
@@ -308,7 +320,7 @@ describe("resumableUpload", () => {
     mockOpen.mockResolvedValue(createMockFileHandle(fileSize));
 
     // Resume query: server has 0 bytes → start from beginning
-    mockFetch.mockResolvedValueOnce(new Response("", { status: 308 }));
+    mockFetch.mockResolvedValueOnce(resumeIncompleteResponse());
 
     // Upload chunk: complete
     const bundle = { versionCode: 7 };
@@ -347,7 +359,7 @@ describe("resumableUpload", () => {
       new Response("", { status: 200, headers: { Location: sessionUri } }),
     );
     // Chunk 1: 308
-    mockFetch.mockResolvedValueOnce(new Response("", { status: 308 }));
+    mockFetch.mockResolvedValueOnce(resumeIncompleteResponse());
     // Chunk 2: 200
     mockFetch.mockResolvedValueOnce(
       new Response(JSON.stringify({ versionCode: 1 }), { status: 200 }),
@@ -394,7 +406,7 @@ describe("resumableUpload", () => {
     );
 
     // Chunk 1: 308 (accepted)
-    mockFetch.mockResolvedValueOnce(new Response("", { status: 308 }));
+    mockFetch.mockResolvedValueOnce(resumeIncompleteResponse());
 
     // Chunk 2 (final, partial): network timeout → returns undefined
     mockFetch.mockRejectedValueOnce(new Error("network timeout"));
@@ -436,7 +448,7 @@ describe("resumableUpload", () => {
 
     // Chunk 1: 308 (accepted, not final — but it IS the last chunk)
     // This simulates a race where server returns 308 instead of 200 on the final chunk
-    mockFetch.mockResolvedValueOnce(new Response("", { status: 308 }));
+    mockFetch.mockResolvedValueOnce(resumeIncompleteResponse());
 
     // Post-loop: queryProgress → 200 (server confirms complete)
     mockFetch.mockResolvedValueOnce(new Response("", { status: 200 }));
