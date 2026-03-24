@@ -464,7 +464,7 @@ export default defineConfig({
     },
 
     footer: {
-      message: 'Made by <a href="https://yasser.studio" target="_blank"><img src="/gpc/yasser-studio-logo.svg" alt="Yasser\'s Studio" height="22" style="display:inline-block;vertical-align:middle;margin:0 4px"></a> · Released under the MIT License.',
+      message: 'Made by <a href="https://yasser.studio" target="_blank"><img src="/gpc/yasser-studio-logo.svg" alt="Yasser\'s Studio" height="14" style="display:inline-block;vertical-align:middle;margin:0 4px"></a> · Released under the MIT License.',
       copyright: "Not affiliated with Google LLC. Google Play is a trademark of Google LLC.",
     },
   },
