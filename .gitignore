@@ -41,9 +41,8 @@ coverage/
 # Benchmark results
 scripts/benchmarks/results*.json
 
-# Prettier — skip generated/lock files
+# Prettier — skip lock files (prettier respects .gitignore since v3)
 pnpm-lock.yaml
-CHANGELOG.md
 
 # OS
 .DS_Store

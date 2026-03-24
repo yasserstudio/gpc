@@ -62,6 +62,7 @@ gpc testers import --track beta --file testers.csv     # Bulk tester import
 gpc publish app.aab --track beta --notes "Bug fixes"   # End-to-end release
 gpc anomalies list                                     # List Android vitals anomalies
 gpc migrate fastlane --dir fastlane/metadata           # Migrate Fastlane metadata
+gpc changelog                                          # Show release history
 ```
 
 ## Environment Variables

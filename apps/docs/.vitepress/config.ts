@@ -105,6 +105,8 @@ function getPageDescription(page: PageData): string {
       "gpc init — Scaffold project config, metadata directory, and CI templates for Google Play Console CLI.",
     "commands/diff.md":
       "gpc diff — Preview release state and pending changes before publishing. Read-only, no mutations.",
+    "commands/changelog.md":
+      "gpc changelog — View release history and what changed across versions.",
   };
   return map[path] ?? `GPC documentation — ${page.title ?? "Google Play Console CLI"}`;
 }
@@ -375,6 +377,7 @@ export default defineConfig({
             { text: "install-skills", link: "/commands/install-skills" },
             { text: "init", link: "/commands/init" },
             { text: "diff", link: "/commands/diff" },
+            { text: "changelog", link: "/commands/changelog" },
           ],
         },
       ],

@@ -431,6 +431,8 @@ gpc update --check      # Check for updates (CI-friendly, no update)
 gpc cache list          # Show cached data
 gpc cache clear         # Clear all cached data
 gpc feedback            # Open GitHub issues
+gpc changelog           # Show release history
+gpc changelog --version v0.9.43  # Details for a version
 ```
 
 ---

@@ -22,6 +22,7 @@ outline: deep
 | [`completion bash`](#completion-bash) | Generate bash completions              |
 | [`completion zsh`](#completion-zsh)   | Generate zsh completions               |
 | [`completion fish`](#completion-fish) | Generate fish completions              |
+| [`changelog`](/commands/changelog)    | Show release history from GitHub       |
 
 ## `gpc doctor`
 
