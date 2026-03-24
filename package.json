@@ -19,7 +19,7 @@
     "version-packages": "changeset version",
     "release": "turbo run build && changeset publish",
     "build:binary": "tsx scripts/build-binary.ts",
-    "bench": "tsx benchmarks/startup.bench.ts && tsx benchmarks/command-latency.bench.ts",
+    "bench": "tsx scripts/benchmarks/startup.bench.ts && tsx scripts/benchmarks/command-latency.bench.ts",
     "license:check": "tsx scripts/check-licenses.ts"
   },
   "prettier": {

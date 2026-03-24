@@ -22,8 +22,12 @@ skills-lock.json
 
 # IDE
 .idea/
+.vscode/
 *.swp
 *.swo
+
+# Agent skills metadata (machine-specific)
+AGENTS.md
 
 # Test
 coverage/
@@ -35,7 +39,7 @@ coverage/
 !.changeset/config.json
 
 # Benchmark results
-benchmarks/results*.json
+scripts/benchmarks/results*.json
 
 # Prettier — skip generated/lock files
 pnpm-lock.yaml
