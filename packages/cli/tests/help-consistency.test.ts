@@ -294,6 +294,7 @@ const EXPECTED_TOP_LEVEL_COMMANDS = [
   "preflight",
   "init",
   "diff",
+  "changelog",
 ];
 
 describe("help text consistency", () => {

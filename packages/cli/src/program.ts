@@ -41,6 +41,9 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     docs: async () => {
       (await import("./commands/docs.js")).registerDocsCommand(program);
     },
+    changelog: async () => {
+      (await import("./commands/changelog.js")).registerChangelogCommand(program);
+    },
     completion: async () => {
       (await import("./commands/completion.js")).registerCompletionCommand(program);
     },

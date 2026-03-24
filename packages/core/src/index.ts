@@ -336,3 +336,6 @@ export type {
   GetAppStatusOptions,
   WatchOptions,
 } from "./commands/status.js";
+
+export { fetchChangelog, formatChangelogEntry } from "./commands/changelog.js";
+export type { ChangelogEntry, FetchChangelogOptions } from "./commands/changelog.js";
