@@ -1,5 +1,11 @@
 # @gpc-cli/api
 
+## 1.0.23
+
+### Patch Changes
+
+- fix: X-GUploader-No-308 header for resumable uploads + 12 enhanced error messages
+
 ## 1.0.22
 
 ### Patch Changes
