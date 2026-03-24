@@ -7,15 +7,24 @@ pageClass: wide-page
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.42 <Badge type="tip" text="latest" />
+## v0.9.43 <Badge type="tip" text="latest" />
 
 _March 2026_
 
-- fix: **resumable uploads now work correctly** — Node.js `fetch` was silently following HTTP 308 as a redirect (RFC 7238), breaking Google's "Resume Incomplete" protocol. Added `X-GUploader-No-308` header (same fix as Google's official Go client) so the server uses `X-Http-Status-Code-Override: 308` instead of a real 308 status.
-- fix: upload completion detection — when the final chunk response is lost to a timeout, GPC now queries the server to confirm and recover the bundle resource.
+- fix: **resumable uploads now work** — Node.js `fetch` was following HTTP 308 as a redirect (RFC 7238), breaking Google's "Resume Incomplete" protocol on every chunked upload. Added `X-GUploader-No-308` header (same fix as Google's official Go client library).
+- fix: upload completion detection — when the final chunk response is lost to a timeout, GPC queries the server to confirm and recover the bundle resource.
 - fix: upload progress queries now have a 30-second timeout (were unbounded)
 - fix: malformed server responses during upload no longer crash with a raw `SyntaxError`
-- feat: smart error messages for 12 common API failure scenarios — duplicate version code, version code too low, package mismatch, app not found, insufficient permissions, edit conflict, bundle too large, invalid bundle, track not found, release notes too long, rollout already completed, edit expired. Each error includes a clear message and actionable fix with exact commands.
+- feat: 12 smart error messages for common API failures — duplicate version code, version code too low, package mismatch, app not found, insufficient permissions, edit conflict, bundle too large, invalid bundle, track not found, release notes too long, rollout already completed, edit expired. Each with actionable fix commands.
+
+---
+
+## v0.9.42
+
+_March 2026_
+
+- fix: upload completion detection (partial fix — root cause found in v0.9.43)
+- feat: smart error messages (shipped in v0.9.42, documented in v0.9.43 release)
 
 ---
 
