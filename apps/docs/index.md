@@ -49,6 +49,36 @@ features:
     details: "90%+ coverage across 7 packages. Extend GPC with lifecycle hooks and custom commands. Or import @gpc-cli/api directly as a typed SDK. Security-audited. MIT licensed."
 ---
 
+<TerminalDemo
+  title="gpc — Google Play Console CLI"
+  :delay="100"
+  :lines="[
+    { type: 'cmd', text: 'gpc status' },
+    { type: 'gap' },
+    { type: 'out', text: 'App: com.example.myapp · My App  (fetched 10:42:01 AM)' },
+    { type: 'gap' },
+    { type: 'section', text: 'RELEASES' },
+    { type: 'out', text: '  production   v1.4.2   completed    —' },
+    { type: 'out', text: '  beta         v1.5.0   inProgress  10%' },
+    { type: 'out', text: '  internal     v1.5.1   draft        —' },
+    { type: 'gap' },
+    { type: 'section', text: 'VITALS  (last 7 days)' },
+    { type: 'ok', text: 'crashes     0.80%       anr         0.20%' },
+    { type: 'ok', text: 'slow starts 2.10%       slow render 4.30%  ⚠' },
+    { type: 'gap' },
+    { type: 'section', text: 'REVIEWS  (last 30 days)' },
+    { type: 'out', text: '  ★ 4.6   142 new   89% positive   ↑ from 4.4' },
+    { type: 'gap' },
+    { type: 'cmd', text: 'gpc preflight app.aab' },
+    { type: 'gap' },
+    { type: 'ok', text: '9 scanners passed — no policy violations found' },
+    { type: 'gap' },
+    { type: 'cmd', text: 'gpc releases upload app.aab --track production --rollout 10' },
+    { type: 'gap' },
+    { type: 'ok', text: 'Uploaded 12.4 MB · version code 142 · 10% staged rollout started' },
+  ]"
+/>
+
 ## Install
 
 ```bash
