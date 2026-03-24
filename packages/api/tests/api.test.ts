@@ -1570,7 +1570,7 @@ describe("HTTP error paths and methods", () => {
       expect(err).toBeInstanceOf(PlayApiError);
       expect(err.code).toBe("API_EDIT_CONFLICT");
       expect(err.statusCode).toBe(409);
-      expect(err.suggestion).toContain("Delete the existing edit");
+      expect(err.suggestion).toContain("another process");
     }
   });
 
@@ -2111,8 +2111,9 @@ describe("HTTP error response edge cases", () => {
       expect.unreachable("should have thrown");
     } catch (err) {
       expect(err).toBeInstanceOf(PlayApiError);
-      expect((err as PlayApiError).code).toBe("API_FORBIDDEN");
+      expect((err as PlayApiError).code).toBe("API_INSUFFICIENT_PERMISSIONS");
       expect((err as PlayApiError).statusCode).toBe(403);
+      expect((err as PlayApiError).suggestion).toContain("Users and permissions");
     }
   });
 });

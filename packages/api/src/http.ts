@@ -89,56 +89,247 @@ function resolveOption(explicit: number | undefined, envName: string, fallback: 
   return explicit ?? envInt(envName) ?? fallback;
 }
 
-function mapStatusToError(status: number, body: string): { code: string; suggestion?: string } {
+interface ErrorMapping {
+  code: string;
+  message: string;
+  suggestion: string;
+}
+
+/**
+ * Pattern-match Google Play API error responses to return specific,
+ * actionable error messages. Returns undefined if no pattern matches.
+ */
+function enhanceApiError(status: number, body: string): ErrorMapping | undefined {
+  let errorMsg = "";
+  try {
+    const parsed = JSON.parse(body) as { error?: { message?: string; status?: string } };
+    errorMsg = parsed?.error?.message?.toLowerCase() ?? "";
+  } catch {
+    errorMsg = body.toLowerCase();
+  }
+
+  // — Duplicate version code (400/403)
+  if (errorMsg.includes("version code") && errorMsg.includes("already been used")) {
+    const match = errorMsg.match(/version code (\d+)/);
+    const vc = match?.[1] ?? "?";
+    return {
+      code: "API_DUPLICATE_VERSION_CODE",
+      message: `Version code ${vc} has already been uploaded to this app.`,
+      suggestion: [
+        `Increment versionCode in your build.gradle (or build.gradle.kts) and rebuild.`,
+        `Check the current version with: gpc releases status --track production`,
+      ].join("\n"),
+    };
+  }
+
+  // — Version code too low (400/403)
+  if (
+    errorMsg.includes("version code") &&
+    (errorMsg.includes("lower") || errorMsg.includes("not allowed") || errorMsg.includes("not greater"))
+  ) {
+    return {
+      code: "API_VERSION_CODE_TOO_LOW",
+      message: "Version code is lower than the current version on the target track.",
+      suggestion: [
+        "Google Play requires version codes to increase with each upload.",
+        "Check the current version with: gpc releases status --track <track>",
+        "Then set a higher versionCode in your build.gradle and rebuild.",
+      ].join("\n"),
+    };
+  }
+
+  // — Package name mismatch (400/403)
+  if (
+    (errorMsg.includes("package name") || errorMsg.includes("applicationid")) &&
+    errorMsg.includes("does not match")
+  ) {
+    return {
+      code: "API_PACKAGE_NAME_MISMATCH",
+      message: "The package name in the uploaded bundle does not match the target app.",
+      suggestion: [
+        "Verify your applicationId in build.gradle matches the app you're uploading to.",
+        "Check the configured package with: gpc config show",
+        "Or specify explicitly with: --app com.example.yourapp",
+      ].join("\n"),
+    };
+  }
+
+  // — App not found (404)
+  if (
+    status === 404 &&
+    (errorMsg.includes("applicationnotfound") ||
+      errorMsg.includes("no application was found") ||
+      errorMsg.includes("application not found"))
+  ) {
+    return {
+      code: "API_APP_NOT_FOUND",
+      message: "This app was not found in your Google Play developer account.",
+      suggestion: [
+        "Verify the package name is correct.",
+        "Ensure the app has been created in the Google Play Console.",
+        "List available apps with: gpc apps list",
+      ].join("\n"),
+    };
+  }
+
+  // — Insufficient permissions (403)
+  if (
+    status === 403 &&
+    (errorMsg.includes("permission") ||
+      errorMsg.includes("insufficient") ||
+      errorMsg.includes("caller does not have"))
+  ) {
+    return {
+      code: "API_INSUFFICIENT_PERMISSIONS",
+      message: "The service account does not have permission for this operation.",
+      suggestion: [
+        "In Google Play Console → Users and permissions → find your service account email.",
+        "Grant the required permissions (e.g., 'Release to production' for uploads).",
+        "Run gpc doctor to verify your credentials and permissions.",
+      ].join("\n"),
+    };
+  }
+
+  // — Edit conflict (409)
+  if (status === 409) {
+    return {
+      code: "API_EDIT_CONFLICT",
+      message: "An edit conflict occurred — another edit session is open for this app.",
+      suggestion: [
+        "This usually means another process has an open edit (CI pipeline, Play Console, or another gpc instance).",
+        "Wait a few minutes and retry — GPC will auto-retry once.",
+        "Or discard the stale edit in the Google Play Console.",
+      ].join("\n"),
+    };
+  }
+
+  // — Bundle too large (400/413)
+  if (
+    status === 413 ||
+    errorMsg.includes("too large") ||
+    errorMsg.includes("exceeds") && errorMsg.includes("size")
+  ) {
+    return {
+      code: "API_BUNDLE_TOO_LARGE",
+      message: "The uploaded file exceeds Google Play's size limit.",
+      suggestion: [
+        "AAB files must be under 2 GB, APK files under 1 GB.",
+        "Use Android App Bundles (AAB) instead of APK for smaller file sizes.",
+        "Run gpc preflight <file> to check bundle size before uploading.",
+      ].join("\n"),
+    };
+  }
+
+  // — Invalid bundle/APK (400)
+  if (
+    errorMsg.includes("invalid bundle") ||
+    errorMsg.includes("invalid apk") ||
+    errorMsg.includes("unable to parse") ||
+    errorMsg.includes("malformed")
+  ) {
+    return {
+      code: "API_INVALID_BUNDLE",
+      message: "Google Play rejected the uploaded file as invalid or malformed.",
+      suggestion: [
+        "Ensure the file is a properly signed AAB or APK.",
+        "Common causes: corrupted file, unsigned bundle, wrong file format.",
+        "Run gpc preflight <file> for offline validation.",
+        "Rebuild with: ./gradlew bundleRelease",
+      ].join("\n"),
+    };
+  }
+
+  // — Track not found (404)
+  if (status === 404 && errorMsg.includes("track") && (errorMsg.includes("not found") || errorMsg.includes("does not exist"))) {
+    return {
+      code: "API_TRACK_NOT_FOUND",
+      message: "The specified track does not exist for this app.",
+      suggestion: [
+        "Built-in tracks: internal, alpha, beta, production.",
+        "List custom tracks with: gpc tracks list",
+        "Create a custom track with: gpc tracks create <name>",
+      ].join("\n"),
+    };
+  }
+
+  // — Release notes too long (400)
+  if (errorMsg.includes("release notes") && (errorMsg.includes("too long") || errorMsg.includes("character") || errorMsg.includes("500"))) {
+    return {
+      code: "API_RELEASE_NOTES_TOO_LONG",
+      message: "Release notes exceed the 500-character limit.",
+      suggestion: [
+        "Shorten the release notes to 500 characters or fewer per language.",
+        "Preview current notes with: gpc releases notes get --track <track>",
+      ].join("\n"),
+    };
+  }
+
+  // — Rollout already completed (400)
+  if (errorMsg.includes("cannot change rollout") || (errorMsg.includes("release") && errorMsg.includes("already completed"))) {
+    return {
+      code: "API_ROLLOUT_ALREADY_COMPLETED",
+      message: "The release is already at full rollout (100%) and cannot be changed.",
+      suggestion: [
+        "A completed release cannot have its rollout percentage modified.",
+        "To deploy a new version: gpc releases upload --track <track>",
+      ].join("\n"),
+    };
+  }
+
+  // — Edit expired (400 FAILED_PRECONDITION)
+  if (errorMsg.includes("edit") && (errorMsg.includes("expired") || errorMsg.includes("precondition"))) {
+    return {
+      code: "API_EDIT_EXPIRED",
+      message: "The edit session has expired.",
+      suggestion: [
+        "Edit sessions last about 1 hour.",
+        "Retry the operation — GPC will open a fresh edit automatically.",
+      ].join("\n"),
+    };
+  }
+
+  return undefined;
+}
+
+function mapStatusToError(status: number, body: string): { code: string; message?: string; suggestion?: string } {
+  // Try specific pattern matching first
+  const enhanced = enhanceApiError(status, body);
+  if (enhanced) return enhanced;
+
+  // Fall back to generic status-based mapping
   switch (status) {
-    case 400: {
-      // Detect FAILED_PRECONDITION: edit has expired
-      try {
-        const parsed = JSON.parse(body) as { error?: { status?: string; message?: string } };
-        if (
-          parsed?.error?.status === "FAILED_PRECONDITION" &&
-          parsed.error.message?.toLowerCase().includes("edit")
-        ) {
-          return {
-            code: "API_EDIT_EXPIRED",
-            suggestion: "The edit session has expired. Retry the operation to open a fresh edit.",
-          };
-        }
-      } catch {
-        /* not JSON */
-      }
+    case 400:
       return { code: "API_HTTP_400", suggestion: "Check request parameters and try again." };
-    }
     case 401:
       return {
         code: "API_UNAUTHORIZED",
-        suggestion: "Check that your access token is valid and not expired.",
+        suggestion: "Check that your access token is valid and not expired. Run: gpc doctor",
       };
     case 403:
       return {
         code: "API_FORBIDDEN",
-        suggestion: "Ensure the service account has the required permissions for this operation.",
+        suggestion: "Ensure the service account has the required permissions. Run: gpc doctor",
       };
     case 404:
       return {
         code: "API_NOT_FOUND",
-        suggestion: "Verify the package name and resource IDs are correct.",
+        suggestion: "Verify the package name and resource IDs are correct. Run: gpc apps list",
       };
-    case 409:
+    case 413:
       return {
-        code: "API_EDIT_CONFLICT",
-        suggestion: "Another edit may be in progress. Delete the existing edit and retry.",
+        code: "API_BUNDLE_TOO_LARGE",
+        suggestion: "The uploaded file is too large. AAB limit: 2 GB, APK limit: 1 GB.",
       };
     case 429:
       return {
         code: "API_RATE_LIMITED",
-        suggestion: "Too many requests. The client will retry automatically.",
+        suggestion: "Too many requests. GPC will retry automatically.",
       };
     default:
       if (status >= 500) {
         return {
           code: "API_SERVER_ERROR",
-          suggestion: "Google Play API server error. The client will retry automatically.",
+          suggestion: "Google Play API server error. GPC will retry automatically.",
         };
       }
       return { code: `API_HTTP_${status}` };
@@ -216,13 +407,13 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         }
 
         const errorBody = await response.text();
-        const { code, suggestion } = mapStatusToError(response.status, errorBody);
+        const mapped = mapStatusToError(response.status, errorBody);
 
         const err = new PlayApiError(
-          `${method} ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
-          code,
+          mapped.message ?? `${method} ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
+          mapped.code,
           response.status,
-          suggestion,
+          mapped.suggestion,
         );
 
         if (isRetryable(response.status) && attempt < maxRetries) {
@@ -366,13 +557,13 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         }
 
         const errorBody = await response.text();
-        const { code, suggestion } = mapStatusToError(response.status, errorBody);
+        const mapped = mapStatusToError(response.status, errorBody);
 
         const err = new PlayApiError(
-          `POST upload ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
-          code,
+          mapped.message ?? `Upload failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
+          mapped.code,
           response.status,
-          suggestion,
+          mapped.suggestion,
         );
 
         if (isRetryable(response.status) && attempt < maxRetries) {
@@ -549,12 +740,12 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
 
         if (!response.ok) {
           const errorBody = await response.text();
-          const { code, suggestion } = mapStatusToError(response.status, errorBody);
+          const mapped = mapStatusToError(response.status, errorBody);
           throw new PlayApiError(
-            `GET ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
-            code,
+            mapped.message ?? `GET ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
+            mapped.code,
             response.status,
-            suggestion,
+            mapped.suggestion,
           );
         }
 
