@@ -37,6 +37,10 @@ coverage/
 # Benchmark results
 benchmarks/results*.json
 
+# Prettier — skip generated/lock files
+pnpm-lock.yaml
+CHANGELOG.md
+
 # OS
 .DS_Store
 Thumbs.db
