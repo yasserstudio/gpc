@@ -22,8 +22,11 @@ const _isJsonMode =
   (process.argv.includes("-o") && process.argv[process.argv.indexOf("-o") + 1] === "json");
 const _isQuiet = process.argv.includes("--quiet") || process.argv.includes("-q");
 
-if (!_isJsonMode && !_isQuiet && !existsSync(getUserConfigPath())) {
-  process.stderr.write("✦ First time? Run gpc config init to get set up.\n\n");
+const _setupCommands = new Set(["config", "auth", "quickstart", "doctor", "init", "setup-gcp"]);
+const _isSetupCommand = _setupCommands.has(process.argv[2] ?? "");
+
+if (!_isJsonMode && !_isQuiet && !_isSetupCommand && !existsSync(getUserConfigPath())) {
+  process.stderr.write("\u2726 First time? Run gpc config init to get set up.\n\n");
 }
 
 await setupNetworking();

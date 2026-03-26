@@ -1,7 +1,7 @@
 {
   "name": "@gpc-cli/cli",
-  "version": "0.9.45",
-  "description": "GPC — Google Play Console CLI. 192 API endpoints, one tool.",
+  "version": "0.9.46",
+  "description": "GPC — Google Play Console CLI. 204 API endpoints, one tool.",
   "type": "module",
   "bin": {
     "gpc": "./dist/bin.js"

@@ -203,10 +203,38 @@ describe("fetchLatestRelease", () => {
   });
 
   it("throws with exitCode 4 on HTTP 429 (rate limited)", async () => {
-    vi.mocked(fetch).mockResolvedValueOnce({ ok: false, status: 429 } as Response);
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: false,
+      status: 429,
+      headers: new Headers(),
+    } as Response);
     await expect(fetchLatestRelease()).rejects.toMatchObject({
       exitCode: 4,
       code: "UPDATE_RATE_LIMITED",
+    });
+  });
+
+  it("throws UPDATE_RATE_LIMITED on HTTP 403 with x-ratelimit-remaining: 0", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: false,
+      status: 403,
+      headers: new Headers({ "x-ratelimit-remaining": "0" }),
+    } as Response);
+    await expect(fetchLatestRelease()).rejects.toMatchObject({
+      exitCode: 4,
+      code: "UPDATE_RATE_LIMITED",
+    });
+  });
+
+  it("throws UPDATE_API_ERROR on HTTP 403 without rate-limit header (genuine forbidden)", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: false,
+      status: 403,
+      headers: new Headers({ "x-ratelimit-remaining": "58" }),
+    } as Response);
+    await expect(fetchLatestRelease()).rejects.toMatchObject({
+      exitCode: 4,
+      code: "UPDATE_API_ERROR",
     });
   });
 

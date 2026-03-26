@@ -20,30 +20,25 @@ export function registerDeviceTiersCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await listDeviceTiers(client, packageName);
-        const configs = (result as unknown as Record<string, unknown>)["deviceTierConfigs"] as
-          | Record<string, unknown>[]
-          | undefined;
-        if (format !== "json" && (!configs || configs.length === 0)) {
-          console.log("No device tier configs found.");
-          return;
-        }
-        if (format !== "json" && configs) {
-          const rows = configs.map((c) => ({
-            deviceTierConfigId: c["deviceTierConfigId"] || "-",
-            deviceGroups: Array.isArray(c["deviceGroups"])
-              ? (c["deviceGroups"] as unknown[]).length
-              : 0,
-            deviceTierSet: c["deviceTierSet"] ? "yes" : "no",
-          }));
-          console.log(formatOutput(rows, format));
-        } else {
-          console.log(formatOutput(result, format));
-        }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      const result = await listDeviceTiers(client, packageName);
+      const configs = (result as unknown as Record<string, unknown>)["deviceTierConfigs"] as
+        | Record<string, unknown>[]
+        | undefined;
+      if (format !== "json" && (!configs || configs.length === 0)) {
+        console.log("No device tier configs found.");
+        return;
+      }
+      if (format !== "json" && configs) {
+        const rows = configs.map((c) => ({
+          deviceTierConfigId: c["deviceTierConfigId"] || "-",
+          deviceGroups: Array.isArray(c["deviceGroups"])
+            ? (c["deviceGroups"] as unknown[]).length
+            : 0,
+          deviceTierSet: c["deviceTierSet"] ? "yes" : "no",
+        }));
+        console.log(formatOutput(rows, format));
+      } else {
+        console.log(formatOutput(result, format));
       }
     });
 
@@ -55,13 +50,8 @@ export function registerDeviceTiersCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getDeviceTier(client, packageName, configId);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await getDeviceTier(client, packageName, configId);
+      console.log(formatOutput(result, format));
     });
 
   dt.command("create")
@@ -87,14 +77,9 @@ export function registerDeviceTiersCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const raw = await readFile(opts.file, "utf-8");
-        const tierConfig = JSON.parse(raw);
-        const result = await createDeviceTier(client, packageName, tierConfig);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const raw = await readFile(opts.file, "utf-8");
+      const tierConfig = JSON.parse(raw);
+      const result = await createDeviceTier(client, packageName, tierConfig);
+      console.log(formatOutput(result, format));
     });
 }

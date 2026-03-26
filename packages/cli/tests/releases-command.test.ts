@@ -67,6 +67,17 @@ vi.mock("@gpc-cli/api", () => ({
 }));
 
 vi.mock("@gpc-cli/core", () => {
+  class GpcError extends Error {
+    constructor(
+      message: string,
+      public readonly code: string,
+      public readonly exitCode: number,
+      public readonly suggestion?: string,
+    ) {
+      super(message);
+      this.name = "GpcError";
+    }
+  }
   class MockPluginManager {
     async load() {}
     async runBeforeCommand() {}
@@ -86,6 +97,7 @@ vi.mock("@gpc-cli/core", () => {
     reset() {}
   }
   return {
+    GpcError,
     PluginManager: MockPluginManager,
     discoverPlugins: vi.fn().mockResolvedValue([]),
     detectOutputFormat: vi.fn().mockReturnValue("table"),
@@ -187,9 +199,11 @@ describe("gpc releases upload — file extension validation", () => {
   });
 
   it("exits with code 2 when upload file has .zip extension", async () => {
-    await expect(run(["releases", "upload", tmpFile])).rejects.toThrow("process.exit(2)");
-    const allErrors = errSpy.mock.calls.flat().join("\n");
-    expect(allErrors).toContain(".zip");
+    await expect(run(["releases", "upload", tmpFile])).rejects.toMatchObject({
+      code: "RELEASES_USAGE_ERROR",
+      exitCode: 2,
+      message: expect.stringContaining(".zip"),
+    });
   });
 });
 
@@ -243,9 +257,11 @@ describe("gpc releases notes set redirect", () => {
   });
 
   it("exits 1 immediately with redirect message when action is set", async () => {
-    await expect(run(["releases", "notes", "set"])).rejects.toThrow("process.exit(1)");
-    const allErrors = errSpy.mock.calls.flat().join("\n");
-    expect(allErrors).toContain("gpc releases upload");
+    await expect(run(["releases", "notes", "set"])).rejects.toMatchObject({
+      code: "RELEASES_USAGE_ERROR",
+      exitCode: 1,
+      message: expect.stringContaining("not implemented"),
+    });
   });
 });
 

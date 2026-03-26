@@ -7,6 +7,53 @@ pageClass: wide-page
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
+## v0.9.46 <Badge type="warning" text="unreleased" />
+
+Deep code review, error handling overhaul, doctor enhancements, API catch-up.
+
+### Error Handling
+- Removed 210 `process.exit()` calls across 39 command files — all errors now propagate to the global error handler for consistent formatting, JSON mode support, and plugin hook compatibility
+- Shared helpers (`resolvePackageName`, `readJsonFile`, `requireOption`) throw typed errors instead of exiting directly
+
+### `gpc doctor` — 10 New Checks
+- GPC version check (npm registry)
+- HTTPS connectivity probe with latency
+- App access verification (tests edit create/delete on configured app)
+- Service account key age warning (>90 days)
+- Conflicting credential sources detection
+- Config unknown keys validation
+- Token cache health check (fixable via `--fix`)
+- Disk space check
+- CI environment detection
+- DNS latency measurement
+
+### `gpc update` Fixes
+- GitHub 403 rate limit properly detected (checks `x-ratelimit-remaining` header)
+- `GITHUB_TOKEN` env var supported as fallback for CI
+- Binary download auth headers, stale file cleanup
+
+### Auth & Onboarding
+- `auth login` verifies token works before confirming, supports `--json` output
+- `auth logout --profile <name>` clears specific profile
+- SA paths saved as absolute (no CWD-dependent resolution)
+- First-run banner suppressed on setup commands
+
+### API Client — 7 New Endpoints (204 total)
+- `releases.list` — release lifecycle states (DRAFT, IN_REVIEW, PUBLISHED)
+- `tracks.patch` — partial track updates
+- `subscriptions.batchGet` / `batchUpdate` — batch operations
+- `purchases.acknowledgeSubscription` — v1 subscription acknowledge
+- `inappproducts.batchDelete` — batch IAP deletion
+
+### Status Improvements
+- `--since-last` diff embedded in JSON output
+- Version diff uses production track
+- Watch loop SIGINT cleanup
+
+**204 API endpoints · 1,834 tests**
+
+---
+
 ## v0.9.45 <Badge type="tip" text="latest" />
 
 _March 2026_

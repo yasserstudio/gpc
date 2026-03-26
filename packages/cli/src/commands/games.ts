@@ -27,17 +27,12 @@ export function registerGamesCommands(program: Command): void {
       const client = await getGamesClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await listLeaderboards(client, packageName);
-        if (result.length === 0 && format !== "json") {
-          console.log("No leaderboards found.");
-          return;
-        }
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      const result = await listLeaderboards(client, packageName);
+      if (result.length === 0 && format !== "json") {
+        console.log("No leaderboards found.");
+        return;
       }
+      console.log(formatOutput(result, format));
     });
 
   games
@@ -49,17 +44,12 @@ export function registerGamesCommands(program: Command): void {
       const client = await getGamesClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await listAchievements(client, packageName);
-        if (result.length === 0 && format !== "json") {
-          console.log("No achievements found.");
-          return;
-        }
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      const result = await listAchievements(client, packageName);
+      if (result.length === 0 && format !== "json") {
+        console.log("No achievements found.");
+        return;
       }
+      console.log(formatOutput(result, format));
     });
 
   games
@@ -71,16 +61,11 @@ export function registerGamesCommands(program: Command): void {
       const client = await getGamesClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await listEvents(client, packageName);
-        if (result.length === 0 && format !== "json") {
-          console.log("No events found.");
-          return;
-        }
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      const result = await listEvents(client, packageName);
+      if (result.length === 0 && format !== "json") {
+        console.log("No events found.");
+        return;
       }
+      console.log(formatOutput(result, format));
     });
 }

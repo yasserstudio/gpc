@@ -152,12 +152,8 @@ describe("reviews reply command", () => {
     expect(jsonLine).toBeDefined();
   });
 
-  it("exits with error when API call fails", async () => {
+  it("rejects with error when API call fails", async () => {
     mockReplyToReview.mockRejectedValue(new Error("API error"));
-
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation((_code) => {
-      throw new Error("process.exit");
-    });
 
     const { registerReviewsCommands } = await import("../src/commands/reviews.js");
     const program = makeProgram();
@@ -174,8 +170,6 @@ describe("reviews reply command", () => {
         "Hello",
         "--no-interactive",
       ]),
-    ).rejects.toThrow("process.exit");
-
-    expect(exitSpy).toHaveBeenCalledWith(expect.any(Number));
+    ).rejects.toThrow("API error");
   });
 });

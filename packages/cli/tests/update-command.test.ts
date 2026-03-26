@@ -13,6 +13,7 @@ vi.mock("../src/updater", () => ({
   getPlatformAsset: vi.fn().mockReturnValue("gpc-darwin-arm64"),
   getCurrentBinaryPath: vi.fn().mockReturnValue("/usr/local/bin/gpc"),
   detectInstallMethod: vi.fn().mockReturnValue("npm"),
+  cleanupStaleUpdateFiles: vi.fn(),
 }));
 
 vi.mock("@gpc-cli/auth", () => ({
@@ -274,13 +275,13 @@ describe("gpc update (execute)", () => {
     expect(mockUpdateViaNpm).toHaveBeenCalledOnce();
   });
 
-  it("exits 1 with manual instructions for unknown install method", async () => {
+  it("throws typed error with manual instructions for unknown install method", async () => {
     mockCheckForUpdate.mockResolvedValueOnce(makeCheckResult({ installMethod: "unknown" }));
-    await expect(run(["update"])).rejects.toThrow("process.exit(1)");
-    const errOutput = vi.mocked(console.error).mock.calls.flat().join("\n");
-    expect(errOutput).toContain("npm install");
-    expect(errOutput).toContain("brew upgrade");
-    expect(errOutput).toContain("releases/latest");
+    await expect(run(["update"])).rejects.toMatchObject({
+      code: "UPDATE_UNKNOWN_METHOD",
+      exitCode: 1,
+      suggestion: expect.stringContaining("npm install"),
+    });
   });
 
   it("propagates network error (exitCode 5) from checkForUpdate", async () => {

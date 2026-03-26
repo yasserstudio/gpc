@@ -56,9 +56,12 @@ async function writeCache(cacheDir: string, cache: TokenCache): Promise<void> {
   const tmpPath = cachePath + ".tmp";
 
   const cacheParent = dirname(cachePath);
-  await mkdir(cacheParent, { recursive: true });
-  // Restrict cache directory to owner-only (0o700)
-  await chmod(cacheParent, 0o700).catch(() => {});
+  // mkdir returns the first directory created, or undefined if it already existed.
+  // Only chmod when we actually created the directory.
+  const created = await mkdir(cacheParent, { recursive: true });
+  if (created) {
+    await chmod(cacheParent, 0o700).catch(() => {});
+  }
   await writeFile(tmpPath, JSON.stringify(cache, null, 2) + "\n", {
     encoding: "utf-8",
     mode: 0o600,

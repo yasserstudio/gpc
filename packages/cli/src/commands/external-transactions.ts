@@ -34,10 +34,9 @@ export function registerExternalTransactionsCommands(program: Command): void {
       try {
         data = JSON.parse(readFileSync(options.file, "utf-8"));
       } catch (err) {
-        console.error(
-          `Error: Could not read transaction data from ${options.file}: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(2);
+        const error = new Error(`Could not read transaction data from ${options.file}: ${err instanceof Error ? err.message : String(err)}`);
+        Object.assign(error, { code: "INVALID_INPUT", exitCode: 2, suggestion: "Check the file path and ensure it contains valid JSON." });
+        throw error;
       }
 
       if (isDryRun(program)) {
@@ -56,13 +55,8 @@ export function registerExternalTransactionsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await createExternalTransaction(client, packageName, data);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await createExternalTransaction(client, packageName, data);
+      console.log(formatOutput(result, format));
     });
 
   extTxn
@@ -74,13 +68,8 @@ export function registerExternalTransactionsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getExternalTransaction(client, packageName, id);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await getExternalTransaction(client, packageName, id);
+      console.log(formatOutput(result, format));
     });
 
   extTxn
@@ -126,12 +115,7 @@ export function registerExternalTransactionsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await refundExternalTransaction(client, packageName, id, refundData);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await refundExternalTransaction(client, packageName, id, refundData);
+      console.log(formatOutput(result, format));
     });
 }

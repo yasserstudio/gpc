@@ -80,12 +80,7 @@ describe("requireOption", () => {
     expect(result).toBe("USD");
   });
 
-  it("exits with code 2 when non-interactive and missing", async () => {
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
-      throw new Error("process.exit");
-    });
-    const stderrSpy = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
-
+  it("throws with code MISSING_REQUIRED_OPTION when non-interactive and missing", async () => {
     await expect(
       requireOption(
         "track",
@@ -96,13 +91,11 @@ describe("requireOption", () => {
         },
         false,
       ),
-    ).rejects.toThrow("process.exit");
-
-    expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(stderrSpy).toHaveBeenCalledWith(expect.stringContaining("--track"));
-
-    exitSpy.mockRestore();
-    stderrSpy.mockRestore();
+    ).rejects.toMatchObject({
+      code: "MISSING_REQUIRED_OPTION",
+      exitCode: 2,
+      message: expect.stringContaining("--track"),
+    });
   });
 });
 
@@ -155,7 +148,7 @@ describe("requireConfirm", () => {
     await requireConfirm("Delete everything?", program);
   });
 
-  it("exits with 0 when user denies confirmation", async () => {
+  it("throws silent abort when user denies confirmation", async () => {
     Object.defineProperty(process.stdin, "isTTY", { value: true, writable: true });
     const program = { opts: () => ({ interactive: true }) };
 
@@ -165,16 +158,15 @@ describe("requireConfirm", () => {
       close: vi.fn(),
     });
 
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
-      throw new Error("process.exit");
-    });
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
-    await expect(requireConfirm("Delete?", program)).rejects.toThrow("process.exit");
-    expect(exitSpy).toHaveBeenCalledWith(1);
+    await expect(requireConfirm("Delete?", program)).rejects.toMatchObject({
+      code: "USER_ABORTED",
+      exitCode: 0,
+      silent: true,
+    });
     expect(logSpy).toHaveBeenCalledWith("Aborted.");
 
-    exitSpy.mockRestore();
     logSpy.mockRestore();
   });
 

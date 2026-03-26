@@ -3,7 +3,7 @@ import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createUsersClient } from "@gpc-cli/api";
-import { listGrants, createGrant, updateGrant, deleteGrant, formatOutput } from "@gpc-cli/core";
+import { listGrants, createGrant, updateGrant, deleteGrant, formatOutput, GpcError } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
@@ -11,10 +11,12 @@ import { requireConfirm } from "../prompt.js";
 function resolveDeveloperId(devIdArg: string | undefined, config: GpcConfig): string {
   const id = devIdArg || config.developerId;
   if (!id) {
-    console.error(
-      "Error: No developer ID. Use --developer-id <id> or gpc config set developerId <id>",
+    throw new GpcError(
+      "No developer ID. Use --developer-id <id> or gpc config set developerId <id>",
+      "MISSING_DEVELOPER_ID",
+      2,
+      "gpc config set developerId <id>",
     );
-    process.exit(2);
   }
   return id;
 }
@@ -39,21 +41,16 @@ export function registerGrantsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await listGrants(client, developerId, email);
-        if (result.length === 0) {
-          if (format === "json") {
-            console.log(formatOutput([], format));
-          } else {
-            console.log(`No grants found for ${email}.`);
-          }
-          return;
+      const result = await listGrants(client, developerId, email);
+      if (result.length === 0) {
+        if (format === "json") {
+          console.log(formatOutput([], format));
+        } else {
+          console.log(`No grants found for ${email}.`);
         }
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        return;
       }
+      console.log(formatOutput(result, format));
     });
 
   grants
@@ -86,13 +83,8 @@ export function registerGrantsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await createGrant(client, developerId, email, options.package, perms);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await createGrant(client, developerId, email, options.package, perms);
+      console.log(formatOutput(result, format));
     });
 
   grants
@@ -122,13 +114,8 @@ export function registerGrantsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await updateGrant(client, developerId, email, options.package, perms);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await updateGrant(client, developerId, email, options.package, perms);
+      console.log(formatOutput(result, format));
     });
 
   grants
@@ -157,12 +144,7 @@ export function registerGrantsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await deleteGrant(client, developerId, email, options.package);
-        console.log(`Grant removed for ${email} on ${options.package}.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      await deleteGrant(client, developerId, email, options.package);
+      console.log(`Grant removed for ${email} on ${options.package}.`);
     });
 }

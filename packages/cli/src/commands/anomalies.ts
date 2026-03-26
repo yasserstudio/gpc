@@ -25,32 +25,27 @@ export function registerAnomaliesCommands(program: Command): void {
       const reporting = await getReportingClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getVitalsAnomalies(reporting, packageName);
-        const items = (result as unknown as Record<string, unknown>)["anomalies"] as
-          | unknown[]
-          | undefined;
+      const result = await getVitalsAnomalies(reporting, packageName);
+      const items = (result as unknown as Record<string, unknown>)["anomalies"] as
+        | unknown[]
+        | undefined;
 
-        if (format !== "json") {
-          if (!items || items.length === 0) {
-            console.log("No anomalies detected.");
-            return;
-          }
-          const rows = items.map((item) => {
-            const a = item as Record<string, unknown>;
-            return {
-              name: String(a["name"] ?? "-"),
-              metricSet: String(a["metricSet"] ?? "-"),
-              aggregationPeriod: String(a["aggregationPeriod"] ?? "-"),
-            };
-          });
-          console.log(formatOutput(rows, format));
-        } else {
-          console.log(formatOutput(result, format));
+      if (format !== "json") {
+        if (!items || items.length === 0) {
+          console.log("No anomalies detected.");
+          return;
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        const rows = items.map((item) => {
+          const a = item as Record<string, unknown>;
+          return {
+            name: String(a["name"] ?? "-"),
+            metricSet: String(a["metricSet"] ?? "-"),
+            aggregationPeriod: String(a["aggregationPeriod"] ?? "-"),
+          };
+        });
+        console.log(formatOutput(rows, format));
+      } else {
+        console.log(formatOutput(result, format));
       }
     });
 }

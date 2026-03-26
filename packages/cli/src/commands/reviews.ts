@@ -38,48 +38,43 @@ export function registerReviewsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await listReviews(client, packageName, {
-          stars: options.stars,
-          language: options.lang,
-          since: options.since,
-          translationLanguage: options.translateTo,
-          maxResults: options.max,
-          limit: options.limit,
-          nextPage: options.nextPage,
+      const result = await listReviews(client, packageName, {
+        stars: options.stars,
+        language: options.lang,
+        since: options.since,
+        translationLanguage: options.translateTo,
+        maxResults: options.max,
+        limit: options.limit,
+        nextPage: options.nextPage,
+      });
+      if (Array.isArray(result) && result.length === 0 && format !== "json") {
+        console.log("No reviews found.");
+        return;
+      }
+      const sorted = sortResults(result, options.sort);
+      if (format !== "json" && Array.isArray(sorted)) {
+        const rows = sorted.map((r: unknown) => {
+          const rv = r as Record<string, unknown>;
+          const comments = rv["comments"] as Record<string, unknown>[] | undefined;
+          const userComment = comments?.[0]?.["userComment"] as
+            | Record<string, unknown>
+            | undefined;
+          return {
+            reviewId: rv["reviewId"] || "-",
+            author: rv["authorName"] || "-",
+            stars: userComment?.["starRating"] || "-",
+            text: String(userComment?.["text"] || "-").slice(0, 80),
+            lastModified: userComment?.["lastModified"]
+              ? String(
+                  (userComment["lastModified"] as Record<string, unknown>)?.["seconds"] || "-",
+                )
+              : "-",
+            thumbsUp: userComment?.["thumbsUpCount"] || 0,
+          };
         });
-        if (Array.isArray(result) && result.length === 0 && format !== "json") {
-          console.log("No reviews found.");
-          return;
-        }
-        const sorted = sortResults(result, options.sort);
-        if (format !== "json" && Array.isArray(sorted)) {
-          const rows = sorted.map((r: unknown) => {
-            const rv = r as Record<string, unknown>;
-            const comments = rv["comments"] as Record<string, unknown>[] | undefined;
-            const userComment = comments?.[0]?.["userComment"] as
-              | Record<string, unknown>
-              | undefined;
-            return {
-              reviewId: rv["reviewId"] || "-",
-              author: rv["authorName"] || "-",
-              stars: userComment?.["starRating"] || "-",
-              text: String(userComment?.["text"] || "-").slice(0, 80),
-              lastModified: userComment?.["lastModified"]
-                ? String(
-                    (userComment["lastModified"] as Record<string, unknown>)?.["seconds"] || "-",
-                  )
-                : "-",
-              thumbsUp: userComment?.["thumbsUpCount"] || 0,
-            };
-          });
-          await maybePaginate(formatOutput(rows, format));
-        } else {
-          await maybePaginate(formatOutput(sorted, format));
-        }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        await maybePaginate(formatOutput(rows, format));
+      } else {
+        await maybePaginate(formatOutput(sorted, format));
       }
     });
 
@@ -93,13 +88,8 @@ export function registerReviewsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getReview(client, packageName, reviewId, options.translateTo);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await getReview(client, packageName, reviewId, options.translateTo);
+      console.log(formatOutput(result, format));
     });
 
   reviews
@@ -137,17 +127,12 @@ export function registerReviewsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await replyToReview(client, packageName, reviewId, options.text);
-        if (format !== "json") {
-          const charCount = options.text.length;
-          console.log(`Reply sent (${charCount}/350 chars)`);
-        }
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      const result = await replyToReview(client, packageName, reviewId, options.text);
+      if (format !== "json") {
+        const charCount = options.text.length;
+        console.log(`Reply sent (${charCount}/350 chars)`);
       }
+      console.log(formatOutput(result, format));
     });
 
   reviews
@@ -163,58 +148,53 @@ export function registerReviewsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await analyzeReviews(client, packageName, {
-          stars: options.stars,
-          language: options.lang,
-          since: options.since,
-          maxResults: options.max,
-        });
+      const result = await analyzeReviews(client, packageName, {
+        stars: options.stars,
+        language: options.lang,
+        since: options.since,
+        maxResults: options.max,
+      });
 
-        if (format === "json") {
-          console.log(formatOutput(result, format));
-          return;
+      if (format === "json") {
+        console.log(formatOutput(result, format));
+        return;
+      }
+
+      console.log(`\nReview Analysis — ${packageName}`);
+      console.log(`${"─".repeat(50)}`);
+      console.log(`Total reviews:   ${result.totalReviews}`);
+      console.log(
+        `Average rating:  ${result.avgRating > 0 ? result.avgRating.toFixed(2) + " ★" : "N/A"}`,
+      );
+      console.log(`\nSentiment:`);
+      console.log(
+        `  Positive: ${result.sentiment.positive}  Negative: ${result.sentiment.negative}  Neutral: ${result.sentiment.neutral}`,
+      );
+      console.log(`  Avg score: ${result.sentiment.avgScore} (range -1 to +1)`);
+
+      if (result.topics.length > 0) {
+        console.log(`\nTop topics:`);
+        for (const t of result.topics.slice(0, 8)) {
+          const bar = t.avgScore > 0.1 ? "+" : t.avgScore < -0.1 ? "-" : "~";
+          console.log(`  [${bar}] ${t.topic.padEnd(20)} ${t.count} reviews`);
         }
+      }
 
-        console.log(`\nReview Analysis — ${packageName}`);
-        console.log(`${"─".repeat(50)}`);
-        console.log(`Total reviews:   ${result.totalReviews}`);
+      if (result.keywords.length > 0) {
         console.log(
-          `Average rating:  ${result.avgRating > 0 ? result.avgRating.toFixed(2) + " ★" : "N/A"}`,
+          `\nTop keywords: ${result.keywords
+            .slice(0, 10)
+            .map((k) => k.word)
+            .join(", ")}`,
         );
-        console.log(`\nSentiment:`);
-        console.log(
-          `  Positive: ${result.sentiment.positive}  Negative: ${result.sentiment.negative}  Neutral: ${result.sentiment.neutral}`,
-        );
-        console.log(`  Avg score: ${result.sentiment.avgScore} (range -1 to +1)`);
+      }
 
-        if (result.topics.length > 0) {
-          console.log(`\nTop topics:`);
-          for (const t of result.topics.slice(0, 8)) {
-            const bar = t.avgScore > 0.1 ? "+" : t.avgScore < -0.1 ? "-" : "~";
-            console.log(`  [${bar}] ${t.topic.padEnd(20)} ${t.count} reviews`);
-          }
+      if (Object.keys(result.ratingDistribution).length > 0) {
+        console.log(`\nRating distribution:`);
+        for (let star = 5; star >= 1; star--) {
+          const count = result.ratingDistribution[star] ?? 0;
+          if (count > 0) console.log(`  ${star}★  ${count}`);
         }
-
-        if (result.keywords.length > 0) {
-          console.log(
-            `\nTop keywords: ${result.keywords
-              .slice(0, 10)
-              .map((k) => k.word)
-              .join(", ")}`,
-          );
-        }
-
-        if (Object.keys(result.ratingDistribution).length > 0) {
-          console.log(`\nRating distribution:`);
-          for (let star = 5; star >= 1; star--) {
-            const count = result.ratingDistribution[star] ?? 0;
-            if (count > 0) console.log(`  ${star}★  ${count}`);
-          }
-        }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
       }
     });
 
@@ -232,25 +212,20 @@ export function registerReviewsCommands(program: Command): void {
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
 
-      try {
-        const result = await exportReviews(client, packageName, {
-          format: options.format as "json" | "csv",
-          stars: options.stars,
-          language: options.lang,
-          since: options.since,
-          translationLanguage: options.translateTo,
-        });
+      const result = await exportReviews(client, packageName, {
+        format: options.format as "json" | "csv",
+        stars: options.stars,
+        language: options.lang,
+        since: options.since,
+        translationLanguage: options.translateTo,
+      });
 
-        if (options.output) {
-          const { writeFile } = await import("node:fs/promises");
-          await writeFile(options.output, result, "utf-8");
-          console.log(`Reviews exported to ${options.output}`);
-        } else {
-          console.log(result);
-        }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      if (options.output) {
+        const { writeFile } = await import("node:fs/promises");
+        await writeFile(options.output, result, "utf-8");
+        console.log(`Reviews exported to ${options.output}`);
+      } else {
+        console.log(result);
       }
     });
 }

@@ -61,11 +61,9 @@ function writeCache(data: CacheData): void {
 
 async function fetchLatestVersion(): Promise<string | null> {
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-
-    const response = await fetch(REGISTRY_URL, { signal: controller.signal });
-    clearTimeout(timeout);
+    const response = await fetch(REGISTRY_URL, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
 
     if (!response.ok) return null;
 

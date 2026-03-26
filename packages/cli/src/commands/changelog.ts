@@ -15,45 +15,40 @@ export function registerChangelogCommand(program: Command): void {
       const config = await loadConfig();
       const format = getOutputFormat(program, config);
 
-      try {
-        const entries = await fetchChangelog({
-          limit: opts.all ? 100 : opts.limit,
-          version: opts.version,
-        });
+      const entries = await fetchChangelog({
+        limit: opts.all ? 100 : opts.limit,
+        version: opts.version,
+      });
 
-        if (entries.length === 0) {
-          console.log("No releases found.");
-          return;
-        }
-
-        if (format === "json") {
-          console.log(formatOutput(entries, "json"));
-          return;
-        }
-
-        // Single version — show full details
-        if (opts.version || entries.length === 1) {
-          console.log(formatChangelogEntry(entries[0]!));
-          return;
-        }
-
-        // Multiple versions — table summary
-        const header = "VERSION      DATE         TITLE";
-        const separator = "─".repeat(header.length);
-        console.log(header);
-        console.log(separator);
-        for (const entry of entries) {
-          const version = entry.version.padEnd(12);
-          const date = entry.date.padEnd(12);
-          console.log(`${version} ${date} ${entry.title}`);
-        }
-        console.log("");
-        console.log(
-          `Showing ${entries.length} releases. Use --version <tag> for details, or --all for full history.`,
-        );
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      if (entries.length === 0) {
+        console.log("No releases found.");
+        return;
       }
+
+      if (format === "json") {
+        console.log(formatOutput(entries, "json"));
+        return;
+      }
+
+      // Single version — show full details
+      if (opts.version || entries.length === 1) {
+        console.log(formatChangelogEntry(entries[0]!));
+        return;
+      }
+
+      // Multiple versions — table summary
+      const header = "VERSION      DATE         TITLE";
+      const separator = "─".repeat(header.length);
+      console.log(header);
+      console.log(separator);
+      for (const entry of entries) {
+        const version = entry.version.padEnd(12);
+        const date = entry.date.padEnd(12);
+        console.log(`${version} ${date} ${entry.title}`);
+      }
+      console.log("");
+      console.log(
+        `Showing ${entries.length} releases. Use --version <tag> for details, or --all for full history.`,
+      );
     });
 }

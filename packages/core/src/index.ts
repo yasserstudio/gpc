@@ -331,6 +331,7 @@ export {
   runWatchLoop,
   trackBreachState,
   sendNotification,
+  relativeTime,
 } from "./commands/status.js";
 export type {
   AppStatus,

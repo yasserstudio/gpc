@@ -959,3 +959,47 @@ export interface ResumableUploadOptions {
   /** Maximum resume attempts per chunk before giving up. Default: 5 */
   maxResumeAttempts?: number;
 }
+
+// --- Release Lifecycle (applications.tracks.releases) ---
+
+export interface ReleaseSummary {
+  releaseName?: string;
+  track: string;
+  activeArtifacts?: { versionCode: number }[];
+  releaseLifecycleState?: 'RELEASE_LIFECYCLE_STATE_UNSPECIFIED' | 'DRAFT' | 'NOT_SENT_FOR_REVIEW' | 'IN_REVIEW' | 'APPROVED_NOT_PUBLISHED' | 'NOT_APPROVED' | 'PUBLISHED';
+}
+
+export interface ReleasesListResponse {
+  releases: ReleaseSummary[];
+  nextPageToken?: string;
+}
+
+// --- Subscription Batch Operations ---
+
+export interface SubscriptionsBatchGetRequest {
+  productIds: string[];
+}
+
+export interface SubscriptionsBatchGetResponse {
+  subscriptions: Subscription[];
+}
+
+export interface SubscriptionsBatchUpdateRequest {
+  requests: {
+    subscription: Subscription;
+    updateMask?: string;
+    regionsVersion?: { version?: string };
+    allowMissing?: boolean;
+    latencyTolerance?: string;
+  }[];
+}
+
+export interface SubscriptionsBatchUpdateResponse {
+  subscriptions: Subscription[];
+}
+
+// --- IAP Batch Delete ---
+
+export interface InAppProductsBatchDeleteRequest {
+  requests: { packageName: string; sku: string; latencyTolerance?: string }[];
+}

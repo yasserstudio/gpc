@@ -8,6 +8,8 @@ interface TypedError {
   code?: string;
   suggestion?: string;
   exitCode?: number;
+  /** When true, error handler prints nothing (e.g., user-aborted operations). */
+  silent?: boolean;
 }
 
 function isTypedError(error: unknown): error is Error & TypedError {
@@ -20,6 +22,8 @@ const AUTH_KEYWORDS = ["AUTH", "UNAUTHENTICATED", "PERMISSION_DENIED", "401", "4
 
 function isAuthRelatedError(error: unknown): boolean {
   if (isTypedError(error)) {
+    // Update errors hit GitHub, not Google Play — never an auth issue
+    if (error.code?.startsWith("UPDATE_")) return false;
     if (error.exitCode === 3) return true;
     if (error.code && AUTH_KEYWORDS.some((k) => error.code?.includes(k))) return true;
   }
@@ -35,8 +39,13 @@ function isAuthRelatedError(error: unknown): boolean {
  * Returns the appropriate exit code.
  */
 export function handleCliError(error: unknown): number {
+  // Silent errors (e.g., user abort) — don't print anything
+  if (isTypedError(error) && error.silent) {
+    return error.exitCode ?? 0;
+  }
+
   const authHint = isAuthRelatedError(error)
-    ? "\n→ Run gpc doctor to diagnose your credentials."
+    ? "\n\u2192 Run gpc doctor to diagnose your credentials."
     : "";
 
   if (isTypedError(error)) {

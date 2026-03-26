@@ -1,5 +1,6 @@
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
+import type { ResolvedConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient, createReportingClient } from "@gpc-cli/api";
 import {
@@ -14,6 +15,7 @@ import {
   runWatchLoop,
   trackBreachState,
   sendNotification,
+  relativeTime,
   formatOutput,
   createSpinner,
 } from "@gpc-cli/core";
@@ -21,24 +23,90 @@ import type { AppStatus } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { green, red, dim, gray } from "../colors.js";
 
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
 const VALID_SECTIONS = new Set(["releases", "vitals", "reviews"]);
 const VALID_FORMATS = new Set(["table", "summary"]);
+const MAX_ALL_APPS = 5;
 
-function parseSections(raw: string): string[] {
+const THRESHOLD_KEYS: Record<string, string> = {
+  crashes: "crashRate",
+  crash: "crashRate",
+  anr: "anrRate",
+  "slow-starts": "slowStartRate",
+  "slow-start": "slowStartRate",
+  "slow-render": "slowRenderingRate",
+  "slow-rendering": "slowRenderingRate",
+};
+
+// ---------------------------------------------------------------------------
+// Validation error helper
+// ---------------------------------------------------------------------------
+
+function usageError(message: string, suggestion?: string): never {
+  throw Object.assign(new Error(message), {
+    code: "STATUS_USAGE_ERROR",
+    exitCode: 2,
+    suggestion,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Pure, testable helpers
+// ---------------------------------------------------------------------------
+
+export function parseSections(raw: string): string[] {
   const sections = raw.split(",").map((s) => s.trim().toLowerCase());
   for (const s of sections) {
     if (!VALID_SECTIONS.has(s)) {
-      console.error(`Error: Unknown section "${s}". Valid sections: releases, vitals, reviews`);
-      process.exit(2);
+      usageError(
+        `Unknown section "${s}"`,
+        "Valid sections: releases, vitals, reviews",
+      );
     }
   }
   return sections;
 }
 
-function resolveVitalThresholds(config: Record<string, unknown>) {
-  const vitals = config["vitals"] as Record<string, unknown> | undefined;
-  const t = vitals?.["thresholds"] as Record<string, unknown> | undefined;
-  if (!t) return undefined;
+export function parseThresholdOverrides(raw: string): Record<string, number> {
+  const result: Record<string, number> = {};
+  for (const pair of raw.split(",")) {
+    const [key, val] = pair.split("=").map((s) => s.trim());
+    if (!key || !val) continue;
+    const mapped = THRESHOLD_KEYS[key.toLowerCase()];
+    if (!mapped) {
+      usageError(
+        `Unknown threshold "${key}"`,
+        "Valid: crashes, anr, slow-starts, slow-render",
+      );
+    }
+    const n = parseFloat(val);
+    if (isNaN(n) || n < 0) {
+      usageError(
+        `Invalid threshold value "${val}" for ${key}`,
+        "Must be a positive number (percent)",
+      );
+    }
+    result[mapped] = n / 100; // Convert percent to decimal
+  }
+  return result;
+}
+
+export function resolveWatchInterval(watch: string | boolean | undefined): number | null {
+  if (watch === undefined) return null;
+  if (watch === true || watch === "") return 30;
+  const n = parseInt(String(watch), 10);
+  return isNaN(n) ? 30 : n;
+}
+
+function resolveVitalThresholds(config: ResolvedConfig) {
+  const raw = config as unknown as Record<string, unknown>;
+  const vitals = raw["vitals"] as Record<string, unknown> | undefined;
+  if (!vitals || typeof vitals !== "object") return undefined;
+  const t = vitals["thresholds"] as Record<string, unknown> | undefined;
+  if (!t || typeof t !== "object") return undefined;
   const toN = (v: unknown): number | undefined => {
     if (v === undefined || v === null) return undefined;
     const n = Number(v);
@@ -52,43 +120,9 @@ function resolveVitalThresholds(config: Record<string, unknown>) {
   };
 }
 
-const THRESHOLD_KEYS: Record<string, string> = {
-  crashes: "crashRate",
-  crash: "crashRate",
-  anr: "anrRate",
-  "slow-starts": "slowStartRate",
-  "slow-start": "slowStartRate",
-  "slow-render": "slowRenderingRate",
-  "slow-rendering": "slowRenderingRate",
-};
-
-function parseThresholdOverrides(raw: string): Record<string, number> {
-  const result: Record<string, number> = {};
-  for (const pair of raw.split(",")) {
-    const [key, val] = pair.split("=").map((s) => s.trim());
-    if (!key || !val) continue;
-    const mapped = THRESHOLD_KEYS[key.toLowerCase()];
-    if (!mapped) {
-      console.error(
-        `Error: Unknown threshold "${key}". Valid: crashes, anr, slow-starts, slow-render`,
-      );
-      process.exit(2);
-    }
-    const n = parseFloat(val);
-    if (isNaN(n) || n < 0) {
-      console.error(
-        `Error: Invalid threshold value "${val}" for ${key}. Must be a positive number (percent).`,
-      );
-      process.exit(2);
-    }
-    result[mapped] = n / 100; // Convert percent to decimal
-  }
-  return result;
-}
-
 function resolvePackages(
   program: Command,
-  config: { app?: string; profiles?: Record<string, { app?: string }> },
+  config: ResolvedConfig,
   allApps?: boolean,
 ): string[] {
   const rootApp = (program.opts()["app"] || config.app) as string | undefined;
@@ -109,12 +143,9 @@ function resolvePackages(
   return result;
 }
 
-function resolveWatchInterval(watch: string | boolean | undefined): number | null {
-  if (watch === undefined) return null;
-  if (watch === true || watch === "") return 30;
-  const n = parseInt(String(watch), 10);
-  return isNaN(n) ? 30 : n;
-}
+// ---------------------------------------------------------------------------
+// Display helpers
+// ---------------------------------------------------------------------------
 
 function colorizeTrackStatus(s: string): string {
   switch (s) {
@@ -141,7 +172,11 @@ function applyStatusColors(status: AppStatus): AppStatus {
   };
 }
 
-function makeRenderer(format: string, displayFormat: string): (status: AppStatus) => string {
+function makeRenderer(
+  format: string,
+  displayFormat: string,
+  includeDiff?: { prevStatus: AppStatus | null; sinceLast?: boolean },
+): (status: AppStatus) => string {
   return (status: AppStatus): string => {
     if (format === "json") {
       const sectionSet = new Set(status.sections);
@@ -154,6 +189,13 @@ function makeRenderer(format: string, displayFormat: string): (status: AppStatus
       if (sectionSet.has("releases")) filtered["releases"] = status.releases;
       if (sectionSet.has("vitals")) filtered["vitals"] = status.vitals;
       if (sectionSet.has("reviews")) filtered["reviews"] = status.reviews;
+
+      // Embed diff in JSON output when --since-last is used
+      if (includeDiff?.sinceLast && includeDiff.prevStatus) {
+        filtered["diff"] = computeStatusDiff(includeDiff.prevStatus, status);
+        filtered["diffSince"] = includeDiff.prevStatus.fetchedAt;
+      }
+
       return formatOutput(filtered, "json");
     }
     const colorized = applyStatusColors(status);
@@ -161,6 +203,10 @@ function makeRenderer(format: string, displayFormat: string): (status: AppStatus
     return formatStatusTable(colorized);
   };
 }
+
+// ---------------------------------------------------------------------------
+// Command registration
+// ---------------------------------------------------------------------------
 
 export function registerStatusCommand(program: Command): void {
   program
@@ -179,7 +225,7 @@ export function registerStatusCommand(program: Command): void {
     )
     .option("--watch [seconds]", "Poll every N seconds (min 10, default 30)")
     .option("--since-last", "Show diff from last cached status")
-    .option("--all-apps", "Run status for all configured app profiles (max 5)")
+    .option("--all-apps", `Run status for all configured app profiles (max ${MAX_ALL_APPS})`)
     .option("--notify", "Send desktop notification on threshold breach or clear")
     .option("--threshold <overrides>", "Override vitals thresholds: crashes=1.5,anr=0.5 (percent)")
     .action(
@@ -198,30 +244,25 @@ export function registerStatusCommand(program: Command): void {
         notify?: boolean;
       }) => {
         if (!VALID_FORMATS.has(opts.format)) {
-          console.error(`Error: Unknown format "${opts.format}". Valid: table, summary`);
-          process.exit(2);
+          usageError(
+            `Unknown format "${opts.format}"`,
+            "Valid: table, summary",
+          );
         }
 
         const sections = parseSections(opts.sections);
 
         if (!Number.isFinite(opts.days) || opts.days < 1) {
-          console.error(`Error: --days must be a positive integer (got: ${opts.days})`);
-          process.exit(2);
+          usageError(`--days must be a positive integer (got: ${opts.days})`);
         }
 
         if (!Number.isFinite(opts.reviewDays) || opts.reviewDays < 1) {
-          console.error(
-            `Error: --review-days must be a positive integer (got: ${opts.reviewDays})`,
-          );
-          process.exit(2);
+          usageError(`--review-days must be a positive integer (got: ${opts.reviewDays})`);
         }
 
         const config = await loadConfig();
         const format = getOutputFormat(program, config);
-        const render = makeRenderer(format, opts.format);
-        let vitalThresholds: RunCtx["vitalThresholds"] = resolveVitalThresholds(
-          config as unknown as Record<string, unknown>,
-        );
+        let vitalThresholds: RunCtx["vitalThresholds"] = resolveVitalThresholds(config);
         if (opts.threshold) {
           const overrides = parseThresholdOverrides(opts.threshold);
           vitalThresholds = { ...vitalThresholds, ...overrides } as RunCtx["vitalThresholds"];
@@ -230,24 +271,24 @@ export function registerStatusCommand(program: Command): void {
         const packages = resolvePackages(program, config, opts.allApps);
 
         if (packages.length === 0) {
-          console.error(
-            "Error: No package name. Use --app <package> or gpc config set app <package>",
+          usageError(
+            "No package name",
+            "Use --app <package> or gpc config set app <package>",
           );
-          process.exit(2);
         }
-        if (opts.allApps && packages.length > 5) {
-          console.error(
-            `Error: --all-apps found ${packages.length} apps (max 5). Use --app to target a specific app.`,
+        if (opts.allApps && packages.length > MAX_ALL_APPS) {
+          usageError(
+            `--all-apps found ${packages.length} apps (max ${MAX_ALL_APPS})`,
+            "Use --app to target a specific app",
           );
-          process.exit(2);
         }
 
-        const authConfig = (config as unknown as Record<string, unknown>)["auth"] as
-          | Record<string, string>
-          | undefined;
+        const authConfig = config.auth;
 
         const makeClients = async () => {
-          const auth = await resolveAuth({ serviceAccountPath: authConfig?.["serviceAccount"] });
+          const auth = await resolveAuth({
+            serviceAccountPath: authConfig?.serviceAccount,
+          });
           return {
             client: createApiClient({ auth }),
             reporting: createReportingClient({ auth }),
@@ -257,7 +298,12 @@ export function registerStatusCommand(program: Command): void {
         let anyBreach = false;
 
         for (const packageName of packages) {
-          if (packages.length > 1) console.log(`\n=== ${packageName} ===`);
+          if (packages.length > 1) {
+            const label = statusHasBreach
+              ? `\n=== ${packageName} ===`
+              : `\n=== ${packageName} ===`;
+            console.log(label);
+          }
 
           try {
             const breach = await runStatusForPackage({
@@ -267,21 +313,24 @@ export function registerStatusCommand(program: Command): void {
               format,
               vitalThresholds,
               watchInterval,
-              render,
               makeClients,
             });
             if (breach) anyBreach = true;
           } catch (error) {
+            if (packages.length === 1) throw error;
+            // For --all-apps, print error and continue to next app
             console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-            if (packages.length === 1) process.exit(4);
-            // For --all-apps, continue to next app on error
           }
         }
 
-        if (anyBreach) process.exit(6);
+        if (anyBreach) process.exitCode = 6;
       },
     );
 }
+
+// ---------------------------------------------------------------------------
+// Per-package status runner
+// ---------------------------------------------------------------------------
 
 interface RunCtx {
   packageName: string;
@@ -291,6 +340,7 @@ interface RunCtx {
     cached?: boolean;
     refresh?: boolean;
     ttl: number;
+    format: string;
     sinceLast?: boolean;
     notify?: boolean;
   };
@@ -305,7 +355,6 @@ interface RunCtx {
       }
     | undefined;
   watchInterval: number | null;
-  render: (status: AppStatus) => string;
   makeClients: () => Promise<{
     client: ReturnType<typeof createApiClient>;
     reporting: ReturnType<typeof createReportingClient>;
@@ -322,7 +371,7 @@ function applyDisplaySections(status: AppStatus, requestedSections: string[]): A
 
 /** Returns true if a breach was detected. */
 async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
-  const { packageName, opts, sections, vitalThresholds, watchInterval, render } = ctx;
+  const { packageName, opts, sections, vitalThresholds, watchInterval } = ctx;
 
   const fetchLive = async (): Promise<AppStatus> => {
     const { client, reporting } = await ctx.makeClients();
@@ -335,6 +384,15 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
   };
 
   const save = (status: AppStatus) => saveStatusCache(packageName, status, opts.ttl);
+
+  // Capture prev status early (for --since-last)
+  const prevStatus = opts.sinceLast ? await loadStatusCache(packageName, Infinity) : null;
+
+  // Build the renderer — for JSON mode with --since-last, diff is embedded
+  const render = makeRenderer(ctx.format, opts.format, {
+    prevStatus,
+    sinceLast: opts.sinceLast,
+  });
 
   if (watchInterval !== null && opts.sinceLast) {
     process.stderr.write(
@@ -352,17 +410,20 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
   if (opts.cached) {
     const cached = await loadStatusCache(packageName, opts.ttl);
     if (!cached) {
-      console.error("Error: No cached status found. Run without --cached to fetch live data.");
-      process.exit(1);
+      throw Object.assign(
+        new Error("No cached status found"),
+        {
+          code: "STATUS_NO_CACHE",
+          exitCode: 2,
+          suggestion: "Run without --cached to fetch live data",
+        },
+      );
     }
     const display = applyDisplaySections(cached, sections);
-    console.log(render(display));
+    printWithDiff(display, prevStatus, opts.sinceLast, render, ctx.format);
     await handleNotify(packageName, cached, opts.notify);
     return statusHasBreach(cached);
   }
-
-  // Capture prev status before fetching (for --since-last)
-  const prevStatus = opts.sinceLast ? await loadStatusCache(packageName, Infinity) : null;
 
   // Try cache (unless --refresh)
   if (!opts.refresh) {
@@ -398,15 +459,9 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
   return statusHasBreach(status);
 }
 
-function relativeTime(isoString: string): string {
-  const diffMs = Date.now() - new Date(isoString).getTime();
-  const diffMin = Math.floor(diffMs / 60000);
-  if (diffMin < 1) return "just now";
-  if (diffMin < 60) return `${diffMin} min ago`;
-  const diffHr = Math.floor(diffMin / 60);
-  if (diffHr < 24) return `${diffHr}h ago`;
-  return `${Math.floor(diffHr / 24)}d ago`;
-}
+// ---------------------------------------------------------------------------
+// Output helpers
+// ---------------------------------------------------------------------------
 
 function printWithDiff(
   status: AppStatus,
@@ -417,11 +472,14 @@ function printWithDiff(
 ): void {
   console.log(render(status));
 
+  // In JSON mode, diff is embedded by makeRenderer — no extra text output
+  if (format === "json") return;
+
   if (sinceLast && prevStatus) {
     const since = relativeTime(prevStatus.fetchedAt);
     console.log("");
     console.log(formatStatusDiff(computeStatusDiff(prevStatus, status), since));
-  } else if (sinceLast && !prevStatus && format !== "json") {
+  } else if (sinceLast && !prevStatus) {
     console.log("\n(No prior cached status to diff against)");
   }
 }

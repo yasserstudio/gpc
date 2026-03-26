@@ -12,6 +12,7 @@ import {
   writeAuditLog,
   createAuditEntry,
   formatOutput,
+  GpcError,
 } from "@gpc-cli/core";
 import type { PublishResult, DryRunPublishResult } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
@@ -113,16 +114,22 @@ export function registerPublishCommand(program: Command): void {
       try {
         await stat(file);
       } catch {
-        console.error(`Error: File not found: ${file}`);
-        process.exit(2);
+        throw new GpcError(
+          `File not found: ${file}`,
+          "PUBLISH_USAGE_ERROR",
+          2,
+          "Check the file path and try again.",
+        );
       }
 
       const noteSources = [options.notes, options.notesDir, options.notesFromGit].filter(Boolean);
       if (noteSources.length > 1) {
-        console.error(
-          "Error: Cannot combine --notes, --notes-dir, and --notes-from-git. Use only one.",
+        throw new GpcError(
+          "Cannot combine --notes, --notes-dir, and --notes-from-git. Use only one.",
+          "PUBLISH_USAGE_ERROR",
+          2,
+          "Pick one release notes source.",
         );
-        process.exit(2);
       }
 
       const config = await loadConfig();
@@ -156,10 +163,12 @@ export function registerPublishCommand(program: Command): void {
       if (options.rollout !== undefined) {
         const rollout = Number(options.rollout);
         if (!Number.isFinite(rollout) || rollout < 1 || rollout > 100) {
-          console.error(
-            `Error: --rollout must be a number between 1 and 100 (got: ${options.rollout})`,
+          throw new GpcError(
+            `--rollout must be a number between 1 and 100 (got: ${options.rollout})`,
+            "PUBLISH_USAGE_ERROR",
+            2,
+            "Use a percentage between 1 and 100.",
           );
-          process.exit(2);
         }
       }
 
@@ -188,21 +197,16 @@ export function registerPublishCommand(program: Command): void {
       const client = createApiClient({ auth, onRetry });
 
       if (isDryRun(program)) {
-        try {
-          const result = await publish(client, packageName, file, {
-            track: options.track,
-            rolloutPercent: options.rollout ? Number(options.rollout) : undefined,
-            notes: options.notes,
-            notesDir: options.notesDir,
-            releaseName: options.name,
-            mappingFile: options.mapping,
-            dryRun: true,
-          });
-          console.log(formatDryRunOutput(result as DryRunPublishResult, format));
-        } catch (error) {
-          console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-          process.exit(4);
-        }
+        const result = await publish(client, packageName, file, {
+          track: options.track,
+          rolloutPercent: options.rollout ? Number(options.rollout) : undefined,
+          notes: options.notes,
+          notesDir: options.notesDir,
+          releaseName: options.name,
+          mappingFile: options.mapping,
+          dryRun: true,
+        });
+        console.log(formatDryRunOutput(result as DryRunPublishResult, format));
         return;
       }
 
@@ -226,7 +230,8 @@ export function registerPublishCommand(program: Command): void {
           console.log(formatValidationOutput(result as PublishResult, format));
           auditEntry.success = false;
           auditEntry.error = "Validation failed";
-          process.exit(1);
+          process.exitCode = 1;
+          return;
         }
 
         console.log(formatPublishOutput(result as PublishResult, format));
@@ -234,8 +239,7 @@ export function registerPublishCommand(program: Command): void {
       } catch (error) {
         auditEntry.success = false;
         auditEntry.error = error instanceof Error ? error.message : String(error);
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        throw error;
       } finally {
         auditEntry.durationMs = Date.now() - new Date(auditEntry.timestamp).getTime();
         writeAuditLog(auditEntry).catch(() => {});

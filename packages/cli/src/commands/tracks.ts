@@ -3,7 +3,7 @@ import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
-import { listTracks, createTrack, updateTrackConfig } from "@gpc-cli/core";
+import { listTracks, createTrack, updateTrackConfig, GpcError } from "@gpc-cli/core";
 import { formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
@@ -20,30 +20,27 @@ export function registerTracksCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = program.opts()["app"] || config.app;
       if (!packageName) {
-        console.error(
-          "Error: No package name. Use --app <package> or gpc config set app <package>",
+        throw new GpcError(
+          "No package name. Use --app <package> or gpc config set app <package>",
+          "MISSING_PACKAGE",
+          2,
+          "gpc config set app com.example.app",
         );
-        process.exit(2);
       }
 
-      try {
-        const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
-        const client = createApiClient({ auth });
-        const trackList = await listTracks(client, packageName);
-        const format = getOutputFormat(program, config);
+      const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
+      const client = createApiClient({ auth });
+      const trackList = await listTracks(client, packageName);
+      const format = getOutputFormat(program, config);
 
-        const summary = trackList.map((t) => ({
-          track: t.track,
-          releases: t.releases?.length || 0,
-          latestStatus: t.releases?.[0]?.status || "none",
-          latestVersion: t.releases?.[0]?.versionCodes?.[0] || "-",
-        }));
+      const summary = trackList.map((t) => ({
+        track: t.track,
+        releases: t.releases?.length || 0,
+        latestStatus: t.releases?.[0]?.status || "none",
+        latestVersion: t.releases?.[0]?.versionCodes?.[0] || "-",
+      }));
 
-        console.log(formatOutput(summary, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      console.log(formatOutput(summary, format));
     });
 
   tracks
@@ -53,10 +50,12 @@ export function registerTracksCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = program.opts()["app"] || config.app;
       if (!packageName) {
-        console.error(
-          "Error: No package name. Use --app <package> or gpc config set app <package>",
+        throw new GpcError(
+          "No package name. Use --app <package> or gpc config set app <package>",
+          "MISSING_PACKAGE",
+          2,
+          "gpc config set app com.example.app",
         );
-        process.exit(2);
       }
 
       const format = getOutputFormat(program, config);
@@ -70,15 +69,10 @@ export function registerTracksCommands(program: Command): void {
         return;
       }
 
-      try {
-        const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
-        const client = createApiClient({ auth });
-        const track = await createTrack(client, packageName, name);
-        console.log(formatOutput(track, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
+      const client = createApiClient({ auth });
+      const track = await createTrack(client, packageName, name);
+      console.log(formatOutput(track, format));
     });
 
   tracks
@@ -89,10 +83,12 @@ export function registerTracksCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = program.opts()["app"] || config.app;
       if (!packageName) {
-        console.error(
-          "Error: No package name. Use --app <package> or gpc config set app <package>",
+        throw new GpcError(
+          "No package name. Use --app <package> or gpc config set app <package>",
+          "MISSING_PACKAGE",
+          2,
+          "gpc config set app com.example.app",
         );
-        process.exit(2);
       }
 
       const format = getOutputFormat(program, config);
@@ -106,17 +102,12 @@ export function registerTracksCommands(program: Command): void {
         return;
       }
 
-      try {
-        const raw = await readFile(options.file, "utf-8");
-        const trackConfig = JSON.parse(raw) as Record<string, unknown>;
+      const raw = await readFile(options.file, "utf-8");
+      const trackConfig = JSON.parse(raw) as Record<string, unknown>;
 
-        const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
-        const client = createApiClient({ auth });
-        const track = await updateTrackConfig(client, packageName, name, trackConfig);
-        console.log(formatOutput(track, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
+      const client = createApiClient({ auth });
+      const track = await updateTrackConfig(client, packageName, name, trackConfig);
+      console.log(formatOutput(track, format));
     });
 }

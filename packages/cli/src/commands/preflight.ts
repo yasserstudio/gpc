@@ -1,7 +1,7 @@
 // Named exports only. No default export.
 
 import type { Command } from "commander";
-import { runPreflight, getAllScannerNames, formatOutput } from "@gpc-cli/core";
+import { runPreflight, getAllScannerNames, formatOutput, GpcError } from "@gpc-cli/core";
 import type { FindingSeverity } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { loadConfig } from "@gpc-cli/config";
@@ -95,17 +95,22 @@ async function runPreflightAction(
   options: Record<string, string | undefined>,
 ): Promise<void> {
   if (!file && !options["metadata"] && !options["source"]) {
-    console.error("Error: Provide an AAB file, --metadata <dir>, or --source <dir>");
-    process.exit(2);
+    throw new GpcError(
+      "Provide an AAB file, --metadata <dir>, or --source <dir>",
+      "MISSING_INPUT",
+      2,
+      "gpc preflight app.aab",
+    );
   }
 
   const failOn = options["failOn"] as FindingSeverity | undefined;
   const validSeverities = new Set(["critical", "error", "warning", "info"]);
   if (failOn && !validSeverities.has(failOn)) {
-    console.error(
-      `Error: Invalid --fail-on value "${failOn}". Use: critical, error, warning, info`,
+    throw new GpcError(
+      `Invalid --fail-on value "${failOn}". Use: critical, error, warning, info`,
+      "INVALID_OPTION",
+      2,
     );
-    process.exit(2);
   }
 
   const scannerNames = options["scanners"]?.split(",").map((s) => s.trim());
@@ -113,72 +118,70 @@ async function runPreflightAction(
     const known = new Set(getAllScannerNames());
     const unknown = scannerNames.filter((s) => !known.has(s));
     if (unknown.length > 0) {
-      console.error(
-        `Error: Unknown scanner(s): ${unknown.join(", ")}. Available: ${getAllScannerNames().join(", ")}`,
+      throw new GpcError(
+        `Unknown scanner(s): ${unknown.join(", ")}. Available: ${getAllScannerNames().join(", ")}`,
+        "UNKNOWN_SCANNER",
+        2,
       );
-      process.exit(2);
     }
   }
 
   const config = await loadConfig();
   const format = getOutputFormat(program, config);
 
-  try {
-    const result = await runPreflight({
-      aabPath: file,
-      metadataDir: options["metadata"],
-      sourceDir: options["source"],
-      scanners: scannerNames,
-      failOn,
-      configPath: options["config"],
-    });
+  const result = await runPreflight({
+    aabPath: file,
+    metadataDir: options["metadata"],
+    sourceDir: options["source"],
+    scanners: scannerNames,
+    failOn,
+    configPath: options["config"],
+  });
 
-    if (format === "json") {
-      console.log(formatOutput(result, format));
+  if (format === "json") {
+    console.log(formatOutput(result, format));
+  } else {
+    // Header
+    console.log(bold("GPC Preflight Scanner"));
+    if (file) console.log(dim(`File: ${file}`));
+    console.log(dim(`Scanners: ${result.scanners.join(", ")}`));
+    console.log("");
+
+    if (result.findings.length === 0) {
+      console.log(green("✓ No issues found"));
     } else {
-      // Header
-      console.log(bold("GPC Preflight Scanner"));
-      if (file) console.log(dim(`File: ${file}`));
-      console.log(dim(`Scanners: ${result.scanners.join(", ")}`));
-      console.log("");
-
-      if (result.findings.length === 0) {
-        console.log(green("✓ No issues found"));
-      } else {
-        // Group by severity
-        for (const finding of result.findings) {
-          const icon = SEVERITY_ICONS[finding.severity];
-          const label = severityColor(
-            finding.severity,
-            `${icon} ${finding.severity.toUpperCase()}`,
-          );
-          console.log(`${label}  ${finding.title}`);
-          console.log(`        ${dim(finding.message)}`);
-          if (finding.suggestion) {
-            console.log(`        ${dim("→")} ${finding.suggestion}`);
-          }
-          if (finding.policyUrl) {
-            console.log(`        ${dim(finding.policyUrl)}`);
-          }
-          console.log("");
+      // Group by severity
+      for (const finding of result.findings) {
+        const icon = SEVERITY_ICONS[finding.severity];
+        const label = severityColor(
+          finding.severity,
+          `${icon} ${finding.severity.toUpperCase()}`,
+        );
+        console.log(`${label}  ${finding.title}`);
+        console.log(`        ${dim(finding.message)}`);
+        if (finding.suggestion) {
+          console.log(`        ${dim("→")} ${finding.suggestion}`);
         }
+        if (finding.policyUrl) {
+          console.log(`        ${dim(finding.policyUrl)}`);
+        }
+        console.log("");
       }
-
-      // Summary line
-      const parts: string[] = [];
-      if (result.summary.critical > 0) parts.push(bold(red(`${result.summary.critical} critical`)));
-      if (result.summary.error > 0) parts.push(red(`${result.summary.error} error`));
-      if (result.summary.warning > 0) parts.push(yellow(`${result.summary.warning} warning`));
-      if (result.summary.info > 0) parts.push(dim(`${result.summary.info} info`));
-
-      const summaryLine = parts.length > 0 ? parts.join(", ") : green("0 issues");
-      const passedLabel = result.passed ? green("✓ PASSED") : red("✗ FAILED");
-      console.log(`${passedLabel}  ${summaryLine}  ${dim(`(${result.durationMs}ms)`)}`);
     }
 
-    process.exit(result.passed ? 0 : 6);
-  } catch (err) {
-    console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
-    process.exit(1);
+    // Summary line
+    const parts: string[] = [];
+    if (result.summary.critical > 0) parts.push(bold(red(`${result.summary.critical} critical`)));
+    if (result.summary.error > 0) parts.push(red(`${result.summary.error} error`));
+    if (result.summary.warning > 0) parts.push(yellow(`${result.summary.warning} warning`));
+    if (result.summary.info > 0) parts.push(dim(`${result.summary.info} info`));
+
+    const summaryLine = parts.length > 0 ? parts.join(", ") : green("0 issues");
+    const passedLabel = result.passed ? green("✓ PASSED") : red("✗ FAILED");
+    console.log(`${passedLabel}  ${summaryLine}  ${dim(`(${result.durationMs}ms)`)}`);
+  }
+
+  if (!result.passed) {
+    process.exitCode = 6;
   }
 }

@@ -72,6 +72,12 @@ import type {
   SubscriptionsV2CancelRequest,
   SubscriptionsV2DeferRequest,
   SubscriptionsV2DeferResponse,
+  ReleaseSummary,
+  ReleasesListResponse,
+  SubscriptionsBatchGetResponse,
+  SubscriptionsBatchUpdateRequest,
+  SubscriptionsBatchUpdateResponse,
+  InAppProductsBatchDeleteRequest,
 } from "./types.js";
 
 export interface PlayApiClient {
@@ -104,6 +110,11 @@ export interface PlayApiClient {
     get(packageName: string, editId: string, track: string): Promise<Track>;
     create(packageName: string, editId: string, trackName: string): Promise<Track>;
     update(packageName: string, editId: string, track: string, release: Release): Promise<Track>;
+    patch(packageName: string, editId: string, track: string, release: Release): Promise<Track>;
+  };
+
+  releases: {
+    list(packageName: string, track: string): Promise<ReleaseSummary[]>;
   };
 
   apks: {
@@ -192,6 +203,8 @@ export interface PlayApiClient {
       regionsVersion?: string,
     ): Promise<Subscription>;
     delete(packageName: string, productId: string): Promise<void>;
+    batchGet(packageName: string, productIds: string[]): Promise<Subscription[]>;
+    batchUpdate(packageName: string, requests: SubscriptionsBatchUpdateRequest): Promise<SubscriptionsBatchUpdateResponse>;
     activateBasePlan(
       packageName: string,
       productId: string,
@@ -279,6 +292,7 @@ export interface PlayApiClient {
       requests: InAppProductsBatchUpdateRequest,
     ): Promise<InAppProductsBatchUpdateResponse>;
     batchGet(packageName: string, skus: string[]): Promise<InAppProduct[]>;
+    batchDelete(packageName: string, skus: string[]): Promise<void>;
   };
 
   purchases: {
@@ -303,6 +317,12 @@ export interface PlayApiClient {
       token: string,
       body: SubscriptionDeferRequest,
     ): Promise<SubscriptionDeferResponse>;
+    acknowledgeSubscription(
+      packageName: string,
+      subscriptionId: string,
+      token: string,
+      body?: { developerPayload?: string },
+    ): Promise<void>;
     revokeSubscriptionV2(packageName: string, token: string): Promise<void>;
     refundSubscriptionV2(packageName: string, token: string): Promise<void>;
     /** V2 cancel with cancellationType support. (Sep 2025) */
@@ -556,6 +576,23 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         });
         return data;
       },
+
+      async patch(packageName, editId, track, release) {
+        const { data } = await http.patch<Track>(`/${packageName}/edits/${editId}/tracks/${track}`, {
+          track,
+          releases: [release],
+        });
+        return data;
+      },
+    },
+
+    releases: {
+      async list(packageName, track) {
+        const { data } = await http.get<ReleasesListResponse>(
+          `/${packageName}/tracks/${track}/releases`,
+        );
+        return data.releases ?? [];
+      },
     },
 
     apks: {
@@ -747,6 +784,22 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         await http.delete(`/${packageName}/subscriptions/${productId}`);
       },
 
+      async batchGet(packageName, productIds) {
+        const params = productIds.map((id) => `productIds=${encodeURIComponent(id)}`).join("&");
+        const { data } = await http.get<SubscriptionsBatchGetResponse>(
+          `/${packageName}/subscriptions:batchGet?${params}`,
+        );
+        return data.subscriptions ?? [];
+      },
+
+      async batchUpdate(packageName, requests) {
+        const { data } = await http.post<SubscriptionsBatchUpdateResponse>(
+          `/${packageName}/subscriptions:batchUpdate`,
+          requests,
+        );
+        return data;
+      },
+
       async activateBasePlan(packageName, productId, basePlanId) {
         const { data } = await http.post<Subscription>(
           `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}:activate`,
@@ -899,6 +952,13 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         );
         return data.inappproduct || [];
       },
+
+      async batchDelete(packageName, skus) {
+        await http.post(
+          `/${packageName}/inappproducts:batchDelete`,
+          { requests: skus.map((sku) => ({ packageName, sku })) },
+        );
+      },
     },
 
     purchases: {
@@ -952,6 +1012,13 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           body,
         );
         return data;
+      },
+
+      async acknowledgeSubscription(packageName, subscriptionId, token, body?) {
+        await http.post(
+          `/${packageName}/purchases/subscriptions/${subscriptionId}/tokens/${token}:acknowledge`,
+          body ?? {},
+        );
       },
 
       async revokeSubscriptionV2(packageName, token) {

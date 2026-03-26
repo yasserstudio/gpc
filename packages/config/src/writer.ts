@@ -61,6 +61,32 @@ export async function setConfigValue(key: string, value: string): Promise<void> 
   await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
 }
 
+export async function deleteConfigValue(key: string): Promise<void> {
+  validateConfigKey(key);
+  const configPath = join(getConfigDir(), "config.json");
+
+  let existing: Record<string, unknown> = {};
+  try {
+    const content = await readFile(configPath, "utf-8");
+    existing = JSON.parse(content) as Record<string, unknown>;
+  } catch {
+    return; // Nothing to delete
+  }
+
+  const keys = key.split(".");
+  let target = existing;
+  for (let i = 0; i < keys.length - 1; i++) {
+    const k = keys[i] as string;
+    if (typeof target[k] !== "object" || target[k] === null) return;
+    target = target[k] as Record<string, unknown>;
+  }
+  const lastKey = keys[keys.length - 1] as string;
+  // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+  delete target[lastKey];
+
+  await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
+}
+
 export async function setProfileConfig(profileName: string, config: ProfileConfig): Promise<void> {
   const configPath = join(getConfigDir(), "config.json");
 

@@ -1,5 +1,13 @@
-import { describe, it, expect } from "vitest";
-import { checkNodeVersion, checkPackageName, checkProxy } from "../src/commands/doctor.js";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import {
+  checkNodeVersion,
+  checkPackageName,
+  checkProxy,
+  checkDeveloperId,
+  checkConflictingCredentials,
+  checkConfigKeys,
+  checkCiEnvironment,
+} from "../src/commands/doctor.js";
 
 // ---------------------------------------------------------------------------
 // checkNodeVersion
@@ -104,5 +112,244 @@ describe("checkProxy", () => {
 
   it("returns null for empty string (no proxy configured)", () => {
     expect(checkProxy("")).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// checkDeveloperId
+// ---------------------------------------------------------------------------
+
+describe("checkDeveloperId", () => {
+  it("returns null when id is undefined", () => {
+    expect(checkDeveloperId(undefined)).toBeNull();
+  });
+
+  it("passes for a numeric developer ID", () => {
+    const result = checkDeveloperId("1234567890");
+    expect(result?.status).toBe("pass");
+    expect(result?.message).toContain("1234567890");
+  });
+
+  it("warns for a non-numeric developer ID", () => {
+    const result = checkDeveloperId("abc123");
+    expect(result?.status).toBe("warn");
+    expect(result?.suggestion).toContain("numeric");
+  });
+
+  it("warns for developer ID with spaces", () => {
+    expect(checkDeveloperId("123 456")?.status).toBe("warn");
+  });
+
+  it("passes for zero", () => {
+    expect(checkDeveloperId("0")?.status).toBe("pass");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// checkConflictingCredentials
+// ---------------------------------------------------------------------------
+
+describe("checkConflictingCredentials", () => {
+  const savedEnv: Record<string, string | undefined> = {};
+
+  beforeEach(() => {
+    savedEnv["GPC_SERVICE_ACCOUNT"] = process.env["GPC_SERVICE_ACCOUNT"];
+    savedEnv["GOOGLE_APPLICATION_CREDENTIALS"] = process.env["GOOGLE_APPLICATION_CREDENTIALS"];
+    delete process.env["GPC_SERVICE_ACCOUNT"];
+    delete process.env["GOOGLE_APPLICATION_CREDENTIALS"];
+  });
+
+  afterEach(() => {
+    for (const [key, val] of Object.entries(savedEnv)) {
+      if (val !== undefined) process.env[key] = val;
+      else delete process.env[key];
+    }
+  });
+
+  it("returns null when only one source is set", () => {
+    expect(checkConflictingCredentials("/path/to/key.json")).toBeNull();
+  });
+
+  it("returns null when no sources are set", () => {
+    expect(checkConflictingCredentials()).toBeNull();
+  });
+
+  it("warns when config file and GPC_SERVICE_ACCOUNT are both set", () => {
+    process.env["GPC_SERVICE_ACCOUNT"] = "/other/key.json";
+    const result = checkConflictingCredentials("/config/key.json");
+    expect(result?.status).toBe("warn");
+    expect(result?.message).toContain("Multiple credential sources");
+    expect(result?.message).toContain("config file");
+    expect(result?.message).toContain("GPC_SERVICE_ACCOUNT");
+  });
+
+  it("warns when all three sources are set", () => {
+    process.env["GPC_SERVICE_ACCOUNT"] = "/a.json";
+    process.env["GOOGLE_APPLICATION_CREDENTIALS"] = "/b.json";
+    const result = checkConflictingCredentials("/c.json");
+    expect(result?.status).toBe("warn");
+    expect(result?.message).toContain("config file");
+    expect(result?.message).toContain("GPC_SERVICE_ACCOUNT");
+    expect(result?.message).toContain("GOOGLE_APPLICATION_CREDENTIALS");
+  });
+
+  it("warns when two env vars are set without config", () => {
+    process.env["GPC_SERVICE_ACCOUNT"] = "/a.json";
+    process.env["GOOGLE_APPLICATION_CREDENTIALS"] = "/b.json";
+    const result = checkConflictingCredentials();
+    expect(result?.status).toBe("warn");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// checkConfigKeys
+// ---------------------------------------------------------------------------
+
+describe("checkConfigKeys", () => {
+  it("returns null for valid config keys", () => {
+    expect(checkConfigKeys({ app: "com.example.app", output: "json", debug: true })).toBeNull();
+  });
+
+  it("returns null for all known keys", () => {
+    const config = {
+      app: "x",
+      output: "json",
+      profile: "dev",
+      auth: {},
+      developerId: "123",
+      plugins: [],
+      profiles: {},
+      approvedPlugins: [],
+      webhooks: {},
+      debug: true,
+      train: {},
+    };
+    expect(checkConfigKeys(config)).toBeNull();
+  });
+
+  it("warns for unknown keys", () => {
+    const result = checkConfigKeys({ app: "com.example.app", seviceAccount: "typo" });
+    expect(result?.status).toBe("warn");
+    expect(result?.message).toContain("seviceAccount");
+    expect(result?.suggestion).toContain("Valid keys");
+  });
+
+  it("lists multiple unknown keys", () => {
+    const result = checkConfigKeys({ foo: 1, bar: 2 });
+    expect(result?.message).toContain("foo");
+    expect(result?.message).toContain("bar");
+    expect(result?.message).toContain("keys"); // plural
+  });
+
+  it("uses singular for one unknown key", () => {
+    const result = checkConfigKeys({ oops: 1 });
+    expect(result?.message).toMatch(/Unknown config key:/);
+  });
+
+  it("returns null for empty config", () => {
+    expect(checkConfigKeys({})).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// checkCiEnvironment
+// ---------------------------------------------------------------------------
+
+describe("checkCiEnvironment", () => {
+  const savedEnv: Record<string, string | undefined> = {};
+  const ciVars = [
+    "CI",
+    "GITHUB_ACTIONS",
+    "GITLAB_CI",
+    "BITBUCKET_PIPELINE_UUID",
+    "CIRCLECI",
+    "JENKINS_URL",
+    "TRAVIS",
+    "CODEBUILD_BUILD_ID",
+    "BUILD_BUILDID",
+    "GPC_NO_COLOR",
+    "GPC_NO_UPDATE_CHECK",
+  ];
+
+  beforeEach(() => {
+    for (const v of ciVars) {
+      savedEnv[v] = process.env[v];
+      delete process.env[v];
+    }
+  });
+
+  afterEach(() => {
+    for (const [key, val] of Object.entries(savedEnv)) {
+      if (val !== undefined) process.env[key] = val;
+      else delete process.env[key];
+    }
+  });
+
+  it("returns null when not in CI", () => {
+    expect(checkCiEnvironment()).toBeNull();
+  });
+
+  it("detects GitHub Actions", () => {
+    process.env["CI"] = "true";
+    process.env["GITHUB_ACTIONS"] = "true";
+    const result = checkCiEnvironment();
+    expect(result?.status).toBe("info");
+    expect(result?.message).toContain("GitHub Actions");
+  });
+
+  it("detects GitLab CI", () => {
+    process.env["CI"] = "true";
+    process.env["GITLAB_CI"] = "true";
+    const result = checkCiEnvironment();
+    expect(result?.message).toContain("GitLab CI");
+  });
+
+  it("detects Bitbucket Pipelines", () => {
+    process.env["CI"] = "true";
+    process.env["BITBUCKET_PIPELINE_UUID"] = "{uuid}";
+    expect(checkCiEnvironment()?.message).toContain("Bitbucket Pipelines");
+  });
+
+  it("detects CircleCI", () => {
+    process.env["CI"] = "true";
+    process.env["CIRCLECI"] = "true";
+    expect(checkCiEnvironment()?.message).toContain("CircleCI");
+  });
+
+  it("detects Jenkins", () => {
+    process.env["CI"] = "true";
+    process.env["JENKINS_URL"] = "http://jenkins.local";
+    expect(checkCiEnvironment()?.message).toContain("Jenkins");
+  });
+
+  it("detects Azure Pipelines", () => {
+    process.env["CI"] = "true";
+    process.env["BUILD_BUILDID"] = "123";
+    expect(checkCiEnvironment()?.message).toContain("Azure Pipelines");
+  });
+
+  it("falls back to Unknown CI", () => {
+    process.env["CI"] = "true";
+    expect(checkCiEnvironment()?.message).toContain("Unknown CI");
+  });
+
+  it("suggests GPC_NO_COLOR when not set", () => {
+    process.env["CI"] = "true";
+    const result = checkCiEnvironment();
+    expect(result?.suggestion).toContain("GPC_NO_COLOR");
+  });
+
+  it("suggests GPC_NO_UPDATE_CHECK when not set", () => {
+    process.env["CI"] = "true";
+    const result = checkCiEnvironment();
+    expect(result?.suggestion).toContain("GPC_NO_UPDATE_CHECK");
+  });
+
+  it("omits suggestions when CI env vars are already set", () => {
+    process.env["CI"] = "true";
+    process.env["GPC_NO_COLOR"] = "1";
+    process.env["GPC_NO_UPDATE_CHECK"] = "1";
+    const result = checkCiEnvironment();
+    expect(result?.suggestion).toBeUndefined();
   });
 });

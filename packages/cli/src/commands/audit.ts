@@ -57,31 +57,26 @@ export function registerAuditCommands(program: Command): void {
       const format = getOutputFormat(program, config);
       initAudit(getConfigDir());
 
-      try {
-        const events = await listAuditEvents({
-          limit: options.limit,
-          since: options.since,
-          command: options.command,
-        });
-        if (events.length === 0 && format !== "json") {
-          console.log("No audit events found.");
-          return;
-        }
-        if (format !== "json") {
-          const rows = events.map((e) => ({
-            timestamp: formatAuditTimestamp(e.timestamp),
-            command: e.command,
-            app: e.app || "-",
-            success: e.success !== undefined ? String(e.success) : "-",
-            durationMs: e.durationMs ?? "-",
-          }));
-          console.log(formatOutput(rows, format));
-        } else {
-          console.log(formatOutput(events, format));
-        }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(1);
+      const events = await listAuditEvents({
+        limit: options.limit,
+        since: options.since,
+        command: options.command,
+      });
+      if (events.length === 0 && format !== "json") {
+        console.log("No audit events found.");
+        return;
+      }
+      if (format !== "json") {
+        const rows = events.map((e) => ({
+          timestamp: formatAuditTimestamp(e.timestamp),
+          command: e.command,
+          app: e.app || "-",
+          success: e.success !== undefined ? String(e.success) : "-",
+          durationMs: e.durationMs ?? "-",
+        }));
+        console.log(formatOutput(rows, format));
+      } else {
+        console.log(formatOutput(events, format));
       }
     });
 
@@ -93,26 +88,21 @@ export function registerAuditCommands(program: Command): void {
       const format = getOutputFormat(program, config);
       initAudit(getConfigDir());
 
-      try {
-        const events = await searchAuditEvents(query);
-        if (events.length === 0 && format !== "json") {
-          console.log(`No audit events matching "${query}".`);
-          return;
-        }
-        if (format !== "json") {
-          const rows = events.map((e) => ({
-            timestamp: formatAuditTimestamp(e.timestamp),
-            command: e.command,
-            app: e.app || "-",
-            success: e.success !== undefined ? String(e.success) : "-",
-          }));
-          console.log(formatOutput(rows, format));
-        } else {
-          console.log(formatOutput(events, format));
-        }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(1);
+      const events = await searchAuditEvents(query);
+      if (events.length === 0 && format !== "json") {
+        console.log(`No audit events matching "${query}".`);
+        return;
+      }
+      if (format !== "json") {
+        const rows = events.map((e) => ({
+          timestamp: formatAuditTimestamp(e.timestamp),
+          command: e.command,
+          app: e.app || "-",
+          success: e.success !== undefined ? String(e.success) : "-",
+        }));
+        console.log(formatOutput(rows, format));
+      } else {
+        console.log(formatOutput(events, format));
       }
     });
 
@@ -130,21 +120,16 @@ export function registerAuditCommands(program: Command): void {
         await requireConfirm("Clear all audit log entries?", program);
       }
 
-      try {
-        const result = await clearAuditLog({
-          before: options.before,
-          dryRun,
-        });
-        if (dryRun) {
-          console.log(
-            `[dry-run] Would delete ${result.deleted} entries, ${result.remaining} would remain.`,
-          );
-        } else {
-          console.log(`Deleted ${result.deleted} entries. ${result.remaining} remaining.`);
-        }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(1);
+      const result = await clearAuditLog({
+        before: options.before,
+        dryRun,
+      });
+      if (dryRun) {
+        console.log(
+          `[dry-run] Would delete ${result.deleted} entries, ${result.remaining} would remain.`,
+        );
+      } else {
+        console.log(`Deleted ${result.deleted} entries. ${result.remaining} remaining.`);
       }
     });
 }

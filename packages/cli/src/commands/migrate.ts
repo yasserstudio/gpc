@@ -35,136 +35,131 @@ export function registerMigrateCommands(program: Command): void {
       const format = getOutputFormat(program, config);
       const dryRun = options.dryRun ?? false;
 
-      try {
-        const detection = await detectFastlane(options.dir);
+      const detection = await detectFastlane(options.dir);
 
-        if (format === "json") {
-          if (!detection.hasFastfile && !detection.hasAppfile && !detection.hasMetadata) {
-            console.log(formatOutput({ detection, plan: null, files: [] }, format));
-            return;
-          }
-          const plan = generateMigrationPlan(detection);
-          if (!dryRun) {
-            const files = await writeMigrationOutput(plan, options.output);
-            console.log(formatOutput({ detection, plan, files }, format));
-          } else {
-            console.log(formatOutput({ detection, plan, files: [] }, format));
-          }
-          return;
-        }
-
-        // Human-readable output
-        console.log("Fastlane Detection Results:\n");
-        console.log(`  Fastfile:  ${detection.hasFastfile ? "found" : "not found"}`);
-        console.log(`  Appfile:   ${detection.hasAppfile ? "found" : "not found"}`);
-        console.log(`  Metadata:  ${detection.hasMetadata ? "found" : "not found"}`);
-        console.log(`  Gemfile:   ${detection.hasGemfile ? "found" : "not found"}`);
-
-        if (detection.packageName) {
-          console.log(`  Package:   ${detection.packageName}`);
-        }
-
-        if (detection.lanes.length > 0) {
-          console.log(`\n  Lanes (${detection.lanes.length}):`);
-          for (const lane of detection.lanes) {
-            const equiv = lane.gpcEquivalent ? ` → ${lane.gpcEquivalent}` : " (no equivalent)";
-            console.log(`    ${lane.name}${equiv}`);
-          }
-        }
-
-        if (detection.metadataLanguages.length > 0) {
-          console.log(`\n  Metadata languages: ${detection.metadataLanguages.join(", ")}`);
-        }
-
-        if (detection.parseWarnings.length > 0) {
-          console.log("");
-          for (const w of detection.parseWarnings) {
-            console.log(`  ${WARN} ${w}`);
-          }
-        }
-
+      if (format === "json") {
         if (!detection.hasFastfile && !detection.hasAppfile && !detection.hasMetadata) {
-          console.log("\nNo Fastlane files detected in this directory. Nothing to migrate.");
-          console.log("  Try: gpc migrate fastlane --dir <path-to-your-android-project>");
+          console.log(formatOutput({ detection, plan: null, files: [] }, format));
           return;
         }
-
         const plan = generateMigrationPlan(detection);
-
-        if (dryRun) {
-          console.log("\nMigration Plan (dry run — nothing written):\n");
-
-          if (plan.warnings.length > 0) {
-            console.log("Warnings:");
-            for (const w of plan.warnings) {
-              console.log(`  ${WARN} ${w}`);
-            }
-            console.log("");
-          }
-
-          console.log("Checklist:");
-          for (const item of plan.checklist) {
-            console.log(`  [ ] ${item}`);
-          }
-
-          if (Object.keys(plan.config).length > 0) {
-            console.log("\n.gpcrc.json (would be written):");
-            console.log(JSON.stringify(plan.config, null, 2).replace(/^/gm, "  "));
-          }
-
-          console.log(
-            "\nRun without --dry-run to write MIGRATION.md" +
-              (Object.keys(plan.config).length > 0 ? " and .gpcrc.json" : "") +
-              ".",
-          );
-          return;
+        if (!dryRun) {
+          const files = await writeMigrationOutput(plan, options.output);
+          console.log(formatOutput({ detection, plan, files }, format));
+        } else {
+          console.log(formatOutput({ detection, plan, files: [] }, format));
         }
+        return;
+      }
 
-        // Conflict check — abort before clobbering existing .gpcrc.json unless --yes
-        if (
-          Object.keys(plan.config).length > 0 &&
-          (await fileExists(join(options.output, ".gpcrc.json")))
-        ) {
-          const hasYes = process.argv.includes("--yes") || process.argv.includes("-y");
+      // Human-readable output
+      console.log("Fastlane Detection Results:\n");
+      console.log(`  Fastfile:  ${detection.hasFastfile ? "found" : "not found"}`);
+      console.log(`  Appfile:   ${detection.hasAppfile ? "found" : "not found"}`);
+      console.log(`  Metadata:  ${detection.hasMetadata ? "found" : "not found"}`);
+      console.log(`  Gemfile:   ${detection.hasGemfile ? "found" : "not found"}`);
 
-          if (!hasYes) {
-            console.log(
-              `\n${WARN} .gpcrc.json already exists and will be overwritten. Use --dry-run to preview first.`,
-            );
-            console.log("Aborting. Pass --yes to overwrite without confirmation.");
-            return;
-          }
+      if (detection.packageName) {
+        console.log(`  Package:   ${detection.packageName}`);
+      }
 
-          console.log(
-            `\n${WARN} .gpcrc.json already exists in ${options.output} — overwriting (--yes passed).`,
-          );
+      if (detection.lanes.length > 0) {
+        console.log(`\n  Lanes (${detection.lanes.length}):`);
+        for (const lane of detection.lanes) {
+          const equiv = lane.gpcEquivalent ? ` → ${lane.gpcEquivalent}` : " (no equivalent)";
+          console.log(`    ${lane.name}${equiv}`);
         }
+      }
 
-        const files = await writeMigrationOutput(plan, options.output);
+      if (detection.metadataLanguages.length > 0) {
+        console.log(`\n  Metadata languages: ${detection.metadataLanguages.join(", ")}`);
+      }
 
-        console.log("\nMigration files written:");
-        for (const file of files) {
-          console.log(`  ${file}`);
+      if (detection.parseWarnings.length > 0) {
+        console.log("");
+        for (const w of detection.parseWarnings) {
+          console.log(`  ${WARN} ${w}`);
         }
+      }
+
+      if (!detection.hasFastfile && !detection.hasAppfile && !detection.hasMetadata) {
+        console.log("\nNo Fastlane files detected in this directory. Nothing to migrate.");
+        console.log("  Try: gpc migrate fastlane --dir <path-to-your-android-project>");
+        return;
+      }
+
+      const plan = generateMigrationPlan(detection);
+
+      if (dryRun) {
+        console.log("\nMigration Plan (dry run — nothing written):\n");
 
         if (plan.warnings.length > 0) {
-          console.log("\nWarnings:");
+          console.log("Warnings:");
           for (const w of plan.warnings) {
             console.log(`  ${WARN} ${w}`);
           }
+          console.log("");
         }
 
-        console.log("\nMigration Checklist:");
+        console.log("Checklist:");
         for (const item of plan.checklist) {
           console.log(`  [ ] ${item}`);
         }
 
+        if (Object.keys(plan.config).length > 0) {
+          console.log("\n.gpcrc.json (would be written):");
+          console.log(JSON.stringify(plan.config, null, 2).replace(/^/gm, "  "));
+        }
+
         console.log(
-          "\nNext step: open MIGRATION.md and work through the checklist. Run `gpc doctor` when done.",
+          "\nRun without --dry-run to write MIGRATION.md" +
+            (Object.keys(plan.config).length > 0 ? " and .gpcrc.json" : "") +
+            ".",
         );
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(1);
+        return;
       }
+
+      // Conflict check — abort before clobbering existing .gpcrc.json unless --yes
+      if (
+        Object.keys(plan.config).length > 0 &&
+        (await fileExists(join(options.output, ".gpcrc.json")))
+      ) {
+        const hasYes = process.argv.includes("--yes") || process.argv.includes("-y");
+
+        if (!hasYes) {
+          console.log(
+            `\n${WARN} .gpcrc.json already exists and will be overwritten. Use --dry-run to preview first.`,
+          );
+          console.log("Aborting. Pass --yes to overwrite without confirmation.");
+          return;
+        }
+
+        console.log(
+          `\n${WARN} .gpcrc.json already exists in ${options.output} — overwriting (--yes passed).`,
+        );
+      }
+
+      const files = await writeMigrationOutput(plan, options.output);
+
+      console.log("\nMigration files written:");
+      for (const file of files) {
+        console.log(`  ${file}`);
+      }
+
+      if (plan.warnings.length > 0) {
+        console.log("\nWarnings:");
+        for (const w of plan.warnings) {
+          console.log(`  ${WARN} ${w}`);
+        }
+      }
+
+      console.log("\nMigration Checklist:");
+      for (const item of plan.checklist) {
+        console.log(`  [ ] ${item}`);
+      }
+
+      console.log(
+        "\nNext step: open MIGRATION.md and work through the checklist. Run `gpc doctor` when done.",
+      );
     });
 }

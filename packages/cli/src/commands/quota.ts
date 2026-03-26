@@ -39,13 +39,8 @@ export function registerQuotaCommand(program: Command): void {
     .description("Show daily and per-minute API call counts")
     .action(async () => {
       const format = getOutputFormat(program, {});
-      try {
-        const usage = await getQuotaUsage();
-        printQuotaTable(usage, format);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(1);
-      }
+      const usage = await getQuotaUsage();
+      printQuotaTable(usage, format);
     });
 
   quota
@@ -53,12 +48,7 @@ export function registerQuotaCommand(program: Command): void {
     .description("Show API quota usage breakdown (alias for quota status)")
     .action(async () => {
       const format = getOutputFormat(program, {});
-      try {
-        const usage = await getQuotaUsage();
-        printQuotaTable(usage, format);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(1);
-      }
+      const usage = await getQuotaUsage();
+      printQuotaTable(usage, format);
     });
 }

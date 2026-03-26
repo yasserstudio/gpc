@@ -426,7 +426,7 @@ function formatTrend(current: number | undefined, previous: number | undefined):
   return "";
 }
 
-function relativeTime(isoString: string): string {
+export function relativeTime(isoString: string): string {
   const diffMs = Date.now() - new Date(isoString).getTime();
   const diffMin = Math.floor(diffMs / 60000);
   if (diffMin < 1) return "just now";
@@ -557,9 +557,17 @@ export function formatStatusSummary(status: AppStatus): string {
 // Diff (--since-last)
 // ---------------------------------------------------------------------------
 
+function latestProductionVersion(releases: StatusRelease[]): string | null {
+  const prod = releases.find((r) => r.track === "production");
+  if (prod) return prod.versionCode;
+  // Fallback: first non-draft release, then first release
+  const nonDraft = releases.find((r) => r.status !== "draft");
+  return nonDraft?.versionCode ?? releases[0]?.versionCode ?? null;
+}
+
 export function computeStatusDiff(prev: AppStatus, curr: AppStatus): StatusDiff {
-  const prevVersion = prev.releases[0]?.versionCode ?? null;
-  const currVersion = curr.releases[0]?.versionCode ?? null;
+  const prevVersion = latestProductionVersion(prev.releases);
+  const currVersion = latestProductionVersion(curr.releases);
   const prevCrash = prev.vitals.crashes.value ?? null;
   const currCrash = curr.vitals.crashes.value ?? null;
   const prevAnr = prev.vitals.anr.value ?? null;
@@ -639,8 +647,6 @@ export async function runWatchLoop(opts: WatchOptions): Promise<void> {
 
   const cleanup = () => {
     running = false;
-    process.stdout.write("\n");
-    process.exit(0);
   };
   process.on("SIGINT", cleanup);
   process.on("SIGTERM", cleanup);

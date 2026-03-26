@@ -7,6 +7,71 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.46 (unreleased)
+
+Deep code review, error handling overhaul, doctor enhancements, API catch-up.
+
+### Error Handling Overhaul
+- fix(cli): removed 210 `process.exit()` calls across 39 command files — all errors now propagate to global `handleCliError` for consistent formatting, JSON mode support, and plugin hook compatibility
+- fix(cli): `resolvePackageName`, `readJsonFile`, `requireOption`, `requireConfirm` throw typed errors instead of calling `process.exit` directly
+- feat(cli): error handler supports `silent` flag for user-aborted operations
+
+### `gpc update` Fixes
+- fix: GitHub API 403 rate limit distinguished from genuine forbidden (checks `x-ratelimit-remaining` header)
+- fix: binary download sends auth headers via `githubDownloadHeaders()`
+- feat: `GITHUB_TOKEN` fallback (standard CI env var) in addition to `GPC_GITHUB_TOKEN`
+- fix: download URLs no longer receive API-specific `Accept` header
+- fix: stale `.gpc-old-*` files cleaned up before binary update (Windows)
+- fix: `process.exit(1)` in 3 places replaced with thrown typed errors
+
+### `gpc doctor` Enhancements
+- feat: GPC version check (npm registry, shows "up to date" or "update available")
+- feat: HTTPS connectivity probe (TLS handshake to API endpoints, with latency)
+- feat: app access verification (`edits.insert` + `edits.delete` on configured app)
+- feat: service account key age warning (>90 days)
+- feat: conflicting credential sources detection
+- feat: config unknown keys validation (catches typos in `.gpcrc.json`)
+- feat: token cache health check (fixable via `--fix`)
+- feat: disk space check (warns below 100MB)
+- feat: CI environment detection (GitHub Actions, GitLab CI, Bitbucket, CircleCI, Jenkins, Azure)
+- feat: DNS results include latency, unique names for JSON output
+- fix: API connectivity error message includes actual error details
+- fix: `applyFix` uses structured `fixData` instead of parsing suggestion text
+- fix: summary line symbols colored
+- fix: `process.exit(1)` replaced with `process.exitCode`
+
+### `gpc status` Fixes
+- fix: deduplicated `relativeTime` (exported from core, imported in CLI)
+- fix: `--since-last` diff embedded in JSON output (was appended as text)
+- fix: version diff uses production track (was `releases[0]`)
+- fix: watch loop SIGINT handler no longer calls `process.exit(0)`
+- feat: validation errors throw typed errors for JSON mode
+
+### Auth & First-Time Experience
+- fix: `auth login` verifies token on save, outputs structured JSON in `--json` mode
+- fix: `auth status/whoami/token/switch` errors propagate to global handler (were caught and discarded)
+- fix: `auth logout` deletes config key (was setting empty string), supports `--profile`
+- fix: SA paths resolved to absolute on save (prevents CWD-dependent config)
+- fix: first-run banner suppressed on setup commands (config, auth, quickstart, doctor)
+- feat: `deleteConfigValue` added to `@gpc-cli/config`
+
+### API Client — New Endpoints
+- feat: `releases.list` — release lifecycle states (DRAFT, IN_REVIEW, PUBLISHED)
+- feat: `tracks.patch` — partial track updates
+- feat: `subscriptions.batchGet` — batch subscription reads
+- feat: `subscriptions.batchUpdate` — batch subscription updates
+- feat: `purchases.acknowledgeSubscription` — v1 subscription acknowledge
+- feat: `inappproducts.batchDelete` — batch IAP deletion
+- feat: new types: `ReleaseSummary`, `ReleasesListResponse`, batch request/response types
+
+### Other Fixes
+- fix(auth): token cache only `chmod`s directory on creation (was every write)
+- fix(core): `computeStatusDiff` uses production track for version comparison
+
+**204 API endpoints · 1,834 tests**
+
+---
+
 ## v0.9.45
 
 Code review, API catch-up, and 3 pre-release bug fixes.

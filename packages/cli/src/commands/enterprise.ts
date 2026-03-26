@@ -26,17 +26,12 @@ export function registerEnterpriseCommands(program: Command): void {
       const orgId = enterprise.opts()["org"] as string;
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await listEnterpriseApps(client, orgId);
-        if (result.length === 0 && format !== "json") {
-          console.log("No enterprise apps found.");
-          return;
-        }
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      const result = await listEnterpriseApps(client, orgId);
+      if (result.length === 0 && format !== "json") {
+        console.log("No enterprise apps found.");
+        return;
       }
+      console.log(formatOutput(result, format));
     });
 
   enterprise
@@ -62,15 +57,10 @@ export function registerEnterpriseCommands(program: Command): void {
         return;
       }
 
-      try {
-        const result = await createEnterpriseApp(client, orgId, {
-          title: options.title as string,
-          languageCode: options.lang as string,
-        });
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await createEnterpriseApp(client, orgId, {
+        title: options.title as string,
+        languageCode: options.lang as string,
+      });
+      console.log(formatOutput(result, format));
     });
 }

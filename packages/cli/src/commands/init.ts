@@ -28,8 +28,9 @@ export function registerInitCommand(program: Command): void {
       }
 
       if (ci && ci !== "github" && ci !== "gitlab") {
-        console.error(`Error: Invalid --ci-template value "${ci}". Use: github, gitlab`);
-        process.exit(2);
+        const err = new Error(`Invalid --ci-template value "${ci}".`);
+        Object.assign(err, { code: "USAGE_ERROR", exitCode: 2, suggestion: "Valid values: github, gitlab" });
+        throw err;
       }
 
       const result = await initProject({

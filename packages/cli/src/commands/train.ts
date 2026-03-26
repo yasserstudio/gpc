@@ -11,6 +11,7 @@ import {
   abortTrain,
   advanceTrain,
   formatOutput,
+  GpcError,
 } from "@gpc-cli/core";
 import type { TrainConfig } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
@@ -32,8 +33,12 @@ async function loadTrainConfig(file: string): Promise<TrainConfig> {
     const raw = await readFile(file, "utf-8");
     return JSON.parse(raw) as TrainConfig;
   } catch {
-    console.error(`Error: Could not read train config from "${file}"`);
-    process.exit(2);
+    throw new GpcError(
+      `Could not read train config from "${file}"`,
+      "INVALID_CONFIG",
+      2,
+      `Ensure the file exists and contains valid JSON`,
+    );
   }
 }
 
@@ -70,15 +75,10 @@ export function registerTrainCommands(program: Command): void {
 
       const { apiClient } = await getClients(config);
 
-      try {
-        const state = await startTrain(apiClient, packageName, trainConfig, {
-          force: options.force as boolean,
-        });
-        console.log(formatOutput(state, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const state = await startTrain(apiClient, packageName, trainConfig, {
+        force: options.force as boolean,
+      });
+      console.log(formatOutput(state, format));
     });
 
   train
@@ -89,21 +89,16 @@ export function registerTrainCommands(program: Command): void {
       const packageName = resolvePackageName(program.opts()["app"], config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const state = await getTrainStatus(packageName);
-        if (!state) {
-          if (format === "json") {
-            console.log(formatOutput(null, format));
-          } else {
-            console.log(`No active release train for ${packageName}.`);
-          }
-          return;
+      const state = await getTrainStatus(packageName);
+      if (!state) {
+        if (format === "json") {
+          console.log(formatOutput(null, format));
+        } else {
+          console.log(`No active release train for ${packageName}.`);
         }
-        console.log(formatOutput(state, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        return;
       }
+      console.log(formatOutput(state, format));
     });
 
   train
@@ -115,17 +110,12 @@ export function registerTrainCommands(program: Command): void {
       const format = getOutputFormat(program, config);
       const { apiClient, reportingClient } = await getClients(config);
 
-      try {
-        const state = await advanceTrain(apiClient, reportingClient, packageName);
-        if (!state) {
-          console.log(`No active release train for ${packageName}.`);
-          return;
-        }
-        console.log(formatOutput(state, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      const state = await advanceTrain(apiClient, reportingClient, packageName);
+      if (!state) {
+        console.log(`No active release train for ${packageName}.`);
+        return;
       }
+      console.log(formatOutput(state, format));
     });
 
   train
@@ -136,17 +126,12 @@ export function registerTrainCommands(program: Command): void {
       const packageName = resolvePackageName(program.opts()["app"], config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const state = await pauseTrain(packageName);
-        if (!state) {
-          console.log(`No active release train for ${packageName}.`);
-          return;
-        }
-        console.log(formatOutput(state, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      const state = await pauseTrain(packageName);
+      if (!state) {
+        console.log(`No active release train for ${packageName}.`);
+        return;
       }
+      console.log(formatOutput(state, format));
     });
 
   train
@@ -158,12 +143,7 @@ export function registerTrainCommands(program: Command): void {
 
       await requireConfirm(`Abort release train for ${packageName}?`, program);
 
-      try {
-        await abortTrain(packageName);
-        console.log(`Release train aborted for ${packageName}.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      await abortTrain(packageName);
+      console.log(`Release train aborted for ${packageName}.`);
     });
 }

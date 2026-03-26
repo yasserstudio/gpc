@@ -4,6 +4,7 @@ import {
   isValidReportType,
   isFinancialReportType,
   isStatsReportType,
+  GpcError,
 } from "@gpc-cli/core";
 
 const FINANCIAL_REPORT_MESSAGE = `Financial reports (earnings, sales, estimated_sales, play_balance) are not available through the Google Play Developer API.
@@ -44,10 +45,11 @@ export function registerReportsCommands(program: Command): void {
     .option("--next-page <token>", "Pagination token for next page")
     .action(async (reportType: string, options) => {
       if (!isValidReportType(reportType)) {
-        console.error(
-          `Error: Invalid report type "${reportType}". Valid types: earnings, sales, estimated_sales, installs, crashes, ratings, reviews, store_performance, subscriptions, play_balance`,
+        throw new GpcError(
+          `Invalid report type "${reportType}". Valid types: earnings, sales, estimated_sales, installs, crashes, ratings, reviews, store_performance, subscriptions, play_balance`,
+          "INVALID_REPORT_TYPE",
+          2,
         );
-        process.exit(2);
       }
 
       // Validate month format if provided
@@ -55,12 +57,10 @@ export function registerReportsCommands(program: Command): void {
         parseMonth(options.month);
       }
 
-      if (isFinancialReportType(reportType)) {
-        console.log(FINANCIAL_REPORT_MESSAGE);
-      } else {
-        console.log(STATS_REPORT_MESSAGE);
-      }
-      process.exit(2);
+      const message = isFinancialReportType(reportType)
+        ? FINANCIAL_REPORT_MESSAGE
+        : STATS_REPORT_MESSAGE;
+      throw new GpcError(message, "REPORT_NOT_AVAILABLE", 2);
     });
 
   const download = reports.command("download").description("Download a report");
@@ -73,14 +73,14 @@ export function registerReportsCommands(program: Command): void {
     .option("--output-file <path>", "Save to file instead of stdout")
     .action(async (options) => {
       if (options.type && !isFinancialReportType(options.type)) {
-        console.error(
-          `Error: Invalid financial report type "${options.type}". Valid types: earnings, sales, estimated_sales, play_balance`,
+        throw new GpcError(
+          `Invalid financial report type "${options.type}". Valid types: earnings, sales, estimated_sales, play_balance`,
+          "INVALID_REPORT_TYPE",
+          2,
         );
-        process.exit(2);
       }
 
-      console.log(FINANCIAL_REPORT_MESSAGE);
-      process.exit(2);
+      throw new GpcError(FINANCIAL_REPORT_MESSAGE, "REPORT_NOT_AVAILABLE", 2);
     });
 
   download
@@ -94,13 +94,13 @@ export function registerReportsCommands(program: Command): void {
     .option("--output-file <path>", "Save to file instead of stdout")
     .action(async (options) => {
       if (options.type && !isStatsReportType(options.type)) {
-        console.error(
-          `Error: Invalid stats report type "${options.type}". Valid types: installs, crashes, ratings, reviews, store_performance, subscriptions`,
+        throw new GpcError(
+          `Invalid stats report type "${options.type}". Valid types: installs, crashes, ratings, reviews, store_performance, subscriptions`,
+          "INVALID_REPORT_TYPE",
+          2,
         );
-        process.exit(2);
       }
 
-      console.log(STATS_REPORT_MESSAGE);
-      process.exit(2);
+      throw new GpcError(STATS_REPORT_MESSAGE, "REPORT_NOT_AVAILABLE", 2);
     });
 }

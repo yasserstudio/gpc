@@ -20,6 +20,7 @@ import {
   fetchReleaseNotes,
   getVitalsCrashes,
   checkThreshold,
+  GpcError,
 } from "@gpc-cli/core";
 import { formatOutput, sortResults, createSpinner } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
@@ -35,8 +36,12 @@ import {
 function resolvePackageName(packageArg: string | undefined, config: GpcConfig): string {
   const name = packageArg || config.app;
   if (!name) {
-    console.error("Error: No package name. Use --app <package> or gpc config set app <package>");
-    process.exit(2);
+    throw new GpcError(
+      "No package name. Use --app <package> or gpc config set app <package>",
+      "RELEASES_USAGE_ERROR",
+      2,
+      "Set a default app: gpc config set app <package>",
+    );
   }
   return name;
 }
@@ -80,14 +85,22 @@ export function registerReleasesCommands(program: Command): void {
       try {
         await stat(file);
       } catch {
-        console.error(`Error: File not found: ${file}`);
-        process.exit(2);
+        throw new GpcError(
+          `File not found: ${file}`,
+          "RELEASES_USAGE_ERROR",
+          2,
+          "Check the file path and try again.",
+        );
       }
 
       const ext = extname(file).toLowerCase();
       if (ext !== ".aab" && ext !== ".apk") {
-        console.error(`Error: Expected .aab or .apk file, got "${ext || "(no extension)"}"`);
-        process.exit(2);
+        throw new GpcError(
+          `Expected .aab or .apk file, got "${ext || "(no extension)"}"`,
+          "RELEASES_USAGE_ERROR",
+          2,
+          "Provide a .aab or .apk file.",
+        );
       }
 
       const noteSources = [
@@ -97,10 +110,12 @@ export function registerReleasesCommands(program: Command): void {
         options.copyNotesFrom,
       ].filter(Boolean);
       if (noteSources.length > 1) {
-        console.error(
-          "Error: Cannot combine --notes, --notes-dir, --notes-from-git, and --copy-notes-from. Use only one.",
+        throw new GpcError(
+          "Cannot combine --notes, --notes-dir, --notes-from-git, and --copy-notes-from. Use only one.",
+          "RELEASES_USAGE_ERROR",
+          2,
+          "Pick one release notes source.",
         );
-        process.exit(2);
       }
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -132,10 +147,12 @@ export function registerReleasesCommands(program: Command): void {
       if (options.rollout !== undefined) {
         const rollout = Number(options.rollout);
         if (!Number.isFinite(rollout) || rollout < 1 || rollout > 100) {
-          console.error(
-            `Error: --rollout must be a number between 1 and 100 (got: ${options.rollout})`,
+          throw new GpcError(
+            `--rollout must be a number between 1 and 100 (got: ${options.rollout})`,
+            "RELEASES_USAGE_ERROR",
+            2,
+            "Use a percentage between 1 and 100.",
           );
-          process.exit(2);
         }
       }
 
@@ -170,17 +187,12 @@ export function registerReleasesCommands(program: Command): void {
         : undefined;
 
       if (isDryRun(program)) {
-        try {
-          const result = await uploadRelease(client, packageName, file, {
-            track: options.track,
-            userFraction: options.rollout ? Number(options.rollout) / 100 : undefined,
-            dryRun: true,
-          });
-          console.log(formatOutput(result, format));
-        } catch (error) {
-          console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-          process.exit(4);
-        }
+        const result = await uploadRelease(client, packageName, file, {
+          track: options.track,
+          userFraction: options.rollout ? Number(options.rollout) / 100 : undefined,
+          dryRun: true,
+        });
+        console.log(formatOutput(result, format));
         return;
       }
 
@@ -231,8 +243,7 @@ export function registerReleasesCommands(program: Command): void {
         spinner.fail("Upload failed");
         auditEntry.success = false;
         auditEntry.error = error instanceof Error ? error.message : String(error);
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        throw error;
       } finally {
         auditEntry.durationMs = Date.now() - new Date(auditEntry.timestamp).getTime();
         writeAuditLog(auditEntry).catch(() => {});
@@ -251,50 +262,45 @@ export function registerReleasesCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const TRACK_ORDER = ["production", "beta", "alpha", "internal"];
-        const rawStatuses = await getReleasesStatus(client, packageName, options.track);
-        const statuses = options.track
-          ? Array.isArray(rawStatuses)
-            ? rawStatuses.filter((s: any) => s.track === options.track)
-            : rawStatuses
-          : rawStatuses;
-        const sorted = Array.isArray(statuses)
-          ? options.sort
-            ? sortResults(statuses, options.sort)
-            : [...statuses].sort((a, b) => {
-                const ai = TRACK_ORDER.indexOf(
-                  String((a as unknown as Record<string, unknown>)["track"] ?? ""),
-                );
-                const bi = TRACK_ORDER.indexOf(
-                  String((b as unknown as Record<string, unknown>)["track"] ?? ""),
-                );
-                return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-              })
-          : statuses;
-        if (format !== "json" && Array.isArray(sorted)) {
-          const rows = sorted.map((s: unknown) => {
-            const sr = s as Record<string, unknown>;
-            return {
-              track: sr["track"] || "-",
-              status: sr["status"] || "-",
-              name: sr["name"] || "-",
-              versionCodes: Array.isArray(sr["versionCodes"])
-                ? (sr["versionCodes"] as unknown[]).join(", ")
-                : "-",
-              userFraction:
-                sr["userFraction"] !== undefined
-                  ? `${Math.round(Number(sr["userFraction"]) * 100)}%`
-                  : "—",
-            };
-          });
-          console.log(formatOutput(rows, format));
-        } else {
-          console.log(formatOutput(sorted, format));
-        }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      const TRACK_ORDER = ["production", "beta", "alpha", "internal"];
+      const rawStatuses = await getReleasesStatus(client, packageName, options.track);
+      const statuses = options.track
+        ? Array.isArray(rawStatuses)
+          ? rawStatuses.filter((s: any) => s.track === options.track)
+          : rawStatuses
+        : rawStatuses;
+      const sorted = Array.isArray(statuses)
+        ? options.sort
+          ? sortResults(statuses, options.sort)
+          : [...statuses].sort((a, b) => {
+              const ai = TRACK_ORDER.indexOf(
+                String((a as unknown as Record<string, unknown>)["track"] ?? ""),
+              );
+              const bi = TRACK_ORDER.indexOf(
+                String((b as unknown as Record<string, unknown>)["track"] ?? ""),
+              );
+              return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+            })
+        : statuses;
+      if (format !== "json" && Array.isArray(sorted)) {
+        const rows = sorted.map((s: unknown) => {
+          const sr = s as Record<string, unknown>;
+          return {
+            track: sr["track"] || "-",
+            status: sr["status"] || "-",
+            name: sr["name"] || "-",
+            versionCodes: Array.isArray(sr["versionCodes"])
+              ? (sr["versionCodes"] as unknown[]).join(", ")
+              : "-",
+            userFraction:
+              sr["userFraction"] !== undefined
+                ? `${Math.round(Number(sr["userFraction"]) * 100)}%`
+                : "—",
+          };
+        });
+        console.log(formatOutput(rows, format));
+      } else {
+        console.log(formatOutput(sorted, format));
       }
     });
 
@@ -309,8 +315,12 @@ export function registerReleasesCommands(program: Command): void {
     .option("--copy-notes-from <track>", "Copy release notes from another track")
     .action(async (options) => {
       if (options.notes && options.copyNotesFrom) {
-        console.error("Error: Cannot combine --notes and --copy-notes-from. Use only one.");
-        process.exit(2);
+        throw new GpcError(
+          "Cannot combine --notes and --copy-notes-from. Use only one.",
+          "RELEASES_USAGE_ERROR",
+          2,
+          "Pick one release notes source.",
+        );
       }
 
       const config = await loadConfig();
@@ -340,19 +350,23 @@ export function registerReleasesCommands(program: Command): void {
       );
 
       if (options.from === options.to) {
-        console.error(
-          `Error: --from and --to must be different tracks (both are "${options.from}")`,
+        throw new GpcError(
+          `--from and --to must be different tracks (both are "${options.from}")`,
+          "RELEASES_USAGE_ERROR",
+          2,
+          "Specify different source and target tracks.",
         );
-        process.exit(2);
       }
 
       if (options.rollout !== undefined) {
         const rollout = Number(options.rollout);
         if (!Number.isFinite(rollout) || rollout < 1 || rollout > 100) {
-          console.error(
-            `Error: --rollout must be a number between 1 and 100 (got: ${options.rollout})`,
+          throw new GpcError(
+            `--rollout must be a number between 1 and 100 (got: ${options.rollout})`,
+            "RELEASES_USAGE_ERROR",
+            2,
+            "Use a percentage between 1 and 100.",
           );
-          process.exit(2);
         }
       }
 
@@ -372,23 +386,18 @@ export function registerReleasesCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        let releaseNotes: { language: string; text: string }[] | undefined;
-        if (options.copyNotesFrom) {
-          releaseNotes = await fetchReleaseNotes(client, packageName, options.copyNotesFrom);
-        } else if (options.notes) {
-          releaseNotes = [{ language: "en-US", text: options.notes }];
-        }
-
-        const result = await promoteRelease(client, packageName, options.from, options.to, {
-          userFraction: options.rollout ? Number(options.rollout) / 100 : undefined,
-          releaseNotes,
-        });
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      let releaseNotes: { language: string; text: string }[] | undefined;
+      if (options.copyNotesFrom) {
+        releaseNotes = await fetchReleaseNotes(client, packageName, options.copyNotesFrom);
+      } else if (options.notes) {
+        releaseNotes = [{ language: "en-US", text: options.notes }];
       }
+
+      const result = await promoteRelease(client, packageName, options.from, options.to, {
+        userFraction: options.rollout ? Number(options.rollout) / 100 : undefined,
+        releaseNotes,
+      });
+      console.log(formatOutput(result, format));
     });
 
   // Rollout subcommands
@@ -436,8 +445,12 @@ export function registerReleasesCommands(program: Command): void {
       if (action === "increase" && options.to !== undefined) {
         const to = Number(options.to);
         if (!Number.isFinite(to) || to < 1 || to > 100) {
-          console.error(`Error: --to must be a number between 1 and 100 (got: ${options.to})`);
-          process.exit(2);
+          throw new GpcError(
+            `--to must be a number between 1 and 100 (got: ${options.to})`,
+            "RELEASES_USAGE_ERROR",
+            2,
+            "Use a percentage between 1 and 100.",
+          );
         }
       }
 
@@ -470,54 +483,49 @@ export function registerReleasesCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await updateRollout(
-          client,
-          packageName,
-          options.track,
-          action,
-          options.to ? Number(options.to) / 100 : undefined,
-        );
+      const result = await updateRollout(
+        client,
+        packageName,
+        options.track,
+        action,
+        options.to ? Number(options.to) / 100 : undefined,
+      );
 
-        // Vitals gate: check crash rate after rollout increase
-        if (action === "increase" && options.vitalsGate) {
-          const threshold = (config as any).vitals?.thresholds?.crashRate;
-          if (!threshold) {
-            console.error(
-              "Warning: --vitals-gate requires vitals.thresholds.crashRate in config. Skipping gate.",
-            );
-          } else {
-            try {
-              const { auth: authConfig } = config;
-              const vitalsAuth = await resolveAuth({
-                serviceAccountPath: authConfig?.serviceAccount,
-              });
-              const reportingClient = createReportingClient({ auth: vitalsAuth });
-              const vitalsResult = await getVitalsCrashes(reportingClient, packageName, {
-                days: 1,
-              });
-              const latest = (vitalsResult as any).data?.[0]?.crashRate;
-              const check = checkThreshold(latest, threshold);
-              if (check.breached) {
-                await updateRollout(client, packageName, options.track, "halt");
-                console.error(
-                  `Vitals gate: crash rate ${String(latest)}% > threshold ${String(threshold)}%. Rollout halted.`,
-                );
-                process.exit(6);
-              }
-            } catch (vitalsErr) {
+      // Vitals gate: check crash rate after rollout increase
+      if (action === "increase" && options.vitalsGate) {
+        const threshold = (config as any).vitals?.thresholds?.crashRate;
+        if (!threshold) {
+          console.error(
+            "Warning: --vitals-gate requires vitals.thresholds.crashRate in config. Skipping gate.",
+          );
+        } else {
+          try {
+            const { auth: authConfig } = config;
+            const vitalsAuth = await resolveAuth({
+              serviceAccountPath: authConfig?.serviceAccount,
+            });
+            const reportingClient = createReportingClient({ auth: vitalsAuth });
+            const vitalsResult = await getVitalsCrashes(reportingClient, packageName, {
+              days: 1,
+            });
+            const latest = (vitalsResult as any).data?.[0]?.crashRate;
+            const check = checkThreshold(latest, threshold);
+            if (check.breached) {
+              await updateRollout(client, packageName, options.track, "halt");
               console.error(
-                `Warning: Vitals gate check failed: ${vitalsErr instanceof Error ? vitalsErr.message : String(vitalsErr)}`,
+                `Vitals gate: crash rate ${String(latest)}% > threshold ${String(threshold)}%. Rollout halted.`,
               );
+              process.exitCode = 6;
             }
+          } catch (vitalsErr) {
+            console.error(
+              `Warning: Vitals gate check failed: ${vitalsErr instanceof Error ? vitalsErr.message : String(vitalsErr)}`,
+            );
           }
         }
-
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
       }
+
+      console.log(formatOutput(result, format));
     });
   }
 
@@ -532,13 +540,12 @@ export function registerReleasesCommands(program: Command): void {
     .option("--file <path>", "Read notes from file")
     .action(async (action: string, options) => {
       if (action === "set") {
-        console.error(
-          "Error: gpc releases notes set is not implemented as a standalone command.\n" +
-            "Use --notes, --notes-dir, or --notes-from-git with:\n" +
-            "  gpc releases upload\n" +
-            "  gpc publish",
+        throw new GpcError(
+          "gpc releases notes set is not implemented as a standalone command.",
+          "RELEASES_USAGE_ERROR",
+          1,
+          "Use --notes, --notes-dir, or --notes-from-git with: gpc releases upload or gpc publish",
         );
-        process.exit(1);
       }
 
       if (action === "get") {
@@ -572,8 +579,12 @@ export function registerReleasesCommands(program: Command): void {
         return;
       }
 
-      console.error("Usage: gpc releases notes <get|set> --track <track>");
-      process.exit(2);
+      throw new GpcError(
+        "Unknown action. Usage: gpc releases notes <get|set> --track <track>",
+        "RELEASES_USAGE_ERROR",
+        2,
+        "Use: gpc releases notes get --track <track>",
+      );
     });
 
   // Upload externally hosted APK
@@ -587,26 +598,21 @@ export function registerReleasesCommands(program: Command): void {
       const packageName = resolvePackageName(program.opts()["app"], config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const { readFile } = await import("node:fs/promises");
-        const raw = await readFile(options.file, "utf-8");
-        const apkConfig = JSON.parse(raw) as Record<string, unknown>;
+      const { readFile } = await import("node:fs/promises");
+      const raw = await readFile(options.file, "utf-8");
+      const apkConfig = JSON.parse(raw) as Record<string, unknown>;
 
-        // Override with CLI-provided URL
-        apkConfig["externallyHostedUrl"] = options.url;
+      // Override with CLI-provided URL
+      apkConfig["externallyHostedUrl"] = options.url;
 
-        const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
-        const client = createApiClient({ auth });
-        const result = await uploadExternallyHosted(
-          client,
-          packageName,
-          apkConfig as unknown as ExternallyHostedApk,
-        );
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
+      const client = createApiClient({ auth });
+      const result = await uploadExternallyHosted(
+        client,
+        packageName,
+        apkConfig as unknown as ExternallyHostedApk,
+      );
+      console.log(formatOutput(result, format));
     });
 
   // Diff
@@ -621,21 +627,16 @@ export function registerReleasesCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await diffReleases(client, packageName, options.from, options.to);
-        if (result.diffs.length === 0) {
-          console.log(`No differences between ${result.fromTrack} and ${result.toTrack}.`);
+      const result = await diffReleases(client, packageName, options.from, options.to);
+      if (result.diffs.length === 0) {
+        console.log(`No differences between ${result.fromTrack} and ${result.toTrack}.`);
+      } else {
+        if (format === "json") {
+          console.log(formatOutput(result, format));
         } else {
-          if (format === "json") {
-            console.log(formatOutput(result, format));
-          } else {
-            console.log(`Differences: ${result.fromTrack} vs ${result.toTrack}\n`);
-            console.log(formatOutput(result.diffs, format));
-          }
+          console.log(`Differences: ${result.fromTrack} vs ${result.toTrack}\n`);
+          console.log(formatOutput(result.diffs, format));
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
       }
     });
 
@@ -650,38 +651,33 @@ export function registerReleasesCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const statuses = await getReleasesStatus(client, packageName, options.track);
+      const statuses = await getReleasesStatus(client, packageName, options.track);
 
-        // Group by track
-        const trackCounts = new Map<string, { total: number; statuses: Record<string, number> }>();
-        for (const r of statuses) {
-          const entry = trackCounts.get(r.track) ?? { total: 0, statuses: {} };
-          entry.total++;
-          entry.statuses[r.status] = (entry.statuses[r.status] ?? 0) + 1;
-          trackCounts.set(r.track, entry);
-        }
+      // Group by track
+      const trackCounts = new Map<string, { total: number; statuses: Record<string, number> }>();
+      for (const r of statuses) {
+        const entry = trackCounts.get(r.track) ?? { total: 0, statuses: {} };
+        entry.total++;
+        entry.statuses[r.status] = (entry.statuses[r.status] ?? 0) + 1;
+        trackCounts.set(r.track, entry);
+      }
 
-        if (format === "json") {
-          const data = Object.fromEntries(
-            [...trackCounts.entries()].map(([track, info]) => [track, info]),
-          );
-          console.log(formatOutput(data, format));
+      if (format === "json") {
+        const data = Object.fromEntries(
+          [...trackCounts.entries()].map(([track, info]) => [track, info]),
+        );
+        console.log(formatOutput(data, format));
+      } else {
+        const rows = [...trackCounts.entries()].map(([track, info]) => ({
+          track,
+          releases: info.total,
+          ...info.statuses,
+        }));
+        if (rows.length === 0) {
+          console.log("No releases found.");
         } else {
-          const rows = [...trackCounts.entries()].map(([track, info]) => ({
-            track,
-            releases: info.total,
-            ...info.statuses,
-          }));
-          if (rows.length === 0) {
-            console.log("No releases found.");
-          } else {
-            console.log(formatOutput(rows, format));
-          }
+          console.log(formatOutput(rows, format));
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
       }
     });
 }

@@ -19,6 +19,7 @@ import {
   getCountryAvailability,
   formatOutput,
   createSpinner,
+  GpcError,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
@@ -40,9 +41,12 @@ const VALID_IMAGE_TYPES: ImageType[] = [
 
 function validateImageType(type: string): ImageType {
   if (!VALID_IMAGE_TYPES.includes(type as ImageType)) {
-    console.error(`Error: Invalid image type "${type}".`);
-    console.error(`Valid types: ${VALID_IMAGE_TYPES.join(", ")}`);
-    process.exit(2);
+    throw new GpcError(
+      `Invalid image type "${type}". Valid types: ${VALID_IMAGE_TYPES.join(", ")}`,
+      "LISTINGS_USAGE_ERROR",
+      2,
+      `Use one of: ${VALID_IMAGE_TYPES.join(", ")}`,
+    );
   }
   return type as ImageType;
 }
@@ -61,13 +65,8 @@ export function registerListingsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getListings(client, packageName, options.lang);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await getListings(client, packageName, options.lang);
+      console.log(formatOutput(result, format));
     });
 
   // Update
@@ -96,45 +95,42 @@ export function registerListingsCommands(program: Command): void {
       );
       const format = getOutputFormat(program, config);
 
-      try {
-        const data: Record<string, string> = {};
-        if (options["title"]) data["title"] = options["title"];
-        if (options["short"]) data["shortDescription"] = options["short"];
-        if (options["full"]) data["fullDescription"] = options["full"];
-        if (options["fullFile"]) {
-          const { readFile } = await import("node:fs/promises");
-          data["fullDescription"] = (await readFile(options["fullFile"], "utf-8")).trimEnd();
-        }
-        if (options["video"]) data["video"] = options["video"];
-
-        if (Object.keys(data).length === 0) {
-          console.error(
-            "Error: Provide at least one field to update (--title, --short, --full, --full-file, --video).",
-          );
-          process.exit(2);
-        }
-
-        if (isDryRun(program)) {
-          printDryRun(
-            {
-              command: "listings update",
-              action: "update listing for",
-              target: options.lang,
-              details: data,
-            },
-            format,
-            formatOutput,
-          );
-          return;
-        }
-
-        const client = await getClient(config);
-        const result = await updateListing(client, packageName, options.lang, data);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      const data: Record<string, string> = {};
+      if (options["title"]) data["title"] = options["title"];
+      if (options["short"]) data["shortDescription"] = options["short"];
+      if (options["full"]) data["fullDescription"] = options["full"];
+      if (options["fullFile"]) {
+        const { readFile } = await import("node:fs/promises");
+        data["fullDescription"] = (await readFile(options["fullFile"], "utf-8")).trimEnd();
       }
+      if (options["video"]) data["video"] = options["video"];
+
+      if (Object.keys(data).length === 0) {
+        throw new GpcError(
+          "Provide at least one field to update (--title, --short, --full, --full-file, --video).",
+          "LISTINGS_USAGE_ERROR",
+          2,
+          "Pass at least one of: --title, --short, --full, --full-file, --video",
+        );
+      }
+
+      if (isDryRun(program)) {
+        printDryRun(
+          {
+            command: "listings update",
+            action: "update listing for",
+            target: options.lang,
+            details: data,
+          },
+          format,
+          formatOutput,
+        );
+        return;
+      }
+
+      const client = await getClient(config);
+      const result = await updateListing(client, packageName, options.lang, data);
+      console.log(formatOutput(result, format));
     });
 
   // Delete
@@ -174,13 +170,8 @@ export function registerListingsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await deleteListing(client, packageName, options.lang);
-        console.log(`Listing for "${options.lang}" deleted.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      await deleteListing(client, packageName, options.lang);
+      console.log(`Listing for "${options.lang}" deleted.`);
     });
 
   // Pull
@@ -194,22 +185,17 @@ export function registerListingsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await pullListings(client, packageName, options.dir);
-        console.log(
-          formatOutput(
-            {
-              directory: options.dir,
-              languages: result.listings.map((l) => l.language),
-              count: result.listings.length,
-            },
-            format,
-          ),
-        );
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await pullListings(client, packageName, options.dir);
+      console.log(
+        formatOutput(
+          {
+            directory: options.dir,
+            languages: result.listings.map((l) => l.language),
+            count: result.listings.length,
+          },
+          format,
+        ),
+      );
     });
 
   // Push
@@ -237,8 +223,7 @@ export function registerListingsCommands(program: Command): void {
         console.log(formatOutput(result, format));
       } catch (error) {
         spinner.fail("Push failed");
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        throw error;
       }
     });
 
@@ -255,40 +240,35 @@ export function registerListingsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const diffs = await diffListingsEnhanced(client, packageName, options.dir, {
-          lang: options.lang,
-          wordLevel: options.wordDiff,
-        });
+      const diffs = await diffListingsEnhanced(client, packageName, options.dir, {
+        lang: options.lang,
+        wordLevel: options.wordDiff,
+      });
 
-        if (diffs.length === 0) {
-          if (format === "json") {
-            console.log(formatOutput([], format));
-          } else {
-            console.log("No differences found.");
-          }
-          return;
-        }
-
+      if (diffs.length === 0) {
         if (format === "json") {
-          console.log(formatOutput(diffs, format));
+          console.log(formatOutput([], format));
         } else {
-          for (const diff of diffs) {
-            const charInfo = (diff as unknown as Record<string, unknown>)["chars"]
-              ? ` (${(diff as unknown as Record<string, unknown>)["chars"]} chars)`
-              : "";
-            console.log(`[${diff.language}] ${diff.field}:${charInfo}`);
-            if ((diff as unknown as Record<string, unknown>)["diffSummary"]) {
-              console.log(`  ${(diff as unknown as Record<string, unknown>)["diffSummary"]}`);
-            } else {
-              console.log(green(`  + local:  ${diff.local || "(empty)"}`));
-              console.log(red(`  - remote: ${diff.remote || "(empty)"}`));
-            }
+          console.log("No differences found.");
+        }
+        return;
+      }
+
+      if (format === "json") {
+        console.log(formatOutput(diffs, format));
+      } else {
+        for (const diff of diffs) {
+          const charInfo = (diff as unknown as Record<string, unknown>)["chars"]
+            ? ` (${(diff as unknown as Record<string, unknown>)["chars"]} chars)`
+            : "";
+          console.log(`[${diff.language}] ${diff.field}:${charInfo}`);
+          if ((diff as unknown as Record<string, unknown>)["diffSummary"]) {
+            console.log(`  ${(diff as unknown as Record<string, unknown>)["diffSummary"]}`);
+          } else {
+            console.log(green(`  + local:  ${diff.local || "(empty)"}`));
+            console.log(red(`  - remote: ${diff.remote || "(empty)"}`));
           }
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
       }
     });
 
@@ -299,29 +279,26 @@ export function registerListingsCommands(program: Command): void {
     .option("--dir <path>", "Metadata directory", "metadata")
     .action(async (options) => {
       const format = getOutputFormat(program, await loadConfig());
-      try {
-        const results = await lintLocalListings(options.dir);
-        if (format === "json") {
-          console.log(formatOutput(results, format));
-          return;
-        }
-        let exitCode = 0;
-        for (const r of results) {
-          console.log(`\n[${r.language}]  ${r.valid ? green("✓ valid") : red("✗ over limit")}`);
-          const rows = r.fields.map((f) => ({
-            field: f.field,
-            chars: f.chars,
-            limit: f.limit,
-            pct: `${f.pct}%`,
-            status: f.status === "ok" ? green("✓") : f.status === "warn" ? "⚠" : red("✗"),
-          }));
-          console.log(formatOutput(rows, "table"));
-          if (!r.valid) exitCode = 1;
-        }
-        if (exitCode) process.exit(exitCode);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(1);
+      const results = await lintLocalListings(options.dir);
+      if (format === "json") {
+        console.log(formatOutput(results, format));
+        return;
+      }
+      let hasErrors = false;
+      for (const r of results) {
+        console.log(`\n[${r.language}]  ${r.valid ? green("✓ valid") : red("✗ over limit")}`);
+        const rows = r.fields.map((f) => ({
+          field: f.field,
+          chars: f.chars,
+          limit: f.limit,
+          pct: `${f.pct}%`,
+          status: f.status === "ok" ? green("✓") : f.status === "warn" ? "⚠" : red("✗"),
+        }));
+        console.log(formatOutput(rows, "table"));
+        if (!r.valid) hasErrors = true;
+      }
+      if (hasErrors) {
+        process.exitCode = 1;
       }
     });
 
@@ -353,7 +330,7 @@ export function registerListingsCommands(program: Command): void {
           return;
         }
 
-        let exitCode = 0;
+        let hasErrors = false;
         for (const r of results) {
           console.log(`\n[${r.language}]  ${r.valid ? green("✓ valid") : red("✗ over limit")}`);
           const rows = r.fields.map((f) => ({
@@ -364,18 +341,19 @@ export function registerListingsCommands(program: Command): void {
             status: f.status === "ok" ? green("✓") : f.status === "warn" ? "⚠" : red("✗"),
           }));
           console.log(formatOutput(rows, "table"));
-          if (!r.valid) exitCode = 1;
+          if (!r.valid) hasErrors = true;
         }
 
         if (missingLocales && missingLocales.length > 0) {
           console.log(`\nMissing locales: ${missingLocales.join(", ")}`);
         }
 
-        if (exitCode) process.exit(exitCode);
+        if (hasErrors) {
+          process.exitCode = 1;
+        }
       } catch (error) {
         spinner.fail("Analysis failed");
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        throw error;
       }
     });
 
@@ -419,13 +397,8 @@ export function registerListingsCommands(program: Command): void {
       const format = getOutputFormat(program, config);
       const imageType = validateImageType(options.type);
 
-      try {
-        const result = await listImages(client, packageName, options.lang, imageType);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await listImages(client, packageName, options.lang, imageType);
+      console.log(formatOutput(result, format));
     });
 
   // Images upload
@@ -472,8 +445,7 @@ export function registerListingsCommands(program: Command): void {
         console.log(formatOutput(result, format));
       } catch (error) {
         spinner.fail("Image upload failed");
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        throw error;
       }
     });
 
@@ -522,13 +494,8 @@ export function registerListingsCommands(program: Command): void {
       const client = await getClient(config);
       const imageType = validateImageType(options.type);
 
-      try {
-        await deleteImage(client, packageName, options.lang, imageType, options.id);
-        console.log(`Image "${options.id}" deleted.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      await deleteImage(client, packageName, options.lang, imageType, options.id);
+      console.log(`Image "${options.id}" deleted.`);
     });
 
   // Images export
@@ -559,8 +526,7 @@ export function registerListingsCommands(program: Command): void {
         console.log(formatOutput(result, format));
       } catch (error) {
         spinner.fail("Image export failed");
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        throw error;
       }
     });
 
@@ -575,23 +541,18 @@ export function registerListingsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getCountryAvailability(client, packageName, options.track);
-        const countries = (result as unknown as Record<string, unknown>)["countryTargeting"] as
-          | unknown[]
-          | undefined;
-        if (
-          format !== "json" &&
-          (!countries || (Array.isArray(countries) && countries.length === 0)) &&
-          Object.keys(result as object).length === 0
-        ) {
-          console.log("No availability data.");
-          return;
-        }
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      const result = await getCountryAvailability(client, packageName, options.track);
+      const countries = (result as unknown as Record<string, unknown>)["countryTargeting"] as
+        | unknown[]
+        | undefined;
+      if (
+        format !== "json" &&
+        (!countries || (Array.isArray(countries) && countries.length === 0)) &&
+        Object.keys(result as object).length === 0
+      ) {
+        console.log("No availability data.");
+        return;
       }
+      console.log(formatOutput(result, format));
     });
 }

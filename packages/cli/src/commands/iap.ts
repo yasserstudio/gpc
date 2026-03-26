@@ -42,17 +42,12 @@ export function registerIapCommands(program: Command): void {
         "Note: Using oneTimeProducts API (inappproducts endpoint is deprecated, shutdown Aug 2027)",
       );
 
-      try {
-        const result = await listOneTimeProducts(client, packageName);
+      const result = await listOneTimeProducts(client, packageName);
         let products = result.oneTimeProducts || [];
         if (options.sort) {
           products = sortResults(products, options.sort);
         }
         console.log(formatOutput(products, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   iap
@@ -68,13 +63,8 @@ export function registerIapCommands(program: Command): void {
         "Note: Using oneTimeProducts API (inappproducts endpoint is deprecated, shutdown Aug 2027)",
       );
 
-      try {
-        const result = await getOneTimeProduct(client, packageName, sku);
+      const result = await getOneTimeProduct(client, packageName, sku);
         console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   iap
@@ -101,14 +91,9 @@ export function registerIapCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const data = await readJsonFile(options.file);
+      const data = await readJsonFile(options.file);
         const result = await createInAppProduct(client, packageName, data as any);
         console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   iap
@@ -136,14 +121,9 @@ export function registerIapCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const data = await readJsonFile(options.file);
+      const data = await readJsonFile(options.file);
         const result = await updateInAppProduct(client, packageName, sku, data as any);
         console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   iap
@@ -171,13 +151,8 @@ export function registerIapCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await deleteInAppProduct(client, packageName, sku);
+      await deleteInAppProduct(client, packageName, sku);
         console.log(`In-app product ${sku} deleted.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   iap
@@ -205,8 +180,7 @@ export function registerIapCommands(program: Command): void {
         console.log(formatOutput(result, format));
       } catch (error) {
         spinner.fail("Sync failed");
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        throw error;
       }
     });
 
@@ -216,11 +190,16 @@ export function registerIapCommands(program: Command): void {
     .option("--skus <skus>", "Comma-separated list of SKUs")
     .option("--file <path>", "JSON file with array of SKUs")
     .action(async (_options) => {
-      console.error(
-        "Note: The inappproducts batchGet endpoint is permanently blocked by Google Play (returns 403 PERMISSION_DENIED).\n" +
-          "Use `gpc iap get <sku>` for a single product, or `gpc iap list` for all products.",
+      throw Object.assign(
+        new Error(
+          "The inappproducts batchGet endpoint is permanently blocked by Google Play (returns 403 PERMISSION_DENIED).",
+        ),
+        {
+          code: "IAP_BATCH_GET_UNAVAILABLE",
+          exitCode: 1,
+          suggestion: "Use `gpc iap get <sku>` for a single product, or `gpc iap list` for all products.",
+        },
       );
-      process.exit(1);
     });
 
   iap
@@ -270,8 +249,7 @@ export function registerIapCommands(program: Command): void {
         console.log(formatOutput(result, format));
       } catch (error) {
         spinner.fail("Batch update failed");
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        throw error;
       }
     });
 }

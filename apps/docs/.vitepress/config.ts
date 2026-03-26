@@ -56,7 +56,7 @@ function getPageDescription(page: PageData): string {
   const path = page.relativePath;
   const map: Record<string, string> = {
     "index.md":
-      "The complete CLI for Google Play. 192 API endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
+      "The complete CLI for Google Play. 204 API endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
     "guide/index.md":
       "Get started with GPC — the complete CLI for Google Play Developer API. Install, authenticate, and ship your first release in minutes.",
     "guide/installation.md":
@@ -114,7 +114,7 @@ function getPageDescription(page: PageData): string {
 export default defineConfig({
   title: "GPC — Google Play Console CLI",
   description:
-    "The complete CLI for Google Play. 192 API endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
+    "The complete CLI for Google Play. 204 API endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
 
   base: "/gpc/",
   lang: "en-US",
@@ -142,7 +142,7 @@ export default defineConfig({
       {
         property: "og:description",
         content:
-          "The complete CLI for Google Play. 192 API endpoints, one tool. No Ruby, no browser, no ceremony.",
+          "The complete CLI for Google Play. 204 API endpoints, one tool. No Ruby, no browser, no ceremony.",
       },
     ],
     ["meta", { property: "og:type", content: "website" }],
@@ -155,7 +155,7 @@ export default defineConfig({
         "@type": "SoftwareApplication",
         name: "GPC — Google Play Console CLI",
         description:
-          "The complete CLI for Google Play Developer API. 192 endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
+          "The complete CLI for Google Play Developer API. 204 endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
         applicationCategory: "DeveloperApplication",
         operatingSystem: "macOS, Linux, Windows",
         offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
@@ -184,7 +184,7 @@ export default defineConfig({
       {
         name: "twitter:description",
         content:
-          "The complete CLI for Google Play. 192 API endpoints, one tool. No Ruby, no browser, no ceremony.",
+          "The complete CLI for Google Play. 204 API endpoints, one tool. No Ruby, no browser, no ceremony.",
       },
     ],
     [

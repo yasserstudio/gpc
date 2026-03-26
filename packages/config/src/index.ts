@@ -3,6 +3,7 @@ export { loadConfig, findConfigFile, loadEnvConfig } from "./loader.js";
 export { getConfigDir, getUserConfigPath, getDataDir, getCacheDir } from "./paths.js";
 export {
   setConfigValue,
+  deleteConfigValue,
   initConfig,
   setProfileConfig,
   deleteProfile,

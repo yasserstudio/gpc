@@ -47,8 +47,7 @@ export function registerInternalSharingCommands(program: Command): void {
         console.log(formatOutput(result, format));
       } catch (error) {
         spinner.fail("Upload failed");
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        throw error;
       }
     });
 }

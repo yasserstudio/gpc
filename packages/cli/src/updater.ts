@@ -6,7 +6,7 @@
  */
 
 import { createWriteStream } from "node:fs";
-import { rename, chmod, unlink, stat } from "node:fs/promises";
+import { rename, chmod, unlink, stat, readdir } from "node:fs/promises";
 import { realpathSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
@@ -133,16 +133,30 @@ export function getCurrentBinaryPath(): string {
 // GitHub Releases API
 // ---------------------------------------------------------------------------
 
-function githubHeaders(): Record<string, string> {
+function getGithubToken(): string | undefined {
+  return process.env["GPC_GITHUB_TOKEN"] || process.env["GITHUB_TOKEN"] || undefined;
+}
+
+function githubApiHeaders(): Record<string, string> {
   const headers: Record<string, string> = {
     "User-Agent": "gpc-cli",
     Accept: "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
   };
-  // Support GPC_GITHUB_TOKEN for authenticated requests (avoids 60 req/hr limit
-  // on shared CI runner IPs)
-  if (process.env["GPC_GITHUB_TOKEN"]) {
-    headers["Authorization"] = `Bearer ${process.env["GPC_GITHUB_TOKEN"]}`;
+  const token = getGithubToken();
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
+function githubDownloadHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    "User-Agent": "gpc-cli",
+  };
+  const token = getGithubToken();
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
   return headers;
 }
@@ -151,7 +165,7 @@ export async function fetchLatestRelease(): Promise<GithubRelease> {
   let response: Response;
   try {
     response = await fetch(GITHUB_API_URL, {
-      headers: githubHeaders(),
+      headers: githubApiHeaders(),
       signal: AbortSignal.timeout(GITHUB_TIMEOUT_MS),
     });
   } catch (err) {
@@ -162,10 +176,17 @@ export async function fetchLatestRelease(): Promise<GithubRelease> {
     });
   }
 
-  if (response.status === 429) {
+  if (response.status === 429 ||
+    (response.status === 403 && response.headers.get("x-ratelimit-remaining") === "0")) {
     throw Object.assign(
-      new Error("GitHub API rate limit exceeded. Set GPC_GITHUB_TOKEN to increase the limit."),
-      { code: "UPDATE_RATE_LIMITED", exitCode: 4 },
+      new Error(
+        "GitHub API rate limit exceeded. Set GPC_GITHUB_TOKEN or GITHUB_TOKEN to increase the limit.",
+      ),
+      {
+        code: "UPDATE_RATE_LIMITED",
+        exitCode: 4,
+        suggestion: "export GPC_GITHUB_TOKEN=ghp_... (a personal access token with no scopes)",
+      },
     );
   }
 
@@ -190,7 +211,7 @@ export async function fetchChecksums(release: GithubRelease): Promise<Map<string
 
   try {
     const response = await fetch(asset.browser_download_url, {
-      headers: githubHeaders(),
+      headers: githubDownloadHeaders(),
       signal: AbortSignal.timeout(GITHUB_TIMEOUT_MS),
     });
     if (!response.ok) return new Map();
@@ -320,6 +341,24 @@ async function sha256File(filePath: string): Promise<string> {
 }
 
 /**
+ * Clean up stale `.gpc-old-*` and `.gpc-update-*.tmp` files left by
+ * previous update attempts (e.g. Windows EBUSY on unlink).
+ * Fire-and-forget — errors are silently ignored.
+ */
+export function cleanupStaleUpdateFiles(binaryPath: string): void {
+  const dir = dirname(binaryPath);
+  readdir(dir)
+    .then((files) => {
+      for (const f of files) {
+        if (f.startsWith(".gpc-old-") || f.startsWith(".gpc-update-")) {
+          unlink(join(dir, f)).catch(() => {});
+        }
+      }
+    })
+    .catch(() => {});
+}
+
+/**
  * Download a new binary and atomically replace the current one.
  *
  * macOS/Linux: rename(tmp, current) — safe because open files can be replaced
@@ -341,6 +380,7 @@ export async function updateBinaryInPlace(
     let response: Response;
     try {
       response = await fetch(assetUrl, {
+        headers: githubDownloadHeaders(),
         signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MS),
       });
     } catch (err) {

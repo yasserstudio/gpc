@@ -49,7 +49,7 @@ GPC checks for updates automatically (once per 24 hours) and shows a notificatio
 
 ### How is GPC different from Fastlane supply?
 
-GPC covers 192 API endpoints — Fastlane supply covers about 20. GPC gives you reviews, vitals, subscriptions, purchases, reports, user management, and more. It has no Ruby dependency, supports structured JSON output for CI/CD, and starts in under 500ms (vs 2-3 seconds for Fastlane).
+GPC covers 204 API endpoints — Fastlane supply covers about 20. GPC gives you reviews, vitals, subscriptions, purchases, reports, user management, and more. It has no Ruby dependency, supports structured JSON output for CI/CD, and starts in under 500ms (vs 2-3 seconds for Fastlane).
 
 GPC reads Fastlane's `metadata/` directory format natively, so migration starts with zero file changes. See [Migrating from Fastlane](../migration/from-fastlane) for a step-by-step guide.
 
@@ -77,7 +77,7 @@ See the [CI/CD guide](../ci-cd/) for copy-pasteable GitHub Actions, GitLab CI, B
 
 ### Is it stable enough for production CI/CD?
 
-1,757 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The CLI is in a pre-release stability soak before v1.0.
+1,834 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The CLI is in a pre-release stability soak before v1.0.
 
 ## Configuration
 
@@ -111,7 +111,7 @@ The interactive wizard lets you pick skills and target agents. See [Agent Skills
 
 ### What Google Play APIs does GPC cover?
 
-192 endpoints across the Android Publisher API v3 and Play Developer Reporting API v1beta1. This includes apps, releases, tracks, listings, images, reviews, vitals, subscriptions, in-app products, one-time products, purchases, users, testers, device tiers, data safety, recovery, external transactions, internal sharing, and generated APKs. See [API Coverage](../reference/api-coverage) for the full endpoint map.
+204 endpoints across the Android Publisher API v3 and Play Developer Reporting API v1beta1. This includes apps, releases, tracks, listings, images, reviews, vitals, subscriptions, in-app products, one-time products, purchases, users, testers, device tiers, data safety, recovery, external transactions, internal sharing, and generated APKs. See [API Coverage](../reference/api-coverage) for the full endpoint map.
 
 ## Color & Output
 

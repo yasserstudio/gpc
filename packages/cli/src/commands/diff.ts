@@ -26,8 +26,7 @@ export function registerDiffCommand(program: Command): void {
       const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
       const client = createApiClient({ auth });
 
-      try {
-        const sections: Record<string, unknown> = {};
+      const sections: Record<string, unknown> = {};
 
         // Always show release status across all tracks
         const releases = await getReleasesStatus(client, packageName);
@@ -108,9 +107,5 @@ export function registerDiffCommand(program: Command): void {
           }
           console.log("");
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 }

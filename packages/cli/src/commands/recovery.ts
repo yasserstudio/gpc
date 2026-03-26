@@ -32,28 +32,21 @@ export function registerRecoveryCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        if (options.versionCode === undefined) {
-          console.error(
-            "Error: --version-code is required. The API requires a version code to filter recovery actions.",
-          );
-          console.error("Usage: gpc recovery list --version-code <code>");
-          process.exit(2);
-        }
-        const result = await listRecoveryActions(client, packageName, options.versionCode);
-        if (Array.isArray(result) && result.length === 0) {
-          if (format === "json") {
-            console.log(formatOutput([], format));
-          } else {
-            console.log("No recovery actions found.");
-          }
-          return;
-        }
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      if (options.versionCode === undefined) {
+        const err = new Error("--version-code is required. The API requires a version code to filter recovery actions.");
+        Object.assign(err, { code: "USAGE_ERROR", exitCode: 2, suggestion: "Usage: gpc recovery list --version-code <code>" });
+        throw err;
       }
+      const result = await listRecoveryActions(client, packageName, options.versionCode);
+      if (Array.isArray(result) && result.length === 0) {
+        if (format === "json") {
+          console.log(formatOutput([], format));
+        } else {
+          console.log("No recovery actions found.");
+        }
+        return;
+      }
+      console.log(formatOutput(result, format));
     });
 
   recovery
@@ -81,15 +74,10 @@ export function registerRecoveryCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await cancelRecoveryAction(client, packageName, id);
-        console.log(
-          formatOutput({ success: true, appRecoveryId: id, action: "cancelled" }, format),
-        );
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      await cancelRecoveryAction(client, packageName, id);
+      console.log(
+        formatOutput({ success: true, appRecoveryId: id, action: "cancelled" }, format),
+      );
     });
 
   recovery
@@ -117,13 +105,8 @@ export function registerRecoveryCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await deployRecoveryAction(client, packageName, id);
-        console.log(formatOutput({ success: true, appRecoveryId: id, action: "deployed" }, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      await deployRecoveryAction(client, packageName, id);
+      console.log(formatOutput({ success: true, appRecoveryId: id, action: "deployed" }, format));
     });
 
   recovery
@@ -139,10 +122,9 @@ export function registerRecoveryCommands(program: Command): void {
       try {
         data = JSON.parse(readFileSync(options.file, "utf-8"));
       } catch (err) {
-        console.error(
-          `Error: Could not read recovery action data from ${options.file}: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(2);
+        const error = new Error(`Could not read recovery action data from ${options.file}: ${err instanceof Error ? err.message : String(err)}`);
+        Object.assign(error, { code: "INVALID_INPUT", exitCode: 2, suggestion: "Check the file path and ensure it contains valid JSON." });
+        throw error;
       }
 
       if (isDryRun(program)) {
@@ -161,13 +143,8 @@ export function registerRecoveryCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await createRecoveryAction(client, packageName, data);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await createRecoveryAction(client, packageName, data);
+      console.log(formatOutput(result, format));
     });
 
   recovery
@@ -183,10 +160,9 @@ export function registerRecoveryCommands(program: Command): void {
       try {
         targeting = JSON.parse(readFileSync(options.file, "utf-8"));
       } catch (err) {
-        console.error(
-          `Error: Could not read targeting data from ${options.file}: ${err instanceof Error ? err.message : String(err)}`,
-        );
-        process.exit(2);
+        const error = new Error(`Could not read targeting data from ${options.file}: ${err instanceof Error ? err.message : String(err)}`);
+        Object.assign(error, { code: "INVALID_INPUT", exitCode: 2, suggestion: "Check the file path and ensure it contains valid JSON." });
+        throw error;
       }
 
       if (isDryRun(program)) {
@@ -205,12 +181,7 @@ export function registerRecoveryCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await addRecoveryTargeting(client, packageName, actionId, targeting);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await addRecoveryTargeting(client, packageName, actionId, targeting);
+      console.log(formatOutput(result, format));
     });
 }

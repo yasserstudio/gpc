@@ -50,7 +50,8 @@ export function registerConfigCommands(program: Command): void {
             }
             const resolved = resolve(saPath);
             if (existsSync(resolved)) {
-              initialConfig["auth"] = { serviceAccount: saPath };
+              // Store as absolute path to avoid CWD-dependent resolution
+              initialConfig["auth"] = { serviceAccount: resolved };
               break;
             }
             console.error(`  File not found: ${resolved}`);
@@ -98,8 +99,12 @@ export function registerConfigCommands(program: Command): void {
           .option("-j, --json", "JSON mode");
         registerDoctorCommand(doctorProgram);
         await doctorProgram.parseAsync(["node", "gpc", "doctor"]);
-      } catch {
-        // Doctor failures should not prevent config init from succeeding
+      } catch (err) {
+        // Doctor check failures (exit code) are expected — just prompt user
+        // Only log unexpected errors (not exit code errors from doctor)
+        if (err instanceof Error && !err.message.includes("process.exit")) {
+          console.error(`Doctor error: ${err.message}`);
+        }
         console.log("Run `gpc doctor` to verify your setup.");
       }
     });

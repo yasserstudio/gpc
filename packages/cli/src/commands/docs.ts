@@ -31,8 +31,9 @@ export function registerDocsCommand(program: Command): void {
       }
       const path = topic ? PAGE_MAP[topic] : undefined;
       if (topic && !path) {
-        console.error(`Unknown topic "${topic}". Run: gpc docs --list`);
-        process.exit(2);
+        const err = new Error(`Unknown topic "${topic}".`);
+        Object.assign(err, { code: "USAGE_ERROR", exitCode: 2, suggestion: "Run: gpc docs --list" });
+        throw err;
       }
       const url = path ? `${BASE}${path}` : BASE;
       const platform = process.platform;

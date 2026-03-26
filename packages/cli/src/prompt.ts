@@ -48,11 +48,14 @@ export async function requireOption(
       ? promptSelect(prompt.message, prompt.choices, prompt.default)
       : promptInput(prompt.message, prompt.default);
   }
-  process.stderr.write(`Error: Missing required option --${name}\n`);
-  process.stderr.write(
-    `Suggestion: Provide --${name} or run interactively (remove --no-interactive)\n`,
+  throw Object.assign(
+    new Error(`Missing required option --${name}`),
+    {
+      code: "MISSING_REQUIRED_OPTION",
+      exitCode: 2,
+      suggestion: `Provide --${name} or run interactively (remove --no-interactive)`,
+    },
   );
-  process.exit(2);
 }
 
 /**
@@ -69,7 +72,8 @@ export async function requireConfirm(
   const confirmed = await promptConfirm(message, false);
   if (!confirmed) {
     console.log("Aborted.");
-    process.exit(1);
+    process.exitCode = 0;
+    throw Object.assign(new Error(""), { code: "USER_ABORTED", exitCode: 0, silent: true });
   }
 }
 

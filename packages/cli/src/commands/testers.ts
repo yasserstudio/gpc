@@ -43,28 +43,23 @@ export function registerTestersCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await listTesters(client, packageName, options.track);
-        if (options.sort && result.googleGroups) {
-          const descending = options.sort.startsWith("-");
-          result.googleGroups = [...result.googleGroups].sort((a: string, b: string) =>
-            descending ? b.localeCompare(a) : a.localeCompare(b),
-          );
-        }
-        if (format !== "json") {
-          const groups = (result.googleGroups || []) as string[];
-          const rows = groups.map((g: string) => ({ googleGroup: g }));
-          if (rows.length > 0) {
-            console.log(formatOutput(rows, format));
-          } else {
-            console.log("No testers found.");
-          }
+      const result = await listTesters(client, packageName, options.track);
+      if (options.sort && result.googleGroups) {
+        const descending = options.sort.startsWith("-");
+        result.googleGroups = [...result.googleGroups].sort((a: string, b: string) =>
+          descending ? b.localeCompare(a) : a.localeCompare(b),
+        );
+      }
+      if (format !== "json") {
+        const groups = (result.googleGroups || []) as string[];
+        const rows = groups.map((g: string) => ({ googleGroup: g }));
+        if (rows.length > 0) {
+          console.log(formatOutput(rows, format));
         } else {
-          console.log(formatOutput(result, format));
+          console.log("No testers found.");
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      } else {
+        console.log(formatOutput(result, format));
       }
     });
 
@@ -104,13 +99,8 @@ export function registerTestersCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await addTesters(client, packageName, options.track, emails);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await addTesters(client, packageName, options.track, emails);
+      console.log(formatOutput(result, format));
     });
 
   testers
@@ -151,13 +141,8 @@ export function registerTestersCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await removeTesters(client, packageName, options.track, emails);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await removeTesters(client, packageName, options.track, emails);
+      console.log(formatOutput(result, format));
     });
 
   testers
@@ -206,12 +191,7 @@ export function registerTestersCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await importTestersFromCsv(client, packageName, options.track, options.file);
-        console.log(formatOutput({ added: result.added, testers: result.testers }, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await importTestersFromCsv(client, packageName, options.track, options.file);
+      console.log(formatOutput({ added: result.added, testers: result.testers }, format));
     });
 }

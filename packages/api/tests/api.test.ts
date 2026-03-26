@@ -2643,3 +2643,259 @@ describe("apks.addExternallyHosted", () => {
     expect(JSON.parse(init.body)).toEqual({ externallyHostedApk: apkData });
   });
 });
+
+// ---------------------------------------------------------------------------
+// tracks.patch
+// ---------------------------------------------------------------------------
+describe("tracks.patch", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+  const EDIT_ID = "edit-123";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("tracks.patch calls PATCH /{pkg}/edits/{editId}/tracks/{track} with track+releases body", async () => {
+    const release = { status: "inProgress", versionCodes: ["20"], userFraction: 0.1 };
+    const trackResponse = { track: "production", releases: [release] };
+    mockFetch.mockResolvedValueOnce(mockResponse(trackResponse));
+
+    const client = makeClient();
+    const result = await client.tracks.patch(PKG, EDIT_ID, "production", release as any);
+
+    expect(result).toEqual(trackResponse);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}/tracks/production`);
+    expect(init.method).toBe("PATCH");
+    expect(JSON.parse(init.body)).toEqual({
+      track: "production",
+      releases: [release],
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// releases.list
+// ---------------------------------------------------------------------------
+describe("releases.list", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("releases.list calls GET /{pkg}/tracks/{track}/releases", async () => {
+    const releases = [
+      { name: "1.0", versionCodes: ["1"], status: "completed" },
+      { name: "2.0", versionCodes: ["2"], status: "draft" },
+    ];
+    mockFetch.mockResolvedValueOnce(mockResponse({ releases }));
+
+    const client = makeClient();
+    const result = await client.releases.list(PKG, "production");
+
+    expect(result).toEqual(releases);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/tracks/production/releases`);
+    expect(init.method).toBe("GET");
+  });
+
+  it("releases.list returns empty array when no releases", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+
+    const client = makeClient();
+    const result = await client.releases.list(PKG, "beta");
+
+    expect(result).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// subscriptions.batchGet
+// ---------------------------------------------------------------------------
+describe("subscriptions.batchGet", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("subscriptions.batchGet calls GET /{pkg}/subscriptions:batchGet with productIds query params", async () => {
+    const subscriptions = [{ productId: "sub_monthly" }, { productId: "sub_yearly" }];
+    mockFetch.mockResolvedValueOnce(mockResponse({ subscriptions }));
+
+    const client = makeClient();
+    const result = await client.subscriptions.batchGet(PKG, ["sub_monthly", "sub_yearly"]);
+
+    expect(result).toEqual(subscriptions);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(
+      `${BASE_URL}/${PKG}/subscriptions:batchGet?productIds=sub_monthly&productIds=sub_yearly`,
+    );
+    expect(init.method).toBe("GET");
+  });
+
+  it("subscriptions.batchGet returns empty array when no subscriptions", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+
+    const client = makeClient();
+    const result = await client.subscriptions.batchGet(PKG, ["sub_monthly"]);
+
+    expect(result).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// subscriptions.batchUpdate
+// ---------------------------------------------------------------------------
+describe("subscriptions.batchUpdate", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("subscriptions.batchUpdate calls POST /{pkg}/subscriptions:batchUpdate with body", async () => {
+    const requestBody = {
+      requests: [
+        {
+          subscription: { productId: "sub_monthly" },
+          updateMask: "listings",
+          regionsVersion: { version: "2022/02" },
+        },
+      ],
+    };
+    const response = {
+      subscriptions: [{ productId: "sub_monthly" }],
+    };
+    mockFetch.mockResolvedValueOnce(mockResponse(response));
+
+    const client = makeClient();
+    const result = await client.subscriptions.batchUpdate(PKG, requestBody as any);
+
+    expect(result).toEqual(response);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions:batchUpdate`);
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body)).toEqual(requestBody);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// purchases.acknowledgeSubscription
+// ---------------------------------------------------------------------------
+describe("purchases.acknowledgeSubscription", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("purchases.acknowledgeSubscription calls POST /{pkg}/purchases/subscriptions/{subId}/tokens/{token}:acknowledge", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+
+    const client = makeClient();
+    await client.purchases.acknowledgeSubscription(PKG, "sub_monthly", "purchase-token-abc");
+
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(
+      `${BASE_URL}/${PKG}/purchases/subscriptions/sub_monthly/tokens/purchase-token-abc:acknowledge`,
+    );
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body)).toEqual({});
+  });
+});
+
+// ---------------------------------------------------------------------------
+// inappproducts.batchDelete
+// ---------------------------------------------------------------------------
+describe("inappproducts.batchDelete", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const PKG = "com.example.app";
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("inappproducts.batchDelete calls POST /{pkg}/inappproducts:batchDelete with sku requests", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+
+    const client = makeClient();
+    await client.inappproducts.batchDelete(PKG, ["coins100", "gems500"]);
+
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/inappproducts:batchDelete`);
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body)).toEqual({
+      requests: [
+        { packageName: PKG, sku: "coins100" },
+        { packageName: PKG, sku: "gems500" },
+      ],
+    });
+  });
+});

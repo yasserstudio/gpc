@@ -23,33 +23,29 @@ export function registerGeneratedApksCommands(program: Command): void {
 
       const versionCode = parseInt(versionCodeStr, 10);
       if (isNaN(versionCode)) {
-        console.error("Error: version-code must be a number");
-        process.exit(2);
+        const err = new Error("version-code must be a number");
+        Object.assign(err, { code: "USAGE_ERROR", exitCode: 2 });
+        throw err;
       }
 
-      try {
-        const result = await listGeneratedApks(client, packageName, versionCode);
-        if (format !== "json") {
-          const apks = (result as unknown as Record<string, unknown>)["generatedApks"] as
-            | Array<Record<string, unknown>>
-            | undefined;
-          if (apks && apks.length > 0) {
-            const rows = apks.map((apk) => ({
-              id: apk["generatedApkId"] || "-",
-              variantId: apk["variantId"] || "-",
-              moduleName: apk["moduleName"] || "-",
-              sha256: String(apk["certificateSha256Fingerprint"] || "-").slice(0, 16) + "...",
-            }));
-            console.log(formatOutput(rows, format));
-          } else {
-            console.log("No generated APKs found.");
-          }
+      const result = await listGeneratedApks(client, packageName, versionCode);
+      if (format !== "json") {
+        const apks = (result as unknown as Record<string, unknown>)["generatedApks"] as
+          | Array<Record<string, unknown>>
+          | undefined;
+        if (apks && apks.length > 0) {
+          const rows = apks.map((apk) => ({
+            id: apk["generatedApkId"] || "-",
+            variantId: apk["variantId"] || "-",
+            moduleName: apk["moduleName"] || "-",
+            sha256: String(apk["certificateSha256Fingerprint"] || "-").slice(0, 16) + "...",
+          }));
+          console.log(formatOutput(rows, format));
         } else {
-          console.log(formatOutput(result, format));
+          console.log("No generated APKs found.");
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      } else {
+        console.log(formatOutput(result, format));
       }
     });
 
@@ -65,22 +61,18 @@ export function registerGeneratedApksCommands(program: Command): void {
 
       const versionCode = parseInt(versionCodeStr, 10);
       if (isNaN(versionCode)) {
-        console.error("Error: version-code must be a number");
-        process.exit(2);
+        const err = new Error("version-code must be a number");
+        Object.assign(err, { code: "USAGE_ERROR", exitCode: 2 });
+        throw err;
       }
 
-      try {
-        const result = await downloadGeneratedApk(
-          client,
-          packageName,
-          versionCode,
-          apkId,
-          opts.output,
-        );
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await downloadGeneratedApk(
+        client,
+        packageName,
+        versionCode,
+        apkId,
+        opts.output,
+      );
+      console.log(formatOutput(result, format));
     });
 }

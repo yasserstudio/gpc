@@ -148,4 +148,11 @@ export type {
   InAppProductsBatchGetRequest,
   UploadProgressEvent,
   ResumableUploadOptions,
+  ReleaseSummary,
+  ReleasesListResponse,
+  SubscriptionsBatchGetRequest,
+  SubscriptionsBatchGetResponse,
+  SubscriptionsBatchUpdateRequest,
+  SubscriptionsBatchUpdateResponse,
+  InAppProductsBatchDeleteRequest,
 } from "./types.js";

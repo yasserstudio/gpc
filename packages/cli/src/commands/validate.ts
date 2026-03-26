@@ -15,8 +15,9 @@ export function registerValidateCommand(program: Command): void {
     .option("--notes-dir <dir>", "Read release notes from directory (<dir>/<lang>.txt)")
     .action(async (file: string, options) => {
       if (options.notes && options.notesDir) {
-        console.error("Error: Cannot use both --notes and --notes-dir");
-        process.exit(2);
+        const err = new Error("Cannot use both --notes and --notes-dir");
+        Object.assign(err, { code: "USAGE_ERROR", exitCode: 2, suggestion: "Use either --notes or --notes-dir, not both." });
+        throw err;
       }
 
       const config = await loadConfig();
@@ -24,12 +25,7 @@ export function registerValidateCommand(program: Command): void {
 
       let notes: { language: string; text: string }[] | undefined;
       if (options.notesDir) {
-        try {
-          notes = await readReleaseNotesFromDir(options.notesDir);
-        } catch (err) {
-          console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
-          process.exit(1);
-        }
+        notes = await readReleaseNotesFromDir(options.notesDir);
       } else if (options.notes) {
         notes = [{ language: "en-US", text: options.notes }];
       }
@@ -58,6 +54,8 @@ export function registerValidateCommand(program: Command): void {
         }
         console.log(`\n${result.valid ? green("✓ Valid") : red("✗ Invalid")}`);
       }
-      process.exit(result.valid ? 0 : 1);
+      if (!result.valid) {
+        process.exitCode = 1;
+      }
     });
 }

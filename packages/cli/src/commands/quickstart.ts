@@ -59,25 +59,26 @@ export function registerQuickstartCommand(program: Command): void {
       if (allPassed) {
         try {
           const { spawnSync } = await import("node:child_process");
-          // stdout/stderr captured via "pipe" — no need for --quiet flag
-          // (--quiet after the subcommand name is treated as an unknown subcommand option)
           // Use "gpc" directly — process.execPath + process.argv[1] fails when
           // installed via Homebrew (Bun-compiled binary can't be re-run under Node)
           const result = spawnSync("gpc", ["doctor"], {
             stdio: "pipe",
             encoding: "utf-8",
           });
-          if (result.status === 0) {
-            step(4, total, "Running doctor...", "✓ All checks passed");
+          if (result.error) {
+            // gpc not found in PATH (ENOENT) or other spawn error
+            step(4, total, "Running doctor...", "\u2014 could not find gpc in PATH. Run: gpc doctor");
+          } else if (result.status === 0) {
+            step(4, total, "Running doctor...", "\u2713 All checks passed");
           } else {
-            step(4, total, "Running doctor...", "⚠ Some checks failed — run: gpc doctor");
+            step(4, total, "Running doctor...", "\u26A0 Some checks failed \u2014 run: gpc doctor");
             allPassed = false;
           }
         } catch {
-          step(4, total, "Running doctor...", "— run: gpc doctor");
+          step(4, total, "Running doctor...", "\u2014 run: gpc doctor");
         }
       } else {
-        step(4, total, "Running doctor...", "— skipped");
+        step(4, total, "Running doctor...", "\u2014 skipped");
       }
 
       console.log("");
@@ -95,7 +96,7 @@ export function registerQuickstartCommand(program: Command): void {
       } else {
         console.log("Fix the issues above, then run 'gpc quickstart' again.");
         console.log("Need help? Run 'gpc doctor' for detailed diagnostics.");
-        process.exit(1);
+        process.exitCode = 1;
       }
     });
 }

@@ -41,30 +41,25 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await listOneTimeProducts(client, packageName);
-        if (options.sort) {
-          result.oneTimeProducts = sortResults(result.oneTimeProducts, options.sort);
+      const result = await listOneTimeProducts(client, packageName);
+      if (options.sort) {
+        result.oneTimeProducts = sortResults(result.oneTimeProducts, options.sort);
+      }
+      const products = result.oneTimeProducts || [];
+      if (format !== "json") {
+        if (products.length === 0) {
+          console.log("No one-time products found.");
+          return;
         }
-        const products = result.oneTimeProducts || [];
-        if (format !== "json") {
-          if (products.length === 0) {
-            console.log("No one-time products found.");
-            return;
-          }
-          const summary = products.map((p: OneTimeProduct) => ({
-            productId: p.productId,
-            purchaseType: (p as unknown as Record<string, unknown>)["purchaseType"] || "-",
-            listings: p.listings ? Object.keys(p.listings).length : 0,
-            firstTitle: p.listings ? Object.values(p.listings)[0]?.title || "-" : "-",
-          }));
-          console.log(formatOutput(summary, format));
-        } else {
-          console.log(formatOutput(result, format));
-        }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        const summary = products.map((p: OneTimeProduct) => ({
+          productId: p.productId,
+          purchaseType: (p as unknown as Record<string, unknown>)["purchaseType"] || "-",
+          listings: p.listings ? Object.keys(p.listings).length : 0,
+          firstTitle: p.listings ? Object.values(p.listings)[0]?.title || "-" : "-",
+        }));
+        console.log(formatOutput(summary, format));
+      } else {
+        console.log(formatOutput(result, format));
       }
     });
 
@@ -77,13 +72,8 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getOneTimeProduct(client, packageName, productId);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await getOneTimeProduct(client, packageName, productId);
+      console.log(formatOutput(result, format));
     });
 
   otp
@@ -110,14 +100,9 @@ export function registerOneTimeProductsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const data = await readJsonFile(options.file);
-        const result = await createOneTimeProduct(client, packageName, data as any);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const data = await readJsonFile(options.file);
+      const result = await createOneTimeProduct(client, packageName, data as any);
+      console.log(formatOutput(result, format));
     });
 
   otp
@@ -146,20 +131,15 @@ export function registerOneTimeProductsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const data = await readJsonFile(options.file);
-        const result = await updateOneTimeProduct(
-          client,
-          packageName,
-          productId,
-          data as any,
-          options.updateMask,
-        );
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const data = await readJsonFile(options.file);
+      const result = await updateOneTimeProduct(
+        client,
+        packageName,
+        productId,
+        data as any,
+        options.updateMask,
+      );
+      console.log(formatOutput(result, format));
     });
 
   otp
@@ -187,13 +167,8 @@ export function registerOneTimeProductsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await deleteOneTimeProduct(client, packageName, productId);
-        console.log(`One-time product ${productId} deleted.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      await deleteOneTimeProduct(client, packageName, productId);
+      console.log(`One-time product ${productId} deleted.`);
     });
 
   // --- Offers ---
@@ -209,16 +184,11 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await listOneTimeOffers(client, packageName, productId);
-        if (options.sort) {
-          result.oneTimeOffers = sortResults(result.oneTimeOffers, options.sort);
-        }
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      const result = await listOneTimeOffers(client, packageName, productId);
+      if (options.sort) {
+        result.oneTimeOffers = sortResults(result.oneTimeOffers, options.sort);
       }
+      console.log(formatOutput(result, format));
     });
 
   offers
@@ -230,13 +200,8 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getOneTimeOffer(client, packageName, productId, offerId);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await getOneTimeOffer(client, packageName, productId, offerId);
+      console.log(formatOutput(result, format));
     });
 
   offers
@@ -264,14 +229,9 @@ export function registerOneTimeProductsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const data = await readJsonFile(options.file);
-        const result = await createOneTimeOffer(client, packageName, productId, data as any);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const data = await readJsonFile(options.file);
+      const result = await createOneTimeOffer(client, packageName, productId, data as any);
+      console.log(formatOutput(result, format));
     });
 
   offers
@@ -305,21 +265,16 @@ export function registerOneTimeProductsCommands(program: Command): void {
 
         const client = await getClient(config);
 
-        try {
-          const data = await readJsonFile(options.file);
-          const result = await updateOneTimeOffer(
-            client,
-            packageName,
-            productId,
-            offerId,
-            data as any,
-            options.updateMask,
-          );
-          console.log(formatOutput(result, format));
-        } catch (error) {
-          console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-          process.exit(4);
-        }
+        const data = await readJsonFile(options.file);
+        const result = await updateOneTimeOffer(
+          client,
+          packageName,
+          productId,
+          offerId,
+          data as any,
+          options.updateMask,
+        );
+        console.log(formatOutput(result, format));
       },
     );
 
@@ -348,13 +303,8 @@ export function registerOneTimeProductsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await deleteOneTimeOffer(client, packageName, productId, offerId);
-        console.log(`Offer ${offerId} deleted.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      await deleteOneTimeOffer(client, packageName, productId, offerId);
+      console.log(`Offer ${offerId} deleted.`);
     });
 
   // --- Diff ---
@@ -368,17 +318,12 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const localData = (await readJsonFile(options.file)) as OneTimeProduct;
-        const diffs = await diffOneTimeProduct(client, packageName, productId, localData);
-        if (diffs.length === 0) {
-          console.log("No differences found.");
-        } else {
-          console.log(formatOutput(diffs, format));
-        }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      const localData = (await readJsonFile(options.file)) as OneTimeProduct;
+      const diffs = await diffOneTimeProduct(client, packageName, productId, localData);
+      if (diffs.length === 0) {
+        console.log("No differences found.");
+      } else {
+        console.log(formatOutput(diffs, format));
       }
     });
 }

@@ -7,6 +7,7 @@ import {
   updateBinaryInPlace,
   getPlatformAsset,
   getCurrentBinaryPath,
+  cleanupStaleUpdateFiles,
 } from "../updater.js";
 import { createSpinner } from "@gpc-cli/core";
 
@@ -109,17 +110,27 @@ export function registerUpdateCommand(program: Command): void {
           const assetName = getPlatformAsset();
           if (!assetName) {
             spinner.fail();
-            console.error(`Error: Unsupported platform: ${process.platform}/${process.arch}`);
-            console.error(`Download manually: ${result.release.html_url}`);
-            process.exit(1);
+            throw Object.assign(
+              new Error(`Unsupported platform: ${process.platform}/${process.arch}`),
+              {
+                code: "UPDATE_UNSUPPORTED_PLATFORM",
+                exitCode: 2,
+                suggestion: `Download manually: ${result.release.html_url}`,
+              },
+            );
           }
 
           const assetObj = result.release.assets.find((a) => a.name === assetName);
           if (!assetObj) {
             spinner.fail();
-            console.error(`Error: No binary found for ${assetName} in release ${result.latestTag}`);
-            console.error(`Check: ${result.release.html_url}`);
-            process.exit(1);
+            throw Object.assign(
+              new Error(`No binary found for ${assetName} in release ${result.latestTag}`),
+              {
+                code: "UPDATE_ASSET_NOT_FOUND",
+                exitCode: 4,
+                suggestion: `Check: ${result.release.html_url}`,
+              },
+            );
           }
 
           const sizeMB = (assetObj.size / (1024 * 1024)).toFixed(1);
@@ -128,6 +139,9 @@ export function registerUpdateCommand(program: Command): void {
           const checksums = await fetchChecksums(result.release);
           const expectedHash = checksums.get(assetName) ?? "";
           const binaryPath = getCurrentBinaryPath();
+
+          // Clean up stale files from previous update attempts
+          cleanupStaleUpdateFiles(binaryPath);
 
           if (jsonMode) {
             await updateBinaryInPlace(assetObj.browser_download_url, expectedHash, binaryPath);
@@ -155,11 +169,18 @@ export function registerUpdateCommand(program: Command): void {
 
         case "unknown":
           spinner.fail();
-          console.error("Error: Could not detect install method. Update manually:");
-          console.error(`  npm:      npm install -g @gpc-cli/cli@latest`);
-          console.error(`  Homebrew: brew upgrade yasserstudio/tap/gpc`);
-          console.error(`  Binary:   https://github.com/yasserstudio/gpc/releases/latest`);
-          process.exit(1);
+          throw Object.assign(
+            new Error("Could not detect install method"),
+            {
+              code: "UPDATE_UNKNOWN_METHOD",
+              exitCode: 1,
+              suggestion:
+                "Update manually:\n" +
+                "  npm:      npm install -g @gpc-cli/cli@latest\n" +
+                "  Homebrew: brew upgrade yasserstudio/tap/gpc\n" +
+                "  Binary:   https://github.com/yasserstudio/gpc/releases/latest",
+            },
+          );
       }
 
       if (jsonMode) {

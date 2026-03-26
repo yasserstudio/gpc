@@ -50,8 +50,7 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await listSubscriptions(client, packageName, {
+      const result = await listSubscriptions(client, packageName, {
           pageSize: options.pageSize,
           pageToken: options.pageToken,
           limit: options.limit,
@@ -76,10 +75,6 @@ export function registerSubscriptionsCommands(program: Command): void {
         } else {
           console.log(formatOutput(subs.length === 0 ? { subscriptions: [] } : result, format));
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   subs
@@ -91,8 +86,7 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getSubscription(client, packageName, productId);
+      const result = await getSubscription(client, packageName, productId);
         if (format !== "json") {
           const s = result as unknown as Record<string, unknown>;
           const basePlans = s["basePlans"] as Array<Record<string, unknown>> | undefined;
@@ -126,10 +120,6 @@ export function registerSubscriptionsCommands(program: Command): void {
         } else {
           console.log(formatOutput(result, format));
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   subs
@@ -158,8 +148,7 @@ export function registerSubscriptionsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const data = await readJsonFile(options.file);
+      const data = await readJsonFile(options.file);
         const result = await createSubscription(client, packageName, data as any);
 
         if (options.activate && result.basePlans) {
@@ -175,10 +164,6 @@ export function registerSubscriptionsCommands(program: Command): void {
         } else {
           console.log(formatOutput(result, format));
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   subs
@@ -207,8 +192,7 @@ export function registerSubscriptionsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const data = await readJsonFile(options.file);
+      const data = await readJsonFile(options.file);
         const result = await updateSubscription(
           client,
           packageName,
@@ -217,10 +201,6 @@ export function registerSubscriptionsCommands(program: Command): void {
           options.updateMask,
         );
         console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   subs
@@ -248,13 +228,8 @@ export function registerSubscriptionsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await deleteSubscription(client, packageName, productId);
+      await deleteSubscription(client, packageName, productId);
         console.log(`Subscription ${productId} deleted.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   // --- Base Plans ---
@@ -283,13 +258,8 @@ export function registerSubscriptionsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await activateBasePlan(client, packageName, productId, basePlanId);
+      const result = await activateBasePlan(client, packageName, productId, basePlanId);
         console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   basePlans
@@ -315,13 +285,8 @@ export function registerSubscriptionsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await deactivateBasePlan(client, packageName, productId, basePlanId);
+      const result = await deactivateBasePlan(client, packageName, productId, basePlanId);
         console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   basePlans
@@ -352,13 +317,8 @@ export function registerSubscriptionsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await deleteBasePlan(client, packageName, productId, basePlanId);
+      await deleteBasePlan(client, packageName, productId, basePlanId);
         console.log(`Base plan ${basePlanId} deleted.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   basePlans
@@ -391,8 +351,7 @@ export function registerSubscriptionsCommands(program: Command): void {
 
         const client = await getClient(config);
 
-        try {
-          const data = await readJsonFile(options.file);
+        const data = await readJsonFile(options.file);
           const result = await migratePrices(
             client,
             packageName,
@@ -401,10 +360,6 @@ export function registerSubscriptionsCommands(program: Command): void {
             data as any,
           );
           console.log(formatOutput(result, format));
-        } catch (error) {
-          console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-          process.exit(4);
-        }
       },
     );
 
@@ -420,8 +375,7 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await listOffers(client, packageName, productId, basePlanId);
+      const result = await listOffers(client, packageName, productId, basePlanId);
         const offers_list = (result as unknown as Record<string, unknown>)["subscriptionOffers"] as
           | Array<Record<string, unknown>>
           | undefined;
@@ -441,10 +395,6 @@ export function registerSubscriptionsCommands(program: Command): void {
         } else {
           console.log(formatOutput(result, format));
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   offers
@@ -456,13 +406,8 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getOffer(client, packageName, productId, basePlanId, offerId);
+      const result = await getOffer(client, packageName, productId, basePlanId, offerId);
         console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   offers
@@ -495,14 +440,9 @@ export function registerSubscriptionsCommands(program: Command): void {
 
         const client = await getClient(config);
 
-        try {
-          const data = await readJsonFile(options.file);
+        const data = await readJsonFile(options.file);
           const result = await createOffer(client, packageName, productId, basePlanId, data as any);
           console.log(formatOutput(result, format));
-        } catch (error) {
-          console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-          process.exit(4);
-        }
       },
     );
 
@@ -538,8 +478,7 @@ export function registerSubscriptionsCommands(program: Command): void {
 
         const client = await getClient(config);
 
-        try {
-          const data = await readJsonFile(options.file);
+        const data = await readJsonFile(options.file);
           const result = await updateOffer(
             client,
             packageName,
@@ -550,10 +489,6 @@ export function registerSubscriptionsCommands(program: Command): void {
             options.updateMask,
           );
           console.log(formatOutput(result, format));
-        } catch (error) {
-          console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-          process.exit(4);
-        }
       },
     );
 
@@ -582,13 +517,8 @@ export function registerSubscriptionsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await deleteOffer(client, packageName, productId, basePlanId, offerId);
+      await deleteOffer(client, packageName, productId, basePlanId, offerId);
         console.log(`Offer ${offerId} deleted.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   offers
@@ -614,13 +544,8 @@ export function registerSubscriptionsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await activateOffer(client, packageName, productId, basePlanId, offerId);
+      const result = await activateOffer(client, packageName, productId, basePlanId, offerId);
         console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   offers
@@ -646,13 +571,8 @@ export function registerSubscriptionsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await deactivateOffer(client, packageName, productId, basePlanId, offerId);
+      const result = await deactivateOffer(client, packageName, productId, basePlanId, offerId);
         console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   // --- Diff ---
@@ -666,18 +586,13 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const localData = (await readJsonFile(options.file)) as Subscription;
+      const localData = (await readJsonFile(options.file)) as Subscription;
         const diffs = await diffSubscription(client, packageName, productId, localData);
         if (diffs.length === 0) {
           console.log("No differences found.");
         } else {
           console.log(formatOutput(diffs, format));
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   subs
@@ -689,8 +604,7 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getSubscriptionAnalytics(client, packageName);
+      const result = await getSubscriptionAnalytics(client, packageName);
 
         if (format === "json") {
           console.log(formatOutput(result, format));
@@ -710,9 +624,5 @@ export function registerSubscriptionsCommands(program: Command): void {
           console.log(`\nBy product:`);
           console.log(formatOutput(result.byProductId, format));
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 }

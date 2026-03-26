@@ -71,10 +71,11 @@ describe("gpc preflight CLI", () => {
     expect(cmd!.description()).toContain("compliance scanner");
   });
 
-  it("exits 2 when no file or options given", async () => {
+  it("throws when no file or options given", async () => {
     const program = await createProgram();
-    await program.parseAsync(["node", "gpc", "preflight"], { from: "node" });
-    expect(exitSpy).toHaveBeenCalledWith(2);
+    await expect(
+      program.parseAsync(["node", "gpc", "preflight"], { from: "node" }),
+    ).rejects.toThrow("Provide an AAB file");
   });
 
   it("calls runPreflight with aabPath", async () => {
@@ -104,25 +105,25 @@ describe("gpc preflight CLI", () => {
     );
   });
 
-  it("exits 2 for invalid --fail-on value", async () => {
+  it("throws for invalid --fail-on value", async () => {
     const program = await createProgram();
-    await program.parseAsync(["node", "gpc", "preflight", "app.aab", "--fail-on", "invalid"], {
-      from: "node",
-    });
-    expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Invalid --fail-on"));
+    await expect(
+      program.parseAsync(["node", "gpc", "preflight", "app.aab", "--fail-on", "invalid"], {
+        from: "node",
+      }),
+    ).rejects.toThrow("Invalid --fail-on");
   });
 
-  it("exits 2 for unknown scanner name", async () => {
+  it("throws for unknown scanner name", async () => {
     const program = await createProgram();
-    await program.parseAsync(["node", "gpc", "preflight", "app.aab", "--scanners", "nonexistent"], {
-      from: "node",
-    });
-    expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Unknown scanner"));
+    await expect(
+      program.parseAsync(["node", "gpc", "preflight", "app.aab", "--scanners", "nonexistent"], {
+        from: "node",
+      }),
+    ).rejects.toThrow("Unknown scanner");
   });
 
-  it("exits 0 when preflight passes", async () => {
+  it("does not set exitCode when preflight passes", async () => {
     mockedRunPreflight.mockResolvedValue({
       scanners: ["manifest"],
       findings: [],
@@ -132,11 +133,12 @@ describe("gpc preflight CLI", () => {
     });
 
     const program = await createProgram();
+    process.exitCode = undefined;
     await program.parseAsync(["node", "gpc", "preflight", "app.aab"], { from: "node" });
-    expect(exitSpy).toHaveBeenCalledWith(0);
+    expect(process.exitCode).toBeUndefined();
   });
 
-  it("exits 6 when preflight fails", async () => {
+  it("sets exitCode 6 when preflight fails", async () => {
     mockedRunPreflight.mockResolvedValue({
       scanners: ["manifest"],
       findings: [
@@ -154,8 +156,9 @@ describe("gpc preflight CLI", () => {
     });
 
     const program = await createProgram();
+    process.exitCode = undefined;
     await program.parseAsync(["node", "gpc", "preflight", "app.aab"], { from: "node" });
-    expect(exitSpy).toHaveBeenCalledWith(6);
+    expect(process.exitCode).toBe(6);
   });
 
   it("outputs JSON when --output json is used", async () => {

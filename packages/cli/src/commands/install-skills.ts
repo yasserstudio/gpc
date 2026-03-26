@@ -48,10 +48,9 @@ export function registerInstallSkillsCommand(program: Command): void {
       } catch (err: unknown) {
         const exitCode = (err as { status?: number }).status ?? 1;
         if (exitCode !== 0) {
-          console.error("\nSkills installation failed.");
-          console.error("Make sure npx is available and you have internet access.");
-          console.error(`\nYou can also install manually: npx skills add ${repo}`);
-          process.exit(exitCode);
+          const error = new Error("Skills installation failed.");
+          Object.assign(error, { code: "INSTALL_FAILED", exitCode, suggestion: `Make sure npx is available and you have internet access.\nYou can also install manually: npx skills add ${repo}` });
+          throw error;
         }
       }
     });

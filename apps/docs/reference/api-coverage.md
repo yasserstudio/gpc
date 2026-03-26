@@ -48,7 +48,14 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 | `edits.tracks.list`   | GET    | `gpc tracks list`           |
 | `edits.tracks.get`    | GET    | `gpc tracks get <track>`    |
 | `edits.tracks.update` | PUT    | `gpc tracks update <track>` |
+| `edits.tracks.patch`  | PATCH  | `gpc tracks update <track> --patch` |
 | `edits.tracks.create` | POST   | `gpc tracks create <name>`  |
+
+## Release Lifecycle
+
+| API Endpoint                              | Method | GPC Command                  |
+| ----------------------------------------- | ------ | ---------------------------- |
+| `applications.tracks.releases.list`       | GET    | `gpc releases list --lifecycle` |
 
 ## Edits: Deobfuscation Files
 
@@ -116,7 +123,8 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 | `inappproducts.update` | PUT    | `gpc iap update <sku>`         |
 | `inappproducts.delete` | DELETE | `gpc iap delete <sku>`         |
 | `inappproducts.patch`  | PATCH  | `gpc iap update <sku> --patch` |
-| `inappproducts.batch`  | POST   | `gpc iap sync`                 |
+| `inappproducts.batch`       | POST   | `gpc iap sync`                 |
+| `inappproducts.batchDelete` | POST   | `gpc iap batch-delete`         |
 
 ## Monetization: Subscriptions
 
@@ -126,7 +134,9 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 | `monetization.subscriptions.get`    | GET    | `gpc subscriptions get <id>`    |
 | `monetization.subscriptions.create` | POST   | `gpc subscriptions create`      |
 | `monetization.subscriptions.patch`  | PATCH  | `gpc subscriptions update <id>` |
-| `monetization.subscriptions.delete` | DELETE | `gpc subscriptions delete <id>` |
+| `monetization.subscriptions.delete`      | DELETE | `gpc subscriptions delete <id>`      |
+| `monetization.subscriptions.batchGet`    | GET    | `gpc subscriptions batch-get`        |
+| `monetization.subscriptions.batchUpdate` | POST   | `gpc subscriptions batch-update`     |
 
 ## Monetization: Base Plans
 
@@ -157,6 +167,7 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 | `purchases.products.acknowledge`   | POST   | `gpc purchases acknowledge <token>`              |
 | `purchases.products.consume`       | POST   | `gpc purchases consume <token>`                  |
 | `purchases.subscriptions.get`      | GET    | `gpc purchases subscription get <token>`         |
+| `purchases.subscriptions.acknowledge` | POST | `gpc purchases subscription acknowledge <token>` |
 | `purchases.subscriptions.cancel`   | POST   | `gpc purchases subscription cancel <token>`      |
 | `purchases.subscriptions.defer`    | POST   | `gpc purchases subscription defer <token>`       |
 | `purchases.subscriptions.revoke`   | POST   | `gpc purchases subscription revoke <token>`      |
@@ -289,14 +300,14 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 | Domain                              | Endpoints | API       |
 | ----------------------------------- | --------- | --------- |
-| Edits (bundles, APKs, tracks)       | 15        | Publisher |
+| Edits (bundles, APKs, tracks)       | 16        | Publisher |
 | Edits (listings, images, details)   | 14        | Publisher |
 | Edits (testers, country, expansion) | 8         | Publisher |
 | Reviews                             | 3         | Publisher |
 | Vitals + Anomalies                  | 19        | Reporting |
-| In-App Products                     | 9         | Publisher |
-| Subscriptions + Base Plans + Offers | 25        | Publisher |
-| Purchases (v1 + v2)                 | 15        | Publisher |
+| In-App Products                     | 10        | Publisher |
+| Subscriptions + Base Plans + Offers | 27        | Publisher |
+| Purchases (v1 + v2)                 | 16        | Publisher |
 | Orders                              | 3         | Publisher |
 | Monetization (pricing)              | 1         | Publisher |
 | Users + Grants                      | 8         | Publisher |
@@ -311,4 +322,5 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 | Purchase Options                    | 5         | Publisher |
 | Other (system APKs)                 | 3         | Publisher |
 | Error Issues + Reports              | 2         | Reporting |
-| **Total**                           | **~197**  |           |
+| Release Lifecycle                   | 1         | Publisher |
+| **Total**                           | **~204**  |           |

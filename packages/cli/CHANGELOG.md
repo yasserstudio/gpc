@@ -1,5 +1,16 @@
 # @gpc-cli/cli
 
+## 0.9.46
+
+### Patch Changes
+
+- Deep code review, error handling overhaul, doctor enhancements, 7 new API endpoints
+- Updated dependencies
+  - @gpc-cli/api@1.0.25
+  - @gpc-cli/core@0.9.39
+  - @gpc-cli/config@0.9.11
+  - @gpc-cli/auth@0.9.11
+
 ## 0.9.45
 
 ### Patch Changes

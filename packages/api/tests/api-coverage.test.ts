@@ -48,7 +48,11 @@ describe("API Coverage Audit — PlayApiClient", () => {
   });
 
   describe("tracks namespace", () => {
-    assertMethods(client.tracks, ["list", "get", "create", "update"], "tracks");
+    assertMethods(client.tracks, ["list", "get", "create", "update", "patch"], "tracks");
+  });
+
+  describe("releases namespace", () => {
+    assertMethods(client.releases as unknown as Record<string, unknown>, ["list"], "releases");
   });
 
   describe("apks namespace", () => {
@@ -99,6 +103,8 @@ describe("API Coverage Audit — PlayApiClient", () => {
         "deleteOffer",
         "activateOffer",
         "deactivateOffer",
+        "batchGet",
+        "batchUpdate",
       ],
       "subscriptions",
     );
@@ -107,7 +113,7 @@ describe("API Coverage Audit — PlayApiClient", () => {
   describe("inappproducts namespace", () => {
     assertMethods(
       client.inappproducts,
-      ["list", "get", "create", "update", "delete", "batchUpdate", "batchGet"],
+      ["list", "get", "create", "update", "delete", "batchUpdate", "batchGet", "batchDelete"],
       "inappproducts",
     );
   });
@@ -125,13 +131,19 @@ describe("API Coverage Audit — PlayApiClient", () => {
         "deferSubscription",
         "revokeSubscriptionV2",
         "listVoided",
+        "acknowledgeSubscription",
+        "revokeSubscriptionV2",
+        "refundSubscriptionV2",
+        "cancelSubscriptionV2",
+        "deferSubscriptionV2",
+        "getProductV2",
       ],
       "purchases",
     );
   });
 
   describe("orders namespace", () => {
-    assertMethods(client.orders, ["refund"], "orders");
+    assertMethods(client.orders, ["get", "batchGet", "refund"], "orders");
   });
 
   describe("monetization namespace", () => {
@@ -249,6 +261,7 @@ describe("API Coverage Audit — Namespace completeness", () => {
     "purchaseOptions",
     "internalAppSharing",
     "generatedApks",
+    "releases",
   ];
 
   it("PlayApiClient exposes all expected namespaces", () => {

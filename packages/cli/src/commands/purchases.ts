@@ -39,8 +39,7 @@ export function registerPurchasesCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getProductPurchase(client, packageName, productId, token);
+      const result = await getProductPurchase(client, packageName, productId, token);
         if (format !== "json") {
           const r = result as unknown as Record<string, unknown>;
           const row = {
@@ -56,10 +55,6 @@ export function registerPurchasesCommands(program: Command): void {
         } else {
           console.log(formatOutput(result, format));
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   purchases
@@ -87,13 +82,8 @@ export function registerPurchasesCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await acknowledgeProductPurchase(client, packageName, productId, token, options.payload);
+      await acknowledgeProductPurchase(client, packageName, productId, token, options.payload);
         console.log(`Purchase acknowledged.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   purchases
@@ -119,13 +109,8 @@ export function registerPurchasesCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await consumeProductPurchase(client, packageName, productId, token);
+      await consumeProductPurchase(client, packageName, productId, token);
         console.log(`Purchase consumed.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   // --- Subscription purchases ---
@@ -140,8 +125,7 @@ export function registerPurchasesCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getSubscriptionPurchase(client, packageName, token);
+      const result = await getSubscriptionPurchase(client, packageName, token);
         if (format !== "json") {
           const r = result as unknown as Record<string, unknown>;
           const lineItems = r["lineItems"] as Record<string, unknown>[] | undefined;
@@ -157,10 +141,6 @@ export function registerPurchasesCommands(program: Command): void {
         } else {
           console.log(formatOutput(result, format));
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   sub
@@ -186,13 +166,8 @@ export function registerPurchasesCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await cancelSubscriptionPurchase(client, packageName, subscriptionId, token);
+      await cancelSubscriptionPurchase(client, packageName, subscriptionId, token);
         console.log(`Subscription cancelled.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   sub
@@ -230,8 +205,7 @@ export function registerPurchasesCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await deferSubscriptionPurchase(
+      const result = await deferSubscriptionPurchase(
           client,
           packageName,
           subscriptionId,
@@ -239,10 +213,6 @@ export function registerPurchasesCommands(program: Command): void {
           options.expiry,
         );
         console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   sub
@@ -270,13 +240,8 @@ export function registerPurchasesCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await refundSubscriptionV2(client, packageName, token);
+      await refundSubscriptionV2(client, packageName, token);
         console.log(`Subscription refunded.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   sub
@@ -302,13 +267,8 @@ export function registerPurchasesCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await revokeSubscriptionPurchase(client, packageName, token);
+      await revokeSubscriptionPurchase(client, packageName, token);
         console.log(`Subscription revoked.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   // --- Voided purchases ---
@@ -328,8 +288,7 @@ export function registerPurchasesCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await listVoidedPurchases(client, packageName, {
+      const result = await listVoidedPurchases(client, packageName, {
           startTime: options.startTime,
           endTime: options.endTime,
           maxResults: options.maxResults,
@@ -357,10 +316,6 @@ export function registerPurchasesCommands(program: Command): void {
         } else {
           console.log(formatOutput(result, format));
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   // --- Orders ---
@@ -394,16 +349,11 @@ export function registerPurchasesCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await refundOrder(client, packageName, orderId, {
+      await refundOrder(client, packageName, orderId, {
           fullRefund: options.fullRefund,
           proratedRefund: options.proratedRefund,
         });
         console.log(`Order ${orderId} refunded.`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   orders
@@ -415,8 +365,7 @@ export function registerPurchasesCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getOrderDetails(client, packageName, orderId);
+      const result = await getOrderDetails(client, packageName, orderId);
         if (format !== "json") {
           const row = {
             orderId: result.orderId,
@@ -430,10 +379,6 @@ export function registerPurchasesCommands(program: Command): void {
         } else {
           console.log(formatOutput(result, format));
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   orders
@@ -448,8 +393,7 @@ export function registerPurchasesCommands(program: Command): void {
 
       const orderIds = options.ids.split(",").map((id) => id.trim()).filter(Boolean);
 
-      try {
-        const result = await batchGetOrders(client, packageName, orderIds);
+      const result = await batchGetOrders(client, packageName, orderIds);
         if (format !== "json") {
           if (result.length === 0) {
             console.log("No orders found.");
@@ -465,10 +409,6 @@ export function registerPurchasesCommands(program: Command): void {
         } else {
           console.log(formatOutput(result, format));
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   // --- Product purchases V2 (Jun 2025) ---
@@ -483,8 +423,7 @@ export function registerPurchasesCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getProductPurchaseV2(client, packageName, token);
+      const result = await getProductPurchaseV2(client, packageName, token);
         if (format !== "json") {
           const row = {
             orderId: result.orderId || "-",
@@ -498,10 +437,6 @@ export function registerPurchasesCommands(program: Command): void {
         } else {
           console.log(formatOutput(result, format));
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   // --- Subscription V2 cancel/defer (Sep 2025 / Jan 2026) ---
@@ -529,13 +464,8 @@ export function registerPurchasesCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        await cancelSubscriptionV2(client, packageName, token, options.type);
+      await cancelSubscriptionV2(client, packageName, token, options.type);
         console.log("Subscription cancelled.");
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 
   sub
@@ -560,12 +490,7 @@ export function registerPurchasesCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      try {
-        const result = await deferSubscriptionV2(client, packageName, token, options.until);
+      const result = await deferSubscriptionV2(client, packageName, token, options.until);
         console.log(`Subscription deferred. New expiry: ${result.newExpiryTime}`);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
     });
 }

@@ -20,6 +20,19 @@ vi.mock("@gpc-cli/config", () => ({
 }));
 
 vi.mock("@gpc-cli/core", () => {
+  // GpcError for validation throws
+  class GpcError extends Error {
+    constructor(
+      message: string,
+      public readonly code: string,
+      public readonly exitCode: number,
+      public readonly suggestion?: string,
+    ) {
+      super(message);
+      this.name = "GpcError";
+    }
+  }
+
   // Inline PluginManager mock for CLI tests
   class MockPluginManager {
     private plugins: any[] = [];
@@ -53,6 +66,7 @@ vi.mock("@gpc-cli/core", () => {
   }
 
   return {
+    GpcError,
     PluginManager: MockPluginManager,
     discoverPlugins: vi.fn().mockResolvedValue([]),
     detectOutputFormat: vi.fn().mockReturnValue("table"),
@@ -1347,11 +1361,11 @@ describe("releases upload --rollout validation", () => {
         "--rollout",
         "0",
       ]),
-    ).rejects.toThrow("process.exit(2)");
-    expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining("--rollout must be a number between 1 and 100"),
-    );
+    ).rejects.toMatchObject({
+      code: "RELEASES_USAGE_ERROR",
+      exitCode: 2,
+      message: expect.stringContaining("--rollout must be a number between 1 and 100"),
+    });
   });
 
   it("--rollout 101 exits 2 before auth", async () => {
@@ -1368,11 +1382,11 @@ describe("releases upload --rollout validation", () => {
         "--rollout",
         "101",
       ]),
-    ).rejects.toThrow("process.exit(2)");
-    expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining("--rollout must be a number between 1 and 100"),
-    );
+    ).rejects.toMatchObject({
+      code: "RELEASES_USAGE_ERROR",
+      exitCode: 2,
+      message: expect.stringContaining("--rollout must be a number between 1 and 100"),
+    });
   });
 
   it("--rollout abc exits 2", async () => {
@@ -1389,8 +1403,10 @@ describe("releases upload --rollout validation", () => {
         "--rollout",
         "abc",
       ]),
-    ).rejects.toThrow("process.exit(2)");
-    expect(exitSpy).toHaveBeenCalledWith(2);
+    ).rejects.toMatchObject({
+      code: "RELEASES_USAGE_ERROR",
+      exitCode: 2,
+    });
   });
 
   it("invalid file extension exits 2 before auth", async () => {
@@ -1406,9 +1422,11 @@ describe("releases upload --rollout validation", () => {
         "upload",
         "myapp.ipa",
       ]),
-    ).rejects.toThrow("process.exit(2)");
-    expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Expected .aab or .apk file"));
+    ).rejects.toMatchObject({
+      code: "RELEASES_USAGE_ERROR",
+      exitCode: 2,
+      message: expect.stringContaining("Expected .aab or .apk file"),
+    });
   });
 
   it("spinner message includes filename and size in MB", async () => {
@@ -1467,9 +1485,11 @@ describe("releases promote validation", () => {
         "--to",
         "internal",
       ]),
-    ).rejects.toThrow("process.exit(2)");
-    expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("must be different tracks"));
+    ).rejects.toMatchObject({
+      code: "RELEASES_USAGE_ERROR",
+      exitCode: 2,
+      message: expect.stringContaining("must be different tracks"),
+    });
   });
 
   it("--rollout 0 exits 2", async () => {
@@ -1489,11 +1509,11 @@ describe("releases promote validation", () => {
         "--rollout",
         "0",
       ]),
-    ).rejects.toThrow("process.exit(2)");
-    expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining("--rollout must be a number between 1 and 100"),
-    );
+    ).rejects.toMatchObject({
+      code: "RELEASES_USAGE_ERROR",
+      exitCode: 2,
+      message: expect.stringContaining("--rollout must be a number between 1 and 100"),
+    });
   });
 
   it("--rollout 101 exits 2", async () => {
@@ -1513,8 +1533,10 @@ describe("releases promote validation", () => {
         "--rollout",
         "101",
       ]),
-    ).rejects.toThrow("process.exit(2)");
-    expect(exitSpy).toHaveBeenCalledWith(2);
+    ).rejects.toMatchObject({
+      code: "RELEASES_USAGE_ERROR",
+      exitCode: 2,
+    });
   });
 });
 
@@ -1551,11 +1573,11 @@ describe("releases rollout increase --to validation", () => {
         "--to",
         "0",
       ]),
-    ).rejects.toThrow("process.exit(2)");
-    expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining("--to must be a number between 1 and 100"),
-    );
+    ).rejects.toMatchObject({
+      code: "RELEASES_USAGE_ERROR",
+      exitCode: 2,
+      message: expect.stringContaining("--to must be a number between 1 and 100"),
+    });
   });
 
   it("--to 101 exits 2", async () => {
@@ -1574,8 +1596,10 @@ describe("releases rollout increase --to validation", () => {
         "--to",
         "101",
       ]),
-    ).rejects.toThrow("process.exit(2)");
-    expect(exitSpy).toHaveBeenCalledWith(2);
+    ).rejects.toMatchObject({
+      code: "RELEASES_USAGE_ERROR",
+      exitCode: 2,
+    });
   });
 
   it("dry-run with --to 25 shows '25%' in details output", async () => {
@@ -1691,7 +1715,7 @@ describe("releases notes set honest stub", () => {
 
   afterEach(() => vi.restoreAllMocks());
 
-  it("exits 1 with 'not yet implemented' message", async () => {
+  it("exits 1 with 'not implemented' message", async () => {
     const program = await createProgram();
     await expect(
       program.parseAsync([
@@ -1707,9 +1731,11 @@ describe("releases notes set honest stub", () => {
         "--notes",
         "Test notes",
       ]),
-    ).rejects.toThrow("process.exit(1)");
-    expect(exitSpy).toHaveBeenCalledWith(1);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("not implemented"));
+    ).rejects.toMatchObject({
+      code: "RELEASES_USAGE_ERROR",
+      exitCode: 1,
+      message: expect.stringContaining("not implemented"),
+    });
   });
 
   it("error message includes suggestion to use --notes with upload/publish", async () => {
@@ -1728,8 +1754,10 @@ describe("releases notes set honest stub", () => {
         "--notes",
         "Test notes",
       ]),
-    ).rejects.toThrow("process.exit(1)");
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("gpc releases upload"));
+    ).rejects.toMatchObject({
+      code: "RELEASES_USAGE_ERROR",
+      suggestion: expect.stringContaining("gpc releases upload"),
+    });
   });
 });
 
@@ -1754,19 +1782,21 @@ describe("gpc status --days validation", () => {
     const program = await createProgram();
     await expect(
       program.parseAsync(["node", "gpc", "--app", "com.example.app", "status", "--days", "0"]),
-    ).rejects.toThrow("process.exit(2)");
-    expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(
-      expect.stringContaining("--days must be a positive integer"),
-    );
+    ).rejects.toMatchObject({
+      code: "STATUS_USAGE_ERROR",
+      exitCode: 2,
+      message: expect.stringContaining("--days must be a positive integer"),
+    });
   });
 
   it("--days -1 exits 2", async () => {
     const program = await createProgram();
     await expect(
       program.parseAsync(["node", "gpc", "--app", "com.example.app", "status", "--days", "-1"]),
-    ).rejects.toThrow("process.exit(2)");
-    expect(exitSpy).toHaveBeenCalledWith(2);
+    ).rejects.toMatchObject({
+      code: "STATUS_USAGE_ERROR",
+      exitCode: 2,
+    });
   });
 });
 
@@ -1835,19 +1865,19 @@ describe("gpc docs routing", () => {
     }
   });
 
-  it("gpc docs bogus exits 2 with 'Unknown topic' message", async () => {
-    const exitSpy = vi.spyOn(process, "exit").mockImplementation(((code?: number) => {
-      throw new Error(`process.exit(${code})`);
-    }) as never);
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  it("gpc docs bogus throws with 'Unknown topic' message and exitCode 2", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(console, "log").mockImplementation(() => {});
 
     const program = await createProgram();
-    await expect(program.parseAsync(["node", "gpc", "docs", "bogus-topic"])).rejects.toThrow(
-      "process.exit(2)",
-    );
-    expect(exitSpy).toHaveBeenCalledWith(2);
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("Unknown topic"));
+    try {
+      await program.parseAsync(["node", "gpc", "docs", "bogus-topic"]);
+      expect.unreachable("should have thrown");
+    } catch (err: unknown) {
+      expect((err as Error).message).toContain("Unknown topic");
+      expect((err as Record<string, unknown>).exitCode).toBe(2);
+      expect((err as Record<string, unknown>).code).toBe("USAGE_ERROR");
+    }
   });
 
   it("gpc docs --list prints available topics to stdout", async () => {

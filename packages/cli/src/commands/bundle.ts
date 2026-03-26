@@ -33,10 +33,9 @@ export function registerBundleCommands(program: Command): void {
     .action(async (file: string, opts: { threshold?: number; top?: number; config?: string }) => {
       const format = getOutputFormat(program, await getConfig());
 
-      try {
-        const analysis = await analyzeBundle(file);
+      const analysis = await analyzeBundle(file);
 
-        if (format === "json") {
+      if (format === "json") {
           console.log(formatOutput(analysis, format));
         } else if (format === "markdown") {
           const moduleRows = analysis.modules.map((m) => ({
@@ -108,31 +107,25 @@ export function registerBundleCommands(program: Command): void {
           console.log(formatOutput(topRows, format === "json" ? "table" : format));
         }
 
-        // .bundlesize.json config check
-        if (opts.config) {
-          const check = await checkBundleSize(analysis, opts.config);
-          if (!check.passed) {
-            console.error(`\nBundle size check failed:`);
-            for (const v of check.violations) {
-              console.error(`  ${v.subject}: ${formatSize(v.actual)} > max ${formatSize(v.max)}`);
-            }
-            process.exit(6);
-          }
+      // .bundlesize.json config check
+      if (opts.config) {
+        const check = await checkBundleSize(analysis, opts.config);
+        if (!check.passed) {
+          const violations = check.violations.map((v) => `${v.subject}: ${formatSize(v.actual)} > max ${formatSize(v.max)}`).join("; ");
+          const err = new Error(`Bundle size check failed: ${violations}`);
+          Object.assign(err, { code: "THRESHOLD_BREACH", exitCode: 6 });
+          throw err;
         }
+      }
 
-        // Legacy --threshold check
-        if (opts.threshold !== undefined) {
-          const thresholdBytes = opts.threshold * 1024 * 1024;
-          if (analysis.totalCompressed > thresholdBytes) {
-            console.error(
-              `\nThreshold breached: ${formatSize(analysis.totalCompressed)} > ${opts.threshold} MB`,
-            );
-            process.exit(6);
-          }
+      // Legacy --threshold check
+      if (opts.threshold !== undefined) {
+        const thresholdBytes = opts.threshold * 1024 * 1024;
+        if (analysis.totalCompressed > thresholdBytes) {
+          const err = new Error(`Threshold breached: ${formatSize(analysis.totalCompressed)} > ${opts.threshold} MB`);
+          Object.assign(err, { code: "THRESHOLD_BREACH", exitCode: 6 });
+          throw err;
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(1);
       }
     });
 
@@ -142,11 +135,10 @@ export function registerBundleCommands(program: Command): void {
     .action(async (file1: string, file2: string) => {
       const format = getOutputFormat(program, await getConfig());
 
-      try {
-        const [before, after] = await Promise.all([analyzeBundle(file1), analyzeBundle(file2)]);
-        const comparison = compareBundles(before, after);
+      const [before, after] = await Promise.all([analyzeBundle(file1), analyzeBundle(file2)]);
+      const comparison = compareBundles(before, after);
 
-        if (format === "json") {
+      if (format === "json") {
           console.log(formatOutput(comparison, format));
         } else if (format === "markdown") {
           const sign = comparison.sizeDelta >= 0 ? "+" : "";
@@ -231,10 +223,6 @@ export function registerBundleCommands(program: Command): void {
             console.log(formatOutput(categoryRows, "table"));
           }
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(1);
-      }
     });
 }
 

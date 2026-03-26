@@ -10,8 +10,14 @@ export function resolvePackageName(
 ): string {
   const name = packageArg || config.app || process.env["GPC_APP"];
   if (!name) {
-    console.error("Error: No package name. Use --app <package> or gpc config set app <package>");
-    process.exit(2);
+    throw Object.assign(
+      new Error("No package name"),
+      {
+        code: "MISSING_PACKAGE_NAME",
+        exitCode: 2,
+        suggestion: "Use --app <package> or gpc config set app <package>",
+      },
+    );
   }
   return name;
 }

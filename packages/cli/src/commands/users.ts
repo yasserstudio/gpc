@@ -14,6 +14,7 @@ import {
   PERMISSION_PROPAGATION_WARNING,
   formatOutput,
   sortResults,
+  GpcError,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
@@ -22,10 +23,12 @@ import { requireConfirm } from "../prompt.js";
 function resolveDeveloperId(devIdArg: string | undefined, config: GpcConfig): string {
   const id = devIdArg || config.developerId;
   if (!id) {
-    console.error(
-      "Error: No developer ID. Use --developer-id <id> or gpc config set developerId <id>",
+    throw new GpcError(
+      "No developer ID. Use --developer-id <id> or gpc config set developerId <id>",
+      "MISSING_DEVELOPER_ID",
+      2,
+      "gpc config set developerId <id>",
     );
-    process.exit(2);
   }
   return id;
 }
@@ -53,36 +56,31 @@ export function registerUsersCommands(program: Command): void {
       const client = await getUsersClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await listUsers(client, developerId, {
-          limit: options.limit,
-          nextPage: options.nextPage,
-        });
-        if (options.sort) {
-          result.users = sortResults(result.users, options.sort);
-        }
-        if (format !== "json") {
-          const users = (result.users || []) as unknown as Record<string, unknown>[];
-          if (users.length === 0) {
-            console.log("No users found.");
-          } else {
-            const rows = users.map((u) => ({
-              email: u["email"] || "-",
-              name: u["name"] || "-",
-              accessState: u["accessState"] || "-",
-              grants: Array.isArray(u["grants"]) ? (u["grants"] as unknown[]).length : 0,
-              permissions: Array.isArray(u["developerAccountPermission"])
-                ? (u["developerAccountPermission"] as unknown[]).length
-                : 0,
-            }));
-            console.log(formatOutput(rows, format));
-          }
+      const result = await listUsers(client, developerId, {
+        limit: options.limit,
+        nextPage: options.nextPage,
+      });
+      if (options.sort) {
+        result.users = sortResults(result.users, options.sort);
+      }
+      if (format !== "json") {
+        const users = (result.users || []) as unknown as Record<string, unknown>[];
+        if (users.length === 0) {
+          console.log("No users found.");
         } else {
-          console.log(formatOutput(result, format));
+          const rows = users.map((u) => ({
+            email: u["email"] || "-",
+            name: u["name"] || "-",
+            accessState: u["accessState"] || "-",
+            grants: Array.isArray(u["grants"]) ? (u["grants"] as unknown[]).length : 0,
+            permissions: Array.isArray(u["developerAccountPermission"])
+              ? (u["developerAccountPermission"] as unknown[]).length
+              : 0,
+          }));
+          console.log(formatOutput(rows, format));
         }
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+      } else {
+        console.log(formatOutput(result, format));
       }
     });
 
@@ -95,13 +93,8 @@ export function registerUsersCommands(program: Command): void {
       const client = await getUsersClient(config);
       const format = getOutputFormat(program, config);
 
-      try {
-        const result = await getUser(client, developerId, email);
-        console.log(formatOutput(result, format));
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const result = await getUser(client, developerId, email);
+      console.log(formatOutput(result, format));
     });
 
   users
@@ -133,16 +126,11 @@ export function registerUsersCommands(program: Command): void {
 
       const client = await getUsersClient(config);
 
-      try {
-        const permissions = options.role as DeveloperPermission[] | undefined;
-        const grants = options.grant?.map((g: string) => parseGrantArg(g));
-        const result = await inviteUser(client, developerId, email, permissions, grants);
-        console.log(formatOutput(result, format));
-        console.error(PERMISSION_PROPAGATION_WARNING);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const permissions = options.role as DeveloperPermission[] | undefined;
+      const grants = options.grant?.map((g: string) => parseGrantArg(g));
+      const result = await inviteUser(client, developerId, email, permissions, grants);
+      console.log(formatOutput(result, format));
+      console.error(PERMISSION_PROPAGATION_WARNING);
     });
 
   users
@@ -174,16 +162,11 @@ export function registerUsersCommands(program: Command): void {
 
       const client = await getUsersClient(config);
 
-      try {
-        const permissions = options.role as DeveloperPermission[] | undefined;
-        const grants = options.grant?.map((g: string) => parseGrantArg(g));
-        const result = await updateUser(client, developerId, email, permissions, grants);
-        console.log(formatOutput(result, format));
-        console.error(PERMISSION_PROPAGATION_WARNING);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      const permissions = options.role as DeveloperPermission[] | undefined;
+      const grants = options.grant?.map((g: string) => parseGrantArg(g));
+      const result = await updateUser(client, developerId, email, permissions, grants);
+      console.log(formatOutput(result, format));
+      console.error(PERMISSION_PROPAGATION_WARNING);
     });
 
   users
@@ -211,13 +194,8 @@ export function registerUsersCommands(program: Command): void {
 
       const client = await getUsersClient(config);
 
-      try {
-        await removeUser(client, developerId, email);
-        console.log(`User ${email} removed.`);
-        console.error(PERMISSION_PROPAGATION_WARNING);
-      } catch (error) {
-        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
-      }
+      await removeUser(client, developerId, email);
+      console.log(`User ${email} removed.`);
+      console.error(PERMISSION_PROPAGATION_WARNING);
     });
 }
