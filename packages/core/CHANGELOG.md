@@ -1,5 +1,14 @@
 # @gpc-cli/core
 
+## 0.9.38
+
+### Patch Changes
+
+- Code review fixes, API catch-up (5 new endpoints → 192 total), deprecation roadmap doc.
+- Updated dependencies
+  - @gpc-cli/api@1.0.24
+  - @gpc-cli/config@0.9.10
+
 ## 0.9.37
 
 ### Patch Changes
