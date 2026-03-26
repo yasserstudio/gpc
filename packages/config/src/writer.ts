@@ -65,13 +65,13 @@ export async function deleteConfigValue(key: string): Promise<void> {
   validateConfigKey(key);
   const configPath = join(getConfigDir(), "config.json");
 
-  let existing: Record<string, unknown> = {};
+  let content: string;
   try {
-    const content = await readFile(configPath, "utf-8");
-    existing = JSON.parse(content) as Record<string, unknown>;
+    content = await readFile(configPath, "utf-8");
   } catch {
     return; // Nothing to delete
   }
+  const existing = JSON.parse(content) as Record<string, unknown>;
 
   const keys = key.split(".");
   let target = existing;
