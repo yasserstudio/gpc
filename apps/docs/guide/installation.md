@@ -83,7 +83,7 @@ If you use [Claude Code](https://claude.ai/claude-code) or another AI coding ass
 gpc install-skills
 ```
 
-The interactive wizard lets you select from 13 skills covering setup, releases, metadata, vitals, CI/CD, monetization, and more. See the [Agent Skills](../advanced/skills) page for the full list.
+The interactive wizard lets you select from 16 skills covering setup, releases, metadata, vitals, CI/CD, monetization, and more. See the [Agent Skills](../advanced/skills) page for the full list.
 
 ## Standalone Binary
 

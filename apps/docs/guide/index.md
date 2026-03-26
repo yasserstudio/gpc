@@ -17,7 +17,7 @@ gpc reviews list --stars 1-2 --since 7d
 
 ## What GPC Covers
 
-187 API endpoints across every Google Play domain:
+192 API endpoints across every Google Play domain:
 
 | Domain              | Commands                                                             | What it does                                                   |
 | ------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------- |
@@ -39,7 +39,7 @@ Plus: device tiers, internal sharing, data safety, recovery actions, external tr
 
 | Feature              | GPC                                                | Fastlane supply        | gradle-play-publisher | Console UI     |
 | -------------------- | -------------------------------------------------- | ---------------------- | --------------------- | -------------- |
-| **API endpoints**    | 187                                                | ~20                    | ~15                   | All (manual)   |
+| **API endpoints**    | 192                                                | ~20                    | ~15                   | All (manual)   |
 | **Language**         | TypeScript (Node.js)                               | Ruby                   | Kotlin (Gradle)       | Browser        |
 | **Install**          | `npm install -g @gpc-cli/cli` or standalone binary | `gem install fastlane` | Gradle plugin         | None           |
 | **Releases**         | Upload, promote, rollout, halt, resume, complete   | Upload, promote        | Upload, promote       | Manual         |

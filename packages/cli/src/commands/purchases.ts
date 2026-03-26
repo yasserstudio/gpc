@@ -5,15 +5,20 @@ import { loadConfig } from "@gpc-cli/config";
 
 import {
   getProductPurchase,
+  getProductPurchaseV2,
   acknowledgeProductPurchase,
   consumeProductPurchase,
   getSubscriptionPurchase,
   cancelSubscriptionPurchase,
+  cancelSubscriptionV2,
   deferSubscriptionPurchase,
+  deferSubscriptionV2,
   revokeSubscriptionPurchase,
   refundSubscriptionV2,
   listVoidedPurchases,
   refundOrder,
+  getOrderDetails,
+  batchGetOrders,
   formatOutput,
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
@@ -395,6 +400,169 @@ export function registerPurchasesCommands(program: Command): void {
           proratedRefund: options.proratedRefund,
         });
         console.log(`Order ${orderId} refunded.`);
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  orders
+    .command("get <order-id>")
+    .description("Get order details")
+    .action(async (orderId: string) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = getOutputFormat(program, config);
+
+      try {
+        const result = await getOrderDetails(client, packageName, orderId);
+        if (format !== "json") {
+          const row = {
+            orderId: result.orderId,
+            state: result.state,
+            purchaseToken: result.purchaseToken ? result.purchaseToken.slice(0, 16) + "..." : "-",
+            createTime: result.createTime || "-",
+            total: result.total ? `${result.total.units || "0"}.${String(result.total.nanos || 0).padStart(9, "0").slice(0, 2)} ${result.total.currencyCode}` : "-",
+            lineItems: result.lineItems?.length || 0,
+          };
+          console.log(formatOutput(row, format));
+        } else {
+          console.log(formatOutput(result, format));
+        }
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  orders
+    .command("batch-get")
+    .description("Get multiple orders at once")
+    .requiredOption("--ids <order-ids>", "Comma-separated order IDs (max 1000)")
+    .action(async (options: { ids: string }) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = getOutputFormat(program, config);
+
+      const orderIds = options.ids.split(",").map((id) => id.trim()).filter(Boolean);
+
+      try {
+        const result = await batchGetOrders(client, packageName, orderIds);
+        if (format !== "json") {
+          if (result.length === 0) {
+            console.log("No orders found.");
+          } else {
+            const rows = result.map((o) => ({
+              orderId: o.orderId,
+              state: o.state,
+              createTime: o.createTime || "-",
+              lineItems: o.lineItems?.length || 0,
+            }));
+            console.log(formatOutput(rows, format));
+          }
+        } else {
+          console.log(formatOutput(result, format));
+        }
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  // --- Product purchases V2 (Jun 2025) ---
+  const product = purchases.command("product").description("Product purchase operations");
+
+  product
+    .command("get-v2 <token>")
+    .description("Get product purchase details (v2 — supports multi-offer OTPs)")
+    .action(async (token: string) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = getOutputFormat(program, config);
+
+      try {
+        const result = await getProductPurchaseV2(client, packageName, token);
+        if (format !== "json") {
+          const row = {
+            orderId: result.orderId || "-",
+            state: result.purchaseStateContext?.state || "-",
+            regionCode: result.regionCode || "-",
+            completionTime: result.purchaseCompletionTime || "-",
+            acknowledgement: result.acknowledgementState || "-",
+            lineItems: result.productLineItem?.length || 0,
+          };
+          console.log(formatOutput(row, format));
+        } else {
+          console.log(formatOutput(result, format));
+        }
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  // --- Subscription V2 cancel/defer (Sep 2025 / Jan 2026) ---
+  // Added to existing `sub` group alongside v1 cancel/defer
+
+  sub
+    .command("cancel-v2 <token>")
+    .description("Cancel a subscription (v2 — supports cancellation types)")
+    .option("--type <cancellationType>", "Cancellation type (e.g., USER_CANCELED, SYSTEM_CANCELED, DEVELOPER_CANCELED, REPLACED)")
+    .action(async (token: string, options: { type?: string }) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+
+      await requireConfirm(`Cancel subscription (token: ${token.slice(0, 16)}...)?`, program);
+
+      if (isDryRun(program)) {
+        const format = getOutputFormat(program, config);
+        printDryRun(
+          { command: "purchases subscription cancel-v2", action: "cancel", target: token.slice(0, 16) + "...", details: { cancellationType: options.type } },
+          format,
+          formatOutput,
+        );
+        return;
+      }
+
+      const client = await getClient(config);
+
+      try {
+        await cancelSubscriptionV2(client, packageName, token, options.type);
+        console.log("Subscription cancelled.");
+      } catch (error) {
+        console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(4);
+      }
+    });
+
+  sub
+    .command("defer-v2 <token>")
+    .description("Defer a subscription renewal (v2 — supports add-on subscriptions)")
+    .requiredOption("--until <date>", "Desired expiry time (ISO 8601 date)")
+    .action(async (token: string, options: { until: string }) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+
+      await requireConfirm(`Defer subscription renewal to ${options.until}?`, program);
+
+      if (isDryRun(program)) {
+        const format = getOutputFormat(program, config);
+        printDryRun(
+          { command: "purchases subscription defer-v2", action: "defer", target: token.slice(0, 16) + "...", details: { desiredExpiryTime: options.until } },
+          format,
+          formatOutput,
+        );
+        return;
+      }
+
+      const client = await getClient(config);
+
+      try {
+        const result = await deferSubscriptionV2(client, packageName, token, options.until);
+        console.log(`Subscription deferred. New expiry: ${result.newExpiryTime}`);
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
         process.exit(4);

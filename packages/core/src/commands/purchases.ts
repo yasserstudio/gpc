@@ -1,10 +1,14 @@
 import type {
   PlayApiClient,
   ProductPurchase,
+  ProductPurchaseV2,
   SubscriptionPurchaseV2,
   SubscriptionDeferResponse,
+  SubscriptionsV2DeferResponse,
+  Order,
 } from "@gpc-cli/api";
 import { validatePackageName } from "../utils/validation.js";
+import { GpcError } from "../errors.js";
 
 export async function getProductPurchase(
   client: PlayApiClient,
@@ -138,4 +142,66 @@ export async function refundOrder(
 ): Promise<void> {
   validatePackageName(packageName);
   return client.orders.refund(packageName, orderId, options);
+}
+
+// --- Orders API (May 2025) ---
+
+export async function getOrderDetails(
+  client: PlayApiClient,
+  packageName: string,
+  orderId: string,
+): Promise<Order> {
+  validatePackageName(packageName);
+  return client.orders.get(packageName, orderId);
+}
+
+export async function batchGetOrders(
+  client: PlayApiClient,
+  packageName: string,
+  orderIds: string[],
+): Promise<Order[]> {
+  validatePackageName(packageName);
+  if (orderIds.length === 0) {
+    throw new GpcError("No order IDs provided", "ORDERS_BATCH_EMPTY", 2, "Pass at least one order ID with --ids");
+  }
+  if (orderIds.length > 1000) {
+    throw new GpcError(`Too many order IDs (${orderIds.length}). Maximum is 1000.`, "ORDERS_BATCH_LIMIT", 2, "Split into multiple requests of 1000 or fewer");
+  }
+  return client.orders.batchGet(packageName, orderIds);
+}
+
+// --- ProductPurchaseV2 (Jun 2025) ---
+
+export async function getProductPurchaseV2(
+  client: PlayApiClient,
+  packageName: string,
+  token: string,
+): Promise<ProductPurchaseV2> {
+  validatePackageName(packageName);
+  return client.purchases.getProductV2(packageName, token);
+}
+
+// --- SubscriptionsV2 cancel/defer (Sep 2025 / Jan 2026) ---
+
+export async function cancelSubscriptionV2(
+  client: PlayApiClient,
+  packageName: string,
+  token: string,
+  cancellationType?: string,
+): Promise<void> {
+  validatePackageName(packageName);
+  const body = cancellationType ? { cancellationType } : undefined;
+  return client.purchases.cancelSubscriptionV2(packageName, token, body);
+}
+
+export async function deferSubscriptionV2(
+  client: PlayApiClient,
+  packageName: string,
+  token: string,
+  desiredExpiryTime: string,
+): Promise<SubscriptionsV2DeferResponse> {
+  validatePackageName(packageName);
+  return client.purchases.deferSubscriptionV2(packageName, token, {
+    deferralInfo: { desiredExpiryTime },
+  });
 }

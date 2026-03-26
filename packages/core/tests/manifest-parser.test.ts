@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import * as protobuf from "protobufjs";
+import protobuf from "protobufjs";
 import { decodeManifest } from "../src/preflight/manifest-parser";
 
 /**

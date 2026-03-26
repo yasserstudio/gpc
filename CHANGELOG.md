@@ -7,6 +7,24 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.45
+
+Code review, API catch-up, and 3 pre-release bug fixes.
+
+- fix: `gpc changelog` crash on invocation (missing config init), exit code 4 on API errors, `--limit` validation
+- fix: `gpc preflight` AAB manifest parsing (ESM/CJS interop, broadened fallback)
+- fix: image export HTTP response validation, redaction of non-string values, train exit code 6, profile resolution, `path.dirname()` for train state, Games API URL encoding
+- fix: `getProductV2` corrected to v2 API path, `orders:batchGet` casing, `Order.orderHistory` type
+- security: plugin trust explicit allowlist (module-level constant)
+- feat: `gpc orders get`, `gpc orders batch-get` (Orders API, May 2025)
+- feat: `gpc purchases product get-v2`, `subscription cancel-v2`, `subscription defer-v2`
+- feat: expanded `SubscriptionPurchaseV2` (13 new fields), batch order validation
+- fix: removed incorrect deprecation warnings from v1 cancel/defer (not deprecated per Google's May 2025 notice)
+
+**192 API endpoints · 1,757 tests**
+
+---
+
 ## v0.9.44
 
 Changelog command and preflight fix.

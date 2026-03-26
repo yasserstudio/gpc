@@ -14,7 +14,7 @@ GPC also ships agent skills that teach AI coding assistants (Claude Code, Cursor
 gpc install-skills
 ```
 
-The interactive wizard lets you pick from 13 available skills covering setup, releases, metadata, CI/CD, monetization, and more. See the [Agent Skills](./skills) page for the full list.
+The interactive wizard lets you pick from 16 available skills covering setup, releases, metadata, CI/CD, monetization, and more. See the [Agent Skills](./skills) page for the full list.
 
 ## Getting Started
 

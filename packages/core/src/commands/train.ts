@@ -9,6 +9,7 @@ import {
 import type { TrainConfig, TrainState } from "../utils/train-state.js";
 import { updateRollout } from "./releases.js";
 import { getVitalsCrashes, getVitalsAnr } from "./vitals.js";
+import { GpcError } from "../errors.js";
 
 export type { TrainConfig, TrainState };
 
@@ -122,8 +123,11 @@ export async function advanceTrain(
         state.status = "paused";
         state.updatedAt = new Date().toISOString();
         await writeTrainState(packageName, state);
-        throw new Error(
+        throw new GpcError(
           `Crash gate failed: ${(value * 100).toFixed(3)}% > max ${state.gates.crashes.max}%. Train paused.`,
+          "TRAIN_CRASH_GATE_FAILED",
+          6,
+          "Review crash data with: gpc vitals crashes --days 1",
         );
       }
     }
@@ -139,8 +143,11 @@ export async function advanceTrain(
         state.status = "paused";
         state.updatedAt = new Date().toISOString();
         await writeTrainState(packageName, state);
-        throw new Error(
+        throw new GpcError(
           `ANR gate failed: ${(value * 100).toFixed(3)}% > max ${state.gates.anr.max}%. Train paused.`,
+          "TRAIN_ANR_GATE_FAILED",
+          6,
+          "Review ANR data with: gpc vitals anr --days 1",
         );
       }
     }
@@ -157,7 +164,7 @@ async function executeStage(
   stageIndex: number,
 ): Promise<void> {
   const stage = state.stages[stageIndex];
-  if (!stage) throw new Error(`Stage ${stageIndex} not found`);
+  if (!stage) throw new GpcError(`Stage ${stageIndex} not found`, "TRAIN_STAGE_NOT_FOUND", 1, "Check your release train configuration.");
   const rolloutFraction = stage.rollout / 100;
 
   await updateRollout(apiClient, packageName, stage.track, "increase", rolloutFraction);

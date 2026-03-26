@@ -17,7 +17,7 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-1739_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-1757_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
@@ -26,7 +26,7 @@
 <p align="center"><sub>Built for Android developers, vibe coders, release engineers, DevOps teams — and iOS developers who have no idea how the Play Console works.</sub></p>
 
 <p align="center">
-The complete CLI for Google Play — 187 API endpoints, one tool.<br>
+The complete CLI for Google Play — 192 API endpoints, one tool.<br>
 Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.<br>
 <strong>Plus an offline compliance scanner that catches policy violations before you upload.</strong><br>
 Free and open-source. MIT licensed.
@@ -61,15 +61,15 @@ You shouldn't need a browser to ship your app.
 
 Every Android release is the same ritual: open the Play Console, upload your AAB, copy-paste release notes, pick a track, set the rollout percentage, click through confirmation screens. Fifteen minutes of clicking. Every single time.
 
-The alternative? Install Ruby, Bundler, and 150+ gems to run Fastlane — and get access to maybe 20 of 187 API endpoints. No reviews. No vitals. No subscriptions. No reports.
+The alternative? Install Ruby, Bundler, and 150+ gems to run Fastlane — and get access to maybe 20 of 192 API endpoints. No reviews. No vitals. No subscriptions. No reports.
 
-GPC covers the **entire Google Play Developer API** in one CLI — that's 187 endpoints, nothing left out. No Ruby. No browser. No ceremony.
+GPC covers the **entire Google Play Developer API** in one CLI — that's 192 endpoints, nothing left out. No Ruby. No browser. No ceremony.
 
 ### GPC vs the alternatives
 
 |                     | **GPC**                      | Fastlane supply | gradle-play-publisher | Console UI   |
 | ------------------- | ---------------------------- | --------------- | --------------------- | ------------ |
-| API coverage        | **187 endpoints**            | ~20             | ~15                   | All (manual) |
+| API coverage        | **192 endpoints**            | ~20             | ~15                   | All (manual) |
 | Runtime             | Node.js or standalone binary | Ruby + Bundler  | JVM                   | Browser      |
 | Cold start          | <500ms                       | 2-3s            | 3-5s                  | 5-10s        |
 | Reviews & Vitals    | Yes                          | No              | No                    | Yes (manual) |
@@ -78,7 +78,7 @@ GPC covers the **entire Google Play Developer API** in one CLI — that's 187 en
 | Plugin system       | Yes                          | No              | No                    | No           |
 | Interactive mode    | Yes (guided prompts)         | No              | No                    | N/A          |
 | Preflight scanner   | **9 offline policy scanners**| No              | No                    | No           |
-| Test suite          | 1,739 tests, 90%+ coverage   | —               | —                     | —            |
+| Test suite          | 1,757 tests, 90%+ coverage   | —               | —                     | —            |
 
 Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
 
@@ -227,7 +227,7 @@ gpc diff --from internal --to production        # Compare two tracks
 gpc diff --metadata fastlane/metadata/android   # Local vs remote listings
 ```
 
-See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 187 endpoints — including reports, purchases, data safety, device tiers, internal sharing, external transactions, and recovery actions.
+See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 192 endpoints — including reports, purchases, data safety, device tiers, internal sharing, external transactions, and recovery actions.
 
 ---
 
@@ -382,7 +382,7 @@ git clone https://github.com/yasserstudio/gpc.git
 cd gpc
 pnpm install
 pnpm build
-pnpm test    # 1,739 tests across 7 packages
+pnpm test    # 1,757 tests across 7 packages
 ```
 
 ---

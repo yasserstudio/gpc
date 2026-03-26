@@ -141,18 +141,22 @@ export async function loadConfig(overrides?: Partial<GpcConfig>): Promise<Resolv
   }
 
   // Resolve profile overrides
-  if (result.profile && result.profiles?.[result.profile]) {
-    const p = result.profiles[result.profile];
-    if (p?.auth) result.auth = p.auth;
-    if (p?.app) result.app = p.app;
-    if (p?.developerId) result.developerId = p.developerId;
-  } else if (result.profile && result.profiles && !(result.profile in result.profiles)) {
-    const available = Object.keys(result.profiles).join(", ");
-    throw new ConfigError(
-      `Profile "${result.profile}" not found. Available profiles: ${available || "(none)"}`,
-      "CONFIG_PROFILE_NOT_FOUND",
-      `Check the profile name in your config or use one of: ${available || "none defined yet. Create one with: gpc config profile set <name>"}`,
-    );
+  if (result.profile) {
+    if (result.profiles && result.profile in result.profiles) {
+      const p = result.profiles[result.profile];
+      if (p?.auth) result.auth = p.auth;
+      if (p?.app) result.app = p.app;
+      if (p?.developerId) result.developerId = p.developerId;
+    } else if (result.profiles && !(result.profile in result.profiles)) {
+      // Profiles defined but requested profile missing — error
+      const available = Object.keys(result.profiles).join(", ");
+      throw new ConfigError(
+        `Profile "${result.profile}" not found. Available profiles: ${available || "(none)"}`,
+        "CONFIG_PROFILE_NOT_FOUND",
+        `Check the profile name in your config or use one of: ${available || "none defined yet. Create one with: gpc config profile set <name>"}`,
+      );
+    }
+    // If profiles is undefined, profile name is kept but no overrides applied (no-op)
   }
 
   // Validate final output format

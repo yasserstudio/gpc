@@ -20,7 +20,12 @@ outline: deep
 | [`purchases subscription cancel`](#purchases-subscription-cancel) | Cancel a subscription (v1 API)       |
 | [`purchases subscription defer`](#purchases-subscription-defer)   | Defer a subscription expiry          |
 | [`purchases subscription revoke`](#purchases-subscription-revoke) | Revoke a subscription (v2 API)       |
+| [`purchases product get-v2`](#purchases-product-get-v2)           | Get product purchase (v2 — multi-offer OTPs) |
+| [`purchases subscription cancel-v2`](#purchases-subscription-cancel-v2) | Cancel a subscription (v2 — cancellation types) |
+| [`purchases subscription defer-v2`](#purchases-subscription-defer-v2)   | Defer subscription renewal (v2 — add-ons) |
 | [`purchases voided`](#purchases-voided)                           | List voided purchases                |
+| [`purchases orders get`](#purchases-orders-get)                   | Get order details                    |
+| [`purchases orders batch-get`](#purchases-orders-batch-get)       | Batch get orders (up to 1000)        |
 | [`purchases orders refund`](#purchases-orders-refund)             | Refund an order                      |
 
 ## `purchases get`
@@ -328,6 +333,125 @@ gpc purchases orders refund "GPA.1234-5678-9012-34567" \
   --full-refund \
   --dry-run
 ```
+
+## `purchases product get-v2`
+
+Get product purchase details using the v2 API. Supports multi-offer one-time products.
+
+### Synopsis
+
+```bash
+gpc purchases product get-v2 <token> [options]
+```
+
+### Example
+
+```bash
+gpc purchases product get-v2 "purchase-token-abc" --app com.example.myapp
+```
+
+---
+
+## `purchases subscription cancel-v2`
+
+Cancel a subscription using the v2 API. Supports cancellation type parameter.
+
+### Synopsis
+
+```bash
+gpc purchases subscription cancel-v2 <token> [options]
+```
+
+### Options
+
+| Flag     | Type     | Description |
+| -------- | -------- | ----------- |
+| `--type` | `string` | Cancellation type: `USER_CANCELED`, `SYSTEM_CANCELED`, `DEVELOPER_CANCELED`, `REPLACED` |
+
+### Example
+
+```bash
+gpc purchases subscription cancel-v2 "purchase-token-abc" \
+  --type DEVELOPER_CANCELED \
+  --app com.example.myapp
+```
+
+::: tip
+The v1 `cancel` command requires both `subscription-id` and `token`. The v2 `cancel-v2` only requires the `token` and supports cancellation types.
+:::
+
+---
+
+## `purchases subscription defer-v2`
+
+Defer a subscription renewal using the v2 API. Supports subscriptions with add-ons.
+
+### Synopsis
+
+```bash
+gpc purchases subscription defer-v2 <token> --until <date> [options]
+```
+
+### Options
+
+| Flag      | Type     | Required | Description |
+| --------- | -------- | -------- | ----------- |
+| `--until` | `string` | Yes      | Desired expiry time (ISO 8601 date) |
+
+### Example
+
+```bash
+gpc purchases subscription defer-v2 "purchase-token-abc" \
+  --until 2026-07-01T00:00:00Z \
+  --app com.example.myapp
+```
+
+---
+
+## `purchases orders get`
+
+Get order details by order ID.
+
+### Synopsis
+
+```bash
+gpc purchases orders get <order-id> [options]
+```
+
+### Example
+
+```bash
+gpc purchases orders get "GPA.1234-5678-9012-34567" --app com.example.myapp
+```
+
+---
+
+## `purchases orders batch-get`
+
+Retrieve multiple orders in a single request (up to 1000 order IDs).
+
+### Synopsis
+
+```bash
+gpc purchases orders batch-get --ids <order-ids> [options]
+```
+
+### Options
+
+| Flag    | Type     | Required | Description |
+| ------- | -------- | -------- | ----------- |
+| `--ids` | `string` | Yes      | Comma-separated order IDs (max 1000) |
+
+### Example
+
+```bash
+gpc purchases orders batch-get \
+  --ids "GPA.1234,GPA.5678,GPA.9012" \
+  --app com.example.myapp \
+  --output json
+```
+
+---
 
 ## Related
 

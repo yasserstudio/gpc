@@ -1,5 +1,5 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { getCacheDir } from "@gpc-cli/config";
 
 export interface TrainStage {
@@ -52,7 +52,7 @@ export async function readTrainState(packageName: string): Promise<TrainState | 
 
 export async function writeTrainState(packageName: string, state: TrainState): Promise<void> {
   const path = stateFile(packageName);
-  const dir = path.substring(0, path.lastIndexOf("/"));
+  const dir = dirname(path);
   await mkdir(dir, { recursive: true });
   await writeFile(path, JSON.stringify(state, null, 2), "utf-8");
 }

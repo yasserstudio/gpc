@@ -1,6 +1,6 @@
 // Named exports only. No default export.
 
-import * as protobuf from "protobufjs";
+import protobuf from "protobufjs";
 import type { ParsedManifest, ManifestComponent, ManifestFeature } from "./types.js";
 
 /**

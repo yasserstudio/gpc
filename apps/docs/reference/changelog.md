@@ -7,7 +7,35 @@ pageClass: wide-page
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.44 <Badge type="tip" text="latest" />
+## v0.9.45 <Badge type="tip" text="latest" />
+
+_March 2026_
+
+- fix: `gpc changelog` no longer crashes on invocation (was missing config initialization)
+- fix: `gpc changelog` now exits with code 4 on API errors (was 1) and validates `--limit` input
+- fix: `gpc preflight` AAB manifest parsing — changed protobufjs import for correct ESM/CJS interop; broadened manifest parse fallback to catch all errors gracefully
+- fix: image export now validates HTTP response before writing files
+- fix: sensitive data redaction now covers non-string values (objects, numbers, arrays)
+- fix: train gate failures now use proper error codes and exit code 6 (was plain Error)
+- fix: profile resolution now errors when profiles are defined but requested profile is missing
+- fix: TypeScript errors in `config init` and `train` commands (missing `GpcConfig` type import)
+- fix: URL parameters in Games API client now properly encoded
+- fix: train state file path handling uses `path.dirname()` instead of string manipulation
+- fix: `getProductV2` now hits correct v2 API path (`purchases/productsv2/tokens/{token}`) — was incorrectly using v1 path
+- fix: `orders:batchGet` URL casing corrected to match Google API convention
+- fix: `Order.orderHistory` type restructured to match Google API (individual event fields, not generic array)
+- security: plugin trust check uses explicit first-party allowlist instead of `@gpc-cli/` prefix match (module-level constant)
+- feat: `gpc orders get <order-id>` — retrieve order details (new Orders API, May 2025)
+- feat: `gpc orders batch-get --ids <csv>` — batch retrieve up to 1000 orders (with client-side validation)
+- feat: `gpc purchases product get-v2 <token>` — v2 product purchases with multi-offer OTP support (Jun 2025)
+- feat: `gpc purchases subscription cancel-v2` — v2 cancel with cancellation type parameter (Sep 2025)
+- feat: `gpc purchases subscription defer-v2` — v2 defer supporting add-on subscriptions (Jan 2026)
+- feat: expanded `SubscriptionPurchaseV2` type with 13 new fields (offerPhase, canceledStateContext, priceStepUpConsentDetails, latestSuccessfulOrderId, and more)
+- fix: removed incorrect deprecation warnings from `cancelSubscription` and `deferSubscription` (v1) — these are NOT deprecated per Google's May 2025 deprecation notice; only `subscriptions.get`, `subscriptions.refund`, and `subscriptions.revoke` are deprecated
+
+---
+
+## v0.9.44
 
 _March 2026_
 

@@ -19,7 +19,7 @@ hero:
 features:
   - icon:
       src: /icons/goal.png
-    title: 187 API Endpoints
+    title: 192 API Endpoints
     details: "Releases, vitals, reviews, subscriptions, purchases, reports, and more. Fastlane covers ~20. GPC covers everything."
   - icon:
       src: /icons/shield.png
@@ -40,7 +40,7 @@ features:
   - icon:
       src: /icons/plug.png
     title: Plugin System + SDK
-    details: "1,739 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK. MIT licensed."
+    details: "1,757 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK. MIT licensed."
 ---
 
 ## Install

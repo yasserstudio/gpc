@@ -59,23 +59,27 @@ export interface GamesApiClient {
 export function createGamesClient(options: ApiClientOptions): GamesApiClient {
   const http = createHttpClient({ ...options, baseUrl: GAMES_BASE_URL });
 
+  function qs(params: Record<string, string>): string {
+    return new URLSearchParams(params).toString();
+  }
+
   return {
     leaderboards: {
       async list(packageName) {
         const { data } = await http.get<{ items?: Leaderboard[]; nextPageToken?: string }>(
-          `/leaderboards?applicationId=${packageName}`,
+          `/leaderboards?${qs({ applicationId: packageName })}`,
         );
         return data;
       },
       async get(packageName, leaderboardId) {
         const { data } = await http.get<Leaderboard>(
-          `/leaderboards/${leaderboardId}?applicationId=${packageName}`,
+          `/leaderboards/${encodeURIComponent(leaderboardId)}?${qs({ applicationId: packageName })}`,
         );
         return data;
       },
       async getScores(packageName, leaderboardId, collection, timeSpan) {
         const { data } = await http.get<{ items?: LeaderboardScore[] }>(
-          `/leaderboards/${leaderboardId}/scores/${collection}?timeSpan=${timeSpan}&applicationId=${packageName}`,
+          `/leaderboards/${encodeURIComponent(leaderboardId)}/scores/${encodeURIComponent(collection)}?${qs({ timeSpan, applicationId: packageName })}`,
         );
         return data;
       },
@@ -83,13 +87,13 @@ export function createGamesClient(options: ApiClientOptions): GamesApiClient {
     achievements: {
       async list(packageName) {
         const { data } = await http.get<{ items?: Achievement[]; nextPageToken?: string }>(
-          `/achievements?applicationId=${packageName}`,
+          `/achievements?${qs({ applicationId: packageName })}`,
         );
         return data;
       },
       async reveal(packageName, achievementId) {
         const { data } = await http.post<{ currentState: string }>(
-          `/achievements/${achievementId}/reveal?applicationId=${packageName}`,
+          `/achievements/${encodeURIComponent(achievementId)}/reveal?${qs({ applicationId: packageName })}`,
           {},
         );
         return data;
@@ -98,7 +102,7 @@ export function createGamesClient(options: ApiClientOptions): GamesApiClient {
     events: {
       async list(packageName) {
         const { data } = await http.get<{ items?: GameEvent[]; nextPageToken?: string }>(
-          `/events?applicationId=${packageName}`,
+          `/events?${qs({ applicationId: packageName })}`,
         );
         return data;
       },

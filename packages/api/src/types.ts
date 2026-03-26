@@ -439,13 +439,61 @@ export interface SubscriptionPurchaseV2 {
   startTime?: string;
   subscriptionState: string;
   acknowledgementState?: string;
+  linkedPurchaseToken?: string;
+  /** Current offer phase: free trial, introductory price, proration, or base plan price. (Jan 2026) */
+  offerPhase?: string;
+  /** Resubscription context when purchase originates from Play Store. (Nov 2025) */
+  outOfAppPurchaseContext?: { externalTransactionToken?: string };
+  /** Cancellation details: reason, survey result, time. */
+  canceledStateContext?: {
+    cancelTime?: string;
+    cancelSurveyResult?: { reason?: number; reasonUserInput?: string };
+    userInitiatedCancellation?: Record<string, unknown>;
+    systemInitiatedCancellation?: Record<string, unknown>;
+    developerInitiatedCancellation?: Record<string, unknown>;
+    replacementCancellation?: Record<string, unknown>;
+  };
+  testPurchase?: Record<string, unknown>;
+  signupPromotion?: { promotionType?: string; promotionCode?: string };
+  externalAccountIdentifiers?: {
+    externalAccountId?: string;
+    obfuscatedExternalAccountId?: string;
+    obfuscatedExternalProfileId?: string;
+  };
+  pausedStateContext?: { autoResumeTime?: string };
+  subscribeWithGoogleInfo?: {
+    profileName?: string;
+    emailAddress?: string;
+    givenName?: string;
+    familyName?: string;
+    profileId?: string;
+  };
 }
 
 export interface SubscriptionPurchaseLineItem {
   productId: string;
   expiryTime?: string;
-  autoRenewingPlan?: { autoRenewEnabled?: boolean };
+  autoRenewingPlan?: {
+    autoRenewEnabled?: boolean;
+    recurringPrice?: Money;
+    priceChangeDetails?: {
+      newPrice?: Money;
+      priceChangeState?: string;
+      expectedNewPriceChargeTime?: string;
+    };
+    /** Price step-up consent details. (Sep 2025) */
+    priceStepUpConsentDetails?: {
+      consentStatus?: string;
+      lastConsentTime?: string;
+    };
+  };
   offerDetails?: { basePlanId?: string; offerId?: string; offerTags?: string[] };
+  /** Replaces deprecated latestOrderId. (May 2025) */
+  latestSuccessfulOrderId?: string;
+  /** Details about item being replaced, if applicable. (Nov 2025) */
+  itemReplacement?: { productId?: string; offerDetails?: { basePlanId?: string; offerId?: string } };
+  /** Current offer phase identifier. (Jan 2026) */
+  offerPhase?: string;
 }
 
 export interface SubscriptionPurchase {
@@ -480,6 +528,77 @@ export interface VoidedPurchase {
 export interface VoidedPurchasesListResponse {
   voidedPurchases: VoidedPurchase[];
   tokenPagination?: TokenPagination;
+}
+
+// --- Orders API (May 2025) ---
+
+export interface Order {
+  orderId: string;
+  state: string;
+  purchaseToken?: string;
+  createTime?: string;
+  lastEventTime?: string;
+  total?: Money;
+  tax?: Money;
+  lineItems?: OrderLineItem[];
+  buyerAddress?: { regionCode?: string; postalCode?: string };
+  developerRevenueInBuyerCurrency?: Money;
+  orderHistory?: {
+    processedEvent?: { eventTime?: string };
+    cancellationEvent?: { eventTime?: string };
+    refundEvent?: { eventTime?: string; refundDetails?: { tax?: Money; refund?: Money }; refundReason?: string };
+    partialRefundEvents?: Array<{ createTime?: string; processTime?: string; state?: string; refundDetails?: { tax?: Money; refund?: Money } }>;
+  };
+  /** Offer phase details for prorated periods. (Nov 2025) */
+  offerPhaseDetails?: { offerPhase?: string };
+}
+
+export interface OrderLineItem {
+  productId?: string;
+  productType?: string;
+  quantity?: number;
+  price?: Money;
+}
+
+export interface BatchGetOrdersResponse {
+  orders: Order[];
+}
+
+// --- ProductPurchaseV2 (Jun 2025) ---
+
+export interface ProductPurchaseV2 {
+  kind?: string;
+  productLineItem?: ProductPurchaseLineItem[];
+  purchaseStateContext?: { state?: string };
+  orderId?: string;
+  regionCode?: string;
+  purchaseCompletionTime?: string;
+  acknowledgementState?: string;
+  obfuscatedExternalAccountId?: string;
+  obfuscatedExternalProfileId?: string;
+  testPurchaseContext?: Record<string, unknown>;
+}
+
+export interface ProductPurchaseLineItem {
+  productId?: string;
+  quantity?: number;
+  offerDetails?: { offerId?: string; offerTags?: string[] };
+}
+
+// --- SubscriptionsV2 cancel/defer (Sep 2025 / Jan 2026) ---
+
+export interface SubscriptionsV2CancelRequest {
+  cancellationType?: string;
+}
+
+export interface SubscriptionsV2DeferRequest {
+  deferralInfo: {
+    desiredExpiryTime: string;
+  };
+}
+
+export interface SubscriptionsV2DeferResponse {
+  newExpiryTime: string;
 }
 
 export interface ConvertRegionPricesRequest {

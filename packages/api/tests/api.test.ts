@@ -1134,6 +1134,77 @@ describe("monetization API endpoints", () => {
       expect(url).toBe(`${BASE_URL}/${PKG}/orders/GPA.1234:refund`);
       expect(init.method).toBe("POST");
     });
+
+    it("get calls GET /{pkg}/orders/{id}", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ orderId: "GPA.1234", state: "PROCESSED" }));
+      const client = makeClient();
+      const order = await client.orders.get(PKG, "GPA.1234");
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/orders/GPA.1234`);
+      expect(init.method).toBe("GET");
+      expect(order.orderId).toBe("GPA.1234");
+      expect(order.state).toBe("PROCESSED");
+    });
+
+    it("batchGet calls POST /{pkg}/orders:batchGet", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ orders: [{ orderId: "GPA.1" }, { orderId: "GPA.2" }] }));
+      const client = makeClient();
+      const orders = await client.orders.batchGet(PKG, ["GPA.1", "GPA.2"]);
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/orders:batchGet`);
+      expect(init.method).toBe("POST");
+      expect(JSON.parse(init.body)).toEqual({ orderIds: ["GPA.1", "GPA.2"] });
+      expect(orders).toHaveLength(2);
+    });
+
+    it("batchGet returns empty array when no orders in response", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      const orders = await client.orders.batchGet(PKG, ["GPA.999"]);
+      expect(orders).toEqual([]);
+    });
+  });
+
+  describe("purchases v2 endpoints", () => {
+    it("getProductV2 calls GET /{pkg}/purchases/productsv2/tokens/{token}", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ orderId: "O1", purchaseStateContext: { state: "PURCHASED" } }));
+      const client = makeClient();
+      const result = await client.purchases.getProductV2(PKG, "tok123");
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/purchases/productsv2/tokens/tok123`);
+      expect(init.method).toBe("GET");
+      expect(result.orderId).toBe("O1");
+    });
+
+    it("cancelSubscriptionV2 calls POST /{pkg}/purchases/subscriptionsv2/tokens/{token}:cancel", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      await client.purchases.cancelSubscriptionV2(PKG, "tok123", { cancellationType: "DEVELOPER_CANCELED" });
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/purchases/subscriptionsv2/tokens/tok123:cancel`);
+      expect(init.method).toBe("POST");
+      expect(JSON.parse(init.body)).toEqual({ cancellationType: "DEVELOPER_CANCELED" });
+    });
+
+    it("cancelSubscriptionV2 works without body", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      await client.purchases.cancelSubscriptionV2(PKG, "tok123");
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toContain("subscriptionsv2/tokens/tok123:cancel");
+    });
+
+    it("deferSubscriptionV2 calls POST /{pkg}/purchases/subscriptionsv2/tokens/{token}:defer", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ newExpiryTime: "2026-07-01T00:00:00Z" }));
+      const client = makeClient();
+      const result = await client.purchases.deferSubscriptionV2(PKG, "tok123", {
+        deferralInfo: { desiredExpiryTime: "2026-07-01T00:00:00Z" },
+      });
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/purchases/subscriptionsv2/tokens/tok123:defer`);
+      expect(init.method).toBe("POST");
+      expect(result.newExpiryTime).toBe("2026-07-01T00:00:00Z");
+    });
   });
 
   // --- monetization ---

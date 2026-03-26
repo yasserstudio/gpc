@@ -49,10 +49,10 @@ describe("redactSensitive", () => {
     expect(redactSensitive(undefined)).toBe(undefined);
   });
 
-  it("does not redact non-string values with sensitive keys", () => {
+  it("redacts non-string values with sensitive keys", () => {
     const data = { token: 12345 };
     const result = redactSensitive(data) as Record<string, unknown>;
-    expect(result["token"]).toBe(12345);
+    expect(result["token"]).toBe("[REDACTED]");
   });
 
   it("redacts all known sensitive keys", () => {

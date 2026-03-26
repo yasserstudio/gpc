@@ -1,5 +1,6 @@
 import { resolvePackageName } from "../resolve.js";
 import type { Command } from "commander";
+import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient, createReportingClient } from "@gpc-cli/api";

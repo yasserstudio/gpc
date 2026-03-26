@@ -56,7 +56,7 @@ function getPageDescription(page: PageData): string {
   const path = page.relativePath;
   const map: Record<string, string> = {
     "index.md":
-      "The complete CLI for Google Play. 187 API endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
+      "The complete CLI for Google Play. 192 API endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
     "guide/index.md":
       "Get started with GPC — the complete CLI for Google Play Developer API. Install, authenticate, and ship your first release in minutes.",
     "guide/installation.md":
@@ -114,7 +114,7 @@ function getPageDescription(page: PageData): string {
 export default defineConfig({
   title: "GPC — Google Play Console CLI",
   description:
-    "The complete CLI for Google Play. 187 API endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
+    "The complete CLI for Google Play. 192 API endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
 
   base: "/gpc/",
   lang: "en-US",
@@ -142,7 +142,7 @@ export default defineConfig({
       {
         property: "og:description",
         content:
-          "The complete CLI for Google Play. 187 API endpoints, one tool. No Ruby, no browser, no ceremony.",
+          "The complete CLI for Google Play. 192 API endpoints, one tool. No Ruby, no browser, no ceremony.",
       },
     ],
     ["meta", { property: "og:type", content: "website" }],
@@ -155,7 +155,7 @@ export default defineConfig({
         "@type": "SoftwareApplication",
         name: "GPC — Google Play Console CLI",
         description:
-          "The complete CLI for Google Play Developer API. 187 endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
+          "The complete CLI for Google Play Developer API. 192 endpoints, one tool. Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.",
         applicationCategory: "DeveloperApplication",
         operatingSystem: "macOS, Linux, Windows",
         offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
@@ -165,7 +165,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
         license: "https://opensource.org/licenses/MIT",
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.44",
+        softwareVersion: "0.9.45",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: { "@type": "Person", name: "yasserstudio", url: "https://github.com/yasserstudio" },
@@ -184,7 +184,7 @@ export default defineConfig({
       {
         name: "twitter:description",
         content:
-          "The complete CLI for Google Play. 187 API endpoints, one tool. No Ruby, no browser, no ceremony.",
+          "The complete CLI for Google Play. 192 API endpoints, one tool. No Ruby, no browser, no ceremony.",
       },
     ],
     [
@@ -258,6 +258,7 @@ export default defineConfig({
           { text: "Exit Codes", link: "/reference/exit-codes" },
           { text: "JSON Output Contract", link: "/reference/json-contract" },
           { text: "API Coverage Map", link: "/reference/api-coverage" },
+          { text: "API Deprecations", link: "/reference/deprecations" },
           { text: "Changelog", link: "/reference/changelog" },
         ],
       },
@@ -436,6 +437,7 @@ export default defineConfig({
               link: "/reference/json-contract",
             },
             { text: "API Coverage Map", link: "/reference/api-coverage" },
+            { text: "API Deprecations", link: "/reference/deprecations" },
             { text: "Changelog", link: "/reference/changelog" },
           ],
         },

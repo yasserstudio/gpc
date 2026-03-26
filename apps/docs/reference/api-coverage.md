@@ -162,13 +162,18 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 | `purchases.subscriptions.revoke`   | POST   | `gpc purchases subscription revoke <token>`      |
 | `purchases.subscriptionsv2.get`    | GET    | `gpc purchases subscription get <token> --v2`    |
 | `purchases.subscriptionsv2.revoke` | POST   | `gpc purchases subscription revoke <token> --v2` |
+| `purchases.subscriptionsv2.cancel` | POST   | `gpc purchases subscription cancel-v2 <token>` |
+| `purchases.subscriptionsv2.defer`  | POST   | `gpc purchases subscription defer-v2 <token>` |
+| `purchases.productsv2.get`         | GET    | `gpc purchases product get-v2 <id> <token>` |
 | `purchases.voidedpurchases.list`   | GET    | `gpc purchases voided list`                      |
 
 ## Orders
 
-| API Endpoint    | Method | GPC Command                    |
-| --------------- | ------ | ------------------------------ |
-| `orders.refund` | POST   | `gpc orders refund <order-id>` |
+| API Endpoint      | Method | GPC Command                          |
+| ----------------- | ------ | ------------------------------------ |
+| `orders.get`      | GET    | `gpc orders get <order-id>`          |
+| `orders.batchGet` | POST   | `gpc orders batch-get --ids <csv>`   |
+| `orders.refund`   | POST   | `gpc orders refund <order-id>`       |
 
 ## Monetization: Pricing
 

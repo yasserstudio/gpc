@@ -176,6 +176,11 @@ export {
   refundSubscriptionV2,
   listVoidedPurchases,
   refundOrder,
+  getOrderDetails,
+  batchGetOrders,
+  getProductPurchaseV2,
+  cancelSubscriptionV2,
+  deferSubscriptionV2,
 } from "./commands/purchases.js";
 export { convertRegionPrices } from "./commands/pricing.js";
 export {

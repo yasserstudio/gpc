@@ -21,6 +21,11 @@ import { GpcError } from "./errors.js";
 // Plugin Manager — orchestrates discovery, loading, and lifecycle
 // ---------------------------------------------------------------------------
 
+const FIRST_PARTY_PLUGINS = new Set([
+  "@gpc-cli/plugin-ci",
+  "@gpc-cli/plugin-sdk",
+]);
+
 export class PluginManager {
   private plugins: LoadedPlugin[] = [];
   private beforeHandlers: BeforeCommandHandler[] = [];
@@ -32,7 +37,7 @@ export class PluginManager {
 
   /** Load and register a plugin */
   async load(plugin: GpcPlugin, manifest?: PluginManifest): Promise<void> {
-    const isTrusted = manifest?.trusted ?? plugin.name.startsWith("@gpc-cli/");
+    const isTrusted = manifest?.trusted ?? FIRST_PARTY_PLUGINS.has(plugin.name);
 
     if (!isTrusted && manifest?.permissions) {
       validatePermissions(manifest.permissions);

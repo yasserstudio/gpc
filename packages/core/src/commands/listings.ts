@@ -441,6 +441,14 @@ export async function exportImages(
           await mkdir(dirPath, { recursive: true });
 
           const response = await fetch(task.url);
+          if (!response.ok) {
+            throw new GpcError(
+              `Failed to download image: HTTP ${response.status} for ${task.imageType} (${task.language})`,
+              "LISTINGS_IMAGE_DOWNLOAD_FAILED",
+              4,
+              "Check that the image URL is still valid. Re-run the export to retry.",
+            );
+          }
           const buffer = Buffer.from(await response.arrayBuffer());
           const filePath = join(dirPath, `${task.index}.png`);
           await writeFile(filePath, buffer);

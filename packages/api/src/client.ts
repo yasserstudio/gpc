@@ -66,6 +66,12 @@ import type {
   InAppProductsBatchUpdateRequest,
   InAppProductsBatchUpdateResponse,
   ResumableUploadOptions,
+  Order,
+  BatchGetOrdersResponse,
+  ProductPurchaseV2,
+  SubscriptionsV2CancelRequest,
+  SubscriptionsV2DeferRequest,
+  SubscriptionsV2DeferResponse,
 } from "./types.js";
 
 export interface PlayApiClient {
@@ -299,6 +305,23 @@ export interface PlayApiClient {
     ): Promise<SubscriptionDeferResponse>;
     revokeSubscriptionV2(packageName: string, token: string): Promise<void>;
     refundSubscriptionV2(packageName: string, token: string): Promise<void>;
+    /** V2 cancel with cancellationType support. (Sep 2025) */
+    cancelSubscriptionV2(
+      packageName: string,
+      token: string,
+      body?: SubscriptionsV2CancelRequest,
+    ): Promise<void>;
+    /** V2 defer for subscriptions with add-ons. (Jan 2026) */
+    deferSubscriptionV2(
+      packageName: string,
+      token: string,
+      body: SubscriptionsV2DeferRequest,
+    ): Promise<SubscriptionsV2DeferResponse>;
+    /** V2 product purchase details for multi-offer OTPs. (Jun 2025) */
+    getProductV2(
+      packageName: string,
+      token: string,
+    ): Promise<ProductPurchaseV2>;
     listVoided(
       packageName: string,
       options?: { startTime?: string; endTime?: string; maxResults?: number; token?: string },
@@ -306,10 +329,12 @@ export interface PlayApiClient {
   };
 
   orders: {
+    get(packageName: string, orderId: string): Promise<Order>;
+    batchGet(packageName: string, orderIds: string[]): Promise<Order[]>;
     refund(
       packageName: string,
       orderId: string,
-      body?: { fullRefund?: boolean; proratedRefund?: boolean },
+      body?: { fullRefund?: boolean; proratedRefund?: boolean; revoke?: boolean },
     ): Promise<void>;
   };
 
@@ -937,6 +962,28 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         await http.post(`/${packageName}/purchases/subscriptionsv2/tokens/${token}:refund`);
       },
 
+      async cancelSubscriptionV2(packageName, token, body?) {
+        await http.post(
+          `/${packageName}/purchases/subscriptionsv2/tokens/${token}:cancel`,
+          body,
+        );
+      },
+
+      async deferSubscriptionV2(packageName, token, body) {
+        const { data } = await http.post<SubscriptionsV2DeferResponse>(
+          `/${packageName}/purchases/subscriptionsv2/tokens/${token}:defer`,
+          body,
+        );
+        return data;
+      },
+
+      async getProductV2(packageName, token) {
+        const { data } = await http.get<ProductPurchaseV2>(
+          `/${packageName}/purchases/productsv2/tokens/${token}`,
+        );
+        return data;
+      },
+
       async listVoided(packageName, options?) {
         await rateLimit(limiter, "voidedBurst");
         await rateLimit(limiter, "voidedDaily");
@@ -955,6 +1002,21 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
     },
 
     orders: {
+      async get(packageName, orderId) {
+        const { data } = await http.get<Order>(
+          `/${packageName}/orders/${orderId}`,
+        );
+        return data;
+      },
+
+      async batchGet(packageName, orderIds) {
+        const { data } = await http.post<BatchGetOrdersResponse>(
+          `/${packageName}/orders:batchGet`,
+          { orderIds },
+        );
+        return data.orders || [];
+      },
+
       async refund(packageName, orderId, body?) {
         await http.post(`/${packageName}/orders/${orderId}:refund`, body);
       },

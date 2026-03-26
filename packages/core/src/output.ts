@@ -90,7 +90,7 @@ export function redactSensitive(data: unknown): unknown {
   if (typeof data === "object") {
     const result: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
-      if (SENSITIVE_KEYS.has(key) && typeof value === "string") {
+      if (SENSITIVE_KEYS.has(key)) {
         result[key] = REDACTED;
       } else {
         result[key] = redactSensitive(value);

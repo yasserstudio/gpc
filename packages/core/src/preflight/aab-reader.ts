@@ -30,15 +30,11 @@ export async function readAab(aabPath: string): Promise<AabContents> {
     manifest = decodeManifest(manifestBuf);
   } catch (err) {
     // Some AABs have manifests that protobufjs cannot fully parse
-    // (e.g., larger bundles with complex resource tables).
+    // (e.g., larger bundles with complex resource tables, ESM/CJS interop issues).
     // Fall back to a minimal manifest so non-manifest scanners can still run.
     const errMsg = err instanceof Error ? err.message : String(err);
-    if (errMsg.includes("index out of range") || errMsg.includes("invalid wire type")) {
-      manifest = createFallbackManifest();
-      manifest._parseError = `Manifest could not be fully parsed: ${errMsg}. Manifest-dependent checks will be skipped.`;
-    } else {
-      throw err;
-    }
+    manifest = createFallbackManifest();
+    manifest._parseError = `Manifest could not be fully parsed: ${errMsg}. Manifest-dependent checks will be skipped.`;
   }
 
   return { manifest, entries };

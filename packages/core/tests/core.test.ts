@@ -1497,6 +1497,7 @@ describe("exportImages", () => {
 
     // Mock fetch
     const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
       arrayBuffer: () => Promise.resolve(new ArrayBuffer(100)),
     });
     vi.stubGlobal("fetch", mockFetch);
@@ -2429,14 +2430,19 @@ describe("iap commands", () => {
 
 import {
   getProductPurchase,
+  getProductPurchaseV2,
   acknowledgeProductPurchase,
   consumeProductPurchase,
   getSubscriptionPurchase,
   cancelSubscriptionPurchase,
+  cancelSubscriptionV2,
   deferSubscriptionPurchase,
+  deferSubscriptionV2,
   revokeSubscriptionPurchase,
   listVoidedPurchases,
   refundOrder,
+  getOrderDetails,
+  batchGetOrders,
 } from "../src/commands/purchases.js";
 
 describe("purchases commands", () => {
@@ -2458,9 +2464,14 @@ describe("purchases commands", () => {
         cancelSubscription: vi.fn().mockResolvedValue(undefined),
         deferSubscription: vi.fn().mockResolvedValue({ newExpiryTimeMillis: "200000" }),
         revokeSubscriptionV2: vi.fn().mockResolvedValue(undefined),
+        cancelSubscriptionV2: vi.fn().mockResolvedValue(undefined),
+        deferSubscriptionV2: vi.fn().mockResolvedValue({ newExpiryTime: "2026-07-01T00:00:00Z" }),
+        getProductV2: vi.fn().mockResolvedValue({ orderId: "o2", purchaseStateContext: { state: "PURCHASED" } }),
         listVoided: vi.fn().mockResolvedValue({ voidedPurchases: [] }),
       },
       orders: {
+        get: vi.fn().mockResolvedValue({ orderId: "GPA.1234", state: "PROCESSED" }),
+        batchGet: vi.fn().mockResolvedValue([{ orderId: "GPA.1" }, { orderId: "GPA.2" }]),
         refund: vi.fn().mockResolvedValue(undefined),
       },
     };
@@ -2538,6 +2549,53 @@ describe("purchases commands", () => {
     expect(client.orders.refund).toHaveBeenCalledWith("com.example", "GPA.1234", {
       fullRefund: true,
     });
+  });
+
+  it("getOrderDetails calls client.orders.get", async () => {
+    const client = mockClient();
+    const result = await getOrderDetails(client, "com.example", "GPA.1234");
+    expect(client.orders.get).toHaveBeenCalledWith("com.example", "GPA.1234");
+    expect(result.orderId).toBe("GPA.1234");
+    expect(result.state).toBe("PROCESSED");
+  });
+
+  it("batchGetOrders calls client.orders.batchGet", async () => {
+    const client = mockClient();
+    const result = await batchGetOrders(client, "com.example", ["GPA.1", "GPA.2"]);
+    expect(client.orders.batchGet).toHaveBeenCalledWith("com.example", ["GPA.1", "GPA.2"]);
+    expect(result).toHaveLength(2);
+  });
+
+  it("getProductPurchaseV2 calls client.purchases.getProductV2", async () => {
+    const client = mockClient();
+    const result = await getProductPurchaseV2(client, "com.example", "tok");
+    expect(client.purchases.getProductV2).toHaveBeenCalledWith("com.example", "tok");
+    expect(result.orderId).toBe("o2");
+  });
+
+  it("cancelSubscriptionV2 calls client.purchases.cancelSubscriptionV2", async () => {
+    const client = mockClient();
+    await cancelSubscriptionV2(client, "com.example", "tok123", "DEVELOPER_CANCELED");
+    expect(client.purchases.cancelSubscriptionV2).toHaveBeenCalledWith(
+      "com.example", "tok123", { cancellationType: "DEVELOPER_CANCELED" },
+    );
+  });
+
+  it("cancelSubscriptionV2 works without cancellationType", async () => {
+    const client = mockClient();
+    await cancelSubscriptionV2(client, "com.example", "tok123");
+    expect(client.purchases.cancelSubscriptionV2).toHaveBeenCalledWith(
+      "com.example", "tok123", undefined,
+    );
+  });
+
+  it("deferSubscriptionV2 calls client.purchases.deferSubscriptionV2", async () => {
+    const client = mockClient();
+    const result = await deferSubscriptionV2(client, "com.example", "tok123", "2026-07-01T00:00:00Z");
+    expect(client.purchases.deferSubscriptionV2).toHaveBeenCalledWith(
+      "com.example", "tok123", { deferralInfo: { desiredExpiryTime: "2026-07-01T00:00:00Z" } },
+    );
+    expect(result.newExpiryTime).toBe("2026-07-01T00:00:00Z");
   });
 });
 

@@ -31,11 +31,13 @@ vi.mock("../src/preflight/manifest-parser.js", () => ({
 }));
 
 import { readAab } from "../src/preflight/aab-reader";
+import { decodeManifest } from "../src/preflight/manifest-parser";
 import { open as yauzlOpen } from "yauzl";
 import { EventEmitter } from "node:events";
 import { Readable } from "node:stream";
 
 const mockedOpen = vi.mocked(yauzlOpen);
+const mockedDecodeManifest = vi.mocked(decodeManifest);
 
 function createMockZipfile(entries: Array<{ fileName: string; data?: Buffer }>) {
   const emitter = new EventEmitter() as EventEmitter & {
@@ -139,6 +141,45 @@ describe("readAab", () => {
     // Directory entry should not appear in entries list
     expect(result.entries.find((e) => e.path === "base/dex/")).toBeUndefined();
     expect(result.entries.find((e) => e.path === "base/dex/classes.dex")).toBeDefined();
+  });
+
+  it("returns fallback manifest when decodeManifest throws any error (Bug AB regression)", async () => {
+    // Simulate the "protobuf.Root is not a constructor" error
+    mockedDecodeManifest.mockImplementation(() => {
+      throw new TypeError("protobuf.Root is not a constructor");
+    });
+
+    const zipfile = createMockZipfile([
+      { fileName: "base/manifest/AndroidManifest.xml", data: Buffer.from("bad-protobuf") },
+      { fileName: "base/dex/classes.dex" },
+    ]);
+
+    mockedOpen.mockImplementation((_path, _opts, cb: any) => {
+      cb(null, zipfile);
+    });
+
+    const result = await readAab("/fake/app.aab");
+    // Should not throw — should fall back to empty manifest with _parseError
+    expect(result.manifest._parseError).toContain("protobuf.Root is not a constructor");
+    expect(result.manifest.packageName).toBe("");
+    expect(result.entries).toHaveLength(2);
+  });
+
+  it("returns fallback manifest when decodeManifest throws index out of range", async () => {
+    mockedDecodeManifest.mockImplementation(() => {
+      throw new RangeError("index out of range: 64934 + 10 > 64934");
+    });
+
+    const zipfile = createMockZipfile([
+      { fileName: "base/manifest/AndroidManifest.xml", data: Buffer.from("large-pb") },
+    ]);
+
+    mockedOpen.mockImplementation((_path, _opts, cb: any) => {
+      cb(null, zipfile);
+    });
+
+    const result = await readAab("/fake/app.aab");
+    expect(result.manifest._parseError).toContain("index out of range");
   });
 
   it("closes zipfile after reading", async () => {
