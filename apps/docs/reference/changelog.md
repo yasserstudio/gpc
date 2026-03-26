@@ -7,7 +7,7 @@ pageClass: wide-page
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.46 <Badge type="warning" text="unreleased" />
+## v0.9.46 <Badge type="tip" text="latest" />
 
 Deep code review, error handling overhaul, doctor enhancements, API catch-up.
 
@@ -54,7 +54,7 @@ Deep code review, error handling overhaul, doctor enhancements, API catch-up.
 
 ---
 
-## v0.9.45 <Badge type="tip" text="latest" />
+## v0.9.45
 
 _March 2026_
 
