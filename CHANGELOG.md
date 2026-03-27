@@ -7,7 +7,7 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
-## v0.9.46 (unreleased)
+## v0.9.46
 
 Deep code review, error handling overhaul, doctor enhancements, API catch-up.
 
