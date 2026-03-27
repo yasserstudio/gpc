@@ -366,7 +366,7 @@ describe("statusHasBreach", () => {
 
 describe("formatStatusTable", () => {
   const baseStatus: AppStatus = {
-    packageName: "tv.visioo.app",
+    packageName: "com.example.app",
     fetchedAt: new Date().toISOString(),
     cached: false,
     sections: ["releases", "vitals", "reviews"],
@@ -391,7 +391,7 @@ describe("formatStatusTable", () => {
   };
 
   it("includes package name", () => {
-    expect(formatStatusTable(baseStatus)).toContain("tv.visioo.app");
+    expect(formatStatusTable(baseStatus)).toContain("com.example.app");
   });
 
   it("includes RELEASES section with track names", () => {
@@ -570,7 +570,7 @@ describe("formatStatusTable", () => {
 
 describe("formatStatusSummary", () => {
   const healthyStatus: AppStatus = {
-    packageName: "tv.visioo.app",
+    packageName: "com.example.app",
     fetchedAt: new Date().toISOString(),
     cached: false,
     sections: ["releases", "vitals", "reviews"],
@@ -593,7 +593,7 @@ describe("formatStatusSummary", () => {
 
   it("produces a one-liner with package name", () => {
     const out = formatStatusSummary(healthyStatus);
-    expect(out).toContain("tv.visioo.app");
+    expect(out).toContain("com.example.app");
     expect(out).not.toContain("\n");
   });
 

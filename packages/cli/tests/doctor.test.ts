@@ -59,7 +59,7 @@ describe("checkPackageName", () => {
   });
 
   it("passes for a 3-segment package name", () => {
-    expect(checkPackageName("tv.visioo.remote")?.status).toBe("pass");
+    expect(checkPackageName("com.example.remote")?.status).toBe("pass");
   });
 
   it("passes for package names with underscores and digits", () => {

@@ -456,7 +456,7 @@ OTP parity fixes, diff commands, and table UX improvements.
 
 ## v0.9.15
 
-Five bugs found during live testing against `tv.visioo.app`.
+Five bugs found during live testing.
 
 - fix: `--output` flag ignored — table, yaml, markdown, and junit output formats now work correctly
 - fix: `recovery list` used POST instead of GET — corrected HTTP method, added `--version-code` filter
