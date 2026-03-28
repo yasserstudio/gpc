@@ -164,6 +164,11 @@ export function registerPurchasesCommands(program: Command): void {
         return;
       }
 
+      await requireConfirm(
+        `Cancel subscription ${subscriptionId}? This cannot be undone.`,
+        program,
+      );
+
       const client = await getClient(config);
 
       await cancelSubscriptionPurchase(client, packageName, subscriptionId, token);
@@ -264,6 +269,11 @@ export function registerPurchasesCommands(program: Command): void {
         );
         return;
       }
+
+      await requireConfirm(
+        `Revoke subscription and refund? This cannot be undone.`,
+        program,
+      );
 
       const client = await getClient(config);
 
@@ -454,8 +464,6 @@ export function registerPurchasesCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
 
-      await requireConfirm(`Cancel subscription (token: ${token.slice(0, 16)}...)?`, program);
-
       if (isDryRun(program)) {
         const format = getOutputFormat(program, config);
         printDryRun(
@@ -465,6 +473,11 @@ export function registerPurchasesCommands(program: Command): void {
         );
         return;
       }
+
+      await requireConfirm(
+        `Cancel subscription (token: ${token.slice(0, 16)}...)? This cannot be undone.`,
+        program,
+      );
 
       const client = await getClient(config);
 

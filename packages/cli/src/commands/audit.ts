@@ -7,6 +7,7 @@ import {
   searchAuditEvents,
   clearAuditLog,
   formatOutput,
+  maybePaginate,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun } from "../dry-run.js";
@@ -74,9 +75,9 @@ export function registerAuditCommands(program: Command): void {
           success: e.success !== undefined ? String(e.success) : "-",
           durationMs: e.durationMs ?? "-",
         }));
-        console.log(formatOutput(rows, format));
+        await maybePaginate(formatOutput(rows, format));
       } else {
-        console.log(formatOutput(events, format));
+        await maybePaginate(formatOutput(events, format));
       }
     });
 

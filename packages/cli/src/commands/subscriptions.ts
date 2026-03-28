@@ -25,6 +25,7 @@ import {
   getSubscriptionAnalytics,
   formatOutput,
   sortResults,
+  maybePaginate,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
@@ -71,9 +72,9 @@ export function registerSubscriptionsCommands(program: Command): void {
             listings: s.listings ? Object.keys(s.listings).length : 0,
             firstBasePlanState: s.basePlans?.[0]?.state || "-",
           }));
-          console.log(formatOutput(summary, format));
+          await maybePaginate(formatOutput(summary, format));
         } else {
-          console.log(formatOutput(subs.length === 0 ? { subscriptions: [] } : result, format));
+          await maybePaginate(formatOutput(subs.length === 0 ? { subscriptions: [] } : result, format));
         }
     });
 

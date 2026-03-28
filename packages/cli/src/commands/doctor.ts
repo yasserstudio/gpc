@@ -152,6 +152,7 @@ export function checkConfigKeys(config: Record<string, unknown>): CheckResult | 
     status: "warn",
     message: `Unknown config key${unknown.length > 1 ? "s" : ""}: ${unknown.join(", ")}`,
     suggestion: `Valid keys: ${[...KNOWN_CONFIG_KEYS].sort().join(", ")}`,
+    fixData: { keys: unknown.join(", ") },
   };
 }
 
@@ -421,6 +422,23 @@ async function applyFix(check: CheckResult): Promise<string | null> {
       const { initConfig } = await import("@gpc-cli/config");
       await initConfig({});
       return "Initialized config file";
+    }
+    case "version": {
+      // Suggest running gpc update
+      return "Run: gpc update";
+    }
+    case "auth": {
+      // Guide user to authenticate
+      return "Run: gpc auth login --service-account <path/to/key.json>";
+    }
+    case "config-keys": {
+      const keys = check.fixData?.keys;
+      if (!keys) return null;
+      const { deleteConfigValue } = await import("@gpc-cli/config");
+      for (const key of keys.split(",")) {
+        await deleteConfigValue(key.trim());
+      }
+      return `Removed unknown keys: ${keys}`;
     }
     default:
       return null;

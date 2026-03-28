@@ -331,30 +331,99 @@ export function registerAuthCommands(program: Command): void {
   auth
     .command("setup-gcp")
     .description("Step-by-step guide to create a Google Cloud service account")
-    .action(() => {
+    .option("--key <path>", "Path to an already-downloaded service account JSON key")
+    .action(async (options: { key?: string }) => {
+      const { existsSync, readFileSync } = await import("node:fs");
+      const { resolve } = await import("node:path");
+
       console.log("\nGPC \u2014 Google Cloud Service Account Setup");
-      console.log("\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550");
-      console.log("\nStep 1: Open the Google Cloud Console");
-      console.log("  https://console.cloud.google.com/iam-admin/serviceaccounts");
-      console.log("\nStep 2: Create a service account");
-      console.log("  \u2022 Click 'Create Service Account'");
-      console.log("  \u2022 Name it: gpc-deploy (or any name you like)");
-      console.log("  \u2022 Description: GPC Google Play Console access");
-      console.log("\nStep 3: Grant roles");
-      console.log("  No GCP roles needed \u2014 permissions are managed in Google Play Console.");
-      console.log("\nStep 4: Download the JSON key");
-      console.log("  \u2022 Click your new service account \u2192 Keys \u2192 Add Key \u2192 Create new key \u2192 JSON");
-      console.log("  \u2022 Save as: ~/gpc-service-account.json");
-      console.log("\nStep 5: Add to Google Play Console");
-      console.log("  https://play.google.com/console/developers");
-      console.log("  \u2022 Users and Permissions \u2192 Invite new users");
-      console.log("  \u2022 Paste the service account email (ends with @...gserviceaccount.com)");
-      console.log("  \u2022 Grant: Release manager + View app info + Reply to reviews");
-      console.log("\nStep 6: Authenticate");
-      console.log("  gpc auth login --service-account ~/gpc-service-account.json");
-      console.log("\nStep 7: Verify");
-      console.log("  gpc doctor");
-      console.log("\nSee full docs: https://yasserstudio.github.io/gpc/guide/authentication");
+      console.log("\u2550".repeat(50));
+
+      // If key path provided or user already has one, skip to validation
+      let keyPath = options.key;
+
+      if (!keyPath) {
+        console.log("\nStep 1: Open the Google Cloud Console");
+        console.log("  https://console.cloud.google.com/iam-admin/serviceaccounts");
+        console.log("\nStep 2: Create a service account");
+        console.log("  \u2022 Click 'Create Service Account'");
+        console.log("  \u2022 Name it: gpc-deploy (or any name you like)");
+        console.log("  \u2022 Description: GPC Google Play Console access");
+        console.log("\nStep 3: Grant roles");
+        console.log("  No GCP roles needed \u2014 permissions are managed in Google Play Console.");
+        console.log("\nStep 4: Download the JSON key");
+        console.log("  \u2022 Click your new service account \u2192 Keys \u2192 Add Key \u2192 Create new key \u2192 JSON");
+        console.log("  \u2022 Save as: ~/gpc-service-account.json");
+        console.log("\nStep 5: Add to Google Play Console");
+        console.log("  https://play.google.com/console/developers");
+        console.log("  \u2022 Users and Permissions \u2192 Invite new users");
+        console.log("  \u2022 Paste the service account email (ends with @...gserviceaccount.com)");
+        console.log("  \u2022 Grant: Release manager + View app info + Reply to reviews");
+
+        // Try to auto-detect a key file
+        const commonPaths = [
+          "~/gpc-service-account.json",
+          "./service-account.json",
+          "./gpc-service-account.json",
+          "~/.config/gpc/service-account.json",
+        ].map((p) => resolve(p.replace("~", process.env["HOME"] || "")));
+
+        for (const p of commonPaths) {
+          if (existsSync(p)) {
+            console.log(`\n\u2713 Found key file: ${p}`);
+            keyPath = p;
+            break;
+          }
+        }
+
+        if (!keyPath) {
+          console.log("\nOnce you've downloaded the key, run:");
+          console.log("  gpc auth setup-gcp --key <path/to/key.json>");
+          console.log("\nOr authenticate directly:");
+          console.log("  gpc auth login --service-account <path/to/key.json>");
+          console.log("\nSee full docs: https://yasserstudio.github.io/gpc/guide/authentication");
+          return;
+        }
+      }
+
+      // Validate the key file
+      const absPath = resolve(keyPath.replace("~", process.env["HOME"] || ""));
+      if (!existsSync(absPath)) {
+        console.error(`\n\u2717 File not found: ${absPath}`);
+        return;
+      }
+
+      try {
+        const content = JSON.parse(readFileSync(absPath, "utf-8"));
+        if (content.type !== "service_account") {
+          console.error(`\n\u2717 Not a service account key (type: ${content.type})`);
+          return;
+        }
+        console.log(`\n\u2713 Valid service account key`);
+        console.log(`  Email: ${content.client_email}`);
+        console.log(`  Project: ${content.project_id}`);
+      } catch {
+        console.error(`\n\u2717 Invalid JSON file: ${absPath}`);
+        return;
+      }
+
+      // Auto-login
+      console.log(`\nStep 6: Authenticating...`);
+      try {
+        const auth = await resolveAuth({ serviceAccountPath: absPath });
+        await auth.getAccessToken();
+        const { setConfigValue } = await import("@gpc-cli/config");
+        await setConfigValue("auth.serviceAccount", absPath);
+        console.log(`\u2713 Authenticated and saved to config`);
+      } catch (err) {
+        console.error(`\u2717 Authentication failed: ${err instanceof Error ? err.message : String(err)}`);
+        console.log(`\nTry manually: gpc auth login --service-account ${absPath}`);
+        return;
+      }
+
+      // Auto-run doctor
+      console.log(`\nStep 7: Verifying setup...`);
+      console.log(`  Run: gpc doctor`);
     });
 
   auth

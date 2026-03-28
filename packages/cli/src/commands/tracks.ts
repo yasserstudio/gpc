@@ -4,7 +4,7 @@ import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
 import { listTracks, createTrack, updateTrackConfig, GpcError } from "@gpc-cli/core";
-import { formatOutput } from "@gpc-cli/core";
+import { formatOutput, maybePaginate } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 
@@ -40,7 +40,7 @@ export function registerTracksCommands(program: Command): void {
         latestVersion: t.releases?.[0]?.versionCodes?.[0] || "-",
       }));
 
-      console.log(formatOutput(summary, format));
+      await maybePaginate(formatOutput(summary, format));
     });
 
   tracks

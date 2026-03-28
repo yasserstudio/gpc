@@ -22,7 +22,7 @@ import {
   checkThreshold,
   GpcError,
 } from "@gpc-cli/core";
-import { formatOutput, sortResults, createSpinner } from "@gpc-cli/core";
+import { formatOutput, sortResults, createSpinner, maybePaginate } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import {
@@ -301,9 +301,9 @@ export function registerReleasesCommands(program: Command): void {
                 : "—",
           };
         });
-        console.log(formatOutput(rows, format));
+        await maybePaginate(formatOutput(rows, format));
       } else {
-        console.log(formatOutput(sorted, format));
+        await maybePaginate(formatOutput(sorted, format));
       }
     });
 
