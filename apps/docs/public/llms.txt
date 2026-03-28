@@ -15,7 +15,7 @@ GPC is a TypeScript CLI that covers 204 Google Play Developer API endpoints. It 
 - Config: `.gpcrc.json` (project), `~/.config/gpc/config.json` (user), `GPC_*` env vars
 - Uploads: Resumable protocol (8 MB chunks, auto-resume on failure, real-time progress bar)
 - Tests: 1,845 total, 90%+ line coverage on all core packages
-- Version: 0.9.47 (pre-release series → 1.0.0 public launch)
+- Version: 0.9.48 (pre-release series → 1.0.0 public launch)
 - License: MIT
 
 ## Documentation

@@ -7,7 +7,29 @@ pageClass: wide-page
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.47 <Badge type="tip" text="latest" />
+## v0.9.48 <Badge type="tip" text="latest" />
+
+Onboarding polish, safety confirmations, pager for long lists.
+
+### Safety
+- Confirmation prompts added to subscription cancel, revoke, and cancel-v2 — all destructive purchase commands now require `[y/N]` before executing (skip with `--yes`)
+
+### Doctor
+- `gpc doctor --fix` expanded with 3 new handlers — version check suggests update, auth check guides to login, config-keys fix removes unrecognized keys
+
+### Auth Setup
+- `gpc auth setup-gcp --key <path>` validates service account JSON, auto-authenticates, and saves to config
+- Auto-detects common key file paths when no `--key` flag provided
+
+### Pager
+- `tracks list`, `releases status`, `subscriptions list`, and `audit list` now auto-pipe to `$PAGER` when output exceeds terminal height
+
+### Fix
+- `--status draft` correctly reflected in dry-run preview output
+
+---
+
+## v0.9.47
 
 API completeness, bug fixes, RTDN, rate limiter rewrite.
 

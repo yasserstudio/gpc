@@ -7,6 +7,18 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.48
+
+Onboarding polish, safety confirmations, pager for long lists.
+
+- fix(cli): `--status draft` now reflected in dry-run preview (Bug AE)
+- feat(cli): confirmation prompts on subscription cancel, revoke, cancel-v2
+- feat(doctor): `--fix` expanded — version suggests update, auth guides to login, config-keys auto-removes unknown keys
+- feat(auth): `setup-gcp --key` validates SA JSON, auto-authenticates, saves to config
+- feat(cli): pager for tracks list, releases status, subscriptions list, audit list
+
+---
+
 ## v0.9.47
 
 API completeness, bug fixes, RTDN, rate limiter rewrite.
