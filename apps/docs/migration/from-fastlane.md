@@ -67,7 +67,7 @@ GPC replaces `fastlane supply` (and parts of `fastlane deliver`) for Google Play
 | `gpc vitals anr`                     | ANR rate                       |
 | `gpc vitals crashes --threshold 2.0` | CI quality gate (exit code 6)  |
 | `gpc reviews list --stars 1-2`       | Filter and list reviews        |
-| `gpc reviews reply <id> "Thanks"`    | Reply to reviews               |
+| `gpc reviews reply <id> --text "Thanks"` | Reply to reviews           |
 | `gpc subscriptions list`             | Manage subscriptions           |
 | `gpc iap list`                       | Manage in-app products         |
 | `gpc purchases get <token>`          | Verify purchases               |

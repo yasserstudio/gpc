@@ -255,7 +255,7 @@ gpc rtdn decode <base64-payload>             # Decode Pub/Sub notification
 
 ```bash
 gpc changelog                                # Recent releases
-gpc changelog --tag v0.9.47                  # Details for a specific version
+gpc changelog --tag v0.9.48                  # Details for a specific version
 gpc changelog --all --output json            # Full history as JSON
 ```
 

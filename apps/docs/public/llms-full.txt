@@ -510,7 +510,7 @@ gpc cache list          # Show cached data
 gpc cache clear         # Clear all cached data
 gpc feedback            # Open GitHub issues
 gpc changelog           # Show release history
-gpc changelog --tag v0.9.47    # Details for a specific release
+gpc changelog --tag v0.9.48    # Details for a specific release
 gpc init                # Scaffold .gpcrc.json, metadata dirs, CI templates
 gpc diff                # Release status across all tracks
 gpc diff --from internal --to production  # Compare two tracks

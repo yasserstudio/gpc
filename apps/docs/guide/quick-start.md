@@ -278,7 +278,7 @@ Stars  Date        Language  Review
 Reply to a review:
 
 ```bash
-gpc reviews reply abc123def456 "Thank you for the feedback. We have fixed the crash in version 43."
+gpc reviews reply abc123def456 --text "Thank you for the feedback. We have fixed the crash in version 43."
 ```
 
 Expected output:
