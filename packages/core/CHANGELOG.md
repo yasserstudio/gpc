@@ -1,5 +1,13 @@
 # @gpc-cli/core
 
+## 0.9.40
+
+### Patch Changes
+
+- API completeness, RTDN, rate limiter rewrite, bug fixes
+- Updated dependencies
+  - @gpc-cli/api@1.0.26
+
 ## 0.9.39
 
 ### Patch Changes

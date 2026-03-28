@@ -1,6 +1,6 @@
 {
   "name": "@gpc-cli/core",
-  "version": "0.9.39",
+  "version": "0.9.40",
   "description": "Core business logic for GPC — Google Play Console CLI",
   "type": "module",
   "main": "./dist/index.js",

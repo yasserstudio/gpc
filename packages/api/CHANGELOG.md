@@ -1,5 +1,11 @@
 # @gpc-cli/api
 
+## 1.0.26
+
+### Patch Changes
+
+- API completeness, RTDN, rate limiter rewrite, bug fixes
+
 ## 1.0.25
 
 ### Patch Changes
