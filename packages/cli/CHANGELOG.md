@@ -1,5 +1,11 @@
 # @gpc-cli/cli
 
+## 0.9.48
+
+### Patch Changes
+
+- Onboarding polish, safety confirmations, pager for long lists
+
 ## 0.9.47
 
 ### Patch Changes
