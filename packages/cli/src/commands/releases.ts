@@ -190,6 +190,7 @@ export function registerReleasesCommands(program: Command): void {
       if (isDryRun(program)) {
         const result = await uploadRelease(client, packageName, file, {
           track: options.track,
+          status: options.status,
           userFraction: options.rollout ? Number(options.rollout) / 100 : undefined,
           dryRun: true,
         });
@@ -379,7 +380,7 @@ export function registerReleasesCommands(program: Command): void {
             command: "releases promote",
             action: "promote",
             target: `${options.from} → ${options.to}`,
-            details: { rollout: options.rollout },
+            details: { rollout: options.rollout, ...(options.status && { status: options.status }) },
           },
           format,
           formatOutput,
