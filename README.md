@@ -17,7 +17,7 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-1834_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-1845_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
@@ -47,8 +47,11 @@ npm install -g @gpc-cli/cli
 # Homebrew (macOS/Linux)
 brew install yasserstudio/tap/gpc
 
-# Standalone binary (no Node.js required)
+# Standalone binary — macOS/Linux (no Node.js required)
 curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
+
+# Standalone binary — Windows (PowerShell)
+iwr -useb https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.ps1 | iex
 ```
 
 Free. Open-source. No account required beyond your existing Google Play service account.
@@ -78,7 +81,7 @@ GPC covers the **entire Google Play Developer API** in one CLI — that's 204 en
 | Plugin system       | Yes                          | No              | No                    | No           |
 | Interactive mode    | Yes (guided prompts)         | No              | No                    | N/A          |
 | Preflight scanner   | **9 offline policy scanners**| No              | No                    | No           |
-| Test suite          | 1,834 tests, 90%+ coverage   | —               | —                     | —            |
+| Test suite          | 1,845 tests, 90%+ coverage   | —               | —                     | —            |
 
 Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
 
@@ -120,7 +123,7 @@ gpc preflight app.aab --fail-on error --json               # CI quality gate (ex
 gpc preflight manifest app.aab                             # Target SDK, debuggable, exported
 gpc preflight permissions app.aab                          # 18 restricted permissions audit
 gpc preflight metadata fastlane/metadata/android           # Store listing compliance
-gpc preflight codescan app/src                             # Secrets, billing SDKs, tracking
+gpc preflight --source app/src                              # Secrets, billing SDKs, tracking
 ```
 
 9 scanners run in parallel: **manifest** (target SDK, debuggable, testOnly, cleartext, exported, foreground service types), **permissions** (18 restricted permissions with policy URLs), **native-libs** (64-bit compliance), **metadata** (listing limits, screenshots, privacy policy), **secrets** (AWS, Google, Stripe keys), **billing** (non-Play SDKs), **privacy** (tracking SDKs, Advertising ID), **policy** (Families/COPPA, financial, health, UGC), **size** (download warnings). Configure with `.preflightrc.json`.
@@ -157,6 +160,18 @@ gpc vitals crashes --threshold 2.0         # Exit code 6 if breached — CI gate
 gpc vitals compare crashes --days 7        # This week vs last week
 ```
 
+### Diagnose your setup
+
+20 automated checks — from credentials to connectivity to app access. Fix problems before they become pipeline failures.
+
+```bash
+gpc doctor                             # Run all checks
+gpc doctor --json                      # Structured output for CI
+gpc doctor --fix                       # Auto-fix what it can
+```
+
+Checks include: Node.js version, GPC version, config validity, service account path, token validity, API connectivity, HTTPS probes with latency, app access verification, key age warnings, disk space, CI environment detection, and more.
+
 ### Manage store listings
 
 Keep your store presence in sync — pull, edit locally, push. Works with Fastlane metadata format.
@@ -173,7 +188,7 @@ Stay on top of what users are saying — filter, reply, and export without leavi
 
 ```bash
 gpc reviews list --stars 1-2 --since 7d
-gpc reviews reply <review-id> "Thanks for the feedback!"
+gpc reviews reply <review-id> --text "Thanks for the feedback!"
 gpc reviews export --format csv --output reviews.csv
 ```
 
@@ -225,6 +240,23 @@ See what's live and what would change — without mutating anything.
 gpc diff                                        # Release status across all tracks
 gpc diff --from internal --to production        # Compare two tracks
 gpc diff --metadata fastlane/metadata/android   # Local vs remote listings
+```
+
+### Real-Time Developer Notifications
+
+Decode and inspect Pub/Sub notification payloads from Google Play — for debugging subscription and purchase events.
+
+```bash
+gpc rtdn status                              # Check RTDN topic configuration
+gpc rtdn decode <base64-payload>             # Decode Pub/Sub notification
+```
+
+### Release history
+
+```bash
+gpc changelog                                # Recent releases
+gpc changelog --tag v0.9.47                  # Details for a specific version
+gpc changelog --all --output json            # Full history as JSON
 ```
 
 See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 204 endpoints — including reports, purchases, data safety, device tiers, internal sharing, external transactions, and recovery actions.
@@ -295,12 +327,14 @@ import { createApiClient } from "@gpc-cli/api";
 import { resolveAuth } from "@gpc-cli/auth";
 
 const auth = await resolveAuth({
-  serviceAccount: "./service-account.json",
+  serviceAccountPath: "./service-account.json",
 });
 const client = createApiClient({ auth });
 
-const releases = await client.tracks.list("com.example.app");
-const vitals = await client.vitals.overview("com.example.app");
+// Open an edit to read track data
+const edit = await client.edits.insert("com.example.app");
+const tracks = await client.tracks.list("com.example.app", edit.id);
+await client.edits.delete("com.example.app", edit.id);
 ```
 
 CLI for your terminal. SDK for everything else.
@@ -382,7 +416,7 @@ git clone https://github.com/yasserstudio/gpc.git
 cd gpc
 pnpm install
 pnpm build
-pnpm test    # 1,834 tests across 7 packages
+pnpm test    # 1,845 tests across 7 packages
 ```
 
 ---

@@ -7,6 +7,52 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.47
+
+API completeness, bug fixes, RTDN, rate limiter rewrite.
+
+### Bug Fixes
+- fix(cli): `gpc changelog --version` renamed to `--tag` — Commander.js global `--version` flag conflict (Bug AC)
+- fix(api): `gpc releases upload app.apk` now uses `edits.apks.upload` endpoint — was sending APKs to bundles endpoint (Bug AD)
+- fix(preflight): `gpc preflight app.apk` now supports APK files — reads manifest from root instead of `base/manifest/` (Bug AD)
+- fix(cli): `gpc vitals crashes/anr/wakeup/lmk` and `gpc anomalies list` gracefully degrade on 403 when Reporting API disabled (Bug Q)
+- fix(status): `--watch` interval validation now exits code 2 (usage error), consistent with `--days`
+
+### New Commands
+- feat(cli): `gpc rtdn status` — check Real-Time Developer Notification topic configuration
+- feat(cli): `gpc rtdn decode <payload>` — decode base64 Pub/Sub notification payloads
+- feat(cli): `gpc rtdn test` — guidance for testing RTDN setup
+
+### New Features
+- feat(api): `edits.apks.upload` and `edits.apks.list` — APK upload support alongside AAB
+- feat(releases): `--status draft` flag on `gpc releases upload` and `gpc releases promote`
+- feat(reviews): `--all` auto-pagination fetches all review pages
+- feat(reviews): 350-character reply validation before API call
+- feat(purchases): `--type` flag on `gpc purchases voided` — include subscription voids (type=1)
+- feat(purchases): `--include-partial-refunds` flag for quantity-based partial refunds
+- feat(doctor): developer ID format validation check
+- feat(releases): concurrent Play Console edit warning on upload
+
+### API Client — 10 New Batch Endpoints
+- feat(api): `oneTimeProducts.batchGet`, `batchUpdate`, `batchDelete`
+- feat(api): `subscriptions.batchUpdateBasePlanStates`
+- feat(api): `subscriptions.offers.batchGet`, `batchUpdate`, `batchUpdateStates`
+
+### Rate Limiter Rewrite
+- refactor(api): 6-bucket rate limiter matching Google's actual quota model (3,000 queries/min each)
+- refactor(api): all API calls automatically rate-limited by resource type (was 5 of 204 endpoints)
+
+### Spec Alignment
+- feat(validate): `qa` track added to standard tracks
+- feat(validate): `google_play_games_pc:` form factor tracks added
+- fix(api): `?uploadType=media` query param on simple uploads
+- feat(api): `VoidedPurchase` type — added `kind` and `voidedQuantity` fields
+- feat(api): `ApksListResponse` type added
+
+**Actual new tests:** 11 → total 1,845
+
+---
+
 ## v0.9.46
 
 Deep code review, error handling overhaul, doctor enhancements, API catch-up.

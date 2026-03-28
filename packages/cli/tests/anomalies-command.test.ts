@@ -107,6 +107,57 @@ describe("anomalies list command", () => {
     expect(parsed).toHaveProperty("anomalies");
   });
 
+  it("degrades gracefully on 403 Reporting API disabled (Bug Q)", async () => {
+    const { PlayApiError } = await import("@gpc-cli/api");
+    mockGetVitalsAnomalies.mockRejectedValue(
+      new PlayApiError("Forbidden", "API_FORBIDDEN", 403, "Enable the Reporting API"),
+    );
+
+    const { registerAnomaliesCommands } = await import("../src/commands/anomalies.js");
+    const program = makeProgram();
+    registerAnomaliesCommands(program);
+
+    await program.parseAsync(["node", "gpc", "anomalies", "list"]);
+
+    const output = (console.log as ReturnType<typeof vi.fn>).mock.calls.map((c) => c[0]).join("\n");
+    expect(output).toContain("No anomaly data available");
+    expect(output).toContain("Reporting API");
+  });
+
+  it("degrades gracefully on 403 in JSON mode (Bug Q)", async () => {
+    const { PlayApiError } = await import("@gpc-cli/api");
+    mockGetVitalsAnomalies.mockRejectedValue(
+      new PlayApiError("Forbidden", "API_FORBIDDEN", 403),
+    );
+
+    const { registerAnomaliesCommands } = await import("../src/commands/anomalies.js");
+    const program = makeProgram();
+    registerAnomaliesCommands(program);
+
+    await program.parseAsync(["node", "gpc", "anomalies", "list", "--output", "json"]);
+
+    const output = (console.log as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] ?? "";
+    const parsed = JSON.parse(output);
+    expect(parsed.anomalies).toEqual([]);
+    expect(parsed.message).toContain("Reporting API");
+  });
+
+  it("re-throws non-403 errors", async () => {
+    const { PlayApiError } = await import("@gpc-cli/api");
+    mockGetVitalsAnomalies.mockRejectedValue(
+      new PlayApiError("Not Found", "API_NOT_FOUND", 404),
+    );
+
+    const { registerAnomaliesCommands } = await import("../src/commands/anomalies.js");
+    const program = makeProgram();
+    program.exitOverride();
+    registerAnomaliesCommands(program);
+
+    await expect(
+      program.parseAsync(["node", "gpc", "anomalies", "list"]),
+    ).rejects.toThrow("Not Found");
+  });
+
   it("handles empty result object (no anomalies key)", async () => {
     mockGetVitalsAnomalies.mockResolvedValue({});
 

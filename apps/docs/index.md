@@ -40,8 +40,24 @@ features:
   - icon:
       src: /icons/plug.png
     title: Plugin System + SDK
-    details: "1,834 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK. MIT licensed."
+    details: "1,845 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK. MIT licensed."
 ---
+
+<div class="stats-bar">
+  <span class="stat">204 API Endpoints</span>
+  <span class="stat-sep"></span>
+  <span class="stat">1,845 Tests</span>
+  <span class="stat-sep"></span>
+  <span class="stat">90%+ Coverage</span>
+  <span class="stat-sep"></span>
+  <span class="stat">MIT Licensed</span>
+</div>
+
+<p align="center" style="margin-top: 1rem;">
+  <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/v/@gpc-cli/cli?color=00D26A" alt="npm version"></a>
+  <a href="https://github.com/yasserstudio/gpc/stargazers"><img src="https://img.shields.io/github/stars/yasserstudio/gpc" alt="GitHub Stars"></a>
+  <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?color=00BFA5" alt="npm downloads"></a>
+</p>
 
 ## Install
 
@@ -52,8 +68,11 @@ npm install -g @gpc-cli/cli
 # Homebrew (macOS/Linux)
 brew install yasserstudio/tap/gpc
 
-# Standalone binary (no Node.js required)
+# Standalone binary — macOS/Linux (no Node.js required)
 curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
+
+# Standalone binary — Windows (PowerShell)
+iwr -useb https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.ps1 | iex
 ```
 
 Free. Open-source. No account required beyond your existing Google Play service account. Already on Fastlane? See the [migration guide](/migration/from-fastlane) — most commands map one-to-one.
@@ -97,3 +116,18 @@ gpc reviews list --stars 1-3 --since 7d
 | **More**         | Device tiers, internal sharing, external transactions, project scaffolding   |
 
 [View the full command reference →](/commands/)
+
+## Why GPC
+
+|                     | **GPC**                      | Fastlane supply | gradle-play-publisher | Console UI   |
+| ------------------- | ---------------------------- | --------------- | --------------------- | ------------ |
+| API coverage        | **204 endpoints**            | ~20             | ~15                   | All (manual) |
+| Runtime             | Node.js or standalone binary | Ruby + Bundler  | JVM                   | Browser      |
+| Cold start          | <500ms                       | 2-3s            | 3-5s                  | 5-10s        |
+| Reviews & Vitals    | Yes                          | No              | No                    | Yes (manual) |
+| Subscriptions & IAP | Yes                          | No              | No                    | Yes (manual) |
+| CI/CD native        | JSON + exit codes + env vars | Partial         | Gradle tasks          | No           |
+| Preflight scanner   | **9 offline policy checks**  | No              | No                    | No           |
+| Plugin system       | Yes                          | No              | No                    | No           |
+
+Already on Fastlane? See the [migration guide](/migration/from-fastlane) — most commands map one-to-one.

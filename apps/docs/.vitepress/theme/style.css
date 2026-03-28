@@ -1627,3 +1627,39 @@ html {
     display: none !important;
   }
 }
+
+/* ================================================================
+   Stats Bar — social proof strip below hero
+   ================================================================ */
+
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--vp-c-text-2);
+}
+
+.stat-sep {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--vp-c-text-3);
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .stats-bar {
+    flex-wrap: wrap;
+    gap: 12px 16px;
+    font-size: 0.78rem;
+  }
+
+  .stat-sep {
+    display: none;
+  }
+}

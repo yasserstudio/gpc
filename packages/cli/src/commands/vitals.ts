@@ -3,7 +3,7 @@ import type { Command } from "commander";
 import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
-import { createReportingClient } from "@gpc-cli/api";
+import { createReportingClient, PlayApiError } from "@gpc-cli/api";
 import type { ReportingDimension } from "@gpc-cli/api";
 import type { VitalsMetricSet } from "@gpc-cli/api";
 import {
@@ -93,10 +93,24 @@ function registerMetricCommand(
       const reporting = await getReportingClient(config);
       const format = getOutputFormat(program, config);
 
-      const result = await fn(reporting, packageName, {
-        dimension: options.dim ? validateDimension(options.dim) : undefined,
-        days: options.days,
-      });
+      let result;
+      try {
+        result = await fn(reporting, packageName, {
+          dimension: options.dim ? validateDimension(options.dim) : undefined,
+          days: options.days,
+        });
+      } catch (err) {
+        if (err instanceof PlayApiError && err.statusCode === 403) {
+          if (format === "json") {
+            console.log(formatOutput({ rows: [], message: "Reporting API not enabled or insufficient permissions" }, format));
+          } else {
+            console.log(`${yellow("⚠")} No vitals data available. The Reporting API may not be enabled for this project.`);
+            console.log(`  Enable it at: https://console.cloud.google.com/apis/library/playdeveloperreporting.googleapis.com`);
+          }
+          return;
+        }
+        throw err;
+      }
       if (format !== "json" && (!result.rows || result.rows.length === 0)) {
         console.log(`${yellow("⚠")} No vitals data available.`);
         return;
@@ -285,7 +299,21 @@ export function registerVitalsCommands(program: Command): void {
       const reporting = await getReportingClient(config);
       const format = getOutputFormat(program, config);
 
-      const result = await getVitalsAnomalies(reporting, packageName);
+      let result;
+      try {
+        result = await getVitalsAnomalies(reporting, packageName);
+      } catch (err) {
+        if (err instanceof PlayApiError && err.statusCode === 403) {
+          if (format === "json") {
+            console.log(formatOutput({ anomalies: [], message: "Reporting API not enabled or insufficient permissions" }, format));
+          } else {
+            console.log(`${yellow("⚠")} No anomaly data available. The Reporting API may not be enabled for this project.`);
+            console.log(`  Enable it at: https://console.cloud.google.com/apis/library/playdeveloperreporting.googleapis.com`);
+          }
+          return;
+        }
+        throw err;
+      }
       console.log(formatOutput(result, format));
     });
 

@@ -426,6 +426,10 @@ function mockClient() {
       list: vi.fn(),
       upload: vi.fn().mockResolvedValue({ versionCode: 42, sha256: "abc123" }),
     },
+    apks: {
+      list: vi.fn(),
+      upload: vi.fn().mockResolvedValue({ versionCode: 42, binary: { sha1: "a", sha256: "b" } }),
+    },
     tracks: {
       list: vi.fn(),
       get: vi.fn(),
@@ -570,6 +574,34 @@ describe("uploadRelease", () => {
     await expect(uploadRelease(client, PKG, "/tmp/app.aab", { track: "internal" })).rejects.toThrow(
       "upload failed",
     );
+  });
+
+  it("uses apks.upload for .apk files instead of bundles.upload (Bug AD fix)", async () => {
+    const client = mockClient();
+    const result = await uploadRelease(client, PKG, "/tmp/app.apk", {
+      track: "internal",
+      status: "completed",
+    });
+
+    expect(client.apks.upload).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "/tmp/app.apk",
+      expect.any(Object),
+    );
+    expect(client.bundles.upload).not.toHaveBeenCalled();
+    expect(result.versionCode).toBe(42);
+  });
+
+  it("uses bundles.upload for .aab files (unchanged behavior)", async () => {
+    const client = mockClient();
+    await uploadRelease(client, PKG, "/tmp/app.aab", {
+      track: "internal",
+      status: "completed",
+    });
+
+    expect(client.bundles.upload).toHaveBeenCalled();
+    expect(client.apks.upload).not.toHaveBeenCalled();
   });
 });
 

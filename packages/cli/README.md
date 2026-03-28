@@ -3,14 +3,14 @@
 <p align="center"><strong>Ship Android apps from your terminal.</strong></p>
 
 <p align="center">
-The complete CLI for Google Play — 187 API endpoints, one tool.<br>
+The complete CLI for Google Play — 204 API endpoints, one tool.<br>
 Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.
 </p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/v/@gpc-cli/cli?color=00D26A" alt="npm version"></a>
   <a href="https://github.com/yasserstudio/gpc"><img src="https://img.shields.io/github/stars/yasserstudio/gpc" alt="GitHub Stars"></a>
-  <img src="https://img.shields.io/badge/Tests-1504_passing-00D26A" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-1845_passing-00D26A" alt="Tests">
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License">
 </p>
 
@@ -23,8 +23,11 @@ npm install -g @gpc-cli/cli
 # Homebrew (macOS/Linux)
 brew install yasserstudio/tap/gpc
 
-# Standalone binary (no Node.js required)
+# Standalone binary — macOS/Linux (no Node.js required)
 curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
+
+# Standalone binary — Windows (PowerShell)
+iwr -useb https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.ps1 | iex
 ```
 
 Free. Open-source. No account required beyond your existing Google Play service account.
@@ -35,13 +38,13 @@ Free. Open-source. No account required beyond your existing Google Play service 
 # Authenticate
 gpc auth login --service-account path/to/key.json
 
-# Verify your setup
+# Verify your setup (20 automated checks)
 gpc doctor
 
 # App health at a glance — releases, vitals, and reviews in one command
 gpc status
 
-# Upload and release
+# Upload and release (AAB or APK)
 gpc releases upload app.aab --track internal
 
 # Promote to production
@@ -75,25 +78,42 @@ REVIEWS  (last 30 days)
 
 ## What You Get
 
-187 API endpoints across these command groups:
+204 API endpoints across these command groups:
 
 | Group             | What you can do                                                                        |
 | ----------------- | -------------------------------------------------------------------------------------- |
-| **Releases**      | Upload, promote, rollout increase/halt/resume, end-to-end `publish`                    |
-| **Listings**      | Pull and push store listings, upload screenshots — works with Fastlane metadata format |
-| **Reviews**       | Filter by stars, reply to users, export to CSV                                         |
-| **Vitals**        | Crash rates, ANR, startup, rendering — with CI threshold gates                         |
+| **Releases**      | Upload AAB/APK, promote, rollout increase/halt/resume, draft releases, `publish`       |
+| **Preflight**     | 9 offline AAB policy scanners — catches rejections before upload                       |
+| **Listings**      | Pull and push store listings, upload screenshots — Fastlane metadata compatible        |
+| **Reviews**       | Filter by stars, reply (350-char validated), auto-paginate, export to CSV              |
+| **Vitals**        | Crash rates, ANR, startup, rendering, battery, memory — with CI threshold gates        |
+| **Status**        | Releases + vitals + reviews in one command, `--watch`, `--since-last` diff             |
 | **Bundle**        | Per-module size breakdown, build-to-build diff, size CI gates                          |
-| **Subscriptions** | Create and manage base plans, offers, and pricing                                      |
-| **IAP**           | Sync products from local files, batch get and update                                   |
-| **Purchases**     | Verify, acknowledge, cancel, refund, list voided                                       |
-| **Reports**       | Download financial and stats reports                                                   |
+| **Subscriptions** | Base plans, offers, pricing, batch operations, RTDN notification decoding              |
+| **IAP / OTP**     | One-time products, purchase options, batch get/update/delete                           |
+| **Purchases**     | Verify, acknowledge, cancel, refund, voided (with `--type` subscription filter)        |
+| **Reports**       | Financial and stats report downloads                                                   |
 | **Testers**       | Add, remove, import from CSV                                                           |
 | **Users**         | Invite, update, remove, manage per-app grants                                          |
+| **Doctor**        | 20 automated setup checks — config, auth, connectivity, app access, key age            |
+| **Anomalies**     | Auto-detect vitals quality spikes from Reporting API                                   |
+| **More**          | Init, diff, changelog, quota, train, cache, feedback, enterprise, games                |
+
+## Exit Codes
+
+| Code | Meaning                               |
+| ---- | ------------------------------------- |
+| `0`  | Success                               |
+| `1`  | General error                         |
+| `2`  | Usage error (bad arguments)           |
+| `3`  | Authentication error                  |
+| `4`  | API error (rate limit, permission)    |
+| `5`  | Network error                         |
+| `6`  | Threshold breach (vitals CI alerting) |
 
 ## CI/CD Ready
 
-JSON output when piped. Formatted tables in your terminal. Semantic exit codes (0–6) your CI can react to. Every write operation supports `--dry-run`.
+JSON output when piped. Formatted tables in your terminal. Semantic exit codes (0-6) your CI can react to. Every write operation supports `--dry-run`.
 
 ```yaml
 - name: Upload
@@ -102,6 +122,7 @@ JSON output when piped. Formatted tables in your terminal. Semantic exit codes (
     GPC_APP: com.example.myapp
   run: |
     npm install -g @gpc-cli/cli
+    gpc preflight app.aab --fail-on error
     gpc releases upload app.aab --track internal
 ```
 

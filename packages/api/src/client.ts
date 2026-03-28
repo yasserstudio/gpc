@@ -1,8 +1,11 @@
 import { PlayApiError } from "./errors.js";
 import { createHttpClient } from "./http.js";
 import type { RateLimiter } from "./rate-limiter.js";
+import { resolveBucket, createRateLimiter } from "./rate-limiter.js";
 import type {
   ApiClientOptions,
+  ApkInfo,
+  ApksListResponse,
   AppDetails,
   AppEdit,
   AppRecoveriesListResponse,
@@ -118,6 +121,13 @@ export interface PlayApiClient {
   };
 
   apks: {
+    list(packageName: string, editId: string): Promise<ApkInfo[]>;
+    upload(
+      packageName: string,
+      editId: string,
+      filePath: string,
+      uploadOptions?: ResumableUploadOptions,
+    ): Promise<ApkInfo>;
     addExternallyHosted(
       packageName: string,
       editId: string,
@@ -267,6 +277,29 @@ export interface PlayApiClient {
       basePlanId: string,
       offerId: string,
     ): Promise<SubscriptionOffer>;
+    batchUpdateBasePlanStates(
+      packageName: string,
+      productId: string,
+      requests: { requests: Array<{ activateBasePlanRequest?: { basePlanId: string }; deactivateBasePlanRequest?: { basePlanId: string } }> },
+    ): Promise<Subscription>;
+    batchGetOffers(
+      packageName: string,
+      productId: string,
+      basePlanId: string,
+      offerIds: string[],
+    ): Promise<{ subscriptionOffers: SubscriptionOffer[] }>;
+    batchUpdateOffers(
+      packageName: string,
+      productId: string,
+      basePlanId: string,
+      requests: { requests: Array<{ subscriptionOffer: Partial<SubscriptionOffer>; updateMask?: string; regionsVersion?: string }> },
+    ): Promise<{ subscriptionOffers: SubscriptionOffer[] }>;
+    batchUpdateOfferStates(
+      packageName: string,
+      productId: string,
+      basePlanId: string,
+      requests: { requests: Array<{ activateSubscriptionOfferRequest?: { offerId: string }; deactivateSubscriptionOfferRequest?: { offerId: string } }> },
+    ): Promise<Subscription>;
   };
 
   inappproducts: {
@@ -344,7 +377,7 @@ export interface PlayApiClient {
     ): Promise<ProductPurchaseV2>;
     listVoided(
       packageName: string,
-      options?: { startTime?: string; endTime?: string; maxResults?: number; token?: string },
+      options?: { startTime?: string; endTime?: string; type?: number; includeQuantityBasedPartialRefund?: boolean; maxResults?: number; token?: string },
     ): Promise<VoidedPurchasesListResponse>;
   };
 
@@ -443,6 +476,9 @@ export interface PlayApiClient {
       regionsVersion?: string,
     ): Promise<OneTimeOffer>;
     deleteOffer(packageName: string, productId: string, offerId: string): Promise<void>;
+    batchGet(packageName: string, productIds: string[]): Promise<OneTimeProduct[]>;
+    batchUpdate(packageName: string, requests: { requests: Array<{ oneTimeProduct: Partial<OneTimeProduct>; updateMask?: string; regionsVersion?: string }> }): Promise<{ oneTimeProducts: OneTimeProduct[] }>;
+    batchDelete(packageName: string, productIds: string[]): Promise<void>;
   };
 
   purchaseOptions: {
@@ -468,9 +504,41 @@ async function rateLimit(limiter: RateLimiter | undefined, bucket: string): Prom
   if (limiter) await limiter.acquire(bucket);
 }
 
+async function autoRateLimit(limiter: RateLimiter | undefined, path: string): Promise<void> {
+  if (!limiter) return;
+  const bucket = resolveBucket(path);
+  await limiter.acquire(bucket);
+}
+
 export function createApiClient(options: ApiClientOptions): PlayApiClient {
-  const http = createHttpClient(options);
-  const limiter = options.rateLimiter || undefined;
+  const rawHttp = createHttpClient(options);
+  const defaultLimiter = createRateLimiter();
+  const limiter = options.rateLimiter || defaultLimiter;
+
+  // Wrap HTTP methods with automatic rate limiting based on path
+  const http = {
+    ...rawHttp,
+    async get<T>(path: string, params?: Record<string, string>) {
+      await autoRateLimit(limiter, path);
+      return rawHttp.get<T>(path, params);
+    },
+    async post<T>(path: string, body?: unknown) {
+      await autoRateLimit(limiter, path);
+      return rawHttp.post<T>(path, body);
+    },
+    async put<T>(path: string, body?: unknown) {
+      await autoRateLimit(limiter, path);
+      return rawHttp.put<T>(path, body);
+    },
+    async patch<T>(path: string, body?: unknown) {
+      await autoRateLimit(limiter, path);
+      return rawHttp.patch<T>(path, body);
+    },
+    async delete<T>(path: string) {
+      await autoRateLimit(limiter, path);
+      return rawHttp.delete<T>(path);
+    },
+  };
 
   return {
     edits: {
@@ -596,6 +664,31 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
     },
 
     apks: {
+      async list(packageName, editId) {
+        const { data } = await http.get<ApksListResponse>(
+          `/${packageName}/edits/${editId}/apks`,
+        );
+        return data.apks || [];
+      },
+
+      async upload(packageName, editId, filePath, uploadOptions) {
+        const { data } = await http.uploadResumable<ApkInfo>(
+          `/${packageName}/edits/${editId}/apks`,
+          filePath,
+          "application/vnd.android.package-archive",
+          uploadOptions,
+        );
+        if (!data || !data.versionCode) {
+          throw new PlayApiError(
+            "Upload succeeded but no APK data returned",
+            "API_EMPTY_RESPONSE",
+            200,
+            "This is unexpected. Retry the upload or contact Google Play support if the issue persists.",
+          );
+        }
+        return data;
+      },
+
       async addExternallyHosted(packageName, editId, apkData) {
         const { data } = await http.post<ExternallyHostedApkResponse>(
           `/${packageName}/edits/${editId}/apks/externallyHosted`,
@@ -707,7 +800,6 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
     reviews: {
       async list(packageName, options?) {
-        await rateLimit(limiter, "reviewsGet");
         const params: Record<string, string> = {};
         if (options?.token) params["token"] = options.token;
         if (options?.maxResults) params["maxResults"] = String(options.maxResults);
@@ -722,7 +814,6 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async get(packageName, reviewId, translationLanguage?) {
-        await rateLimit(limiter, "reviewsGet");
         const params: Record<string, string> = {};
         if (translationLanguage) params["translationLanguage"] = translationLanguage;
         const hasParams = Object.keys(params).length > 0;
@@ -734,7 +825,6 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async reply(packageName, reviewId, replyText) {
-        await rateLimit(limiter, "reviewsPost");
         const body: ReviewReplyRequest = { replyText };
         const { data } = await http.post<ReviewReplyResponse>(
           `/${packageName}/reviews/${reviewId}:reply`,
@@ -882,6 +972,38 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async deactivateOffer(packageName, productId, basePlanId, offerId) {
         const { data } = await http.post<SubscriptionOffer>(
           `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}:deactivate`,
+        );
+        return data;
+      },
+
+      async batchUpdateBasePlanStates(packageName, productId, requests) {
+        const { data } = await http.post<Subscription>(
+          `/${packageName}/subscriptions/${productId}/basePlans:batchUpdateStates`,
+          requests,
+        );
+        return data;
+      },
+
+      async batchGetOffers(packageName, productId, basePlanId, offerIds) {
+        const { data } = await http.post<{ subscriptionOffers: SubscriptionOffer[] }>(
+          `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers:batchGet`,
+          { requests: offerIds.map((id) => ({ offerId: id })) },
+        );
+        return data;
+      },
+
+      async batchUpdateOffers(packageName, productId, basePlanId, requests) {
+        const { data } = await http.post<{ subscriptionOffers: SubscriptionOffer[] }>(
+          `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers:batchUpdate`,
+          requests,
+        );
+        return data;
+      },
+
+      async batchUpdateOfferStates(packageName, productId, basePlanId, requests) {
+        const { data } = await http.post<Subscription>(
+          `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers:batchUpdateStates`,
+          requests,
         );
         return data;
       },
@@ -1052,11 +1174,11 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async listVoided(packageName, options?) {
-        await rateLimit(limiter, "voidedBurst");
-        await rateLimit(limiter, "voidedDaily");
         const params: Record<string, string> = {};
         if (options?.startTime) params["startTime"] = options.startTime;
         if (options?.endTime) params["endTime"] = options.endTime;
+        if (options?.type !== undefined) params["type"] = String(options.type);
+        if (options?.includeQuantityBasedPartialRefund) params["includeQuantityBasedPartialRefund"] = "true";
         if (options?.maxResults) params["maxResults"] = String(options.maxResults);
         if (options?.token) params["token"] = options.token;
         const hasParams = Object.keys(params).length > 0;
@@ -1301,6 +1423,29 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
       async deleteOffer(packageName, productId, offerId) {
         await http.delete(`/${packageName}/oneTimeProducts/${productId}/offers/${offerId}`);
+      },
+
+      async batchGet(packageName, productIds) {
+        const params = productIds.map((id) => `productIds=${encodeURIComponent(id)}`).join("&");
+        const { data } = await http.get<{ oneTimeProducts: OneTimeProduct[] }>(
+          `/${packageName}/oneTimeProducts:batchGet?${params}`,
+        );
+        return data.oneTimeProducts || [];
+      },
+
+      async batchUpdate(packageName, requests) {
+        const { data } = await http.post<{ oneTimeProducts: OneTimeProduct[] }>(
+          `/${packageName}/oneTimeProducts:batchUpdate`,
+          requests,
+        );
+        return data;
+      },
+
+      async batchDelete(packageName, productIds) {
+        await http.post(
+          `/${packageName}/oneTimeProducts:batchDelete`,
+          { requests: productIds.map((id) => ({ productId: id })) },
+        );
       },
     },
 

@@ -20,7 +20,7 @@ export type {
 } from "./enterprise-client.js";
 export { createHttpClient } from "./http.js";
 export type { HttpClient } from "./http.js";
-export { createRateLimiter, RATE_LIMIT_BUCKETS } from "./rate-limiter.js";
+export { createRateLimiter, RATE_LIMIT_BUCKETS, resolveBucket } from "./rate-limiter.js";
 export type { RateLimitBucket, RateLimiter } from "./rate-limiter.js";
 export { paginate, paginateAll, paginateParallel } from "./paginate.js";
 export type { PaginateOptions } from "./paginate.js";
@@ -50,6 +50,7 @@ export type {
   BundleListResponse,
   UploadResponse,
   ApkInfo,
+  ApksListResponse,
   DeobfuscationFile,
   DeobfuscationUploadResponse,
   ExternalTransaction,

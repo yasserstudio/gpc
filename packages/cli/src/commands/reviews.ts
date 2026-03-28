@@ -11,10 +11,13 @@ import {
   formatOutput,
   maybePaginate,
   sortResults,
+  GpcError,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, requireOption } from "../prompt.js";
+
+const MAX_REPLY_CHARS = 350;
 
 
 
@@ -31,6 +34,7 @@ export function registerReviewsCommands(program: Command): void {
     .option("--max <n>", "Maximum number of reviews per page", parseInt)
     .option("--limit <n>", "Maximum total results", parseInt)
     .option("--next-page <token>", "Resume from page token")
+    .option("--all", "Auto-paginate to fetch all reviews (API returns last 7 days only)")
     .option("--sort <field>", "Sort by field (prefix with - for descending)")
     .action(async (options) => {
       const config = await loadConfig();
@@ -46,6 +50,7 @@ export function registerReviewsCommands(program: Command): void {
         maxResults: options.max,
         limit: options.limit,
         nextPage: options.nextPage,
+        all: options.all,
       });
       if (Array.isArray(result) && result.length === 0 && format !== "json") {
         console.log("No reviews found.");
@@ -110,6 +115,15 @@ export function registerReviewsCommands(program: Command): void {
         },
         interactive,
       );
+
+      if (options.text.length > MAX_REPLY_CHARS) {
+        throw new GpcError(
+          `Reply text exceeds ${MAX_REPLY_CHARS} characters (${options.text.length} chars). Google Play will reject this reply.`,
+          "REVIEWS_USAGE_ERROR",
+          2,
+          `Shorten your reply to ${MAX_REPLY_CHARS} characters or fewer.`,
+        );
+      }
 
       if (isDryRun(program)) {
         printDryRun(

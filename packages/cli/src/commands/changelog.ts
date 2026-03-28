@@ -9,15 +9,15 @@ export function registerChangelogCommand(program: Command): void {
     .command("changelog")
     .description("Show release history")
     .option("-n, --limit <count>", "Number of releases to show", parseInt, 5)
-    .option("--version <tag>", "Show a specific version (e.g., v0.9.43)")
+    .option("--tag <tag>", "Show a specific release (e.g., v0.9.43)")
     .option("--all", "Show all releases")
-    .action(async (opts: { limit: number; version?: string; all?: boolean }) => {
+    .action(async (opts: { limit: number; tag?: string; all?: boolean }) => {
       const config = await loadConfig();
       const format = getOutputFormat(program, config);
 
       const entries = await fetchChangelog({
         limit: opts.all ? 100 : opts.limit,
-        version: opts.version,
+        version: opts.tag,
       });
 
       if (entries.length === 0) {
@@ -31,7 +31,7 @@ export function registerChangelogCommand(program: Command): void {
       }
 
       // Single version — show full details
-      if (opts.version || entries.length === 1) {
+      if (opts.tag || entries.length === 1) {
         console.log(formatChangelogEntry(entries[0]!));
         return;
       }
@@ -48,7 +48,7 @@ export function registerChangelogCommand(program: Command): void {
       }
       console.log("");
       console.log(
-        `Showing ${entries.length} releases. Use --version <tag> for details, or --all for full history.`,
+        `Showing ${entries.length} releases. Use --tag <tag> for details, or --all for full history.`,
       );
     });
 }

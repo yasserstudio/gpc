@@ -107,6 +107,8 @@ function getPageDescription(page: PageData): string {
       "gpc diff — Preview release state and pending changes before publishing. Read-only, no mutations.",
     "commands/changelog.md":
       "gpc changelog — View release history and what changed across versions.",
+    "commands/rtdn.md":
+      "gpc rtdn — Real-Time Developer Notifications. Decode Pub/Sub payloads, check configuration, debug subscription events.",
   };
   return map[path] ?? `GPC documentation — ${page.title ?? "Google Play Console CLI"}`;
 }
@@ -165,7 +167,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
         license: "https://opensource.org/licenses/MIT",
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.46",
+        softwareVersion: "0.9.47",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: { "@type": "Person", name: "yasserstudio", url: "https://github.com/yasserstudio" },
@@ -317,6 +319,7 @@ export default defineConfig({
             { text: "iap (legacy)", link: "/commands/iap" },
             { text: "purchases", link: "/commands/purchases" },
             { text: "pricing", link: "/commands/pricing" },
+            { text: "rtdn", link: "/commands/rtdn" },
           ],
         },
         {

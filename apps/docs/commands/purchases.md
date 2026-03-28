@@ -262,9 +262,11 @@ gpc purchases voided [options]
 | --------------- | ----- | -------- | ------- | -------------------------------------- |
 | `--start-time`  |       | `string` |         | Start time in milliseconds since epoch |
 | `--end-time`    |       | `string` |         | End time in milliseconds since epoch   |
-| `--max-results` |       | `number` |         | Maximum results per page               |
-| `--limit`       |       | `number` |         | Maximum total results                  |
-| `--next-page`   |       | `string` |         | Resume from pagination token           |
+| `--type`                     |       | `number` | `0`     | Purchase type: `0` = in-app only, `1` = in-app + subscriptions |
+| `--include-partial-refunds`  |       | flag     |         | Include quantity-based partial refunds |
+| `--max-results`              |       | `number` |         | Maximum results per page               |
+| `--limit`                    |       | `number` |         | Maximum total results                  |
+| `--next-page`                |       | `string` |         | Resume from pagination token           |
 
 ::: info Rate Limit
 The voided purchases API is limited to 6,000 requests per day and 30 requests per 30 seconds.

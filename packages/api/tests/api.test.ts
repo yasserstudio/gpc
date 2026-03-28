@@ -417,7 +417,7 @@ describe("createApiClient", () => {
 
       expect(result).toEqual(bundle);
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toBe(`${UPLOAD_BASE_URL}/${PKG}/edits/${EDIT_ID}/bundles`);
+      expect(url).toBe(`${UPLOAD_BASE_URL}/${PKG}/edits/${EDIT_ID}/bundles?uploadType=media`);
       expect(init.method).toBe("POST");
       expect(init.headers["Content-Type"]).toBe("application/octet-stream");
     });
@@ -2030,10 +2030,11 @@ describe("createRateLimiter", () => {
 
   it("RATE_LIMIT_BUCKETS has expected bucket names", () => {
     expect(RATE_LIMIT_BUCKETS).toHaveProperty("default");
-    expect(RATE_LIMIT_BUCKETS).toHaveProperty("reviewsGet");
-    expect(RATE_LIMIT_BUCKETS).toHaveProperty("reviewsPost");
-    expect(RATE_LIMIT_BUCKETS).toHaveProperty("voidedBurst");
-    expect(RATE_LIMIT_BUCKETS).toHaveProperty("voidedDaily");
+    expect(RATE_LIMIT_BUCKETS).toHaveProperty("edits");
+    expect(RATE_LIMIT_BUCKETS).toHaveProperty("purchases");
+    expect(RATE_LIMIT_BUCKETS).toHaveProperty("reviews");
+    expect(RATE_LIMIT_BUCKETS).toHaveProperty("reporting");
+    expect(RATE_LIMIT_BUCKETS).toHaveProperty("monetization");
   });
 });
 
@@ -2346,7 +2347,7 @@ describe("internalAppSharing", () => {
     const result = await client.internalAppSharing.uploadBundle(PKG, "/path/to/app.aab");
     expect(result).toEqual(artifact);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${INTERNAL_UPLOAD_BASE}/${PKG}/artifacts/bundle`);
+    expect(url).toBe(`${INTERNAL_UPLOAD_BASE}/${PKG}/artifacts/bundle?uploadType=media`);
     expect(init.method).toBe("POST");
   });
 
@@ -2361,7 +2362,7 @@ describe("internalAppSharing", () => {
     const result = await client.internalAppSharing.uploadApk(PKG, "/path/to/app.apk");
     expect(result).toEqual(artifact);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${INTERNAL_UPLOAD_BASE}/${PKG}/artifacts/apk`);
+    expect(url).toBe(`${INTERNAL_UPLOAD_BASE}/${PKG}/artifacts/apk?uploadType=media`);
     expect(init.method).toBe("POST");
   });
 

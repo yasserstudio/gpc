@@ -799,6 +799,27 @@ export function registerDoctorCommand(program: Command): void {
       }
 
       // -----------------------------------------------------------------------
+      // 18. Developer ID format validation (info only)
+      // -----------------------------------------------------------------------
+      if (config?.developerId) {
+        const devId = String(config.developerId);
+        if (/^\d{10,}$/.test(devId)) {
+          results.push({
+            name: "developer-id",
+            status: "pass",
+            message: `Developer ID: ${devId}`,
+          });
+        } else {
+          results.push({
+            name: "developer-id",
+            status: "warn",
+            message: `Developer ID "${devId}" may be invalid — expected a long numeric string`,
+            suggestion: "Find your Developer ID in Play Console → Settings → Developer account → Developer ID.",
+          });
+        }
+      }
+
+      // -----------------------------------------------------------------------
       // Output
       // -----------------------------------------------------------------------
 

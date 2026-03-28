@@ -1,4 +1,5 @@
 import { stat } from "node:fs/promises";
+import { extname } from "node:path";
 import type {
   PlayApiClient,
   Release,
@@ -44,6 +45,17 @@ async function withRetryOnConflict<T>(
 }
 
 /** Warn if edit is within 5 minutes of expiry. */
+let _consoleEditWarningShown = false;
+function warnAboutConcurrentEdits(): void {
+  if (_consoleEditWarningShown) return;
+  _consoleEditWarningShown = true;
+  process.emitWarning?.(
+    "If the Play Console has pending changes, they may be discarded when this edit is committed. " +
+    "Avoid making changes in the Play Console while CLI operations are in progress.",
+    "ConcurrentEditWarning",
+  );
+}
+
 function warnIfEditExpiring(edit: AppEdit): void {
   if (!edit.expiryTimeSeconds) return;
   const expiryMs = Number(edit.expiryTimeSeconds) * 1000;
@@ -190,15 +202,20 @@ export async function uploadRelease(
 
   const edit = await client.edits.insert(packageName);
   warnIfEditExpiring(edit);
+  warnAboutConcurrentEdits();
   try {
-    // Upload the bundle with resumable upload protocol
-    const bundle = await client.bundles.upload(packageName, edit.id, filePath, {
+    // Upload AAB or APK via the appropriate endpoint
+    const isApk = extname(filePath).toLowerCase() === ".apk";
+    const uploadOpts = {
       ...options.uploadOptions,
-      onProgress: (event) => {
+      onProgress: (event: UploadProgressEvent) => {
         if (options.onProgress) options.onProgress(event.bytesUploaded, event.totalBytes);
         if (options.onUploadProgress) options.onUploadProgress(event);
       },
-    });
+    };
+    const bundle = isApk
+      ? await client.apks.upload(packageName, edit.id, filePath, uploadOpts)
+      : await client.bundles.upload(packageName, edit.id, filePath, uploadOpts);
 
     // Upload mapping file if provided
     if (options.mappingFile) {
@@ -274,7 +291,7 @@ export async function promoteRelease(
   packageName: string,
   fromTrack: string,
   toTrack: string,
-  options?: { userFraction?: number; releaseNotes?: { language: string; text: string }[] },
+  options?: { status?: string; userFraction?: number; releaseNotes?: { language: string; text: string }[] },
 ): Promise<ReleaseStatusResult> {
   // Validate inputs before opening an edit
   if (options?.userFraction && (options.userFraction <= 0 || options.userFraction > 1)) {
@@ -304,7 +321,7 @@ export async function promoteRelease(
 
     const release: Release = {
       versionCodes: currentRelease.versionCodes,
-      status: (options?.userFraction ? "inProgress" : "completed") as Release["status"],
+      status: (options?.status || (options?.userFraction ? "inProgress" : "completed")) as Release["status"],
       ...(options?.userFraction && { userFraction: options.userFraction }),
       releaseNotes: options?.releaseNotes || currentRelease.releaseNotes || [],
     };

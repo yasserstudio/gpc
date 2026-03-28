@@ -102,6 +102,8 @@ import { paginateAll } from "@gpc-cli/api";
 export interface ListVoidedOptions {
   startTime?: string;
   endTime?: string;
+  type?: number;
+  includeQuantityBasedPartialRefund?: boolean;
   maxResults?: number;
   limit?: number;
   nextPage?: string;
@@ -119,6 +121,8 @@ export async function listVoidedPurchases(
         const resp = await client.purchases.listVoided(packageName, {
           startTime: options?.startTime,
           endTime: options?.endTime,
+          type: options?.type,
+          includeQuantityBasedPartialRefund: options?.includeQuantityBasedPartialRefund,
           maxResults: options?.maxResults,
           token: pageToken,
         });

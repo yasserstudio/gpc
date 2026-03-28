@@ -67,6 +67,24 @@ describe("changelog command", () => {
     expect(console.log).toHaveBeenCalledWith("No releases found.");
   });
 
+  it("passes --tag value to fetchChangelog as version (Bug AC fix)", async () => {
+    mockFetchChangelog.mockResolvedValue([
+      { version: "v0.9.46", date: "2026-03-27", title: "error handling", body: "details" },
+    ]);
+    mockFormatChangelogEntry.mockReturnValue("v0.9.46 — error handling");
+
+    const { registerChangelogCommand } = await import("../src/commands/changelog.js");
+    const program = makeProgram();
+    registerChangelogCommand(program);
+
+    await program.parseAsync(["node", "gpc", "changelog", "--tag", "v0.9.46"]);
+
+    expect(mockFetchChangelog).toHaveBeenCalledWith(
+      expect.objectContaining({ version: "v0.9.46" }),
+    );
+    expect(mockFormatChangelogEntry).toHaveBeenCalled();
+  });
+
   it("outputs JSON when --output json is passed", async () => {
     mockFetchChangelog.mockResolvedValue([
       { version: "v0.9.44", date: "2026-03-24", title: "test", body: "body" },

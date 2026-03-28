@@ -520,7 +520,8 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     contentType: string,
     baseUrl: string = UPLOAD_BASE_URL,
   ): Promise<ApiResponse<T>> {
-    const url = `${baseUrl}${path}`;
+    const separator = path.includes("?") ? "&" : "?";
+    const url = `${baseUrl}${path}${separator}uploadType=media`;
     const safeFilePath = validateFilePath(filePath);
     const fileBuffer = await readFile(safeFilePath);
     const effectiveTimeout = computeUploadTimeout(fileBuffer.byteLength);

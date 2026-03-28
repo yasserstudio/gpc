@@ -277,6 +277,8 @@ export function registerPurchasesCommands(program: Command): void {
     .description("List voided purchases")
     .option("--start-time <time>", "Start time (milliseconds)")
     .option("--end-time <time>", "End time (milliseconds)")
+    .option("--type <n>", "Purchase type: 0=in-app only (default), 1=in-app + subscriptions", parseInt)
+    .option("--include-partial-refunds", "Include quantity-based partial refunds")
     .addOption(
       new Option("--max-results <n>", "Maximum results per page").argParser(parseInt).hideHelp(),
     )
@@ -291,6 +293,8 @@ export function registerPurchasesCommands(program: Command): void {
       const result = await listVoidedPurchases(client, packageName, {
           startTime: options.startTime,
           endTime: options.endTime,
+          type: options.type,
+          includeQuantityBasedPartialRefund: options.includePartialRefunds,
           maxResults: options.maxResults,
           limit: options.limit,
           nextPage: options.nextPage,

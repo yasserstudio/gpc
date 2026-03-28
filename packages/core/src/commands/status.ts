@@ -4,6 +4,7 @@ import { join } from "node:path";
 import type { PlayApiClient } from "@gpc-cli/api";
 import type { ReportingApiClient } from "@gpc-cli/api";
 import { getCacheDir } from "@gpc-cli/config";
+import { GpcError } from "../errors.js";
 import { getReleasesStatus } from "./releases.js";
 import { listReviews } from "./reviews.js";
 import type { VitalsMetricSet, MetricSetQuery } from "@gpc-cli/api";
@@ -640,7 +641,12 @@ export function formatStatusDiff(diff: StatusDiff, since: string): string {
 
 export async function runWatchLoop(opts: WatchOptions): Promise<void> {
   if (opts.intervalSeconds < 10) {
-    throw new Error("--watch interval must be at least 10 seconds");
+    throw new GpcError(
+      "--watch interval must be at least 10 seconds",
+      "STATUS_USAGE_ERROR",
+      2,
+      "Use --watch 10 or higher.",
+    );
   }
 
   let running = true;

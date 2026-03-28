@@ -25,6 +25,12 @@ outline: deep
 | [`vitals errors search`](#vitals-errors-search) | Search error issues and reports        |
 | [`vitals compare`](#vitals-compare)             | Compare metric trend across periods    |
 
+::: info Reporting API Required
+Vitals commands use the Google Play Developer Reporting API, which must be enabled separately in your GCP project. If the API is not enabled, vitals commands will show "No vitals data available" instead of failing with a 403 error — other non-vitals commands continue to work normally.
+
+Enable it at: `https://console.cloud.google.com/apis/library/playdeveloperreporting.googleapis.com`
+:::
+
 ## Shared Options
 
 The metric commands (`crashes`, `anr`, `startup`, `rendering`, `battery`, `memory`) share these options:

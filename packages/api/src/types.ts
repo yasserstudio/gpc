@@ -132,6 +132,11 @@ export interface ApkInfo {
   binary: { sha1: string; sha256: string };
 }
 
+export interface ApksListResponse {
+  apks: ApkInfo[];
+  kind?: string;
+}
+
 export interface DeobfuscationFile {
   symbolType: string;
 }
@@ -517,12 +522,14 @@ export interface SubscriptionDeferResponse {
 }
 
 export interface VoidedPurchase {
+  kind?: string;
   purchaseToken: string;
   purchaseTimeMillis: string;
   voidedTimeMillis: string;
   orderId: string;
   voidedSource: number;
   voidedReason: number;
+  voidedQuantity?: number;
 }
 
 export interface VoidedPurchasesListResponse {

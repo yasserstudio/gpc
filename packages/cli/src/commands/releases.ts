@@ -81,6 +81,7 @@ export function registerReleasesCommands(program: Command): void {
       "Upload timeout in milliseconds (auto-scales with file size by default)",
       parseInt,
     )
+    .option("--status <status>", "Release status: completed, inProgress, draft, halted", "completed")
     .action(async (file: string, options) => {
       try {
         await stat(file);
@@ -224,6 +225,7 @@ export function registerReleasesCommands(program: Command): void {
 
         const result = await uploadRelease(client, packageName, file, {
           track: options.track,
+          status: options.status,
           userFraction: options.rollout ? Number(options.rollout) / 100 : undefined,
           releaseNotes,
           releaseName: options.name,
@@ -313,6 +315,7 @@ export function registerReleasesCommands(program: Command): void {
     .option("--rollout <percent>", "Staged rollout percentage")
     .option("--notes <text>", "Release notes")
     .option("--copy-notes-from <track>", "Copy release notes from another track")
+    .option("--status <status>", "Release status: completed, inProgress, draft, halted")
     .action(async (options) => {
       if (options.notes && options.copyNotesFrom) {
         throw new GpcError(
@@ -394,6 +397,7 @@ export function registerReleasesCommands(program: Command): void {
       }
 
       const result = await promoteRelease(client, packageName, options.from, options.to, {
+        status: options.status,
         userFraction: options.rollout ? Number(options.rollout) / 100 : undefined,
         releaseNotes,
       });

@@ -104,7 +104,7 @@ gpc/
 
 - Typed wrappers around Google Play Developer API v3
 - Request/response models matching the API specification
-- Rate limiting (token bucket per quota bucket)
+- Rate limiting (6 token buckets matching Google's quota model: edits, purchases, reviews, reporting, monetization, default — 3,000 queries/min each, auto-applied to all API calls)
 - Retry logic (exponential backoff with jitter on 429/5xx)
 - Pagination helpers (sequential and parallel with configurable concurrency)
 - HTTP compression (`Accept-Encoding: gzip`) and connection keep-alive

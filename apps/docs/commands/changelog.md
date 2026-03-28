@@ -24,7 +24,7 @@ gpc changelog [options]
 | Option              | Description                              | Default |
 | ------------------- | ---------------------------------------- | ------- |
 | `-n, --limit <n>`   | Number of releases to show               | `5`     |
-| `--version <tag>`   | Show a specific version (e.g., `v0.9.43`)| —       |
+| `--tag <tag>`   | Show a specific version (e.g., `v0.9.43`)| —       |
 | `--all`             | Show all releases                        | —       |
 | `-o, --output json` | JSON output                              | table   |
 
@@ -49,7 +49,7 @@ v0.9.39      2026-03-23   Preflight Scanner, New Commands & Status Improvements
 ### Show details for a specific version
 
 ```bash
-gpc changelog --version v0.9.43
+gpc changelog --tag v0.9.43
 ```
 
 ```

@@ -7,7 +7,50 @@ pageClass: wide-page
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.46 <Badge type="tip" text="latest" />
+## v0.9.47 <Badge type="tip" text="latest" />
+
+API completeness, bug fixes, RTDN, rate limiter rewrite.
+
+### Bug Fixes
+- **Bug AC**: `gpc changelog --version` renamed to `--tag` — Commander.js global `--version` flag was intercepting the subcommand option
+- **Bug AD**: `gpc releases upload app.apk` now uses the correct `edits.apks.upload` endpoint instead of sending APKs to the bundles endpoint
+- **Bug AD**: `gpc preflight app.apk` now supports APK files (reads manifest from root instead of `base/manifest/`)
+- **Bug Q**: `gpc vitals crashes/anr/wakeup/lmk` and `gpc anomalies list` now degrade gracefully when the Reporting API is disabled (403), instead of throwing a raw error
+- `gpc status --watch 5` now exits with code 2 (usage error), consistent with other validation errors
+- `gpc bundle analyze app.apk --output json` type field no longer null
+
+### New Commands
+- `gpc rtdn status` — check Real-Time Developer Notification topic configuration
+- `gpc rtdn decode <payload>` — decode base64 Pub/Sub notification payloads
+- `gpc rtdn test` — guidance for testing RTDN setup
+
+### New Features
+- **APK upload**: `gpc releases upload app.apk` auto-detects format and uses the correct API endpoint
+- **Draft releases**: `--status draft` flag on `gpc releases upload` and `gpc releases promote`
+- **Reviews `--all`**: auto-pagination fetches all pages instead of just the first 10
+- **Reply validation**: `gpc reviews reply` validates 350-character limit before sending
+- **Voided purchases**: `--type` flag (include subscription voids), `--include-partial-refunds` flag
+- **Doctor**: developer ID format validation check
+- **Concurrent edit warning**: warns when CLI operations may conflict with Play Console edits
+
+### API Client
+- 10 new batch monetization endpoints: OTP batch-get/update/delete, subscription base-plan batch states, offer batch-get/update/update-states
+- `edits.apks.upload` and `edits.apks.list` wired
+- `?uploadType=media` added to simple uploads (spec compliance)
+
+### Rate Limiter Rewrite
+- Replaced ad-hoc rate limiter (5 endpoints covered) with Google's actual 6-bucket model at 3,000 queries/min each
+- All API calls automatically rate-limited based on resource type (edits, purchases, reviews, reporting, monetization, default)
+
+### Spec Alignment
+- `qa` added to standard track validation
+- `google_play_games_pc:` form factor tracks added
+- `VoidedPurchase` type: added `kind` and `voidedQuantity` fields
+- `ApksListResponse` type added
+
+---
+
+## v0.9.46
 
 Deep code review, error handling overhaul, doctor enhancements, API catch-up.
 

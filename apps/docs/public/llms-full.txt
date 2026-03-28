@@ -11,9 +11,9 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Pl
 
 - Install: `npm install -g @gpc-cli/cli`
 - Binary: `gpc`
-- Version: 0.9.46
+- Version: 0.9.47
 - API endpoints covered: 204
-- Tests: 1,834 (90%+ coverage)
+- Tests: 1,845 (90%+ coverage)
 - License: MIT
 - Repo: https://github.com/yasserstudio/gpc
 
@@ -60,6 +60,55 @@ gpc auth profiles   # List all named profiles
 
 ---
 
+## Command Tree
+
+```
+gpc
+  auth         login, logout, status, token, profiles, switch, whoami
+  apps         list
+  status       [--sections] [--watch] [--since-last] [--all-apps] [--format summary]
+  releases     upload, status, promote, rollout (increase/halt/resume/complete), notes (get/set), diff, count
+  tracks       list, get, create, update
+  listings     get, pull, push, diff, lint, analyze, images (list/upload/delete), availability
+  reviews      list, get, reply, analyze, export
+  vitals       overview, crashes, anr, startup, rendering, battery, memory, wakeup, lmk, anomalies, compare, compare-versions, errors (search), watch
+  subscriptions  list, get, create, update, delete, base-plans (activate/deactivate/delete), offers (list/get/create/update/delete/activate/deactivate), analytics
+  one-time-products  list, get, create, update, delete, offers (list/get/create/update/delete)
+  iap          list, get, create, update, delete, batch-get, batch-update
+  purchases    get, acknowledge, subscription (get/cancel-v2/defer-v2), product (get-v2), voided, orders (get/batch-get)
+  pricing      convert
+  reports      list, download
+  users        list, invite, remove
+  grants       list, create, delete, update
+  testers      list, add, remove, import, export
+  preflight    [scanners] (manifest, permissions, native-libs, metadata, secrets, billing, privacy, policy, size)
+  bundle       analyze, compare
+  validate     <file> [--track] [--notes]
+  publish      <file> [--track] [--rollout]
+  doctor       [--fix] [--json]
+  init         [--app] [--ci-template]
+  diff         [--from] [--to] [--metadata]
+  rtdn         status, decode, test
+  changelog    [--tag] [--limit] [--all]
+  quota        status, usage
+  train        start, status, pause, abort
+  cache        list, info, clear
+  audit        list, search, clear
+  feedback     [--title] [--print]
+  quickstart   (guided setup)
+  migrate      fastlane
+  config       init, show, set, delete
+  update       [--check] [--force]
+  version      [--json]
+  docs         [topic] [--list]
+  plugins      list, install, remove
+  enterprise   list, create
+  games        leaderboards, achievements, events
+  completion   (bash/zsh/fish)
+```
+
+---
+
 ## Core Workflow
 
 ### gpc status
@@ -85,11 +134,13 @@ gpc publish app.aab --track beta --dry-run
 ```
 
 ### gpc doctor
-Diagnose authentication and configuration problems.
+20 automated checks — diagnoses auth, config, connectivity, and app access.
 ```
-gpc doctor
-gpc doctor --json
+gpc doctor                 # Run all checks
+gpc doctor --json          # Structured output for CI
+gpc doctor --fix           # Auto-fix what it can
 ```
+Checks: Node.js version, GPC version, CI detection, config file, unknown config keys, service account path, key readability, key age (>90 days warning), token validity, DNS resolution, HTTPS connectivity with latency, API connectivity, app access verification, package name format, conflicting credentials, token cache health, disk space, developer ID format.
 
 ---
 
@@ -97,17 +148,20 @@ gpc doctor --json
 
 ### Upload
 ```
-gpc releases upload app.aab [options]
+gpc releases upload <file> [options]     # AAB or APK (auto-detected)
   --track <track>         internal | alpha | beta | production | custom
+  --status <status>       completed | inProgress | draft | halted (default: completed)
   --rollout <n>           Staged rollout percentage 1-100
   --notes <text>          Release notes (en-US)
   --notes-dir <dir>       Per-locale notes directory (<dir>/<lang>.txt)
   --notes-from-git        Auto-generate notes from git log
+  --copy-notes-from <t>   Copy notes from another track's latest release
   --since <ref>           Git ref to start from (with --notes-from-git)
   --name <name>           Release name
   --mapping <file>        ProGuard/R8 mapping file
   --dry-run               Preview without uploading
 ```
+Supports both AAB and APK. APK uses `edits.apks.upload` endpoint. File size limits: AAB 2 GB, APK 1 GB.
 
 ### Status
 ```
@@ -120,6 +174,8 @@ gpc releases status --json
 ```
 gpc releases promote --from internal --to production
 gpc releases promote --from beta --to production --rollout 10
+gpc releases promote --from internal --to beta --status draft
+gpc releases promote --copy-notes-from internal --from internal --to beta
 gpc releases promote --dry-run
 ```
 
@@ -153,6 +209,21 @@ gpc tracks get --track production
 gpc tracks create --track custom-track
 gpc tracks delete --track custom-track
 ```
+
+---
+
+## Preflight Scanner
+
+9 offline policy scanners for AAB/APK files. Catches rejections before upload.
+```
+gpc preflight app.aab                            # All 9 scanners
+gpc preflight app.aab --fail-on error --json     # CI gate (exit 6 on failures)
+gpc preflight manifest app.aab                   # Target SDK, debuggable, exported
+gpc preflight permissions app.aab                # 18 restricted permissions
+gpc preflight --metadata metadata/android        # Store listing compliance
+gpc preflight --source app/src                   # Secrets, billing SDKs, tracking
+```
+Scanners: manifest, permissions, native-libs, metadata, secrets, billing, privacy, policy, size. Configure with `.preflightrc.json`.
 
 ---
 
@@ -232,14 +303,15 @@ gpc anomalies list --json
 ## Reviews
 ```
 gpc reviews list
-gpc reviews list --stars 1-3
-gpc reviews list --since 7d
-gpc reviews list --lang en
-gpc reviews list --limit 50
-gpc reviews reply --review-id <id> --text "Thank you for your feedback."
+gpc reviews list --stars 1-3 --since 7d
+gpc reviews list --lang en --translate-to en
+gpc reviews list --all                         # Auto-paginate all pages
+gpc reviews get <review-id>
+gpc reviews reply <review-id> --text "Thanks!"  # Max 350 chars (validated)
 gpc reviews export --format csv --output reviews.csv
-gpc reviews json
+gpc reviews analyze --since 30d                # Sentiment, topics, keywords
 ```
+Note: Reviews API only returns production reviews from the last 7 days.
 
 ---
 
@@ -275,11 +347,17 @@ gpc one-time-products deactivate <product-id>
 
 ## Purchases
 ```
-gpc purchases get <purchase-token>
-gpc purchases acknowledge <purchase-token>
-gpc purchases refund <purchase-token>
-gpc purchases voided list
-gpc purchases voided list --since 2026-01-01
+gpc purchases get <product-id> <token>
+gpc purchases acknowledge <product-id> <token>
+gpc purchases subscription get <token>
+gpc purchases subscription cancel-v2 <token> --type DEVELOPER_CANCELED
+gpc purchases subscription defer-v2 <token> --until 2026-12-01
+gpc purchases product get-v2 <token>
+gpc purchases voided                           # Default: in-app only
+gpc purchases voided --type 1                  # Include subscription voids
+gpc purchases voided --include-partial-refunds
+gpc purchases orders get <order-id>
+gpc purchases orders batch-get --ids GPA.1,GPA.2
 ```
 
 ---
@@ -432,7 +510,18 @@ gpc cache list          # Show cached data
 gpc cache clear         # Clear all cached data
 gpc feedback            # Open GitHub issues
 gpc changelog           # Show release history
-gpc changelog --version v0.9.43  # Details for a version
+gpc changelog --tag v0.9.47    # Details for a specific release
+gpc init                # Scaffold .gpcrc.json, metadata dirs, CI templates
+gpc diff                # Release status across all tracks
+gpc diff --from internal --to production  # Compare two tracks
+gpc quota status        # API quota usage
+```
+
+### RTDN (Real-Time Developer Notifications)
+```
+gpc rtdn status                           # Check Pub/Sub topic config
+gpc rtdn decode <base64-payload>          # Decode notification payload
+gpc rtdn test                             # Setup instructions
 ```
 
 ---
@@ -540,14 +629,23 @@ VERSION=$(echo $STATUS | jq -r '.releases[0].versionCode')
 ## SDK Usage (@gpc-cli/api)
 
 ```typescript
-import { createPlayClient } from '@gpc-cli/api';
-import { loadCredentials } from '@gpc-cli/auth';
+import { createApiClient } from '@gpc-cli/api';
+import { resolveAuth } from '@gpc-cli/auth';
 
-const auth = await loadCredentials();
-const client = createPlayClient({ auth, packageName: 'com.example.app' });
+const auth = await resolveAuth({
+  serviceAccountPath: './service-account.json',
+});
+const client = createApiClient({ auth });
 
-const releases = await client.releases.list({ track: 'production' });
-const vitals = await client.vitals.getCrashRate({ days: 7 });
+// Open an edit session to read/write app data
+const edit = await client.edits.insert('com.example.app');
+const tracks = await client.tracks.list('com.example.app', edit.id);
+const listings = await client.listings.list('com.example.app', edit.id);
+await client.edits.delete('com.example.app', edit.id);
+
+// Direct API calls (no edit needed)
+const reviews = await client.reviews.list('com.example.app');
+const subs = await client.subscriptions.list('com.example.app');
 ```
 
 ---
@@ -555,29 +653,44 @@ const vitals = await client.vitals.getCrashRate({ days: 7 });
 ## Plugin Development (@gpc-cli/plugin-sdk)
 
 ```typescript
-import type { GpcPlugin } from '@gpc-cli/plugin-sdk';
+import { definePlugin } from '@gpc-cli/plugin-sdk';
 
-const plugin: GpcPlugin = {
+export const plugin = definePlugin({
   name: 'my-plugin',
   version: '1.0.0',
-  permissions: ['releases:read', 'vitals:read'],
-  hooks: {
-    beforeUpload: async (ctx) => { /* ... */ },
-    afterUpload: async (ctx) => { /* ... */ },
+  register(hooks) {
+    hooks.beforeCommand(async (ctx) => { /* ... */ });
+    hooks.afterCommand(async (ctx, result) => { /* ... */ });
+    hooks.onError(async (ctx, error) => { /* ... */ });
+    hooks.beforeRequest(async (req) => { /* ... */ });
+    hooks.afterResponse(async (req, res) => { /* ... */ });
   },
-  commands: [
-    {
-      name: 'my-command',
-      description: 'Custom command',
-      action: async (options) => { /* ... */ },
-    },
-  ],
-};
-
-export default plugin;
+});
 ```
+6 lifecycle hooks: beforeCommand, afterCommand, onError, beforeRequest, afterResponse, registerCommands.
 
 ---
 
-*Generated from GPC v0.9.46 documentation.*
+## Error Codes (typed errors)
+
+All errors include a code, message, and suggestion. Common codes:
+
+| Code | Exit | Meaning |
+|------|------|---------|
+| UNAUTHENTICATED | 3 | No credentials found |
+| PERMISSION_DENIED | 3 | SA lacks required permissions |
+| API_FORBIDDEN | 4 | 403 from Google Play API |
+| API_NOT_FOUND | 4 | App/resource not found |
+| API_RATE_LIMITED | 4 | Too many requests |
+| API_EDIT_EXPIRED | 4 | Edit session expired |
+| RELEASES_USAGE_ERROR | 2 | Bad releases command args |
+| STATUS_USAGE_ERROR | 2 | Bad status command args |
+| VITALS_USAGE_ERROR | 2 | Bad vitals command args |
+| REVIEWS_USAGE_ERROR | 2 | Bad reviews command args |
+| THRESHOLD_BREACH | 6 | Vitals threshold exceeded |
+| NETWORK_ERROR | 5 | DNS/connectivity failure |
+
+---
+
+*Generated from GPC v0.9.47 documentation.*
 *Source: https://github.com/yasserstudio/gpc*

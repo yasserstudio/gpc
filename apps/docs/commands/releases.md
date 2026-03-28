@@ -51,6 +51,7 @@ gpc releases upload <file> [options]
 | `--since`           |       | `string` |            | Git ref to start from (tag, SHA) — used with `--notes-from-git`     |
 | `--timeout`         |       | `number` |            | Upload timeout in milliseconds (auto-scales with file size)         |
 | `--retry-log`       |       | `string` |            | Write retry log entries to file (JSONL)                             |
+| `--status`          |       | `string` | `completed`| Release status: `completed`, `inProgress`, `draft`, `halted`       |
 
 ### Upload Progress
 
@@ -106,6 +107,20 @@ gpc releases upload app-release.aab \
   --app com.example.myapp \
   --track beta \
   --notes-dir ./release-notes/
+```
+
+Upload as draft (review in Play Console before going live):
+
+```bash
+gpc releases upload app-release.aab \
+  --track production \
+  --status draft
+```
+
+Upload an APK (auto-detected by extension):
+
+```bash
+gpc releases upload app-release.apk --track internal
 ```
 
 ---
@@ -181,6 +196,7 @@ gpc releases promote --from <track> --to <track> [options]
 | `--rollout`         |       | `number` |                | Staged rollout percentage (1-100) for the target track |
 | `--notes`           |       | `string` |                | Release notes text (en-US)                             |
 | `--copy-notes-from` |       | `string` |                | Copy release notes from another track's latest release |
+| `--status`          |       | `string` |                | Release status: `completed`, `inProgress`, `draft`, `halted` |
 
 ::: tip Validation
 `--from` and `--to` must be different tracks. Passing the same value for both exits code 2.

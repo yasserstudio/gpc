@@ -39,6 +39,12 @@ gpc reviews list [options]
 | `--max`          |       | `number` |         | Maximum results per page             |
 | `--limit`        |       | `number` |         | Maximum total results                |
 | `--next-page`    |       | `string` |         | Resume from pagination token         |
+| `--all`          |       | flag     |         | Auto-paginate to fetch all reviews   |
+| `--sort`         |       | `string` |         | Sort by field (prefix with `-` for descending) |
+
+::: info Production only
+The Google Play API only returns reviews for production releases, and only reviews from the last 7 days.
+:::
 
 ### Example
 
@@ -132,7 +138,7 @@ gpc reviews get "gp:AOqpTOF..." \
 
 ## `reviews reply`
 
-Reply to a user review. Google Play limits replies to 350 characters. The user receives a notification about the reply.
+Reply to a user review. Google Play limits replies to 350 characters. GPC validates the character limit before sending — replies exceeding 350 characters exit code 2 immediately. The user receives a notification about the reply.
 
 ### Synopsis
 

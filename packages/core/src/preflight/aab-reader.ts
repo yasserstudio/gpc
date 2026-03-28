@@ -4,24 +4,31 @@ import { open as yauzlOpen, type Entry, type ZipFile } from "yauzl";
 import type { ParsedManifest, ZipEntryInfo } from "./types.js";
 import { decodeManifest } from "./manifest-parser.js";
 
-const MANIFEST_PATH = "base/manifest/AndroidManifest.xml";
+const AAB_MANIFEST_PATH = "base/manifest/AndroidManifest.xml";
+const APK_MANIFEST_PATH = "AndroidManifest.xml";
 
 interface AabContents {
   manifest: ParsedManifest;
   entries: ZipEntryInfo[];
 }
 
+function detectManifestPath(filePath: string): string {
+  return filePath.toLowerCase().endsWith(".apk") ? APK_MANIFEST_PATH : AAB_MANIFEST_PATH;
+}
+
 /**
- * Open an AAB file, extract the manifest and ZIP entry list.
+ * Open an AAB or APK file, extract the manifest and ZIP entry list.
  * Uses yauzl for streaming — does not load the entire file into memory.
  */
 export async function readAab(aabPath: string): Promise<AabContents> {
-  const { zipfile, entries, manifestBuf } = await openAndScan(aabPath);
+  const manifestPath = detectManifestPath(aabPath);
+  const { zipfile, entries, manifestBuf } = await openAndScan(aabPath, manifestPath);
   zipfile.close();
 
   if (!manifestBuf) {
+    const fileType = aabPath.toLowerCase().endsWith(".apk") ? "APK" : "AAB";
     throw new Error(
-      `AAB is missing ${MANIFEST_PATH}. This does not appear to be a valid Android App Bundle.`,
+      `${fileType} is missing ${manifestPath}. This does not appear to be a valid Android ${fileType === "APK" ? "application package" : "App Bundle"}.`,
     );
   }
 
@@ -67,6 +74,7 @@ function createFallbackManifest(): ParsedManifest {
  */
 function openAndScan(
   aabPath: string,
+  manifestPath: string = AAB_MANIFEST_PATH,
 ): Promise<{ zipfile: ZipFile; entries: ZipEntryInfo[]; manifestBuf: Buffer | null }> {
   return new Promise((resolve, reject) => {
     yauzlOpen(aabPath, { lazyEntries: true, autoClose: false }, (err, zipfile) => {
@@ -103,7 +111,7 @@ function openAndScan(
         }
 
         // Extract manifest content
-        if (path === MANIFEST_PATH) {
+        if (path === manifestPath) {
           zipfile.openReadStream(entry, (streamErr, stream) => {
             if (streamErr || !stream) {
               fail(streamErr ?? new Error("Failed to read manifest entry"));

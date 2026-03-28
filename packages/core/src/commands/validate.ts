@@ -24,6 +24,7 @@ export interface ValidateResult {
 
 const STANDARD_TRACKS = new Set([
   "internal",
+  "qa",
   "alpha",
   "beta",
   "production",
@@ -44,6 +45,10 @@ const STANDARD_TRACKS = new Set([
   "android_xr:alpha",
   "android_xr:beta",
   "android_xr:production",
+  "google_play_games_pc:internal",
+  "google_play_games_pc:alpha",
+  "google_play_games_pc:beta",
+  "google_play_games_pc:production",
 ]);
 const TRACK_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9_:-]*$/;
 

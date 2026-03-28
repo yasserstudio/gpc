@@ -15,36 +15,48 @@ interface BucketState {
   config: RateLimitBucket;
 }
 
+/**
+ * Google Play Developer API quota model (as of 2025):
+ * - 200,000 queries per day total
+ * - 6 independent per-minute buckets at 3,000 queries/min each
+ *
+ * The per-minute buckets are the practical constraint for CLI usage.
+ * Daily limits are tracked locally via gpc quota.
+ */
 export const RATE_LIMIT_BUCKETS: Record<string, RateLimitBucket> = {
-  default: { name: "default", maxTokens: 200, refillRate: 200, refillIntervalMs: 1_000 },
-  reviewsGet: { name: "reviewsGet", maxTokens: 200, refillRate: 200, refillIntervalMs: 3_600_000 },
-  reviewsPost: {
-    name: "reviewsPost",
-    maxTokens: 2_000,
-    refillRate: 2_000,
-    refillIntervalMs: 86_400_000,
-  },
-  voidedBurst: { name: "voidedBurst", maxTokens: 30, refillRate: 30, refillIntervalMs: 30_000 },
-  voidedDaily: {
-    name: "voidedDaily",
-    maxTokens: 6_000,
-    refillRate: 6_000,
-    refillIntervalMs: 86_400_000,
-  },
-  reporting: { name: "reporting", maxTokens: 10, refillRate: 10, refillIntervalMs: 1_000 },
+  edits:        { name: "edits",        maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
+  purchases:    { name: "purchases",    maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
+  reviews:      { name: "reviews",      maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
+  reporting:    { name: "reporting",    maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
+  monetization: { name: "monetization", maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
+  default:      { name: "default",      maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
 };
+
+/**
+ * Map an API path to the appropriate rate-limit bucket.
+ * Google's quota is structured by resource type.
+ */
+export function resolveBucket(path: string): string {
+  // Order matters: more specific patterns first
+  if (path.includes("/edits/") || path.includes("/edits:")) return "edits";
+  if (path.includes("/purchases/") || path.includes("/orders")) return "purchases";
+  if (path.includes("/reviews")) return "reviews";
+  if (path.includes("playdeveloperreporting") || path.includes("MetricSet") || path.includes("anomalies")) return "reporting";
+  if (path.includes("/inappproducts") || path.includes("/oneTimeProducts") || path.includes("/subscriptions") || path.includes("/monetization")) return "monetization";
+  return "default";
+}
 
 export function createRateLimiter(buckets?: RateLimitBucket[]): RateLimiter {
   const states = new Map<string, BucketState>();
 
-  if (buckets) {
-    for (const bucket of buckets) {
-      states.set(bucket.name, {
-        tokens: bucket.maxTokens,
-        lastRefillTime: Date.now(),
-        config: bucket,
-      });
-    }
+  // Initialize from provided buckets or defaults
+  const effectiveBuckets = buckets ?? Object.values(RATE_LIMIT_BUCKETS);
+  for (const bucket of effectiveBuckets) {
+    states.set(bucket.name, {
+      tokens: bucket.maxTokens,
+      lastRefillTime: Date.now(),
+      config: bucket,
+    });
   }
 
   return {
@@ -80,7 +92,7 @@ export function createRateLimiter(buckets?: RateLimitBucket[]): RateLimiter {
       const newTokens = Math.floor(
         (totalElapsed / state.config.refillIntervalMs) * state.config.refillRate,
       );
-      state.tokens = Math.min(state.config.maxTokens, newTokens) - 1;
+      state.tokens = Math.max(0, Math.min(state.config.maxTokens, newTokens) - 1);
       state.lastRefillTime = afterWait;
     },
   };

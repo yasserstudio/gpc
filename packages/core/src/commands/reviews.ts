@@ -12,6 +12,7 @@ export interface ReviewsFilterOptions {
   maxResults?: number;
   limit?: number;
   nextPage?: string;
+  all?: boolean;
 }
 
 export interface ReviewExportOptions extends ReviewsFilterOptions {
@@ -23,12 +24,31 @@ export async function listReviews(
   packageName: string,
   options?: ReviewsFilterOptions,
 ): Promise<Review[]> {
-  const apiOptions: ReviewsListOptions = {};
-  if (options?.translationLanguage) apiOptions.translationLanguage = options.translationLanguage;
-  if (options?.maxResults) apiOptions.maxResults = options.maxResults;
+  let reviews: Review[];
 
-  const response = await client.reviews.list(packageName, apiOptions);
-  let reviews = response.reviews || [];
+  if (options?.all) {
+    // Auto-paginate all pages
+    const { items } = await paginateAll<Review>(async (pageToken) => {
+      const apiOptions: ReviewsListOptions = { token: pageToken };
+      if (options?.translationLanguage) apiOptions.translationLanguage = options.translationLanguage;
+      if (options?.maxResults) apiOptions.maxResults = options.maxResults;
+      const response = await client.reviews.list(packageName, apiOptions);
+      return {
+        items: response.reviews || [],
+        nextPageToken: response.tokenPagination?.nextPageToken,
+      };
+    }, { limit: options?.limit });
+    reviews = items;
+  } else {
+    // Single page (default)
+    const apiOptions: ReviewsListOptions = {};
+    if (options?.translationLanguage) apiOptions.translationLanguage = options.translationLanguage;
+    if (options?.maxResults) apiOptions.maxResults = options.maxResults;
+    if (options?.nextPage) apiOptions.token = options.nextPage;
+
+    const response = await client.reviews.list(packageName, apiOptions);
+    reviews = response.reviews || [];
+  }
 
   // Client-side filters
   if (options?.stars !== undefined) {
