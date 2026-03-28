@@ -76,6 +76,10 @@ REVIEWS  (last 30 days)
 
 6 parallel API calls, results in under 3 seconds. Results cached — `--cached` skips the network entirely.
 
+## Why GPC
+
+Fastlane supply covers ~20 of 204 Google Play API endpoints. gradle-play-publisher covers ~15. Neither gives you reviews, vitals, subscriptions, or reports. GPC covers the entire API — no Ruby, no JVM, no browser. Every write operation supports `--dry-run`. Works with your existing service account.
+
 ## What You Get
 
 204 API endpoints across these command groups:
@@ -128,7 +132,7 @@ JSON output when piped. Formatted tables in your terminal. Semantic exit codes (
 
 Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
 
-## Part of the GPC Monorepo
+## Related Packages
 
 | Package                                                                  | Description                                  |
 | ------------------------------------------------------------------------ | -------------------------------------------- |
@@ -140,9 +144,14 @@ Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gp
 | [@gpc-cli/plugin-sdk](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface and lifecycle hooks         |
 | [@gpc-cli/plugin-ci](https://www.npmjs.com/package/@gpc-cli/plugin-ci)   | CI/CD helpers                                |
 
-## Documentation
+## Get Started
 
-Full docs at **[yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)**
+```bash
+npm install -g @gpc-cli/cli
+gpc doctor
+```
+
+Full docs at **[yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)** | [GitHub](https://github.com/yasserstudio/gpc)
 
 ## License
 

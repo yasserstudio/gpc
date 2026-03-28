@@ -4,7 +4,7 @@ layout: home
 hero:
   name: "GPC"
   text: "Google Play Console CLI"
-  tagline: "Ship Android apps from your terminal. The entire Google Play API in one tool — no Ruby, no browser, no ceremony. Built for Android developers, vibe coders, release engineers, DevOps teams — and iOS developers who have no idea how the Play Console works."
+  tagline: "The entire Google Play API in one CLI. No Ruby. No browser. No ceremony."
   actions:
     - theme: brand
       text: Install in 30 seconds
@@ -75,7 +75,7 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 iwr -useb https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.ps1 | iex
 ```
 
-Free. Open-source. No account required beyond your existing Google Play service account. Already on Fastlane? See the [migration guide](/migration/from-fastlane) — most commands map one-to-one.
+Free. Open-source. No account required beyond your existing Google Play service account.
 
 ## Quick Start
 
@@ -130,4 +130,15 @@ gpc reviews list --stars 1-3 --since 7d
 | Preflight scanner   | **9 offline policy checks**  | No              | No                    | No           |
 | Plugin system       | Yes                          | No              | No                    | No           |
 
-Already on Fastlane? See the [migration guide](/migration/from-fastlane) — most commands map one-to-one.
+Already on Fastlane? See the [migration guide](/migration/from-fastlane) or the [full comparison](/alternatives/fastlane).
+
+## Ready to stop clicking?
+
+```bash
+npm install -g @gpc-cli/cli
+gpc doctor
+```
+
+Free. Open source. Works with your existing Google Play service account. Every write operation supports `--dry-run`.
+
+[Get started](/guide/quick-start) | [Full installation options](/guide/installation)

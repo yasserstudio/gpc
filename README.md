@@ -23,14 +23,15 @@
 
 <p align="center"><strong>Ship Android apps from your terminal.</strong></p>
 
-<p align="center"><sub>Built for Android developers, vibe coders, release engineers, DevOps teams — and iOS developers who have no idea how the Play Console works.</sub></p>
+<p align="center"><sub>Built for Android developers, release engineers, and DevOps teams who are done clicking through the Play Console.</sub></p>
 
 <p align="center">
 The complete CLI for Google Play — 204 API endpoints, one tool.<br>
 Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.<br>
 <strong>Plus an offline compliance scanner that catches policy violations before you upload.</strong><br>
-Free and open-source. MIT licensed.
 </p>
+
+<p align="center"><a href="#install"><strong>Install in 30 seconds</strong></a> · <a href="https://yasserstudio.github.io/gpc/guide/quick-start">Quick Start Guide</a> · <a href="https://github.com/yasserstudio/gpc">GitHub</a></p>
 
 <p align="center">
   <img src="./assets/demo.svg" alt="gpc status — releases, vitals, reviews at a glance" width="680">

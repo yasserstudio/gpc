@@ -24,11 +24,21 @@ Five minutes to your first release. This guide covers the most common GPC operat
   { type: 'warn', text: 'cold start  842ms  ↑ watch' },
 ]" />
 
+::: tip Try GPC without authentication
+Want to see GPC in action before setting up credentials? The preflight scanner works entirely offline:
+```bash
+gpc preflight app.aab
+```
+No service account needed. Scans your AAB against 9 Google Play policies.
+:::
+
 ## Prerequisites
 
 - GPC installed ([Installation](/guide/installation))
 - A Google Play Developer account
-- A service account JSON key file with Play Console access ([Authentication](/guide/authentication) has full setup steps)
+- A service account JSON key file with Play Console access ([Authentication](/guide/authentication) has full setup steps, or run `gpc auth setup-gcp` for a guided wizard)
+
+**Time estimate:** 5 minutes if you have a service account key. 20 minutes if you need to create one.
 
 ## Step 1: Authenticate
 
@@ -60,6 +70,13 @@ Method:     service-account
 Token:      valid (expires in 58 minutes)
 Scopes:     https://www.googleapis.com/auth/androidpublisher
 ```
+
+::: warning Authentication failed?
+Run `gpc doctor` to diagnose the issue. Common causes:
+- **File not found** — check the path to your key file
+- **Permission denied (403)** — the service account needs access in [Play Console → API access](https://play.google.com/console/developers)
+- **API not enabled** — enable the Google Play Developer API in your [GCP Console](https://console.cloud.google.com/apis/library/androidpublisher.googleapis.com)
+:::
 
 ## Step 2: Set Your Default App
 
