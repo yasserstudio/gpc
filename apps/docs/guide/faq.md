@@ -87,7 +87,7 @@ Yes. Use the `--app` flag per command, set `GPC_APP` as an environment variable,
 
 ### Is GPC free?
 
-Yes. GPC is open source and released under the MIT license. Source code at [github.com/yasserstudio/gpc](https://github.com/yasserstudio/gpc).
+Yes. GPC is free to use. Source code is available at [github.com/yasserstudio/gpc](https://github.com/yasserstudio/gpc).
 
 ## Features
 

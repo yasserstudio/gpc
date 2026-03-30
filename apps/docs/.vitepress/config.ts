@@ -112,6 +112,8 @@ function getPageDescription(page: PageData): string {
     // Guide
     "guide/configuration.md":
       "Configure GPC with .gpcrc.json, environment variables, and named profiles. XDG paths, precedence rules, and multi-app setup.",
+    "guide/developer-verification.md":
+      "Android developer verification and app registration — what's changing, the timeline, and how GPC helps you stay compliant.",
     "guide/faq.md":
       "Frequently asked questions about GPC — authentication, CI/CD, Fastlane migration, troubleshooting, and production readiness.",
     "guide/authentication.md":
@@ -311,7 +313,7 @@ export default defineConfig({
           { "@type": "Question", name: "How is GPC different from Fastlane supply?", acceptedAnswer: { "@type": "Answer", text: "GPC covers 204 Google Play API endpoints. Fastlane supply covers about 20. GPC adds reviews, vitals, subscriptions, reports, preflight scanning, and more. No Ruby required." } },
           { "@type": "Question", name: "What authentication method should I use?", acceptedAnswer: { "@type": "Answer", text: "Use a service account for CI/CD pipelines. Use OAuth for local development. Application Default Credentials work in Google Cloud environments." } },
           { "@type": "Question", name: "Can I use GPC in CI/CD?", acceptedAnswer: { "@type": "Answer", text: "Yes. GPC outputs JSON when piped, uses semantic exit codes (0-6), and supports env var configuration. Works with GitHub Actions, GitLab CI, Bitbucket, and CircleCI." } },
-          { "@type": "Question", name: "Is GPC free?", acceptedAnswer: { "@type": "Answer", text: "Yes. GPC is free and open source under the MIT license. No account or subscription required." } },
+          { "@type": "Question", name: "Is GPC free?", acceptedAnswer: { "@type": "Answer", text: "Yes. GPC is free to use. The code is on GitHub. No account or subscription required." } },
           { "@type": "Question", name: "Is it stable enough for production CI/CD?", acceptedAnswer: { "@type": "Answer", text: "1,845 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching." } },
         ],
       };
@@ -414,6 +416,7 @@ export default defineConfig({
             { text: "Quick Start", link: "/guide/quick-start" },
             { text: "Authentication", link: "/guide/authentication" },
             { text: "Configuration", link: "/guide/configuration" },
+            { text: "Developer Verification", link: "/guide/developer-verification" },
             { text: "FAQ", link: "/guide/faq" },
           ],
         },

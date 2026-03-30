@@ -4,7 +4,7 @@ outline: deep
 
 # Installation
 
-GPC is free and open-source (MIT). Choose the installation method that fits your environment:
+GPC is free to use. Choose the installation method that fits your environment:
 
 | Method                                  | Best For                   | Plugin Support | Auto-Update     |
 | --------------------------------------- | -------------------------- | -------------- | --------------- |

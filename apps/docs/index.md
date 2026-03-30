@@ -40,7 +40,7 @@ features:
   - icon:
       src: /icons/plug.png
     title: Plugin System + SDK
-    details: "1,845 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK. MIT licensed."
+    details: "1,845 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK."
 ---
 
 <div class="stats-bar">
@@ -50,7 +50,7 @@ features:
   <span class="stat-sep"></span>
   <span class="stat">90%+ Coverage</span>
   <span class="stat-sep"></span>
-  <span class="stat">MIT Licensed</span>
+  <span class="stat">Free to Use</span>
 </div>
 
 <p align="center" style="margin-top: 1rem;">
@@ -75,7 +75,7 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 iwr -useb https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.ps1 | iex
 ```
 
-Free. Open-source. No account required beyond your existing Google Play service account.
+Free to use. No account required beyond your existing Google Play service account.
 
 ## Quick Start
 
@@ -139,6 +139,6 @@ npm install -g @gpc-cli/cli
 gpc doctor
 ```
 
-Free. Open source. Works with your existing Google Play service account. Every write operation supports `--dry-run`.
+Free to use. Works with your existing Google Play service account. Every write operation supports `--dry-run`.
 
 [Get started](/guide/quick-start) | [Full installation options](/guide/installation)

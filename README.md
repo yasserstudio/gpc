@@ -55,7 +55,7 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 iwr -useb https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.ps1 | iex
 ```
 
-Free. Open-source. No account required beyond your existing Google Play service account.
+Free to use. No account required beyond your existing Google Play service account.
 
 ---
 
@@ -442,5 +442,5 @@ pnpm test    # 1,845 tests across 7 packages
 </p>
 
 <p align="center">
-  <sub>GPC is an independent, open-source project. Not affiliated with, endorsed by, or sponsored by Google LLC. "Google Play" and the Google Play logo are trademarks of Google LLC. "Android" and "Google" are trademarks of Google LLC.</sub>
+  <sub>GPC is an independent project. Not affiliated with, endorsed by, or sponsored by Google LLC. "Google Play" and the Google Play logo are trademarks of Google LLC. "Android" and "Google" are trademarks of Google LLC.</sub>
 </p>

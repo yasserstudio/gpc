@@ -72,7 +72,7 @@ Key pages for contributors:
 - `apps/docs/advanced/architecture.md` — system design, package graph
 - `apps/docs/advanced/conventions.md` — code style, git, testing
 - `apps/docs/advanced/security.md` — credential handling, threat model
-- `apps/docs/roadmap.md` — phased implementation plan
+- `apps/docs/guide/developer-verification.md` — Google's 2026 verification rollout and GPC support plan
 
 Private docs in `.dev/` (gitignored) — internal use only.
 
