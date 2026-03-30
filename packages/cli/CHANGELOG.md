@@ -1,5 +1,11 @@
 # @gpc-cli/cli
 
+## 0.9.49
+
+### Patch Changes
+
+- Developer verification awareness — gpc verify command, doctor deadline check, status note, preflight reminder
+
 ## 0.9.48
 
 ### Patch Changes
