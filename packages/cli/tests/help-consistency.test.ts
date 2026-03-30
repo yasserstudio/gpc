@@ -296,6 +296,7 @@ const EXPECTED_TOP_LEVEL_COMMANDS = [
   "diff",
   "changelog",
   "rtdn",
+  "verify",
 ];
 
 describe("help text consistency", () => {

@@ -388,6 +388,31 @@ async function checkAppAccess(packageName: string, accessToken: string): Promise
 }
 
 // ---------------------------------------------------------------------------
+// Verification deadline check
+// ---------------------------------------------------------------------------
+
+const VERIFICATION_ENFORCEMENT = new Date("2026-09-01");
+
+export function checkVerificationDeadline(): CheckResult {
+  if (Date.now() < VERIFICATION_ENFORCEMENT.getTime()) {
+    return {
+      name: "verification",
+      status: "warn",
+      message:
+        "Android developer verification enforcement begins September 2026 (BR, ID, SG, TH)",
+      suggestion: "Run 'gpc verify' for details and resources",
+    };
+  }
+  return {
+    name: "verification",
+    status: "info",
+    message:
+      "Android developer verification is being enforced. Ensure your account is verified.",
+    suggestion: "Run 'gpc verify' to check your status",
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Auto-fix
 // ---------------------------------------------------------------------------
 
@@ -836,6 +861,11 @@ export function registerDoctorCommand(program: Command): void {
           });
         }
       }
+
+      // -----------------------------------------------------------------------
+      // 19. Developer verification deadline
+      // -----------------------------------------------------------------------
+      results.push(checkVerificationDeadline());
 
       // -----------------------------------------------------------------------
       // Output

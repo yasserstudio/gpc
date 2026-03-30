@@ -482,6 +482,14 @@ function printWithDiff(
   } else if (sinceLast && !prevStatus) {
     console.log("\n(No prior cached status to diff against)");
   }
+
+  // Verification deadline awareness (auto-expires Sep 2026)
+  if (Date.now() < new Date("2026-09-01").getTime()) {
+    console.log("");
+    console.log(
+      dim("Verification: enforcement begins Sep 2026 (BR, ID, SG, TH) · gpc verify"),
+    );
+  }
 }
 
 async function handleNotify(

@@ -179,6 +179,21 @@ async function runPreflightAction(
     const summaryLine = parts.length > 0 ? parts.join(", ") : green("0 issues");
     const passedLabel = result.passed ? green("✓ PASSED") : red("✗ FAILED");
     console.log(`${passedLabel}  ${summaryLine}  ${dim(`(${result.durationMs}ms)`)}`);
+
+    // Verification deadline awareness (auto-expires Sep 2026)
+    if (Date.now() < new Date("2026-09-01").getTime()) {
+      console.log("");
+      console.log(
+        dim(
+          "Note: Apps must be registered by a verified developer to be installable on",
+        ),
+      );
+      console.log(
+        dim(
+          "certified Android devices after Sep 2026. Run 'gpc verify' for details.",
+        ),
+      );
+    }
   }
 
   if (!result.passed) {
