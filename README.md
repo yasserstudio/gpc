@@ -252,6 +252,18 @@ gpc rtdn status                              # Check RTDN topic configuration
 gpc rtdn decode <base64-payload>             # Decode Pub/Sub notification
 ```
 
+### Developer Verification
+
+Check your readiness for Google's [Android developer verification](https://developer.android.com/developer-verification) program — enforcement begins September 2026.
+
+```bash
+gpc verify                                   # Show status, deadlines, resources
+gpc verify --open                            # Open verification page in browser
+gpc verify --json                            # Structured output for CI
+```
+
+`gpc doctor` warns about verification deadlines. `gpc preflight` reminds you about app registration requirements.
+
 ### Release history
 
 ```bash

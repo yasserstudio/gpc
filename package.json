@@ -1,7 +1,7 @@
 {
   "name": "gpc-monorepo",
   "private": true,
-  "packageManager": "pnpm@9.15.9",
+  "packageManager": "pnpm@10.33.0",
   "engines": {
     "node": ">=20"
   },

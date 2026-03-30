@@ -114,6 +114,8 @@ function getPageDescription(page: PageData): string {
       "Configure GPC with .gpcrc.json, environment variables, and named profiles. XDG paths, precedence rules, and multi-app setup.",
     "guide/developer-verification.md":
       "Android developer verification and app registration — what's changing, the timeline, and how GPC helps you stay compliant.",
+    "commands/verify.md":
+      "gpc verify — Android developer verification status, enforcement deadlines, and resources. Check your account and open verification pages.",
     "guide/faq.md":
       "Frequently asked questions about GPC — authentication, CI/CD, Fastlane migration, troubleshooting, and production readiness.",
     "guide/authentication.md":
@@ -491,6 +493,7 @@ export default defineConfig({
           items: [
             { text: "preflight", link: "/commands/preflight" },
             { text: "data-safety", link: "/commands/data-safety" },
+            { text: "verify", link: "/commands/verify" },
             { text: "recovery", link: "/commands/recovery" },
             {
               text: "external-transactions",
