@@ -7,7 +7,30 @@ pageClass: wide-page
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.48 <Badge type="tip" text="latest" />
+## v0.9.49 <Badge type="tip" text="latest" />
+
+Developer verification awareness, copy alignment.
+
+### New Command
+- `gpc verify` — Android developer verification status, enforcement deadlines, and resources. Supports `--open` and `--json`.
+
+### Developer Verification
+- `gpc doctor` warns about September 2026 verification enforcement deadline (BR, ID, SG, TH)
+- `gpc status` shows verification reminder footer in table output
+- `gpc preflight` shows post-scan reminder about app registration requirements
+- New [Developer Verification guide](/guide/developer-verification) — Google's 2026 rollout, timeline, requirements
+
+### Docs
+- Consistent "free to use" copy across all public pages (README, docs index, FAQ, installation)
+- FAQ structured data schema corrected
+- New [`gpc verify` command reference](/commands/verify)
+
+### Housekeeping
+- pnpm 9.15.9 → 10.33.0
+
+---
+
+## v0.9.48
 
 Onboarding polish, safety confirmations, pager for long lists.
 
