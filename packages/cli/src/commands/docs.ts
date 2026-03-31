@@ -2,18 +2,70 @@ import type { Command } from "commander";
 import * as cp from "node:child_process";
 
 const PAGE_MAP: Record<string, string> = {
-  releases: "commands/releases",
-  status: "commands/status",
-  vitals: "commands/vitals",
-  reviews: "commands/reviews",
-  listings: "commands/listings",
-  subscriptions: "commands/subscriptions",
+  // Guide
+  "quick-start": "guide/quick-start",
+  authentication: "guide/authentication",
+  configuration: "guide/configuration",
+  "developer-verification": "guide/developer-verification",
+  faq: "guide/faq",
+
+  // Commands
+  anomalies: "commands/anomalies",
+  apps: "commands/apps",
+  auth: "commands/auth",
   bundle: "commands/bundle",
-  users: "commands/users",
-  audit: "commands/audit",
+  changelog: "commands/changelog",
   config: "commands/config",
-  doctor: "commands/doctor",
+  "data-safety": "commands/data-safety",
+  "device-tiers": "commands/device-tiers",
+  diff: "commands/diff",
+  enterprise: "commands/enterprise",
+  "external-transactions": "commands/external-transactions",
+  games: "commands/games",
+  "generated-apks": "commands/generated-apks",
+  grants: "commands/grants",
+  iap: "commands/iap",
+  init: "commands/init",
+  "install-skills": "commands/install-skills",
+  "internal-sharing": "commands/internal-sharing",
+  listings: "commands/listings",
+  migrate: "commands/migrate",
+  "one-time-products": "commands/one-time-products",
+  plugins: "commands/plugins",
+  preflight: "commands/preflight",
+  pricing: "commands/pricing",
   publish: "commands/publish",
+  "purchase-options": "commands/purchase-options",
+  purchases: "commands/purchases",
+  quota: "commands/quota",
+  recovery: "commands/recovery",
+  releases: "commands/releases",
+  reports: "commands/reports",
+  reviews: "commands/reviews",
+  rtdn: "commands/rtdn",
+  status: "commands/status",
+  subscriptions: "commands/subscriptions",
+  testers: "commands/testers",
+  tracks: "commands/tracks",
+  train: "commands/train",
+  users: "commands/users",
+  verify: "commands/verify",
+  vitals: "commands/vitals",
+
+  // Advanced
+  architecture: "advanced/architecture",
+  "error-codes": "advanced/error-codes",
+  security: "advanced/security",
+  "sdk-usage": "advanced/sdk-usage",
+  troubleshooting: "advanced/troubleshooting",
+
+  // CI/CD
+  "github-actions": "ci-cd/github-actions",
+  "gitlab-ci": "ci-cd/gitlab-ci",
+  "vitals-gates": "ci-cd/vitals-gates",
+
+  // Migration
+  "from-fastlane": "migration/from-fastlane",
 };
 
 const BASE = "https://yasserstudio.github.io/gpc/";
