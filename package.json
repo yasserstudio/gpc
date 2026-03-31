@@ -20,7 +20,10 @@
     "release": "turbo run build && changeset publish",
     "build:binary": "tsx scripts/build-binary.ts",
     "bench": "tsx scripts/benchmarks/startup.bench.ts && tsx scripts/benchmarks/command-latency.bench.ts",
-    "license:check": "tsx scripts/check-licenses.ts"
+    "license:check": "tsx scripts/check-licenses.ts",
+    "audit": "pnpm audit --prod --audit-level=high",
+    "audit:all": "pnpm audit --audit-level=moderate",
+    "security:check": "pnpm audit --prod --audit-level=high && pnpm license:check"
   },
   "prettier": {
     "semi": true,

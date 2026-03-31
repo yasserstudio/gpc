@@ -3,3 +3,11 @@
 
 # Default owner for everything
 * @yasserstudio
+
+# Security-sensitive paths (require explicit review)
+.github/workflows/ @yasserstudio
+.github/dependabot.yml @yasserstudio
+.npmrc @yasserstudio
+socket.yml @yasserstudio
+SECURITY.md @yasserstudio
+packages/auth/ @yasserstudio

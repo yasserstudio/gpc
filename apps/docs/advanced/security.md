@@ -268,10 +268,11 @@ Push protection blocks any commit containing a detected secret before it reaches
 | Tool         | Trigger             | What it checks                          |
 | ------------ | ------------------- | --------------------------------------- |
 | Socket.dev   | Every PR            | Supply chain alerts, malware, typosquats, license risks |
+| `pnpm audit` | Every PR (`check` job) | Known CVEs in dependency tree (moderate+) |
 | CodeQL       | Every push and PR   | Static analysis for JS/TS vulnerabilities |
-| Dependabot   | Weekly              | Dependency version and security updates |
+| Dependabot   | Weekly              | Dependency version and security updates (direct deps only) |
 | Secret scan  | Every push          | 200+ secret patterns in code            |
-| `pnpm audit` | CI pipeline         | Known CVEs in dependency tree           |
+| SBOM         | Every release       | CycloneDX bill of materials archived per release |
 
 ### History Hygiene
 
@@ -348,8 +349,11 @@ GPC does **not** depend on `axios`, `node-fetch`, `got`, or any HTTP client libr
 | `pnpm-lock.yaml` | Exact version pinning. No unexpected upgrades on install. |
 | Socket.dev CI scan | Runs `socket ci` on every PR. Blocks merges when critical supply chain alerts are detected. |
 | Socket.dev GitHub App | Inline PR comments when risky dependencies are added. Configured via `socket.yml`. |
-| `pnpm audit` in CI | Checks for known CVEs on every pull request. |
-| Dependabot | Weekly security update PRs from GitHub. |
+| `pnpm audit` in CI | Checks for known CVEs (moderate+) on every pull request. |
+| GitHub Actions SHA pins | All action references pinned to commit hashes, not mutable version tags. |
+| SBOM (CycloneDX) | Software bill of materials generated and archived on every npm release. |
+| CODEOWNERS | Security-sensitive paths (workflows, auth, .npmrc) require explicit review. |
+| Dependabot | Weekly security update PRs (direct dependencies only, actions grouped). |
 | Socket CLI wrapper | Scans every local `npm install` and `npx` for malware, typosquats, and suspicious behavior. |
 | CodeQL | Static analysis on every push for JS/TS vulnerabilities. |
 | GitHub secret scanning | Blocks pushes containing 200+ secret patterns. |

@@ -51,6 +51,20 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: "true"
 
+      - name: Generate SBOM
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          npx @cyclonedx/cdxgen -o sbom.json -t javascript --no-recurse
+          echo "SBOM generated: $(jq '.components | length' sbom.json) components"
+
+      - name: Upload SBOM artifact
+        if: steps.changesets.outputs.published == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sbom
+          path: sbom.json
+          retention-days: 90
+
       - name: Verify published packages
         if: steps.changesets.outputs.published == 'true'
         run: |
