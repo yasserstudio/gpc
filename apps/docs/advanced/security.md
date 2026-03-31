@@ -360,7 +360,7 @@ GPC does **not** depend on `axios`, `node-fetch`, `got`, or any HTTP client libr
 
 ### Socket.dev security score
 
-As of v0.9.49, [Socket.dev reports](https://socket.dev/npm/package/@gpc-cli/cli) for `@gpc-cli/cli`:
+As of v0.9.50, [Socket.dev reports](https://socket.dev/npm/package/@gpc-cli/cli) for `@gpc-cli/cli`:
 
 | Category | Self Score | Transitive (46 deps) |
 | -------- | ---------- | -------------------- |

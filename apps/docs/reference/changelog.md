@@ -167,7 +167,7 @@ Deep code review, error handling overhaul, doctor enhancements, API catch-up.
 - Version diff uses production track
 - Watch loop SIGINT cleanup
 
-**204 API endpoints · 1,834 tests**
+**204 API endpoints · 1,845 tests**
 
 ---
 
