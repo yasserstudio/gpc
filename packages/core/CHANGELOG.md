@@ -1,5 +1,11 @@
 # @gpc-cli/core
 
+## 0.9.41
+
+### Patch Changes
+
+- Security hardening, supply chain protection, gpc docs expanded to 58 topics
+
 ## 0.9.40
 
 ### Patch Changes
