@@ -27,7 +27,7 @@ GPC handles sensitive credentials (service account keys, OAuth tokens) and inter
 | Token theft from disk        | Medium | OS keychain storage, file permissions (0600)  |
 | Man-in-the-middle            | Low    | TLS-only, custom CA certificate support       |
 | Malicious plugin             | Medium | Plugin permission scoping, approval flow      |
-| Dependency supply chain      | Medium | Lockfile, audit, 4 runtime deps, `min-release-age=7`, Socket CLI |
+| Dependency supply chain      | Medium | Lockfile, audit, 4 runtime deps, `min-release-age=7`, Socket.dev CI + GitHub App |
 
 ## Credential Storage
 
@@ -244,7 +244,7 @@ The `main` branch is protected with the following rules:
 
 | Rule                    | Setting  | Why                                        |
 | ----------------------- | -------- | ------------------------------------------ |
-| Required status checks  | `check`, `analyze` | CI + CodeQL must pass before merge |
+| Required status checks  | `check`, `analyze`, `socket-security` | CI + CodeQL + Socket must pass before merge |
 | Strict status checks    | Enabled  | Branch must be up-to-date with `main`      |
 | Force pushes            | Disabled | Prevents history rewriting                 |
 | Deletions               | Disabled | Prevents accidental branch deletion        |
@@ -267,6 +267,7 @@ Push protection blocks any commit containing a detected secret before it reaches
 
 | Tool         | Trigger             | What it checks                          |
 | ------------ | ------------------- | --------------------------------------- |
+| Socket.dev   | Every PR            | Supply chain alerts, malware, typosquats, license risks |
 | CodeQL       | Every push and PR   | Static analysis for JS/TS vulnerabilities |
 | Dependabot   | Weekly              | Dependency version and security updates |
 | Secret scan  | Every push          | 200+ secret patterns in code            |
@@ -345,6 +346,8 @@ GPC does **not** depend on `axios`, `node-fetch`, `got`, or any HTTP client libr
 | ----- | ------------ |
 | `min-release-age=7` in `.npmrc` | Blocks packages published less than 7 days ago. Would have prevented the axios attack. |
 | `pnpm-lock.yaml` | Exact version pinning. No unexpected upgrades on install. |
+| Socket.dev CI scan | Runs `socket ci` on every PR. Blocks merges when critical supply chain alerts are detected. |
+| Socket.dev GitHub App | Inline PR comments when risky dependencies are added. Configured via `socket.yml`. |
 | `pnpm audit` in CI | Checks for known CVEs on every pull request. |
 | Dependabot | Weekly security update PRs from GitHub. |
 | Socket CLI wrapper | Scans every local `npm install` and `npx` for malware, typosquats, and suspicious behavior. |
@@ -376,7 +379,9 @@ Zero critical or high alerts. The transitive overall score is pulled down by `no
 4. Dependabot enabled for security updates
 5. No `postinstall` scripts in production dependencies
 6. `min-release-age=7` in `.npmrc` blocks newly published packages
-7. Socket CLI wrapper scans all installs locally
+7. Socket.dev CI scan on every PR (blocks on critical alerts)
+8. Socket.dev GitHub App for inline PR comments on risky deps
+9. Socket CLI wrapper scans all local installs
 
 ### Approved Runtime Dependencies
 
