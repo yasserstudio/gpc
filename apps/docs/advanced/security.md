@@ -27,7 +27,7 @@ GPC handles sensitive credentials (service account keys, OAuth tokens) and inter
 | Token theft from disk        | Medium | OS keychain storage, file permissions (0600)  |
 | Man-in-the-middle            | Low    | TLS-only, custom CA certificate support       |
 | Malicious plugin             | Medium | Plugin permission scoping, approval flow      |
-| Dependency supply chain      | Medium | Lockfile, audit, minimal dependencies         |
+| Dependency supply chain      | Medium | Lockfile, audit, 4 runtime deps, `min-release-age=7`, Socket CLI |
 
 ## Credential Storage
 
@@ -322,27 +322,72 @@ env:
 - All write operations are logged with before/after state
 - Use `--dry-run` in PR checks to validate without modifying state
 
+## Supply Chain Protection
+
+GPC takes a defense-in-depth approach to supply chain security. The [axios supply chain attack](https://socket.dev/blog/axios-npm-package-compromised) (March 2026, 100M+ weekly downloads compromised) demonstrated why this matters for every npm project.
+
+### Why GPC has minimal exposure
+
+GPC uses only **4 runtime dependencies** (everything else is dev-only or workspace-internal):
+
+| Package               | Purpose              | Weekly Downloads | Risk |
+| --------------------- | -------------------- | --------------- | ---- |
+| `google-auth-library` | Google's official auth | 15M+            | Low  |
+| `commander`           | CLI framework         | 150M+           | Low  |
+| `protobufjs`          | AAB manifest parsing  | 25M+            | Low  |
+| `yauzl`               | ZIP/AAB extraction    | 10M+            | Low  |
+
+GPC does **not** depend on `axios`, `node-fetch`, `got`, or any HTTP client library. All API calls use Node.js 20+ built-in `fetch`.
+
+### Protections in place
+
+| Layer | What it does |
+| ----- | ------------ |
+| `min-release-age=7` in `.npmrc` | Blocks packages published less than 7 days ago. Would have prevented the axios attack. |
+| `pnpm-lock.yaml` | Exact version pinning. No unexpected upgrades on install. |
+| `pnpm audit` in CI | Checks for known CVEs on every pull request. |
+| Dependabot | Weekly security update PRs from GitHub. |
+| Socket CLI wrapper | Scans every local `npm install` and `npx` for malware, typosquats, and suspicious behavior. |
+| CodeQL | Static analysis on every push for JS/TS vulnerabilities. |
+| GitHub secret scanning | Blocks pushes containing 200+ secret patterns. |
+
+### Socket.dev security score
+
+As of v0.9.49, [Socket.dev reports](https://socket.dev/npm/package/@gpc-cli/cli) for `@gpc-cli/cli`:
+
+| Category | Self Score | Transitive (46 deps) |
+| -------- | ---------- | -------------------- |
+| Vulnerability | 100 | 100 |
+| License | 100 | 100 |
+| Quality | 99 | 65 |
+| Maintenance | 95 | 50 |
+| Supply Chain | 71 | 66 |
+| Overall | 71 | 50 |
+
+Zero critical or high alerts. The transitive overall score is pulled down by `node-domexception` (deprecated, transitive dep of `google-auth-library`). No malware, no supply chain compromise.
+
 ## Dependency Policy
 
 ### Rules
 
-1. Minimize dependency count -- prefer Node.js built-ins
+1. Minimize dependency count. Prefer Node.js built-ins (`fetch`, `crypto`, `fs`, `child_process`)
 2. Pin major versions in `package.json`
 3. `pnpm audit` runs in CI on every pull request
 4. Dependabot enabled for security updates
 5. No `postinstall` scripts in production dependencies
+6. `min-release-age=7` in `.npmrc` blocks newly published packages
+7. Socket CLI wrapper scans all installs locally
 
-### Approved External Dependencies
+### Approved Runtime Dependencies
 
-| Package               | Purpose         | Justification                    |
-| --------------------- | --------------- | -------------------------------- |
-| `google-auth-library` | Auth strategies | Official Google library          |
-| `commander`           | CLI framework   | Industry standard, battle-tested |
-| `chalk`               | Terminal colors | Cross-platform color support     |
-| `ora`                 | Spinners        | Terminal animation handling      |
-| `cli-table3`          | Table output    | Column alignment, wrapping       |
+| Package               | Purpose              | Justification                           |
+| --------------------- | -------------------- | --------------------------------------- |
+| `google-auth-library` | Auth strategies      | Official Google library, required for API access |
+| `commander`           | CLI framework        | Industry standard, 150M+ weekly downloads |
+| `protobufjs`          | Protocol Buffers     | Required for AAB manifest parsing        |
+| `yauzl`               | ZIP extraction       | Required for AAB file reading            |
 
-New dependencies are reviewed for: maintenance status, download count, transitive dependency count, and license compatibility (MIT, Apache-2.0, BSD preferred).
+New dependencies are reviewed for: maintenance status, download count, transitive dependency count, license compatibility (MIT, Apache-2.0, BSD preferred), and [Socket.dev security score](https://socket.dev).
 
 ## Security Checklist
 
@@ -353,6 +398,7 @@ New dependencies are reviewed for: maintenance status, download count, transitiv
 - [ ] Secrets redacted in all output modes (human, JSON, YAML, debug)
 - [ ] File permissions set correctly on credential files
 - [ ] `pnpm audit` shows no high/critical vulnerabilities
+- [ ] Socket.dev score reviewed for new dependencies
 - [ ] Plugin permission model enforced
 - [ ] Error messages do not leak sensitive information
 - [ ] TLS enforced for all network communication
