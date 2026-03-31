@@ -1,0 +1,28 @@
+version: 2
+
+projectIgnorePaths:
+  - node_modules
+  - .yarn
+  - dist
+  - .vitepress/dist
+  - .vitepress/cache
+  - assets
+
+issueRules:
+  didYouMean: true
+  installScripts: true
+  telemetry: true
+  troll: true
+  malware: true
+  hasNativeCode: true
+  shellScriptOverride: true
+  gitDependency: true
+  httpDependency: true
+  invalidPackageJSON: true
+  unresolvedRequire: true
+
+githubApp:
+  enabled: true
+  pullRequestAlertsEnabled: true
+  dependencyOverviewEnabled: true
+  projectReportsEnabled: true

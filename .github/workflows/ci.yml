@@ -21,6 +21,32 @@ jobs:
           fail-on-severity: high
           deny-licenses: GPL-2.0, GPL-3.0, AGPL-3.0
 
+  socket-security:
+    name: Socket Security
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Install Socket CLI
+        run: npm install -g socket@latest
+
+      - name: Socket Security Scan
+        run: socket ci --repo gpc
+        env:
+          SOCKET_SECURITY_API_TOKEN: ${{ secrets.SOCKET_SECURITY_API_TOKEN }}
+
   check:
     runs-on: ubuntu-latest
     steps:
