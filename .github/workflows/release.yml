@@ -54,7 +54,7 @@ jobs:
       - name: Generate SBOM
         if: steps.changesets.outputs.published == 'true'
         run: |
-          npx @cyclonedx/cdxgen -o sbom.json -t javascript --no-recurse
+          npx @cyclonedx/cdxgen -o sbom.json -t javascript
           echo "SBOM generated: $(jq '.components | length' sbom.json) components"
 
       - name: Upload SBOM artifact

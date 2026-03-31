@@ -244,7 +244,7 @@ The `main` branch is protected with the following rules:
 
 | Rule                    | Setting  | Why                                        |
 | ----------------------- | -------- | ------------------------------------------ |
-| Required status checks  | `check`, `analyze`, `socket-security` | CI + CodeQL + Socket must pass before merge |
+| Required status checks  | `check`, `analyze`, `Socket Security` | CI + CodeQL + Socket must pass before merge |
 | Strict status checks    | Enabled  | Branch must be up-to-date with `main`      |
 | Force pushes            | Disabled | Prevents history rewriting                 |
 | Deletions               | Disabled | Prevents accidental branch deletion        |

@@ -236,10 +236,8 @@ export default defineConfig({
   },
 
   head: [
-    // Security headers
-    ["meta", { "http-equiv": "X-Content-Type-Options", content: "nosniff" }],
-    ["meta", { "http-equiv": "X-Frame-Options", content: "DENY" }],
-    ["meta", { "http-equiv": "Referrer-Policy", content: "strict-origin-when-cross-origin" }],
+    // Referrer-Policy is the only security header effective as a meta tag on GitHub Pages
+    ["meta", { name: "referrer", content: "strict-origin-when-cross-origin" }],
 
     ["link", { rel: "icon", href: "/gpc/favicon.png", type: "image/png" }],
     ["link", { rel: "preconnect", href: "https://fonts.googleapis.com" }],
