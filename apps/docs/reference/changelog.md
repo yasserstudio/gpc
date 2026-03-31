@@ -7,7 +7,36 @@ pageClass: wide-page
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.49 <Badge type="tip" text="latest" />
+## v0.9.50 <Badge type="tip" text="latest" />
+
+Security hardening, supply chain protection.
+
+### Supply Chain
+- Socket.dev CI scan blocks PRs with critical supply chain alerts
+- Socket.dev GitHub App provides inline PR comments for risky dependencies
+- `socket.yml` config for malware, typosquat, and install script detection
+- `min-release-age=7` in `.npmrc` blocks packages published less than 7 days ago
+- SBOM (CycloneDX) generated and archived on every npm release
+- Production dependency audit (`pnpm audit`) runs on every pull request
+
+### CI Hardening
+- All GitHub Actions pinned to commit SHAs across 6 workflows
+- `Socket Security` added as required status check on `main`
+- Dependabot restricted to direct dependencies only
+- Explicit least-privilege permissions on all CI jobs
+
+### Fix
+- `gpc docs` now covers all 58 documentation topics (was 12)
+
+### Docs
+- 12-layer supply chain protection table in [security docs](/advanced/security)
+- CODEOWNERS expanded for security-sensitive paths
+- Referrer-Policy header on documentation site
+- `pnpm audit` and `pnpm security:check` scripts for local security review
+
+---
+
+## v0.9.49
 
 Developer verification awareness, copy alignment.
 

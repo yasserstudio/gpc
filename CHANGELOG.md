@@ -7,6 +7,37 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.50
+
+Security hardening, supply chain protection.
+
+- ci: Socket.dev supply chain scanning blocks PRs with critical alerts
+- ci: all GitHub Actions pinned to commit SHAs across 6 workflows
+- ci: production dependency audit runs on every pull request
+- ci: SBOM (CycloneDX) generated and archived on every npm release
+- ci: Socket Security added as required status check
+- feat: `socket.yml` config for malware, typosquat, and install script detection
+- feat: `pnpm audit` and `pnpm security:check` scripts for local security review
+- feat: `min-release-age=7` blocks packages published less than 7 days ago
+- fix(cli): `gpc docs` now covers all 58 documentation topics (was 12)
+- docs: 12-layer supply chain protection table in security docs
+- docs: CODEOWNERS expanded for security-sensitive paths
+
+---
+
+## v0.9.49
+
+Developer verification awareness, copy alignment.
+
+- feat(cli): `gpc verify` — Android developer verification status, enforcement deadlines, resources
+- feat(doctor): verification enforcement deadline warning (BR, ID, SG, TH)
+- feat(status): verification reminder footer in table output
+- feat(preflight): post-scan reminder about app registration requirements
+- docs: developer verification guide, consistent "free to use" copy
+- chore: pnpm 9.15.9 → 10.33.0
+
+---
+
 ## v0.9.48
 
 Onboarding polish, safety confirmations, pager for long lists.
