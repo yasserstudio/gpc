@@ -19,16 +19,16 @@ jobs:
       security-events: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-      - uses: github/codeql-action/init@v3
+      - uses: github/codeql-action/init@5c8a8a642e79153f5d047b10ec1cba1d1cc65699 # v3
         with:
           languages: javascript-typescript
           queries: security-and-quality
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version: 20
           cache: "pnpm"
@@ -37,6 +37,6 @@ jobs:
 
       - run: pnpm build
 
-      - uses: github/codeql-action/analyze@v3
+      - uses: github/codeql-action/analyze@5c8a8a642e79153f5d047b10ec1cba1d1cc65699 # v3
         with:
           category: /language:javascript-typescript

@@ -2,6 +2,9 @@
   "name": "@gpc-cli/docs",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vitepress dev",
     "build": "vitepress build",

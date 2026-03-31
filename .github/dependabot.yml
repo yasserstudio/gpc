@@ -9,9 +9,15 @@ updates:
         dependency-type: "development"
       production-dependencies:
         dependency-type: "production"
+    allow:
+      - dependency-type: "direct"
     open-pull-requests-limit: 10
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
