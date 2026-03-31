@@ -26,7 +26,7 @@ Security hardening, supply chain protection.
 - Explicit least-privilege permissions on all CI jobs
 
 ### Fix
-- `gpc docs` now covers all 58 documentation topics (was 12)
+- `gpc docs` now covers all 70 documentation topics (was 12)
 
 ### Docs
 - 12-layer supply chain protection table in [security docs](/advanced/security)

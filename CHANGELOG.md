@@ -19,7 +19,7 @@ Security hardening, supply chain protection.
 - feat: `socket.yml` config for malware, typosquat, and install script detection
 - feat: `pnpm audit` and `pnpm security:check` scripts for local security review
 - feat: `min-release-age=7` blocks packages published less than 7 days ago
-- fix(cli): `gpc docs` now covers all 58 documentation topics (was 12)
+- fix(cli): `gpc docs` now covers all 70 documentation topics (was 12)
 - docs: 12-layer supply chain protection table in security docs
 - docs: CODEOWNERS expanded for security-sensitive paths
 

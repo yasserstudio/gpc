@@ -3,6 +3,7 @@ import * as cp from "node:child_process";
 
 const PAGE_MAP: Record<string, string> = {
   // Guide
+  installation: "guide/installation",
   "quick-start": "guide/quick-start",
   authentication: "guide/authentication",
   configuration: "guide/configuration",
@@ -50,22 +51,40 @@ const PAGE_MAP: Record<string, string> = {
   train: "commands/train",
   users: "commands/users",
   verify: "commands/verify",
+  utility: "commands/utility",
   vitals: "commands/vitals",
 
   // Advanced
   architecture: "advanced/architecture",
+  conventions: "advanced/conventions",
   "error-codes": "advanced/error-codes",
-  security: "advanced/security",
+  plugins: "advanced/plugins",
   "sdk-usage": "advanced/sdk-usage",
+  security: "advanced/security",
+  skills: "advanced/skills",
   troubleshooting: "advanced/troubleshooting",
 
   // CI/CD
+  bitbucket: "ci-cd/bitbucket",
+  circleci: "ci-cd/circleci",
   "github-actions": "ci-cd/github-actions",
   "gitlab-ci": "ci-cd/gitlab-ci",
   "vitals-gates": "ci-cd/vitals-gates",
 
+  // Reference
+  "api-coverage": "reference/api-coverage",
+  changelog: "reference/changelog",
+  deprecations: "reference/deprecations",
+  "environment-variables": "reference/environment-variables",
+  "exit-codes": "reference/exit-codes",
+  "json-contract": "reference/json-contract",
+
   // Migration
+  "from-console-ui": "migration/from-console-ui",
   "from-fastlane": "migration/from-fastlane",
+
+  // Alternatives
+  fastlane: "alternatives/fastlane",
 };
 
 const BASE = "https://yasserstudio.github.io/gpc/";
