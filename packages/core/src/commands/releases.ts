@@ -219,7 +219,7 @@ export async function uploadRelease(
     };
     const bundle = isApk
       ? await client.apks.upload(packageName, edit.id, filePath, uploadOpts)
-      : await client.bundles.upload(packageName, edit.id, filePath, uploadOpts);
+      : await client.bundles.upload(packageName, edit.id, filePath, uploadOpts, options.deviceTierConfigId);
 
     // Upload mapping file if provided
     if (options.mappingFile) {

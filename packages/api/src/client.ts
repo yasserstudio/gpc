@@ -109,6 +109,7 @@ export interface PlayApiClient {
       editId: string,
       filePath: string,
       uploadOptions?: ResumableUploadOptions,
+      deviceTierConfigId?: string,
     ): Promise<Bundle>;
   };
 
@@ -608,9 +609,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data.bundles;
       },
 
-      async upload(packageName, editId, filePath, uploadOptions) {
+      async upload(packageName, editId, filePath, uploadOptions?, deviceTierConfigId?) {
+        const dtcQuery = deviceTierConfigId ? `?deviceTierConfigId=${encodeURIComponent(deviceTierConfigId)}` : "";
         const { data } = await http.uploadResumable<Bundle>(
-          `/${packageName}/edits/${editId}/bundles`,
+          `/${packageName}/edits/${editId}/bundles${dtcQuery}`,
           filePath,
           "application/octet-stream",
           uploadOptions,
