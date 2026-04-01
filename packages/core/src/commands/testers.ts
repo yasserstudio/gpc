@@ -1,4 +1,4 @@
-import type { PlayApiClient, Testers } from "@gpc-cli/api";
+import type { PlayApiClient, Testers, EditCommitOptions } from "@gpc-cli/api";
 import { readFile } from "node:fs/promises";
 import { GpcError } from "../errors.js";
 
@@ -21,6 +21,7 @@ export async function addTesters(
   packageName: string,
   track: string,
   groupEmails: string[],
+  commitOptions?: EditCommitOptions,
 ): Promise<Testers> {
   const edit = await client.edits.insert(packageName);
   try {
@@ -33,7 +34,7 @@ export async function addTesters(
       googleGroups: [...existing],
     });
     await client.edits.validate(packageName, edit.id);
-    await client.edits.commit(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id, commitOptions);
     return updated;
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});
@@ -46,6 +47,7 @@ export async function removeTesters(
   packageName: string,
   track: string,
   groupEmails: string[],
+  commitOptions?: EditCommitOptions,
 ): Promise<Testers> {
   const edit = await client.edits.insert(packageName);
   try {
@@ -56,7 +58,7 @@ export async function removeTesters(
       googleGroups: filtered,
     });
     await client.edits.validate(packageName, edit.id);
-    await client.edits.commit(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id, commitOptions);
     return updated;
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});

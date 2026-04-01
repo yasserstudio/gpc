@@ -8,6 +8,7 @@ import type {
   ExternallyHostedApkResponse,
   UploadProgressEvent,
   ResumableUploadOptions,
+  EditCommitOptions,
 } from "@gpc-cli/api";
 import type { AppEdit } from "@gpc-cli/api";
 import { PlayApiError } from "@gpc-cli/api";
@@ -132,6 +133,7 @@ export async function uploadRelease(
     releaseNotes?: { language: string; text: string }[];
     releaseName?: string;
     mappingFile?: string;
+    mappingFileType?: string;
     dryRun?: boolean;
     onProgress?: (uploaded: number, total: number) => void;
     onUploadProgress?: (event: UploadProgressEvent) => void;
@@ -139,6 +141,8 @@ export async function uploadRelease(
       ResumableUploadOptions,
       "chunkSize" | "resumeSessionUri" | "maxResumeAttempts"
     >;
+    deviceTierConfigId?: string;
+    commitOptions?: EditCommitOptions;
   },
 ): Promise<UploadResult | DryRunUploadResult> {
   // Validate file before upload
@@ -241,7 +245,7 @@ export async function uploadRelease(
 
     // Validate and commit
     await client.edits.validate(packageName, edit.id);
-    await client.edits.commit(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id, options.commitOptions);
 
     return {
       versionCode: bundle.versionCode,
@@ -291,7 +295,7 @@ export async function promoteRelease(
   packageName: string,
   fromTrack: string,
   toTrack: string,
-  options?: { status?: string; userFraction?: number; releaseNotes?: { language: string; text: string }[] },
+  options?: { status?: string; userFraction?: number; releaseNotes?: { language: string; text: string }[]; commitOptions?: EditCommitOptions },
 ): Promise<ReleaseStatusResult> {
   // Validate inputs before opening an edit
   if (options?.userFraction && (options.userFraction <= 0 || options.userFraction > 1)) {
@@ -328,7 +332,7 @@ export async function promoteRelease(
 
     await client.tracks.update(packageName, edit.id, toTrack, release);
     await client.edits.validate(packageName, edit.id);
-    await client.edits.commit(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id, options?.commitOptions);
 
     return {
       track: toTrack,
@@ -345,6 +349,7 @@ export async function updateRollout(
   track: string,
   action: "increase" | "halt" | "resume" | "complete",
   userFraction?: number,
+  commitOptions?: EditCommitOptions,
 ): Promise<ReleaseStatusResult> {
   const edit = await client.edits.insert(packageName);
   try {
@@ -408,7 +413,7 @@ export async function updateRollout(
 
     await client.tracks.update(packageName, edit.id, track, release);
     await client.edits.validate(packageName, edit.id);
-    await client.edits.commit(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id, commitOptions);
 
     return {
       track,
@@ -438,6 +443,7 @@ export async function createTrack(
   client: PlayApiClient,
   packageName: string,
   trackName: string,
+  commitOptions?: EditCommitOptions,
 ): Promise<Track> {
   if (!trackName || trackName.trim().length === 0) {
     throw new GpcError(
@@ -452,7 +458,7 @@ export async function createTrack(
   try {
     const track = await client.tracks.create(packageName, edit.id, trackName);
     await client.edits.validate(packageName, edit.id);
-    await client.edits.commit(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id, commitOptions);
     return track;
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});
@@ -465,6 +471,7 @@ export async function updateTrackConfig(
   packageName: string,
   trackName: string,
   config: Record<string, unknown>,
+  commitOptions?: EditCommitOptions,
 ): Promise<Track> {
   if (!trackName || trackName.trim().length === 0) {
     throw new GpcError(
@@ -493,7 +500,7 @@ export async function updateTrackConfig(
 
     const track = await client.tracks.update(packageName, edit.id, trackName, release);
     await client.edits.validate(packageName, edit.id);
-    await client.edits.commit(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id, commitOptions);
     return track;
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});
@@ -576,6 +583,7 @@ export async function uploadExternallyHosted(
   client: PlayApiClient,
   packageName: string,
   data: ExternallyHostedApk,
+  commitOptions?: EditCommitOptions,
 ): Promise<ExternallyHostedApkResponse> {
   if (!data.externallyHostedUrl) {
     throw new GpcError(
@@ -599,7 +607,7 @@ export async function uploadExternallyHosted(
   try {
     const result = await client.apks.addExternallyHosted(packageName, edit.id, data);
     await client.edits.validate(packageName, edit.id);
-    await client.edits.commit(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id, commitOptions);
     return result;
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});

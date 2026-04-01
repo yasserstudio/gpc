@@ -20,9 +20,13 @@ import type {
   CountryAvailability,
   DataSafety,
   DeobfuscationFile,
+  DeobfuscationFileType,
   DeobfuscationUploadResponse,
   DeviceTierConfig,
   DeviceTierConfigsListResponse,
+  EditCommitOptions,
+  ExpansionFile,
+  ExpansionFileType,
   ExternalTransaction,
   ExternalTransactionRefund,
   ExternallyHostedApk,
@@ -88,7 +92,7 @@ export interface PlayApiClient {
     insert(packageName: string): Promise<AppEdit>;
     get(packageName: string, editId: string): Promise<AppEdit>;
     validate(packageName: string, editId: string): Promise<AppEdit>;
-    commit(packageName: string, editId: string): Promise<AppEdit>;
+    commit(packageName: string, editId: string, options?: EditCommitOptions): Promise<AppEdit>;
     delete(packageName: string, editId: string): Promise<void>;
   };
 
@@ -557,8 +561,13 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async commit(packageName, editId) {
-        const { data } = await http.post<AppEdit>(`/${packageName}/edits/${editId}:commit`);
+      async commit(packageName, editId, options?) {
+        const params = new URLSearchParams();
+        if (options?.changesNotSentForReview) params.set("changesNotSentForReview", "true");
+        if (options?.changesInReviewBehavior) params.set("changesInReviewBehavior", options.changesInReviewBehavior);
+        const qs = params.toString();
+        const path = qs ? `/${packageName}/edits/${editId}:commit?${qs}` : `/${packageName}/edits/${editId}:commit`;
+        const { data } = await http.post<AppEdit>(path);
         return data;
       },
 

@@ -50,6 +50,24 @@ export interface AppEdit {
   expiryTimeSeconds: string;
 }
 
+export type ChangesInReviewBehavior =
+  | "CANCEL_IN_REVIEW_AND_SUBMIT"
+  | "ERROR_IF_IN_REVIEW";
+
+export interface EditCommitOptions {
+  changesNotSentForReview?: boolean;
+  changesInReviewBehavior?: ChangesInReviewBehavior;
+}
+
+export type DeobfuscationFileType = "proguard" | "nativeCode";
+
+export interface ExpansionFile {
+  referencesVersion?: number;
+  fileSize?: string;
+}
+
+export type ExpansionFileType = "main" | "patch";
+
 export interface Track {
   track: string;
   releases: Release[];

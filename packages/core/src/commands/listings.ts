@@ -5,6 +5,7 @@ import type {
   ImageType,
   AppDetails,
   CountryAvailability,
+  EditCommitOptions,
 } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
 import { isValidBcp47 } from "../utils/bcp47.js";
@@ -66,13 +67,14 @@ export async function updateListing(
   packageName: string,
   language: string,
   data: Partial<Omit<Listing, "language">>,
+  commitOptions?: EditCommitOptions,
 ): Promise<Listing> {
   validateLanguage(language);
   const edit = await client.edits.insert(packageName);
   try {
     const listing = await client.listings.patch(packageName, edit.id, language, data);
     await client.edits.validate(packageName, edit.id);
-    await client.edits.commit(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id, commitOptions);
     return listing;
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});
@@ -84,13 +86,14 @@ export async function deleteListing(
   client: PlayApiClient,
   packageName: string,
   language: string,
+  commitOptions?: EditCommitOptions,
 ): Promise<void> {
   validateLanguage(language);
   const edit = await client.edits.insert(packageName);
   try {
     await client.listings.delete(packageName, edit.id, language);
     await client.edits.validate(packageName, edit.id);
-    await client.edits.commit(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id, commitOptions);
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});
     throw error;
@@ -187,7 +190,7 @@ export async function pushListings(
   client: PlayApiClient,
   packageName: string,
   dir: string,
-  options?: { dryRun?: boolean; force?: boolean },
+  options?: { dryRun?: boolean; force?: boolean; commitOptions?: EditCommitOptions },
 ): Promise<PushResult | DryRunResult> {
   const localListings = await readListingsFromDir(dir);
 
@@ -250,7 +253,7 @@ export async function pushListings(
     }
 
     await client.edits.validate(packageName, edit.id);
-    await client.edits.commit(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id, options?.commitOptions);
 
     return {
       updated: localListings.length,
@@ -286,6 +289,7 @@ export async function uploadImage(
   language: string,
   imageType: ImageType,
   filePath: string,
+  commitOptions?: EditCommitOptions,
 ): Promise<Image> {
   validateLanguage(language);
 
@@ -307,7 +311,7 @@ export async function uploadImage(
   try {
     const image = await client.images.upload(packageName, edit.id, language, imageType, filePath);
     await client.edits.validate(packageName, edit.id);
-    await client.edits.commit(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id, commitOptions);
     return image;
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});
@@ -321,13 +325,14 @@ export async function deleteImage(
   language: string,
   imageType: ImageType,
   imageId: string,
+  commitOptions?: EditCommitOptions,
 ): Promise<void> {
   validateLanguage(language);
   const edit = await client.edits.insert(packageName);
   try {
     await client.images.delete(packageName, edit.id, language, imageType, imageId);
     await client.edits.validate(packageName, edit.id);
-    await client.edits.commit(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id, commitOptions);
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});
     throw error;
@@ -480,12 +485,13 @@ export async function updateAppDetails(
   client: PlayApiClient,
   packageName: string,
   details: Partial<AppDetails>,
+  commitOptions?: EditCommitOptions,
 ): Promise<AppDetails> {
   const edit = await client.edits.insert(packageName);
   try {
     const result = await client.details.patch(packageName, edit.id, details);
     await client.edits.validate(packageName, edit.id);
-    await client.edits.commit(packageName, edit.id);
+    await client.edits.commit(packageName, edit.id, commitOptions);
     return result;
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});
