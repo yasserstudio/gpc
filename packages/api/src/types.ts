@@ -229,6 +229,7 @@ export interface ReviewReplyResponse {
 export interface ReviewsListOptions {
   token?: string;
   maxResults?: number;
+  startIndex?: number;
   translationLanguage?: string;
 }
 

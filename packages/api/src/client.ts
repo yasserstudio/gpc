@@ -819,6 +819,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const params: Record<string, string> = {};
         if (options?.token) params["token"] = options.token;
         if (options?.maxResults) params["maxResults"] = String(options.maxResults);
+        if (options?.startIndex !== undefined) params["startIndex"] = String(options.startIndex);
         if (options?.translationLanguage)
           params["translationLanguage"] = options.translationLanguage;
         const hasParams = Object.keys(params).length > 0;
