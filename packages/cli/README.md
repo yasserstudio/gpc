@@ -3,14 +3,14 @@
 <p align="center"><strong>Ship Android apps from your terminal.</strong></p>
 
 <p align="center">
-The complete CLI for Google Play — 204 API endpoints, one tool.<br>
+The complete CLI for Google Play — 208 API endpoints, one tool.<br>
 Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.
 </p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/v/@gpc-cli/cli?color=00D26A" alt="npm version"></a>
   <a href="https://github.com/yasserstudio/gpc"><img src="https://img.shields.io/github/stars/yasserstudio/gpc" alt="GitHub Stars"></a>
-  <img src="https://img.shields.io/badge/Tests-1845_passing-00D26A" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-1860_passing-00D26A" alt="Tests">
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License">
 </p>
 
@@ -82,7 +82,7 @@ Fastlane supply covers ~20 of 204 Google Play API endpoints. gradle-play-publish
 
 ## What You Get
 
-204 API endpoints across these command groups:
+208 API endpoints across these command groups:
 
 | Group             | What you can do                                                                        |
 | ----------------- | -------------------------------------------------------------------------------------- |

@@ -7,6 +7,31 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.51
+
+API completeness: missing Google Play API parameters and new resources.
+
+- feat(api): `changesNotSentForReview` + `changesInReviewBehavior` on `edits.commit` (fixes rejected app uploads)
+- feat(api): `deobfuscationFileType` param on deobfuscation upload (proguard or nativeCode)
+- feat(api): `deviceTierConfigId` on bundle upload
+- feat(api): `allowMissing` + `latencyTolerance` on subscription/OTP/offer patch endpoints
+- feat(api): `pageSize` / `pageToken` on `oneTimeProducts.list`
+- feat(api): `startIndex` on `reviews.list`
+- feat(api): `edits.expansionfiles` resource (get, update, patch, upload) for legacy OBB files
+- feat(api): configurable `regionsVersion` on all monetization create endpoints
+- feat(api): `regionsVersion` + `latencyTolerance` on `basePlans.migratePrices` body
+- feat(api): `countryTargeting` on `Release` type
+- feat(cli): `--changes-not-sent-for-review` and `--error-if-in-review` flags on all edit-committing commands
+- feat(cli): `--mapping-type` and `--device-tier-config` flags on upload/publish
+- fix(api): `ProductUpdateLatencyTolerance` union type replaces bare string
+- fix(api): `MutationOptions` type + `applyMutationOptions` helper (deduplicated)
+- fix(api): `DEFAULT_REGIONS_VERSION` constant (was hardcoded 8x)
+- fix(cli): `buildCommitOptions` extracted to shared module (was duplicated 6x)
+
+**Actual new tests:** 15 -> total 1,860
+
+---
+
 ## v0.9.50
 
 Security hardening, supply chain protection.
