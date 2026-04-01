@@ -1,5 +1,11 @@
 # @gpc-cli/api
 
+## 1.0.27
+
+### Patch Changes
+
+- API completeness: missing Google Play API parameters, new CLI flags, expansion files resource
+
 ## 1.0.26
 
 ### Patch Changes
