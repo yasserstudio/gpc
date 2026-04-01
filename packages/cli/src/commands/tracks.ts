@@ -3,10 +3,18 @@ import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
+import type { EditCommitOptions } from "@gpc-cli/api";
 import { listTracks, createTrack, updateTrackConfig, GpcError } from "@gpc-cli/core";
 import { formatOutput, maybePaginate } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
+
+function buildCommitOptions(opts: Record<string, unknown>): EditCommitOptions | undefined {
+  const commitOpts: EditCommitOptions = {};
+  if (opts.changesNotSentForReview) commitOpts.changesNotSentForReview = true;
+  if (opts.errorIfInReview) commitOpts.changesInReviewBehavior = "ERROR_IF_IN_REVIEW";
+  return Object.keys(commitOpts).length > 0 ? commitOpts : undefined;
+}
 
 export function registerTracksCommands(program: Command): void {
   const tracks = program.command("tracks").description("Manage tracks");
@@ -46,7 +54,9 @@ export function registerTracksCommands(program: Command): void {
   tracks
     .command("create <name>")
     .description("Create a custom track")
-    .action(async (name: string) => {
+    .option("--changes-not-sent-for-review", "Commit changes without sending for review")
+    .option("--error-if-in-review", "Fail if changes are already in review")
+    .action(async (name: string, options: Record<string, unknown>) => {
       const config = await loadConfig();
       const packageName = program.opts()["app"] || config.app;
       if (!packageName) {
@@ -71,7 +81,7 @@ export function registerTracksCommands(program: Command): void {
 
       const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
       const client = createApiClient({ auth });
-      const track = await createTrack(client, packageName, name);
+      const track = await createTrack(client, packageName, name, buildCommitOptions(options));
       console.log(formatOutput(track, format));
     });
 
@@ -79,7 +89,9 @@ export function registerTracksCommands(program: Command): void {
     .command("update <name>")
     .description("Update track configuration from a JSON file")
     .requiredOption("--file <path>", "Path to JSON config file")
-    .action(async (name: string, options: { file: string }) => {
+    .option("--changes-not-sent-for-review", "Commit changes without sending for review")
+    .option("--error-if-in-review", "Fail if changes are already in review")
+    .action(async (name: string, options: { file: string } & Record<string, unknown>) => {
       const config = await loadConfig();
       const packageName = program.opts()["app"] || config.app;
       if (!packageName) {
@@ -107,7 +119,7 @@ export function registerTracksCommands(program: Command): void {
 
       const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
       const client = createApiClient({ auth });
-      const track = await updateTrackConfig(client, packageName, name, trackConfig);
+      const track = await updateTrackConfig(client, packageName, name, trackConfig, buildCommitOptions(options));
       console.log(formatOutput(track, format));
     });
 }

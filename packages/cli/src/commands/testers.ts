@@ -1,6 +1,7 @@
 import { resolvePackageName, getClient } from "../resolve.js";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
+import type { EditCommitOptions } from "@gpc-cli/api";
 
 import {
   listTesters,
@@ -12,6 +13,13 @@ import {
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, requireOption, requireConfirm } from "../prompt.js";
+
+function buildCommitOptions(opts: Record<string, unknown>): EditCommitOptions | undefined {
+  const commitOpts: EditCommitOptions = {};
+  if (opts.changesNotSentForReview) commitOpts.changesNotSentForReview = true;
+  if (opts.errorIfInReview) commitOpts.changesInReviewBehavior = "ERROR_IF_IN_REVIEW";
+  return Object.keys(commitOpts).length > 0 ? commitOpts : undefined;
+}
 
 
 
@@ -67,6 +75,8 @@ export function registerTestersCommands(program: Command): void {
     .command("add <emails...>")
     .description("Add testers (Google Group emails) to a track")
     .option("--track <track>", "Track name (e.g., internal, alpha, beta)")
+    .option("--changes-not-sent-for-review", "Commit changes without sending for review")
+    .option("--error-if-in-review", "Fail if changes are already in review")
     .action(async (emails: string[], options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -99,7 +109,7 @@ export function registerTestersCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      const result = await addTesters(client, packageName, options.track, emails);
+      const result = await addTesters(client, packageName, options.track, emails, buildCommitOptions(options));
       console.log(formatOutput(result, format));
     });
 
@@ -107,6 +117,8 @@ export function registerTestersCommands(program: Command): void {
     .command("remove <emails...>")
     .description("Remove testers (Google Group emails) from a track")
     .option("--track <track>", "Track name (e.g., internal, alpha, beta)")
+    .option("--changes-not-sent-for-review", "Commit changes without sending for review")
+    .option("--error-if-in-review", "Fail if changes are already in review")
     .action(async (emails: string[], options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -141,7 +153,7 @@ export function registerTestersCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      const result = await removeTesters(client, packageName, options.track, emails);
+      const result = await removeTesters(client, packageName, options.track, emails, buildCommitOptions(options));
       console.log(formatOutput(result, format));
     });
 

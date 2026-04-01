@@ -5,7 +5,7 @@ import type { Command } from "commander";
 import { loadConfig, getCacheDir } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
-import type { RetryLogEntry } from "@gpc-cli/api";
+import type { RetryLogEntry, EditCommitOptions } from "@gpc-cli/api";
 import {
   publish,
   generateNotesFromGit,
@@ -18,6 +18,13 @@ import type { PublishResult, DryRunPublishResult } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun } from "../dry-run.js";
 import { isInteractive, promptSelect, promptInput } from "../prompt.js";
+
+function buildCommitOptions(opts: Record<string, unknown>): EditCommitOptions | undefined {
+  const commitOpts: EditCommitOptions = {};
+  if (opts.changesNotSentForReview) commitOpts.changesNotSentForReview = true;
+  if (opts.errorIfInReview) commitOpts.changesInReviewBehavior = "ERROR_IF_IN_REVIEW";
+  return Object.keys(commitOpts).length > 0 ? commitOpts : undefined;
+}
 
 const PASS = "\u2713";
 const FAIL = "\u2717";
@@ -110,6 +117,10 @@ export function registerPublishCommand(program: Command): void {
     .option("--name <name>", "Release name")
     .option("--mapping <file>", "ProGuard/R8 mapping file for deobfuscation")
     .option("--retry-log <path>", "Write retry log entries to file (JSONL)")
+    .option("--mapping-type <type>", "Deobfuscation file type: proguard or nativeCode", "proguard")
+    .option("--device-tier-config <id>", "Device tier config ID (or LATEST)")
+    .option("--changes-not-sent-for-review", "Commit changes without sending for review (required for rejected apps)")
+    .option("--error-if-in-review", "Fail if changes are already in review instead of cancelling them")
     .action(async (file: string, options) => {
       try {
         await stat(file);
@@ -224,6 +235,9 @@ export function registerPublishCommand(program: Command): void {
           notesDir: options.notesDir,
           releaseName: options.name,
           mappingFile: options.mapping,
+          mappingFileType: options.mappingType,
+          deviceTierConfigId: options.deviceTierConfig,
+          commitOptions: buildCommitOptions(options),
         });
 
         if (!result.upload) {

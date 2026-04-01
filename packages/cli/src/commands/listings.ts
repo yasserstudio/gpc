@@ -2,7 +2,7 @@ import { resolvePackageName, getClient } from "../resolve.js";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 
-import type { ImageType } from "@gpc-cli/api";
+import type { ImageType, EditCommitOptions } from "@gpc-cli/api";
 import {
   getListings,
   updateListing,
@@ -25,6 +25,13 @@ import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, requireOption, requireConfirm } from "../prompt.js";
 import { green, red } from "../colors.js";
+
+function buildCommitOptions(opts: Record<string, unknown>): EditCommitOptions | undefined {
+  const commitOpts: EditCommitOptions = {};
+  if (opts.changesNotSentForReview) commitOpts.changesNotSentForReview = true;
+  if (opts.errorIfInReview) commitOpts.changesInReviewBehavior = "ERROR_IF_IN_REVIEW";
+  return Object.keys(commitOpts).length > 0 ? commitOpts : undefined;
+}
 
 
 
@@ -79,6 +86,8 @@ export function registerListingsCommands(program: Command): void {
     .option("--full <text>", "Full description")
     .option("--full-file <path>", "Read full description from file")
     .option("--video <url>", "Video URL")
+    .option("--changes-not-sent-for-review", "Commit changes without sending for review")
+    .option("--error-if-in-review", "Fail if changes are already in review")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -129,7 +138,7 @@ export function registerListingsCommands(program: Command): void {
       }
 
       const client = await getClient(config);
-      const result = await updateListing(client, packageName, options.lang, data);
+      const result = await updateListing(client, packageName, options.lang, data, buildCommitOptions(options));
       console.log(formatOutput(result, format));
     });
 
@@ -138,6 +147,8 @@ export function registerListingsCommands(program: Command): void {
     .command("delete")
     .description("Delete a store listing for a language")
     .option("--lang <language>", "Language code (BCP 47)")
+    .option("--changes-not-sent-for-review", "Commit changes without sending for review")
+    .option("--error-if-in-review", "Fail if changes are already in review")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -170,7 +181,7 @@ export function registerListingsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      await deleteListing(client, packageName, options.lang);
+      await deleteListing(client, packageName, options.lang, buildCommitOptions(options));
       console.log(`Listing for "${options.lang}" deleted.`);
     });
 
@@ -204,6 +215,8 @@ export function registerListingsCommands(program: Command): void {
     .description("Upload listings from Fastlane-format directory")
     .option("--dir <path>", "Source directory (default: metadata)", "metadata")
     .option("--force", "Push even if fields exceed character limits")
+    .option("--changes-not-sent-for-review", "Commit changes without sending for review")
+    .option("--error-if-in-review", "Fail if changes are already in review")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -218,6 +231,7 @@ export function registerListingsCommands(program: Command): void {
         const result = await pushListings(client, packageName, options.dir, {
           dryRun,
           force: options.force,
+          commitOptions: buildCommitOptions(options),
         });
         spinner.stop(dryRun ? "Dry-run complete (no changes made)" : "Listings pushed");
         console.log(formatOutput(result, format));
@@ -407,6 +421,8 @@ export function registerListingsCommands(program: Command): void {
     .description("Upload an image")
     .option("--lang <language>", "Language code (BCP 47)")
     .option("--type <type>", "Image type")
+    .option("--changes-not-sent-for-review", "Commit changes without sending for review")
+    .option("--error-if-in-review", "Fail if changes are already in review")
     .action(async (file: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -440,7 +456,7 @@ export function registerListingsCommands(program: Command): void {
       if (!program.opts()["quiet"] && process.stderr.isTTY) spinner.start();
 
       try {
-        const result = await uploadImage(client, packageName, options.lang, imageType, file);
+        const result = await uploadImage(client, packageName, options.lang, imageType, file, buildCommitOptions(options));
         spinner.stop("Image uploaded");
         console.log(formatOutput(result, format));
       } catch (error) {
@@ -456,6 +472,8 @@ export function registerListingsCommands(program: Command): void {
     .option("--lang <language>", "Language code (BCP 47)")
     .option("--type <type>", "Image type")
     .option("--id <imageId>", "Image ID to delete")
+    .option("--changes-not-sent-for-review", "Commit changes without sending for review")
+    .option("--error-if-in-review", "Fail if changes are already in review")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -494,7 +512,7 @@ export function registerListingsCommands(program: Command): void {
       const client = await getClient(config);
       const imageType = validateImageType(options.type);
 
-      await deleteImage(client, packageName, options.lang, imageType, options.id);
+      await deleteImage(client, packageName, options.lang, imageType, options.id, buildCommitOptions(options));
       console.log(`Image "${options.id}" deleted.`);
     });
 

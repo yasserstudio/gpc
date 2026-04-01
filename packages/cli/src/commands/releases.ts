@@ -5,7 +5,7 @@ import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient, createReportingClient } from "@gpc-cli/api";
-import type { RetryLogEntry, ExternallyHostedApk, UploadProgressEvent } from "@gpc-cli/api";
+import type { RetryLogEntry, ExternallyHostedApk, UploadProgressEvent, EditCommitOptions } from "@gpc-cli/api";
 import {
   uploadRelease,
   getReleasesStatus,
@@ -46,6 +46,13 @@ function resolvePackageName(packageArg: string | undefined, config: GpcConfig): 
   return name;
 }
 
+function buildCommitOptions(opts: Record<string, unknown>): EditCommitOptions | undefined {
+  const commitOpts: EditCommitOptions = {};
+  if (opts.changesNotSentForReview) commitOpts.changesNotSentForReview = true;
+  if (opts.errorIfInReview) commitOpts.changesInReviewBehavior = "ERROR_IF_IN_REVIEW";
+  return Object.keys(commitOpts).length > 0 ? commitOpts : undefined;
+}
+
 function createRetryLogger(retryLogPath?: string): ((entry: RetryLogEntry) => void) | undefined {
   if (!retryLogPath) return undefined;
   return (entry: RetryLogEntry) => {
@@ -82,6 +89,10 @@ export function registerReleasesCommands(program: Command): void {
       parseInt,
     )
     .option("--status <status>", "Release status: completed, inProgress, draft, halted", "completed")
+    .option("--mapping-type <type>", "Deobfuscation file type: proguard or nativeCode", "proguard")
+    .option("--device-tier-config <id>", "Device tier config ID (or LATEST)")
+    .option("--changes-not-sent-for-review", "Commit changes without sending for review (required for rejected apps)")
+    .option("--error-if-in-review", "Fail if changes are already in review instead of cancelling them")
     .action(async (file: string, options) => {
       try {
         await stat(file);
@@ -231,7 +242,10 @@ export function registerReleasesCommands(program: Command): void {
           releaseNotes,
           releaseName: options.name,
           mappingFile: options.mapping,
+          mappingFileType: options.mappingType,
+          deviceTierConfigId: options.deviceTierConfig,
           onUploadProgress,
+          commitOptions: buildCommitOptions(options),
         });
         if (showProgress) {
           process.stderr.write(`\r  ✓ Uploaded ${basename(file)}  ${sizeMB} MB\x1b[K\n`);
@@ -317,6 +331,8 @@ export function registerReleasesCommands(program: Command): void {
     .option("--notes <text>", "Release notes")
     .option("--copy-notes-from <track>", "Copy release notes from another track")
     .option("--status <status>", "Release status: completed, inProgress, draft, halted")
+    .option("--changes-not-sent-for-review", "Commit changes without sending for review (required for rejected apps)")
+    .option("--error-if-in-review", "Fail if changes are already in review instead of cancelling them")
     .action(async (options) => {
       if (options.notes && options.copyNotesFrom) {
         throw new GpcError(
@@ -401,6 +417,7 @@ export function registerReleasesCommands(program: Command): void {
         status: options.status,
         userFraction: options.rollout ? Number(options.rollout) / 100 : undefined,
         releaseNotes,
+        commitOptions: buildCommitOptions(options),
       });
       console.log(formatOutput(result, format));
     });
@@ -418,6 +435,9 @@ export function registerReleasesCommands(program: Command): void {
       cmd.option("--to <percent>", "New rollout percentage");
       cmd.option("--vitals-gate", "Halt rollout if crash rate exceeds configured threshold");
     }
+
+    cmd.option("--changes-not-sent-for-review", "Commit changes without sending for review (required for rejected apps)");
+    cmd.option("--error-if-in-review", "Fail if changes are already in review instead of cancelling them");
 
     cmd.action(async (options) => {
       const config = await loadConfig();
@@ -494,6 +514,7 @@ export function registerReleasesCommands(program: Command): void {
         options.track,
         action,
         options.to ? Number(options.to) / 100 : undefined,
+        buildCommitOptions(options),
       );
 
       // Vitals gate: check crash rate after rollout increase

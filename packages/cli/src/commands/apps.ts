@@ -2,10 +2,18 @@ import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
+import type { EditCommitOptions } from "@gpc-cli/api";
 import { getAppInfo, updateAppDetails, GpcError } from "@gpc-cli/core";
 import { formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
+
+function buildCommitOptions(opts: Record<string, unknown>): EditCommitOptions | undefined {
+  const commitOpts: EditCommitOptions = {};
+  if (opts.changesNotSentForReview) commitOpts.changesNotSentForReview = true;
+  if (opts.errorIfInReview) commitOpts.changesInReviewBehavior = "ERROR_IF_IN_REVIEW";
+  return Object.keys(commitOpts).length > 0 ? commitOpts : undefined;
+}
 
 export function registerAppsCommands(program: Command): void {
   const apps = program.command("apps").description("Manage applications");
@@ -42,6 +50,8 @@ export function registerAppsCommands(program: Command): void {
     .option("--phone <phone>", "Contact phone")
     .option("--website <url>", "Contact website")
     .option("--default-lang <lang>", "Default language")
+    .option("--changes-not-sent-for-review", "Commit changes without sending for review")
+    .option("--error-if-in-review", "Fail if changes are already in review")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = options["app"] || program.opts()["app"] || config.app;
@@ -89,7 +99,7 @@ export function registerAppsCommands(program: Command): void {
         serviceAccountPath: config.auth?.serviceAccount,
       });
       const client = createApiClient({ auth });
-      const result = await updateAppDetails(client, packageName, data);
+      const result = await updateAppDetails(client, packageName, data, buildCommitOptions(options));
       console.log(formatOutput(result, format));
     });
 

@@ -1,4 +1,4 @@
-import type { PlayApiClient } from "@gpc-cli/api";
+import type { PlayApiClient, EditCommitOptions } from "@gpc-cli/api";
 import { uploadRelease } from "./releases.js";
 import type { UploadResult, DryRunUploadResult } from "./releases.js";
 import { validatePreSubmission } from "./validate.js";
@@ -12,7 +12,10 @@ export interface PublishOptions {
   notesDir?: string;
   releaseName?: string;
   mappingFile?: string;
+  mappingFileType?: string;
+  deviceTierConfigId?: string;
   dryRun?: boolean;
+  commitOptions?: EditCommitOptions;
 }
 
 export interface PublishResult {
@@ -69,6 +72,9 @@ export async function publish(
     releaseNotes,
     releaseName: options.releaseName,
     mappingFile: options.mappingFile,
+    mappingFileType: options.mappingFileType,
+    deviceTierConfigId: options.deviceTierConfigId,
+    commitOptions: options.commitOptions,
   });
 
   return { validation, upload } as PublishResult;
