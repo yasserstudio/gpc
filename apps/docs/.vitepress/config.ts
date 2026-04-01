@@ -243,6 +243,10 @@ export default defineConfig({
   },
 
   head: [
+    // Google Analytics 4
+    ["script", { async: "", src: "https://www.googletagmanager.com/gtag/js?id=G-LS7V08EJHQ" }],
+    ["script", {}, "window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-LS7V08EJHQ')"],
+
     // Referrer-Policy is the only security header effective as a meta tag on GitHub Pages
     ["meta", { name: "referrer", content: "strict-origin-when-cross-origin" }],
 
