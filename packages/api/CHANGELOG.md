@@ -1,5 +1,11 @@
 # @gpc-cli/api
 
+## 1.0.28
+
+### Patch Changes
+
+- fix: skip edits.validate for rejected apps, publish dry-run params, importTestersFromCsv commitOptions, expansion upload validation
+
 ## 1.0.27
 
 ### Patch Changes
