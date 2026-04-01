@@ -243,6 +243,7 @@ describe("API Coverage Audit — Namespace completeness", () => {
     "apks",
     "listings",
     "images",
+    "expansionFiles",
     "countryAvailability",
     "dataSafety",
     "reviews",

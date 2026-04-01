@@ -486,6 +486,7 @@ describe("uploadRelease", () => {
       "edit-1",
       "/tmp/app.aab",
       expect.any(Object),
+      undefined,
     );
     expect(client.tracks.update).toHaveBeenCalledWith(
       PKG,
@@ -497,7 +498,7 @@ describe("uploadRelease", () => {
       }),
     );
     expect(client.edits.validate).toHaveBeenCalledWith(PKG, "edit-1");
-    expect(client.edits.commit).toHaveBeenCalledWith(PKG, "edit-1");
+    expect(client.edits.commit).toHaveBeenCalledWith(PKG, "edit-1", undefined);
     expect(client.edits.delete).not.toHaveBeenCalled();
   });
 
@@ -3882,7 +3883,7 @@ describe("uploadRelease – edge cases", () => {
       mappingFile: "/tmp/mapping.txt",
     });
 
-    expect(client.deobfuscation.upload).toHaveBeenCalledWith(PKG, "edit-1", 42, "/tmp/mapping.txt");
+    expect(client.deobfuscation.upload).toHaveBeenCalledWith(PKG, "edit-1", 42, "/tmp/mapping.txt", undefined);
   });
 
   it("cleans up edit when mapping file upload fails", async () => {
@@ -5034,7 +5035,7 @@ describe("createTrack", () => {
     expect(client.edits.insert).toHaveBeenCalledWith("com.example");
     expect(client.tracks.create).toHaveBeenCalledWith("com.example", "edit-1", "my-qa-track");
     expect(client.edits.validate).toHaveBeenCalledWith("com.example", "edit-1");
-    expect(client.edits.commit).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(client.edits.commit).toHaveBeenCalledWith("com.example", "edit-1", undefined);
     expect(result.track).toBe("my-qa-track");
   });
 
@@ -5076,7 +5077,7 @@ describe("updateTrackConfig", () => {
       expect.objectContaining({ status: "completed" }),
     );
     expect(client.edits.validate).toHaveBeenCalledWith("com.example", "edit-1");
-    expect(client.edits.commit).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(client.edits.commit).toHaveBeenCalledWith("com.example", "edit-1", undefined);
     expect(result.track).toBe("beta");
   });
 
@@ -5129,7 +5130,7 @@ describe("uploadExternallyHosted", () => {
     expect(client.edits.insert).toHaveBeenCalledWith("com.example");
     expect(client.apks.addExternallyHosted).toHaveBeenCalledWith("com.example", "edit-1", data);
     expect(client.edits.validate).toHaveBeenCalledWith("com.example", "edit-1");
-    expect(client.edits.commit).toHaveBeenCalledWith("com.example", "edit-1");
+    expect(client.edits.commit).toHaveBeenCalledWith("com.example", "edit-1", undefined);
     expect(result.externallyHostedApk.versionCode).toBe(42);
   });
 

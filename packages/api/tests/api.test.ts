@@ -2298,7 +2298,8 @@ describe("oneTimeProducts", () => {
     const client = makeClient();
     await client.oneTimeProducts.createOffer(PKG, "otp1", offer as any);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/offers`);
+    expect(url).toContain(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/offers`);
+    expect(url).toContain("regionsVersion.version=2022%2F02");
     expect(init.method).toBe("POST");
   });
 
@@ -2898,5 +2899,316 @@ describe("inappproducts.batchDelete", () => {
         { packageName: PKG, sku: "gems500" },
       ],
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Missing API parameters (v0.9.51)
+// ---------------------------------------------------------------------------
+describe("edits.commit with options", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+  const PKG = "com.example.app";
+  const EDIT_ID = "edit-123";
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("passes changesNotSentForReview query param", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ id: EDIT_ID, expiryTimeSeconds: "9999" }));
+
+    const client = makeClient();
+    await client.edits.commit(PKG, EDIT_ID, { changesNotSentForReview: true });
+
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("changesNotSentForReview=true");
+  });
+
+  it("passes changesInReviewBehavior query param", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ id: EDIT_ID, expiryTimeSeconds: "9999" }));
+
+    const client = makeClient();
+    await client.edits.commit(PKG, EDIT_ID, { changesInReviewBehavior: "ERROR_IF_IN_REVIEW" });
+
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("changesInReviewBehavior=ERROR_IF_IN_REVIEW");
+  });
+
+  it("omits query params when no options provided", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ id: EDIT_ID, expiryTimeSeconds: "9999" }));
+
+    const client = makeClient();
+    await client.edits.commit(PKG, EDIT_ID);
+
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/edits/${EDIT_ID}:commit`);
+  });
+});
+
+describe("deobfuscation.upload with fileType", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+  const PKG = "com.example.app";
+  const EDIT_ID = "edit-123";
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("defaults to proguard when no type specified", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ deobfuscationFile: { symbolType: "proguard" } }));
+
+    const client = makeClient();
+    await client.deobfuscation.upload(PKG, EDIT_ID, 42, "/fake/mapping.txt");
+
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("/deobfuscationFiles/proguard");
+  });
+
+  it("uses nativeCode when specified", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ deobfuscationFile: { symbolType: "nativeCode" } }));
+
+    const client = makeClient();
+    await client.deobfuscation.upload(PKG, EDIT_ID, 42, "/fake/symbols.zip", "nativeCode");
+
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("/deobfuscationFiles/nativeCode");
+  });
+});
+
+describe("bundles.upload with deviceTierConfigId", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+  const PKG = "com.example.app";
+  const EDIT_ID = "edit-123";
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("appends deviceTierConfigId query param", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ versionCode: 1, sha1: "a", sha256: "b" }));
+
+    const client = makeClient();
+    await client.bundles.upload(PKG, EDIT_ID, "/fake/app.aab", undefined, "LATEST");
+
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("deviceTierConfigId=LATEST");
+  });
+
+  it("omits deviceTierConfigId when not specified", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ versionCode: 1, sha1: "a", sha256: "b" }));
+
+    const client = makeClient();
+    await client.bundles.upload(PKG, EDIT_ID, "/fake/app.aab");
+
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).not.toContain("deviceTierConfigId");
+  });
+});
+
+describe("subscriptions.update with allowMissing and latencyTolerance", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+  const PKG = "com.example.app";
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("passes allowMissing and latencyTolerance params", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ productId: "sub1", packageName: PKG }));
+
+    const client = makeClient();
+    await client.subscriptions.update(PKG, "sub1", { productId: "sub1" }, "listings", undefined, {
+      allowMissing: true,
+      latencyTolerance: "PRODUCT_UPDATE_LATENCY_TOLERANCE_LATENCY_TOLERANT",
+    });
+
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("allowMissing=true");
+    expect(url).toContain("latencyTolerance=PRODUCT_UPDATE_LATENCY_TOLERANCE_LATENCY_TOLERANT");
+  });
+});
+
+describe("reviews.list with startIndex", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+  const PKG = "com.example.app";
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("passes startIndex query param", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ reviews: [] }));
+
+    const client = makeClient();
+    await client.reviews.list(PKG, { startIndex: 10 });
+
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("startIndex=10");
+  });
+});
+
+describe("oneTimeProducts.list with pagination", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+  const PKG = "com.example.app";
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("passes pageSize and pageToken params", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProducts: [] }));
+
+    const client = makeClient();
+    await client.oneTimeProducts.list(PKG, { pageSize: 50, pageToken: "abc" });
+
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("pageSize=50");
+    expect(url).toContain("pageToken=abc");
+  });
+});
+
+describe("expansionFiles resource", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+  const PKG = "com.example.app";
+  const EDIT_ID = "edit-123";
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("expansionFiles.get calls correct endpoint", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ referencesVersion: 1 }));
+
+    const client = makeClient();
+    const result = await client.expansionFiles.get(PKG, EDIT_ID, 42, "main");
+
+    expect(result).toEqual({ referencesVersion: 1 });
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toContain(`/apks/42/expansionFiles/main`);
+    expect(init.method).toBe("GET");
+  });
+
+  it("expansionFiles.update calls PUT with body", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ referencesVersion: 2 }));
+
+    const client = makeClient();
+    await client.expansionFiles.update(PKG, EDIT_ID, 42, "patch", { referencesVersion: 2 });
+
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toContain(`/apks/42/expansionFiles/patch`);
+    expect(init.method).toBe("PUT");
+    expect(JSON.parse(init.body)).toEqual({ referencesVersion: 2 });
+  });
+
+  it("expansionFiles.upload calls correct endpoint", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ expansionFile: { fileSize: "12345" } }));
+
+    const client = makeClient();
+    const result = await client.expansionFiles.upload(PKG, EDIT_ID, 42, "main", "/fake/obb.obb");
+
+    expect(result).toEqual({ fileSize: "12345" });
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain(`/apks/42/expansionFiles/main`);
+  });
+});
+
+describe("subscriptions.create with regionsVersion", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+  const PKG = "com.example.app";
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function makeClient() {
+    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
+  }
+
+  it("defaults regionsVersion to 2022/02", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ productId: "sub1" }));
+
+    const client = makeClient();
+    await client.subscriptions.create(PKG, { productId: "sub1" }, "sub1");
+
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("regionsVersion.version=2022%2F02");
+  });
+
+  it("allows custom regionsVersion", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ productId: "sub1" }));
+
+    const client = makeClient();
+    await client.subscriptions.create(PKG, { productId: "sub1" }, "sub1", "2024/01");
+
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("regionsVersion.version=2024%2F01");
   });
 });

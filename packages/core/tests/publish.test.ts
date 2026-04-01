@@ -110,6 +110,7 @@ describe("publish", () => {
       "edit-1",
       42,
       mappingPath,
+      undefined,
     );
   });
 
