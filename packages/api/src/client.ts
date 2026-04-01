@@ -461,7 +461,7 @@ export interface PlayApiClient {
   };
 
   oneTimeProducts: {
-    list(packageName: string): Promise<OneTimeProductsListResponse>;
+    list(packageName: string, options?: { pageToken?: string; pageSize?: number }): Promise<OneTimeProductsListResponse>;
     get(packageName: string, productId: string): Promise<OneTimeProduct>;
     create(packageName: string, product: OneTimeProduct): Promise<OneTimeProduct>;
     update(
@@ -1376,9 +1376,14 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
     },
 
     oneTimeProducts: {
-      async list(packageName) {
+      async list(packageName, options?) {
+        const params: Record<string, string> = {};
+        if (options?.pageToken) params["pageToken"] = options.pageToken;
+        if (options?.pageSize) params["pageSize"] = String(options.pageSize);
+        const hasParams = Object.keys(params).length > 0;
         const { data } = await http.get<OneTimeProductsListResponse>(
           `/${packageName}/oneTimeProducts`,
+          hasParams ? params : undefined,
         );
         return data;
       },
