@@ -216,6 +216,7 @@ export interface PlayApiClient {
       data: Subscription,
       updateMask?: string,
       regionsVersion?: string,
+      options?: { allowMissing?: boolean; latencyTolerance?: string },
     ): Promise<Subscription>;
     delete(packageName: string, productId: string): Promise<void>;
     batchGet(packageName: string, productIds: string[]): Promise<Subscription[]>;
@@ -263,6 +264,7 @@ export interface PlayApiClient {
       data: SubscriptionOffer,
       updateMask?: string,
       regionsVersion?: string,
+      options?: { allowMissing?: boolean; latencyTolerance?: string },
     ): Promise<SubscriptionOffer>;
     deleteOffer(
       packageName: string,
@@ -468,6 +470,7 @@ export interface PlayApiClient {
       product: Partial<OneTimeProduct>,
       updateMask?: string,
       regionsVersion?: string,
+      options?: { allowMissing?: boolean; latencyTolerance?: string },
     ): Promise<OneTimeProduct>;
     delete(packageName: string, productId: string): Promise<void>;
     listOffers(packageName: string, productId: string): Promise<OneTimeOffersListResponse>;
@@ -480,6 +483,7 @@ export interface PlayApiClient {
       offer: Partial<OneTimeOffer>,
       updateMask?: string,
       regionsVersion?: string,
+      options?: { allowMissing?: boolean; latencyTolerance?: string },
     ): Promise<OneTimeOffer>;
     deleteOffer(packageName: string, productId: string, offerId: string): Promise<void>;
     batchGet(packageName: string, productIds: string[]): Promise<OneTimeProduct[]>;
@@ -873,10 +877,12 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async update(packageName, productId, body, updateMask?, regionsVersion?) {
+      async update(packageName, productId, body, updateMask?, regionsVersion?, options?) {
         const params: Record<string, string> = {};
         if (updateMask) params["updateMask"] = updateMask;
         params["regionsVersion.version"] = regionsVersion || "2022/02";
+        if (options?.allowMissing) params["allowMissing"] = "true";
+        if (options?.latencyTolerance) params["latencyTolerance"] = options.latencyTolerance;
         const path = `/${packageName}/subscriptions/${productId}?${new URLSearchParams(params).toString()}`;
         const { data } = await http.patch<Subscription>(path, body);
         return data;
@@ -959,10 +965,13 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         body,
         updateMask?,
         regionsVersion?,
+        options?,
       ) {
         const params: Record<string, string> = {};
         if (updateMask) params["updateMask"] = updateMask;
         params["regionsVersion.version"] = regionsVersion || "2022/02";
+        if (options?.allowMissing) params["allowMissing"] = "true";
+        if (options?.latencyTolerance) params["latencyTolerance"] = options.latencyTolerance;
         const path = `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers/${offerId}?${new URLSearchParams(params).toString()}`;
         const { data } = await http.patch<SubscriptionOffer>(path, body);
         return data;
@@ -1390,10 +1399,12 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async update(packageName, productId, body, updateMask?, regionsVersion?) {
+      async update(packageName, productId, body, updateMask?, regionsVersion?, options?) {
         const params: Record<string, string> = {};
         if (updateMask) params["updateMask"] = updateMask;
         params["regionsVersion.version"] = regionsVersion || "2022/02";
+        if (options?.allowMissing) params["allowMissing"] = "true";
+        if (options?.latencyTolerance) params["latencyTolerance"] = options.latencyTolerance;
         const path = `/${packageName}/oneTimeProducts/${productId}?${new URLSearchParams(params).toString()}`;
         const { data } = await http.patch<OneTimeProduct>(path, body);
         return data;
@@ -1425,10 +1436,12 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async updateOffer(packageName, productId, offerId, body, updateMask?, regionsVersion?) {
+      async updateOffer(packageName, productId, offerId, body, updateMask?, regionsVersion?, options?) {
         const params: Record<string, string> = {};
         if (updateMask) params["updateMask"] = updateMask;
         params["regionsVersion.version"] = regionsVersion || "2022/02";
+        if (options?.allowMissing) params["allowMissing"] = "true";
+        if (options?.latencyTolerance) params["latencyTolerance"] = options.latencyTolerance;
         const path = `/${packageName}/oneTimeProducts/${productId}/offers/${offerId}?${new URLSearchParams(params).toString()}`;
         const { data } = await http.patch<OneTimeOffer>(path, body);
         return data;
