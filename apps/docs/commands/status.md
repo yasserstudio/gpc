@@ -394,3 +394,5 @@ gpc status --watch 300 --notify --sections vitals
 - [`gpc reviews`](/commands/reviews) — full review list, reply, and CSV export
 - [`gpc releases status`](/commands/releases) — detailed release data including version codes and rollout history
 - [`gpc releases rollout`](/commands/releases#rollout) — adjust, halt, or resume a staged rollout
+- [Vitals Gates in CI](/ci-cd/vitals-gates) — gate deployments on crash and ANR rates
+- [GPC vs Fastlane](/alternatives/fastlane) — feature comparison with Fastlane supply

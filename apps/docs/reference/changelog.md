@@ -1,6 +1,10 @@
 ---
 outline: deep
 pageClass: wide-page
+head:
+  - - meta
+    - name: robots
+      content: noindex, follow
 ---
 
 # Changelog

@@ -1,5 +1,9 @@
 ---
 outline: deep
+head:
+  - - meta
+    - name: robots
+      content: noindex, follow
 ---
 
 # Google Play API Deprecations

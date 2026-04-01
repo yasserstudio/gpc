@@ -335,3 +335,9 @@ metadata() {
 5. **Update CI workflow** -- Replace Fastlane commands with GPC equivalents
 6. **Verify** -- Run `gpc doctor` to confirm everything is connected
 7. **Remove Fastlane** -- Delete `Gemfile`, `fastlane/` directory (optional, can coexist during transition)
+
+## Related
+
+- [GPC vs Fastlane Supply](/alternatives/fastlane) -- side-by-side feature comparison
+- [GitHub Actions](/ci-cd/github-actions) -- full CI/CD setup guide
+- [Quick Start](/guide/quick-start) -- get running in 5 minutes

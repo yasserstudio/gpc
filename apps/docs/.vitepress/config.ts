@@ -196,6 +196,13 @@ function getPageDescription(page: PageData): string {
     // Migration
     "migration/from-console-ui.md":
       "Replace Play Console UI workflows with GPC CLI commands. 60+ task-to-command mappings.",
+    // Alternatives
+    "alternatives/fastlane.md":
+      "GPC vs Fastlane supply: 204 endpoints vs ~20, Node.js vs Ruby, plus vitals, reviews, subscriptions, and preflight scanning.",
+    "alternatives/index.md":
+      "Google Play CLI tools compared. GPC vs Fastlane vs gradle-play-publisher vs play-console-cli. Feature matrix and API coverage.",
+    "alternatives/android-release-automation.md":
+      "Automate Android releases with GPC. Upload, promote, staged rollout, vitals gating, and monitoring from the command line or CI/CD.",
     // Reference
     "reference/json-contract.md":
       "GPC JSON output contract — structured response format for CI/CD scripting and automation.",
@@ -261,7 +268,7 @@ export default defineConfig({
         downloadUrl: "https://www.npmjs.com/package/@gpc-cli/cli",
         installUrl: "https://www.npmjs.com/package/@gpc-cli/cli",
         codeRepository: "https://github.com/yasserstudio/gpc",
-        license: "https://opensource.org/licenses/MIT",
+
         programmingLanguage: "TypeScript",
         softwareVersion: "0.9.50",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
@@ -292,12 +299,13 @@ export default defineConfig({
       .replace(/\.md$/, "");
     const canonicalUrl = `https://yasserstudio.github.io/gpc/${canonicalPath}`;
 
+    // Override VitePress default description with per-page description
+    pageData.description = desc;
+
     pageData.frontmatter.head ??= [];
     pageData.frontmatter.head.push(
       // Canonical
       ["link", { rel: "canonical", href: canonicalUrl }],
-      // Meta description
-      ["meta", { name: "description", content: desc }],
       // Open Graph (dynamic per page)
       ["meta", { property: "og:title", content: title }],
       ["meta", { property: "og:description", content: desc }],
@@ -392,6 +400,8 @@ export default defineConfig({
           { text: "From Fastlane", link: "/migration/from-fastlane" },
           { text: "From Console UI", link: "/migration/from-console-ui" },
           { text: "GPC vs Fastlane", link: "/alternatives/fastlane" },
+          { text: "Compare All Tools", link: "/alternatives/" },
+          { text: "Release Automation", link: "/alternatives/android-release-automation" },
         ],
       },
       { text: "Advanced", link: "/advanced/architecture" },

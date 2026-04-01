@@ -551,3 +551,9 @@ jobs:
             --notes "Flutter build ${{ github.ref_name }}" \
             --json
 ```
+
+## Related
+
+- [Vitals Gates](/ci-cd/vitals-gates) -- gate deployments on crash and ANR rates
+- [`gpc status`](/commands/status) -- post-deploy health snapshot
+- [Migrate from Fastlane](/migration/from-fastlane) -- CI workflow migration guide

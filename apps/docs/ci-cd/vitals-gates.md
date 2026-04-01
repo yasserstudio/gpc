@@ -356,3 +356,9 @@ For reference, these are the thresholds Google Play uses to flag apps. Exceeding
 ::: tip
 Set your CI thresholds slightly above Google's thresholds to catch regressions before Google flags your app. A common approach is to use 1.5x the Google threshold as a CI gate and 2x as an emergency halt trigger.
 :::
+
+## Related
+
+- [`gpc status`](/commands/status) -- unified app health snapshot with threshold indicators
+- [`gpc vitals`](/commands/vitals) -- detailed per-metric breakdowns and custom date ranges
+- [GitHub Actions](/ci-cd/github-actions) -- full CI/CD workflow examples
