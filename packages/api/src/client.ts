@@ -239,7 +239,7 @@ export interface PlayApiClient {
       options?: { pageToken?: string; pageSize?: number },
     ): Promise<SubscriptionsListResponse>;
     get(packageName: string, productId: string): Promise<Subscription>;
-    create(packageName: string, data: Subscription, productId?: string): Promise<Subscription>;
+    create(packageName: string, data: Subscription, productId?: string, regionsVersion?: string): Promise<Subscription>;
     update(
       packageName: string,
       productId: string,
@@ -285,6 +285,7 @@ export interface PlayApiClient {
       basePlanId: string,
       data: SubscriptionOffer,
       offerId?: string,
+      regionsVersion?: string,
     ): Promise<SubscriptionOffer>;
     updateOffer(
       packageName: string,
@@ -493,7 +494,7 @@ export interface PlayApiClient {
   oneTimeProducts: {
     list(packageName: string, options?: { pageToken?: string; pageSize?: number }): Promise<OneTimeProductsListResponse>;
     get(packageName: string, productId: string): Promise<OneTimeProduct>;
-    create(packageName: string, product: OneTimeProduct): Promise<OneTimeProduct>;
+    create(packageName: string, product: OneTimeProduct, regionsVersion?: string): Promise<OneTimeProduct>;
     update(
       packageName: string,
       productId: string,
@@ -505,7 +506,7 @@ export interface PlayApiClient {
     delete(packageName: string, productId: string): Promise<void>;
     listOffers(packageName: string, productId: string): Promise<OneTimeOffersListResponse>;
     getOffer(packageName: string, productId: string, offerId: string): Promise<OneTimeOffer>;
-    createOffer(packageName: string, productId: string, offer: OneTimeOffer): Promise<OneTimeOffer>;
+    createOffer(packageName: string, productId: string, offer: OneTimeOffer, regionsVersion?: string): Promise<OneTimeOffer>;
     updateOffer(
       packageName: string,
       productId: string,
@@ -933,10 +934,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async create(packageName, body, productId?) {
+      async create(packageName, body, productId?, regionsVersion?) {
         const params: Record<string, string> = {};
         if (productId) params["productId"] = productId;
-        params["regionsVersion.version"] = "2022/02";
+        params["regionsVersion.version"] = regionsVersion || "2022/02";
         const path = `/${packageName}/subscriptions?${new URLSearchParams(params).toString()}`;
         const { data } = await http.post<Subscription>(path, body);
         return data;
@@ -1013,10 +1014,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async createOffer(packageName, productId, basePlanId, body, offerId?) {
+      async createOffer(packageName, productId, basePlanId, body, offerId?, regionsVersion?) {
         const params: Record<string, string> = {};
         if (offerId) params["offerId"] = offerId;
-        params["regionsVersion.version"] = "2022/02";
+        params["regionsVersion.version"] = regionsVersion || "2022/02";
         const path = `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}/offers?${new URLSearchParams(params).toString()}`;
         const { data } = await http.post<SubscriptionOffer>(path, body);
         return data;
@@ -1460,8 +1461,8 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async create(packageName, body) {
-        const params = new URLSearchParams({ "regionsVersion.version": "2022/02" });
+      async create(packageName, body, regionsVersion?) {
+        const params = new URLSearchParams({ "regionsVersion.version": regionsVersion || "2022/02" });
         const { data } = await http.post<OneTimeProduct>(
           `/${packageName}/oneTimeProducts?${params.toString()}`,
           body,
@@ -1498,9 +1499,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async createOffer(packageName, productId, body) {
+      async createOffer(packageName, productId, body, regionsVersion?) {
+        const params = new URLSearchParams({ "regionsVersion.version": regionsVersion || "2022/02" });
         const { data } = await http.post<OneTimeOffer>(
-          `/${packageName}/oneTimeProducts/${productId}/offers`,
+          `/${packageName}/oneTimeProducts/${productId}/offers?${params.toString()}`,
           body,
         );
         return data;
