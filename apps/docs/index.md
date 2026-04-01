@@ -103,7 +103,7 @@ gpc reviews list --stars 1-3 --since 7d
 
 | Domain           | What you can do                                                              |
 | ---------------- | ---------------------------------------------------------------------------- |
-| **Releases**     | Upload, promote, staged rollouts, halt, resume, release notes                |
+| **Releases**     | Upload, promote, staged rollouts, halt, resume, release notes, rejected app handling |
 | **Listings**     | Store metadata, screenshots, localization, Fastlane format compatible        |
 | **Reviews**      | Filter by stars/language/date, reply, export to CSV                          |
 | **Vitals**       | Crashes, ANR, startup, rendering, battery, memory — with CI threshold gates  |
@@ -111,7 +111,7 @@ gpc reviews list --stars 1-3 --since 7d
 | **Purchases**    | Verification, acknowledgment, refunds, voided purchases                      |
 | **Reports**      | Financial and stats CSV downloads                                            |
 | **Team**         | Testers, users, permissions, CSV bulk import                                 |
-| **Compliance**   | Preflight scanner (9 checks), data safety, recovery actions                  |
+| **Compliance**   | Preflight scanner (9 checks), data safety, recovery actions, review-safe CI  |
 | **Analysis**     | Bundle size breakdown, cross-build comparison, size CI gates                 |
 | **More**         | Device tiers, internal sharing, external transactions, project scaffolding   |
 
@@ -131,6 +131,18 @@ gpc reviews list --stars 1-3 --since 7d
 | Plugin system       | Yes                          | No              | No                    | No           |
 
 Already on Fastlane? See the [migration guide](/migration/from-fastlane) or the [full comparison](/alternatives/fastlane).
+
+## What's New in v0.9.51
+
+**Rejected app support** -- Apps stuck in rejection can now upload and promote with `--changes-not-sent-for-review`. CI pipelines can use `--error-if-in-review` to fail safely instead of silently cancelling an in-progress review.
+
+**Native debug symbols** -- Upload NDK native debug symbols alongside your AAB with `--mapping-type nativeCode` for crash symbolication in the Play Console.
+
+**Device tier targeting** -- Target a specific device tier config at upload time with `--device-tier-config`.
+
+**4 new API endpoints** -- Expansion file management (OBB) for legacy APKs. Plus pagination on one-time products, `startIndex` on reviews, and `allowMissing` upsert support on monetization endpoints.
+
+[Full changelog](/reference/changelog)
 
 ## Ready to stop clicking?
 
