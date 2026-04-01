@@ -39,7 +39,7 @@ const auth = await resolveAuth({
 
 ### Service Account (JSON string)
 
-Pass the key contents directly -- useful for environment variables and secrets managers.
+Pass the key contents directly. Useful for environment variables and secrets managers.
 
 ```typescript
 import { resolveAuth } from "@gpc-cli/auth";
@@ -177,7 +177,7 @@ Error codes:
 ## Documentation
 
 - [Full documentation](https://yasserstudio.github.io/gpc/)
-- [SDK usage guide](https://yasserstudio.github.io/gpc/advanced/sdk-usage.html)
+- [SDK usage guide](https://yasserstudio.github.io/gpc/advanced/sdk-usage)
 
 ## License
 
