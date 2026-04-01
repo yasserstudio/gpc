@@ -33,7 +33,9 @@ export async function addTesters(
     const updated = await client.testers.update(packageName, edit.id, track, {
       googleGroups: [...existing],
     });
-    await client.edits.validate(packageName, edit.id);
+    if (!commitOptions?.changesNotSentForReview) {
+      await client.edits.validate(packageName, edit.id);
+    }
     await client.edits.commit(packageName, edit.id, commitOptions);
     return updated;
   } catch (error) {
@@ -57,7 +59,9 @@ export async function removeTesters(
     const updated = await client.testers.update(packageName, edit.id, track, {
       googleGroups: filtered,
     });
-    await client.edits.validate(packageName, edit.id);
+    if (!commitOptions?.changesNotSentForReview) {
+      await client.edits.validate(packageName, edit.id);
+    }
     await client.edits.commit(packageName, edit.id, commitOptions);
     return updated;
   } catch (error) {

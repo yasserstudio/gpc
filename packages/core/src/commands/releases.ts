@@ -245,8 +245,10 @@ export async function uploadRelease(
 
     await client.tracks.update(packageName, edit.id, options.track, release);
 
-    // Validate and commit
-    await client.edits.validate(packageName, edit.id);
+    // Validate and commit (skip validate for rejected apps -- validate rejects changesNotSentForReview)
+    if (!options.commitOptions?.changesNotSentForReview) {
+      await client.edits.validate(packageName, edit.id);
+    }
     await client.edits.commit(packageName, edit.id, options.commitOptions);
 
     return {
@@ -333,7 +335,9 @@ export async function promoteRelease(
     };
 
     await client.tracks.update(packageName, edit.id, toTrack, release);
-    await client.edits.validate(packageName, edit.id);
+    if (!options?.commitOptions?.changesNotSentForReview) {
+      await client.edits.validate(packageName, edit.id);
+    }
     await client.edits.commit(packageName, edit.id, options?.commitOptions);
 
     return {
@@ -414,7 +418,9 @@ export async function updateRollout(
     };
 
     await client.tracks.update(packageName, edit.id, track, release);
-    await client.edits.validate(packageName, edit.id);
+    if (!commitOptions?.changesNotSentForReview) {
+      await client.edits.validate(packageName, edit.id);
+    }
     await client.edits.commit(packageName, edit.id, commitOptions);
 
     return {
@@ -459,7 +465,9 @@ export async function createTrack(
   const edit = await client.edits.insert(packageName);
   try {
     const track = await client.tracks.create(packageName, edit.id, trackName);
-    await client.edits.validate(packageName, edit.id);
+    if (!commitOptions?.changesNotSentForReview) {
+      await client.edits.validate(packageName, edit.id);
+    }
     await client.edits.commit(packageName, edit.id, commitOptions);
     return track;
   } catch (error) {
@@ -501,7 +509,9 @@ export async function updateTrackConfig(
     }
 
     const track = await client.tracks.update(packageName, edit.id, trackName, release);
-    await client.edits.validate(packageName, edit.id);
+    if (!commitOptions?.changesNotSentForReview) {
+      await client.edits.validate(packageName, edit.id);
+    }
     await client.edits.commit(packageName, edit.id, commitOptions);
     return track;
   } catch (error) {
@@ -608,7 +618,9 @@ export async function uploadExternallyHosted(
   const edit = await client.edits.insert(packageName);
   try {
     const result = await client.apks.addExternallyHosted(packageName, edit.id, data);
-    await client.edits.validate(packageName, edit.id);
+    if (!commitOptions?.changesNotSentForReview) {
+      await client.edits.validate(packageName, edit.id);
+    }
     await client.edits.commit(packageName, edit.id, commitOptions);
     return result;
   } catch (error) {

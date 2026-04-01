@@ -73,7 +73,9 @@ export async function updateListing(
   const edit = await client.edits.insert(packageName);
   try {
     const listing = await client.listings.patch(packageName, edit.id, language, data);
-    await client.edits.validate(packageName, edit.id);
+    if (!commitOptions?.changesNotSentForReview) {
+      await client.edits.validate(packageName, edit.id);
+    }
     await client.edits.commit(packageName, edit.id, commitOptions);
     return listing;
   } catch (error) {
@@ -92,7 +94,9 @@ export async function deleteListing(
   const edit = await client.edits.insert(packageName);
   try {
     await client.listings.delete(packageName, edit.id, language);
-    await client.edits.validate(packageName, edit.id);
+    if (!commitOptions?.changesNotSentForReview) {
+      await client.edits.validate(packageName, edit.id);
+    }
     await client.edits.commit(packageName, edit.id, commitOptions);
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});
@@ -252,7 +256,9 @@ export async function pushListings(
       await client.listings.update(packageName, edit.id, language, data);
     }
 
-    await client.edits.validate(packageName, edit.id);
+    if (!options?.commitOptions?.changesNotSentForReview) {
+      await client.edits.validate(packageName, edit.id);
+    }
     await client.edits.commit(packageName, edit.id, options?.commitOptions);
 
     return {
@@ -310,7 +316,9 @@ export async function uploadImage(
   const edit = await client.edits.insert(packageName);
   try {
     const image = await client.images.upload(packageName, edit.id, language, imageType, filePath);
-    await client.edits.validate(packageName, edit.id);
+    if (!commitOptions?.changesNotSentForReview) {
+      await client.edits.validate(packageName, edit.id);
+    }
     await client.edits.commit(packageName, edit.id, commitOptions);
     return image;
   } catch (error) {
@@ -331,7 +339,9 @@ export async function deleteImage(
   const edit = await client.edits.insert(packageName);
   try {
     await client.images.delete(packageName, edit.id, language, imageType, imageId);
-    await client.edits.validate(packageName, edit.id);
+    if (!commitOptions?.changesNotSentForReview) {
+      await client.edits.validate(packageName, edit.id);
+    }
     await client.edits.commit(packageName, edit.id, commitOptions);
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});
@@ -490,7 +500,9 @@ export async function updateAppDetails(
   const edit = await client.edits.insert(packageName);
   try {
     const result = await client.details.patch(packageName, edit.id, details);
-    await client.edits.validate(packageName, edit.id);
+    if (!commitOptions?.changesNotSentForReview) {
+      await client.edits.validate(packageName, edit.id);
+    }
     await client.edits.commit(packageName, edit.id, commitOptions);
     return result;
   } catch (error) {
