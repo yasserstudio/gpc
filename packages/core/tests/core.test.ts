@@ -502,6 +502,28 @@ describe("uploadRelease", () => {
     expect(client.edits.delete).not.toHaveBeenCalled();
   });
 
+  it("skips validate when changesNotSentForReview is set", async () => {
+    const client = mockClient();
+    await uploadRelease(client, PKG, "/tmp/app.aab", {
+      track: "internal",
+      status: "completed",
+      commitOptions: { changesNotSentForReview: true },
+    });
+
+    expect(client.edits.validate).not.toHaveBeenCalled();
+    expect(client.edits.commit).toHaveBeenCalledWith(PKG, "edit-1", { changesNotSentForReview: true });
+  });
+
+  it("calls validate when commitOptions is undefined", async () => {
+    const client = mockClient();
+    await uploadRelease(client, PKG, "/tmp/app.aab", {
+      track: "internal",
+      status: "completed",
+    });
+
+    expect(client.edits.validate).toHaveBeenCalledWith(PKG, "edit-1");
+  });
+
   it("returns correct UploadResult", async () => {
     const client = mockClient();
     const result = await uploadRelease(client, PKG, "/tmp/app.aab", {

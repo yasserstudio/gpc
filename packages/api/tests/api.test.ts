@@ -3173,6 +3173,15 @@ describe("expansionFiles resource", () => {
     const [url] = mockFetch.mock.calls[0];
     expect(url).toContain(`/apks/42/expansionFiles/main`);
   });
+
+  it("expansionFiles.upload throws on empty response", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+
+    const client = makeClient();
+    await expect(
+      client.expansionFiles.upload(PKG, EDIT_ID, 42, "main", "/fake/obb.obb"),
+    ).rejects.toThrow("Upload succeeded but no expansion file data returned");
+  });
 });
 
 describe("subscriptions.create with regionsVersion", () => {
