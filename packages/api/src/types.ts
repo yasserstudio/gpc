@@ -394,6 +394,8 @@ export interface BasePlanMigratePricesRequest {
     oldestAllowedPriceVersionTime?: string;
     priceIncreaseType?: string;
   }[];
+  regionsVersion?: { version?: string };
+  latencyTolerance?: string;
 }
 
 export interface SubscriptionOfferPhase {
