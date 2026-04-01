@@ -134,6 +134,8 @@ gpc apps update [options]
 | `--phone`        |       | `string` |         | Contact phone number      |
 | `--website`      |       | `string` |         | Contact website URL       |
 | `--default-lang` |       | `string` |         | Default language (BCP 47) |
+| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
+| `--error-if-in-review` | | flag | | Fail if changes are already in review |
 
 At least one field must be provided.
 

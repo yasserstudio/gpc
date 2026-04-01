@@ -361,6 +361,38 @@ npm install -g @gpc-cli/cli@latest
 
 ---
 
+## Rejected or In-Review Apps
+
+### "changesNotSentForReview" error on upload or promote
+
+If your app was rejected by Google Play, all API edit commits fail until you acknowledge the rejection. GPC surfaces this as an API error.
+
+**Fix:** Add `--changes-not-sent-for-review` to your command:
+
+```bash
+gpc releases upload app.aab --track internal --changes-not-sent-for-review
+```
+
+This applies the changes without sending them for review. You must manually send for review from the Play Console when ready.
+
+This flag works on all commands that modify your app: `releases upload`, `releases promote`, `releases rollout *`, `publish`, `listings update/delete/push`, `listings images upload/delete`, `testers add/remove`, `tracks create/update`, and `apps update`.
+
+### "CHANGES_ALREADY_IN_REVIEW" error
+
+If someone already submitted changes for review (via the Play Console or another API client), committing a new edit will cancel the existing review by default.
+
+To prevent accidental review cancellation in CI, add `--error-if-in-review`:
+
+```bash
+gpc releases upload app.aab --track production --error-if-in-review
+```
+
+This fails with exit code 4 instead of silently cancelling the review. The edit remains valid, so you can retry after the review completes.
+
+See the [Rejected Apps](../commands/releases#rejected-apps) section in the releases command reference for full details.
+
+---
+
 ## Getting More Help
 
 - [Error Codes Reference](./error-codes) -- full catalog of error codes and meanings

@@ -85,6 +85,8 @@ gpc listings update --lang <language> [options]
 | `--full`      |       | `string` |                | Full description (max 4000 chars) |
 | `--full-file` |       | `string` |                | Read full description from a file |
 | `--video`     |       | `string` |                | YouTube video URL                 |
+| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
+| `--error-if-in-review` | | flag | | Fail if changes are already in review |
 
 ### Example
 
@@ -134,6 +136,8 @@ gpc listings delete --lang <language>
 | Flag     | Short | Type     | Default        | Description            |
 | -------- | ----- | -------- | -------------- | ---------------------- |
 | `--lang` |       | `string` | **(required)** | Language code (BCP 47) |
+| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
+| `--error-if-in-review` | | flag | | Fail if changes are already in review |
 
 ### Example
 
@@ -207,6 +211,9 @@ gpc listings push [options]
 | ----------- | ----- | --------- | ---------- | -------------------------------- |
 | `--dir`     |       | `string`  | `metadata` | Source directory path            |
 | `--dry-run` |       | `boolean` | `false`    | Preview changes without applying |
+| `--force`   |       | flag      |            | Push even if fields exceed character limits |
+| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
+| `--error-if-in-review` | | flag | | Fail if changes are already in review |
 
 ### Example
 
@@ -289,6 +296,8 @@ gpc listings images upload <file> --lang <language> --type <type>
 | -------- | ----- | -------- | -------------- | ---------------------- |
 | `--lang` |       | `string` | **(required)** | Language code (BCP 47) |
 | `--type` |       | `string` | **(required)** | Image type             |
+| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
+| `--error-if-in-review` | | flag | | Fail if changes are already in review |
 
 ### Example
 
@@ -318,6 +327,8 @@ gpc listings images delete --lang <language> --type <type> --id <imageId>
 | `--lang` |       | `string` | **(required)** | Language code (BCP 47) |
 | `--type` |       | `string` | **(required)** | Image type             |
 | `--id`   |       | `string` | **(required)** | Image ID to delete     |
+| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
+| `--error-if-in-review` | | flag | | Fail if changes are already in review |
 
 ### Example
 

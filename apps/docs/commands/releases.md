@@ -52,6 +52,10 @@ gpc releases upload <file> [options]
 | `--timeout`         |       | `number` |            | Upload timeout in milliseconds (auto-scales with file size)         |
 | `--retry-log`       |       | `string` |            | Write retry log entries to file (JSONL)                             |
 | `--status`          |       | `string` | `completed`| Release status: `completed`, `inProgress`, `draft`, `halted`       |
+| `--mapping-type`    |       | `string` | `proguard` | Deobfuscation file type: `proguard` or `nativeCode`                |
+| `--device-tier-config` |    | `string` |            | Device tier config ID (or `LATEST`) for targeted delivery          |
+| `--changes-not-sent-for-review` | | flag |           | Commit without sending for review (required for [rejected apps](#rejected-apps)) |
+| `--error-if-in-review` |    | flag     |            | Fail if changes are already in review instead of cancelling them   |
 
 ### Upload Progress
 
@@ -98,6 +102,24 @@ gpc releases upload app-release.aab \
   --app com.example.myapp \
   --track beta \
   --mapping app/build/outputs/mapping/release/mapping.txt
+```
+
+Upload with native debug symbols (NDK apps):
+
+```bash
+gpc releases upload app-release.aab \
+  --app com.example.myapp \
+  --track beta \
+  --mapping app/build/outputs/native-debug-symbols.zip \
+  --mapping-type nativeCode
+```
+
+Upload with a device tier config:
+
+```bash
+gpc releases upload app-release.aab \
+  --track production \
+  --device-tier-config LATEST
 ```
 
 Upload with multi-language notes:
@@ -197,6 +219,8 @@ gpc releases promote --from <track> --to <track> [options]
 | `--notes`           |       | `string` |                | Release notes text (en-US)                             |
 | `--copy-notes-from` |       | `string` |                | Copy release notes from another track's latest release |
 | `--status`          |       | `string` |                | Release status: `completed`, `inProgress`, `draft`, `halted` |
+| `--changes-not-sent-for-review` | | flag |                | Commit without sending for review (required for [rejected apps](#rejected-apps)) |
+| `--error-if-in-review` |    | flag     |                | Fail if changes are already in review instead of cancelling them   |
 
 ::: tip Validation
 `--from` and `--to` must be different tracks. Passing the same value for both exits code 2.
@@ -249,6 +273,8 @@ gpc releases rollout increase --track <track> --to <percent>
 | --------- | ----- | -------- | -------------- | ------------------------------ |
 | `--track` |       | `string` | **(required)** | Track name                     |
 | `--to`    |       | `number` | **(required)** | New rollout percentage (1-100) |
+| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
+| `--error-if-in-review` | | flag | | Fail if changes are already in review |
 
 ::: tip Validation
 `--to` must be between 1–100. Values outside that range exit code 2.
@@ -280,6 +306,8 @@ gpc releases rollout halt --track <track>
 | Flag      | Short | Type     | Default        | Description |
 | --------- | ----- | -------- | -------------- | ----------- |
 | `--track` |       | `string` | **(required)** | Track name  |
+| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
+| `--error-if-in-review` | | flag | | Fail if changes are already in review |
 
 ### Example
 
@@ -306,6 +334,8 @@ gpc releases rollout resume --track <track>
 | Flag      | Short | Type     | Default        | Description |
 | --------- | ----- | -------- | -------------- | ----------- |
 | `--track` |       | `string` | **(required)** | Track name  |
+| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
+| `--error-if-in-review` | | flag | | Fail if changes are already in review |
 
 ### Example
 
@@ -332,6 +362,8 @@ gpc releases rollout complete --track <track>
 | Flag      | Short | Type     | Default        | Description |
 | --------- | ----- | -------- | -------------- | ----------- |
 | `--track` |       | `string` | **(required)** | Track name  |
+| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
+| `--error-if-in-review` | | flag | | Fail if changes are already in review |
 
 ### Example
 
@@ -438,6 +470,54 @@ gpc releases count --track beta
 # JSON for scripting
 gpc releases count --output json
 ```
+
+---
+
+## Rejected Apps
+
+When Google Play rejects an app update, the API requires special handling. Attempting to commit an edit without the right flags will fail with an API error.
+
+### `--changes-not-sent-for-review`
+
+If your app has a **rejected** status in the Play Console, the Google Play API refuses to commit edits unless you explicitly acknowledge that the changes will not be automatically sent for review. Add this flag to any command that modifies your app:
+
+```bash
+# Upload to a rejected app
+gpc releases upload app.aab --track internal --changes-not-sent-for-review
+
+# Promote on a rejected app
+gpc releases promote --from internal --to beta --changes-not-sent-for-review
+
+# Push listings on a rejected app
+gpc listings push --changes-not-sent-for-review
+```
+
+With this flag, your changes are applied but **not sent for review**. You must manually send them for review from the Google Play Console web UI when ready.
+
+### `--error-if-in-review`
+
+By default, committing an edit while changes are already in review will **cancel the existing review** and submit the new changes. If you want to prevent that (especially useful in CI to avoid accidentally cancelling a review someone submitted manually), use:
+
+```bash
+gpc releases upload app.aab --track production --error-if-in-review
+```
+
+This will fail with exit code 4 (`API_ERROR`) and the reason `CHANGES_ALREADY_IN_REVIEW` if there's an in-progress review. The edit is not invalidated, so you can retry after the review completes.
+
+### Both flags together
+
+You can combine both flags when your app is rejected and you want safe CI behavior:
+
+```bash
+gpc releases upload app.aab \
+  --track production \
+  --changes-not-sent-for-review \
+  --error-if-in-review
+```
+
+::: tip Which commands support these flags?
+Every command that commits an edit supports both flags: `releases upload`, `releases promote`, `releases rollout *`, `publish`, `listings update`, `listings delete`, `listings push`, `listings images upload`, `listings images delete`, `testers add`, `testers remove`, `tracks create`, `tracks update`, and `apps update`.
+:::
 
 ---
 

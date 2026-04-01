@@ -40,7 +40,11 @@ gpc publish <file> [options]
 | `--notes-dir` |       | `string` |            | Directory with per-language release notes (`<dir>/<lang>.txt`)      |
 | `--name`      |       | `string` |            | Release name                                                        |
 | `--mapping`   |       | `string` |            | Path to ProGuard/R8 mapping file for deobfuscation                  |
+| `--mapping-type` |    | `string` | `proguard` | Deobfuscation file type: `proguard` or `nativeCode`                 |
+| `--device-tier-config` | | `string` |           | Device tier config ID (or `LATEST`) for targeted delivery           |
 | `--retry-log` |       | `string` |            | Write retry log entries to file (JSONL)                             |
+| `--changes-not-sent-for-review` | | flag |      | Commit without sending for review (required for [rejected apps](./releases#rejected-apps)) |
+| `--error-if-in-review` | | flag   |            | Fail if changes are already in review instead of cancelling them    |
 
 ::: warning
 `--notes` and `--notes-dir` are mutually exclusive. Providing both causes exit code 2.
