@@ -45,12 +45,12 @@ e2e/               → End-to-end tests
 - Phase 10 ✓ — `gpc preflight` pre-submission compliance scanner (9 scanners, offline AAB policy checks)
 - Published to npm: `npm install -g @gpc-cli/cli`
 - Current version: v0.9.50 — pre-release series (`0.9.x` → `1.0.0` public launch)
-- 1,845 total tests, 7 packages building, 90%+ line coverage on all core packages
+- 1,860 total tests, 7 packages building, 90%+ line coverage on all core packages
 - GitHub Releases: umbrella `v*` tags only, user-facing notes (see `apps/docs/advanced/conventions.md` for template)
 
 ## Testing
 
-- Vitest for all tests (1,845 total across 7 packages + e2e)
+- Vitest for all tests (1,860 total across 7 packages + e2e)
 - Tests in `tests/` directory per package
 - Mock external APIs — never call real Google APIs in tests
 - Mock fetch with `vi.stubGlobal("fetch", mockFn)` for API tests

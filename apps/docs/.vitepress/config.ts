@@ -331,7 +331,7 @@ export default defineConfig({
           { "@type": "Question", name: "What authentication method should I use?", acceptedAnswer: { "@type": "Answer", text: "Use a service account for CI/CD pipelines. Use OAuth for local development. Application Default Credentials work in Google Cloud environments." } },
           { "@type": "Question", name: "Can I use GPC in CI/CD?", acceptedAnswer: { "@type": "Answer", text: "Yes. GPC outputs JSON when piped, uses semantic exit codes (0-6), and supports env var configuration. Works with GitHub Actions, GitLab CI, Bitbucket, and CircleCI." } },
           { "@type": "Question", name: "Is GPC free?", acceptedAnswer: { "@type": "Answer", text: "Yes. GPC is free to use. The code is on GitHub. No account or subscription required." } },
-          { "@type": "Question", name: "Is it stable enough for production CI/CD?", acceptedAnswer: { "@type": "Answer", text: "1,845 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching." } },
+          { "@type": "Question", name: "Is it stable enough for production CI/CD?", acceptedAnswer: { "@type": "Answer", text: "1,860 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching." } },
         ],
       };
       pageData.frontmatter.head.push(["script", { type: "application/ld+json" }, JSON.stringify(faqSchema)]);
