@@ -218,6 +218,9 @@ export function registerPublishCommand(program: Command): void {
           notesDir: options.notesDir,
           releaseName: options.name,
           mappingFile: options.mapping,
+          mappingFileType: options.mappingType,
+          deviceTierConfigId: options.deviceTierConfig,
+          commitOptions: buildCommitOptions(options),
           dryRun: true,
         });
         console.log(formatDryRunOutput(result as DryRunPublishResult, format));
