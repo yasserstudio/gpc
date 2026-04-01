@@ -75,6 +75,7 @@ export async function importTestersFromCsv(
   packageName: string,
   track: string,
   csvPath: string,
+  commitOptions?: EditCommitOptions,
 ): Promise<{ added: number; testers: Testers }> {
   const content = await readFile(csvPath, "utf-8");
   const emails = content
@@ -91,6 +92,6 @@ export async function importTestersFromCsv(
     );
   }
 
-  const testers = await addTesters(client, packageName, track, emails);
+  const testers = await addTesters(client, packageName, track, emails, commitOptions);
   return { added: emails.length, testers };
 }

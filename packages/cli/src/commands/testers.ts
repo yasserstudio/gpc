@@ -154,6 +154,8 @@ export function registerTestersCommands(program: Command): void {
     .description("Import testers from a CSV file")
     .option("--track <track>", "Track name (e.g., internal, alpha, beta)")
     .option("--file <path>", "CSV file with email addresses")
+    .option("--changes-not-sent-for-review", "Commit changes without sending for review")
+    .option("--error-if-in-review", "Fail if changes are already in review")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -195,7 +197,7 @@ export function registerTestersCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      const result = await importTestersFromCsv(client, packageName, options.track, options.file);
+      const result = await importTestersFromCsv(client, packageName, options.track, options.file, buildCommitOptions(options));
       console.log(formatOutput({ added: result.added, testers: result.testers }, format));
     });
 }
