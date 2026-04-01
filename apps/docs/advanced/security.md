@@ -373,6 +373,16 @@ As of v0.9.50, [Socket.dev reports](https://socket.dev/npm/package/@gpc-cli/cli)
 
 Zero critical or high alerts. The transitive overall score is pulled down by `node-domexception` (deprecated, transitive dep of `google-auth-library`). No malware, no supply chain compromise.
 
+### Audit status (v0.9.51)
+
+As of v0.9.51, `pnpm audit --prod` reports **1 moderate finding** in a transitive dependency:
+
+| Package | Severity | Chain | Exploitable in GPC? |
+|---------|----------|-------|---------------------|
+| `brace-expansion` 2.0.x | Moderate (DoS) | `google-auth-library > gaxios > rimraf > glob > minimatch` | No. GPC never passes user-controlled glob patterns to this code path. |
+
+All other findings (8 total) are in dev-only tooling (`eslint`, `tsup`, `vitepress`, `@changesets/cli`) and do not ship to users. These will be cleared as upstream packages release patches.
+
 ## Dependency Policy
 
 ### Rules
