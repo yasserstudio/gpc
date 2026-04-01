@@ -11,7 +11,20 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.51 <Badge type="tip" text="latest" />
+## v0.9.52 <Badge type="tip" text="latest" />
+
+Fix for rejected app workflow discovered during live testing.
+
+- `--changes-not-sent-for-review` now works correctly (was blocked by `edits.validate` failing before `edits.commit`)
+- `gpc publish --dry-run` now passes `--mapping-type`, `--device-tier-config`, and commit flags through
+- `gpc testers import` now accepts `--changes-not-sent-for-review` and `--error-if-in-review`
+- Expansion file upload validates API response instead of silently returning undefined
+
+**208 API endpoints · 1,863 tests**
+
+---
+
+## v0.9.51
 
 API completeness pass: missing Google Play API parameters and new resources.
 
@@ -36,7 +49,7 @@ API completeness pass: missing Google Play API parameters and new resources.
 - `DeobfuscationFileType` used throughout (removes unsafe cast)
 - `DEFAULT_REGIONS_VERSION` constant (was hardcoded 8 times)
 
-**208 API endpoints · 1,860 tests**
+**208 API endpoints · 1,860 tests** (as of v0.9.51)
 
 ---
 

@@ -7,6 +7,19 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.52
+
+Fix for rejected app workflow discovered during live testing.
+
+- fix(core): skip `edits.validate` when `--changes-not-sent-for-review` is set (validate endpoint rejects the flag)
+- fix(cli): `gpc publish --dry-run` now passes `--mapping-type`, `--device-tier-config`, and commit flags
+- fix(core): `importTestersFromCsv` now accepts and passes `commitOptions` through
+- fix(api): `expansionFiles.upload` validates API response
+
+**Actual new tests:** 3 -> total 1,863
+
+---
+
 ## v0.9.51
 
 API completeness: missing Google Play API parameters and new resources.
