@@ -1,4 +1,4 @@
-import type { PlayApiClient, EditCommitOptions } from "@gpc-cli/api";
+import type { PlayApiClient, EditCommitOptions, DeobfuscationFileType } from "@gpc-cli/api";
 import { uploadRelease } from "./releases.js";
 import type { UploadResult, DryRunUploadResult } from "./releases.js";
 import { validatePreSubmission } from "./validate.js";
@@ -12,7 +12,7 @@ export interface PublishOptions {
   notesDir?: string;
   releaseName?: string;
   mappingFile?: string;
-  mappingFileType?: string;
+  mappingFileType?: DeobfuscationFileType;
   deviceTierConfigId?: string;
   dryRun?: boolean;
   commitOptions?: EditCommitOptions;

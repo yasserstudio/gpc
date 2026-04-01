@@ -61,6 +61,16 @@ export interface EditCommitOptions {
 
 export type DeobfuscationFileType = "proguard" | "nativeCode";
 
+export type ProductUpdateLatencyTolerance =
+  | "PRODUCT_UPDATE_LATENCY_TOLERANCE_UNSPECIFIED"
+  | "PRODUCT_UPDATE_LATENCY_TOLERANCE_LATENCY_SENSITIVE"
+  | "PRODUCT_UPDATE_LATENCY_TOLERANCE_LATENCY_TOLERANT";
+
+export interface MutationOptions {
+  allowMissing?: boolean;
+  latencyTolerance?: ProductUpdateLatencyTolerance;
+}
+
 export interface ExpansionFile {
   referencesVersion?: number;
   fileSize?: string;
@@ -80,6 +90,10 @@ export interface Release {
   userFraction?: number;
   releaseNotes?: ReleaseNote[];
   inAppUpdatePriority?: number;
+  countryTargeting?: {
+    countries: string[];
+    includeRestOfWorld: boolean;
+  };
 }
 
 export type ReleaseStatus = "completed" | "draft" | "halted" | "inProgress";
@@ -395,7 +409,7 @@ export interface BasePlanMigratePricesRequest {
     priceIncreaseType?: string;
   }[];
   regionsVersion?: { version?: string };
-  latencyTolerance?: string;
+  latencyTolerance?: ProductUpdateLatencyTolerance;
 }
 
 export interface SubscriptionOfferPhase {

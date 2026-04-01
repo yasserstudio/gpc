@@ -2,7 +2,7 @@ import { resolvePackageName, getClient } from "../resolve.js";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 
-import type { ImageType, EditCommitOptions } from "@gpc-cli/api";
+import type { ImageType } from "@gpc-cli/api";
 import {
   getListings,
   updateListing,
@@ -25,13 +25,7 @@ import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, requireOption, requireConfirm } from "../prompt.js";
 import { green, red } from "../colors.js";
-
-function buildCommitOptions(opts: Record<string, unknown>): EditCommitOptions | undefined {
-  const commitOpts: EditCommitOptions = {};
-  if (opts.changesNotSentForReview) commitOpts.changesNotSentForReview = true;
-  if (opts.errorIfInReview) commitOpts.changesInReviewBehavior = "ERROR_IF_IN_REVIEW";
-  return Object.keys(commitOpts).length > 0 ? commitOpts : undefined;
-}
+import { buildCommitOptions } from "../commit-options.js";
 
 
 

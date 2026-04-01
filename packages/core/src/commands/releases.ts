@@ -9,6 +9,7 @@ import type {
   UploadProgressEvent,
   ResumableUploadOptions,
   EditCommitOptions,
+  DeobfuscationFileType,
 } from "@gpc-cli/api";
 import type { AppEdit } from "@gpc-cli/api";
 import { PlayApiError } from "@gpc-cli/api";
@@ -133,7 +134,7 @@ export async function uploadRelease(
     releaseNotes?: { language: string; text: string }[];
     releaseName?: string;
     mappingFile?: string;
-    mappingFileType?: string;
+    mappingFileType?: DeobfuscationFileType;
     dryRun?: boolean;
     onProgress?: (uploaded: number, total: number) => void;
     onUploadProgress?: (event: UploadProgressEvent) => void;
@@ -228,7 +229,7 @@ export async function uploadRelease(
         edit.id,
         bundle.versionCode,
         options.mappingFile,
-        (options.mappingFileType as "proguard" | "nativeCode") || undefined,
+        options.mappingFileType,
       );
     }
 

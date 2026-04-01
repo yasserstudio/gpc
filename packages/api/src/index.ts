@@ -58,6 +58,8 @@ export type {
   EditCommitOptions,
   ExpansionFile,
   ExpansionFileType,
+  MutationOptions,
+  ProductUpdateLatencyTolerance,
   ExternalTransaction,
   ExternalTransactionAmount,
   ExternalTransactionRefund,

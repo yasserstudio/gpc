@@ -5,7 +5,7 @@ import type { Command } from "commander";
 import { loadConfig, getCacheDir } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
-import type { RetryLogEntry, EditCommitOptions } from "@gpc-cli/api";
+import type { RetryLogEntry } from "@gpc-cli/api";
 import {
   publish,
   generateNotesFromGit,
@@ -18,13 +18,7 @@ import type { PublishResult, DryRunPublishResult } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun } from "../dry-run.js";
 import { isInteractive, promptSelect, promptInput } from "../prompt.js";
-
-function buildCommitOptions(opts: Record<string, unknown>): EditCommitOptions | undefined {
-  const commitOpts: EditCommitOptions = {};
-  if (opts.changesNotSentForReview) commitOpts.changesNotSentForReview = true;
-  if (opts.errorIfInReview) commitOpts.changesInReviewBehavior = "ERROR_IF_IN_REVIEW";
-  return Object.keys(commitOpts).length > 0 ? commitOpts : undefined;
-}
+import { buildCommitOptions } from "../commit-options.js";
 
 const PASS = "\u2713";
 const FAIL = "\u2717";

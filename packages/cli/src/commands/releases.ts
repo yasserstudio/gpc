@@ -5,7 +5,7 @@ import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient, createReportingClient } from "@gpc-cli/api";
-import type { RetryLogEntry, ExternallyHostedApk, UploadProgressEvent, EditCommitOptions } from "@gpc-cli/api";
+import type { RetryLogEntry, ExternallyHostedApk, UploadProgressEvent } from "@gpc-cli/api";
 import {
   uploadRelease,
   getReleasesStatus,
@@ -46,12 +46,7 @@ function resolvePackageName(packageArg: string | undefined, config: GpcConfig): 
   return name;
 }
 
-function buildCommitOptions(opts: Record<string, unknown>): EditCommitOptions | undefined {
-  const commitOpts: EditCommitOptions = {};
-  if (opts.changesNotSentForReview) commitOpts.changesNotSentForReview = true;
-  if (opts.errorIfInReview) commitOpts.changesInReviewBehavior = "ERROR_IF_IN_REVIEW";
-  return Object.keys(commitOpts).length > 0 ? commitOpts : undefined;
-}
+import { buildCommitOptions } from "../commit-options.js";
 
 function createRetryLogger(retryLogPath?: string): ((entry: RetryLogEntry) => void) | undefined {
   if (!retryLogPath) return undefined;
