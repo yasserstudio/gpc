@@ -4,7 +4,7 @@
 
 <p align="center">
   by<br>
-  <a href="https://yasser.studio"><img src="./assets/yasser-studio-logo.svg" alt="Yasser's Studio" height="30"></a>
+  <a href="https://yasser.studio"><picture><source media="(prefers-color-scheme: dark)" srcset="./assets/yasser-studio-logo-white.svg"><img src="./assets/yasser-studio-logo.svg" alt="Yasser's Studio" height="30"></picture></a>
 </p>
 
 # GPC — Google Play Console CLI
@@ -303,7 +303,7 @@ Full docs at **[yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)
 ---
 
 <p align="center">
-  <a href="https://yasser.studio"><img src="./assets/yasser-studio-logo.png" alt="Yasser's Studio" height="50"></a>
+  <a href="https://yasser.studio"><picture><source media="(prefers-color-scheme: dark)" srcset="./assets/yasser-studio-logo-white.svg"><img src="./assets/yasser-studio-logo.png" alt="Yasser's Studio" height="50"></picture></a>
 </p>
 <p align="center">
   <sub>Made by <a href="https://yasser.studio">Yasser's Studio</a> · <a href="https://x.com/yassersstudio">@yassersstudio</a></sub>
