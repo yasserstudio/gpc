@@ -228,6 +228,7 @@ export async function uploadRelease(
         edit.id,
         bundle.versionCode,
         options.mappingFile,
+        (options.mappingFileType as "proguard" | "nativeCode") || undefined,
       );
     }
 

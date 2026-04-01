@@ -422,6 +422,7 @@ export interface PlayApiClient {
       editId: string,
       versionCode: number,
       filePath: string,
+      fileType?: DeobfuscationFileType,
     ): Promise<DeobfuscationFile>;
   };
 
@@ -1258,9 +1259,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
     },
 
     deobfuscation: {
-      async upload(packageName, editId, versionCode, filePath) {
+      async upload(packageName, editId, versionCode, filePath, fileType?) {
+        const deobType = fileType || "proguard";
         const { data } = await http.upload<DeobfuscationUploadResponse>(
-          `/${packageName}/edits/${editId}/apks/${versionCode}/deobfuscationFiles/proguard`,
+          `/${packageName}/edits/${editId}/apks/${versionCode}/deobfuscationFiles/${deobType}`,
           filePath,
           "application/octet-stream",
         );
