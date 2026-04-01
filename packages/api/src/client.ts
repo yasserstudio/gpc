@@ -188,6 +188,36 @@ export interface PlayApiClient {
     ): Promise<Image[]>;
   };
 
+  expansionFiles: {
+    get(
+      packageName: string,
+      editId: string,
+      apkVersionCode: number,
+      expansionFileType: ExpansionFileType,
+    ): Promise<ExpansionFile>;
+    update(
+      packageName: string,
+      editId: string,
+      apkVersionCode: number,
+      expansionFileType: ExpansionFileType,
+      data: ExpansionFile,
+    ): Promise<ExpansionFile>;
+    patch(
+      packageName: string,
+      editId: string,
+      apkVersionCode: number,
+      expansionFileType: ExpansionFileType,
+      data: Partial<ExpansionFile>,
+    ): Promise<ExpansionFile>;
+    upload(
+      packageName: string,
+      editId: string,
+      apkVersionCode: number,
+      expansionFileType: ExpansionFileType,
+      filePath: string,
+    ): Promise<ExpansionFile>;
+  };
+
   countryAvailability: {
     get(packageName: string, editId: string, track: string): Promise<CountryAvailability>;
   };
@@ -790,6 +820,40 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           `/${packageName}/edits/${editId}/listings/${language}/${imageType}`,
         );
         return data.deleted || [];
+      },
+    },
+
+    expansionFiles: {
+      async get(packageName, editId, apkVersionCode, expansionFileType) {
+        const { data } = await http.get<ExpansionFile>(
+          `/${packageName}/edits/${editId}/apks/${apkVersionCode}/expansionFiles/${expansionFileType}`,
+        );
+        return data;
+      },
+
+      async update(packageName, editId, apkVersionCode, expansionFileType, body) {
+        const { data } = await http.put<ExpansionFile>(
+          `/${packageName}/edits/${editId}/apks/${apkVersionCode}/expansionFiles/${expansionFileType}`,
+          body,
+        );
+        return data;
+      },
+
+      async patch(packageName, editId, apkVersionCode, expansionFileType, body) {
+        const { data } = await http.patch<ExpansionFile>(
+          `/${packageName}/edits/${editId}/apks/${apkVersionCode}/expansionFiles/${expansionFileType}`,
+          body,
+        );
+        return data;
+      },
+
+      async upload(packageName, editId, apkVersionCode, expansionFileType, filePath) {
+        const { data } = await http.upload<{ expansionFile: ExpansionFile }>(
+          `/${packageName}/edits/${editId}/apks/${apkVersionCode}/expansionFiles/${expansionFileType}`,
+          filePath,
+          "application/octet-stream",
+        );
+        return data.expansionFile;
       },
     },
 
