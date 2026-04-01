@@ -163,6 +163,15 @@ export function registerReleasesCommands(program: Command): void {
         }
       }
 
+      if (options.mappingType && options.mappingType !== "proguard" && options.mappingType !== "nativeCode") {
+        throw new GpcError(
+          `--mapping-type must be "proguard" or "nativeCode" (got: "${options.mappingType}")`,
+          "RELEASES_USAGE_ERROR",
+          2,
+          'Use --mapping-type proguard (default) for ProGuard/R8 maps, or --mapping-type nativeCode for native debug symbols.',
+        );
+      }
+
       const { size: fileSize } = await stat(file);
       const jsonMode = format === "json";
       const client = await getClient(config, options.retryLog, options.timeout);
@@ -198,6 +207,8 @@ export function registerReleasesCommands(program: Command): void {
           track: options.track,
           status: options.status,
           userFraction: options.rollout ? Number(options.rollout) / 100 : undefined,
+          mappingFileType: options.mappingType,
+          deviceTierConfigId: options.deviceTierConfig,
           dryRun: true,
         });
         console.log(formatOutput(result, format));

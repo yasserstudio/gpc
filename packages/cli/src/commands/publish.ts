@@ -177,6 +177,15 @@ export function registerPublishCommand(program: Command): void {
         }
       }
 
+      if (options.mappingType && options.mappingType !== "proguard" && options.mappingType !== "nativeCode") {
+        throw new GpcError(
+          `--mapping-type must be "proguard" or "nativeCode" (got: "${options.mappingType}")`,
+          "PUBLISH_USAGE_ERROR",
+          2,
+          'Use --mapping-type proguard (default) for ProGuard/R8 maps, or --mapping-type nativeCode for native debug symbols.',
+        );
+      }
+
       // Resolve git-based release notes before calling publish
       if (options.notesFromGit) {
         const gitNotes = await generateNotesFromGit({ since: options.since });

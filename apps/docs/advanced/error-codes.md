@@ -158,6 +158,13 @@ GPC pattern-matches Google Play API error responses to provide specific, actiona
 | `API_EDIT_CONFLICT` | 409 | Another edit session open | Wait and retry. GPC auto-retries once. Or discard stale edit in Play Console |
 | `API_EDIT_EXPIRED` | 400 | Edit session timed out (~1 hour) | Retry — GPC opens a fresh edit automatically |
 
+#### Review State Errors
+
+| Code | HTTP | What happened | What to do |
+| --- | --- | --- | --- |
+| `API_CHANGES_NOT_SENT_FOR_REVIEW` | 400/403 | App has a rejected update; API requires acknowledgement | Add `--changes-not-sent-for-review` to your command. Changes are applied but not sent for review. Submit for review manually from the Play Console. |
+| `API_CHANGES_ALREADY_IN_REVIEW` | 400 | Changes are already in review; committing would cancel the review | Wait for the current review to complete, or re-run without `--error-if-in-review` to cancel and resubmit. |
+
 #### General API Errors
 
 | Code | HTTP | What happened | What to do |

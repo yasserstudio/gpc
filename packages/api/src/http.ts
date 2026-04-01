@@ -292,6 +292,43 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
     };
   }
 
+  // — Rejected app: changesNotSentForReview required (403)
+  if (
+    (status === 403 || status === 400) &&
+    (errorMsg.includes("changes not sent for review") ||
+      errorMsg.includes("changesnotsentforreview") ||
+      (errorMsg.includes("review") && errorMsg.includes("rejected")))
+  ) {
+    return {
+      code: "API_CHANGES_NOT_SENT_FOR_REVIEW",
+      message: "This app has a rejected update. The API requires explicit acknowledgement before committing changes.",
+      suggestion: [
+        "Add --changes-not-sent-for-review to your command:",
+        "  gpc releases upload app.aab --track internal --changes-not-sent-for-review",
+        "",
+        "This applies your changes without sending them for review.",
+        "You must manually send for review from the Google Play Console when ready.",
+      ].join("\n"),
+    };
+  }
+
+  // — Changes already in review (400 FAILED_PRECONDITION)
+  if (
+    status === 400 &&
+    (errorMsg.includes("changes_already_in_review") || errorMsg.includes("already in review"))
+  ) {
+    return {
+      code: "API_CHANGES_ALREADY_IN_REVIEW",
+      message: "Changes are already in review. Committing this edit would cancel the existing review.",
+      suggestion: [
+        "Wait for the current review to complete, or re-run without --error-if-in-review",
+        "to cancel the existing review and submit new changes.",
+        "",
+        "To prevent accidental review cancellation in CI, keep --error-if-in-review.",
+      ].join("\n"),
+    };
+  }
+
   return undefined;
 }
 
