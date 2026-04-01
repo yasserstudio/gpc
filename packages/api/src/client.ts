@@ -867,6 +867,14 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           filePath,
           "application/octet-stream",
         );
+        if (!data.expansionFile) {
+          throw new PlayApiError(
+            "Upload succeeded but no expansion file data returned",
+            "API_EMPTY_RESPONSE",
+            200,
+            "This is unexpected. Retry the upload or contact Google Play support if the issue persists.",
+          );
+        }
         return data.expansionFile;
       },
     },
