@@ -11,7 +11,36 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.50 <Badge type="tip" text="latest" />
+## v0.9.51 <Badge type="tip" text="latest" />
+
+API completeness pass: missing Google Play API parameters and new resources.
+
+### New API Parameters
+- `--changes-not-sent-for-review` flag on all edit-committing commands (required for rejected apps)
+- `--error-if-in-review` flag to fail fast instead of silently cancelling in-progress reviews
+- `--mapping-type` flag: upload native debug symbols (`nativeCode`) in addition to ProGuard maps
+- `--device-tier-config` flag: target a device tier config at bundle upload time
+- `allowMissing` and `latencyTolerance` on subscription, offer, and one-time product patch endpoints
+- `pageSize` / `pageToken` pagination on `oneTimeProducts.list`
+- `startIndex` on `reviews.list`
+- Configurable `regionsVersion` on all monetization create endpoints (was hardcoded)
+- `regionsVersion` + `latencyTolerance` on `basePlans.migratePrices` request body
+- `countryTargeting` added to `Release` type
+
+### New Resources
+- `edits.expansionfiles` resource: `get`, `update`, `patch`, `upload` for legacy OBB files
+
+### Type Safety
+- `ProductUpdateLatencyTolerance` union type (was bare `string`)
+- `MutationOptions` shared type for `allowMissing` + `latencyTolerance`
+- `DeobfuscationFileType` used throughout (removes unsafe cast)
+- `DEFAULT_REGIONS_VERSION` constant (was hardcoded 8 times)
+
+**208 API endpoints · 1,860 tests**
+
+---
+
+## v0.9.50
 
 Security hardening, supply chain protection.
 
@@ -171,7 +200,7 @@ Deep code review, error handling overhaul, doctor enhancements, API catch-up.
 - Version diff uses production track
 - Watch loop SIGINT cleanup
 
-**204 API endpoints · 1,845 tests**
+**204 API endpoints · 1,845 tests** (as of v0.9.47)
 
 ---
 

@@ -17,7 +17,7 @@
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-1845_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-1860_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
@@ -26,7 +26,7 @@
 <p align="center"><sub>Built for Android developers, release engineers, and DevOps teams who are done clicking through the Play Console.</sub></p>
 
 <p align="center">
-The complete CLI for Google Play — 204 API endpoints, one tool.<br>
+The complete CLI for Google Play — 208 API endpoints, one tool.<br>
 Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, and more.<br>
 <strong>Plus an offline compliance scanner that catches policy violations before you upload.</strong><br>
 </p>
@@ -65,15 +65,15 @@ You shouldn't need a browser to ship your app.
 
 Every Android release is the same ritual: open the Play Console, upload your AAB, copy-paste release notes, pick a track, set the rollout percentage, click through confirmation screens. Fifteen minutes of clicking. Every single time.
 
-The alternative? Install Ruby, Bundler, and 150+ gems to run Fastlane — and get access to maybe 20 of 204 API endpoints. No reviews. No vitals. No subscriptions. No reports.
+The alternative? Install Ruby, Bundler, and 150+ gems to run Fastlane — and get access to maybe 20 of 208 API endpoints. No reviews. No vitals. No subscriptions. No reports.
 
-GPC covers the **entire Google Play Developer API** in one CLI — that's 204 endpoints, nothing left out. No Ruby. No browser. No ceremony.
+GPC covers the **entire Google Play Developer API** in one CLI — that's 208 endpoints, nothing left out. No Ruby. No browser. No ceremony.
 
 ### GPC vs the alternatives
 
 |                     | **GPC**                      | Fastlane supply | gradle-play-publisher | Console UI   |
 | ------------------- | ---------------------------- | --------------- | --------------------- | ------------ |
-| API coverage        | **204 endpoints**            | ~20             | ~15                   | All (manual) |
+| API coverage        | **208 endpoints**            | ~20             | ~15                   | All (manual) |
 | Runtime             | Node.js or standalone binary | Ruby + Bundler  | JVM                   | Browser      |
 | Cold start          | <500ms                       | 2-3s            | 3-5s                  | 5-10s        |
 | Reviews & Vitals    | Yes                          | No              | No                    | Yes (manual) |
@@ -272,7 +272,7 @@ gpc changelog --tag v0.9.49                  # Details for a specific version
 gpc changelog --all --output json            # Full history as JSON
 ```
 
-See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 204 endpoints — including reports, purchases, data safety, device tiers, internal sharing, external transactions, and recovery actions.
+See the full [command reference](https://yasserstudio.github.io/gpc/commands/) for all 208 endpoints — including reports, purchases, data safety, device tiers, internal sharing, external transactions, and recovery actions.
 
 ---
 

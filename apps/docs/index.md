@@ -19,7 +19,7 @@ hero:
 features:
   - icon:
       src: /icons/goal.png
-    title: 204 API Endpoints
+    title: 208 API Endpoints
     details: "Releases, vitals, reviews, subscriptions, purchases, reports, and more. Fastlane covers ~20. GPC covers everything."
   - icon:
       src: /icons/shield.png
@@ -44,7 +44,7 @@ features:
 ---
 
 <div class="stats-bar">
-  <span class="stat">204 API Endpoints</span>
+  <span class="stat">208 API Endpoints</span>
   <span class="stat-sep"></span>
   <span class="stat">1,860 Tests</span>
   <span class="stat-sep"></span>
@@ -121,7 +121,7 @@ gpc reviews list --stars 1-3 --since 7d
 
 |                     | **GPC**                      | Fastlane supply | gradle-play-publisher | Console UI   |
 | ------------------- | ---------------------------- | --------------- | --------------------- | ------------ |
-| API coverage        | **204 endpoints**            | ~20             | ~15                   | All (manual) |
+| API coverage        | **208 endpoints**            | ~20             | ~15                   | All (manual) |
 | Runtime             | Node.js or standalone binary | Ruby + Bundler  | JVM                   | Browser      |
 | Cold start          | <500ms                       | 2-3s            | 3-5s                  | 5-10s        |
 | Reviews & Vitals    | Yes                          | No              | No                    | Yes (manual) |
