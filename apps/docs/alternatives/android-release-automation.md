@@ -124,7 +124,7 @@ Most Android release tools stop at uploads. GPC covers the full lifecycle:
 | Metadata | Sync listings, screenshots, 70+ languages | Partial |
 | Reporting | Reviews, vitals, financial reports | Nothing |
 
-208 API endpoints. One tool.
+209 API endpoints. One tool.
 
 ## Get started
 

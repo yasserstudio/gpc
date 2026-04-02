@@ -7,6 +7,18 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.53
+
+Preflight scanner reliability on Flutter and large AABs, plus batch price migration API.
+
+- fix(core): preflight manifest parser no longer overflows on large AABs (aligned protobuf schema with official AAPT2 Resources.proto, omitted SourcePosition to avoid wire type mismatch)
+- fix(core): preflight attribute lookup is now name-based instead of resource ID-based (resource IDs vary across AAPT2/AGP versions, eliminating false positives for `exported`, `versionCode`, `usesCleartextTraffic`, `debuggable`, `foregroundServiceType`)
+- feat(api): `subscriptions.batchMigratePrices` for batch base plan price migration (up to 100 per request)
+
+**Actual new tests:** 6 -> total 1,869
+
+---
+
 ## v0.9.52
 
 Fix for rejected app workflow discovered during live testing.

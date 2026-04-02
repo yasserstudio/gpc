@@ -10,7 +10,7 @@ Looking for a command-line tool for the Google Play Developer API? Here is how t
 
 |                     | **GPC**                      | **Fastlane supply**  | **gradle-play-publisher** | **play-console-cli (Go)** |
 | ------------------- | ---------------------------- | -------------------- | ------------------------- | ------------------------- |
-| API coverage        | **208 endpoints**            | ~20                  | ~15                       | ~10                       |
+| API coverage        | **209 endpoints**            | ~20                  | ~15                       | ~10                       |
 | Runtime             | Node.js or standalone binary | Ruby + Bundler       | Gradle / JVM              | Go binary                 |
 | Cold start          | <500ms                       | 2-3s                 | 5-10s (Gradle)            | <100ms                    |
 | Standalone use      | Yes                          | Yes                  | No (Gradle plugin)        | Yes                       |

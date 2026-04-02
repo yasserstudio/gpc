@@ -11,7 +11,19 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.52 <Badge type="tip" text="latest" />
+## v0.9.53 <Badge type="tip" text="latest" />
+
+Preflight scanner reliability on Flutter and large AABs, plus batch price migration API.
+
+- Preflight manifest parser no longer overflows on large AABs (protobuf schema aligned with official AAPT2 Resources.proto)
+- Preflight attribute lookup is now name-based instead of resource ID-based (eliminates false positives on Flutter and newer AGP builds)
+- New API method: `subscriptions.batchMigratePrices` for batch base plan price migration (up to 100 per request)
+
+**209 API endpoints · 1,869 tests**
+
+---
+
+## v0.9.52
 
 Fix for rejected app workflow discovered during live testing.
 
