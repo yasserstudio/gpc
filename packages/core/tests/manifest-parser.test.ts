@@ -10,7 +10,9 @@ function buildTestManifest(
   opts: {
     packageName?: string;
     versionCode?: number;
+    versionCodeResourceId?: number;
     versionName?: string;
+    versionNameResourceId?: number;
     minSdk?: number;
     targetSdk?: number;
     debuggable?: boolean;
@@ -19,64 +21,125 @@ function buildTestManifest(
     permissions?: string[];
     activities?: Array<{ name: string; exported?: boolean; hasIntentFilter?: boolean }>;
     services?: Array<{ name: string; foregroundServiceType?: string }>;
+    includeSourcePositions?: boolean;
+    useColorValues?: boolean;
   } = {},
 ): Buffer {
   const root = new protobuf.Root();
   const ns = root.define("aapt.pb");
 
-  const Position = new protobuf.Type("Position")
+  // SourcePosition — flat uint32 fields, matches official AAPT2 proto.
+  // Only included when test opts request it (to verify parser skips them).
+  const SourcePosition = new protobuf.Type("SourcePosition")
     .add(new protobuf.Field("lineNumber", 1, "uint32"))
     .add(new protobuf.Field("columnNumber", 2, "uint32"));
-  const Source = new protobuf.Type("Source")
-    .add(new protobuf.Field("pathIdx", 1, "uint32"))
-    .add(new protobuf.Field("position", 2, "Position"));
+
+  // Primitive — full AAPT2 Resources.proto oneof variants
+  const NullType = new protobuf.Type("NullType");
+  const EmptyType = new protobuf.Type("EmptyType");
   const Primitive = new protobuf.Type("Primitive").add(
     new protobuf.OneOf("oneofValue")
+      .add(new protobuf.Field("nullValue", 1, "NullType"))
+      .add(new protobuf.Field("emptyValue", 2, "EmptyType"))
+      .add(new protobuf.Field("floatValue", 3, "float"))
       .add(new protobuf.Field("intDecimalValue", 6, "int32"))
       .add(new protobuf.Field("intHexadecimalValue", 7, "uint32"))
       .add(new protobuf.Field("booleanValue", 8, "bool"))
-      .add(new protobuf.Field("floatValue", 11, "float")),
+      .add(new protobuf.Field("colorArgb8Value", 9, "uint32"))
+      .add(new protobuf.Field("colorRgb8Value", 10, "uint32"))
+      .add(new protobuf.Field("colorArgb4Value", 11, "uint32"))
+      .add(new protobuf.Field("colorRgb4Value", 12, "uint32"))
+      .add(new protobuf.Field("dimensionValue", 13, "uint32"))
+      .add(new protobuf.Field("fractionValue", 14, "uint32")),
   );
+
+  // Reference — full AAPT2 Resources.proto fields
+  const BooleanMsg = new protobuf.Type("Boolean").add(new protobuf.Field("value", 1, "bool"));
   const Reference = new protobuf.Type("Reference")
-    .add(new protobuf.Field("id", 1, "uint32"))
-    .add(new protobuf.Field("name", 2, "string"));
+    .add(new protobuf.Field("type", 1, "uint32"))
+    .add(new protobuf.Field("id", 2, "uint32"))
+    .add(new protobuf.Field("name", 3, "string"))
+    .add(new protobuf.Field("isPrivate", 4, "bool"))
+    .add(new protobuf.Field("isDynamic", 5, "Boolean"))
+    .add(new protobuf.Field("typeFlags", 6, "uint32"))
+    .add(new protobuf.Field("allowRaw", 7, "bool"));
+
   const StringMsg = new protobuf.Type("String").add(new protobuf.Field("value", 1, "string"));
-  const Item = new protobuf.Type("Item").add(
-    new protobuf.OneOf("value")
-      .add(new protobuf.Field("ref", 1, "Reference"))
-      .add(new protobuf.Field("str", 2, "String"))
-      .add(new protobuf.Field("prim", 4, "Primitive")),
-  );
+  const RawString = new protobuf.Type("RawString").add(new protobuf.Field("value", 1, "string"));
+  const Span = new protobuf.Type("Span")
+    .add(new protobuf.Field("tag", 1, "string"))
+    .add(new protobuf.Field("firstChar", 2, "uint32"))
+    .add(new protobuf.Field("lastChar", 3, "uint32"));
+  const StyledString = new protobuf.Type("StyledString")
+    .add(new protobuf.Field("value", 1, "string"))
+    .add(new protobuf.Field("span", 2, "Span", "repeated"));
+  const FileReference = new protobuf.Type("FileReference")
+    .add(new protobuf.Field("path", 1, "string"))
+    .add(new protobuf.Field("type", 2, "uint32"));
+  const Id = new protobuf.Type("Id");
+
+  // Item — full AAPT2 Resources.proto (7 oneof + 3 flag fields)
+  const Item = new protobuf.Type("Item")
+    .add(
+      new protobuf.OneOf("value")
+        .add(new protobuf.Field("ref", 1, "Reference"))
+        .add(new protobuf.Field("str", 2, "String"))
+        .add(new protobuf.Field("rawStr", 3, "RawString"))
+        .add(new protobuf.Field("styledStr", 4, "StyledString"))
+        .add(new protobuf.Field("file", 5, "FileReference"))
+        .add(new protobuf.Field("id", 6, "Id"))
+        .add(new protobuf.Field("prim", 7, "Primitive")),
+    )
+    .add(new protobuf.Field("flagStatus", 8, "uint32"))
+    .add(new protobuf.Field("flagNegated", 9, "bool"))
+    .add(new protobuf.Field("flagName", 10, "string"));
+
+  // XmlAttribute — source field included only when requested
   const XmlAttribute = new protobuf.Type("XmlAttribute")
     .add(new protobuf.Field("namespaceUri", 1, "string"))
     .add(new protobuf.Field("name", 2, "string"))
     .add(new protobuf.Field("value", 3, "string"))
-    .add(new protobuf.Field("source", 4, "Source"))
     .add(new protobuf.Field("resourceId", 5, "uint32"))
     .add(new protobuf.Field("compiledItem", 6, "Item"));
+  if (opts.includeSourcePositions) {
+    XmlAttribute.add(new protobuf.Field("source", 4, "SourcePosition"));
+  }
+
   const XmlNamespace = new protobuf.Type("XmlNamespace")
     .add(new protobuf.Field("prefix", 1, "string"))
-    .add(new protobuf.Field("uri", 2, "string"))
-    .add(new protobuf.Field("source", 3, "Source"));
+    .add(new protobuf.Field("uri", 2, "string"));
+  if (opts.includeSourcePositions) {
+    XmlNamespace.add(new protobuf.Field("source", 3, "SourcePosition"));
+  }
+
   const XmlElement = new protobuf.Type("XmlElement")
     .add(new protobuf.Field("namespaceDeclaration", 1, "XmlNamespace", "repeated"))
     .add(new protobuf.Field("namespaceUri", 2, "string"))
     .add(new protobuf.Field("name", 3, "string"))
     .add(new protobuf.Field("attribute", 4, "XmlAttribute", "repeated"))
     .add(new protobuf.Field("child", 5, "XmlNode", "repeated"));
-  const XmlNode = new protobuf.Type("XmlNode")
-    .add(
-      new protobuf.OneOf("node")
-        .add(new protobuf.Field("element", 1, "XmlElement"))
-        .add(new protobuf.Field("text", 2, "string")),
-    )
-    .add(new protobuf.Field("source", 3, "Source"));
 
-  ns.add(Position)
-    .add(Source)
+  const XmlNode = new protobuf.Type("XmlNode").add(
+    new protobuf.OneOf("node")
+      .add(new protobuf.Field("element", 1, "XmlElement"))
+      .add(new protobuf.Field("text", 2, "string")),
+  );
+  if (opts.includeSourcePositions) {
+    XmlNode.add(new protobuf.Field("source", 3, "SourcePosition"));
+  }
+
+  ns.add(SourcePosition)
+    .add(NullType)
+    .add(EmptyType)
     .add(Primitive)
+    .add(BooleanMsg)
     .add(Reference)
     .add(StringMsg)
+    .add(RawString)
+    .add(StyledString)
+    .add(Span)
+    .add(FileReference)
+    .add(Id)
     .add(Item)
     .add(XmlAttribute)
     .add(XmlNamespace)
@@ -96,6 +159,10 @@ function buildTestManifest(
 
   function intPrim(val: number): object {
     return { prim: { intDecimalValue: val } };
+  }
+
+  function colorPrim(val: number): object {
+    return { prim: { colorArgb8Value: val } };
   }
 
   function boolPrim(val: boolean): object {
@@ -201,6 +268,8 @@ function buildTestManifest(
   });
 
   // Root <manifest> node
+  const vcResId = opts.versionCodeResourceId ?? 0x0101021b;
+  const vnResId = opts.versionNameResourceId ?? 0x0101021c;
   const manifestAttrs: object[] = [
     {
       namespaceUri: "",
@@ -208,15 +277,20 @@ function buildTestManifest(
       value: opts.packageName ?? "com.example.test",
       resourceId: 0,
     },
-    attr("versionCode", 0x0101000f, String(opts.versionCode ?? 1), intPrim(opts.versionCode ?? 1)),
-    attr("versionName", 0x01010010, opts.versionName ?? "1.0", strItem(opts.versionName ?? "1.0")),
+    attr("versionCode", vcResId, String(opts.versionCode ?? 1), intPrim(opts.versionCode ?? 1)),
+    attr("versionName", vnResId, opts.versionName ?? "1.0", strItem(opts.versionName ?? "1.0")),
   ];
 
   if (opts.testOnly) {
     manifestAttrs.push(attr("testOnly", 0x01010272, "true", boolPrim(true)));
   }
 
-  const manifestNode = {
+  // Add a color attribute to <application> when requested (tests color Primitive decoding)
+  if (opts.useColorValues && appAttrs.length > 0) {
+    appAttrs.push(attr("theme", 0x01010000, "@style/AppTheme", colorPrim(0xff6200ee)));
+  }
+
+  const manifestNode: Record<string, unknown> = {
     element: {
       name: "manifest",
       namespaceDeclaration: [
@@ -226,6 +300,11 @@ function buildTestManifest(
       child: children,
     },
   };
+
+  // Add SourcePosition to root XmlNode when requested
+  if (opts.includeSourcePositions) {
+    manifestNode["source"] = { lineNumber: 1, columnNumber: 0 };
+  }
 
   const NodeType = root.lookupType("aapt.pb.XmlNode");
   const msg = NodeType.create(manifestNode);
@@ -322,6 +401,56 @@ describe("decodeManifest", () => {
     expect(m.services).toHaveLength(2);
     expect(m.services[0]!.foregroundServiceType).toBe("location");
     expect(m.services[1]!.foregroundServiceType).toBeUndefined();
+  });
+
+  it("parses versionCode with alternate resource ID (0x0101021b)", () => {
+    const buf = buildTestManifest({
+      versionCode: 91,
+      versionCodeResourceId: 0x0101021b,
+      versionName: "1.5.0",
+      versionNameResourceId: 0x0101021c,
+    });
+    const m = decodeManifest(buf);
+    expect(m.versionCode).toBe(91);
+    expect(m.versionName).toBe("1.5.0");
+  });
+
+  it("parses versionCode with legacy resource ID (0x0101000f)", () => {
+    const buf = buildTestManifest({
+      versionCode: 42,
+      versionCodeResourceId: 0x0101000f,
+      versionName: "2.0",
+      versionNameResourceId: 0x01010010,
+    });
+    const m = decodeManifest(buf);
+    expect(m.versionCode).toBe(42);
+    expect(m.versionName).toBe("2.0");
+  });
+
+  it("decodes manifest with SourcePosition fields present", () => {
+    const buf = buildTestManifest({
+      packageName: "com.example.withsource",
+      versionCode: 10,
+      minSdk: 24,
+      targetSdk: 35,
+      includeSourcePositions: true,
+    });
+    const m = decodeManifest(buf);
+    expect(m.packageName).toBe("com.example.withsource");
+    expect(m.versionCode).toBe(10);
+    expect(m.minSdk).toBe(24);
+    expect(m.targetSdk).toBe(35);
+  });
+
+  it("decodes manifest with color/dimension compiled values", () => {
+    const buf = buildTestManifest({
+      packageName: "com.example.colors",
+      debuggable: false,
+      useColorValues: true,
+    });
+    const m = decodeManifest(buf);
+    expect(m.packageName).toBe("com.example.colors");
+    expect(m.debuggable).toBe(false);
   });
 
   it("throws on non-manifest root element", () => {

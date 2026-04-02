@@ -2825,6 +2825,38 @@ describe("subscriptions.batchUpdate", () => {
     expect(init.method).toBe("POST");
     expect(JSON.parse(init.body)).toEqual(requestBody);
   });
+
+  it("subscriptions.batchMigratePrices calls POST basePlans:batchMigratePrices", async () => {
+    const requestBody = {
+      requests: [
+        {
+          packageName: PKG,
+          productId: "sub_monthly",
+          basePlanId: "monthly-base",
+          regionalPriceMigrations: [
+            { regionCode: "US", priceIncreaseType: "PRICE_INCREASE_TYPE_OPT_IN" },
+          ],
+          regionsVersion: { version: "2022/02" },
+          latencyTolerance: "PRODUCT_UPDATE_LATENCY_TOLERANCE_LATENCY_TOLERANT",
+        },
+      ],
+    };
+    const response = {
+      responses: [{ subscription: { productId: "sub_monthly" } }],
+    };
+    mockFetch.mockResolvedValueOnce(mockResponse(response));
+
+    const client = makeClient();
+    const result = await client.subscriptions.batchMigratePrices(PKG, "sub_monthly", requestBody);
+
+    expect(result).toEqual(response);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(
+      `${BASE_URL}/${PKG}/subscriptions/sub_monthly/basePlans:batchMigratePrices`,
+    );
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body)).toEqual(requestBody);
+  });
 });
 
 // ---------------------------------------------------------------------------

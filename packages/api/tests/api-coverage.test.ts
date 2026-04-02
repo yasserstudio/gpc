@@ -96,6 +96,7 @@ describe("API Coverage Audit — PlayApiClient", () => {
         "deactivateBasePlan",
         "deleteBasePlan",
         "migratePrices",
+        "batchMigratePrices",
         "listOffers",
         "getOffer",
         "createOffer",
