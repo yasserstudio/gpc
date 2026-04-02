@@ -412,6 +412,27 @@ export interface BasePlanMigratePricesRequest {
   latencyTolerance?: ProductUpdateLatencyTolerance;
 }
 
+export interface BatchMigratePricesRequest {
+  requests: {
+    packageName: string;
+    productId: string;
+    basePlanId: string;
+    regionalPriceMigrations: {
+      regionCode: string;
+      oldestAllowedPriceVersionTime?: string;
+      priceIncreaseType?: string;
+    }[];
+    regionsVersion?: { version?: string };
+    latencyTolerance?: ProductUpdateLatencyTolerance;
+  }[];
+}
+
+export interface BatchMigratePricesResponse {
+  responses: {
+    subscription?: Subscription;
+  }[];
+}
+
 export interface SubscriptionOfferPhase {
   recurrenceCount: number;
   duration: string;

@@ -13,6 +13,8 @@ import type {
   AppRecoveryTargeting,
   CreateAppRecoveryActionRequest,
   BasePlanMigratePricesRequest,
+  BatchMigratePricesRequest,
+  BatchMigratePricesResponse,
   Bundle,
   BundleListResponse,
   ConvertRegionPricesRequest,
@@ -269,6 +271,11 @@ export interface PlayApiClient {
       basePlanId: string,
       body: BasePlanMigratePricesRequest,
     ): Promise<Subscription>;
+    batchMigratePrices(
+      packageName: string,
+      productId: string,
+      body: BatchMigratePricesRequest,
+    ): Promise<BatchMigratePricesResponse>;
     listOffers(
       packageName: string,
       productId: string,
@@ -1015,6 +1022,14 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async migratePrices(packageName, productId, basePlanId, body) {
         const { data } = await http.post<Subscription>(
           `/${packageName}/subscriptions/${productId}/basePlans/${basePlanId}:migratePrices`,
+          body,
+        );
+        return data;
+      },
+
+      async batchMigratePrices(packageName, productId, body) {
+        const { data } = await http.post<BatchMigratePricesResponse>(
+          `/${packageName}/subscriptions/${productId}/basePlans:batchMigratePrices`,
           body,
         );
         return data;

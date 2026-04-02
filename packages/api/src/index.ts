@@ -98,6 +98,8 @@ export type {
   Subscription,
   SubscriptionsListResponse,
   BasePlanMigratePricesRequest,
+  BatchMigratePricesRequest,
+  BatchMigratePricesResponse,
   SubscriptionOfferPhase,
   SubscriptionOffer,
   OffersListResponse,
