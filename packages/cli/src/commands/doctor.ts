@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import { loadConfig, getCacheDir, getConfigDir } from "@gpc-cli/config";
-import { green, red, yellow, dim } from "../colors.js";
+import { green, red, yellow } from "../colors.js";
 import { resolveAuth, AuthError } from "@gpc-cli/auth";
 import { existsSync, accessSync, statSync, constants } from "node:fs";
 import { readFile, stat, statfs } from "node:fs/promises";

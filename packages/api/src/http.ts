@@ -100,7 +100,7 @@ interface ErrorMapping {
  * actionable error messages. Returns undefined if no pattern matches.
  */
 function enhanceApiError(status: number, body: string): ErrorMapping | undefined {
-  let errorMsg = "";
+  let errorMsg: string;
   try {
     const parsed = JSON.parse(body) as { error?: { message?: string; status?: string } };
     errorMsg = parsed?.error?.message?.toLowerCase() ?? "";

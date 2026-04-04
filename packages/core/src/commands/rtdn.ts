@@ -82,8 +82,8 @@ export async function getRtdnStatus(
     // This is typically set via the Play Console or the API's appInformation endpoint
     const edit = await client.edits.insert(packageName);
     try {
-      const details = await client.details.get(packageName, edit.id);
-      // App details doesn't directly expose RTDN topic — return basic info
+      await client.details.get(packageName, edit.id);
+      // App details doesn't directly expose RTDN topic -- return basic info
       return {
         topicName: null,
         enabled: false,

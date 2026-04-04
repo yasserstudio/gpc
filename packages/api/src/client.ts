@@ -86,7 +86,6 @@ import type {
   SubscriptionsBatchGetResponse,
   SubscriptionsBatchUpdateRequest,
   SubscriptionsBatchUpdateResponse,
-  InAppProductsBatchDeleteRequest,
 } from "./types.js";
 
 export interface PlayApiClient {
@@ -600,10 +599,6 @@ const DEFAULT_REGIONS_VERSION = "2022/02";
 function applyMutationOptions(params: Record<string, string>, options?: MutationOptions): void {
   if (options?.allowMissing) params["allowMissing"] = "true";
   if (options?.latencyTolerance) params["latencyTolerance"] = options.latencyTolerance;
-}
-
-async function rateLimit(limiter: RateLimiter | undefined, bucket: string): Promise<void> {
-  if (limiter) await limiter.acquire(bucket);
 }
 
 async function autoRateLimit(limiter: RateLimiter | undefined, path: string): Promise<void> {
