@@ -37,7 +37,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@types/node": "^25.3.5"
+    "@types/node": "^25.5.2"
   },
   "dependencies": {
     "google-auth-library": "^10.6.1"
