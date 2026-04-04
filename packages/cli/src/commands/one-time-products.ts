@@ -23,14 +23,14 @@ import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
 import { readJsonFile } from "../json.js";
 
-async function readJsonArray(filePath: string): Promise<unknown[]> {
+async function readJsonArray<T = any>(filePath: string): Promise<T[]> {
   const data = await readJsonFile(filePath);
   if (!Array.isArray(data)) {
     const err = new Error(`Expected a JSON array in ${filePath}, got ${typeof data}`);
     Object.assign(err, { code: "USAGE_ERROR", exitCode: 2 });
     throw err;
   }
-  return data;
+  return data as T[];
 }
 
 
