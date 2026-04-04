@@ -102,7 +102,11 @@ export function registerCacheCommand(program: Command): void {
         const matcher = FILE_TYPES[opts.type];
         if (!matcher) {
           const err = new Error(`Unknown cache type "${opts.type}".`);
-          Object.assign(err, { code: "USAGE_ERROR", exitCode: 2, suggestion: `Valid types: ${Object.keys(FILE_TYPES).join(", ")}` });
+          Object.assign(err, {
+            code: "USAGE_ERROR",
+            exitCode: 2,
+            suggestion: `Valid types: ${Object.keys(FILE_TYPES).join(", ")}`,
+          });
           throw err;
         }
         toDelete = allFiles.filter((f) => matcher(f.name));

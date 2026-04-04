@@ -53,7 +53,7 @@ function warnAboutConcurrentEdits(): void {
   _consoleEditWarningShown = true;
   process.emitWarning?.(
     "If the Play Console has pending changes, they may be discarded when this edit is committed. " +
-    "Avoid making changes in the Play Console while CLI operations are in progress.",
+      "Avoid making changes in the Play Console while CLI operations are in progress.",
     "ConcurrentEditWarning",
   );
 }
@@ -220,7 +220,13 @@ export async function uploadRelease(
     };
     const bundle = isApk
       ? await client.apks.upload(packageName, edit.id, filePath, uploadOpts)
-      : await client.bundles.upload(packageName, edit.id, filePath, uploadOpts, options.deviceTierConfigId);
+      : await client.bundles.upload(
+          packageName,
+          edit.id,
+          filePath,
+          uploadOpts,
+          options.deviceTierConfigId,
+        );
 
     // Upload mapping file if provided
     if (options.mappingFile) {
@@ -299,7 +305,12 @@ export async function promoteRelease(
   packageName: string,
   fromTrack: string,
   toTrack: string,
-  options?: { status?: string; userFraction?: number; releaseNotes?: { language: string; text: string }[]; commitOptions?: EditCommitOptions },
+  options?: {
+    status?: string;
+    userFraction?: number;
+    releaseNotes?: { language: string; text: string }[];
+    commitOptions?: EditCommitOptions;
+  },
 ): Promise<ReleaseStatusResult> {
   // Validate inputs before opening an edit
   if (options?.userFraction && (options.userFraction <= 0 || options.userFraction > 1)) {
@@ -329,7 +340,8 @@ export async function promoteRelease(
 
     const release: Release = {
       versionCodes: currentRelease.versionCodes,
-      status: (options?.status || (options?.userFraction ? "inProgress" : "completed")) as Release["status"],
+      status: (options?.status ||
+        (options?.userFraction ? "inProgress" : "completed")) as Release["status"],
       ...(options?.userFraction && { userFraction: options.userFraction }),
       releaseNotes: options?.releaseNotes || currentRelease.releaseNotes || [],
     };

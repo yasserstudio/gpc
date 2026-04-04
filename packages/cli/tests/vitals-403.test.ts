@@ -66,9 +66,7 @@ describe("vitals commands — 403 graceful degradation (Bug Q)", () => {
 
   it("vitals crashes degrades gracefully on 403", async () => {
     const { PlayApiError } = await import("@gpc-cli/api");
-    mockGetVitalsCrashes.mockRejectedValue(
-      new PlayApiError("Forbidden", "API_FORBIDDEN", 403),
-    );
+    mockGetVitalsCrashes.mockRejectedValue(new PlayApiError("Forbidden", "API_FORBIDDEN", 403));
 
     const { registerVitalsCommands } = await import("../src/commands/vitals.js");
     const program = makeProgram();
@@ -83,9 +81,7 @@ describe("vitals commands — 403 graceful degradation (Bug Q)", () => {
 
   it("vitals crashes returns empty JSON on 403 in JSON mode", async () => {
     const { PlayApiError } = await import("@gpc-cli/api");
-    mockGetVitalsCrashes.mockRejectedValue(
-      new PlayApiError("Forbidden", "API_FORBIDDEN", 403),
-    );
+    mockGetVitalsCrashes.mockRejectedValue(new PlayApiError("Forbidden", "API_FORBIDDEN", 403));
 
     const { registerVitalsCommands } = await import("../src/commands/vitals.js");
     const program = makeProgram();
@@ -101,9 +97,7 @@ describe("vitals commands — 403 graceful degradation (Bug Q)", () => {
 
   it("vitals anr degrades gracefully on 403", async () => {
     const { PlayApiError } = await import("@gpc-cli/api");
-    mockGetVitalsAnr.mockRejectedValue(
-      new PlayApiError("Forbidden", "API_FORBIDDEN", 403),
-    );
+    mockGetVitalsAnr.mockRejectedValue(new PlayApiError("Forbidden", "API_FORBIDDEN", 403));
 
     const { registerVitalsCommands } = await import("../src/commands/vitals.js");
     const program = makeProgram();
@@ -117,9 +111,7 @@ describe("vitals commands — 403 graceful degradation (Bug Q)", () => {
 
   it("vitals lmk degrades gracefully on 403", async () => {
     const { PlayApiError } = await import("@gpc-cli/api");
-    mockGetVitalsLmk.mockRejectedValue(
-      new PlayApiError("Forbidden", "API_FORBIDDEN", 403),
-    );
+    mockGetVitalsLmk.mockRejectedValue(new PlayApiError("Forbidden", "API_FORBIDDEN", 403));
 
     const { registerVitalsCommands } = await import("../src/commands/vitals.js");
     const program = makeProgram();
@@ -133,17 +125,15 @@ describe("vitals commands — 403 graceful degradation (Bug Q)", () => {
 
   it("re-throws non-403 errors from vitals commands", async () => {
     const { PlayApiError } = await import("@gpc-cli/api");
-    mockGetVitalsCrashes.mockRejectedValue(
-      new PlayApiError("Internal Error", "API_INTERNAL", 500),
-    );
+    mockGetVitalsCrashes.mockRejectedValue(new PlayApiError("Internal Error", "API_INTERNAL", 500));
 
     const { registerVitalsCommands } = await import("../src/commands/vitals.js");
     const program = makeProgram();
     program.exitOverride();
     registerVitalsCommands(program);
 
-    await expect(
-      program.parseAsync(["node", "gpc", "vitals", "crashes"]),
-    ).rejects.toThrow("Internal Error");
+    await expect(program.parseAsync(["node", "gpc", "vitals", "crashes"])).rejects.toThrow(
+      "Internal Error",
+    );
   });
 });

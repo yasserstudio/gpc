@@ -13,8 +13,6 @@ import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
 import { readFileSync } from "node:fs";
 
-
-
 export function registerExternalTransactionsCommands(program: Command): void {
   const extTxn = program
     .command("external-transactions")
@@ -34,8 +32,14 @@ export function registerExternalTransactionsCommands(program: Command): void {
       try {
         data = JSON.parse(readFileSync(options.file, "utf-8"));
       } catch (err) {
-        const error = new Error(`Could not read transaction data from ${options.file}: ${err instanceof Error ? err.message : String(err)}`);
-        Object.assign(error, { code: "INVALID_INPUT", exitCode: 2, suggestion: "Check the file path and ensure it contains valid JSON." });
+        const error = new Error(
+          `Could not read transaction data from ${options.file}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        Object.assign(error, {
+          code: "INVALID_INPUT",
+          exitCode: 2,
+          suggestion: "Check the file path and ensure it contains valid JSON.",
+        });
         throw error;
       }
 

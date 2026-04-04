@@ -78,7 +78,12 @@ function createFallbackManifest(): ParsedManifest {
 function openAndScan(
   aabPath: string,
   manifestPath: string = AAB_MANIFEST_PATH,
-): Promise<{ zipfile: ZipFile; entries: ZipEntryInfo[]; manifestBuf: Buffer | null; soHeaders: EntryHeaderMap }> {
+): Promise<{
+  zipfile: ZipFile;
+  entries: ZipEntryInfo[];
+  manifestBuf: Buffer | null;
+  soHeaders: EntryHeaderMap;
+}> {
   return new Promise((resolve, reject) => {
     yauzlOpen(aabPath, { lazyEntries: true, autoClose: false }, (err, zipfile) => {
       if (err || !zipfile) {
@@ -107,7 +112,11 @@ function openAndScan(
         }
       }
 
-      function readEntryStream(entry: Entry, onData: (buf: Buffer) => void, maxBytes?: number): void {
+      function readEntryStream(
+        entry: Entry,
+        onData: (buf: Buffer) => void,
+        maxBytes?: number,
+      ): void {
         pendingStreams++;
         zipfile.openReadStream(entry, (streamErr, stream) => {
           if (streamErr || !stream) {
@@ -162,13 +171,19 @@ function openAndScan(
 
         // Extract manifest content
         if (path === manifestPath) {
-          readEntryStream(entry, (buf) => { manifestBuf = buf; });
+          readEntryStream(entry, (buf) => {
+            manifestBuf = buf;
+          });
         }
         // Extract first N bytes of .so files for ELF header analysis (early stream destroy)
         else if (SO_PATH_RE.test(path)) {
-          readEntryStream(entry, (buf) => {
-            soHeaders.set(path, buf);
-          }, SO_HEADER_BYTES);
+          readEntryStream(
+            entry,
+            (buf) => {
+              soHeaders.set(path, buf);
+            },
+            SO_HEADER_BYTES,
+          );
         }
 
         zipfile.readEntry();

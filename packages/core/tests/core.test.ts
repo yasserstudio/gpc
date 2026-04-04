@@ -511,7 +511,9 @@ describe("uploadRelease", () => {
     });
 
     expect(client.edits.validate).not.toHaveBeenCalled();
-    expect(client.edits.commit).toHaveBeenCalledWith(PKG, "edit-1", { changesNotSentForReview: true });
+    expect(client.edits.commit).toHaveBeenCalledWith(PKG, "edit-1", {
+      changesNotSentForReview: true,
+    });
   });
 
   it("calls validate when commitOptions is undefined", async () => {
@@ -2521,7 +2523,9 @@ describe("purchases commands", () => {
         revokeSubscriptionV2: vi.fn().mockResolvedValue(undefined),
         cancelSubscriptionV2: vi.fn().mockResolvedValue(undefined),
         deferSubscriptionV2: vi.fn().mockResolvedValue({ newExpiryTime: "2026-07-01T00:00:00Z" }),
-        getProductV2: vi.fn().mockResolvedValue({ orderId: "o2", purchaseStateContext: { state: "PURCHASED" } }),
+        getProductV2: vi
+          .fn()
+          .mockResolvedValue({ orderId: "o2", purchaseStateContext: { state: "PURCHASED" } }),
         listVoided: vi.fn().mockResolvedValue({ voidedPurchases: [] }),
       },
       orders: {
@@ -2631,25 +2635,32 @@ describe("purchases commands", () => {
   it("cancelSubscriptionV2 calls client.purchases.cancelSubscriptionV2", async () => {
     const client = mockClient();
     await cancelSubscriptionV2(client, "com.example", "tok123", "DEVELOPER_CANCELED");
-    expect(client.purchases.cancelSubscriptionV2).toHaveBeenCalledWith(
-      "com.example", "tok123", { cancellationType: "DEVELOPER_CANCELED" },
-    );
+    expect(client.purchases.cancelSubscriptionV2).toHaveBeenCalledWith("com.example", "tok123", {
+      cancellationType: "DEVELOPER_CANCELED",
+    });
   });
 
   it("cancelSubscriptionV2 works without cancellationType", async () => {
     const client = mockClient();
     await cancelSubscriptionV2(client, "com.example", "tok123");
     expect(client.purchases.cancelSubscriptionV2).toHaveBeenCalledWith(
-      "com.example", "tok123", undefined,
+      "com.example",
+      "tok123",
+      undefined,
     );
   });
 
   it("deferSubscriptionV2 calls client.purchases.deferSubscriptionV2", async () => {
     const client = mockClient();
-    const result = await deferSubscriptionV2(client, "com.example", "tok123", "2026-07-01T00:00:00Z");
-    expect(client.purchases.deferSubscriptionV2).toHaveBeenCalledWith(
-      "com.example", "tok123", { deferralInfo: { desiredExpiryTime: "2026-07-01T00:00:00Z" } },
+    const result = await deferSubscriptionV2(
+      client,
+      "com.example",
+      "tok123",
+      "2026-07-01T00:00:00Z",
     );
+    expect(client.purchases.deferSubscriptionV2).toHaveBeenCalledWith("com.example", "tok123", {
+      deferralInfo: { desiredExpiryTime: "2026-07-01T00:00:00Z" },
+    });
     expect(result.newExpiryTime).toBe("2026-07-01T00:00:00Z");
   });
 });
@@ -2892,7 +2903,9 @@ describe("user commands", () => {
 
   it("getUser throws when user not found", async () => {
     const client = mockUsersClient();
-    await expect(getUser(client, "12345", "missing@b.com")).rejects.toThrow("User \"missing@b.com\" not found");
+    await expect(getUser(client, "12345", "missing@b.com")).rejects.toThrow(
+      'User "missing@b.com" not found',
+    );
   });
 
   it("inviteUser creates user with email and permissions", async () => {
@@ -3910,7 +3923,13 @@ describe("uploadRelease – edge cases", () => {
       mappingFile: "/tmp/mapping.txt",
     });
 
-    expect(client.deobfuscation.upload).toHaveBeenCalledWith(PKG, "edit-1", 42, "/tmp/mapping.txt", undefined);
+    expect(client.deobfuscation.upload).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      42,
+      "/tmp/mapping.txt",
+      undefined,
+    );
   });
 
   it("cleans up edit when mapping file upload fails", async () => {
@@ -4949,7 +4968,12 @@ describe("one-time products commands", () => {
   it("getOneTimeOffer calls client.oneTimeProducts.getOffer with purchaseOptionId", async () => {
     const client = mockClient();
     const result = await getOneTimeOffer(client, "com.example", "otp1", "offer1");
-    expect(client.oneTimeProducts.getOffer).toHaveBeenCalledWith("com.example", "otp1", "-", "offer1");
+    expect(client.oneTimeProducts.getOffer).toHaveBeenCalledWith(
+      "com.example",
+      "otp1",
+      "-",
+      "offer1",
+    );
     expect(result.offerId).toBe("offer1");
   });
 
@@ -4957,7 +4981,12 @@ describe("one-time products commands", () => {
     const client = mockClient();
     const data = { offerId: "offer1" } as any;
     await createOneTimeOffer(client, "com.example", "otp1", data);
-    expect(client.oneTimeProducts.createOffer).toHaveBeenCalledWith("com.example", "otp1", "-", data);
+    expect(client.oneTimeProducts.createOffer).toHaveBeenCalledWith(
+      "com.example",
+      "otp1",
+      "-",
+      data,
+    );
   });
 
   it("updateOneTimeOffer auto-derives updateMask with purchaseOptionId", async () => {

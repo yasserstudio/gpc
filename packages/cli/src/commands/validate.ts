@@ -16,7 +16,11 @@ export function registerValidateCommand(program: Command): void {
     .action(async (file: string, options) => {
       if (options.notes && options.notesDir) {
         const err = new Error("Cannot use both --notes and --notes-dir");
-        Object.assign(err, { code: "USAGE_ERROR", exitCode: 2, suggestion: "Use either --notes or --notes-dir, not both." });
+        Object.assign(err, {
+          code: "USAGE_ERROR",
+          exitCode: 2,
+          suggestion: "Use either --notes or --notes-dir, not both.",
+        });
         throw err;
       }
 

@@ -50,9 +50,7 @@ export interface AppEdit {
   expiryTimeSeconds: string;
 }
 
-export type ChangesInReviewBehavior =
-  | "CANCEL_IN_REVIEW_AND_SUBMIT"
-  | "ERROR_IF_IN_REVIEW";
+export type ChangesInReviewBehavior = "CANCEL_IN_REVIEW_AND_SUBMIT" | "ERROR_IF_IN_REVIEW";
 
 export interface EditCommitOptions {
   changesNotSentForReview?: boolean;
@@ -552,7 +550,10 @@ export interface SubscriptionPurchaseLineItem {
   /** Replaces deprecated latestOrderId. (May 2025) */
   latestSuccessfulOrderId?: string;
   /** Details about item being replaced, if applicable. (Nov 2025) */
-  itemReplacement?: { productId?: string; offerDetails?: { basePlanId?: string; offerId?: string } };
+  itemReplacement?: {
+    productId?: string;
+    offerDetails?: { basePlanId?: string; offerId?: string };
+  };
   /** Current offer phase identifier. (Jan 2026) */
   offerPhase?: string;
 }
@@ -609,8 +610,17 @@ export interface Order {
   orderHistory?: {
     processedEvent?: { eventTime?: string };
     cancellationEvent?: { eventTime?: string };
-    refundEvent?: { eventTime?: string; refundDetails?: { tax?: Money; refund?: Money }; refundReason?: string };
-    partialRefundEvents?: Array<{ createTime?: string; processTime?: string; state?: string; refundDetails?: { tax?: Money; refund?: Money } }>;
+    refundEvent?: {
+      eventTime?: string;
+      refundDetails?: { tax?: Money; refund?: Money };
+      refundReason?: string;
+    };
+    partialRefundEvents?: Array<{
+      createTime?: string;
+      processTime?: string;
+      state?: string;
+      refundDetails?: { tax?: Money; refund?: Money };
+    }>;
   };
   /** Offer phase details for prorated periods. (Nov 2025) */
   offerPhaseDetails?: { offerPhase?: string };
@@ -1048,7 +1058,14 @@ export interface ReleaseSummary {
   releaseName?: string;
   track: string;
   activeArtifacts?: { versionCode: number }[];
-  releaseLifecycleState?: 'RELEASE_LIFECYCLE_STATE_UNSPECIFIED' | 'DRAFT' | 'NOT_SENT_FOR_REVIEW' | 'IN_REVIEW' | 'APPROVED_NOT_PUBLISHED' | 'NOT_APPROVED' | 'PUBLISHED';
+  releaseLifecycleState?:
+    | "RELEASE_LIFECYCLE_STATE_UNSPECIFIED"
+    | "DRAFT"
+    | "NOT_SENT_FOR_REVIEW"
+    | "IN_REVIEW"
+    | "APPROVED_NOT_PUBLISHED"
+    | "NOT_APPROVED"
+    | "PUBLISHED";
 }
 
 export interface ReleasesListResponse {

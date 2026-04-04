@@ -43,19 +43,19 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 ## Edits: Tracks
 
-| API Endpoint          | Method | GPC Command                 |
-| --------------------- | ------ | --------------------------- |
-| `edits.tracks.list`   | GET    | `gpc tracks list`           |
-| `edits.tracks.get`    | GET    | `gpc tracks get <track>`    |
-| `edits.tracks.update` | PUT    | `gpc tracks update <track>` |
+| API Endpoint          | Method | GPC Command                         |
+| --------------------- | ------ | ----------------------------------- |
+| `edits.tracks.list`   | GET    | `gpc tracks list`                   |
+| `edits.tracks.get`    | GET    | `gpc tracks get <track>`            |
+| `edits.tracks.update` | PUT    | `gpc tracks update <track>`         |
 | `edits.tracks.patch`  | PATCH  | `gpc tracks update <track> --patch` |
-| `edits.tracks.create` | POST   | `gpc tracks create <name>`  |
+| `edits.tracks.create` | POST   | `gpc tracks create <name>`          |
 
 ## Release Lifecycle
 
-| API Endpoint                              | Method | GPC Command                  |
-| ----------------------------------------- | ------ | ---------------------------- |
-| `applications.tracks.releases.list`       | GET    | `gpc releases list --lifecycle` |
+| API Endpoint                        | Method | GPC Command                     |
+| ----------------------------------- | ------ | ------------------------------- |
+| `applications.tracks.releases.list` | GET    | `gpc releases list --lifecycle` |
 
 ## Edits: Deobfuscation Files
 
@@ -115,28 +115,28 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 ## In-App Products
 
-| API Endpoint           | Method | GPC Command                    |
-| ---------------------- | ------ | ------------------------------ |
-| `inappproducts.list`   | GET    | `gpc iap list`                 |
-| `inappproducts.get`    | GET    | `gpc iap get <sku>`            |
-| `inappproducts.insert` | POST   | `gpc iap create`               |
-| `inappproducts.update` | PUT    | `gpc iap update <sku>`         |
-| `inappproducts.delete` | DELETE | `gpc iap delete <sku>`         |
-| `inappproducts.patch`  | PATCH  | `gpc iap update <sku> --patch` |
+| API Endpoint                | Method | GPC Command                    |
+| --------------------------- | ------ | ------------------------------ |
+| `inappproducts.list`        | GET    | `gpc iap list`                 |
+| `inappproducts.get`         | GET    | `gpc iap get <sku>`            |
+| `inappproducts.insert`      | POST   | `gpc iap create`               |
+| `inappproducts.update`      | PUT    | `gpc iap update <sku>`         |
+| `inappproducts.delete`      | DELETE | `gpc iap delete <sku>`         |
+| `inappproducts.patch`       | PATCH  | `gpc iap update <sku> --patch` |
 | `inappproducts.batch`       | POST   | `gpc iap sync`                 |
 | `inappproducts.batchDelete` | POST   | `gpc iap batch-delete`         |
 
 ## Monetization: Subscriptions
 
-| API Endpoint                        | Method | GPC Command                     |
-| ----------------------------------- | ------ | ------------------------------- |
-| `monetization.subscriptions.list`   | GET    | `gpc subscriptions list`        |
-| `monetization.subscriptions.get`    | GET    | `gpc subscriptions get <id>`    |
-| `monetization.subscriptions.create` | POST   | `gpc subscriptions create`      |
-| `monetization.subscriptions.patch`  | PATCH  | `gpc subscriptions update <id>` |
-| `monetization.subscriptions.delete`      | DELETE | `gpc subscriptions delete <id>`      |
-| `monetization.subscriptions.batchGet`    | GET    | `gpc subscriptions batch-get`        |
-| `monetization.subscriptions.batchUpdate` | POST   | `gpc subscriptions batch-update`     |
+| API Endpoint                             | Method | GPC Command                      |
+| ---------------------------------------- | ------ | -------------------------------- |
+| `monetization.subscriptions.list`        | GET    | `gpc subscriptions list`         |
+| `monetization.subscriptions.get`         | GET    | `gpc subscriptions get <id>`     |
+| `monetization.subscriptions.create`      | POST   | `gpc subscriptions create`       |
+| `monetization.subscriptions.patch`       | PATCH  | `gpc subscriptions update <id>`  |
+| `monetization.subscriptions.delete`      | DELETE | `gpc subscriptions delete <id>`  |
+| `monetization.subscriptions.batchGet`    | GET    | `gpc subscriptions batch-get`    |
+| `monetization.subscriptions.batchUpdate` | POST   | `gpc subscriptions batch-update` |
 
 ## Monetization: Base Plans
 
@@ -161,30 +161,30 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 ## Purchases
 
-| API Endpoint                       | Method | GPC Command                                      |
-| ---------------------------------- | ------ | ------------------------------------------------ |
-| `purchases.products.get`           | GET    | `gpc purchases get <token>`                      |
-| `purchases.products.acknowledge`   | POST   | `gpc purchases acknowledge <token>`              |
-| `purchases.products.consume`       | POST   | `gpc purchases consume <token>`                  |
-| `purchases.subscriptions.get`      | GET    | `gpc purchases subscription get <token>`         |
-| `purchases.subscriptions.acknowledge` | POST | `gpc purchases subscription acknowledge <token>` |
-| `purchases.subscriptions.cancel`   | POST   | `gpc purchases subscription cancel <token>`      |
-| `purchases.subscriptions.defer`    | POST   | `gpc purchases subscription defer <token>`       |
-| `purchases.subscriptions.revoke`   | POST   | `gpc purchases subscription revoke <token>`      |
-| `purchases.subscriptionsv2.get`    | GET    | `gpc purchases subscription get <token> --v2`    |
-| `purchases.subscriptionsv2.revoke` | POST   | `gpc purchases subscription revoke <token> --v2` |
-| `purchases.subscriptionsv2.cancel` | POST   | `gpc purchases subscription cancel-v2 <token>` |
-| `purchases.subscriptionsv2.defer`  | POST   | `gpc purchases subscription defer-v2 <token>` |
-| `purchases.productsv2.get`         | GET    | `gpc purchases product get-v2 <id> <token>` |
-| `purchases.voidedpurchases.list`   | GET    | `gpc purchases voided list`                      |
+| API Endpoint                          | Method | GPC Command                                      |
+| ------------------------------------- | ------ | ------------------------------------------------ |
+| `purchases.products.get`              | GET    | `gpc purchases get <token>`                      |
+| `purchases.products.acknowledge`      | POST   | `gpc purchases acknowledge <token>`              |
+| `purchases.products.consume`          | POST   | `gpc purchases consume <token>`                  |
+| `purchases.subscriptions.get`         | GET    | `gpc purchases subscription get <token>`         |
+| `purchases.subscriptions.acknowledge` | POST   | `gpc purchases subscription acknowledge <token>` |
+| `purchases.subscriptions.cancel`      | POST   | `gpc purchases subscription cancel <token>`      |
+| `purchases.subscriptions.defer`       | POST   | `gpc purchases subscription defer <token>`       |
+| `purchases.subscriptions.revoke`      | POST   | `gpc purchases subscription revoke <token>`      |
+| `purchases.subscriptionsv2.get`       | GET    | `gpc purchases subscription get <token> --v2`    |
+| `purchases.subscriptionsv2.revoke`    | POST   | `gpc purchases subscription revoke <token> --v2` |
+| `purchases.subscriptionsv2.cancel`    | POST   | `gpc purchases subscription cancel-v2 <token>`   |
+| `purchases.subscriptionsv2.defer`     | POST   | `gpc purchases subscription defer-v2 <token>`    |
+| `purchases.productsv2.get`            | GET    | `gpc purchases product get-v2 <id> <token>`      |
+| `purchases.voidedpurchases.list`      | GET    | `gpc purchases voided list`                      |
 
 ## Orders
 
-| API Endpoint      | Method | GPC Command                          |
-| ----------------- | ------ | ------------------------------------ |
-| `orders.get`      | GET    | `gpc orders get <order-id>`          |
-| `orders.batchGet` | POST   | `gpc orders batch-get --ids <csv>`   |
-| `orders.refund`   | POST   | `gpc orders refund <order-id>`       |
+| API Endpoint      | Method | GPC Command                        |
+| ----------------- | ------ | ---------------------------------- |
+| `orders.get`      | GET    | `gpc orders get <order-id>`        |
+| `orders.batchGet` | POST   | `gpc orders batch-get --ids <csv>` |
+| `orders.refund`   | POST   | `gpc orders refund <order-id>`     |
 
 ## Monetization: Pricing
 

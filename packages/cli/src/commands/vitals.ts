@@ -27,7 +27,6 @@ import {
 import { getOutputFormat } from "../format.js";
 import { red, yellow, green } from "../colors.js";
 
-
 async function getReportingClient(config: GpcConfig) {
   const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
   return createReportingClient({ auth });
@@ -102,10 +101,19 @@ function registerMetricCommand(
       } catch (err) {
         if (err instanceof PlayApiError && err.statusCode === 403) {
           if (format === "json") {
-            console.log(formatOutput({ rows: [], message: "Reporting API not enabled or insufficient permissions" }, format));
+            console.log(
+              formatOutput(
+                { rows: [], message: "Reporting API not enabled or insufficient permissions" },
+                format,
+              ),
+            );
           } else {
-            console.log(`${yellow("⚠")} No vitals data available. The Reporting API may not be enabled for this project.`);
-            console.log(`  Enable it at: https://console.cloud.google.com/apis/library/playdeveloperreporting.googleapis.com`);
+            console.log(
+              `${yellow("⚠")} No vitals data available. The Reporting API may not be enabled for this project.`,
+            );
+            console.log(
+              `  Enable it at: https://console.cloud.google.com/apis/library/playdeveloperreporting.googleapis.com`,
+            );
           }
           return;
         }
@@ -190,8 +198,7 @@ function registerMetricCommand(
           : undefined
         : undefined;
       const threshold =
-        options.threshold ??
-        (configThreshold !== undefined ? Number(configThreshold) : undefined);
+        options.threshold ?? (configThreshold !== undefined ? Number(configThreshold) : undefined);
       if (threshold !== undefined) {
         const latestRow = result.rows?.[result.rows.length - 1];
         const metricKeys = latestRow?.metrics ? Object.keys(latestRow.metrics) : [];
@@ -305,10 +312,19 @@ export function registerVitalsCommands(program: Command): void {
       } catch (err) {
         if (err instanceof PlayApiError && err.statusCode === 403) {
           if (format === "json") {
-            console.log(formatOutput({ anomalies: [], message: "Reporting API not enabled or insufficient permissions" }, format));
+            console.log(
+              formatOutput(
+                { anomalies: [], message: "Reporting API not enabled or insufficient permissions" },
+                format,
+              ),
+            );
           } else {
-            console.log(`${yellow("⚠")} No anomaly data available. The Reporting API may not be enabled for this project.`);
-            console.log(`  Enable it at: https://console.cloud.google.com/apis/library/playdeveloperreporting.googleapis.com`);
+            console.log(
+              `${yellow("⚠")} No anomaly data available. The Reporting API may not be enabled for this project.`,
+            );
+            console.log(
+              `  Enable it at: https://console.cloud.google.com/apis/library/playdeveloperreporting.googleapis.com`,
+            );
           }
           return;
         }

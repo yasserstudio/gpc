@@ -48,14 +48,11 @@ export async function requireOption(
       ? promptSelect(prompt.message, prompt.choices, prompt.default)
       : promptInput(prompt.message, prompt.default);
   }
-  throw Object.assign(
-    new Error(`Missing required option --${name}`),
-    {
-      code: "MISSING_REQUIRED_OPTION",
-      exitCode: 2,
-      suggestion: `Provide --${name} or run interactively (remove --no-interactive)`,
-    },
-  );
+  throw Object.assign(new Error(`Missing required option --${name}`), {
+    code: "MISSING_REQUIRED_OPTION",
+    exitCode: 2,
+    suggestion: `Provide --${name} or run interactively (remove --no-interactive)`,
+  });
 }
 
 /**

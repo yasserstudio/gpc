@@ -61,19 +61,19 @@ GPC replaces `fastlane supply` (and parts of `fastlane deliver`) for Google Play
 
 ### Commands Only in GPC
 
-| GPC Command                          | Description                    |
-| ------------------------------------ | ------------------------------ |
-| `gpc vitals crashes`                 | Crash rate and clusters        |
-| `gpc vitals anr`                     | ANR rate                       |
-| `gpc vitals crashes --threshold 2.0` | CI quality gate (exit code 6)  |
-| `gpc reviews list --stars 1-2`       | Filter and list reviews        |
-| `gpc reviews reply <id> --text "Thanks"` | Reply to reviews           |
-| `gpc subscriptions list`             | Manage subscriptions           |
-| `gpc iap list`                       | Manage in-app products         |
-| `gpc purchases get <token>`          | Verify purchases               |
-| `gpc reports download financial`     | Download financial reports     |
-| `gpc users invite <email>`           | Manage developer account users |
-| `gpc testers add <email>`            | Manage beta testers            |
+| GPC Command                              | Description                    |
+| ---------------------------------------- | ------------------------------ |
+| `gpc vitals crashes`                     | Crash rate and clusters        |
+| `gpc vitals anr`                         | ANR rate                       |
+| `gpc vitals crashes --threshold 2.0`     | CI quality gate (exit code 6)  |
+| `gpc reviews list --stars 1-2`           | Filter and list reviews        |
+| `gpc reviews reply <id> --text "Thanks"` | Reply to reviews               |
+| `gpc subscriptions list`                 | Manage subscriptions           |
+| `gpc iap list`                           | Manage in-app products         |
+| `gpc purchases get <token>`              | Verify purchases               |
+| `gpc reports download financial`         | Download financial reports     |
+| `gpc users invite <email>`               | Manage developer account users |
+| `gpc testers add <email>`                | Manage beta testers            |
 
 ## Environment Variables
 

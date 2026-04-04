@@ -33,8 +33,6 @@ async function readJsonArray<T = any>(filePath: string): Promise<T[]> {
   return data as T[];
 }
 
-
-
 export function registerOneTimeProductsCommands(program: Command): void {
   const otp = program
     .command("one-time-products")
@@ -195,12 +193,19 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      const result = await listOneTimeOffers(client, packageName, productId, options.purchaseOption);
+      const result = await listOneTimeOffers(
+        client,
+        packageName,
+        productId,
+        options.purchaseOption,
+      );
       const items = result.oneTimeProductOffers ?? result.oneTimeOffers ?? [];
       if (options.sort) {
         console.log(formatOutput(sortResults(items, options.sort), format));
       } else {
-        console.log(formatOutput(items.length > 0 ? result : { oneTimeProductOffers: items }, format));
+        console.log(
+          formatOutput(items.length > 0 ? result : { oneTimeProductOffers: items }, format),
+        );
       }
     });
 
@@ -214,7 +219,13 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      const result = await getOneTimeOffer(client, packageName, productId, offerId, options.purchaseOption);
+      const result = await getOneTimeOffer(
+        client,
+        packageName,
+        productId,
+        offerId,
+        options.purchaseOption,
+      );
       console.log(formatOutput(result, format));
     });
 
@@ -245,7 +256,13 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const client = await getClient(config);
 
       const data = await readJsonFile(options.file);
-      const result = await createOneTimeOffer(client, packageName, productId, data as any, options.purchaseOption);
+      const result = await createOneTimeOffer(
+        client,
+        packageName,
+        productId,
+        data as any,
+        options.purchaseOption,
+      );
       console.log(formatOutput(result, format));
     });
 
@@ -333,24 +350,43 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
 
-      await requireConfirm(`Cancel offer "${offerId}"? This is permanent and cannot be undone.`, program);
+      await requireConfirm(
+        `Cancel offer "${offerId}"? This is permanent and cannot be undone.`,
+        program,
+      );
 
       if (isDryRun(program)) {
         const format = getOutputFormat(program, config);
-        printDryRun({ command: "otp offers cancel", action: "cancel offer", target: `${productId}/${offerId}` }, format, formatOutput);
+        printDryRun(
+          {
+            command: "otp offers cancel",
+            action: "cancel offer",
+            target: `${productId}/${offerId}`,
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
-      const result = await client.oneTimeProducts.cancelOffer(packageName, productId, options.purchaseOption, offerId);
+      const result = await client.oneTimeProducts.cancelOffer(
+        packageName,
+        productId,
+        options.purchaseOption,
+        offerId,
+      );
       console.log(formatOutput(result, format));
     });
 
   offers
     .command("batch-get <product-id>")
     .description("Batch get multiple offers")
-    .requiredOption("--file <path>", "JSON file with array of {productId, purchaseOptionId, offerId}")
+    .requiredOption(
+      "--file <path>",
+      "JSON file with array of {productId, purchaseOptionId, offerId}",
+    )
     .option("--purchase-option <id>", 'Purchase option ID in URL path (default: "-")', "-")
     .action(async (productId: string, options: { file: string; purchaseOption: string }) => {
       const config = await loadConfig();
@@ -360,8 +396,15 @@ export function registerOneTimeProductsCommands(program: Command): void {
 
       const requests = await readJsonArray(options.file);
       const result = await client.oneTimeProducts.batchGetOffers(
-        packageName, productId, options.purchaseOption,
-        requests.map((r: any) => ({ packageName, productId: r.productId || productId, purchaseOptionId: r.purchaseOptionId || "-", offerId: r.offerId })),
+        packageName,
+        productId,
+        options.purchaseOption,
+        requests.map((r: any) => ({
+          packageName,
+          productId: r.productId || productId,
+          purchaseOptionId: r.purchaseOptionId || "-",
+          offerId: r.offerId,
+        })),
       );
       console.log(formatOutput(result, format));
     });
@@ -377,13 +420,27 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
-        printDryRun({ command: "otp offers batch-update", action: "batch update offers for", target: productId, details: { file: options.file } }, format, formatOutput);
+        printDryRun(
+          {
+            command: "otp offers batch-update",
+            action: "batch update offers for",
+            target: productId,
+            details: { file: options.file },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
       const client = await getClient(config);
       const requests = await readJsonArray(options.file);
-      const result = await client.oneTimeProducts.batchUpdateOffers(packageName, productId, options.purchaseOption, requests);
+      const result = await client.oneTimeProducts.batchUpdateOffers(
+        packageName,
+        productId,
+        options.purchaseOption,
+        requests,
+      );
       console.log(formatOutput(result, format));
     });
 
@@ -398,20 +455,37 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
-        printDryRun({ command: "otp offers batch-update-states", action: "batch update offer states for", target: productId, details: { file: options.file } }, format, formatOutput);
+        printDryRun(
+          {
+            command: "otp offers batch-update-states",
+            action: "batch update offer states for",
+            target: productId,
+            details: { file: options.file },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
       const client = await getClient(config);
       const requests = await readJsonArray(options.file);
-      const result = await client.oneTimeProducts.batchUpdateOfferStates(packageName, productId, options.purchaseOption, requests);
+      const result = await client.oneTimeProducts.batchUpdateOfferStates(
+        packageName,
+        productId,
+        options.purchaseOption,
+        requests,
+      );
       console.log(formatOutput(result, format));
     });
 
   offers
     .command("batch-delete <product-id>")
     .description("Batch delete multiple offers (max 100)")
-    .requiredOption("--file <path>", "JSON file with array of {productId, purchaseOptionId, offerId}")
+    .requiredOption(
+      "--file <path>",
+      "JSON file with array of {productId, purchaseOptionId, offerId}",
+    )
     .option("--purchase-option <id>", 'Purchase option ID in URL path (default: "-")', "-")
     .action(async (productId: string, options: { file: string; purchaseOption: string }) => {
       const config = await loadConfig();
@@ -421,13 +495,27 @@ export function registerOneTimeProductsCommands(program: Command): void {
 
       if (isDryRun(program)) {
         const format = getOutputFormat(program, config);
-        printDryRun({ command: "otp offers batch-delete", action: "batch delete offers for", target: productId, details: { file: options.file } }, format, formatOutput);
+        printDryRun(
+          {
+            command: "otp offers batch-delete",
+            action: "batch delete offers for",
+            target: productId,
+            details: { file: options.file },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
       const client = await getClient(config);
       const requests = await readJsonArray(options.file);
-      await client.oneTimeProducts.batchDeleteOffers(packageName, productId, options.purchaseOption, requests);
+      await client.oneTimeProducts.batchDeleteOffers(
+        packageName,
+        productId,
+        options.purchaseOption,
+        requests,
+      );
       console.log(`Batch delete completed.`);
     });
 
@@ -445,7 +533,16 @@ export function registerOneTimeProductsCommands(program: Command): void {
 
       if (isDryRun(program)) {
         const format = getOutputFormat(program, config);
-        printDryRun({ command: "otp purchase-options batch-delete", action: "batch delete purchase options for", target: productId, details: { file: options.file } }, format, formatOutput);
+        printDryRun(
+          {
+            command: "otp purchase-options batch-delete",
+            action: "batch delete purchase options for",
+            target: productId,
+            details: { file: options.file },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
@@ -464,13 +561,26 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
-        printDryRun({ command: "otp purchase-options batch-update-states", action: "batch update purchase option states for", target: productId, details: { file: options.file } }, format, formatOutput);
+        printDryRun(
+          {
+            command: "otp purchase-options batch-update-states",
+            action: "batch update purchase option states for",
+            target: productId,
+            details: { file: options.file },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
       const client = await getClient(config);
       const requests = await readJsonArray(options.file);
-      const result = await client.oneTimeProducts.batchUpdatePurchaseOptionStates(packageName, productId, requests);
+      const result = await client.oneTimeProducts.batchUpdatePurchaseOptionStates(
+        packageName,
+        productId,
+        requests,
+      );
       console.log(formatOutput(result, format));
     });
 

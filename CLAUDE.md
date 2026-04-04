@@ -82,24 +82,24 @@ Agent skills for GPC workflows are in `.agents/skills/gpc-*`.
 
 Install: `gpc install-skills` (interactive wizard) or `npx skills add yasserstudio/gpc-skills`
 
-| Skill                    | When to Use                                                                    |
-| ------------------------ | ------------------------------------------------------------------------------ |
-| `gpc-setup`              | Auth (service account, OAuth, ADC), config, profiles, `gpc doctor`             |
-| `gpc-onboarding`         | First-run setup, `gpc quickstart`, `gpc auth login` wizard, `gpc doctor --fix` |
+| Skill                    | When to Use                                                                                   |
+| ------------------------ | --------------------------------------------------------------------------------------------- |
+| `gpc-setup`              | Auth (service account, OAuth, ADC), config, profiles, `gpc doctor`                            |
+| `gpc-onboarding`         | First-run setup, `gpc quickstart`, `gpc auth login` wizard, `gpc doctor --fix`                |
 | `gpc-release-flow`       | Upload AAB/APK, draft releases, rollouts, promote, `gpc publish`, `gpc diff`, `gpc changelog` |
-| `gpc-train`              | Automated staged rollout pipeline, time gates, crash/ANR gates                 |
-| `gpc-preflight`          | Offline AAB/APK compliance scanner (9 scanners), `.preflightrc.json` config    |
-| `gpc-metadata-sync`      | Store listings, images, Fastlane metadata compat, pull/push                    |
-| `gpc-vitals-monitoring`  | Crashes, ANR, LMK, vitals thresholds, reviews (auto-paginate), reports         |
-| `gpc-ci-integration`     | GitHub Actions, GitLab CI, env vars, JSON output, exit codes                   |
-| `gpc-monetization`       | Subscriptions, IAP, RTDN notifications, voided purchases, pricing, analytics   |
-| `gpc-user-management`    | Developer account users, permissions, grants, testers, CSV import              |
-| `gpc-migrate-fastlane`   | Fastlane-to-GPC migration, command mapping, CI migration                       |
-| `gpc-plugin-development` | Plugin SDK, lifecycle hooks, permissions, custom commands                       |
-| `gpc-troubleshooting`    | Exit codes, error catalog (40+ codes), debug mode, common fixes                |
-| `gpc-sdk-usage`          | @gpc-cli/api and @gpc-cli/auth as standalone TypeScript SDK, 6-bucket rate limiter |
-| `gpc-multi-app`          | Multiple apps, profiles, batch operations, monorepo patterns                   |
-| `gpc-security`           | Credential storage, key rotation, audit logging, incident response             |
+| `gpc-train`              | Automated staged rollout pipeline, time gates, crash/ANR gates                                |
+| `gpc-preflight`          | Offline AAB/APK compliance scanner (9 scanners), `.preflightrc.json` config                   |
+| `gpc-metadata-sync`      | Store listings, images, Fastlane metadata compat, pull/push                                   |
+| `gpc-vitals-monitoring`  | Crashes, ANR, LMK, vitals thresholds, reviews (auto-paginate), reports                        |
+| `gpc-ci-integration`     | GitHub Actions, GitLab CI, env vars, JSON output, exit codes                                  |
+| `gpc-monetization`       | Subscriptions, IAP, RTDN notifications, voided purchases, pricing, analytics                  |
+| `gpc-user-management`    | Developer account users, permissions, grants, testers, CSV import                             |
+| `gpc-migrate-fastlane`   | Fastlane-to-GPC migration, command mapping, CI migration                                      |
+| `gpc-plugin-development` | Plugin SDK, lifecycle hooks, permissions, custom commands                                     |
+| `gpc-troubleshooting`    | Exit codes, error catalog (40+ codes), debug mode, common fixes                               |
+| `gpc-sdk-usage`          | @gpc-cli/api and @gpc-cli/auth as standalone TypeScript SDK, 6-bucket rate limiter            |
+| `gpc-multi-app`          | Multiple apps, profiles, batch operations, monorepo patterns                                  |
+| `gpc-security`           | Credential storage, key rotation, audit logging, incident response                            |
 
 Read the relevant `SKILL.md` and its `references/` when working on these workflows.
 

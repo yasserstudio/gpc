@@ -1,6 +1,11 @@
 // Named exports only. No default export.
 
-import type { PreflightScanner, PreflightContext, PreflightFinding, EntryHeaderMap } from "../types.js";
+import type {
+  PreflightScanner,
+  PreflightContext,
+  PreflightFinding,
+  EntryHeaderMap,
+} from "../types.js";
 
 const KNOWN_ABIS = ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"] as const;
 
@@ -24,7 +29,9 @@ export function checkElfAlignment(buf: Buffer): { minAlign: number; is64: boolea
 
   const read16 = isLE ? (o: number) => buf.readUInt16LE(o) : (o: number) => buf.readUInt16BE(o);
   const read32 = isLE ? (o: number) => buf.readUInt32LE(o) : (o: number) => buf.readUInt32BE(o);
-  const read64 = isLE ? (o: number) => Number(buf.readBigUInt64LE(o)) : (o: number) => Number(buf.readBigUInt64BE(o));
+  const read64 = isLE
+    ? (o: number) => Number(buf.readBigUInt64LE(o))
+    : (o: number) => Number(buf.readBigUInt64BE(o));
 
   let phOff: number, phSize: number, phNum: number;
   if (is64) {

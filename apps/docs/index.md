@@ -101,19 +101,19 @@ gpc reviews list --stars 1-3 --since 7d
 
 ## What GPC Covers
 
-| Domain           | What you can do                                                              |
-| ---------------- | ---------------------------------------------------------------------------- |
+| Domain           | What you can do                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------ |
 | **Releases**     | Upload, promote, staged rollouts, halt, resume, release notes, rejected app handling |
-| **Listings**     | Store metadata, screenshots, localization, Fastlane format compatible        |
-| **Reviews**      | Filter by stars/language/date, reply, export to CSV                          |
-| **Vitals**       | Crashes, ANR, startup, rendering, battery, memory — with CI threshold gates  |
-| **Monetization** | Subscriptions, base plans, offers, in-app products, pricing conversion       |
-| **Purchases**    | Verification, acknowledgment, refunds, voided purchases                      |
-| **Reports**      | Financial and stats CSV downloads                                            |
-| **Team**         | Testers, users, permissions, CSV bulk import                                 |
-| **Compliance**   | Preflight scanner (9 checks), data safety, recovery actions, review-safe CI  |
-| **Analysis**     | Bundle size breakdown, cross-build comparison, size CI gates                 |
-| **More**         | Device tiers, internal sharing, external transactions, project scaffolding   |
+| **Listings**     | Store metadata, screenshots, localization, Fastlane format compatible                |
+| **Reviews**      | Filter by stars/language/date, reply, export to CSV                                  |
+| **Vitals**       | Crashes, ANR, startup, rendering, battery, memory — with CI threshold gates          |
+| **Monetization** | Subscriptions, base plans, offers, in-app products, pricing conversion               |
+| **Purchases**    | Verification, acknowledgment, refunds, voided purchases                              |
+| **Reports**      | Financial and stats CSV downloads                                                    |
+| **Team**         | Testers, users, permissions, CSV bulk import                                         |
+| **Compliance**   | Preflight scanner (9 checks), data safety, recovery actions, review-safe CI          |
+| **Analysis**     | Bundle size breakdown, cross-build comparison, size CI gates                         |
+| **More**         | Device tiers, internal sharing, external transactions, project scaffolding           |
 
 [View the full command reference →](/commands/)
 

@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { nativeLibsScanner, checkElfAlignment } from "../src/preflight/scanners/native-libs-scanner";
+import {
+  nativeLibsScanner,
+  checkElfAlignment,
+} from "../src/preflight/scanners/native-libs-scanner";
 import type { PreflightContext, ZipEntryInfo, EntryHeaderMap } from "../src/preflight/types";
 import { DEFAULT_PREFLIGHT_CONFIG } from "../src/preflight/types";
 
@@ -163,12 +166,8 @@ describe("checkElfAlignment", () => {
 
 describe("16KB alignment scanner integration", () => {
   it("flags non-16KB-aligned .so as critical", async () => {
-    const headers: EntryHeaderMap = new Map([
-      ["base/lib/arm64-v8a/libapp.so", fakeElf64(4096)],
-    ]);
-    const findings = await nativeLibsScanner.scan(
-      makeCtx([lib("arm64-v8a")], headers),
-    );
+    const headers: EntryHeaderMap = new Map([["base/lib/arm64-v8a/libapp.so", fakeElf64(4096)]]);
+    const findings = await nativeLibsScanner.scan(makeCtx([lib("arm64-v8a")], headers));
     const f = findings.find((f) => f.ruleId === "native-libs-16kb-alignment");
     expect(f).toBeDefined();
     expect(f!.severity).toBe("critical");
@@ -176,19 +175,13 @@ describe("16KB alignment scanner integration", () => {
   });
 
   it("does not flag 16KB-aligned .so", async () => {
-    const headers: EntryHeaderMap = new Map([
-      ["base/lib/arm64-v8a/libapp.so", fakeElf64(16384)],
-    ]);
-    const findings = await nativeLibsScanner.scan(
-      makeCtx([lib("arm64-v8a")], headers),
-    );
+    const headers: EntryHeaderMap = new Map([["base/lib/arm64-v8a/libapp.so", fakeElf64(16384)]]);
+    const findings = await nativeLibsScanner.scan(makeCtx([lib("arm64-v8a")], headers));
     expect(findings.find((f) => f.ruleId === "native-libs-16kb-alignment")).toBeUndefined();
   });
 
   it("downgrades to warning with pageSizeCompat", async () => {
-    const headers: EntryHeaderMap = new Map([
-      ["base/lib/arm64-v8a/libapp.so", fakeElf64(4096)],
-    ]);
+    const headers: EntryHeaderMap = new Map([["base/lib/arm64-v8a/libapp.so", fakeElf64(4096)]]);
     const ctx = makeCtx([lib("arm64-v8a")], headers);
     ctx.manifest = {
       packageName: "com.test",
@@ -216,9 +209,7 @@ describe("16KB alignment scanner integration", () => {
   });
 
   it("skips check when no native lib headers provided", async () => {
-    const findings = await nativeLibsScanner.scan(
-      makeCtx([lib("arm64-v8a")]),
-    );
+    const findings = await nativeLibsScanner.scan(makeCtx([lib("arm64-v8a")]));
     expect(findings.find((f) => f.ruleId === "native-libs-16kb-alignment")).toBeUndefined();
   });
 
@@ -229,7 +220,14 @@ describe("16KB alignment scanner integration", () => {
       ["base/lib/arm64-v8a/libgood.so", fakeElf64(16384)],
     ]);
     const findings = await nativeLibsScanner.scan(
-      makeCtx([lib("arm64-v8a", "libfoo.so"), lib("arm64-v8a", "libbar.so"), lib("arm64-v8a", "libgood.so")], headers),
+      makeCtx(
+        [
+          lib("arm64-v8a", "libfoo.so"),
+          lib("arm64-v8a", "libbar.so"),
+          lib("arm64-v8a", "libgood.so"),
+        ],
+        headers,
+      ),
     );
     const f = findings.find((f) => f.ruleId === "native-libs-16kb-alignment");
     expect(f).toBeDefined();

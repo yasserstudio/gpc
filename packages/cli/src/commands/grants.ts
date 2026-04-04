@@ -3,7 +3,14 @@ import type { GpcConfig } from "@gpc-cli/config";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createUsersClient } from "@gpc-cli/api";
-import { listGrants, createGrant, updateGrant, deleteGrant, formatOutput, GpcError } from "@gpc-cli/core";
+import {
+  listGrants,
+  createGrant,
+  updateGrant,
+  deleteGrant,
+  formatOutput,
+  GpcError,
+} from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";

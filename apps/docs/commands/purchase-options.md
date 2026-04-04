@@ -13,21 +13,22 @@ outline: deep
 The standalone `purchase-options` resource does not exist in the Google Play API. Purchase options are managed through one-time product offer paths. All `gpc purchase-options` commands redirect to the equivalent `gpc otp` commands.
 
 For batch operations on purchase options, use:
+
 - `gpc otp purchase-options batch-delete <product-id> --file <path>`
 - `gpc otp purchase-options batch-update-states <product-id> --file <path>`
-:::
+  :::
 
 ## Commands
 
 All commands below redirect to their `gpc otp offers` equivalents:
 
-| Command                        | Redirects to                         |
-| ------------------------------ | ------------------------------------ |
-| `purchase-options list`        | `gpc otp offers list <product-id>`   |
-| `purchase-options get <id>`    | `gpc otp offers get <product-id> <id>` |
-| `purchase-options create`      | `gpc otp offers create <product-id>` |
-| `purchase-options activate`    | `gpc otp offers activate ...`        |
-| `purchase-options deactivate`  | `gpc otp offers deactivate ...`      |
+| Command                       | Redirects to                           |
+| ----------------------------- | -------------------------------------- |
+| `purchase-options list`       | `gpc otp offers list <product-id>`     |
+| `purchase-options get <id>`   | `gpc otp offers get <product-id> <id>` |
+| `purchase-options create`     | `gpc otp offers create <product-id>`   |
+| `purchase-options activate`   | `gpc otp offers activate ...`          |
+| `purchase-options deactivate` | `gpc otp offers deactivate ...`        |
 
 ## `purchase-options list`
 

@@ -6,8 +6,6 @@ import { importDataSafety, formatOutput } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { getOutputFormat } from "../format.js";
 
-
-
 export function registerDataSafetyCommands(program: Command): void {
   const dataSafety = program.command("data-safety").description("Manage data safety declarations");
 
@@ -18,11 +16,16 @@ export function registerDataSafetyCommands(program: Command): void {
     .action(async () => {
       const err = new Error(
         "The Google Play Developer API does not provide a GET endpoint for data safety declarations.\n\n" +
-        "Data safety labels can only be updated (not read) via the API.\n" +
-        "To view your current data safety declaration, use the Google Play Console:\n" +
-        "  https://play.google.com/console → App content → Data safety",
+          "Data safety labels can only be updated (not read) via the API.\n" +
+          "To view your current data safety declaration, use the Google Play Console:\n" +
+          "  https://play.google.com/console → App content → Data safety",
       );
-      Object.assign(err, { code: "UNSUPPORTED_OPERATION", exitCode: 2, suggestion: "To update data safety via the API, use: gpc data-safety update --file <csv-file>" });
+      Object.assign(err, {
+        code: "UNSUPPORTED_OPERATION",
+        exitCode: 2,
+        suggestion:
+          "To update data safety via the API, use: gpc data-safety update --file <csv-file>",
+      });
       throw err;
     });
 
@@ -63,9 +66,14 @@ export function registerDataSafetyCommands(program: Command): void {
     .action(async () => {
       const err = new Error(
         "The Google Play Developer API does not provide a GET endpoint for data safety declarations.\n" +
-        "Data safety labels cannot be exported via the API.",
+          "Data safety labels cannot be exported via the API.",
       );
-      Object.assign(err, { code: "UNSUPPORTED_OPERATION", exitCode: 2, suggestion: "To export your data safety declaration, use the Google Play Console: App content → Data safety → Export to CSV" });
+      Object.assign(err, {
+        code: "UNSUPPORTED_OPERATION",
+        exitCode: 2,
+        suggestion:
+          "To export your data safety declaration, use the Google Play Console: App content → Data safety → Export to CSV",
+      });
       throw err;
     });
 }

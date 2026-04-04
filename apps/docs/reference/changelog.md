@@ -16,6 +16,7 @@ All notable user-facing changes to GPC are documented here. For full release det
 API audit, preflight hardening, and new resources.
 
 **Bug fixes (API audit):**
+
 - fix(api): OTP offer URLs now use correct `/purchaseOptions/{id}/offers/` path (was missing purchaseOptions segment)
 - fix(api): `onetimeproducts.create` now uses PATCH with `allowMissing=true` (official API has no POST create)
 - fix(api): removed phantom `refundSubscriptionV2` endpoint (does not exist in Google Play API). Use `gpc purchases orders refund` instead
@@ -27,10 +28,12 @@ API audit, preflight hardening, and new resources.
 - fix(core): AAB reader .so header extraction now destroys stream early instead of decompressing full files
 
 **New preflight rules:**
+
 - feat(preflight): 16KB page size alignment scanner -- checks ELF LOAD segments in native libraries (enforced by Google Play since Nov 2025). Downgrades to warning when `android:pageSizeCompat` is set
 - feat(preflight): exported-without-permission scanner -- flags components with `exported=true` but no `android:permission` attribute
 
 **New API methods:**
+
 - feat(api): OTP offer batch operations -- `cancelOffer`, `batchGetOffers`, `batchUpdateOffers`, `batchUpdateOfferStates`, `batchDeleteOffers`
 - feat(api): OTP purchase option batch operations -- `batchDeletePurchaseOptions`, `batchUpdatePurchaseOptionStates`
 - feat(api): subscription offers `batch-get` and `batch-update-states` CLI commands
@@ -72,6 +75,7 @@ Fix for rejected app workflow discovered during live testing.
 API completeness pass: missing Google Play API parameters and new resources.
 
 ### New API Parameters
+
 - `--changes-not-sent-for-review` flag on all edit-committing commands (required for rejected apps)
 - `--error-if-in-review` flag to fail fast instead of silently cancelling in-progress reviews
 - `--mapping-type` flag: upload native debug symbols (`nativeCode`) in addition to ProGuard maps
@@ -84,9 +88,11 @@ API completeness pass: missing Google Play API parameters and new resources.
 - `countryTargeting` added to `Release` type
 
 ### New Resources
+
 - `edits.expansionfiles` resource: `get`, `update`, `patch`, `upload` for legacy OBB files
 
 ### Type Safety
+
 - `ProductUpdateLatencyTolerance` union type (was bare `string`)
 - `MutationOptions` shared type for `allowMissing` + `latencyTolerance`
 - `DeobfuscationFileType` used throughout (removes unsafe cast)
@@ -101,6 +107,7 @@ API completeness pass: missing Google Play API parameters and new resources.
 Security hardening, supply chain protection.
 
 ### Supply Chain
+
 - Socket.dev CI scan blocks PRs with critical supply chain alerts
 - Socket.dev GitHub App provides inline PR comments for risky dependencies
 - `socket.yml` config for malware, typosquat, and install script detection
@@ -109,15 +116,18 @@ Security hardening, supply chain protection.
 - Production dependency audit (`pnpm audit`) runs on every pull request
 
 ### CI Hardening
+
 - All GitHub Actions pinned to commit SHAs across 6 workflows
 - `Socket Security` added as required status check on `main`
 - Dependabot restricted to direct dependencies only
 - Explicit least-privilege permissions on all CI jobs
 
 ### Fix
+
 - `gpc docs` now covers all 70 documentation topics (was 12)
 
 ### Docs
+
 - 12-layer supply chain protection table in [security docs](/advanced/security)
 - CODEOWNERS expanded for security-sensitive paths
 - Referrer-Policy header on documentation site
@@ -130,20 +140,24 @@ Security hardening, supply chain protection.
 Developer verification awareness, copy alignment.
 
 ### New Command
+
 - `gpc verify` — Android developer verification status, enforcement deadlines, and resources. Supports `--open` and `--json`.
 
 ### Developer Verification
+
 - `gpc doctor` warns about September 2026 verification enforcement deadline (BR, ID, SG, TH)
 - `gpc status` shows verification reminder footer in table output
 - `gpc preflight` shows post-scan reminder about app registration requirements
 - New [Developer Verification guide](/guide/developer-verification) — Google's 2026 rollout, timeline, requirements
 
 ### Docs
+
 - Consistent "free to use" copy across all public pages (README, docs index, FAQ, installation)
 - FAQ structured data schema corrected
 - New [`gpc verify` command reference](/commands/verify)
 
 ### Housekeeping
+
 - pnpm 9.15.9 → 10.33.0
 
 ---
@@ -153,19 +167,24 @@ Developer verification awareness, copy alignment.
 Onboarding polish, safety confirmations, pager for long lists.
 
 ### Safety
+
 - Confirmation prompts added to subscription cancel, revoke, and cancel-v2 — all destructive purchase commands now require `[y/N]` before executing (skip with `--yes`)
 
 ### Doctor
+
 - `gpc doctor --fix` expanded with 3 new handlers — version check suggests update, auth check guides to login, config-keys fix removes unrecognized keys
 
 ### Auth Setup
+
 - `gpc auth setup-gcp --key <path>` validates service account JSON, auto-authenticates, and saves to config
 - Auto-detects common key file paths when no `--key` flag provided
 
 ### Pager
+
 - `tracks list`, `releases status`, `subscriptions list`, and `audit list` now auto-pipe to `$PAGER` when output exceeds terminal height
 
 ### Fix
+
 - `--status draft` correctly reflected in dry-run preview output
 
 ---
@@ -175,6 +194,7 @@ Onboarding polish, safety confirmations, pager for long lists.
 API completeness, bug fixes, RTDN, rate limiter rewrite.
 
 ### Bug Fixes
+
 - **Bug AC**: `gpc changelog --version` renamed to `--tag` — Commander.js global `--version` flag was intercepting the subcommand option
 - **Bug AD**: `gpc releases upload app.apk` now uses the correct `edits.apks.upload` endpoint instead of sending APKs to the bundles endpoint
 - **Bug AD**: `gpc preflight app.apk` now supports APK files (reads manifest from root instead of `base/manifest/`)
@@ -183,11 +203,13 @@ API completeness, bug fixes, RTDN, rate limiter rewrite.
 - `gpc bundle analyze app.apk --output json` type field no longer null
 
 ### New Commands
+
 - `gpc rtdn status` — check Real-Time Developer Notification topic configuration
 - `gpc rtdn decode <payload>` — decode base64 Pub/Sub notification payloads
 - `gpc rtdn test` — guidance for testing RTDN setup
 
 ### New Features
+
 - **APK upload**: `gpc releases upload app.apk` auto-detects format and uses the correct API endpoint
 - **Draft releases**: `--status draft` flag on `gpc releases upload` and `gpc releases promote`
 - **Reviews `--all`**: auto-pagination fetches all pages instead of just the first 10
@@ -197,15 +219,18 @@ API completeness, bug fixes, RTDN, rate limiter rewrite.
 - **Concurrent edit warning**: warns when CLI operations may conflict with Play Console edits
 
 ### API Client
+
 - 10 new batch monetization endpoints: OTP batch-get/update/delete, subscription base-plan batch states, offer batch-get/update/update-states
 - `edits.apks.upload` and `edits.apks.list` wired
 - `?uploadType=media` added to simple uploads (spec compliance)
 
 ### Rate Limiter Rewrite
+
 - Replaced ad-hoc rate limiter (5 endpoints covered) with Google's actual 6-bucket model at 3,000 queries/min each
 - All API calls automatically rate-limited based on resource type (edits, purchases, reviews, reporting, monetization, default)
 
 ### Spec Alignment
+
 - `qa` added to standard track validation
 - `google_play_games_pc:` form factor tracks added
 - `VoidedPurchase` type: added `kind` and `voidedQuantity` fields
@@ -218,10 +243,12 @@ API completeness, bug fixes, RTDN, rate limiter rewrite.
 Deep code review, error handling overhaul, doctor enhancements, API catch-up.
 
 ### Error Handling
+
 - Removed 210 `process.exit()` calls across 39 command files — all errors now propagate to the global error handler for consistent formatting, JSON mode support, and plugin hook compatibility
 - Shared helpers (`resolvePackageName`, `readJsonFile`, `requireOption`) throw typed errors instead of exiting directly
 
 ### `gpc doctor` — 10 New Checks
+
 - GPC version check (npm registry)
 - HTTPS connectivity probe with latency
 - App access verification (tests edit create/delete on configured app)
@@ -234,17 +261,20 @@ Deep code review, error handling overhaul, doctor enhancements, API catch-up.
 - DNS latency measurement
 
 ### `gpc update` Fixes
+
 - GitHub 403 rate limit properly detected (checks `x-ratelimit-remaining` header)
 - `GITHUB_TOKEN` env var supported as fallback for CI
 - Binary download auth headers, stale file cleanup
 
 ### Auth & Onboarding
+
 - `auth login` verifies token works before confirming, supports `--json` output
 - `auth logout --profile <name>` clears specific profile
 - SA paths saved as absolute (no CWD-dependent resolution)
 - First-run banner suppressed on setup commands
 
 ### API Client — 7 New Endpoints (204 total)
+
 - `releases.list` — release lifecycle states (DRAFT, IN_REVIEW, PUBLISHED)
 - `tracks.patch` — partial track updates
 - `subscriptions.batchGet` / `batchUpdate` — batch operations
@@ -252,6 +282,7 @@ Deep code review, error handling overhaul, doctor enhancements, API catch-up.
 - `inappproducts.batchDelete` — batch IAP deletion
 
 ### Status Improvements
+
 - `--since-last` diff embedded in JSON output
 - Version diff uses production track
 - Watch loop SIGINT cleanup

@@ -8,7 +8,6 @@ import { getVitalsAnomalies, formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { yellow } from "../colors.js";
 
-
 async function getReportingClient(config: GpcConfig) {
   const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
   return createReportingClient({ auth });
@@ -32,10 +31,19 @@ export function registerAnomaliesCommands(program: Command): void {
       } catch (err) {
         if (err instanceof PlayApiError && err.statusCode === 403) {
           if (format === "json") {
-            console.log(formatOutput({ anomalies: [], message: "Reporting API not enabled or insufficient permissions" }, format));
+            console.log(
+              formatOutput(
+                { anomalies: [], message: "Reporting API not enabled or insufficient permissions" },
+                format,
+              ),
+            );
           } else {
-            console.log(`${yellow("⚠")} No anomaly data available. The Reporting API may not be enabled for this project.`);
-            console.log(`  Enable it at: https://console.cloud.google.com/apis/library/playdeveloperreporting.googleapis.com`);
+            console.log(
+              `${yellow("⚠")} No anomaly data available. The Reporting API may not be enabled for this project.`,
+            );
+            console.log(
+              `  Enable it at: https://console.cloud.google.com/apis/library/playdeveloperreporting.googleapis.com`,
+            );
           }
           return;
         }

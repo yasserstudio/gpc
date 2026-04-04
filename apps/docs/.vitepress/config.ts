@@ -157,8 +157,7 @@ function getPageDescription(page: PageData): string {
     "commands/quota.md":
       "gpc quota — View Google Play API quota usage tracked from local audit log.",
     // Commands — team
-    "commands/apps.md":
-      "gpc apps — List accessible apps from your Google Play developer account.",
+    "commands/apps.md": "gpc apps — List accessible apps from your Google Play developer account.",
     "commands/auth.md":
       "gpc auth — Authenticate with service accounts, OAuth, or ADC. Manage profiles and tokens.",
     "commands/config.md":
@@ -247,7 +246,11 @@ export default defineConfig({
   head: [
     // Google Analytics 4
     ["script", { async: "", src: "https://www.googletagmanager.com/gtag/js?id=G-LS7V08EJHQ" }],
-    ["script", {}, "window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-LS7V08EJHQ')"],
+    [
+      "script",
+      {},
+      "window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-LS7V08EJHQ')",
+    ],
 
     // Referrer-Policy is the only security header effective as a meta tag on GitHub Pages
     ["meta", { name: "referrer", content: "strict-origin-when-cross-origin" }],
@@ -300,9 +303,7 @@ export default defineConfig({
     const title = pageData.title
       ? `${pageData.title} | GPC — Google Play Console CLI`
       : "GPC — Google Play Console CLI";
-    const canonicalPath = pageData.relativePath
-      .replace(/index\.md$/, "")
-      .replace(/\.md$/, "");
+    const canonicalPath = pageData.relativePath.replace(/index\.md$/, "").replace(/\.md$/, "");
     const canonicalUrl = `https://yasserstudio.github.io/gpc/${canonicalPath}`;
 
     // Override VitePress default description with per-page description
@@ -316,11 +317,17 @@ export default defineConfig({
       ["meta", { property: "og:title", content: title }],
       ["meta", { property: "og:description", content: desc }],
       ["meta", { property: "og:url", content: canonicalUrl }],
-      ["meta", { property: "og:image", content: "https://yasserstudio.github.io/gpc/og-image.png" }],
+      [
+        "meta",
+        { property: "og:image", content: "https://yasserstudio.github.io/gpc/og-image.png" },
+      ],
       // Twitter (dynamic per page)
       ["meta", { name: "twitter:title", content: title }],
       ["meta", { name: "twitter:description", content: desc }],
-      ["meta", { name: "twitter:image", content: "https://yasserstudio.github.io/gpc/og-image.png" }],
+      [
+        "meta",
+        { name: "twitter:image", content: "https://yasserstudio.github.io/gpc/og-image.png" },
+      ],
     );
 
     // FAQPage schema on FAQ page
@@ -329,14 +336,53 @@ export default defineConfig({
         "@context": "https://schema.org",
         "@type": "FAQPage",
         mainEntity: [
-          { "@type": "Question", name: "How is GPC different from Fastlane supply?", acceptedAnswer: { "@type": "Answer", text: "GPC covers 215 Google Play API endpoints. Fastlane supply covers about 20. GPC adds reviews, vitals, subscriptions, reports, preflight scanning, and more. No Ruby required." } },
-          { "@type": "Question", name: "What authentication method should I use?", acceptedAnswer: { "@type": "Answer", text: "Use a service account for CI/CD pipelines. Use OAuth for local development. Application Default Credentials work in Google Cloud environments." } },
-          { "@type": "Question", name: "Can I use GPC in CI/CD?", acceptedAnswer: { "@type": "Answer", text: "Yes. GPC outputs JSON when piped, uses semantic exit codes (0-6), and supports env var configuration. Works with GitHub Actions, GitLab CI, Bitbucket, and CircleCI." } },
-          { "@type": "Question", name: "Is GPC free?", acceptedAnswer: { "@type": "Answer", text: "Yes. GPC is free to use. The code is on GitHub. No account or subscription required." } },
-          { "@type": "Question", name: "Is it stable enough for production CI/CD?", acceptedAnswer: { "@type": "Answer", text: "1,860 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching." } },
+          {
+            "@type": "Question",
+            name: "How is GPC different from Fastlane supply?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "GPC covers 215 Google Play API endpoints. Fastlane supply covers about 20. GPC adds reviews, vitals, subscriptions, reports, preflight scanning, and more. No Ruby required.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "What authentication method should I use?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Use a service account for CI/CD pipelines. Use OAuth for local development. Application Default Credentials work in Google Cloud environments.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Can I use GPC in CI/CD?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. GPC outputs JSON when piped, uses semantic exit codes (0-6), and supports env var configuration. Works with GitHub Actions, GitLab CI, Bitbucket, and CircleCI.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Is GPC free?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. GPC is free to use. The code is on GitHub. No account or subscription required.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Is it stable enough for production CI/CD?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "1,860 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
+            },
+          },
         ],
       };
-      pageData.frontmatter.head.push(["script", { type: "application/ld+json" }, JSON.stringify(faqSchema)]);
+      pageData.frontmatter.head.push([
+        "script",
+        { type: "application/ld+json" },
+        JSON.stringify(faqSchema),
+      ]);
     }
 
     // HowTo schema on tutorial pages
@@ -345,23 +391,41 @@ export default defineConfig({
         "@context": "https://schema.org",
         "@type": "HowTo",
         name: "Get started with GPC — Google Play Console CLI",
-        description: "Install GPC, authenticate, and run your first Google Play command in 5 minutes.",
+        description:
+          "Install GPC, authenticate, and run your first Google Play command in 5 minutes.",
         step: [
           { "@type": "HowToStep", name: "Install", text: "npm install -g @gpc-cli/cli" },
-          { "@type": "HowToStep", name: "Authenticate", text: "gpc auth login --service-account path/to/key.json" },
+          {
+            "@type": "HowToStep",
+            name: "Authenticate",
+            text: "gpc auth login --service-account path/to/key.json",
+          },
           { "@type": "HowToStep", name: "Verify", text: "gpc doctor" },
           { "@type": "HowToStep", name: "Check status", text: "gpc status" },
-          { "@type": "HowToStep", name: "Upload", text: "gpc releases upload app.aab --track internal" },
+          {
+            "@type": "HowToStep",
+            name: "Upload",
+            text: "gpc releases upload app.aab --track internal",
+          },
         ],
       };
-      pageData.frontmatter.head.push(["script", { type: "application/ld+json" }, JSON.stringify(howToSchema)]);
+      pageData.frontmatter.head.push([
+        "script",
+        { type: "application/ld+json" },
+        JSON.stringify(howToSchema),
+      ]);
     }
 
     // BreadcrumbList schema on all pages
     const parts = canonicalPath.split("/").filter(Boolean);
     if (parts.length > 0) {
       const breadcrumbs = [
-        { "@type": "ListItem", position: 1, name: "GPC", item: "https://yasserstudio.github.io/gpc/" },
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "GPC",
+          item: "https://yasserstudio.github.io/gpc/",
+        },
         ...parts.map((p, i) => ({
           "@type": "ListItem",
           position: i + 2,
@@ -372,7 +436,11 @@ export default defineConfig({
       pageData.frontmatter.head.push([
         "script",
         { type: "application/ld+json" },
-        JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: breadcrumbs }),
+        JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: breadcrumbs,
+        }),
       ]);
     }
   },
@@ -636,7 +704,8 @@ export default defineConfig({
     },
 
     footer: {
-      message: 'Made by <a href="https://yasser.studio" target="_blank"><img src="/gpc/yasser-studio-logo.svg" alt="Yasser\'s Studio" style="display:inline-block;max-height:21px;vertical-align:sub;margin:0 4px"></a> · Released under the MIT License.',
+      message:
+        'Made by <a href="https://yasser.studio" target="_blank"><img src="/gpc/yasser-studio-logo.svg" alt="Yasser\'s Studio" style="display:inline-block;max-height:21px;vertical-align:sub;margin:0 4px"></a> · Released under the MIT License.',
       copyright: "Not affiliated with Google LLC. Google Play is a trademark of Google LLC.",
     },
   },

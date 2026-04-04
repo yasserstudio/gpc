@@ -10,7 +10,6 @@ import type { ReleaseDiff } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { green, red, yellow, dim, bold } from "../colors.js";
 
-
 export function registerDiffCommand(program: Command): void {
   program
     .command("diff")
@@ -28,84 +27,84 @@ export function registerDiffCommand(program: Command): void {
 
       const sections: Record<string, unknown> = {};
 
-        // Always show release status across all tracks
-        const releases = await getReleasesStatus(client, packageName);
-        sections["releases"] = releases;
+      // Always show release status across all tracks
+      const releases = await getReleasesStatus(client, packageName);
+      sections["releases"] = releases;
 
-        // Track-to-track diff if specified
-        let trackDiff: { fromTrack: string; toTrack: string; diffs: ReleaseDiff[] } | undefined;
-        if (options.from && options.to) {
-          trackDiff = await diffReleases(client, packageName, options.from, options.to);
-          sections["trackDiff"] = trackDiff;
+      // Track-to-track diff if specified
+      let trackDiff: { fromTrack: string; toTrack: string; diffs: ReleaseDiff[] } | undefined;
+      if (options.from && options.to) {
+        trackDiff = await diffReleases(client, packageName, options.from, options.to);
+        sections["trackDiff"] = trackDiff;
+      }
+
+      // Metadata diff if specified
+      let metadataDiff: unknown;
+      if (options.metadata) {
+        metadataDiff = await diffListingsCommand(client, packageName, options.metadata);
+        sections["metadata"] = metadataDiff;
+      }
+
+      if (format === "json") {
+        console.log(formatOutput(sections, format));
+        return;
+      }
+
+      // Human-readable output
+      console.log(bold("GPC Diff — Current State"));
+      console.log("");
+
+      // Release status
+      console.log(bold("Releases"));
+      if (releases.length === 0) {
+        console.log(dim("  No releases found"));
+      } else {
+        for (const r of releases) {
+          const statusColor =
+            r.status === "completed" ? green : r.status === "inProgress" ? yellow : dim;
+          const fraction = r.userFraction
+            ? ` ${yellow(`${Math.round(r.userFraction * 100)}%`)}`
+            : "";
+          const versions = r.versionCodes.join(", ");
+          console.log(
+            `  ${r.track.padEnd(14)} ${statusColor(r.status.padEnd(12))} v${versions}${fraction}`,
+          );
         }
+      }
+      console.log("");
 
-        // Metadata diff if specified
-        let metadataDiff: unknown;
-        if (options.metadata) {
-          metadataDiff = await diffListingsCommand(client, packageName, options.metadata);
-          sections["metadata"] = metadataDiff;
-        }
-
-        if (format === "json") {
-          console.log(formatOutput(sections, format));
-          return;
-        }
-
-        // Human-readable output
-        console.log(bold("GPC Diff — Current State"));
-        console.log("");
-
-        // Release status
-        console.log(bold("Releases"));
-        if (releases.length === 0) {
-          console.log(dim("  No releases found"));
+      // Track diff
+      if (trackDiff) {
+        console.log(bold(`Track Diff: ${trackDiff.fromTrack} → ${trackDiff.toTrack}`));
+        if (trackDiff.diffs.length === 0) {
+          console.log(dim("  No differences"));
         } else {
-          for (const r of releases) {
-            const statusColor =
-              r.status === "completed" ? green : r.status === "inProgress" ? yellow : dim;
-            const fraction = r.userFraction
-              ? ` ${yellow(`${Math.round(r.userFraction * 100)}%`)}`
-              : "";
-            const versions = r.versionCodes.join(", ");
+          for (const d of trackDiff.diffs) {
             console.log(
-              `  ${r.track.padEnd(14)} ${statusColor(r.status.padEnd(12))} v${versions}${fraction}`,
+              `  ${d.field.padEnd(16)} ${red(d.track1Value || "(empty)")} → ${green(d.track2Value || "(empty)")}`,
             );
           }
         }
         console.log("");
+      }
 
-        // Track diff
-        if (trackDiff) {
-          console.log(bold(`Track Diff: ${trackDiff.fromTrack} → ${trackDiff.toTrack}`));
-          if (trackDiff.diffs.length === 0) {
-            console.log(dim("  No differences"));
-          } else {
-            for (const d of trackDiff.diffs) {
-              console.log(
-                `  ${d.field.padEnd(16)} ${red(d.track1Value || "(empty)")} → ${green(d.track2Value || "(empty)")}`,
-              );
-            }
+      // Metadata diff
+      if (metadataDiff && Array.isArray(metadataDiff)) {
+        console.log(bold("Metadata Diff (local vs remote)"));
+        if (metadataDiff.length === 0) {
+          console.log(dim("  No differences — local matches remote"));
+        } else {
+          for (const d of metadataDiff as Array<{
+            language: string;
+            field: string;
+            status: string;
+          }>) {
+            const icon =
+              d.status === "added" ? green("+") : d.status === "removed" ? red("-") : yellow("~");
+            console.log(`  ${icon} ${d.language}/${d.field}: ${d.status}`);
           }
-          console.log("");
         }
-
-        // Metadata diff
-        if (metadataDiff && Array.isArray(metadataDiff)) {
-          console.log(bold("Metadata Diff (local vs remote)"));
-          if (metadataDiff.length === 0) {
-            console.log(dim("  No differences — local matches remote"));
-          } else {
-            for (const d of metadataDiff as Array<{
-              language: string;
-              field: string;
-              status: string;
-            }>) {
-              const icon =
-                d.status === "added" ? green("+") : d.status === "removed" ? red("-") : yellow("~");
-              console.log(`  ${icon} ${d.language}/${d.field}: ${d.status}`);
-            }
-          }
-          console.log("");
-        }
+        console.log("");
+      }
     });
 }

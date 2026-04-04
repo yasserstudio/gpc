@@ -54,14 +54,14 @@ Map common Google Play Console browser tasks to GPC CLI commands. Every operatio
 
 ### Reviews
 
-| Play Console UI    | GPC Command                                                   | Notes              |
-| ------------------ | ------------------------------------------------------------- | ------------------ |
-| View reviews       | `gpc reviews list`                                            | All recent reviews |
-| Filter by rating   | `gpc reviews list --stars 1-2`                                | Low ratings only   |
-| Filter by date     | `gpc reviews list --since 7d`                                 | Last 7 days        |
-| View single review | `gpc reviews get <review-id>`                                 | Full details       |
-| Reply to review    | `gpc reviews reply <review-id> --text "Thank you"` | 350 char limit, validated |
-| Export reviews     | `gpc reviews export --format csv --output reviews.csv`        | CSV or JSON        |
+| Play Console UI    | GPC Command                                            | Notes                     |
+| ------------------ | ------------------------------------------------------ | ------------------------- |
+| View reviews       | `gpc reviews list`                                     | All recent reviews        |
+| Filter by rating   | `gpc reviews list --stars 1-2`                         | Low ratings only          |
+| Filter by date     | `gpc reviews list --since 7d`                          | Last 7 days               |
+| View single review | `gpc reviews get <review-id>`                          | Full details              |
+| Reply to review    | `gpc reviews reply <review-id> --text "Thank you"`     | 350 char limit, validated |
+| Export reviews     | `gpc reviews export --format csv --output reviews.csv` | CSV or JSON               |
 
 ### App Vitals
 

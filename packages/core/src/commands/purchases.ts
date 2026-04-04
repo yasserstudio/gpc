@@ -160,10 +160,20 @@ export async function batchGetOrders(
 ): Promise<Order[]> {
   validatePackageName(packageName);
   if (orderIds.length === 0) {
-    throw new GpcError("No order IDs provided", "ORDERS_BATCH_EMPTY", 2, "Pass at least one order ID with --ids");
+    throw new GpcError(
+      "No order IDs provided",
+      "ORDERS_BATCH_EMPTY",
+      2,
+      "Pass at least one order ID with --ids",
+    );
   }
   if (orderIds.length > 1000) {
-    throw new GpcError(`Too many order IDs (${orderIds.length}). Maximum is 1000.`, "ORDERS_BATCH_LIMIT", 2, "Split into multiple requests of 1000 or fewer");
+    throw new GpcError(
+      `Too many order IDs (${orderIds.length}). Maximum is 1000.`,
+      "ORDERS_BATCH_LIMIT",
+      2,
+      "Split into multiple requests of 1000 or fewer",
+    );
   }
   return client.orders.batchGet(packageName, orderIds);
 }

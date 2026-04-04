@@ -5,8 +5,6 @@ import { loadConfig } from "@gpc-cli/config";
 import { listGeneratedApks, downloadGeneratedApk, formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 
-
-
 export function registerGeneratedApksCommands(program: Command): void {
   const cmd = program
     .command("generated-apks")

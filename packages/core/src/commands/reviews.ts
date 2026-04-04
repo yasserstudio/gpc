@@ -28,16 +28,20 @@ export async function listReviews(
 
   if (options?.all) {
     // Auto-paginate all pages
-    const { items } = await paginateAll<Review>(async (pageToken) => {
-      const apiOptions: ReviewsListOptions = { token: pageToken };
-      if (options?.translationLanguage) apiOptions.translationLanguage = options.translationLanguage;
-      if (options?.maxResults) apiOptions.maxResults = options.maxResults;
-      const response = await client.reviews.list(packageName, apiOptions);
-      return {
-        items: response.reviews || [],
-        nextPageToken: response.tokenPagination?.nextPageToken,
-      };
-    }, { limit: options?.limit });
+    const { items } = await paginateAll<Review>(
+      async (pageToken) => {
+        const apiOptions: ReviewsListOptions = { token: pageToken };
+        if (options?.translationLanguage)
+          apiOptions.translationLanguage = options.translationLanguage;
+        if (options?.maxResults) apiOptions.maxResults = options.maxResults;
+        const response = await client.reviews.list(packageName, apiOptions);
+        return {
+          items: response.reviews || [],
+          nextPageToken: response.tokenPagination?.nextPageToken,
+        };
+      },
+      { limit: options?.limit },
+    );
     reviews = items;
   } else {
     // Single page (default)

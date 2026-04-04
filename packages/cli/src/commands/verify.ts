@@ -13,8 +13,7 @@ const ENFORCEMENT_REGION_CODES = ["BR", "ID", "SG", "TH"];
 
 const RESOURCES = {
   overview: "https://developer.android.com/developer-verification",
-  playConsole:
-    "https://developer.android.com/developer-verification/guides/google-play-console",
+  playConsole: "https://developer.android.com/developer-verification/guides/google-play-console",
   androidConsole:
     "https://developer.android.com/developer-verification/guides/android-developer-console",
   limitedDistribution:
@@ -38,13 +37,8 @@ function formatDeadline(): string {
 async function openUrl(url: string): Promise<void> {
   const { execFile } = await import("node:child_process");
   const cmd =
-    process.platform === "darwin"
-      ? "open"
-      : process.platform === "win32"
-        ? "cmd"
-        : "xdg-open";
-  const args =
-    process.platform === "win32" ? ["/c", "start", "", url] : [url];
+    process.platform === "darwin" ? "open" : process.platform === "win32" ? "cmd" : "xdg-open";
+  const args = process.platform === "win32" ? ["/c", "start", "", url] : [url];
   execFile(cmd, args);
 }
 
@@ -106,17 +100,13 @@ export function registerVerifyCommand(program: Command): void {
         `  Status:   ${isBeforeEnforcement() ? yellow(formatDeadline()) : green(formatDeadline())}`,
       );
       console.log(`  Account:  ${accountEmail}`);
-      console.log(
-        `  Console:  Play Console (auto-registered for Play apps)`,
-      );
+      console.log(`  Console:  Play Console (auto-registered for Play apps)`);
       console.log("");
       console.log("  What you need to do:");
       console.log(
         `  1. Confirm identity verification in Play Console ${dim("→ Settings → Developer Account")}`,
       );
-      console.log(
-        `  2. Check auto-registration results above your app list`,
-      );
+      console.log(`  2. Check auto-registration results above your app list`);
       console.log(`  3. Register any non-Play apps within Play Console`);
       console.log("");
       console.log("  Resources:");
@@ -124,12 +114,8 @@ export function registerVerifyCommand(program: Command): void {
       console.log(`  ${dim("→")} ${RESOURCES.playConsole}`);
       console.log(`  ${dim("→")} ${RESOURCES.limitedDistribution}`);
       console.log("");
-      console.log(
-        dim("  Run 'gpc verify --open' to open the verification page in your browser."),
-      );
-      console.log(
-        dim("  Full guide: gpc docs developer-verification"),
-      );
+      console.log(dim("  Run 'gpc verify --open' to open the verification page in your browser."));
+      console.log(dim("  Full guide: gpc docs developer-verification"));
       console.log("");
     });
 }

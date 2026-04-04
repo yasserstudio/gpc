@@ -69,7 +69,8 @@ export async function runPreflight(options: PreflightOptions): Promise<Preflight
         severity: "warning",
         title: "Manifest could not be fully parsed",
         message: aab.manifest._parseError,
-        suggestion: "Manifest-dependent scanners (manifest, permissions, policy, privacy) were skipped. Other scanners (native-libs, size, secrets, billing) still ran.",
+        suggestion:
+          "Manifest-dependent scanners (manifest, permissions, policy, privacy) were skipped. Other scanners (native-libs, size, secrets, billing) still ran.",
       });
       ctx.manifest = undefined;
     }

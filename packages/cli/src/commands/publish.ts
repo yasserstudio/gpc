@@ -24,7 +24,6 @@ const PASS = "\u2713";
 const FAIL = "\u2717";
 const WARN = "\u26A0";
 
-
 // ---------------------------------------------------------------------------
 // Output formatters
 // ---------------------------------------------------------------------------
@@ -113,8 +112,14 @@ export function registerPublishCommand(program: Command): void {
     .option("--retry-log <path>", "Write retry log entries to file (JSONL)")
     .option("--mapping-type <type>", "Deobfuscation file type: proguard or nativeCode", "proguard")
     .option("--device-tier-config <id>", "Device tier config ID (or LATEST)")
-    .option("--changes-not-sent-for-review", "Commit changes without sending for review (required for rejected apps)")
-    .option("--error-if-in-review", "Fail if changes are already in review instead of cancelling them")
+    .option(
+      "--changes-not-sent-for-review",
+      "Commit changes without sending for review (required for rejected apps)",
+    )
+    .option(
+      "--error-if-in-review",
+      "Fail if changes are already in review instead of cancelling them",
+    )
     .action(async (file: string, options) => {
       try {
         await stat(file);
@@ -177,12 +182,16 @@ export function registerPublishCommand(program: Command): void {
         }
       }
 
-      if (options.mappingType && options.mappingType !== "proguard" && options.mappingType !== "nativeCode") {
+      if (
+        options.mappingType &&
+        options.mappingType !== "proguard" &&
+        options.mappingType !== "nativeCode"
+      ) {
         throw new GpcError(
           `--mapping-type must be "proguard" or "nativeCode" (got: "${options.mappingType}")`,
           "PUBLISH_USAGE_ERROR",
           2,
-          'Use --mapping-type proguard (default) for ProGuard/R8 maps, or --mapping-type nativeCode for native debug symbols.',
+          "Use --mapping-type proguard (default) for ProGuard/R8 maps, or --mapping-type nativeCode for native debug symbols.",
         );
       }
 

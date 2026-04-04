@@ -26,7 +26,9 @@ function toAbsolutePath(pathStr: string): string {
 }
 
 /** Verify that the saved credentials can acquire a token. */
-async function verifyToken(serviceAccountPath?: string): Promise<{ email: string; ok: boolean; error?: string }> {
+async function verifyToken(
+  serviceAccountPath?: string,
+): Promise<{ email: string; ok: boolean; error?: string }> {
   try {
     const client = await resolveAuth({ serviceAccountPath });
     const email = client.getClientEmail();
@@ -48,7 +50,9 @@ async function runLoginWizard(program: Command): Promise<void> {
 
   try {
     console.log("\nGPC Authentication Setup");
-    console.log("\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500");
+    console.log(
+      "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500",
+    );
 
     // Step 1: auth method
     console.log("\nAuthentication methods:");
@@ -352,7 +356,9 @@ export function registerAuthCommands(program: Command): void {
         console.log("\nStep 3: Grant roles");
         console.log("  No GCP roles needed \u2014 permissions are managed in Google Play Console.");
         console.log("\nStep 4: Download the JSON key");
-        console.log("  \u2022 Click your new service account \u2192 Keys \u2192 Add Key \u2192 Create new key \u2192 JSON");
+        console.log(
+          "  \u2022 Click your new service account \u2192 Keys \u2192 Add Key \u2192 Create new key \u2192 JSON",
+        );
         console.log("  \u2022 Save as: ~/gpc-service-account.json");
         console.log("\nStep 5: Add to Google Play Console");
         console.log("  https://play.google.com/console/developers");
@@ -416,7 +422,9 @@ export function registerAuthCommands(program: Command): void {
         await setConfigValue("auth.serviceAccount", absPath);
         console.log(`\u2713 Authenticated and saved to config`);
       } catch (err) {
-        console.error(`\u2717 Authentication failed: ${err instanceof Error ? err.message : String(err)}`);
+        console.error(
+          `\u2717 Authentication failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
         console.log(`\nTry manually: gpc auth login --service-account ${absPath}`);
         return;
       }

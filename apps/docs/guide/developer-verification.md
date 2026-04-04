@@ -32,12 +32,14 @@ The following requirements apply to developers who distribute **only outside Goo
 ### Identity verification requirements
 
 **For individuals:**
+
 - Legal name and address
 - Government-issued photo ID (passport, state ID, driving license, permanent resident card)
 - Proof of address document (utility bill, insurance statement, bank statement)
 - Contact email and phone number (verified with OTP)
 
 **For organizations — all of the above, plus:**
+
 - D-U-N-S number (free to obtain from Dun & Bradstreet)
 - Organization website verified via Google Search Console
 - Official organization documents (certificate of incorporation, IRS documents, SEC filings, or business credit reports)
@@ -54,20 +56,20 @@ Registered package names are linked to your verified developer identity. If mult
 
 ### Find your path
 
-| If you distribute apps... | Next steps |
-|---------------------------|------------|
-| **Only on Google Play** | Use your existing [Play Console account](https://developer.android.com/developer-verification/guides/google-play-console). No new identity verification needed — your existing Play verification is sufficient. |
-| **Both on and off Google Play** | Use your existing [Play Console account](https://developer.android.com/developer-verification/guides/google-play-console). You'll be able to register non-Play apps and keys there too. |
-| **Only outside of Google Play** | Create an account in the [Android Developer Console](https://developer.android.com/developer-verification/guides/android-developer-console). |
+| If you distribute apps...       | Next steps                                                                                                                                                                                                      |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Only on Google Play**         | Use your existing [Play Console account](https://developer.android.com/developer-verification/guides/google-play-console). No new identity verification needed — your existing Play verification is sufficient. |
+| **Both on and off Google Play** | Use your existing [Play Console account](https://developer.android.com/developer-verification/guides/google-play-console). You'll be able to register non-Play apps and keys there too.                         |
+| **Only outside of Google Play** | Create an account in the [Android Developer Console](https://developer.android.com/developer-verification/guides/android-developer-console).                                                                    |
 
 ### Distribution options
 
-| | Full distribution | Limited distribution | Sideloading (unregistered) |
-|---|---|---|---|
-| **Best for** | Organizations and professional developers | Students, hobbyists, personal use | Developers who are not verified |
-| **Identity verification** | Required | Not required | Not required |
-| **Distribution** | Any app store or channel | Up to 20 devices | Any channel (outside verified app stores) |
-| **User experience** | No change from today | Accept invitation from a developer you know | Advanced flow with extra safeguards |
+|                           | Full distribution                         | Limited distribution                        | Sideloading (unregistered)                |
+| ------------------------- | ----------------------------------------- | ------------------------------------------- | ----------------------------------------- |
+| **Best for**              | Organizations and professional developers | Students, hobbyists, personal use           | Developers who are not verified           |
+| **Identity verification** | Required                                  | Not required                                | Not required                              |
+| **Distribution**          | Any app store or channel                  | Up to 20 devices                            | Any channel (outside verified app stores) |
+| **User experience**       | No change from today                      | Accept invitation from a developer you know | Advanced flow with extra safeguards       |
 
 ### Limited distribution accounts
 
@@ -92,15 +94,15 @@ This is designed to break the cycle of scam-driven coercion while preserving cho
 
 ## Timeline
 
-| Date | Milestone |
-|------|-----------|
-| **August 2025** | New requirements [announced](https://android-developers.googleblog.com/2025/08/elevating-android-security.html) |
-| **November 2025** | Early access began |
-| **March 2026** | Registration opens to all developers |
-| **June 2026** | Limited distribution accounts early access |
-| **August 2026** | Limited distribution and advanced flow launch globally |
-| **September 2026** | Enforcement begins in Brazil, Indonesia, Singapore, Thailand |
-| **2027+** | Global enforcement rollout |
+| Date               | Milestone                                                                                                       |
+| ------------------ | --------------------------------------------------------------------------------------------------------------- |
+| **August 2025**    | New requirements [announced](https://android-developers.googleblog.com/2025/08/elevating-android-security.html) |
+| **November 2025**  | Early access began                                                                                              |
+| **March 2026**     | Registration opens to all developers                                                                            |
+| **June 2026**      | Limited distribution accounts early access                                                                      |
+| **August 2026**    | Limited distribution and advanced flow launch globally                                                          |
+| **September 2026** | Enforcement begins in Brazil, Indonesia, Singapore, Thailand                                                    |
+| **2027+**          | Global enforcement rollout                                                                                      |
 
 ## Key concepts
 

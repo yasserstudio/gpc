@@ -11,11 +11,12 @@ head:
 Google deprecated several subscription-related APIs on **May 21, 2025**, with shutdown on **August 31, 2027** (extension available to November 1, 2027). This page documents which GPC commands are affected and what to use instead.
 
 ::: warning Timeline
+
 - **May 21, 2025** — Deprecation begins
 - **November 1, 2025** — New client libraries no longer include deprecated APIs
 - **August 31, 2027** — Shutdown (APIs stop working)
 - **November 1, 2027** — Extension deadline (if requested)
-:::
+  :::
 
 ## Deprecated APIs
 
@@ -23,8 +24,8 @@ Google deprecated several subscription-related APIs on **May 21, 2025**, with sh
 
 **Status:** Deprecated — use `subscriptionsv2.get` instead.
 
-| Before | After |
-|--------|-------|
+| Before                                                     | After                                    |
+| ---------------------------------------------------------- | ---------------------------------------- |
 | `gpc purchases subscription get <subscription-id> <token>` | `gpc purchases subscription get <token>` |
 
 GPC's `getSubscriptionV2` (used by `gpc purchases subscription get`) already uses the v2 endpoint. The v1 `getSubscriptionV1` method emits a deprecation warning.
@@ -33,10 +34,10 @@ GPC's `getSubscriptionV2` (used by `gpc purchases subscription get`) already use
 
 **Status:** Deprecated — use `subscriptionsv2.get` + `Orders.refund` instead.
 
-| Before | After |
-|--------|-------|
+| Before                            | After                                                                         |
+| --------------------------------- | ----------------------------------------------------------------------------- |
 | Refund via `subscriptions.refund` | 1. `gpc purchases subscription get <token>` to find `latestSuccessfulOrderId` |
-| | 2. `gpc purchases orders refund <order-id>` to refund the order |
+|                                   | 2. `gpc purchases orders refund <order-id>` to refund the order               |
 
 Google's recommended flow is to look up the subscription via v2, extract the order ID from `lineItems[].latestSuccessfulOrderId`, then refund via the Orders API.
 
@@ -64,11 +65,11 @@ GPC's `SubscriptionPurchaseV2` type already includes `latestSuccessfulOrderId` o
 
 The following v1 subscription management APIs are **not deprecated** and continue to work:
 
-| API | GPC Command | Status |
-|-----|-------------|--------|
+| API                                   | GPC Command                              | Status |
+| ------------------------------------- | ---------------------------------------- | ------ |
 | `purchases.subscriptions:acknowledge` | `gpc purchases subscription acknowledge` | Active |
-| `purchases.subscriptions:cancel` | `gpc purchases subscription cancel` | Active |
-| `purchases.subscriptions:defer` | `gpc purchases subscription defer` | Active |
+| `purchases.subscriptions:cancel`      | `gpc purchases subscription cancel`      | Active |
+| `purchases.subscriptions:defer`       | `gpc purchases subscription defer`       | Active |
 
 These remain on the `purchases.subscriptions` endpoint. Google has not announced deprecation dates for these methods.
 
@@ -76,38 +77,38 @@ These remain on the `purchases.subscriptions` endpoint. Google has not announced
 
 Key field changes between `SubscriptionPurchase` (v1) and `SubscriptionPurchaseV2` (v2):
 
-| V1 Field | V2 Field |
-|----------|----------|
-| `countryCode` | `regionCode` |
-| `orderId` | `lineItems[].latestSuccessfulOrderId` |
-| `startTimeMillis` | `startTime` |
-| `expiryTimeMillis` | `lineItems[].expiryTime` |
-| `autoRenewing` | `lineItems[].autoRenewingPlan.autoRenewEnabled` |
-| `priceCurrencyCode` / `priceAmountMicros` | `lineItems[].autoRenewingPlan.recurringPrice` |
-| `introductoryPriceInfo` | `lineItems[].offerPhase.introductoryPrice` |
-| `paymentState` | Inferred from `subscriptionState` |
-| `cancelReason` / `userCancellationTimeMillis` | `canceledStateContext` |
-| `autoResumeTimeMillis` | `pausedStateContext.autoResumeTime` |
-| `profileName` / `emailAddress` / etc. | `subscribeWithGoogleInfo` |
-| `promotionType` / `promotionCode` | `signupPromotion` |
-| `externalAccountId` / `obfuscatedExternalAccountId` | `externalAccountIdentifiers` |
-| `purchaseType` (test) | `testPurchase` |
-| `purchaseType` (promo) | `signupPromotion` |
-| `developerPayload` | No replacement (deprecated) |
+| V1 Field                                            | V2 Field                                        |
+| --------------------------------------------------- | ----------------------------------------------- |
+| `countryCode`                                       | `regionCode`                                    |
+| `orderId`                                           | `lineItems[].latestSuccessfulOrderId`           |
+| `startTimeMillis`                                   | `startTime`                                     |
+| `expiryTimeMillis`                                  | `lineItems[].expiryTime`                        |
+| `autoRenewing`                                      | `lineItems[].autoRenewingPlan.autoRenewEnabled` |
+| `priceCurrencyCode` / `priceAmountMicros`           | `lineItems[].autoRenewingPlan.recurringPrice`   |
+| `introductoryPriceInfo`                             | `lineItems[].offerPhase.introductoryPrice`      |
+| `paymentState`                                      | Inferred from `subscriptionState`               |
+| `cancelReason` / `userCancellationTimeMillis`       | `canceledStateContext`                          |
+| `autoResumeTimeMillis`                              | `pausedStateContext.autoResumeTime`             |
+| `profileName` / `emailAddress` / etc.               | `subscribeWithGoogleInfo`                       |
+| `promotionType` / `promotionCode`                   | `signupPromotion`                               |
+| `externalAccountId` / `obfuscatedExternalAccountId` | `externalAccountIdentifiers`                    |
+| `purchaseType` (test)                               | `testPurchase`                                  |
+| `purchaseType` (promo)                              | `signupPromotion`                               |
+| `developerPayload`                                  | No replacement (deprecated)                     |
 
 ### New V2-only fields (no v1 equivalent)
 
-| Field | Description |
-|-------|-------------|
-| `subscriptionState` | Current subscription state enum |
-| `lineItems` | List of products acquired in the purchase |
-| `lineItems[].offerPhase` | Current phase: free trial, intro price, proration, base price |
-| `lineItems[].offerDetails.basePlanId` | Base plan identifier |
-| `lineItems[].offerDetails.offerId` | Offer identifier |
-| `lineItems[].offerDetails.offerTags` | Tags attached to the offer |
-| `pausedStateContext` | Present when `SUBSCRIPTION_STATE_PAUSED` |
-| `canceledStateContext` | Present when `SUBSCRIPTION_STATE_CANCELED` |
-| `testPurchase` | Present for licensed tester purchases |
+| Field                                 | Description                                                   |
+| ------------------------------------- | ------------------------------------------------------------- |
+| `subscriptionState`                   | Current subscription state enum                               |
+| `lineItems`                           | List of products acquired in the purchase                     |
+| `lineItems[].offerPhase`              | Current phase: free trial, intro price, proration, base price |
+| `lineItems[].offerDetails.basePlanId` | Base plan identifier                                          |
+| `lineItems[].offerDetails.offerId`    | Offer identifier                                              |
+| `lineItems[].offerDetails.offerTags`  | Tags attached to the offer                                    |
+| `pausedStateContext`                  | Present when `SUBSCRIPTION_STATE_PAUSED`                      |
+| `canceledStateContext`                | Present when `SUBSCRIPTION_STATE_CANCELED`                    |
+| `testPurchase`                        | Present for licensed tester purchases                         |
 
 ## What GPC Users Should Do
 

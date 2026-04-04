@@ -18,7 +18,6 @@ import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
 
-
 async function getClients(config: GpcConfig) {
   const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
   return {

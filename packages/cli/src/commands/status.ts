@@ -61,10 +61,7 @@ export function parseSections(raw: string): string[] {
   const sections = raw.split(",").map((s) => s.trim().toLowerCase());
   for (const s of sections) {
     if (!VALID_SECTIONS.has(s)) {
-      usageError(
-        `Unknown section "${s}"`,
-        "Valid sections: releases, vitals, reviews",
-      );
+      usageError(`Unknown section "${s}"`, "Valid sections: releases, vitals, reviews");
     }
   }
   return sections;
@@ -77,10 +74,7 @@ export function parseThresholdOverrides(raw: string): Record<string, number> {
     if (!key || !val) continue;
     const mapped = THRESHOLD_KEYS[key.toLowerCase()];
     if (!mapped) {
-      usageError(
-        `Unknown threshold "${key}"`,
-        "Valid: crashes, anr, slow-starts, slow-render",
-      );
+      usageError(`Unknown threshold "${key}"`, "Valid: crashes, anr, slow-starts, slow-render");
     }
     const n = parseFloat(val);
     if (isNaN(n) || n < 0) {
@@ -120,11 +114,7 @@ function resolveVitalThresholds(config: ResolvedConfig) {
   };
 }
 
-function resolvePackages(
-  program: Command,
-  config: ResolvedConfig,
-  allApps?: boolean,
-): string[] {
+function resolvePackages(program: Command, config: ResolvedConfig, allApps?: boolean): string[] {
   const rootApp = (program.opts()["app"] || config.app) as string | undefined;
   if (!allApps) return rootApp ? [rootApp] : [];
 
@@ -244,10 +234,7 @@ export function registerStatusCommand(program: Command): void {
         notify?: boolean;
       }) => {
         if (!VALID_FORMATS.has(opts.format)) {
-          usageError(
-            `Unknown format "${opts.format}"`,
-            "Valid: table, summary",
-          );
+          usageError(`Unknown format "${opts.format}"`, "Valid: table, summary");
         }
 
         const sections = parseSections(opts.sections);
@@ -271,10 +258,7 @@ export function registerStatusCommand(program: Command): void {
         const packages = resolvePackages(program, config, opts.allApps);
 
         if (packages.length === 0) {
-          usageError(
-            "No package name",
-            "Use --app <package> or gpc config set app <package>",
-          );
+          usageError("No package name", "Use --app <package> or gpc config set app <package>");
         }
         if (opts.allApps && packages.length > MAX_ALL_APPS) {
           usageError(
@@ -407,14 +391,11 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
   if (opts.cached) {
     const cached = await loadStatusCache(packageName, opts.ttl);
     if (!cached) {
-      throw Object.assign(
-        new Error("No cached status found"),
-        {
-          code: "STATUS_NO_CACHE",
-          exitCode: 2,
-          suggestion: "Run without --cached to fetch live data",
-        },
-      );
+      throw Object.assign(new Error("No cached status found"), {
+        code: "STATUS_NO_CACHE",
+        exitCode: 2,
+        suggestion: "Run without --cached to fetch live data",
+      });
     }
     const display = applyDisplaySections(cached, sections);
     printWithDiff(display, prevStatus, opts.sinceLast, render, ctx.format);
@@ -483,9 +464,7 @@ function printWithDiff(
   // Verification deadline awareness (auto-expires Sep 2026)
   if (Date.now() < new Date("2026-09-01").getTime()) {
     console.log("");
-    console.log(
-      dim("Verification: enforcement begins Sep 2026 (BR, ID, SG, TH) · gpc verify"),
-    );
+    console.log(dim("Verification: enforcement begins Sep 2026 (BR, ID, SG, TH) · gpc verify"));
   }
 }
 

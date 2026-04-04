@@ -19,8 +19,6 @@ import { isInteractive, requireOption } from "../prompt.js";
 
 const MAX_REPLY_CHARS = 350;
 
-
-
 export function registerReviewsCommands(program: Command): void {
   const reviews = program.command("reviews").description("Manage user reviews and ratings");
 
@@ -61,18 +59,14 @@ export function registerReviewsCommands(program: Command): void {
         const rows = sorted.map((r: unknown) => {
           const rv = r as Record<string, unknown>;
           const comments = rv["comments"] as Record<string, unknown>[] | undefined;
-          const userComment = comments?.[0]?.["userComment"] as
-            | Record<string, unknown>
-            | undefined;
+          const userComment = comments?.[0]?.["userComment"] as Record<string, unknown> | undefined;
           return {
             reviewId: rv["reviewId"] || "-",
             author: rv["authorName"] || "-",
             stars: userComment?.["starRating"] || "-",
             text: String(userComment?.["text"] || "-").slice(0, 80),
             lastModified: userComment?.["lastModified"]
-              ? String(
-                  (userComment["lastModified"] as Record<string, unknown>)?.["seconds"] || "-",
-                )
+              ? String((userComment["lastModified"] as Record<string, unknown>)?.["seconds"] || "-")
               : "-",
             thumbsUp: userComment?.["thumbsUpCount"] || 0,
           };

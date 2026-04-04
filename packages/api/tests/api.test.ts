@@ -1147,7 +1147,9 @@ describe("monetization API endpoints", () => {
     });
 
     it("batchGet calls POST /{pkg}/orders:batchGet", async () => {
-      mockFetch.mockResolvedValueOnce(mockResponse({ orders: [{ orderId: "GPA.1" }, { orderId: "GPA.2" }] }));
+      mockFetch.mockResolvedValueOnce(
+        mockResponse({ orders: [{ orderId: "GPA.1" }, { orderId: "GPA.2" }] }),
+      );
       const client = makeClient();
       const orders = await client.orders.batchGet(PKG, ["GPA.1", "GPA.2"]);
       const [url, init] = mockFetch.mock.calls[0];
@@ -1167,7 +1169,9 @@ describe("monetization API endpoints", () => {
 
   describe("purchases v2 endpoints", () => {
     it("getProductV2 calls GET /{pkg}/purchases/productsv2/tokens/{token}", async () => {
-      mockFetch.mockResolvedValueOnce(mockResponse({ orderId: "O1", purchaseStateContext: { state: "PURCHASED" } }));
+      mockFetch.mockResolvedValueOnce(
+        mockResponse({ orderId: "O1", purchaseStateContext: { state: "PURCHASED" } }),
+      );
       const client = makeClient();
       const result = await client.purchases.getProductV2(PKG, "tok123");
       const [url, init] = mockFetch.mock.calls[0];
@@ -1179,7 +1183,9 @@ describe("monetization API endpoints", () => {
     it("cancelSubscriptionV2 calls POST /{pkg}/purchases/subscriptionsv2/tokens/{token}:cancel", async () => {
       mockFetch.mockResolvedValueOnce(mockResponse({}));
       const client = makeClient();
-      await client.purchases.cancelSubscriptionV2(PKG, "tok123", { cancellationType: "DEVELOPER_CANCELED" });
+      await client.purchases.cancelSubscriptionV2(PKG, "tok123", {
+        cancellationType: "DEVELOPER_CANCELED",
+      });
       const [url, init] = mockFetch.mock.calls[0];
       expect(url).toBe(`${BASE_URL}/${PKG}/purchases/subscriptionsv2/tokens/tok123:cancel`);
       expect(init.method).toBe("POST");
@@ -2795,9 +2801,7 @@ describe("subscriptions.batchUpdate", () => {
 
     expect(result).toEqual(response);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(
-      `${BASE_URL}/${PKG}/subscriptions/sub_monthly/basePlans:batchMigratePrices`,
-    );
+    expect(url).toBe(`${BASE_URL}/${PKG}/subscriptions/sub_monthly/basePlans:batchMigratePrices`);
     expect(init.method).toBe("POST");
     expect(JSON.parse(init.body)).toEqual(requestBody);
   });
@@ -2949,7 +2953,9 @@ describe("deobfuscation.upload with fileType", () => {
   }
 
   it("defaults to proguard when no type specified", async () => {
-    mockFetch.mockResolvedValueOnce(mockResponse({ deobfuscationFile: { symbolType: "proguard" } }));
+    mockFetch.mockResolvedValueOnce(
+      mockResponse({ deobfuscationFile: { symbolType: "proguard" } }),
+    );
 
     const client = makeClient();
     await client.deobfuscation.upload(PKG, EDIT_ID, 42, "/fake/mapping.txt");
@@ -2959,7 +2965,9 @@ describe("deobfuscation.upload with fileType", () => {
   });
 
   it("uses nativeCode when specified", async () => {
-    mockFetch.mockResolvedValueOnce(mockResponse({ deobfuscationFile: { symbolType: "nativeCode" } }));
+    mockFetch.mockResolvedValueOnce(
+      mockResponse({ deobfuscationFile: { symbolType: "nativeCode" } }),
+    );
 
     const client = makeClient();
     await client.deobfuscation.upload(PKG, EDIT_ID, 42, "/fake/symbols.zip", "nativeCode");

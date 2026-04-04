@@ -30,16 +30,16 @@ gpc reviews list [options]
 
 ### Options
 
-| Flag             | Short | Type     | Default | Description                          |
-| ---------------- | ----- | -------- | ------- | ------------------------------------ |
-| `--stars`        |       | `number` |         | Filter by star rating (1-5)          |
-| `--lang`         |       | `string` |         | Filter by reviewer language code     |
-| `--since`        |       | `string` |         | Filter reviews after date (ISO 8601) |
-| `--translate-to` |       | `string` |         | Translate reviews to this language   |
-| `--max`          |       | `number` |         | Maximum results per page             |
-| `--limit`        |       | `number` |         | Maximum total results                |
-| `--next-page`    |       | `string` |         | Resume from pagination token         |
-| `--all`          |       | flag     |         | Auto-paginate to fetch all reviews   |
+| Flag             | Short | Type     | Default | Description                                    |
+| ---------------- | ----- | -------- | ------- | ---------------------------------------------- |
+| `--stars`        |       | `number` |         | Filter by star rating (1-5)                    |
+| `--lang`         |       | `string` |         | Filter by reviewer language code               |
+| `--since`        |       | `string` |         | Filter reviews after date (ISO 8601)           |
+| `--translate-to` |       | `string` |         | Translate reviews to this language             |
+| `--max`          |       | `number` |         | Maximum results per page                       |
+| `--limit`        |       | `number` |         | Maximum total results                          |
+| `--next-page`    |       | `string` |         | Resume from pagination token                   |
+| `--all`          |       | flag     |         | Auto-paginate to fetch all reviews             |
 | `--sort`         |       | `string` |         | Sort by field (prefix with `-` for descending) |
 
 ::: info Production only

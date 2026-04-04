@@ -176,8 +176,10 @@ export async function fetchLatestRelease(): Promise<GithubRelease> {
     });
   }
 
-  if (response.status === 429 ||
-    (response.status === 403 && response.headers.get("x-ratelimit-remaining") === "0")) {
+  if (
+    response.status === 429 ||
+    (response.status === 403 && response.headers.get("x-ratelimit-remaining") === "0")
+  ) {
     throw Object.assign(
       new Error(
         "GitHub API rate limit exceeded. Set GPC_GITHUB_TOKEN or GITHUB_TOKEN to increase the limit.",

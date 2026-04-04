@@ -3,10 +3,7 @@
   "failOn": "error",
   "targetSdkMinimum": 35,
   "maxDownloadSizeMb": 150,
-  "allowedPermissions": [
-    "android.permission.ACCESS_FINE_LOCATION",
-    "android.permission.CAMERA"
-  ],
+  "allowedPermissions": ["android.permission.ACCESS_FINE_LOCATION", "android.permission.CAMERA"],
   "disabledRules": [],
   "severityOverrides": {
     "size-exceeds-warning": "info"

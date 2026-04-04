@@ -11,11 +11,11 @@ outline: deep
 
 ## Commands
 
-| Command                             | Description                                          |
-| ----------------------------------- | ---------------------------------------------------- |
-| [`rtdn status`](#rtdn-status)      | Check RTDN notification topic configuration          |
-| [`rtdn decode`](#rtdn-decode)      | Decode a base64-encoded Pub/Sub notification payload |
-| [`rtdn test`](#rtdn-test)          | Guidance for testing RTDN setup                      |
+| Command                       | Description                                          |
+| ----------------------------- | ---------------------------------------------------- |
+| [`rtdn status`](#rtdn-status) | Check RTDN notification topic configuration          |
+| [`rtdn decode`](#rtdn-decode) | Decode a base64-encoded Pub/Sub notification payload |
+| [`rtdn test`](#rtdn-test)     | Guidance for testing RTDN setup                      |
 
 ## Overview
 
@@ -97,26 +97,26 @@ Returns the full decoded notification object including all fields.
 
 **Subscription events:**
 
-| Code | Event |
-|------|-------|
-| 1  | `SUBSCRIPTION_RECOVERED` |
-| 2  | `SUBSCRIPTION_RENEWED` |
-| 3  | `SUBSCRIPTION_CANCELED` |
-| 4  | `SUBSCRIPTION_PURCHASED` |
-| 5  | `SUBSCRIPTION_ON_HOLD` |
-| 6  | `SUBSCRIPTION_IN_GRACE_PERIOD` |
-| 7  | `SUBSCRIPTION_RESTARTED` |
-| 8  | `SUBSCRIPTION_PRICE_CHANGE_CONFIRMED` |
-| 9  | `SUBSCRIPTION_DEFERRED` |
-| 12 | `SUBSCRIPTION_REVOKED` |
-| 13 | `SUBSCRIPTION_EXPIRED` |
+| Code | Event                                 |
+| ---- | ------------------------------------- |
+| 1    | `SUBSCRIPTION_RECOVERED`              |
+| 2    | `SUBSCRIPTION_RENEWED`                |
+| 3    | `SUBSCRIPTION_CANCELED`               |
+| 4    | `SUBSCRIPTION_PURCHASED`              |
+| 5    | `SUBSCRIPTION_ON_HOLD`                |
+| 6    | `SUBSCRIPTION_IN_GRACE_PERIOD`        |
+| 7    | `SUBSCRIPTION_RESTARTED`              |
+| 8    | `SUBSCRIPTION_PRICE_CHANGE_CONFIRMED` |
+| 9    | `SUBSCRIPTION_DEFERRED`               |
+| 12   | `SUBSCRIPTION_REVOKED`                |
+| 13   | `SUBSCRIPTION_EXPIRED`                |
 
 **One-time product events:**
 
-| Code | Event |
-|------|-------|
-| 1  | `ONE_TIME_PRODUCT_PURCHASED` |
-| 2  | `ONE_TIME_PRODUCT_CANCELED` |
+| Code | Event                        |
+| ---- | ---------------------------- |
+| 1    | `ONE_TIME_PRODUCT_PURCHASED` |
+| 2    | `ONE_TIME_PRODUCT_CANCELED`  |
 
 **Other events:** `VOIDED_PURCHASE`, `TEST_NOTIFICATION`
 
@@ -133,11 +133,13 @@ gpc rtdn test
 ### Setup Guide
 
 1. **Create a Pub/Sub topic** in your GCP project:
+
    ```
    gcloud pubsub topics create play-notifications
    ```
 
 2. **Grant publish access** to Google Play:
+
    ```
    gcloud pubsub topics add-iam-policy-binding play-notifications \
      --member="serviceAccount:google-play-developer-notifications@system.gserviceaccount.com" \

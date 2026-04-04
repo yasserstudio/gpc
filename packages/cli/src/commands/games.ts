@@ -11,8 +11,6 @@ async function getGamesClient(config: { auth?: { serviceAccount?: string } }) {
   return createGamesClient({ auth });
 }
 
-
-
 export function registerGamesCommands(program: Command): void {
   const games = program
     .command("games")

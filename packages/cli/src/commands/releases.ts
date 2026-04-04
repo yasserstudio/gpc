@@ -83,11 +83,21 @@ export function registerReleasesCommands(program: Command): void {
       "Upload timeout in milliseconds (auto-scales with file size by default)",
       parseInt,
     )
-    .option("--status <status>", "Release status: completed, inProgress, draft, halted", "completed")
+    .option(
+      "--status <status>",
+      "Release status: completed, inProgress, draft, halted",
+      "completed",
+    )
     .option("--mapping-type <type>", "Deobfuscation file type: proguard or nativeCode", "proguard")
     .option("--device-tier-config <id>", "Device tier config ID (or LATEST)")
-    .option("--changes-not-sent-for-review", "Commit changes without sending for review (required for rejected apps)")
-    .option("--error-if-in-review", "Fail if changes are already in review instead of cancelling them")
+    .option(
+      "--changes-not-sent-for-review",
+      "Commit changes without sending for review (required for rejected apps)",
+    )
+    .option(
+      "--error-if-in-review",
+      "Fail if changes are already in review instead of cancelling them",
+    )
     .action(async (file: string, options) => {
       try {
         await stat(file);
@@ -163,12 +173,16 @@ export function registerReleasesCommands(program: Command): void {
         }
       }
 
-      if (options.mappingType && options.mappingType !== "proguard" && options.mappingType !== "nativeCode") {
+      if (
+        options.mappingType &&
+        options.mappingType !== "proguard" &&
+        options.mappingType !== "nativeCode"
+      ) {
         throw new GpcError(
           `--mapping-type must be "proguard" or "nativeCode" (got: "${options.mappingType}")`,
           "RELEASES_USAGE_ERROR",
           2,
-          'Use --mapping-type proguard (default) for ProGuard/R8 maps, or --mapping-type nativeCode for native debug symbols.',
+          "Use --mapping-type proguard (default) for ProGuard/R8 maps, or --mapping-type nativeCode for native debug symbols.",
         );
       }
 
@@ -337,8 +351,14 @@ export function registerReleasesCommands(program: Command): void {
     .option("--notes <text>", "Release notes")
     .option("--copy-notes-from <track>", "Copy release notes from another track")
     .option("--status <status>", "Release status: completed, inProgress, draft, halted")
-    .option("--changes-not-sent-for-review", "Commit changes without sending for review (required for rejected apps)")
-    .option("--error-if-in-review", "Fail if changes are already in review instead of cancelling them")
+    .option(
+      "--changes-not-sent-for-review",
+      "Commit changes without sending for review (required for rejected apps)",
+    )
+    .option(
+      "--error-if-in-review",
+      "Fail if changes are already in review instead of cancelling them",
+    )
     .action(async (options) => {
       if (options.notes && options.copyNotesFrom) {
         throw new GpcError(
@@ -402,7 +422,10 @@ export function registerReleasesCommands(program: Command): void {
             command: "releases promote",
             action: "promote",
             target: `${options.from} → ${options.to}`,
-            details: { rollout: options.rollout, ...(options.status && { status: options.status }) },
+            details: {
+              rollout: options.rollout,
+              ...(options.status && { status: options.status }),
+            },
           },
           format,
           formatOutput,
@@ -442,8 +465,14 @@ export function registerReleasesCommands(program: Command): void {
       cmd.option("--vitals-gate", "Halt rollout if crash rate exceeds configured threshold");
     }
 
-    cmd.option("--changes-not-sent-for-review", "Commit changes without sending for review (required for rejected apps)");
-    cmd.option("--error-if-in-review", "Fail if changes are already in review instead of cancelling them");
+    cmd.option(
+      "--changes-not-sent-for-review",
+      "Commit changes without sending for review (required for rejected apps)",
+    );
+    cmd.option(
+      "--error-if-in-review",
+      "Fail if changes are already in review instead of cancelling them",
+    );
 
     cmd.action(async (options) => {
       const config = await loadConfig();

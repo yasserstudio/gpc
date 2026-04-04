@@ -398,16 +398,14 @@ export function checkVerificationDeadline(): CheckResult {
     return {
       name: "verification",
       status: "warn",
-      message:
-        "Android developer verification enforcement begins September 2026 (BR, ID, SG, TH)",
+      message: "Android developer verification enforcement begins September 2026 (BR, ID, SG, TH)",
       suggestion: "Run 'gpc verify' for details and resources",
     };
   }
   return {
     name: "verification",
     status: "info",
-    message:
-      "Android developer verification is being enforced. Ensure your account is verified.",
+    message: "Android developer verification is being enforced. Ensure your account is verified.",
     suggestion: "Run 'gpc verify' to check your status",
   };
 }
@@ -857,7 +855,8 @@ export function registerDoctorCommand(program: Command): void {
             name: "developer-id",
             status: "warn",
             message: `Developer ID "${devId}" may be invalid — expected a long numeric string`,
-            suggestion: "Find your Developer ID in Play Console → Settings → Developer account → Developer ID.",
+            suggestion:
+              "Find your Developer ID in Play Console → Settings → Developer account → Developer ID.",
           });
         }
       }

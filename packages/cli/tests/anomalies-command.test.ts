@@ -126,9 +126,7 @@ describe("anomalies list command", () => {
 
   it("degrades gracefully on 403 in JSON mode (Bug Q)", async () => {
     const { PlayApiError } = await import("@gpc-cli/api");
-    mockGetVitalsAnomalies.mockRejectedValue(
-      new PlayApiError("Forbidden", "API_FORBIDDEN", 403),
-    );
+    mockGetVitalsAnomalies.mockRejectedValue(new PlayApiError("Forbidden", "API_FORBIDDEN", 403));
 
     const { registerAnomaliesCommands } = await import("../src/commands/anomalies.js");
     const program = makeProgram();
@@ -144,18 +142,16 @@ describe("anomalies list command", () => {
 
   it("re-throws non-403 errors", async () => {
     const { PlayApiError } = await import("@gpc-cli/api");
-    mockGetVitalsAnomalies.mockRejectedValue(
-      new PlayApiError("Not Found", "API_NOT_FOUND", 404),
-    );
+    mockGetVitalsAnomalies.mockRejectedValue(new PlayApiError("Not Found", "API_NOT_FOUND", 404));
 
     const { registerAnomaliesCommands } = await import("../src/commands/anomalies.js");
     const program = makeProgram();
     program.exitOverride();
     registerAnomaliesCommands(program);
 
-    await expect(
-      program.parseAsync(["node", "gpc", "anomalies", "list"]),
-    ).rejects.toThrow("Not Found");
+    await expect(program.parseAsync(["node", "gpc", "anomalies", "list"])).rejects.toThrow(
+      "Not Found",
+    );
   });
 
   it("handles empty result object (no anomalies key)", async () => {

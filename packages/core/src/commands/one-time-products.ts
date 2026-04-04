@@ -177,7 +177,14 @@ export async function updateOneTimeOffer(
 ): Promise<OneTimeOffer> {
   try {
     const mask = updateMask || deriveOtpOfferUpdateMask(data);
-    return await client.oneTimeProducts.updateOffer(packageName, productId, purchaseOptionId, offerId, data, mask);
+    return await client.oneTimeProducts.updateOffer(
+      packageName,
+      productId,
+      purchaseOptionId,
+      offerId,
+      data,
+      mask,
+    );
   } catch (error) {
     throw new GpcError(
       `Failed to update offer "${offerId}" for product "${productId}": ${error instanceof Error ? error.message : String(error)}`,

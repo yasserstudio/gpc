@@ -5,8 +5,6 @@ import { loadConfig } from "@gpc-cli/config";
 import { convertRegionPrices, formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 
-
-
 export function registerPricingCommands(program: Command): void {
   const pricing = program.command("pricing").description("Pricing and regional price conversion");
 
@@ -80,7 +78,7 @@ export function registerPricingCommands(program: Command): void {
         ) {
           const err = new Error(
             "Price conversion is not available for this app. " +
-            "Ensure the app has monetization configured in Google Play Console (at least one paid product or subscription).",
+              "Ensure the app has monetization configured in Google Play Console (at least one paid product or subscription).",
           );
           Object.assign(err, { code: "API_PRICING_UNAVAILABLE", exitCode: 4 });
           throw err;

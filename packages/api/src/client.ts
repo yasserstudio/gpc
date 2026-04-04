@@ -240,7 +240,12 @@ export interface PlayApiClient {
       options?: { pageToken?: string; pageSize?: number },
     ): Promise<SubscriptionsListResponse>;
     get(packageName: string, productId: string): Promise<Subscription>;
-    create(packageName: string, data: Subscription, productId?: string, regionsVersion?: string): Promise<Subscription>;
+    create(
+      packageName: string,
+      data: Subscription,
+      productId?: string,
+      regionsVersion?: string,
+    ): Promise<Subscription>;
     update(
       packageName: string,
       productId: string,
@@ -251,7 +256,10 @@ export interface PlayApiClient {
     ): Promise<Subscription>;
     delete(packageName: string, productId: string): Promise<void>;
     batchGet(packageName: string, productIds: string[]): Promise<Subscription[]>;
-    batchUpdate(packageName: string, requests: SubscriptionsBatchUpdateRequest): Promise<SubscriptionsBatchUpdateResponse>;
+    batchUpdate(
+      packageName: string,
+      requests: SubscriptionsBatchUpdateRequest,
+    ): Promise<SubscriptionsBatchUpdateResponse>;
     activateBasePlan(
       packageName: string,
       productId: string,
@@ -324,7 +332,12 @@ export interface PlayApiClient {
     batchUpdateBasePlanStates(
       packageName: string,
       productId: string,
-      requests: { requests: Array<{ activateBasePlanRequest?: { basePlanId: string }; deactivateBasePlanRequest?: { basePlanId: string } }> },
+      requests: {
+        requests: Array<{
+          activateBasePlanRequest?: { basePlanId: string };
+          deactivateBasePlanRequest?: { basePlanId: string };
+        }>;
+      },
     ): Promise<Subscription>;
     batchGetOffers(
       packageName: string,
@@ -336,13 +349,24 @@ export interface PlayApiClient {
       packageName: string,
       productId: string,
       basePlanId: string,
-      requests: { requests: Array<{ subscriptionOffer: Partial<SubscriptionOffer>; updateMask?: string; regionsVersion?: string }> },
+      requests: {
+        requests: Array<{
+          subscriptionOffer: Partial<SubscriptionOffer>;
+          updateMask?: string;
+          regionsVersion?: string;
+        }>;
+      },
     ): Promise<{ subscriptionOffers: SubscriptionOffer[] }>;
     batchUpdateOfferStates(
       packageName: string,
       productId: string,
       basePlanId: string,
-      requests: { requests: Array<{ activateSubscriptionOfferRequest?: { offerId: string }; deactivateSubscriptionOfferRequest?: { offerId: string } }> },
+      requests: {
+        requests: Array<{
+          activateSubscriptionOfferRequest?: { offerId: string };
+          deactivateSubscriptionOfferRequest?: { offerId: string };
+        }>;
+      },
     ): Promise<Subscription>;
   };
 
@@ -422,13 +446,17 @@ export interface PlayApiClient {
       body: SubscriptionsV2DeferRequest,
     ): Promise<SubscriptionsV2DeferResponse>;
     /** V2 product purchase details for multi-offer OTPs. (Jun 2025) */
-    getProductV2(
-      packageName: string,
-      token: string,
-    ): Promise<ProductPurchaseV2>;
+    getProductV2(packageName: string, token: string): Promise<ProductPurchaseV2>;
     listVoided(
       packageName: string,
-      options?: { startTime?: string; endTime?: string; type?: number; includeQuantityBasedPartialRefund?: boolean; maxResults?: number; token?: string },
+      options?: {
+        startTime?: string;
+        endTime?: string;
+        type?: number;
+        includeQuantityBasedPartialRefund?: boolean;
+        maxResults?: number;
+        token?: string;
+      },
     ): Promise<VoidedPurchasesListResponse>;
   };
 
@@ -461,7 +489,12 @@ export interface PlayApiClient {
   testers: {
     get(packageName: string, editId: string, track: string): Promise<Testers>;
     update(packageName: string, editId: string, track: string, testers: Testers): Promise<Testers>;
-    patch(packageName: string, editId: string, track: string, testers: Partial<Testers>): Promise<Testers>;
+    patch(
+      packageName: string,
+      editId: string,
+      track: string,
+      testers: Partial<Testers>,
+    ): Promise<Testers>;
   };
 
   deobfuscation: {
@@ -506,9 +539,16 @@ export interface PlayApiClient {
   };
 
   oneTimeProducts: {
-    list(packageName: string, options?: { pageToken?: string; pageSize?: number }): Promise<OneTimeProductsListResponse>;
+    list(
+      packageName: string,
+      options?: { pageToken?: string; pageSize?: number },
+    ): Promise<OneTimeProductsListResponse>;
     get(packageName: string, productId: string): Promise<OneTimeProduct>;
-    create(packageName: string, product: OneTimeProduct, regionsVersion?: string): Promise<OneTimeProduct>;
+    create(
+      packageName: string,
+      product: OneTimeProduct,
+      regionsVersion?: string,
+    ): Promise<OneTimeProduct>;
     update(
       packageName: string,
       productId: string,
@@ -518,9 +558,24 @@ export interface PlayApiClient {
       options?: MutationOptions,
     ): Promise<OneTimeProduct>;
     delete(packageName: string, productId: string): Promise<void>;
-    listOffers(packageName: string, productId: string, purchaseOptionId?: string): Promise<OneTimeOffersListResponse>;
-    getOffer(packageName: string, productId: string, purchaseOptionId: string, offerId: string): Promise<OneTimeOffer>;
-    createOffer(packageName: string, productId: string, purchaseOptionId: string, offer: OneTimeOffer, regionsVersion?: string): Promise<OneTimeOffer>;
+    listOffers(
+      packageName: string,
+      productId: string,
+      purchaseOptionId?: string,
+    ): Promise<OneTimeOffersListResponse>;
+    getOffer(
+      packageName: string,
+      productId: string,
+      purchaseOptionId: string,
+      offerId: string,
+    ): Promise<OneTimeOffer>;
+    createOffer(
+      packageName: string,
+      productId: string,
+      purchaseOptionId: string,
+      offer: OneTimeOffer,
+      regionsVersion?: string,
+    ): Promise<OneTimeOffer>;
     updateOffer(
       packageName: string,
       productId: string,
@@ -531,48 +586,108 @@ export interface PlayApiClient {
       regionsVersion?: string,
       options?: MutationOptions,
     ): Promise<OneTimeOffer>;
-    deleteOffer(packageName: string, productId: string, purchaseOptionId: string, offerId: string): Promise<void>;
+    deleteOffer(
+      packageName: string,
+      productId: string,
+      purchaseOptionId: string,
+      offerId: string,
+    ): Promise<void>;
     batchGet(packageName: string, productIds: string[]): Promise<OneTimeProduct[]>;
-    batchUpdate(packageName: string, requests: { requests: Array<{ oneTimeProduct: Partial<OneTimeProduct>; updateMask?: string; regionsVersion?: string }> }): Promise<{ oneTimeProducts: OneTimeProduct[] }>;
+    batchUpdate(
+      packageName: string,
+      requests: {
+        requests: Array<{
+          oneTimeProduct: Partial<OneTimeProduct>;
+          updateMask?: string;
+          regionsVersion?: string;
+        }>;
+      },
+    ): Promise<{ oneTimeProducts: OneTimeProduct[] }>;
     batchDelete(packageName: string, productIds: string[]): Promise<void>;
 
     // Purchase option batch operations
     batchDeletePurchaseOptions(
       packageName: string,
       productId: string,
-      requests: Array<{ packageName: string; productId: string; purchaseOptionId: string; force?: boolean; latencyTolerance?: string }>,
+      requests: Array<{
+        packageName: string;
+        productId: string;
+        purchaseOptionId: string;
+        force?: boolean;
+        latencyTolerance?: string;
+      }>,
     ): Promise<void>;
     batchUpdatePurchaseOptionStates(
       packageName: string,
       productId: string,
-      requests: Array<{ activatePurchaseOptionRequest?: { packageName: string; productId: string; purchaseOptionId: string; latencyTolerance?: string }; deactivatePurchaseOptionRequest?: { packageName: string; productId: string; purchaseOptionId: string; latencyTolerance?: string } }>,
+      requests: Array<{
+        activatePurchaseOptionRequest?: {
+          packageName: string;
+          productId: string;
+          purchaseOptionId: string;
+          latencyTolerance?: string;
+        };
+        deactivatePurchaseOptionRequest?: {
+          packageName: string;
+          productId: string;
+          purchaseOptionId: string;
+          latencyTolerance?: string;
+        };
+      }>,
     ): Promise<{ oneTimeProducts: OneTimeProduct[] }>;
 
     // Offer batch operations
-    cancelOffer(packageName: string, productId: string, purchaseOptionId: string, offerId: string, latencyTolerance?: string): Promise<OneTimeOffer>;
+    cancelOffer(
+      packageName: string,
+      productId: string,
+      purchaseOptionId: string,
+      offerId: string,
+      latencyTolerance?: string,
+    ): Promise<OneTimeOffer>;
     batchGetOffers(
       packageName: string,
       productId: string,
       purchaseOptionId: string,
-      requests: Array<{ packageName: string; productId: string; purchaseOptionId: string; offerId: string }>,
+      requests: Array<{
+        packageName: string;
+        productId: string;
+        purchaseOptionId: string;
+        offerId: string;
+      }>,
     ): Promise<{ oneTimeProductOffers: OneTimeOffer[] }>;
     batchUpdateOffers(
       packageName: string,
       productId: string,
       purchaseOptionId: string,
-      requests: Array<{ oneTimeProductOffer: Partial<OneTimeOffer>; updateMask?: string; regionsVersion?: { version: string }; allowMissing?: boolean; latencyTolerance?: string }>,
+      requests: Array<{
+        oneTimeProductOffer: Partial<OneTimeOffer>;
+        updateMask?: string;
+        regionsVersion?: { version: string };
+        allowMissing?: boolean;
+        latencyTolerance?: string;
+      }>,
     ): Promise<{ oneTimeProductOffers: OneTimeOffer[] }>;
     batchUpdateOfferStates(
       packageName: string,
       productId: string,
       purchaseOptionId: string,
-      requests: Array<{ activateOneTimeProductOfferRequest?: Record<string, unknown>; deactivateOneTimeProductOfferRequest?: Record<string, unknown>; cancelOneTimeProductOfferRequest?: Record<string, unknown> }>,
+      requests: Array<{
+        activateOneTimeProductOfferRequest?: Record<string, unknown>;
+        deactivateOneTimeProductOfferRequest?: Record<string, unknown>;
+        cancelOneTimeProductOfferRequest?: Record<string, unknown>;
+      }>,
     ): Promise<{ oneTimeProductOffers: OneTimeOffer[] }>;
     batchDeleteOffers(
       packageName: string,
       productId: string,
       purchaseOptionId: string,
-      requests: Array<{ packageName: string; productId: string; purchaseOptionId: string; offerId: string; latencyTolerance?: string }>,
+      requests: Array<{
+        packageName: string;
+        productId: string;
+        purchaseOptionId: string;
+        offerId: string;
+        latencyTolerance?: string;
+      }>,
     ): Promise<void>;
   };
 
@@ -587,7 +702,11 @@ export interface PlayApiClient {
   };
 
   systemApks: {
-    create(packageName: string, versionCode: number, variant: SystemApkVariant): Promise<SystemApkVariant>;
+    create(
+      packageName: string,
+      versionCode: number,
+      variant: SystemApkVariant,
+    ): Promise<SystemApkVariant>;
     list(packageName: string, versionCode: number): Promise<{ variants: SystemApkVariant[] }>;
     get(packageName: string, versionCode: number, variantId: number): Promise<SystemApkVariant>;
     download(packageName: string, versionCode: number, variantId: number): Promise<ArrayBuffer>;
@@ -659,7 +778,8 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         if (options?.changesNotSentForReview || options?.changesInReviewBehavior) {
           const params = new URLSearchParams();
           if (options.changesNotSentForReview) params.set("changesNotSentForReview", "true");
-          if (options.changesInReviewBehavior) params.set("changesInReviewBehavior", options.changesInReviewBehavior);
+          if (options.changesInReviewBehavior)
+            params.set("changesInReviewBehavior", options.changesInReviewBehavior);
           path += `?${params.toString()}`;
         }
         const { data } = await http.post<AppEdit>(path);
@@ -754,10 +874,13 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async patch(packageName, editId, track, release) {
-        const { data } = await http.patch<Track>(`/${packageName}/edits/${editId}/tracks/${track}`, {
-          track,
-          releases: [release],
-        });
+        const { data } = await http.patch<Track>(
+          `/${packageName}/edits/${editId}/tracks/${track}`,
+          {
+            track,
+            releases: [release],
+          },
+        );
         return data;
       },
     },
@@ -773,9 +896,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
     apks: {
       async list(packageName, editId) {
-        const { data } = await http.get<ApksListResponse>(
-          `/${packageName}/edits/${editId}/apks`,
-        );
+        const { data } = await http.get<ApksListResponse>(`/${packageName}/edits/${editId}/apks`);
         return data.apks || [];
       },
 
@@ -1250,10 +1371,9 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async batchDelete(packageName, skus) {
-        await http.post(
-          `/${packageName}/inappproducts:batchDelete`,
-          { requests: skus.map((sku) => ({ packageName, sku })) },
-        );
+        await http.post(`/${packageName}/inappproducts:batchDelete`, {
+          requests: skus.map((sku) => ({ packageName, sku })),
+        });
       },
     },
 
@@ -1322,10 +1442,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async cancelSubscriptionV2(packageName, token, body?) {
-        await http.post(
-          `/${packageName}/purchases/subscriptionsv2/tokens/${token}:cancel`,
-          body,
-        );
+        await http.post(`/${packageName}/purchases/subscriptionsv2/tokens/${token}:cancel`, body);
       },
 
       async deferSubscriptionV2(packageName, token, body) {
@@ -1348,7 +1465,8 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         if (options?.startTime) params["startTime"] = options.startTime;
         if (options?.endTime) params["endTime"] = options.endTime;
         if (options?.type !== undefined) params["type"] = String(options.type);
-        if (options?.includeQuantityBasedPartialRefund) params["includeQuantityBasedPartialRefund"] = "true";
+        if (options?.includeQuantityBasedPartialRefund)
+          params["includeQuantityBasedPartialRefund"] = "true";
         if (options?.maxResults) params["maxResults"] = String(options.maxResults);
         if (options?.token) params["token"] = options.token;
         const hasParams = Object.keys(params).length > 0;
@@ -1362,9 +1480,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
     orders: {
       async get(packageName, orderId) {
-        const { data } = await http.get<Order>(
-          `/${packageName}/orders/${orderId}`,
-        );
+        const { data } = await http.get<Order>(`/${packageName}/orders/${orderId}`);
         return data;
       },
 
@@ -1558,7 +1674,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         if (!productId) throw new Error("productId is required to create a one-time product");
         const params = new URLSearchParams({
           "regionsVersion.version": regionsVersion || DEFAULT_REGIONS_VERSION,
-          "allowMissing": "true",
+          allowMissing: "true",
         });
         const { data } = await http.patch<OneTimeProduct>(
           `/${packageName}/oneTimeProducts/${productId}?${params.toString()}`,
@@ -1596,7 +1712,9 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async createOffer(packageName, productId, purchaseOptionId, body, regionsVersion?) {
-        const params = new URLSearchParams({ "regionsVersion.version": regionsVersion || DEFAULT_REGIONS_VERSION });
+        const params = new URLSearchParams({
+          "regionsVersion.version": regionsVersion || DEFAULT_REGIONS_VERSION,
+        });
         const { data } = await http.post<OneTimeOffer>(
           `/${packageName}/oneTimeProducts/${productId}/purchaseOptions/${purchaseOptionId}/offers?${params.toString()}`,
           body,
@@ -1604,7 +1722,16 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async updateOffer(packageName, productId, purchaseOptionId, offerId, body, updateMask?, regionsVersion?, options?) {
+      async updateOffer(
+        packageName,
+        productId,
+        purchaseOptionId,
+        offerId,
+        body,
+        updateMask?,
+        regionsVersion?,
+        options?,
+      ) {
         const params: Record<string, string> = {};
         if (updateMask) params["updateMask"] = updateMask;
         params["regionsVersion.version"] = regionsVersion || DEFAULT_REGIONS_VERSION;
@@ -1615,7 +1742,9 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async deleteOffer(packageName, productId, purchaseOptionId, offerId) {
-        await http.delete(`/${packageName}/oneTimeProducts/${productId}/purchaseOptions/${purchaseOptionId}/offers/${offerId}`);
+        await http.delete(
+          `/${packageName}/oneTimeProducts/${productId}/purchaseOptions/${purchaseOptionId}/offers/${offerId}`,
+        );
       },
 
       async batchGet(packageName, productIds) {
@@ -1635,10 +1764,9 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async batchDelete(packageName, productIds) {
-        await http.post(
-          `/${packageName}/oneTimeProducts:batchDelete`,
-          { requests: productIds.map((id) => ({ productId: id })) },
-        );
+        await http.post(`/${packageName}/oneTimeProducts:batchDelete`, {
+          requests: productIds.map((id) => ({ productId: id })),
+        });
       },
 
       // Purchase option batch operations

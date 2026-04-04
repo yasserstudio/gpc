@@ -153,10 +153,7 @@ async function runPreflightAction(
       // Group by severity
       for (const finding of result.findings) {
         const icon = SEVERITY_ICONS[finding.severity];
-        const label = severityColor(
-          finding.severity,
-          `${icon} ${finding.severity.toUpperCase()}`,
-        );
+        const label = severityColor(finding.severity, `${icon} ${finding.severity.toUpperCase()}`);
         console.log(`${label}  ${finding.title}`);
         console.log(`        ${dim(finding.message)}`);
         if (finding.suggestion) {
@@ -184,15 +181,9 @@ async function runPreflightAction(
     if (Date.now() < new Date("2026-09-01").getTime()) {
       console.log("");
       console.log(
-        dim(
-          "Note: Apps must be registered by a verified developer to be installable on",
-        ),
+        dim("Note: Apps must be registered by a verified developer to be installable on"),
       );
-      console.log(
-        dim(
-          "certified Android devices after Sep 2026. Run 'gpc verify' for details.",
-        ),
-      );
+      console.log(dim("certified Android devices after Sep 2026. Run 'gpc verify' for details."));
     }
   }
 

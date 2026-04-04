@@ -114,7 +114,17 @@ describe("API Coverage Audit — PlayApiClient", () => {
   describe("inappproducts namespace", () => {
     assertMethods(
       client.inappproducts,
-      ["list", "get", "create", "update", "patch", "delete", "batchUpdate", "batchGet", "batchDelete"],
+      [
+        "list",
+        "get",
+        "create",
+        "update",
+        "patch",
+        "delete",
+        "batchUpdate",
+        "batchGet",
+        "batchDelete",
+      ],
       "inappproducts",
     );
   });

@@ -27,8 +27,6 @@ import { isInteractive, requireOption, requireConfirm } from "../prompt.js";
 import { green, red } from "../colors.js";
 import { buildCommitOptions } from "../commit-options.js";
 
-
-
 const VALID_IMAGE_TYPES: ImageType[] = [
   "phoneScreenshots",
   "sevenInchScreenshots",
@@ -132,7 +130,13 @@ export function registerListingsCommands(program: Command): void {
       }
 
       const client = await getClient(config);
-      const result = await updateListing(client, packageName, options.lang, data, buildCommitOptions(options));
+      const result = await updateListing(
+        client,
+        packageName,
+        options.lang,
+        data,
+        buildCommitOptions(options),
+      );
       console.log(formatOutput(result, format));
     });
 
@@ -450,7 +454,14 @@ export function registerListingsCommands(program: Command): void {
       if (!program.opts()["quiet"] && process.stderr.isTTY) spinner.start();
 
       try {
-        const result = await uploadImage(client, packageName, options.lang, imageType, file, buildCommitOptions(options));
+        const result = await uploadImage(
+          client,
+          packageName,
+          options.lang,
+          imageType,
+          file,
+          buildCommitOptions(options),
+        );
         spinner.stop("Image uploaded");
         console.log(formatOutput(result, format));
       } catch (error) {
@@ -506,7 +517,14 @@ export function registerListingsCommands(program: Command): void {
       const client = await getClient(config);
       const imageType = validateImageType(options.type);
 
-      await deleteImage(client, packageName, options.lang, imageType, options.id, buildCommitOptions(options));
+      await deleteImage(
+        client,
+        packageName,
+        options.lang,
+        imageType,
+        options.id,
+        buildCommitOptions(options),
+      );
       console.log(`Image "${options.id}" deleted.`);
     });
 

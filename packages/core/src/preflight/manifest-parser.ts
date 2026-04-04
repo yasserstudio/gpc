@@ -260,7 +260,9 @@ function extractManifestData(manifest: XmlElem): ParsedManifest {
   const usesSdkElements = getChildren(manifest, "uses-sdk");
   const usesSdk = usesSdkElements[0];
   const minSdk = usesSdk ? getIntByName(usesSdk.attribute || [], "minSdkVersion", 1) : 1;
-  const targetSdk = usesSdk ? getIntByName(usesSdk.attribute || [], "targetSdkVersion", minSdk) : minSdk;
+  const targetSdk = usesSdk
+    ? getIntByName(usesSdk.attribute || [], "targetSdkVersion", minSdk)
+    : minSdk;
 
   // <uses-permission> elements
   const permissions = getChildren(manifest, "uses-permission")
@@ -279,8 +281,12 @@ function extractManifestData(manifest: XmlElem): ParsedManifest {
 
   const debuggable = app ? getBoolByName(app.attribute || [], "debuggable", false) : false;
   const testOnly = getBoolByName(attrs, "testOnly", false);
-  const usesCleartextTraffic = app ? getBoolByName(app.attribute || [], "usesCleartextTraffic", true) : true;
-  const extractNativeLibs = app ? getBoolByName(app.attribute || [], "extractNativeLibs", true) : true;
+  const usesCleartextTraffic = app
+    ? getBoolByName(app.attribute || [], "usesCleartextTraffic", true)
+    : true;
+  const extractNativeLibs = app
+    ? getBoolByName(app.attribute || [], "extractNativeLibs", true)
+    : true;
   const pageSizeCompat = app ? getBoolByName(app.attribute || [], "pageSizeCompat", false) : false;
 
   const activities = app ? extractComponents(app, "activity") : [];

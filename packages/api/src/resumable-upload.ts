@@ -138,7 +138,11 @@ export async function resumableUpload<T>(
             if (serverOffset >= totalBytes) {
               // Upload is fully complete — server has all bytes
               // Fetch the completion response via one more query
-              const completionResult = await fetchCompletionResponse<T>(sessionUri, totalBytes, ctx);
+              const completionResult = await fetchCompletionResponse<T>(
+                sessionUri,
+                totalBytes,
+                ctx,
+              );
               if (completionResult) {
                 result = completionResult;
                 break;

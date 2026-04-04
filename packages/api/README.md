@@ -29,18 +29,18 @@ await client.edits.delete("com.example.app", edit.id);
 
 ## Client Factories
 
-| Factory | Purpose |
-| ------- | ------- |
-| `createApiClient(options)` | Core Play API: apps, releases, listings, monetization, purchases |
-| `createReportingClient(options)` | Vitals, crash rates, ANR, error reporting |
-| `createUsersClient(options)` | Developer account users and permission grants |
-| `createHttpClient(options)` | Low-level HTTP with auth, retry, and rate limiting |
+| Factory                          | Purpose                                                          |
+| -------------------------------- | ---------------------------------------------------------------- |
+| `createApiClient(options)`       | Core Play API: apps, releases, listings, monetization, purchases |
+| `createReportingClient(options)` | Vitals, crash rates, ANR, error reporting                        |
+| `createUsersClient(options)`     | Developer account users and permission grants                    |
+| `createHttpClient(options)`      | Low-level HTTP with auth, retry, and rate limiting               |
 
 ```typescript
 const options: ApiClientOptions = {
-  auth,                    // Required: { getAccessToken(): Promise<string> }
-  maxRetries: 3,           // Default retry count
-  timeout: 30_000,         // Request timeout in ms
+  auth, // Required: { getAccessToken(): Promise<string> }
+  maxRetries: 3, // Default retry count
+  timeout: 30_000, // Request timeout in ms
   onRetry: (entry) => console.warn(`Retry #${entry.attempt}`),
 };
 ```
@@ -92,31 +92,31 @@ await client.purchases.acknowledgeProduct("com.example.app", "coins_100", token)
 
 ## All API Modules
 
-| Module | Methods |
-| ------ | ------- |
-| `client.edits` | insert, get, validate, commit, delete |
-| `client.bundles` | upload, list |
-| `client.tracks` | list, get, update |
-| `client.listings` | list, get, update, delete, deleteAll |
-| `client.images` | list, upload, delete, deleteAll |
-| `client.subscriptions` | list, get, create, patch, archive, activate/deactivate base plans and offers |
-| `client.inappproducts` | list, get, create, update, delete, batchGet, batchUpdate, batchDelete |
-| `client.oneTimeProducts` | list, get, create, patch, delete, batchGet, batchUpdate, batchDelete |
-| `client.purchases` | getProduct, acknowledgeProduct, getSubscriptionV2, revokeSubscription, refund, listVoided |
-| `client.reviews` | list, get, reply |
-| `client.testers` | get, update |
-| `client.reports` | list |
-| `client.monetization` | convertRegionPrices |
-| `client.deobfuscation` | upload |
-| `client.expansionFiles` | get, update, patch, upload |
-| `client.dataSafety` | get, update |
-| `client.deviceTiers` | list, get, create |
-| `client.internalSharing` | uploadBundle, uploadApk |
-| `client.generatedApks` | list, download |
-| `client.externalTransactions` | create, get, refund |
-| `client.appRecovery` | create, deploy, cancel, list |
-| `reporting.*` | queryMetricSet, getAnomalies, searchErrorIssues, searchErrorReports |
-| `users.*` | list, get, create, patch, delete, listGrants, createGrant, patchGrant, deleteGrant |
+| Module                        | Methods                                                                                   |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| `client.edits`                | insert, get, validate, commit, delete                                                     |
+| `client.bundles`              | upload, list                                                                              |
+| `client.tracks`               | list, get, update                                                                         |
+| `client.listings`             | list, get, update, delete, deleteAll                                                      |
+| `client.images`               | list, upload, delete, deleteAll                                                           |
+| `client.subscriptions`        | list, get, create, patch, archive, activate/deactivate base plans and offers              |
+| `client.inappproducts`        | list, get, create, update, delete, batchGet, batchUpdate, batchDelete                     |
+| `client.oneTimeProducts`      | list, get, create, patch, delete, batchGet, batchUpdate, batchDelete                      |
+| `client.purchases`            | getProduct, acknowledgeProduct, getSubscriptionV2, revokeSubscription, refund, listVoided |
+| `client.reviews`              | list, get, reply                                                                          |
+| `client.testers`              | get, update                                                                               |
+| `client.reports`              | list                                                                                      |
+| `client.monetization`         | convertRegionPrices                                                                       |
+| `client.deobfuscation`        | upload                                                                                    |
+| `client.expansionFiles`       | get, update, patch, upload                                                                |
+| `client.dataSafety`           | get, update                                                                               |
+| `client.deviceTiers`          | list, get, create                                                                         |
+| `client.internalSharing`      | uploadBundle, uploadApk                                                                   |
+| `client.generatedApks`        | list, download                                                                            |
+| `client.externalTransactions` | create, get, refund                                                                       |
+| `client.appRecovery`          | create, deploy, cancel, list                                                              |
+| `reporting.*`                 | queryMetricSet, getAnomalies, searchErrorIssues, searchErrorReports                       |
+| `users.*`                     | list, get, create, patch, delete, listGrants, createGrant, patchGrant, deleteGrant        |
 
 ## Pagination
 
@@ -146,7 +146,7 @@ try {
   await client.tracks.get("com.example.app", editId, "production");
 } catch (error) {
   if (error instanceof ApiError) {
-    console.error(error.code);       // "API_NOT_FOUND"
+    console.error(error.code); // "API_NOT_FOUND"
     console.error(error.statusCode); // 404
     console.error(error.suggestion); // actionable fix
   }
@@ -159,12 +159,30 @@ All Google Play API types are exported:
 
 ```typescript
 import type {
-  PlayApiClient, ReportingApiClient, UsersApiClient, ApiClientOptions,
-  Track, Release, ReleaseStatus, Bundle, Listing,
-  Subscription, BasePlan, SubscriptionOffer, InAppProduct,
-  Review, ProductPurchase, SubscriptionPurchaseV2, VoidedPurchase,
-  MetricSetQuery, MetricSetResponse, ErrorIssue,
-  User, Grant, ImageType, Money,
+  PlayApiClient,
+  ReportingApiClient,
+  UsersApiClient,
+  ApiClientOptions,
+  Track,
+  Release,
+  ReleaseStatus,
+  Bundle,
+  Listing,
+  Subscription,
+  BasePlan,
+  SubscriptionOffer,
+  InAppProduct,
+  Review,
+  ProductPurchase,
+  SubscriptionPurchaseV2,
+  VoidedPurchase,
+  MetricSetQuery,
+  MetricSetResponse,
+  ErrorIssue,
+  User,
+  Grant,
+  ImageType,
+  Money,
 } from "@gpc-cli/api";
 ```
 

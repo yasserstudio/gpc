@@ -21,10 +21,7 @@ import { GpcError } from "./errors.js";
 // Plugin Manager — orchestrates discovery, loading, and lifecycle
 // ---------------------------------------------------------------------------
 
-const FIRST_PARTY_PLUGINS = new Set([
-  "@gpc-cli/plugin-ci",
-  "@gpc-cli/plugin-sdk",
-]);
+const FIRST_PARTY_PLUGINS = new Set(["@gpc-cli/plugin-ci", "@gpc-cli/plugin-sdk"]);
 
 export class PluginManager {
   private plugins: LoadedPlugin[] = [];

@@ -235,9 +235,7 @@ describe("resumableUpload", () => {
     mockFetch.mockResolvedValueOnce(new Response("", { status: 500 }));
 
     // Resume query: 308 with Range indicating chunk 1 received
-    mockFetch.mockResolvedValueOnce(
-      resumeIncompleteResponse(chunkSize - 1),
-    );
+    mockFetch.mockResolvedValueOnce(resumeIncompleteResponse(chunkSize - 1));
 
     // Chunk 2 retry: 200 (complete)
     const bundle = { versionCode: 99 };
@@ -415,9 +413,7 @@ describe("resumableUpload", () => {
     mockFetch.mockResolvedValueOnce(new Response("", { status: 200 }));
 
     // fetchCompletionResponse → 200 with bundle data
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify(bundle), { status: 200 }),
-    );
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(bundle), { status: 200 }));
 
     const ctx = mockCtx();
     const result = await resumableUpload(
@@ -454,9 +450,7 @@ describe("resumableUpload", () => {
     mockFetch.mockResolvedValueOnce(new Response("", { status: 200 }));
 
     // Post-loop: fetchCompletionResponse → 200 with bundle
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify(bundle), { status: 200 }),
-    );
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(bundle), { status: 200 }));
 
     const ctx = mockCtx();
     const result = await resumableUpload(

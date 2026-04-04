@@ -169,18 +169,15 @@ export function registerUpdateCommand(program: Command): void {
 
         case "unknown":
           spinner.fail();
-          throw Object.assign(
-            new Error("Could not detect install method"),
-            {
-              code: "UPDATE_UNKNOWN_METHOD",
-              exitCode: 1,
-              suggestion:
-                "Update manually:\n" +
-                "  npm:      npm install -g @gpc-cli/cli@latest\n" +
-                "  Homebrew: brew upgrade yasserstudio/tap/gpc\n" +
-                "  Binary:   https://github.com/yasserstudio/gpc/releases/latest",
-            },
-          );
+          throw Object.assign(new Error("Could not detect install method"), {
+            code: "UPDATE_UNKNOWN_METHOD",
+            exitCode: 1,
+            suggestion:
+              "Update manually:\n" +
+              "  npm:      npm install -g @gpc-cli/cli@latest\n" +
+              "  Homebrew: brew upgrade yasserstudio/tap/gpc\n" +
+              "  Binary:   https://github.com/yasserstudio/gpc/releases/latest",
+          });
       }
 
       if (jsonMode) {

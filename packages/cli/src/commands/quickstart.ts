@@ -67,7 +67,12 @@ export function registerQuickstartCommand(program: Command): void {
           });
           if (result.error) {
             // gpc not found in PATH (ENOENT) or other spawn error
-            step(4, total, "Running doctor...", "\u2014 could not find gpc in PATH. Run: gpc doctor");
+            step(
+              4,
+              total,
+              "Running doctor...",
+              "\u2014 could not find gpc in PATH. Run: gpc doctor",
+            );
           } else if (result.status === 0) {
             step(4, total, "Running doctor...", "\u2713 All checks passed");
           } else {

@@ -11,27 +11,27 @@ outline: deep
 
 ## Commands
 
-| Command                                                                               | Description                     |
-| ------------------------------------------------------------------------------------- | ------------------------------- |
-| [`subscriptions list`](#subscriptions-list)                                           | List subscriptions              |
-| [`subscriptions get`](#subscriptions-get)                                             | Get a subscription              |
-| [`subscriptions create`](#subscriptions-create)                                       | Create a subscription from JSON |
-| [`subscriptions update`](#subscriptions-update)                                       | Update a subscription from JSON |
-| [`subscriptions delete`](#subscriptions-delete)                                       | Delete a subscription           |
-| [`subscriptions base-plans activate`](#subscriptions-base-plans-activate)             | Activate a base plan            |
-| [`subscriptions base-plans deactivate`](#subscriptions-base-plans-deactivate)         | Deactivate a base plan          |
-| [`subscriptions base-plans delete`](#subscriptions-base-plans-delete)                 | Delete a base plan              |
-| [`subscriptions base-plans migrate-prices`](#subscriptions-base-plans-migrate-prices) | Migrate base plan prices        |
-| [`subscriptions offers list`](#subscriptions-offers-list)                             | List offers for a base plan     |
-| [`subscriptions offers get`](#subscriptions-offers-get)                               | Get an offer                    |
-| [`subscriptions offers create`](#subscriptions-offers-create)                         | Create an offer from JSON       |
-| [`subscriptions offers update`](#subscriptions-offers-update)                         | Update an offer from JSON       |
-| [`subscriptions offers delete`](#subscriptions-offers-delete)                         | Delete an offer                 |
-| [`subscriptions offers activate`](#subscriptions-offers-activate)                     | Activate an offer               |
-| [`subscriptions offers deactivate`](#subscriptions-offers-deactivate)                 | Deactivate an offer             |
-| [`subscriptions offers batch-get`](#subscriptions-offers-batch-get)                   | Batch get multiple offers       |
+| Command                                                                                 | Description                      |
+| --------------------------------------------------------------------------------------- | -------------------------------- |
+| [`subscriptions list`](#subscriptions-list)                                             | List subscriptions               |
+| [`subscriptions get`](#subscriptions-get)                                               | Get a subscription               |
+| [`subscriptions create`](#subscriptions-create)                                         | Create a subscription from JSON  |
+| [`subscriptions update`](#subscriptions-update)                                         | Update a subscription from JSON  |
+| [`subscriptions delete`](#subscriptions-delete)                                         | Delete a subscription            |
+| [`subscriptions base-plans activate`](#subscriptions-base-plans-activate)               | Activate a base plan             |
+| [`subscriptions base-plans deactivate`](#subscriptions-base-plans-deactivate)           | Deactivate a base plan           |
+| [`subscriptions base-plans delete`](#subscriptions-base-plans-delete)                   | Delete a base plan               |
+| [`subscriptions base-plans migrate-prices`](#subscriptions-base-plans-migrate-prices)   | Migrate base plan prices         |
+| [`subscriptions offers list`](#subscriptions-offers-list)                               | List offers for a base plan      |
+| [`subscriptions offers get`](#subscriptions-offers-get)                                 | Get an offer                     |
+| [`subscriptions offers create`](#subscriptions-offers-create)                           | Create an offer from JSON        |
+| [`subscriptions offers update`](#subscriptions-offers-update)                           | Update an offer from JSON        |
+| [`subscriptions offers delete`](#subscriptions-offers-delete)                           | Delete an offer                  |
+| [`subscriptions offers activate`](#subscriptions-offers-activate)                       | Activate an offer                |
+| [`subscriptions offers deactivate`](#subscriptions-offers-deactivate)                   | Deactivate an offer              |
+| [`subscriptions offers batch-get`](#subscriptions-offers-batch-get)                     | Batch get multiple offers        |
 | [`subscriptions offers batch-update-states`](#subscriptions-offers-batch-update-states) | Batch activate/deactivate offers |
-| [`subscriptions diff`](#subscriptions-diff)                                           | Compare local JSON vs remote    |
+| [`subscriptions diff`](#subscriptions-diff)                                             | Compare local JSON vs remote     |
 
 ## `subscriptions list`
 

@@ -112,7 +112,13 @@ export function registerTracksCommands(program: Command): void {
 
       const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
       const client = createApiClient({ auth });
-      const track = await updateTrackConfig(client, packageName, name, trackConfig, buildCommitOptions(options));
+      const track = await updateTrackConfig(
+        client,
+        packageName,
+        name,
+        trackConfig,
+        buildCommitOptions(options),
+      );
       console.log(formatOutput(track, format));
     });
 }

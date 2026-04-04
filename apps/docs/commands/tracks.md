@@ -13,10 +13,10 @@ outline: deep
 
 | Command                           | Description                          |
 | --------------------------------- | ------------------------------------ |
-| [`tracks list`](#tracks-list)       | List all tracks with status          |
-| [`tracks get`](#tracks-get)         | Get track details including releases |
-| [`tracks create`](#tracks-create)   | Create a custom closed testing track |
-| [`tracks update`](#tracks-update)   | Update track configuration           |
+| [`tracks list`](#tracks-list)     | List all tracks with status          |
+| [`tracks get`](#tracks-get)       | Get track details including releases |
+| [`tracks create`](#tracks-create) | Create a custom closed testing track |
+| [`tracks update`](#tracks-update) | Update track configuration           |
 
 ## `tracks list`
 
@@ -94,10 +94,10 @@ gpc tracks create <name> [options]
 
 ### Options
 
-| Flag      | Short | Type     | Default | Description |
-| --------- | ----- | -------- | ------- | ----------- |
-| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
-| `--error-if-in-review` | | flag | | Fail if changes are already in review |
+| Flag                            | Short | Type | Default | Description                           |
+| ------------------------------- | ----- | ---- | ------- | ------------------------------------- |
+| `--changes-not-sent-for-review` |       | flag |         | Commit without sending for review     |
+| `--error-if-in-review`          |       | flag |         | Fail if changes are already in review |
 
 ### Example
 
@@ -119,12 +119,12 @@ gpc tracks update <track> --file <path> [options]
 
 ### Options
 
-| Flag        | Short | Type      | Default        | Description                      |
-| ----------- | ----- | --------- | -------------- | -------------------------------- |
-| `--file`    |       | `string`  | **(required)** | Path to JSON track configuration |
-| `--dry-run` |       | `boolean` | `false`        | Preview changes without applying |
-| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
-| `--error-if-in-review` | | flag | | Fail if changes are already in review |
+| Flag                            | Short | Type      | Default        | Description                           |
+| ------------------------------- | ----- | --------- | -------------- | ------------------------------------- |
+| `--file`                        |       | `string`  | **(required)** | Path to JSON track configuration      |
+| `--dry-run`                     |       | `boolean` | `false`        | Preview changes without applying      |
+| `--changes-not-sent-for-review` |       | flag      |                | Commit without sending for review     |
+| `--error-if-in-review`          |       | flag      |                | Fail if changes are already in review |
 
 ### Example
 

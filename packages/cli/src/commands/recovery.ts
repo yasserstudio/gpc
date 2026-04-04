@@ -15,8 +15,6 @@ import { getOutputFormat } from "../format.js";
 import { requireConfirm } from "../prompt.js";
 import { readFileSync } from "node:fs";
 
-
-
 export function registerRecoveryCommands(program: Command): void {
   const recovery = program.command("recovery").description("Manage app recovery actions");
 
@@ -33,8 +31,14 @@ export function registerRecoveryCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       if (options.versionCode === undefined) {
-        const err = new Error("--version-code is required. The API requires a version code to filter recovery actions.");
-        Object.assign(err, { code: "USAGE_ERROR", exitCode: 2, suggestion: "Usage: gpc recovery list --version-code <code>" });
+        const err = new Error(
+          "--version-code is required. The API requires a version code to filter recovery actions.",
+        );
+        Object.assign(err, {
+          code: "USAGE_ERROR",
+          exitCode: 2,
+          suggestion: "Usage: gpc recovery list --version-code <code>",
+        });
         throw err;
       }
       const result = await listRecoveryActions(client, packageName, options.versionCode);
@@ -75,9 +79,7 @@ export function registerRecoveryCommands(program: Command): void {
       const client = await getClient(config);
 
       await cancelRecoveryAction(client, packageName, id);
-      console.log(
-        formatOutput({ success: true, appRecoveryId: id, action: "cancelled" }, format),
-      );
+      console.log(formatOutput({ success: true, appRecoveryId: id, action: "cancelled" }, format));
     });
 
   recovery
@@ -122,8 +124,14 @@ export function registerRecoveryCommands(program: Command): void {
       try {
         data = JSON.parse(readFileSync(options.file, "utf-8"));
       } catch (err) {
-        const error = new Error(`Could not read recovery action data from ${options.file}: ${err instanceof Error ? err.message : String(err)}`);
-        Object.assign(error, { code: "INVALID_INPUT", exitCode: 2, suggestion: "Check the file path and ensure it contains valid JSON." });
+        const error = new Error(
+          `Could not read recovery action data from ${options.file}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        Object.assign(error, {
+          code: "INVALID_INPUT",
+          exitCode: 2,
+          suggestion: "Check the file path and ensure it contains valid JSON.",
+        });
         throw error;
       }
 
@@ -160,8 +168,14 @@ export function registerRecoveryCommands(program: Command): void {
       try {
         targeting = JSON.parse(readFileSync(options.file, "utf-8"));
       } catch (err) {
-        const error = new Error(`Could not read targeting data from ${options.file}: ${err instanceof Error ? err.message : String(err)}`);
-        Object.assign(error, { code: "INVALID_INPUT", exitCode: 2, suggestion: "Check the file path and ensure it contains valid JSON." });
+        const error = new Error(
+          `Could not read targeting data from ${options.file}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+        Object.assign(error, {
+          code: "INVALID_INPUT",
+          exitCode: 2,
+          suggestion: "Check the file path and ensure it contains valid JSON.",
+        });
         throw error;
       }
 

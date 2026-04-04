@@ -125,6 +125,7 @@ Onboarding polish, safety confirmations, pager for long lists.
 API completeness, bug fixes, RTDN, rate limiter rewrite.
 
 ### Bug Fixes
+
 - fix(cli): `gpc changelog --version` renamed to `--tag` — Commander.js global `--version` flag conflict (Bug AC)
 - fix(api): `gpc releases upload app.apk` now uses `edits.apks.upload` endpoint — was sending APKs to bundles endpoint (Bug AD)
 - fix(preflight): `gpc preflight app.apk` now supports APK files — reads manifest from root instead of `base/manifest/` (Bug AD)
@@ -132,11 +133,13 @@ API completeness, bug fixes, RTDN, rate limiter rewrite.
 - fix(status): `--watch` interval validation now exits code 2 (usage error), consistent with `--days`
 
 ### New Commands
+
 - feat(cli): `gpc rtdn status` — check Real-Time Developer Notification topic configuration
 - feat(cli): `gpc rtdn decode <payload>` — decode base64 Pub/Sub notification payloads
 - feat(cli): `gpc rtdn test` — guidance for testing RTDN setup
 
 ### New Features
+
 - feat(api): `edits.apks.upload` and `edits.apks.list` — APK upload support alongside AAB
 - feat(releases): `--status draft` flag on `gpc releases upload` and `gpc releases promote`
 - feat(reviews): `--all` auto-pagination fetches all review pages
@@ -147,15 +150,18 @@ API completeness, bug fixes, RTDN, rate limiter rewrite.
 - feat(releases): concurrent Play Console edit warning on upload
 
 ### API Client — 10 New Batch Endpoints
+
 - feat(api): `oneTimeProducts.batchGet`, `batchUpdate`, `batchDelete`
 - feat(api): `subscriptions.batchUpdateBasePlanStates`
 - feat(api): `subscriptions.offers.batchGet`, `batchUpdate`, `batchUpdateStates`
 
 ### Rate Limiter Rewrite
+
 - refactor(api): 6-bucket rate limiter matching Google's actual quota model (3,000 queries/min each)
 - refactor(api): all API calls automatically rate-limited by resource type (was 5 of 204 endpoints)
 
 ### Spec Alignment
+
 - feat(validate): `qa` track added to standard tracks
 - feat(validate): `google_play_games_pc:` form factor tracks added
 - fix(api): `?uploadType=media` query param on simple uploads
@@ -171,11 +177,13 @@ API completeness, bug fixes, RTDN, rate limiter rewrite.
 Deep code review, error handling overhaul, doctor enhancements, API catch-up.
 
 ### Error Handling Overhaul
+
 - fix(cli): removed 210 `process.exit()` calls across 39 command files — all errors now propagate to global `handleCliError` for consistent formatting, JSON mode support, and plugin hook compatibility
 - fix(cli): `resolvePackageName`, `readJsonFile`, `requireOption`, `requireConfirm` throw typed errors instead of calling `process.exit` directly
 - feat(cli): error handler supports `silent` flag for user-aborted operations
 
 ### `gpc update` Fixes
+
 - fix: GitHub API 403 rate limit distinguished from genuine forbidden (checks `x-ratelimit-remaining` header)
 - fix: binary download sends auth headers via `githubDownloadHeaders()`
 - feat: `GITHUB_TOKEN` fallback (standard CI env var) in addition to `GPC_GITHUB_TOKEN`
@@ -184,6 +192,7 @@ Deep code review, error handling overhaul, doctor enhancements, API catch-up.
 - fix: `process.exit(1)` in 3 places replaced with thrown typed errors
 
 ### `gpc doctor` Enhancements
+
 - feat: GPC version check (npm registry, shows "up to date" or "update available")
 - feat: HTTPS connectivity probe (TLS handshake to API endpoints, with latency)
 - feat: app access verification (`edits.insert` + `edits.delete` on configured app)
@@ -200,6 +209,7 @@ Deep code review, error handling overhaul, doctor enhancements, API catch-up.
 - fix: `process.exit(1)` replaced with `process.exitCode`
 
 ### `gpc status` Fixes
+
 - fix: deduplicated `relativeTime` (exported from core, imported in CLI)
 - fix: `--since-last` diff embedded in JSON output (was appended as text)
 - fix: version diff uses production track (was `releases[0]`)
@@ -207,6 +217,7 @@ Deep code review, error handling overhaul, doctor enhancements, API catch-up.
 - feat: validation errors throw typed errors for JSON mode
 
 ### Auth & First-Time Experience
+
 - fix: `auth login` verifies token on save, outputs structured JSON in `--json` mode
 - fix: `auth status/whoami/token/switch` errors propagate to global handler (were caught and discarded)
 - fix: `auth logout` deletes config key (was setting empty string), supports `--profile`
@@ -215,6 +226,7 @@ Deep code review, error handling overhaul, doctor enhancements, API catch-up.
 - feat: `deleteConfigValue` added to `@gpc-cli/config`
 
 ### API Client — New Endpoints
+
 - feat: `releases.list` — release lifecycle states (DRAFT, IN_REVIEW, PUBLISHED)
 - feat: `tracks.patch` — partial track updates
 - feat: `subscriptions.batchGet` — batch subscription reads
@@ -224,6 +236,7 @@ Deep code review, error handling overhaul, doctor enhancements, API catch-up.
 - feat: new types: `ReleaseSummary`, `ReleasesListResponse`, batch request/response types
 
 ### Other Fixes
+
 - fix(auth): token cache only `chmod`s directory on creation (was every write)
 - fix(core): `computeStatusDiff` uses production track for version comparison
 
@@ -351,7 +364,7 @@ Preflight compliance scanner, new commands, status improvements, and bug fixes.
 - security: `gpc plugins install/uninstall` — execSync → spawnSync (no shell injection)
 - fix: PlayApiError rename (was ApiError, naming collision)
 - fix: runWatchLoop throws instead of process.exit(2)
-- fix: workspace:* lockfile consistency
+- fix: workspace:\* lockfile consistency
 - 1,555 tests
 
 [Full Changelog](https://github.com/yasserstudio/gpc/compare/v0.9.36...v0.9.37)

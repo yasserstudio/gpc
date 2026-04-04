@@ -16,9 +16,7 @@ describe("iap batch-get deprecation notice", () => {
     program.option("-a, --app <package>", "App package name");
     registerIapCommands(program);
 
-    await expect(
-      program.parseAsync(["node", "gpc", "iap", "batch-get"]),
-    ).rejects.toMatchObject({
+    await expect(program.parseAsync(["node", "gpc", "iap", "batch-get"])).rejects.toMatchObject({
       code: "IAP_BATCH_GET_UNAVAILABLE",
       exitCode: 1,
       message: expect.stringContaining("permanently blocked by Google Play"),
@@ -31,9 +29,7 @@ describe("iap batch-get deprecation notice", () => {
     program.option("-a, --app <package>", "App package name");
     registerIapCommands(program);
 
-    await expect(
-      program.parseAsync(["node", "gpc", "iap", "batch-get"]),
-    ).rejects.toMatchObject({
+    await expect(program.parseAsync(["node", "gpc", "iap", "batch-get"])).rejects.toMatchObject({
       suggestion: expect.stringMatching(/gpc iap get.*gpc iap list/),
     });
   });
@@ -47,9 +43,7 @@ describe("iap batch-get deprecation notice", () => {
     program.option("-a, --app <package>", "App package name");
     registerIapCommands(program);
 
-    await expect(
-      program.parseAsync(["node", "gpc", "iap", "batch-get"]),
-    ).rejects.toMatchObject({
+    await expect(program.parseAsync(["node", "gpc", "iap", "batch-get"])).rejects.toMatchObject({
       code: "IAP_BATCH_GET_UNAVAILABLE",
     });
 

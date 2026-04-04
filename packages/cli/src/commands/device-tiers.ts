@@ -7,8 +7,6 @@ import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { readFile } from "node:fs/promises";
 
-
-
 export function registerDeviceTiersCommands(program: Command): void {
   const dt = program.command("device-tiers").description("Manage device tier configurations");
 

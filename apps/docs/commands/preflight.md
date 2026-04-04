@@ -15,17 +15,17 @@ outline: deep
 
 **9 scanners** run in parallel:
 
-| Scanner         | What it checks                                                                                   |
-| --------------- | ------------------------------------------------------------------------------------------------ |
+| Scanner         | What it checks                                                                                                                |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | **manifest**    | targetSdk, debuggable, testOnly, cleartext traffic, missing `exported`, foreground service types, exported-without-permission |
-| **permissions** | 18 restricted permissions (SMS, call log, background location, photo/video, etc.)                |
-| **native-libs** | 64-bit compliance, **16KB page size alignment** (ELF LOAD segment check, enforced since Nov 2025) |
-| **metadata**    | Store listing character limits, missing title, screenshots, privacy policy URL                   |
-| **secrets**     | Hardcoded API keys (AWS, Google, Stripe, private keys)                                           |
-| **billing**     | Non-Play billing SDKs (Stripe, Braintree, PayPal)                                                |
-| **privacy**     | Tracking SDKs (Facebook, Adjust, AppsFlyer), Advertising ID, data collection                     |
-| **policy**      | Families/COPPA, financial apps, health apps, UGC, overlay permissions                            |
-| **size**        | Download size warnings, large native libs, large assets                                          |
+| **permissions** | 18 restricted permissions (SMS, call log, background location, photo/video, etc.)                                             |
+| **native-libs** | 64-bit compliance, **16KB page size alignment** (ELF LOAD segment check, enforced since Nov 2025)                             |
+| **metadata**    | Store listing character limits, missing title, screenshots, privacy policy URL                                                |
+| **secrets**     | Hardcoded API keys (AWS, Google, Stripe, private keys)                                                                        |
+| **billing**     | Non-Play billing SDKs (Stripe, Braintree, PayPal)                                                                             |
+| **privacy**     | Tracking SDKs (Facebook, Adjust, AppsFlyer), Advertising ID, data collection                                                  |
+| **policy**      | Families/COPPA, financial apps, health apps, UGC, overlay permissions                                                         |
+| **size**        | Download size warnings, large native libs, large assets                                                                       |
 
 ## Commands
 

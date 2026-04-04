@@ -164,7 +164,13 @@ async function executeStage(
   stageIndex: number,
 ): Promise<void> {
   const stage = state.stages[stageIndex];
-  if (!stage) throw new GpcError(`Stage ${stageIndex} not found`, "TRAIN_STAGE_NOT_FOUND", 1, "Check your release train configuration.");
+  if (!stage)
+    throw new GpcError(
+      `Stage ${stageIndex} not found`,
+      "TRAIN_STAGE_NOT_FOUND",
+      1,
+      "Check your release train configuration.",
+    );
   const rolloutFraction = stage.rollout / 100;
 
   await updateRollout(apiClient, packageName, stage.track, "increase", rolloutFraction);

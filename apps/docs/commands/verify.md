@@ -23,10 +23,10 @@ gpc verify [options]
 
 ## Options
 
-| Flag     | Type   | Description                                     |
-| -------- | ------ | ----------------------------------------------- |
+| Flag     | Type   | Description                                        |
+| -------- | ------ | -------------------------------------------------- |
 | `--open` | `flag` | Open the verification page in your default browser |
-| `--json` | `flag` | Output as JSON                                  |
+| `--json` | `flag` | Output as JSON                                     |
 
 ## Examples
 

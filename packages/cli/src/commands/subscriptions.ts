@@ -32,8 +32,6 @@ import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
 import { readJsonFile } from "../json.js";
 
-
-
 export function registerSubscriptionsCommands(program: Command): void {
   const subs = program.command("subscriptions").description("Manage subscriptions and base plans");
 
@@ -52,30 +50,32 @@ export function registerSubscriptionsCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       const result = await listSubscriptions(client, packageName, {
-          pageSize: options.pageSize,
-          pageToken: options.pageToken,
-          limit: options.limit,
-          nextPage: options.nextPage,
-        });
-        if (options.sort) {
-          result.subscriptions = sortResults(result.subscriptions, options.sort);
+        pageSize: options.pageSize,
+        pageToken: options.pageToken,
+        limit: options.limit,
+        nextPage: options.nextPage,
+      });
+      if (options.sort) {
+        result.subscriptions = sortResults(result.subscriptions, options.sort);
+      }
+      const subs = result.subscriptions || [];
+      if (format !== "json") {
+        if (subs.length === 0) {
+          console.log("No subscriptions found.");
+          return;
         }
-        const subs = result.subscriptions || [];
-        if (format !== "json") {
-          if (subs.length === 0) {
-            console.log("No subscriptions found.");
-            return;
-          }
-          const summary = subs.map((s: Subscription) => ({
-            productId: s.productId,
-            basePlans: s.basePlans?.length || 0,
-            listings: s.listings ? Object.keys(s.listings).length : 0,
-            firstBasePlanState: s.basePlans?.[0]?.state || "-",
-          }));
-          await maybePaginate(formatOutput(summary, format));
-        } else {
-          await maybePaginate(formatOutput(subs.length === 0 ? { subscriptions: [] } : result, format));
-        }
+        const summary = subs.map((s: Subscription) => ({
+          productId: s.productId,
+          basePlans: s.basePlans?.length || 0,
+          listings: s.listings ? Object.keys(s.listings).length : 0,
+          firstBasePlanState: s.basePlans?.[0]?.state || "-",
+        }));
+        await maybePaginate(formatOutput(summary, format));
+      } else {
+        await maybePaginate(
+          formatOutput(subs.length === 0 ? { subscriptions: [] } : result, format),
+        );
+      }
     });
 
   subs
@@ -88,39 +88,39 @@ export function registerSubscriptionsCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       const result = await getSubscription(client, packageName, productId);
-        if (format !== "json") {
-          const s = result as unknown as Record<string, unknown>;
-          const basePlans = s["basePlans"] as Array<Record<string, unknown>> | undefined;
-          const listings = s["listings"] as
-            | Record<string, unknown>
-            | Array<Record<string, unknown>>
-            | undefined;
-          const listingLanguages = listings
-            ? Array.isArray(listings)
-              ? listings.map((l) => l["languageCode"] || l["language"] || "?").join(", ")
-              : Object.keys(listings).join(", ")
-            : "-";
-          const listingCount = listings
-            ? Array.isArray(listings)
-              ? listings.length
-              : Object.keys(listings).length
-            : 0;
-          const summary = {
-            productId: s["productId"],
-            basePlans: basePlans?.length || 0,
-            basePlanIds: basePlans?.map((bp) => bp["basePlanId"]).join(", ") || "-",
-            listings: listingCount,
-            listingLanguages,
-            taxCategory: (s["taxAndComplianceSettings"] as Record<string, unknown>)?.[
-              "taxRateInfoByRegionCode"
-            ]
-              ? "configured"
-              : "-",
-          };
-          console.log(formatOutput(summary, format));
-        } else {
-          console.log(formatOutput(result, format));
-        }
+      if (format !== "json") {
+        const s = result as unknown as Record<string, unknown>;
+        const basePlans = s["basePlans"] as Array<Record<string, unknown>> | undefined;
+        const listings = s["listings"] as
+          | Record<string, unknown>
+          | Array<Record<string, unknown>>
+          | undefined;
+        const listingLanguages = listings
+          ? Array.isArray(listings)
+            ? listings.map((l) => l["languageCode"] || l["language"] || "?").join(", ")
+            : Object.keys(listings).join(", ")
+          : "-";
+        const listingCount = listings
+          ? Array.isArray(listings)
+            ? listings.length
+            : Object.keys(listings).length
+          : 0;
+        const summary = {
+          productId: s["productId"],
+          basePlans: basePlans?.length || 0,
+          basePlanIds: basePlans?.map((bp) => bp["basePlanId"]).join(", ") || "-",
+          listings: listingCount,
+          listingLanguages,
+          taxCategory: (s["taxAndComplianceSettings"] as Record<string, unknown>)?.[
+            "taxRateInfoByRegionCode"
+          ]
+            ? "configured"
+            : "-",
+        };
+        console.log(formatOutput(summary, format));
+      } else {
+        console.log(formatOutput(result, format));
+      }
     });
 
   subs
@@ -150,21 +150,21 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
 
       const data = await readJsonFile(options.file);
-        const result = await createSubscription(client, packageName, data as any);
+      const result = await createSubscription(client, packageName, data as any);
 
-        if (options.activate && result.basePlans) {
-          for (const bp of result.basePlans) {
-            if (bp.state === "DRAFT") {
-              await activateBasePlan(client, packageName, result.productId, bp.basePlanId);
-              console.error(`Activated base plan: ${bp.basePlanId}`);
-            }
+      if (options.activate && result.basePlans) {
+        for (const bp of result.basePlans) {
+          if (bp.state === "DRAFT") {
+            await activateBasePlan(client, packageName, result.productId, bp.basePlanId);
+            console.error(`Activated base plan: ${bp.basePlanId}`);
           }
-          // Re-fetch to get updated state
-          const updated = await getSubscription(client, packageName, result.productId);
-          console.log(formatOutput(updated, format));
-        } else {
-          console.log(formatOutput(result, format));
         }
+        // Re-fetch to get updated state
+        const updated = await getSubscription(client, packageName, result.productId);
+        console.log(formatOutput(updated, format));
+      } else {
+        console.log(formatOutput(result, format));
+      }
     });
 
   subs
@@ -194,14 +194,14 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
 
       const data = await readJsonFile(options.file);
-        const result = await updateSubscription(
-          client,
-          packageName,
-          productId,
-          data as any,
-          options.updateMask,
-        );
-        console.log(formatOutput(result, format));
+      const result = await updateSubscription(
+        client,
+        packageName,
+        productId,
+        data as any,
+        options.updateMask,
+      );
+      console.log(formatOutput(result, format));
     });
 
   subs
@@ -230,7 +230,7 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
 
       await deleteSubscription(client, packageName, productId);
-        console.log(`Subscription ${productId} deleted.`);
+      console.log(`Subscription ${productId} deleted.`);
     });
 
   // --- Base Plans ---
@@ -260,7 +260,7 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
 
       const result = await activateBasePlan(client, packageName, productId, basePlanId);
-        console.log(formatOutput(result, format));
+      console.log(formatOutput(result, format));
     });
 
   basePlans
@@ -287,7 +287,7 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
 
       const result = await deactivateBasePlan(client, packageName, productId, basePlanId);
-        console.log(formatOutput(result, format));
+      console.log(formatOutput(result, format));
     });
 
   basePlans
@@ -319,7 +319,7 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
 
       await deleteBasePlan(client, packageName, productId, basePlanId);
-        console.log(`Base plan ${basePlanId} deleted.`);
+      console.log(`Base plan ${basePlanId} deleted.`);
     });
 
   basePlans
@@ -353,14 +353,8 @@ export function registerSubscriptionsCommands(program: Command): void {
         const client = await getClient(config);
 
         const data = await readJsonFile(options.file);
-          const result = await migratePrices(
-            client,
-            packageName,
-            productId,
-            basePlanId,
-            data as any,
-          );
-          console.log(formatOutput(result, format));
+        const result = await migratePrices(client, packageName, productId, basePlanId, data as any);
+        console.log(formatOutput(result, format));
       },
     );
 
@@ -377,25 +371,25 @@ export function registerSubscriptionsCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       const result = await listOffers(client, packageName, productId, basePlanId);
-        const offers_list = (result as unknown as Record<string, unknown>)["subscriptionOffers"] as
-          | Array<Record<string, unknown>>
-          | undefined;
-        if (format !== "json") {
-          if (!offers_list || offers_list.length === 0) {
-            console.log("No offers found.");
-            return;
-          }
-          const summary = offers_list.map((o) => ({
-            offerId: o["offerId"],
-            basePlanId: o["basePlanId"],
-            state: o["state"] || "-",
-            phases: (o["phases"] as unknown[])?.length || 0,
-            regionalConfigs: (o["regionalConfigs"] as unknown[])?.length || 0,
-          }));
-          console.log(formatOutput(summary, format));
-        } else {
-          console.log(formatOutput(result, format));
+      const offers_list = (result as unknown as Record<string, unknown>)["subscriptionOffers"] as
+        | Array<Record<string, unknown>>
+        | undefined;
+      if (format !== "json") {
+        if (!offers_list || offers_list.length === 0) {
+          console.log("No offers found.");
+          return;
         }
+        const summary = offers_list.map((o) => ({
+          offerId: o["offerId"],
+          basePlanId: o["basePlanId"],
+          state: o["state"] || "-",
+          phases: (o["phases"] as unknown[])?.length || 0,
+          regionalConfigs: (o["regionalConfigs"] as unknown[])?.length || 0,
+        }));
+        console.log(formatOutput(summary, format));
+      } else {
+        console.log(formatOutput(result, format));
+      }
     });
 
   offers
@@ -408,7 +402,7 @@ export function registerSubscriptionsCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       const result = await getOffer(client, packageName, productId, basePlanId, offerId);
-        console.log(formatOutput(result, format));
+      console.log(formatOutput(result, format));
     });
 
   offers
@@ -442,8 +436,8 @@ export function registerSubscriptionsCommands(program: Command): void {
         const client = await getClient(config);
 
         const data = await readJsonFile(options.file);
-          const result = await createOffer(client, packageName, productId, basePlanId, data as any);
-          console.log(formatOutput(result, format));
+        const result = await createOffer(client, packageName, productId, basePlanId, data as any);
+        console.log(formatOutput(result, format));
       },
     );
 
@@ -480,16 +474,16 @@ export function registerSubscriptionsCommands(program: Command): void {
         const client = await getClient(config);
 
         const data = await readJsonFile(options.file);
-          const result = await updateOffer(
-            client,
-            packageName,
-            productId,
-            basePlanId,
-            offerId,
-            data as any,
-            options.updateMask,
-          );
-          console.log(formatOutput(result, format));
+        const result = await updateOffer(
+          client,
+          packageName,
+          productId,
+          basePlanId,
+          offerId,
+          data as any,
+          options.updateMask,
+        );
+        console.log(formatOutput(result, format));
       },
     );
 
@@ -519,7 +513,7 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
 
       await deleteOffer(client, packageName, productId, basePlanId, offerId);
-        console.log(`Offer ${offerId} deleted.`);
+      console.log(`Offer ${offerId} deleted.`);
     });
 
   offers
@@ -546,7 +540,7 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
 
       const result = await activateOffer(client, packageName, productId, basePlanId, offerId);
-        console.log(formatOutput(result, format));
+      console.log(formatOutput(result, format));
     });
 
   offers
@@ -573,7 +567,7 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
 
       const result = await deactivateOffer(client, packageName, productId, basePlanId, offerId);
-        console.log(formatOutput(result, format));
+      console.log(formatOutput(result, format));
     });
 
   offers
@@ -587,7 +581,12 @@ export function registerSubscriptionsCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       const offerIds = options.ids.split(",").map((id) => id.trim());
-      const result = await client.subscriptions.batchGetOffers(packageName, productId, basePlanId, offerIds);
+      const result = await client.subscriptions.batchGetOffers(
+        packageName,
+        productId,
+        basePlanId,
+        offerIds,
+      );
       console.log(formatOutput(result, format));
     });
 
@@ -601,13 +600,27 @@ export function registerSubscriptionsCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       if (isDryRun(program)) {
-        printDryRun({ command: "subscriptions offers batch-update-states", action: "batch update offer states", target: `${productId}/${basePlanId}`, details: { file: options.file } }, format, formatOutput);
+        printDryRun(
+          {
+            command: "subscriptions offers batch-update-states",
+            action: "batch update offer states",
+            target: `${productId}/${basePlanId}`,
+            details: { file: options.file },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 
       const client = await getClient(config);
       const requests = await readJsonFile(options.file);
-      const result = await client.subscriptions.batchUpdateOfferStates(packageName, productId, basePlanId, requests as any);
+      const result = await client.subscriptions.batchUpdateOfferStates(
+        packageName,
+        productId,
+        basePlanId,
+        requests as any,
+      );
       console.log(formatOutput(result, format));
     });
 
@@ -623,12 +636,12 @@ export function registerSubscriptionsCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       const localData = (await readJsonFile(options.file)) as Subscription;
-        const diffs = await diffSubscription(client, packageName, productId, localData);
-        if (diffs.length === 0) {
-          console.log("No differences found.");
-        } else {
-          console.log(formatOutput(diffs, format));
-        }
+      const diffs = await diffSubscription(client, packageName, productId, localData);
+      if (diffs.length === 0) {
+        console.log("No differences found.");
+      } else {
+        console.log(formatOutput(diffs, format));
+      }
     });
 
   subs
@@ -642,23 +655,23 @@ export function registerSubscriptionsCommands(program: Command): void {
 
       const result = await getSubscriptionAnalytics(client, packageName);
 
-        if (format === "json") {
-          console.log(formatOutput(result, format));
-          return;
-        }
+      if (format === "json") {
+        console.log(formatOutput(result, format));
+        return;
+      }
 
-        console.log(`\nSubscription Analytics — ${packageName}`);
-        console.log(`${"─".repeat(50)}`);
-        console.log(`Total subscriptions:  ${result.totalSubscriptions}`);
-        console.log(`Active subscriptions: ${result.activeCount}`);
-        console.log(`Active base plans:    ${result.activeBasePlans}`);
-        console.log(`Draft base plans:     ${result.trialBasePlans}`);
-        console.log(`Inactive base plans:  ${result.pausedBasePlans}`);
-        console.log(`Total offers:         ${result.offerCount}`);
+      console.log(`\nSubscription Analytics — ${packageName}`);
+      console.log(`${"─".repeat(50)}`);
+      console.log(`Total subscriptions:  ${result.totalSubscriptions}`);
+      console.log(`Active subscriptions: ${result.activeCount}`);
+      console.log(`Active base plans:    ${result.activeBasePlans}`);
+      console.log(`Draft base plans:     ${result.trialBasePlans}`);
+      console.log(`Inactive base plans:  ${result.pausedBasePlans}`);
+      console.log(`Total offers:         ${result.offerCount}`);
 
-        if (result.byProductId.length > 0) {
-          console.log(`\nBy product:`);
-          console.log(formatOutput(result.byProductId, format));
-        }
+      if (result.byProductId.length > 0) {
+        console.log(`\nBy product:`);
+        console.log(formatOutput(result.byProductId, format));
+      }
     });
 }

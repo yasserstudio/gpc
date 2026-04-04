@@ -6,8 +6,6 @@ import { uploadInternalSharing, formatOutput, createSpinner } from "@gpc-cli/cor
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 
-
-
 export function registerInternalSharingCommands(program: Command): void {
   const cmd = program
     .command("internal-sharing")

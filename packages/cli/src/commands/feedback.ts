@@ -19,9 +19,13 @@ export function registerFeedbackCommand(program: Command): void {
         if (events.length > 0) {
           lastCommand = events
             .map((e) => {
-              const args = e.args && Object.keys(e.args).length > 0
-                ? " " + Object.entries(e.args).map(([k, v]) => `--${k} ${v}`).join(" ")
-                : "";
+              const args =
+                e.args && Object.keys(e.args).length > 0
+                  ? " " +
+                    Object.entries(e.args)
+                      .map(([k, v]) => `--${k} ${v}`)
+                      .join(" ")
+                  : "";
               return `\`${e.command}${args}\` (${e.timestamp})`;
             })
             .join("\n- ");

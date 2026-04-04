@@ -13,8 +13,6 @@ import { isDryRun, printDryRun } from "../dry-run.js";
 import { isInteractive, requireOption, requireConfirm } from "../prompt.js";
 import { buildCommitOptions } from "../commit-options.js";
 
-
-
 export function registerTestersCommands(program: Command): void {
   const testers = program.command("testers").description("Manage testers and tester groups");
 
@@ -101,7 +99,13 @@ export function registerTestersCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      const result = await addTesters(client, packageName, options.track, emails, buildCommitOptions(options));
+      const result = await addTesters(
+        client,
+        packageName,
+        options.track,
+        emails,
+        buildCommitOptions(options),
+      );
       console.log(formatOutput(result, format));
     });
 
@@ -145,7 +149,13 @@ export function registerTestersCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      const result = await removeTesters(client, packageName, options.track, emails, buildCommitOptions(options));
+      const result = await removeTesters(
+        client,
+        packageName,
+        options.track,
+        emails,
+        buildCommitOptions(options),
+      );
       console.log(formatOutput(result, format));
     });
 
@@ -197,7 +207,13 @@ export function registerTestersCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      const result = await importTestersFromCsv(client, packageName, options.track, options.file, buildCommitOptions(options));
+      const result = await importTestersFromCsv(
+        client,
+        packageName,
+        options.track,
+        options.file,
+        buildCommitOptions(options),
+      );
       console.log(formatOutput({ added: result.added, testers: result.testers }, format));
     });
 }

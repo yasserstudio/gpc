@@ -38,24 +38,24 @@ gpc releases upload <file> [options]
 
 ### Options
 
-| Flag                | Short | Type     | Default    | Description                                                         |
-| ------------------- | ----- | -------- | ---------- | ------------------------------------------------------------------- |
-| `--track`           |       | `string` | `internal` | Target track (`internal`, `alpha`, `beta`, `production`, or custom) |
-| `--rollout`         |       | `number` |            | Staged rollout percentage (1-100)                                   |
-| `--notes`           |       | `string` |            | Release notes text (en-US)                                          |
-| `--name`            |       | `string` |            | Release name                                                        |
-| `--mapping`         |       | `string` |            | Path to ProGuard/R8 mapping file for deobfuscation                  |
-| `--notes-dir`       |       | `string` |            | Directory with per-language release notes (`<dir>/<lang>.txt`)      |
-| `--notes-from-git`  |       | flag     |            | Generate release notes from git commit history                      |
-| `--copy-notes-from` |       | `string` |            | Copy release notes from another track's latest release              |
-| `--since`           |       | `string` |            | Git ref to start from (tag, SHA) — used with `--notes-from-git`     |
-| `--timeout`         |       | `number` |            | Upload timeout in milliseconds (auto-scales with file size)         |
-| `--retry-log`       |       | `string` |            | Write retry log entries to file (JSONL)                             |
-| `--status`          |       | `string` | `completed`| Release status: `completed`, `inProgress`, `draft`, `halted`       |
-| `--mapping-type`    |       | `string` | `proguard` | Deobfuscation file type: `proguard` or `nativeCode`                |
-| `--device-tier-config` |    | `string` |            | Device tier config ID (or `LATEST`) for targeted delivery          |
-| `--changes-not-sent-for-review` | | flag |           | Commit without sending for review (required for [rejected apps](#rejected-apps)) |
-| `--error-if-in-review` |    | flag     |            | Fail if changes are already in review instead of cancelling them   |
+| Flag                            | Short | Type     | Default     | Description                                                                      |
+| ------------------------------- | ----- | -------- | ----------- | -------------------------------------------------------------------------------- |
+| `--track`                       |       | `string` | `internal`  | Target track (`internal`, `alpha`, `beta`, `production`, or custom)              |
+| `--rollout`                     |       | `number` |             | Staged rollout percentage (1-100)                                                |
+| `--notes`                       |       | `string` |             | Release notes text (en-US)                                                       |
+| `--name`                        |       | `string` |             | Release name                                                                     |
+| `--mapping`                     |       | `string` |             | Path to ProGuard/R8 mapping file for deobfuscation                               |
+| `--notes-dir`                   |       | `string` |             | Directory with per-language release notes (`<dir>/<lang>.txt`)                   |
+| `--notes-from-git`              |       | flag     |             | Generate release notes from git commit history                                   |
+| `--copy-notes-from`             |       | `string` |             | Copy release notes from another track's latest release                           |
+| `--since`                       |       | `string` |             | Git ref to start from (tag, SHA) — used with `--notes-from-git`                  |
+| `--timeout`                     |       | `number` |             | Upload timeout in milliseconds (auto-scales with file size)                      |
+| `--retry-log`                   |       | `string` |             | Write retry log entries to file (JSONL)                                          |
+| `--status`                      |       | `string` | `completed` | Release status: `completed`, `inProgress`, `draft`, `halted`                     |
+| `--mapping-type`                |       | `string` | `proguard`  | Deobfuscation file type: `proguard` or `nativeCode`                              |
+| `--device-tier-config`          |       | `string` |             | Device tier config ID (or `LATEST`) for targeted delivery                        |
+| `--changes-not-sent-for-review` |       | flag     |             | Commit without sending for review (required for [rejected apps](#rejected-apps)) |
+| `--error-if-in-review`          |       | flag     |             | Fail if changes are already in review instead of cancelling them                 |
 
 ### Upload Progress
 
@@ -211,16 +211,16 @@ gpc releases promote --from <track> --to <track> [options]
 
 ### Options
 
-| Flag                | Short | Type     | Default        | Description                                            |
-| ------------------- | ----- | -------- | -------------- | ------------------------------------------------------ |
-| `--from`            |       | `string` | **(required)** | Source track                                           |
-| `--to`              |       | `string` | **(required)** | Target track                                           |
-| `--rollout`         |       | `number` |                | Staged rollout percentage (1-100) for the target track |
-| `--notes`           |       | `string` |                | Release notes text (en-US)                             |
-| `--copy-notes-from` |       | `string` |                | Copy release notes from another track's latest release |
-| `--status`          |       | `string` |                | Release status: `completed`, `inProgress`, `draft`, `halted` |
-| `--changes-not-sent-for-review` | | flag |                | Commit without sending for review (required for [rejected apps](#rejected-apps)) |
-| `--error-if-in-review` |    | flag     |                | Fail if changes are already in review instead of cancelling them   |
+| Flag                            | Short | Type     | Default        | Description                                                                      |
+| ------------------------------- | ----- | -------- | -------------- | -------------------------------------------------------------------------------- |
+| `--from`                        |       | `string` | **(required)** | Source track                                                                     |
+| `--to`                          |       | `string` | **(required)** | Target track                                                                     |
+| `--rollout`                     |       | `number` |                | Staged rollout percentage (1-100) for the target track                           |
+| `--notes`                       |       | `string` |                | Release notes text (en-US)                                                       |
+| `--copy-notes-from`             |       | `string` |                | Copy release notes from another track's latest release                           |
+| `--status`                      |       | `string` |                | Release status: `completed`, `inProgress`, `draft`, `halted`                     |
+| `--changes-not-sent-for-review` |       | flag     |                | Commit without sending for review (required for [rejected apps](#rejected-apps)) |
+| `--error-if-in-review`          |       | flag     |                | Fail if changes are already in review instead of cancelling them                 |
 
 ::: tip Validation
 `--from` and `--to` must be different tracks. Passing the same value for both exits code 2.
@@ -269,12 +269,12 @@ gpc releases rollout increase --track <track> --to <percent>
 
 ### Options
 
-| Flag      | Short | Type     | Default        | Description                    |
-| --------- | ----- | -------- | -------------- | ------------------------------ |
-| `--track` |       | `string` | **(required)** | Track name                     |
-| `--to`    |       | `number` | **(required)** | New rollout percentage (1-100) |
-| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
-| `--error-if-in-review` | | flag | | Fail if changes are already in review |
+| Flag                            | Short | Type     | Default        | Description                           |
+| ------------------------------- | ----- | -------- | -------------- | ------------------------------------- |
+| `--track`                       |       | `string` | **(required)** | Track name                            |
+| `--to`                          |       | `number` | **(required)** | New rollout percentage (1-100)        |
+| `--changes-not-sent-for-review` |       | flag     |                | Commit without sending for review     |
+| `--error-if-in-review`          |       | flag     |                | Fail if changes are already in review |
 
 ::: tip Validation
 `--to` must be between 1–100. Values outside that range exit code 2.
@@ -303,11 +303,11 @@ gpc releases rollout halt --track <track>
 
 ### Options
 
-| Flag      | Short | Type     | Default        | Description |
-| --------- | ----- | -------- | -------------- | ----------- |
-| `--track` |       | `string` | **(required)** | Track name  |
-| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
-| `--error-if-in-review` | | flag | | Fail if changes are already in review |
+| Flag                            | Short | Type     | Default        | Description                           |
+| ------------------------------- | ----- | -------- | -------------- | ------------------------------------- |
+| `--track`                       |       | `string` | **(required)** | Track name                            |
+| `--changes-not-sent-for-review` |       | flag     |                | Commit without sending for review     |
+| `--error-if-in-review`          |       | flag     |                | Fail if changes are already in review |
 
 ### Example
 
@@ -331,11 +331,11 @@ gpc releases rollout resume --track <track>
 
 ### Options
 
-| Flag      | Short | Type     | Default        | Description |
-| --------- | ----- | -------- | -------------- | ----------- |
-| `--track` |       | `string` | **(required)** | Track name  |
-| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
-| `--error-if-in-review` | | flag | | Fail if changes are already in review |
+| Flag                            | Short | Type     | Default        | Description                           |
+| ------------------------------- | ----- | -------- | -------------- | ------------------------------------- |
+| `--track`                       |       | `string` | **(required)** | Track name                            |
+| `--changes-not-sent-for-review` |       | flag     |                | Commit without sending for review     |
+| `--error-if-in-review`          |       | flag     |                | Fail if changes are already in review |
 
 ### Example
 
@@ -359,11 +359,11 @@ gpc releases rollout complete --track <track>
 
 ### Options
 
-| Flag      | Short | Type     | Default        | Description |
-| --------- | ----- | -------- | -------------- | ----------- |
-| `--track` |       | `string` | **(required)** | Track name  |
-| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
-| `--error-if-in-review` | | flag | | Fail if changes are already in review |
+| Flag                            | Short | Type     | Default        | Description                           |
+| ------------------------------- | ----- | -------- | -------------- | ------------------------------------- |
+| `--track`                       |       | `string` | **(required)** | Track name                            |
+| `--changes-not-sent-for-review` |       | flag     |                | Commit without sending for review     |
+| `--error-if-in-review`          |       | flag     |                | Fail if changes are already in review |
 
 ### Example
 

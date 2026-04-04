@@ -20,13 +20,13 @@ GPC handles sensitive credentials (service account keys, OAuth tokens) and inter
 
 ### Attack Vectors
 
-| Vector                       | Risk   | Mitigation                                    |
-| ---------------------------- | ------ | --------------------------------------------- |
-| Credential committed to repo | High   | `.gitignore` templates, `gpc doctor` warnings |
-| Credential leaked in logs    | High   | Redaction in verbose/debug output             |
-| Token theft from disk        | Medium | OS keychain storage, file permissions (0600)  |
-| Man-in-the-middle            | Low    | TLS-only, custom CA certificate support       |
-| Malicious plugin             | Medium | Plugin permission scoping, approval flow      |
+| Vector                       | Risk   | Mitigation                                                                       |
+| ---------------------------- | ------ | -------------------------------------------------------------------------------- |
+| Credential committed to repo | High   | `.gitignore` templates, `gpc doctor` warnings                                    |
+| Credential leaked in logs    | High   | Redaction in verbose/debug output                                                |
+| Token theft from disk        | Medium | OS keychain storage, file permissions (0600)                                     |
+| Man-in-the-middle            | Low    | TLS-only, custom CA certificate support                                          |
+| Malicious plugin             | Medium | Plugin permission scoping, approval flow                                         |
 | Dependency supply chain      | Medium | Lockfile, audit, 4 runtime deps, `min-release-age=7`, Socket.dev CI + GitHub App |
 
 ## Credential Storage
@@ -242,13 +242,13 @@ type PluginPermission =
 
 The `main` branch is protected with the following rules:
 
-| Rule                    | Setting  | Why                                        |
-| ----------------------- | -------- | ------------------------------------------ |
-| Required status checks  | `check`, `analyze`, `Socket Security` | CI + CodeQL + Socket must pass before merge |
-| Strict status checks    | Enabled  | Branch must be up-to-date with `main`      |
-| Force pushes            | Disabled | Prevents history rewriting                 |
-| Deletions               | Disabled | Prevents accidental branch deletion        |
-| Enforce admins          | Disabled | Repo owner can bypass for emergencies      |
+| Rule                   | Setting                               | Why                                         |
+| ---------------------- | ------------------------------------- | ------------------------------------------- |
+| Required status checks | `check`, `analyze`, `Socket Security` | CI + CodeQL + Socket must pass before merge |
+| Strict status checks   | Enabled                               | Branch must be up-to-date with `main`       |
+| Force pushes           | Disabled                              | Prevents history rewriting                  |
+| Deletions              | Disabled                              | Prevents accidental branch deletion         |
+| Enforce admins         | Disabled                              | Repo owner can bypass for emergencies       |
 
 ### Secret Scanning
 
@@ -265,14 +265,14 @@ Push protection blocks any commit containing a detected secret before it reaches
 
 ### Automated Security
 
-| Tool         | Trigger             | What it checks                          |
-| ------------ | ------------------- | --------------------------------------- |
-| Socket.dev   | Every PR            | Supply chain alerts, malware, typosquats, license risks |
-| `pnpm audit` | Every PR (`check` job) | Known CVEs in dependency tree (moderate+) |
-| CodeQL       | Every push and PR   | Static analysis for JS/TS vulnerabilities |
-| Dependabot   | Weekly              | Dependency version and security updates (direct deps only) |
-| Secret scan  | Every push          | 200+ secret patterns in code            |
-| SBOM         | Every release       | CycloneDX bill of materials archived per release |
+| Tool         | Trigger                | What it checks                                             |
+| ------------ | ---------------------- | ---------------------------------------------------------- |
+| Socket.dev   | Every PR               | Supply chain alerts, malware, typosquats, license risks    |
+| `pnpm audit` | Every PR (`check` job) | Known CVEs in dependency tree (moderate+)                  |
+| CodeQL       | Every push and PR      | Static analysis for JS/TS vulnerabilities                  |
+| Dependabot   | Weekly                 | Dependency version and security updates (direct deps only) |
+| Secret scan  | Every push             | 200+ secret patterns in code                               |
+| SBOM         | Every release          | CycloneDX bill of materials archived per release           |
 
 ### History Hygiene
 
@@ -283,14 +283,14 @@ Push protection blocks any commit containing a detected secret before it reaches
 
 ### What's Tracked vs Gitignored
 
-| Tracked (visible on GitHub)          | Gitignored (local only)                |
-| ------------------------------------ | -------------------------------------- |
-| `.github/` (workflows, templates)    | `.dev/` (private docs, strategy)       |
-| `.changeset/` (versioning config)    | `.agents/`, `.claude/skills` (AI tools)|
-| `.gitignore`, `.npmrc`               | `.vscode/` (editor settings)           |
-| `CLAUDE.md` (project instructions)   | `AGENTS.md` (agent skill metadata)     |
-| `SECURITY.md` (disclosure policy)    | `.turbo/` (build cache)                |
-| Source code, tests, docs             | `node_modules/`, `dist/`, `.env`       |
+| Tracked (visible on GitHub)        | Gitignored (local only)                 |
+| ---------------------------------- | --------------------------------------- |
+| `.github/` (workflows, templates)  | `.dev/` (private docs, strategy)        |
+| `.changeset/` (versioning config)  | `.agents/`, `.claude/skills` (AI tools) |
+| `.gitignore`, `.npmrc`             | `.vscode/` (editor settings)            |
+| `CLAUDE.md` (project instructions) | `AGENTS.md` (agent skill metadata)      |
+| `SECURITY.md` (disclosure policy)  | `.turbo/` (build cache)                 |
+| Source code, tests, docs           | `node_modules/`, `dist/`, `.env`        |
 
 ## CI/CD Security Guidelines
 
@@ -332,44 +332,44 @@ GPC takes a defense-in-depth approach to supply chain security. The [axios suppl
 
 GPC uses only **4 runtime dependencies** (everything else is dev-only or workspace-internal):
 
-| Package               | Purpose              | Weekly Downloads | Risk |
-| --------------------- | -------------------- | --------------- | ---- |
-| `google-auth-library` | Google's official auth | 15M+            | Low  |
-| `commander`           | CLI framework         | 150M+           | Low  |
-| `protobufjs`          | AAB manifest parsing  | 25M+            | Low  |
-| `yauzl`               | ZIP/AAB extraction    | 10M+            | Low  |
+| Package               | Purpose                | Weekly Downloads | Risk |
+| --------------------- | ---------------------- | ---------------- | ---- |
+| `google-auth-library` | Google's official auth | 15M+             | Low  |
+| `commander`           | CLI framework          | 150M+            | Low  |
+| `protobufjs`          | AAB manifest parsing   | 25M+             | Low  |
+| `yauzl`               | ZIP/AAB extraction     | 10M+             | Low  |
 
 GPC does **not** depend on `axios`, `node-fetch`, `got`, or any HTTP client library. All API calls use Node.js 20+ built-in `fetch`.
 
 ### Protections in place
 
-| Layer | What it does |
-| ----- | ------------ |
-| `min-release-age=7` in `.npmrc` | Blocks packages published less than 7 days ago. Would have prevented the axios attack. |
-| `pnpm-lock.yaml` | Exact version pinning. No unexpected upgrades on install. |
-| Socket.dev CI scan | Runs `socket ci` on every PR. Blocks merges when critical supply chain alerts are detected. |
-| Socket.dev GitHub App | Inline PR comments when risky dependencies are added. Configured via `socket.yml`. |
-| `pnpm audit` in CI | Checks for known CVEs (moderate+) on every pull request. |
-| GitHub Actions SHA pins | All action references pinned to commit hashes, not mutable version tags. |
-| SBOM (CycloneDX) | Software bill of materials generated and archived on every npm release. |
-| CODEOWNERS | Security-sensitive paths (workflows, auth, .npmrc) require explicit review. |
-| Dependabot | Weekly security update PRs (direct dependencies only, actions grouped). |
-| Socket CLI wrapper | Scans every local `npm install` and `npx` for malware, typosquats, and suspicious behavior. |
-| CodeQL | Static analysis on every push for JS/TS vulnerabilities. |
-| GitHub secret scanning | Blocks pushes containing 200+ secret patterns. |
+| Layer                           | What it does                                                                                |
+| ------------------------------- | ------------------------------------------------------------------------------------------- |
+| `min-release-age=7` in `.npmrc` | Blocks packages published less than 7 days ago. Would have prevented the axios attack.      |
+| `pnpm-lock.yaml`                | Exact version pinning. No unexpected upgrades on install.                                   |
+| Socket.dev CI scan              | Runs `socket ci` on every PR. Blocks merges when critical supply chain alerts are detected. |
+| Socket.dev GitHub App           | Inline PR comments when risky dependencies are added. Configured via `socket.yml`.          |
+| `pnpm audit` in CI              | Checks for known CVEs (moderate+) on every pull request.                                    |
+| GitHub Actions SHA pins         | All action references pinned to commit hashes, not mutable version tags.                    |
+| SBOM (CycloneDX)                | Software bill of materials generated and archived on every npm release.                     |
+| CODEOWNERS                      | Security-sensitive paths (workflows, auth, .npmrc) require explicit review.                 |
+| Dependabot                      | Weekly security update PRs (direct dependencies only, actions grouped).                     |
+| Socket CLI wrapper              | Scans every local `npm install` and `npx` for malware, typosquats, and suspicious behavior. |
+| CodeQL                          | Static analysis on every push for JS/TS vulnerabilities.                                    |
+| GitHub secret scanning          | Blocks pushes containing 200+ secret patterns.                                              |
 
 ### Socket.dev security score
 
 As of v0.9.50, [Socket.dev reports](https://socket.dev/npm/package/@gpc-cli/cli) for `@gpc-cli/cli`:
 
-| Category | Self Score | Transitive (46 deps) |
-| -------- | ---------- | -------------------- |
-| Vulnerability | 100 | 100 |
-| License | 100 | 100 |
-| Quality | 99 | 65 |
-| Maintenance | 95 | 50 |
-| Supply Chain | 71 | 66 |
-| Overall | 71 | 50 |
+| Category      | Self Score | Transitive (46 deps) |
+| ------------- | ---------- | -------------------- |
+| Vulnerability | 100        | 100                  |
+| License       | 100        | 100                  |
+| Quality       | 99         | 65                   |
+| Maintenance   | 95         | 50                   |
+| Supply Chain  | 71         | 66                   |
+| Overall       | 71         | 50                   |
 
 Zero critical or high alerts. The transitive overall score is pulled down by `node-domexception` (deprecated, transitive dep of `google-auth-library`). No malware, no supply chain compromise.
 
@@ -377,8 +377,8 @@ Zero critical or high alerts. The transitive overall score is pulled down by `no
 
 As of v0.9.51, `pnpm audit --prod` reports **1 moderate finding** in a transitive dependency:
 
-| Package | Severity | Chain | Exploitable in GPC? |
-|---------|----------|-------|---------------------|
+| Package                 | Severity       | Chain                                                      | Exploitable in GPC?                                                   |
+| ----------------------- | -------------- | ---------------------------------------------------------- | --------------------------------------------------------------------- |
 | `brace-expansion` 2.0.x | Moderate (DoS) | `google-auth-library > gaxios > rimraf > glob > minimatch` | No. GPC never passes user-controlled glob patterns to this code path. |
 
 All other findings (8 total) are in dev-only tooling (`eslint`, `tsup`, `vitepress`, `@changesets/cli`) and do not ship to users. These will be cleared as upstream packages release patches.
@@ -399,12 +399,12 @@ All other findings (8 total) are in dev-only tooling (`eslint`, `tsup`, `vitepre
 
 ### Approved Runtime Dependencies
 
-| Package               | Purpose              | Justification                           |
-| --------------------- | -------------------- | --------------------------------------- |
-| `google-auth-library` | Auth strategies      | Official Google library, required for API access |
-| `commander`           | CLI framework        | Industry standard, 150M+ weekly downloads |
-| `protobufjs`          | Protocol Buffers     | Required for AAB manifest parsing        |
-| `yauzl`               | ZIP extraction       | Required for AAB file reading            |
+| Package               | Purpose          | Justification                                    |
+| --------------------- | ---------------- | ------------------------------------------------ |
+| `google-auth-library` | Auth strategies  | Official Google library, required for API access |
+| `commander`           | CLI framework    | Industry standard, 150M+ weekly downloads        |
+| `protobufjs`          | Protocol Buffers | Required for AAB manifest parsing                |
+| `yauzl`               | ZIP extraction   | Required for AAB file reading                    |
 
 New dependencies are reviewed for: maintenance status, download count, transitive dependency count, license compatibility (MIT, Apache-2.0, BSD preferred), and [Socket.dev security score](https://socket.dev).
 

@@ -11,11 +11,7 @@ import {
 
 describe("parseSections", () => {
   it("parses comma-separated sections", () => {
-    expect(parseSections("releases,vitals,reviews")).toEqual([
-      "releases",
-      "vitals",
-      "reviews",
-    ]);
+    expect(parseSections("releases,vitals,reviews")).toEqual(["releases", "vitals", "reviews"]);
   });
 
   it("trims whitespace", () => {

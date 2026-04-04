@@ -235,14 +235,14 @@ Output shows each field that differs between local and remote. Use `--output jso
 
 ## Options
 
-| Option              | Type     | Description                                                        |
-| ------------------- | -------- | ------------------------------------------------------------------ |
-| `--file`            | `string` | Path to JSON file                                                  |
-| `--update-mask`     | `string` | Comma-separated field mask (for update commands)                   |
-| `--purchase-option` | `string` | Purchase option ID for offer commands (default: `"-"` for all)     |
-| `--sort`            | `string` | Sort field for list output                                         |
-| `--output`          | `string` | Output format                                                      |
-| `--app`             | `string` | App package name                                                   |
+| Option              | Type     | Description                                                    |
+| ------------------- | -------- | -------------------------------------------------------------- |
+| `--file`            | `string` | Path to JSON file                                              |
+| `--update-mask`     | `string` | Comma-separated field mask (for update commands)               |
+| `--purchase-option` | `string` | Purchase option ID for offer commands (default: `"-"` for all) |
+| `--sort`            | `string` | Sort field for list output                                     |
+| `--output`          | `string` | Output format                                                  |
+| `--app`             | `string` | App package name                                               |
 
 ## Related
 

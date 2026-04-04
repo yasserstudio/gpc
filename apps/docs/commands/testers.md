@@ -66,11 +66,11 @@ gpc testers add <emails...> --track <track>
 
 ### Options
 
-| Flag      | Short | Type     | Default        | Description                                         |
-| --------- | ----- | -------- | -------------- | --------------------------------------------------- |
-| `--track` |       | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom) |
-| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
-| `--error-if-in-review` | | flag | | Fail if changes are already in review |
+| Flag                            | Short | Type     | Default        | Description                                         |
+| ------------------------------- | ----- | -------- | -------------- | --------------------------------------------------- |
+| `--track`                       |       | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom) |
+| `--changes-not-sent-for-review` |       | flag     |                | Commit without sending for review                   |
+| `--error-if-in-review`          |       | flag     |                | Fail if changes are already in review               |
 
 ### Example
 
@@ -113,11 +113,11 @@ gpc testers remove <emails...> --track <track>
 
 ### Options
 
-| Flag      | Short | Type     | Default        | Description                                         |
-| --------- | ----- | -------- | -------------- | --------------------------------------------------- |
-| `--track` |       | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom) |
-| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
-| `--error-if-in-review` | | flag | | Fail if changes are already in review |
+| Flag                            | Short | Type     | Default        | Description                                         |
+| ------------------------------- | ----- | -------- | -------------- | --------------------------------------------------- |
+| `--track`                       |       | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom) |
+| `--changes-not-sent-for-review` |       | flag     |                | Commit without sending for review                   |
+| `--error-if-in-review`          |       | flag     |                | Fail if changes are already in review               |
 
 ### Example
 

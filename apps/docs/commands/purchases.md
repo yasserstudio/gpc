@@ -11,22 +11,22 @@ outline: deep
 
 ## Commands
 
-| Command                                                           | Description                          |
-| ----------------------------------------------------------------- | ------------------------------------ |
-| [`purchases get`](#purchases-get)                                 | Get a product purchase               |
-| [`purchases acknowledge`](#purchases-acknowledge)                 | Acknowledge a product purchase       |
-| [`purchases consume`](#purchases-consume)                         | Consume a consumable purchase        |
-| [`purchases subscription get`](#purchases-subscription-get)       | Get a subscription purchase (v2 API) |
-| [`purchases subscription cancel`](#purchases-subscription-cancel) | Cancel a subscription (v1 API)       |
-| [`purchases subscription defer`](#purchases-subscription-defer)   | Defer a subscription expiry          |
-| [`purchases subscription revoke`](#purchases-subscription-revoke) | Revoke a subscription (v2 API)       |
-| [`purchases product get-v2`](#purchases-product-get-v2)           | Get product purchase (v2 — multi-offer OTPs) |
+| Command                                                                 | Description                                     |
+| ----------------------------------------------------------------------- | ----------------------------------------------- |
+| [`purchases get`](#purchases-get)                                       | Get a product purchase                          |
+| [`purchases acknowledge`](#purchases-acknowledge)                       | Acknowledge a product purchase                  |
+| [`purchases consume`](#purchases-consume)                               | Consume a consumable purchase                   |
+| [`purchases subscription get`](#purchases-subscription-get)             | Get a subscription purchase (v2 API)            |
+| [`purchases subscription cancel`](#purchases-subscription-cancel)       | Cancel a subscription (v1 API)                  |
+| [`purchases subscription defer`](#purchases-subscription-defer)         | Defer a subscription expiry                     |
+| [`purchases subscription revoke`](#purchases-subscription-revoke)       | Revoke a subscription (v2 API)                  |
+| [`purchases product get-v2`](#purchases-product-get-v2)                 | Get product purchase (v2 — multi-offer OTPs)    |
 | [`purchases subscription cancel-v2`](#purchases-subscription-cancel-v2) | Cancel a subscription (v2 — cancellation types) |
-| [`purchases subscription defer-v2`](#purchases-subscription-defer-v2)   | Defer subscription renewal (v2 — add-ons) |
-| [`purchases voided`](#purchases-voided)                           | List voided purchases                |
-| [`purchases orders get`](#purchases-orders-get)                   | Get order details                    |
-| [`purchases orders batch-get`](#purchases-orders-batch-get)       | Batch get orders (up to 1000)        |
-| [`purchases orders refund`](#purchases-orders-refund)             | Refund an order                      |
+| [`purchases subscription defer-v2`](#purchases-subscription-defer-v2)   | Defer subscription renewal (v2 — add-ons)       |
+| [`purchases voided`](#purchases-voided)                                 | List voided purchases                           |
+| [`purchases orders get`](#purchases-orders-get)                         | Get order details                               |
+| [`purchases orders batch-get`](#purchases-orders-batch-get)             | Batch get orders (up to 1000)                   |
+| [`purchases orders refund`](#purchases-orders-refund)                   | Refund an order                                 |
 
 ## `purchases get`
 
@@ -258,15 +258,15 @@ gpc purchases voided [options]
 
 ### Options
 
-| Flag            | Short | Type     | Default | Description                            |
-| --------------- | ----- | -------- | ------- | -------------------------------------- |
-| `--start-time`  |       | `string` |         | Start time in milliseconds since epoch |
-| `--end-time`    |       | `string` |         | End time in milliseconds since epoch   |
-| `--type`                     |       | `number` | `0`     | Purchase type: `0` = in-app only, `1` = in-app + subscriptions |
-| `--include-partial-refunds`  |       | flag     |         | Include quantity-based partial refunds |
-| `--max-results`              |       | `number` |         | Maximum results per page               |
-| `--limit`                    |       | `number` |         | Maximum total results                  |
-| `--next-page`                |       | `string` |         | Resume from pagination token           |
+| Flag                        | Short | Type     | Default | Description                                                    |
+| --------------------------- | ----- | -------- | ------- | -------------------------------------------------------------- |
+| `--start-time`              |       | `string` |         | Start time in milliseconds since epoch                         |
+| `--end-time`                |       | `string` |         | End time in milliseconds since epoch                           |
+| `--type`                    |       | `number` | `0`     | Purchase type: `0` = in-app only, `1` = in-app + subscriptions |
+| `--include-partial-refunds` |       | flag     |         | Include quantity-based partial refunds                         |
+| `--max-results`             |       | `number` |         | Maximum results per page                                       |
+| `--limit`                   |       | `number` |         | Maximum total results                                          |
+| `--next-page`               |       | `string` |         | Resume from pagination token                                   |
 
 ::: info Rate Limit
 The voided purchases API is limited to 6,000 requests per day and 30 requests per 30 seconds.
@@ -366,8 +366,8 @@ gpc purchases subscription cancel-v2 <token> [options]
 
 ### Options
 
-| Flag     | Type     | Description |
-| -------- | -------- | ----------- |
+| Flag     | Type     | Description                                                                             |
+| -------- | -------- | --------------------------------------------------------------------------------------- |
 | `--type` | `string` | Cancellation type: `USER_CANCELED`, `SYSTEM_CANCELED`, `DEVELOPER_CANCELED`, `REPLACED` |
 
 ### Example
@@ -396,8 +396,8 @@ gpc purchases subscription defer-v2 <token> --until <date> [options]
 
 ### Options
 
-| Flag      | Type     | Required | Description |
-| --------- | -------- | -------- | ----------- |
+| Flag      | Type     | Required | Description                         |
+| --------- | -------- | -------- | ----------------------------------- |
 | `--until` | `string` | Yes      | Desired expiry time (ISO 8601 date) |
 
 ### Example
@@ -440,8 +440,8 @@ gpc purchases orders batch-get --ids <order-ids> [options]
 
 ### Options
 
-| Flag    | Type     | Required | Description |
-| ------- | -------- | -------- | ----------- |
+| Flag    | Type     | Required | Description                          |
+| ------- | -------- | -------- | ------------------------------------ |
 | `--ids` | `string` | Yes      | Comma-separated order IDs (max 1000) |
 
 ### Example

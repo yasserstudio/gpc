@@ -15,12 +15,12 @@ System APKs are device-specific APKs generated from your published App Bundle, s
 
 ## Commands
 
-| Command                                             | Description                                    |
-| --------------------------------------------------- | ---------------------------------------------- |
-| [`system-apks list`](#system-apks-list)             | List system APK variants for a version code    |
-| [`system-apks get`](#system-apks-get)               | Get details of a system APK variant            |
-| [`system-apks create`](#system-apks-create)         | Create a system APK variant from a device spec |
-| [`system-apks download`](#system-apks-download)     | Download a system APK variant                  |
+| Command                                         | Description                                    |
+| ----------------------------------------------- | ---------------------------------------------- |
+| [`system-apks list`](#system-apks-list)         | List system APK variants for a version code    |
+| [`system-apks get`](#system-apks-get)           | Get details of a system APK variant            |
+| [`system-apks create`](#system-apks-create)     | Create a system APK variant from a device spec |
+| [`system-apks download`](#system-apks-download) | Download a system APK variant                  |
 
 ## `system-apks list`
 

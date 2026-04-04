@@ -1,8 +1,6 @@
-const GITHUB_RELEASES_URL =
-  "https://api.github.com/repos/yasserstudio/gpc/releases";
+const GITHUB_RELEASES_URL = "https://api.github.com/repos/yasserstudio/gpc/releases";
 
-const DOCS_CHANGELOG_URL =
-  "https://yasserstudio.github.io/gpc/reference/changelog";
+const DOCS_CHANGELOG_URL = "https://yasserstudio.github.io/gpc/reference/changelog";
 
 export interface ChangelogEntry {
   version: string;
@@ -21,9 +19,7 @@ export interface FetchChangelogOptions {
  * Fetch release history from GitHub Releases API.
  * Public endpoint — no auth required (60 req/hour rate limit).
  */
-export async function fetchChangelog(
-  options?: FetchChangelogOptions,
-): Promise<ChangelogEntry[]> {
+export async function fetchChangelog(options?: FetchChangelogOptions): Promise<ChangelogEntry[]> {
   const limit = options?.limit ?? 5;
 
   const url = options?.version
@@ -43,22 +39,16 @@ export async function fetchChangelog(
       signal: controller.signal,
     });
   } catch {
-    throw new Error(
-      `Could not fetch changelog. View online: ${DOCS_CHANGELOG_URL}`,
-    );
+    throw new Error(`Could not fetch changelog. View online: ${DOCS_CHANGELOG_URL}`);
   } finally {
     clearTimeout(timer);
   }
 
   if (!response.ok) {
     if (response.status === 404 && options?.version) {
-      throw new Error(
-        `Version ${options.version} not found. Run: gpc changelog --limit 10`,
-      );
+      throw new Error(`Version ${options.version} not found. Run: gpc changelog --limit 10`);
     }
-    throw new Error(
-      `GitHub API returned ${response.status}. View online: ${DOCS_CHANGELOG_URL}`,
-    );
+    throw new Error(`GitHub API returned ${response.status}. View online: ${DOCS_CHANGELOG_URL}`);
   }
 
   const data = await response.json();

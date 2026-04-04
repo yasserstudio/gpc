@@ -29,7 +29,11 @@ export function registerInitCommand(program: Command): void {
 
       if (ci && ci !== "github" && ci !== "gitlab") {
         const err = new Error(`Invalid --ci-template value "${ci}".`);
-        Object.assign(err, { code: "USAGE_ERROR", exitCode: 2, suggestion: "Valid values: github, gitlab" });
+        Object.assign(err, {
+          code: "USAGE_ERROR",
+          exitCode: 2,
+          suggestion: "Valid values: github, gitlab",
+        });
         throw err;
       }
 

@@ -20,9 +20,7 @@ function parsePositiveInt(str: string, label: string): number {
 }
 
 export function registerSystemApksCommands(program: Command): void {
-  const cmd = program
-    .command("system-apks")
-    .description("Manage system APKs for OEM pre-installs");
+  const cmd = program.command("system-apks").description("Manage system APKs for OEM pre-installs");
 
   cmd
     .command("list <version-code>")
@@ -61,7 +59,10 @@ export function registerSystemApksCommands(program: Command): void {
   cmd
     .command("create <version-code>")
     .description("Create a system APK variant from a device spec JSON file")
-    .requiredOption("--file <path>", "JSON file with device spec (supportedAbis, supportedLocales, screenDensity)")
+    .requiredOption(
+      "--file <path>",
+      "JSON file with device spec (supportedAbis, supportedLocales, screenDensity)",
+    )
     .action(async (versionCodeStr: string, options: { file: string }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -69,7 +70,16 @@ export function registerSystemApksCommands(program: Command): void {
       const versionCode = parsePositiveInt(versionCodeStr, "version-code");
 
       if (isDryRun(program)) {
-        printDryRun({ command: "system-apks create", action: "create system APK variant", target: `v${versionCode}`, details: { file: options.file } }, format, formatOutput);
+        printDryRun(
+          {
+            command: "system-apks create",
+            action: "create system APK variant",
+            target: `v${versionCode}`,
+            details: { file: options.file },
+          },
+          format,
+          formatOutput,
+        );
         return;
       }
 

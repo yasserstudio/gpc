@@ -131,7 +131,8 @@ export function formatNotification(notification: DecodedNotification): Record<st
     return {
       ...base,
       type: "subscription",
-      event: SUBSCRIPTION_NOTIFICATION_TYPES[n.notificationType] || `UNKNOWN(${n.notificationType})`,
+      event:
+        SUBSCRIPTION_NOTIFICATION_TYPES[n.notificationType] || `UNKNOWN(${n.notificationType})`,
       subscriptionId: n.subscriptionId,
       purchaseToken: n.purchaseToken.slice(0, 16) + "...",
     };

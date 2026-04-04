@@ -186,7 +186,12 @@ describe("manifestScanner", () => {
       makeCtx(
         makeManifest({
           services: [
-            { name: "com.example.MyService", exported: true, permission: "com.example.PERM", hasIntentFilter: false },
+            {
+              name: "com.example.MyService",
+              exported: true,
+              permission: "com.example.PERM",
+              hasIntentFilter: false,
+            },
           ],
         }),
       ),

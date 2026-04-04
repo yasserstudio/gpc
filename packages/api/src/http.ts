@@ -109,7 +109,11 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
   }
 
   // — Duplicate version code (400/403)
-  if ((status === 400 || status === 403) && errorMsg.includes("version code") && errorMsg.includes("already been used")) {
+  if (
+    (status === 400 || status === 403) &&
+    errorMsg.includes("version code") &&
+    errorMsg.includes("already been used")
+  ) {
     const match = errorMsg.match(/version code (\d+)/);
     const vc = match?.[1] ?? "?";
     return {
@@ -126,7 +130,9 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
   if (
     (status === 400 || status === 403) &&
     errorMsg.includes("version code") &&
-    (errorMsg.includes("lower") || errorMsg.includes("not allowed") || errorMsg.includes("not greater"))
+    (errorMsg.includes("lower") ||
+      errorMsg.includes("not allowed") ||
+      errorMsg.includes("not greater"))
   ) {
     return {
       code: "API_VERSION_CODE_TOO_LOW",
@@ -209,7 +215,8 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
   if (
     status === 413 ||
     ((status === 400 || status === 403) &&
-      (errorMsg.includes("too large") || (errorMsg.includes("exceeds") && errorMsg.includes("size"))))
+      (errorMsg.includes("too large") ||
+        (errorMsg.includes("exceeds") && errorMsg.includes("size"))))
   ) {
     return {
       code: "API_BUNDLE_TOO_LARGE",
@@ -244,7 +251,11 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
   }
 
   // — Track not found (404)
-  if (status === 404 && errorMsg.includes("track") && (errorMsg.includes("not found") || errorMsg.includes("does not exist"))) {
+  if (
+    status === 404 &&
+    errorMsg.includes("track") &&
+    (errorMsg.includes("not found") || errorMsg.includes("does not exist"))
+  ) {
     return {
       code: "API_TRACK_NOT_FOUND",
       message: "The specified track does not exist for this app.",
@@ -257,7 +268,11 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
   }
 
   // — Release notes too long (400)
-  if (status === 400 && errorMsg.includes("release notes") && (errorMsg.includes("too long") || errorMsg.includes("character limit"))) {
+  if (
+    status === 400 &&
+    errorMsg.includes("release notes") &&
+    (errorMsg.includes("too long") || errorMsg.includes("character limit"))
+  ) {
     return {
       code: "API_RELEASE_NOTES_TOO_LONG",
       message: "Release notes exceed the 500-character limit.",
@@ -269,7 +284,11 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
   }
 
   // — Rollout already completed (400)
-  if (status === 400 && (errorMsg.includes("cannot change rollout") || (errorMsg.includes("release") && errorMsg.includes("already completed")))) {
+  if (
+    status === 400 &&
+    (errorMsg.includes("cannot change rollout") ||
+      (errorMsg.includes("release") && errorMsg.includes("already completed")))
+  ) {
     return {
       code: "API_ROLLOUT_ALREADY_COMPLETED",
       message: "The release is already at full rollout (100%) and cannot be changed.",
@@ -281,7 +300,11 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
   }
 
   // — Edit expired (400 FAILED_PRECONDITION)
-  if (status === 400 && errorMsg.includes("edit") && (errorMsg.includes("expired") || errorMsg.includes("failed_precondition"))) {
+  if (
+    status === 400 &&
+    errorMsg.includes("edit") &&
+    (errorMsg.includes("expired") || errorMsg.includes("failed_precondition"))
+  ) {
     return {
       code: "API_EDIT_EXPIRED",
       message: "The edit session has expired.",
@@ -301,7 +324,8 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
   ) {
     return {
       code: "API_CHANGES_NOT_SENT_FOR_REVIEW",
-      message: "This app has a rejected update. The API requires explicit acknowledgement before committing changes.",
+      message:
+        "This app has a rejected update. The API requires explicit acknowledgement before committing changes.",
       suggestion: [
         "Add --changes-not-sent-for-review to your command:",
         "  gpc releases upload app.aab --track internal --changes-not-sent-for-review",
@@ -319,7 +343,8 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
   ) {
     return {
       code: "API_CHANGES_ALREADY_IN_REVIEW",
-      message: "Changes are already in review. Committing this edit would cancel the existing review.",
+      message:
+        "Changes are already in review. Committing this edit would cancel the existing review.",
       suggestion: [
         "Wait for the current review to complete, or re-run without --error-if-in-review",
         "to cancel the existing review and submit new changes.",
@@ -332,7 +357,10 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
   return undefined;
 }
 
-function mapStatusToError(status: number, body: string): { code: string; message?: string; suggestion?: string } {
+function mapStatusToError(
+  status: number,
+  body: string,
+): { code: string; message?: string; suggestion?: string } {
   // Try specific pattern matching first
   const enhanced = enhanceApiError(status, body);
   if (enhanced) return enhanced;
@@ -451,7 +479,8 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         const mapped = mapStatusToError(response.status, errorBody);
 
         const err = new PlayApiError(
-          mapped.message ?? `${method} ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
+          mapped.message ??
+            `${method} ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
           mapped.code,
           response.status,
           mapped.suggestion,
@@ -602,7 +631,8 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         const mapped = mapStatusToError(response.status, errorBody);
 
         const err = new PlayApiError(
-          mapped.message ?? `Upload failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
+          mapped.message ??
+            `Upload failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
           mapped.code,
           response.status,
           mapped.suggestion,
@@ -784,7 +814,8 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
           const errorBody = await response.text();
           const mapped = mapStatusToError(response.status, errorBody);
           throw new PlayApiError(
-            mapped.message ?? `GET ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
+            mapped.message ??
+              `GET ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
             mapped.code,
             response.status,
             mapped.suggestion,

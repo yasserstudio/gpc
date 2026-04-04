@@ -138,43 +138,43 @@ GPC pattern-matches Google Play API error responses to provide specific, actiona
 
 #### Upload & Release Errors
 
-| Code | HTTP | What happened | What to do |
-| --- | --- | --- | --- |
-| `API_DUPLICATE_VERSION_CODE` | 400/403 | Version code already uploaded | Increment `versionCode` in build.gradle and rebuild. Check current: `gpc releases status --track production` |
-| `API_VERSION_CODE_TOO_LOW` | 400/403 | Version code lower than current | Google Play requires increasing version codes. Check current: `gpc releases status --track <track>` |
-| `API_PACKAGE_NAME_MISMATCH` | 400/403 | AAB package doesn't match target app | Verify `applicationId` in build.gradle matches the app. Check: `gpc config show` |
-| `API_BUNDLE_TOO_LARGE` | 400/413 | File exceeds Google's size limit | AAB max: 2 GB, APK max: 1 GB. Check: `gpc preflight <file>` |
-| `API_INVALID_BUNDLE` | 400 | Corrupted or malformed AAB/APK | Ensure properly signed. Validate: `gpc preflight <file>`. Rebuild: `./gradlew bundleRelease` |
-| `API_RELEASE_NOTES_TOO_LONG` | 400 | Release notes exceed 500 chars | Shorten per language. Preview: `gpc releases notes get --track <track>` |
-| `API_ROLLOUT_ALREADY_COMPLETED` | 400 | Release already at 100% rollout | Deploy a new version: `gpc releases upload --track <track>` |
+| Code                            | HTTP    | What happened                        | What to do                                                                                                   |
+| ------------------------------- | ------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `API_DUPLICATE_VERSION_CODE`    | 400/403 | Version code already uploaded        | Increment `versionCode` in build.gradle and rebuild. Check current: `gpc releases status --track production` |
+| `API_VERSION_CODE_TOO_LOW`      | 400/403 | Version code lower than current      | Google Play requires increasing version codes. Check current: `gpc releases status --track <track>`          |
+| `API_PACKAGE_NAME_MISMATCH`     | 400/403 | AAB package doesn't match target app | Verify `applicationId` in build.gradle matches the app. Check: `gpc config show`                             |
+| `API_BUNDLE_TOO_LARGE`          | 400/413 | File exceeds Google's size limit     | AAB max: 2 GB, APK max: 1 GB. Check: `gpc preflight <file>`                                                  |
+| `API_INVALID_BUNDLE`            | 400     | Corrupted or malformed AAB/APK       | Ensure properly signed. Validate: `gpc preflight <file>`. Rebuild: `./gradlew bundleRelease`                 |
+| `API_RELEASE_NOTES_TOO_LONG`    | 400     | Release notes exceed 500 chars       | Shorten per language. Preview: `gpc releases notes get --track <track>`                                      |
+| `API_ROLLOUT_ALREADY_COMPLETED` | 400     | Release already at 100% rollout      | Deploy a new version: `gpc releases upload --track <track>`                                                  |
 
 #### Access & Session Errors
 
-| Code | HTTP | What happened | What to do |
-| --- | --- | --- | --- |
-| `API_APP_NOT_FOUND` | 404 | App not in developer account | Verify package name. List apps: `gpc apps list` |
-| `API_TRACK_NOT_FOUND` | 404 | Track doesn't exist | Built-in: internal, alpha, beta, production. List custom: `gpc tracks list` |
-| `API_INSUFFICIENT_PERMISSIONS` | 403 | Service account missing permissions | Grant permissions in Play Console → Users and permissions. Verify: `gpc doctor` |
-| `API_EDIT_CONFLICT` | 409 | Another edit session open | Wait and retry. GPC auto-retries once. Or discard stale edit in Play Console |
-| `API_EDIT_EXPIRED` | 400 | Edit session timed out (~1 hour) | Retry — GPC opens a fresh edit automatically |
+| Code                           | HTTP | What happened                       | What to do                                                                      |
+| ------------------------------ | ---- | ----------------------------------- | ------------------------------------------------------------------------------- |
+| `API_APP_NOT_FOUND`            | 404  | App not in developer account        | Verify package name. List apps: `gpc apps list`                                 |
+| `API_TRACK_NOT_FOUND`          | 404  | Track doesn't exist                 | Built-in: internal, alpha, beta, production. List custom: `gpc tracks list`     |
+| `API_INSUFFICIENT_PERMISSIONS` | 403  | Service account missing permissions | Grant permissions in Play Console → Users and permissions. Verify: `gpc doctor` |
+| `API_EDIT_CONFLICT`            | 409  | Another edit session open           | Wait and retry. GPC auto-retries once. Or discard stale edit in Play Console    |
+| `API_EDIT_EXPIRED`             | 400  | Edit session timed out (~1 hour)    | Retry — GPC opens a fresh edit automatically                                    |
 
 #### Review State Errors
 
-| Code | HTTP | What happened | What to do |
-| --- | --- | --- | --- |
-| `API_CHANGES_NOT_SENT_FOR_REVIEW` | 400/403 | App has a rejected update; API requires acknowledgement | Add `--changes-not-sent-for-review` to your command. Changes are applied but not sent for review. Submit for review manually from the Play Console. |
-| `API_CHANGES_ALREADY_IN_REVIEW` | 400 | Changes are already in review; committing would cancel the review | Wait for the current review to complete, or re-run without `--error-if-in-review` to cancel and resubmit. |
+| Code                              | HTTP    | What happened                                                     | What to do                                                                                                                                          |
+| --------------------------------- | ------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `API_CHANGES_NOT_SENT_FOR_REVIEW` | 400/403 | App has a rejected update; API requires acknowledgement           | Add `--changes-not-sent-for-review` to your command. Changes are applied but not sent for review. Submit for review manually from the Play Console. |
+| `API_CHANGES_ALREADY_IN_REVIEW`   | 400     | Changes are already in review; committing would cancel the review | Wait for the current review to complete, or re-run without `--error-if-in-review` to cancel and resubmit.                                           |
 
 #### General API Errors
 
-| Code | HTTP | What happened | What to do |
-| --- | --- | --- | --- |
-| `API_UNAUTHORIZED` | 401 | Invalid or expired token | Re-authenticate: `gpc auth login`. Run: `gpc doctor` |
-| `API_FORBIDDEN` | 403 | Generic permission denied | Check service account permissions. Run: `gpc doctor` |
-| `API_NOT_FOUND` | 404 | Resource not found | Verify package name and resource IDs. Run: `gpc apps list` |
-| `API_RATE_LIMITED` | 429 | Too many requests | GPC retries automatically with exponential backoff |
-| `API_SERVER_ERROR` | 5xx | Google server error | GPC retries automatically with exponential backoff |
-| `API_TIMEOUT` | -- | Request exceeded timeout | Increase timeout: `GPC_TIMEOUT=60000` |
+| Code               | HTTP | What happened             | What to do                                                 |
+| ------------------ | ---- | ------------------------- | ---------------------------------------------------------- |
+| `API_UNAUTHORIZED` | 401  | Invalid or expired token  | Re-authenticate: `gpc auth login`. Run: `gpc doctor`       |
+| `API_FORBIDDEN`    | 403  | Generic permission denied | Check service account permissions. Run: `gpc doctor`       |
+| `API_NOT_FOUND`    | 404  | Resource not found        | Verify package name and resource IDs. Run: `gpc apps list` |
+| `API_RATE_LIMITED` | 429  | Too many requests         | GPC retries automatically with exponential backoff         |
+| `API_SERVER_ERROR` | 5xx  | Google server error       | GPC retries automatically with exponential backoff         |
+| `API_TIMEOUT`      | --   | Request exceeded timeout  | Increase timeout: `GPC_TIMEOUT=60000`                      |
 
 ### CONFIG\_\* -- Configuration Errors
 

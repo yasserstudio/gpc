@@ -24,12 +24,17 @@ interface BucketState {
  * Daily limits are tracked locally via gpc quota.
  */
 export const RATE_LIMIT_BUCKETS: Record<string, RateLimitBucket> = {
-  edits:        { name: "edits",        maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
-  purchases:    { name: "purchases",    maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
-  reviews:      { name: "reviews",      maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
-  reporting:    { name: "reporting",    maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
-  monetization: { name: "monetization", maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
-  default:      { name: "default",      maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
+  edits: { name: "edits", maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
+  purchases: { name: "purchases", maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
+  reviews: { name: "reviews", maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
+  reporting: { name: "reporting", maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
+  monetization: {
+    name: "monetization",
+    maxTokens: 3_000,
+    refillRate: 3_000,
+    refillIntervalMs: 60_000,
+  },
+  default: { name: "default", maxTokens: 3_000, refillRate: 3_000, refillIntervalMs: 60_000 },
 };
 
 /**
@@ -41,8 +46,19 @@ export function resolveBucket(path: string): string {
   if (path.includes("/edits/") || path.includes("/edits:")) return "edits";
   if (path.includes("/purchases/") || path.includes("/orders")) return "purchases";
   if (path.includes("/reviews")) return "reviews";
-  if (path.includes("playdeveloperreporting") || path.includes("MetricSet") || path.includes("anomalies")) return "reporting";
-  if (path.includes("/inappproducts") || path.includes("/oneTimeProducts") || path.includes("/subscriptions") || path.includes("/monetization")) return "monetization";
+  if (
+    path.includes("playdeveloperreporting") ||
+    path.includes("MetricSet") ||
+    path.includes("anomalies")
+  )
+    return "reporting";
+  if (
+    path.includes("/inappproducts") ||
+    path.includes("/oneTimeProducts") ||
+    path.includes("/subscriptions") ||
+    path.includes("/monetization")
+  )
+    return "monetization";
   return "default";
 }
 

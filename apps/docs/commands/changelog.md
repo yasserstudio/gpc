@@ -21,12 +21,12 @@ gpc changelog [options]
 
 ## Options
 
-| Option              | Description                              | Default |
-| ------------------- | ---------------------------------------- | ------- |
-| `-n, --limit <n>`   | Number of releases to show               | `5`     |
-| `--tag <tag>`   | Show a specific version (e.g., `v0.9.43`)| —       |
-| `--all`             | Show all releases                        | —       |
-| `-o, --output json` | JSON output                              | table   |
+| Option              | Description                               | Default |
+| ------------------- | ----------------------------------------- | ------- |
+| `-n, --limit <n>`   | Number of releases to show                | `5`     |
+| `--tag <tag>`       | Show a specific version (e.g., `v0.9.43`) | —       |
+| `--all`             | Show all releases                         | —       |
+| `-o, --output json` | JSON output                               | table   |
 
 ## Examples
 

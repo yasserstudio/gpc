@@ -128,14 +128,14 @@ gpc apps update [options]
 
 ### Options
 
-| Flag             | Short | Type     | Default | Description               |
-| ---------------- | ----- | -------- | ------- | ------------------------- |
-| `--email`        |       | `string` |         | Contact email address     |
-| `--phone`        |       | `string` |         | Contact phone number      |
-| `--website`      |       | `string` |         | Contact website URL       |
-| `--default-lang` |       | `string` |         | Default language (BCP 47) |
-| `--changes-not-sent-for-review` | | flag | | Commit without sending for review |
-| `--error-if-in-review` | | flag | | Fail if changes are already in review |
+| Flag                            | Short | Type     | Default | Description                           |
+| ------------------------------- | ----- | -------- | ------- | ------------------------------------- |
+| `--email`                       |       | `string` |         | Contact email address                 |
+| `--phone`                       |       | `string` |         | Contact phone number                  |
+| `--website`                     |       | `string` |         | Contact website URL                   |
+| `--default-lang`                |       | `string` |         | Default language (BCP 47)             |
+| `--changes-not-sent-for-review` |       | flag     |         | Commit without sending for review     |
+| `--error-if-in-review`          |       | flag     |         | Fail if changes are already in review |
 
 At least one field must be provided.
 

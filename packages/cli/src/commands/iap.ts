@@ -18,8 +18,6 @@ import { getOutputFormat } from "../format.js";
 import { requireConfirm } from "../prompt.js";
 import { readJsonFile } from "../json.js";
 
-
-
 export function registerIapCommands(program: Command): void {
   const iap = program
     .command("iap")
@@ -43,11 +41,11 @@ export function registerIapCommands(program: Command): void {
       );
 
       const result = await listOneTimeProducts(client, packageName);
-        let products = result.oneTimeProducts || [];
-        if (options.sort) {
-          products = sortResults(products, options.sort);
-        }
-        console.log(formatOutput(products, format));
+      let products = result.oneTimeProducts || [];
+      if (options.sort) {
+        products = sortResults(products, options.sort);
+      }
+      console.log(formatOutput(products, format));
     });
 
   iap
@@ -64,7 +62,7 @@ export function registerIapCommands(program: Command): void {
       );
 
       const result = await getOneTimeProduct(client, packageName, sku);
-        console.log(formatOutput(result, format));
+      console.log(formatOutput(result, format));
     });
 
   iap
@@ -92,8 +90,8 @@ export function registerIapCommands(program: Command): void {
       const client = await getClient(config);
 
       const data = await readJsonFile(options.file);
-        const result = await createInAppProduct(client, packageName, data as any);
-        console.log(formatOutput(result, format));
+      const result = await createInAppProduct(client, packageName, data as any);
+      console.log(formatOutput(result, format));
     });
 
   iap
@@ -122,8 +120,8 @@ export function registerIapCommands(program: Command): void {
       const client = await getClient(config);
 
       const data = await readJsonFile(options.file);
-        const result = await updateInAppProduct(client, packageName, sku, data as any);
-        console.log(formatOutput(result, format));
+      const result = await updateInAppProduct(client, packageName, sku, data as any);
+      console.log(formatOutput(result, format));
     });
 
   iap
@@ -152,7 +150,7 @@ export function registerIapCommands(program: Command): void {
       const client = await getClient(config);
 
       await deleteInAppProduct(client, packageName, sku);
-        console.log(`In-app product ${sku} deleted.`);
+      console.log(`In-app product ${sku} deleted.`);
     });
 
   iap
@@ -197,7 +195,8 @@ export function registerIapCommands(program: Command): void {
         {
           code: "IAP_BATCH_GET_UNAVAILABLE",
           exitCode: 1,
-          suggestion: "Use `gpc iap get <sku>` for a single product, or `gpc iap list` for all products.",
+          suggestion:
+            "Use `gpc iap get <sku>` for a single product, or `gpc iap list` for all products.",
         },
       );
     });

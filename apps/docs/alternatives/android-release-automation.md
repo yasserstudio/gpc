@@ -114,15 +114,15 @@ If vitals are breached, `gpc status` exits code 6. The rollout command never run
 
 Most Android release tools stop at uploads. GPC covers the full lifecycle:
 
-| Stage | What GPC does | What others do |
-|-------|---------------|----------------|
-| Pre-upload | 9 offline policy scanners | Nothing |
-| Upload | AAB/APK upload to any track | Upload only |
-| Rollout | Staged rollout with time + vitals gates | Manual rollout |
-| Monitoring | Crash, ANR, reviews in real time | Nothing |
-| Gating | Block rollout on vitals thresholds | Nothing |
-| Metadata | Sync listings, screenshots, 70+ languages | Partial |
-| Reporting | Reviews, vitals, financial reports | Nothing |
+| Stage      | What GPC does                             | What others do |
+| ---------- | ----------------------------------------- | -------------- |
+| Pre-upload | 9 offline policy scanners                 | Nothing        |
+| Upload     | AAB/APK upload to any track               | Upload only    |
+| Rollout    | Staged rollout with time + vitals gates   | Manual rollout |
+| Monitoring | Crash, ANR, reviews in real time          | Nothing        |
+| Gating     | Block rollout on vitals thresholds        | Nothing        |
+| Metadata   | Sync listings, screenshots, 70+ languages | Partial        |
+| Reporting  | Reviews, vitals, financial reports        | Nothing        |
 
 215 API endpoints. One tool.
 

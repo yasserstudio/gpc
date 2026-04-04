@@ -23,15 +23,15 @@ gpc doctor                                    # 20 setup checks
 
 ## Why this over Fastlane?
 
-|                   | **GPC**           | Fastlane supply   |
-| ----------------- | ----------------- | ----------------- |
-| API coverage      | **215 endpoints** | ~20               |
-| Runtime           | Node.js or binary | Ruby + Bundler    |
-| Cold start        | <500ms            | 2-3s              |
-| Reviews & Vitals  | Yes               | No                |
-| Subscriptions     | Yes               | No                |
-| Preflight scanner | 9 offline checks  | No                |
-| CI/CD native      | JSON + exit codes | Partial           |
+|                   | **GPC**           | Fastlane supply |
+| ----------------- | ----------------- | --------------- |
+| API coverage      | **215 endpoints** | ~20             |
+| Runtime           | Node.js or binary | Ruby + Bundler  |
+| Cold start        | <500ms            | 2-3s            |
+| Reviews & Vitals  | Yes               | No              |
+| Subscriptions     | Yes               | No              |
+| Preflight scanner | 9 offline checks  | No              |
+| CI/CD native      | JSON + exit codes | Partial         |
 
 [Migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) with one-to-one command mapping.
 
@@ -69,14 +69,14 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 
 ## Related packages
 
-| Package | What it does |
-| ------- | ------------ |
-| [@gpc-cli/api](https://www.npmjs.com/package/@gpc-cli/api) | Typed Google Play API v3 client (standalone SDK) |
-| [@gpc-cli/auth](https://www.npmjs.com/package/@gpc-cli/auth) | Authentication (service account, OAuth, ADC) |
-| [@gpc-cli/core](https://www.npmjs.com/package/@gpc-cli/core) | Business logic and orchestration |
-| [@gpc-cli/config](https://www.npmjs.com/package/@gpc-cli/config) | Configuration and profiles |
-| [@gpc-cli/plugin-sdk](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface |
-| [@gpc-cli/plugin-ci](https://www.npmjs.com/package/@gpc-cli/plugin-ci) | CI/CD helpers |
+| Package                                                                  | What it does                                     |
+| ------------------------------------------------------------------------ | ------------------------------------------------ |
+| [@gpc-cli/api](https://www.npmjs.com/package/@gpc-cli/api)               | Typed Google Play API v3 client (standalone SDK) |
+| [@gpc-cli/auth](https://www.npmjs.com/package/@gpc-cli/auth)             | Authentication (service account, OAuth, ADC)     |
+| [@gpc-cli/core](https://www.npmjs.com/package/@gpc-cli/core)             | Business logic and orchestration                 |
+| [@gpc-cli/config](https://www.npmjs.com/package/@gpc-cli/config)         | Configuration and profiles                       |
+| [@gpc-cli/plugin-sdk](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface                                 |
+| [@gpc-cli/plugin-ci](https://www.npmjs.com/package/@gpc-cli/plugin-ci)   | CI/CD helpers                                    |
 
 ## Links
 
