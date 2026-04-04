@@ -27,7 +27,7 @@
     "@gpc-cli/plugin-sdk": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^25.3.5"
+    "@types/node": "^25.5.2"
   },
   "keywords": [
     "google-play",
