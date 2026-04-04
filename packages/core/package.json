@@ -29,7 +29,7 @@
     "@gpc-cli/config": "workspace:*",
     "@gpc-cli/plugin-sdk": "workspace:*",
     "protobufjs": "^8.0.0",
-    "yauzl": "^3.2.1"
+    "yauzl": "^3.3.0"
   },
   "keywords": [
     "google-play",
