@@ -114,7 +114,7 @@ describe("API Coverage Audit — PlayApiClient", () => {
   describe("inappproducts namespace", () => {
     assertMethods(
       client.inappproducts,
-      ["list", "get", "create", "update", "delete", "batchUpdate", "batchGet", "batchDelete"],
+      ["list", "get", "create", "update", "patch", "delete", "batchUpdate", "batchGet", "batchDelete"],
       "inappproducts",
     );
   });
@@ -134,7 +134,6 @@ describe("API Coverage Audit — PlayApiClient", () => {
         "listVoided",
         "acknowledgeSubscription",
         "revokeSubscriptionV2",
-        "refundSubscriptionV2",
         "cancelSubscriptionV2",
         "deferSubscriptionV2",
         "getProductV2",
@@ -156,7 +155,7 @@ describe("API Coverage Audit — PlayApiClient", () => {
   });
 
   describe("testers namespace", () => {
-    assertMethods(client.testers, ["get", "update"], "testers");
+    assertMethods(client.testers, ["get", "update", "patch"], "testers");
   });
 
   describe("deobfuscation namespace", () => {
@@ -193,18 +192,19 @@ describe("API Coverage Audit — PlayApiClient", () => {
         "createOffer",
         "updateOffer",
         "deleteOffer",
+        "batchDeletePurchaseOptions",
+        "batchUpdatePurchaseOptionStates",
+        "cancelOffer",
+        "batchGetOffers",
+        "batchUpdateOffers",
+        "batchUpdateOfferStates",
+        "batchDeleteOffers",
       ],
       "oneTimeProducts",
     );
   });
 
-  describe("purchaseOptions namespace", () => {
-    assertMethods(
-      client.purchaseOptions,
-      ["list", "get", "create", "activate", "deactivate"],
-      "purchaseOptions",
-    );
-  });
+  // purchaseOptions namespace removed: standalone /purchaseOptions/ resource does not exist in API.
 
   describe("internalAppSharing namespace", () => {
     assertMethods(client.internalAppSharing, ["uploadBundle", "uploadApk"], "internalAppSharing");
@@ -213,10 +213,14 @@ describe("API Coverage Audit — PlayApiClient", () => {
   describe("generatedApks namespace", () => {
     assertMethods(client.generatedApks, ["list", "download"], "generatedApks");
   });
+
+  describe("systemApks namespace", () => {
+    assertMethods(client.systemApks, ["create", "list", "get", "download"], "systemApks");
+  });
 });
 
 describe("API Coverage Audit — UsersApiClient", () => {
-  const methods = ["list", "get", "create", "update", "delete"];
+  const methods = ["list", "create", "update", "delete"];
   for (const method of methods) {
     it(`users.${method} exists and is a function`, () => {
       expect(usersClient).toHaveProperty(method);
@@ -260,9 +264,9 @@ describe("API Coverage Audit — Namespace completeness", () => {
     "externalTransactions",
     "deviceTiers",
     "oneTimeProducts",
-    "purchaseOptions",
     "internalAppSharing",
     "generatedApks",
+    "systemApks",
     "releases",
   ];
 

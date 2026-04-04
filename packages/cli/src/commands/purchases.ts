@@ -14,7 +14,6 @@ import {
   deferSubscriptionPurchase,
   deferSubscriptionV2,
   revokeSubscriptionPurchase,
-  refundSubscriptionV2,
   listVoidedPurchases,
   refundOrder,
   getOrderDetails,
@@ -222,31 +221,15 @@ export function registerPurchasesCommands(program: Command): void {
 
   sub
     .command("refund <token>")
-    .description("Refund a subscription purchase (v2)")
-    .action(async (token: string) => {
-      const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()["app"], config);
-
-      await requireConfirm(`Refund subscription for token "${token.slice(0, 16)}..."?`, program);
-
-      if (isDryRun(program)) {
-        const format = getOutputFormat(program, config);
-        printDryRun(
-          {
-            command: "purchases subscription refund",
-            action: "refund subscription",
-            target: token,
-          },
-          format,
-          formatOutput,
-        );
-        return;
-      }
-
-      const client = await getClient(config);
-
-      await refundSubscriptionV2(client, packageName, token);
-        console.log(`Subscription refunded.`);
+    .description("Refund a subscription purchase (use 'orders refund' instead)")
+    .action(async () => {
+      console.error(
+        `The subscriptionsv2 refund endpoint does not exist in the Google Play API.\n\n` +
+        `Use one of these instead:\n` +
+        `  gpc purchases orders refund <order-id>          Refund via orders API\n` +
+        `  gpc purchases subscription revoke <token>       Revoke + refund via v2 API\n`,
+      );
+      process.exit(2);
     });
 
   sub

@@ -87,14 +87,8 @@ export async function revokeSubscriptionPurchase(
   return client.purchases.revokeSubscriptionV2(packageName, token);
 }
 
-export async function refundSubscriptionV2(
-  client: PlayApiClient,
-  packageName: string,
-  token: string,
-): Promise<void> {
-  validatePackageName(packageName);
-  return client.purchases.refundSubscriptionV2(packageName, token);
-}
+// refundSubscriptionV2 removed: endpoint does not exist in official API.
+// Use orders.refund (gpc purchases orders refund <order-id>) instead.
 
 import type { VoidedPurchase } from "@gpc-cli/api";
 import { paginateAll } from "@gpc-cli/api";

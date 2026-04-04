@@ -7,6 +7,26 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.54
+
+API audit, preflight hardening, and new resources.
+
+- fix(api): OTP offer URLs now use correct `/purchaseOptions/{id}/offers/` path
+- fix(api): `onetimeproducts.create` uses PATCH + `allowMissing=true` (official API has no POST create)
+- fix(api): removed phantom endpoints (`refundSubscriptionV2`, `users.get`, standalone `purchaseOptions`)
+- fix(core): `getUser` paginates all pages; OTP offer update mask excludes path params; manifest parser extracts compiled primitives; AAB reader .so stream early destroy
+- feat(preflight): 16KB page size alignment scanner (ELF LOAD segment check, `pageSizeCompat` downgrade)
+- feat(preflight): exported-without-permission scanner
+- feat(api): OTP offer batch ops (`cancelOffer`, `batchGetOffers`, `batchUpdateOffers`, `batchUpdateOfferStates`, `batchDeleteOffers`)
+- feat(api): OTP purchase option batch ops (`batchDeletePurchaseOptions`, `batchUpdatePurchaseOptionStates`)
+- feat(api): subscription offers `batchGet` + `batchUpdateStates` CLI commands
+- feat(api): `edits.testers.patch`, `inappproducts.patch`
+- feat(api): `systemApks` resource (create, list, get, download)
+
+**Actual new tests:** 5 -> total 1,874
+
+---
+
 ## v0.9.53
 
 Preflight scanner reliability on Flutter and large AABs, plus batch price migration API.

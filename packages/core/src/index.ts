@@ -173,7 +173,6 @@ export {
   cancelSubscriptionPurchase,
   deferSubscriptionPurchase,
   revokeSubscriptionPurchase,
-  refundSubscriptionV2,
   listVoidedPurchases,
   refundOrder,
   getOrderDetails,
@@ -297,13 +296,8 @@ export type { WebhookPayload } from "./utils/webhooks.js";
 export { uploadInternalSharing } from "./commands/internal-sharing.js";
 export type { InternalSharingUploadResult } from "./commands/internal-sharing.js";
 export { listGeneratedApks, downloadGeneratedApk } from "./commands/generated-apks.js";
-export {
-  listPurchaseOptions,
-  getPurchaseOption,
-  createPurchaseOption,
-  activatePurchaseOption,
-  deactivatePurchaseOption,
-} from "./commands/purchase-options.js";
+// purchase-options: standalone resource removed (phantom API — does not exist in Google Play API).
+// Purchase options are managed through oneTimeProducts.purchaseOptions paths.
 export { batchSyncInAppProducts } from "./commands/iap.js";
 export type { BatchSyncResult } from "./commands/iap.js";
 export {

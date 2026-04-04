@@ -27,6 +27,8 @@ export interface PreflightContext {
   aabPath?: string;
   manifest?: ParsedManifest;
   zipEntries?: ZipEntryInfo[];
+  /** First 256 bytes of each .so file, keyed by ZIP entry path. */
+  nativeLibHeaders?: EntryHeaderMap;
   metadataDir?: string;
   sourceDir?: string;
   config: PreflightConfig;
@@ -81,7 +83,9 @@ export interface ParsedManifest {
   services: ManifestComponent[];
   receivers: ManifestComponent[];
   providers: ManifestComponent[];
-  /** Set when the manifest could not be fully parsed — manifest-dependent scanners should skip. */
+  /** Android 16+ compat shim for non-16KB-aligned native libs. */
+  pageSizeCompat?: boolean;
+  /** Set when the manifest could not be fully parsed -- manifest-dependent scanners should skip. */
   _parseError?: string;
 }
 
@@ -93,8 +97,13 @@ export interface ManifestFeature {
 export interface ManifestComponent {
   name: string;
   exported?: boolean;
+  permission?: string;
   foregroundServiceType?: string;
   hasIntentFilter: boolean;
+  /** Intent filter actions (e.g., "android.intent.action.MAIN"). */
+  intentActions?: string[];
+  /** Intent filter categories (e.g., "android.intent.category.LAUNCHER"). */
+  intentCategories?: string[];
 }
 
 export interface ZipEntryInfo {
@@ -102,6 +111,9 @@ export interface ZipEntryInfo {
   compressedSize: number;
   uncompressedSize: number;
 }
+
+/** Map from ZIP entry path to the first N bytes of that entry's content. */
+export type EntryHeaderMap = Map<string, Buffer>;
 
 export const DEFAULT_PREFLIGHT_CONFIG: PreflightConfig = {
   failOn: "error",

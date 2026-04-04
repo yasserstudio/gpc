@@ -289,7 +289,6 @@ vi.mock("@gpc-cli/core", () => {
     }),
     topFiles: vi.fn().mockReturnValue([]),
     checkBundleSize: vi.fn().mockResolvedValue({ passed: true, violations: [] }),
-    refundSubscriptionV2: vi.fn().mockResolvedValue(undefined),
     lintListings: vi.fn().mockReturnValue([]),
     lintListing: vi.fn().mockReturnValue({ valid: true, fields: [] }),
     wordDiff: vi.fn().mockReturnValue([]),

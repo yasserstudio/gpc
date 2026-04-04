@@ -118,6 +118,9 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     "generated-apks": async () => {
       (await import("./commands/generated-apks.js")).registerGeneratedApksCommands(program);
     },
+    "system-apks": async () => {
+      (await import("./commands/system-apks.js")).registerSystemApksCommands(program);
+    },
     "purchase-options": async () => {
       (await import("./commands/purchase-options.js")).registerPurchaseOptionsCommands(program);
     },

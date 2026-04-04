@@ -222,18 +222,8 @@ describe("Core Command Coverage — Generated APKs", () => {
   assertExports(["listGeneratedApks", "downloadGeneratedApk"], "generated-apks");
 });
 
-describe("Core Command Coverage — Purchase Options", () => {
-  assertExports(
-    [
-      "listPurchaseOptions",
-      "getPurchaseOption",
-      "createPurchaseOption",
-      "activatePurchaseOption",
-      "deactivatePurchaseOption",
-    ],
-    "purchase-options",
-  );
-});
+// Purchase Options: standalone resource removed (phantom API).
+// Purchase options are managed through oneTimeProducts paths.
 
 describe("Core Command Coverage — Status", () => {
   assertExports(

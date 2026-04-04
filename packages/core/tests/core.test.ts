@@ -2883,11 +2883,16 @@ describe("user commands", () => {
     expect(result.users).toEqual([]);
   });
 
-  it("getUser delegates to client.get", async () => {
+  it("getUser filters from client.list (no GET endpoint in API)", async () => {
     const client = mockUsersClient();
     const result = await getUser(client, "12345", "a@b.com");
     expect(result.email).toBe("a@b.com");
-    expect(client.get).toHaveBeenCalledWith("12345", "a@b.com");
+    expect(client.list).toHaveBeenCalledWith("12345", undefined);
+  });
+
+  it("getUser throws when user not found", async () => {
+    const client = mockUsersClient();
+    await expect(getUser(client, "12345", "missing@b.com")).rejects.toThrow("User \"missing@b.com\" not found");
   });
 
   it("inviteUser creates user with email and permissions", async () => {
@@ -4934,46 +4939,48 @@ describe("one-time products commands", () => {
     expect(client.oneTimeProducts.delete).toHaveBeenCalledWith("com.example", "otp1");
   });
 
-  it("listOneTimeOffers calls client.oneTimeProducts.listOffers", async () => {
+  it("listOneTimeOffers calls client.oneTimeProducts.listOffers with purchaseOptionId", async () => {
     const client = mockClient();
     const result = await listOneTimeOffers(client, "com.example", "otp1");
-    expect(client.oneTimeProducts.listOffers).toHaveBeenCalledWith("com.example", "otp1");
+    expect(client.oneTimeProducts.listOffers).toHaveBeenCalledWith("com.example", "otp1", "-");
     expect(result.oneTimeOffers).toHaveLength(1);
   });
 
-  it("getOneTimeOffer calls client.oneTimeProducts.getOffer", async () => {
+  it("getOneTimeOffer calls client.oneTimeProducts.getOffer with purchaseOptionId", async () => {
     const client = mockClient();
     const result = await getOneTimeOffer(client, "com.example", "otp1", "offer1");
-    expect(client.oneTimeProducts.getOffer).toHaveBeenCalledWith("com.example", "otp1", "offer1");
+    expect(client.oneTimeProducts.getOffer).toHaveBeenCalledWith("com.example", "otp1", "-", "offer1");
     expect(result.offerId).toBe("offer1");
   });
 
-  it("createOneTimeOffer calls client.oneTimeProducts.createOffer", async () => {
+  it("createOneTimeOffer calls client.oneTimeProducts.createOffer with purchaseOptionId", async () => {
     const client = mockClient();
     const data = { offerId: "offer1" } as any;
     await createOneTimeOffer(client, "com.example", "otp1", data);
-    expect(client.oneTimeProducts.createOffer).toHaveBeenCalledWith("com.example", "otp1", data);
+    expect(client.oneTimeProducts.createOffer).toHaveBeenCalledWith("com.example", "otp1", "-", data);
   });
 
-  it("updateOneTimeOffer auto-derives updateMask", async () => {
+  it("updateOneTimeOffer auto-derives updateMask with purchaseOptionId", async () => {
     const client = mockClient();
     const data = { offerId: "offer1", pricing: {} } as any;
     await updateOneTimeOffer(client, "com.example", "otp1", "offer1", data);
     expect(client.oneTimeProducts.updateOffer).toHaveBeenCalledWith(
       "com.example",
       "otp1",
+      "-",
       "offer1",
       data,
       "pricing",
     );
   });
 
-  it("deleteOneTimeOffer calls client.oneTimeProducts.deleteOffer", async () => {
+  it("deleteOneTimeOffer calls client.oneTimeProducts.deleteOffer with purchaseOptionId", async () => {
     const client = mockClient();
     await deleteOneTimeOffer(client, "com.example", "otp1", "offer1");
     expect(client.oneTimeProducts.deleteOffer).toHaveBeenCalledWith(
       "com.example",
       "otp1",
+      "-",
       "offer1",
     );
   });
@@ -5237,101 +5244,8 @@ describe("diffReleases", () => {
 // Purchase Options
 // ---------------------------------------------------------------------------
 
-import {
-  listPurchaseOptions,
-  getPurchaseOption,
-  createPurchaseOption,
-  activatePurchaseOption,
-  deactivatePurchaseOption,
-} from "../src/commands/purchase-options.js";
-
-describe("purchase-options commands", () => {
-  function mockClient(): any {
-    return {
-      purchaseOptions: {
-        list: vi.fn().mockResolvedValue({ purchaseOptions: [] }),
-        get: vi.fn().mockResolvedValue({
-          purchaseOptionId: "po-1",
-          packageName: "com.example",
-          productId: "prod1",
-        }),
-        create: vi.fn().mockResolvedValue({ purchaseOptionId: "po-1" }),
-        activate: vi.fn().mockResolvedValue({ purchaseOptionId: "po-1" }),
-        deactivate: vi.fn().mockResolvedValue({ purchaseOptionId: "po-1" }),
-      },
-    };
-  }
-
-  it("listPurchaseOptions calls client.purchaseOptions.list", async () => {
-    const client = mockClient();
-    const result = await listPurchaseOptions(client, "com.example");
-    expect(client.purchaseOptions.list).toHaveBeenCalledWith("com.example");
-    expect(result.purchaseOptions).toEqual([]);
-  });
-
-  it("getPurchaseOption calls client.purchaseOptions.get", async () => {
-    const client = mockClient();
-    const result = await getPurchaseOption(client, "com.example", "po-1");
-    expect(client.purchaseOptions.get).toHaveBeenCalledWith("com.example", "po-1");
-    expect(result.purchaseOptionId).toBe("po-1");
-  });
-
-  it("createPurchaseOption calls client.purchaseOptions.create", async () => {
-    const client = mockClient();
-    const data = {
-      packageName: "com.example",
-      productId: "prod1",
-      purchaseOptionId: "po-1",
-    } as any;
-    await createPurchaseOption(client, "com.example", data);
-    expect(client.purchaseOptions.create).toHaveBeenCalledWith("com.example", data);
-  });
-
-  it("activatePurchaseOption calls client.purchaseOptions.activate", async () => {
-    const client = mockClient();
-    await activatePurchaseOption(client, "com.example", "po-1");
-    expect(client.purchaseOptions.activate).toHaveBeenCalledWith("com.example", "po-1");
-  });
-
-  it("deactivatePurchaseOption calls client.purchaseOptions.deactivate", async () => {
-    const client = mockClient();
-    await deactivatePurchaseOption(client, "com.example", "po-1");
-    expect(client.purchaseOptions.deactivate).toHaveBeenCalledWith("com.example", "po-1");
-  });
-
-  it("listPurchaseOptions wraps errors with GpcError", async () => {
-    const client = {
-      purchaseOptions: {
-        list: vi.fn().mockRejectedValue(new Error("network error")),
-      },
-    };
-    await expect(listPurchaseOptions(client as any, "com.example")).rejects.toThrow(
-      "Failed to list purchase options",
-    );
-  });
-
-  it("getPurchaseOption wraps errors with GpcError", async () => {
-    const client = {
-      purchaseOptions: {
-        get: vi.fn().mockRejectedValue(new Error("not found")),
-      },
-    };
-    await expect(getPurchaseOption(client as any, "com.example", "po-1")).rejects.toThrow(
-      "Failed to get purchase option",
-    );
-  });
-
-  it("createPurchaseOption wraps errors with GpcError", async () => {
-    const client = {
-      purchaseOptions: {
-        create: vi.fn().mockRejectedValue(new Error("bad request")),
-      },
-    };
-    await expect(createPurchaseOption(client as any, "com.example", {} as any)).rejects.toThrow(
-      "Failed to create purchase option",
-    );
-  });
-});
+// purchase-options tests removed: standalone resource does not exist in Google Play API.
+// Purchase options are managed through oneTimeProducts.purchaseOptions paths.
 
 // ---------------------------------------------------------------------------
 // IAP Batch Sync

@@ -34,9 +34,25 @@ export async function listUsers(
 export async function getUser(
   client: UsersApiClient,
   developerId: string,
-  userId: string,
+  email: string,
 ): Promise<User> {
-  return client.get(developerId, userId);
+  // No GET endpoint exists on the users resource. Paginate through list and filter.
+  const lowerEmail = email.toLowerCase();
+  let pageToken: string | undefined;
+  do {
+    const response = await client.list(developerId, pageToken ? { pageToken } : undefined);
+    const users = response.users || [];
+    const match = users.find((u) => u.email?.toLowerCase() === lowerEmail);
+    if (match) return match;
+    pageToken = response.nextPageToken;
+  } while (pageToken);
+
+  throw new GpcError(
+    `User "${email}" not found in developer account.`,
+    "USER_NOT_FOUND",
+    4,
+    "Check the email address and ensure the user has access to this developer account.",
+  );
 }
 
 export async function inviteUser(

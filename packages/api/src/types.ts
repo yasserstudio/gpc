@@ -947,9 +947,17 @@ export interface TaxAndComplianceSettings {
 export interface OneTimeOffer {
   packageName: string;
   productId: string;
+  purchaseOptionId: string;
   offerId: string;
-  regionalConfigs: Record<string, OneTimeOfferRegionalConfig>;
+  state?: "DRAFT" | "ACTIVE" | "CANCELLED" | "INACTIVE";
+  regionalPricingAndAvailabilityConfigs?: Record<string, OneTimeOfferRegionalConfig>;
+  /** @deprecated Use regionalPricingAndAvailabilityConfigs instead */
+  regionalConfigs?: Record<string, OneTimeOfferRegionalConfig>;
   otherRegionsConfig?: { usdPrice: { units: string; nanos?: number } };
+  offerTags?: Array<{ tag: string }>;
+  regionsVersion?: { version: string };
+  preOrderOffer?: Record<string, unknown>;
+  discountedOffer?: Record<string, unknown>;
 }
 
 export interface OneTimeOfferRegionalConfig {
@@ -963,23 +971,34 @@ export interface OneTimeProductsListResponse {
 }
 
 export interface OneTimeOffersListResponse {
-  oneTimeOffers: OneTimeOffer[];
+  oneTimeProductOffers?: OneTimeOffer[];
+  /** @deprecated Use oneTimeProductOffers */
+  oneTimeOffers?: OneTimeOffer[];
   nextPageToken?: string;
 }
 
-// --- Purchase Options ---
+// --- Purchase Options (removed: standalone /purchaseOptions/ resource does not exist in API) ---
+// Purchase options are managed through /oneTimeProducts/{id}/purchaseOptions/ paths.
+// See oneTimeProducts methods for the correct API surface.
 
-export interface PurchaseOption {
-  packageName: string;
-  productId: string;
-  purchaseOptionId: string;
-  stateInfo?: { activeState?: Record<string, unknown>; inactiveState?: Record<string, unknown> };
-  listings?: Record<string, { title: string; description?: string }>;
+// --- System APKs ---
+
+export interface SystemApkDeviceSpec {
+  supportedAbis?: string[];
+  supportedLocales?: string[];
+  screenDensity?: number;
 }
 
-export interface PurchaseOptionsListResponse {
-  purchaseOptions: PurchaseOption[];
-  nextPageToken?: string;
+export interface SystemApkOptions {
+  uncompressedNativeLibraries?: boolean;
+  uncompressedDexFiles?: boolean;
+  rotated?: boolean;
+}
+
+export interface SystemApkVariant {
+  variantId?: number;
+  deviceSpec?: SystemApkDeviceSpec;
+  options?: SystemApkOptions;
 }
 
 // --- IAP Batch Operations ---

@@ -14,7 +14,8 @@ export interface UsersApiClient {
     options?: { pageToken?: string; pageSize?: number },
   ): Promise<UsersListResponse>;
 
-  get(developerId: string, userId: string): Promise<User>;
+  // get() removed: no GET endpoint exists on the users resource in the official API.
+  // Use list() and filter by email instead.
 
   create(developerId: string, user: Partial<User>): Promise<User>;
 
@@ -28,6 +29,7 @@ export interface UsersApiClient {
   delete(developerId: string, userId: string): Promise<void>;
 
   grants: {
+    /** Not in official API reference but may work as an undocumented endpoint. */
     list(developerId: string, email: string): Promise<GrantsListResponse>;
     create(developerId: string, email: string, grant: Partial<Grant>): Promise<Grant>;
     patch(
@@ -54,11 +56,6 @@ export function createUsersClient(options: ApiClientOptions): UsersApiClient {
         `/${developerId}/users`,
         hasParams ? params : undefined,
       );
-      return data;
-    },
-
-    async get(developerId, userId) {
-      const { data } = await http.get<User>(`/${developerId}/users/${userId}`);
       return data;
     },
 

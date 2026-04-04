@@ -218,7 +218,15 @@ function getAttrByName(attrs: XmlAttr[], name: string): string | undefined {
   const ci = attr.compiledItem;
   if (ci?.str?.value !== undefined) return ci.str.value;
   if (ci?.ref?.name !== undefined) return ci.ref.name;
-  return attr.value || undefined;
+  // Compiled primitives (booleans, integers) may not populate str/ref.
+  // Only use prim if attr.value is empty -- prim fields default to 0/false in protobuf
+  // which is indistinguishable from an explicitly set 0/false.
+  const prim = ci?.prim;
+  if (attr.value) return attr.value;
+  if (prim?.booleanValue === true) return "true";
+  if (prim?.intDecimalValue) return String(prim.intDecimalValue);
+  if (prim?.intHexadecimalValue) return String(prim.intHexadecimalValue);
+  return undefined;
 }
 
 function getBoolByName(attrs: XmlAttr[], name: string, defaultVal: boolean): boolean {
@@ -273,6 +281,7 @@ function extractManifestData(manifest: XmlElem): ParsedManifest {
   const testOnly = getBoolByName(attrs, "testOnly", false);
   const usesCleartextTraffic = app ? getBoolByName(app.attribute || [], "usesCleartextTraffic", true) : true;
   const extractNativeLibs = app ? getBoolByName(app.attribute || [], "extractNativeLibs", true) : true;
+  const pageSizeCompat = app ? getBoolByName(app.attribute || [], "pageSizeCompat", false) : false;
 
   const activities = app ? extractComponents(app, "activity") : [];
   const services = app ? extractComponents(app, "service") : [];
@@ -289,6 +298,7 @@ function extractManifestData(manifest: XmlElem): ParsedManifest {
     testOnly,
     usesCleartextTraffic,
     extractNativeLibs,
+    pageSizeCompat: pageSizeCompat || undefined,
     permissions,
     features,
     activities,
@@ -302,15 +312,32 @@ function extractComponents(appElement: XmlElem, tagName: string): ManifestCompon
   return getChildren(appElement, tagName).map((el) => {
     const compAttrs = el.attribute || [];
     const exportedVal = getAttrByName(compAttrs, "exported");
-    const hasIntentFilter = getChildren(el, "intent-filter").length > 0;
+    const intentFilters = getChildren(el, "intent-filter");
+    const hasIntentFilter = intentFilters.length > 0;
+
+    const intentActions: string[] = [];
+    const intentCategories: string[] = [];
+    for (const filter of intentFilters) {
+      for (const action of getChildren(filter, "action")) {
+        const name = getAttrByName(action.attribute || [], "name");
+        if (name) intentActions.push(name);
+      }
+      for (const cat of getChildren(filter, "category")) {
+        const name = getAttrByName(cat.attribute || [], "name");
+        if (name) intentCategories.push(name);
+      }
+    }
 
     return {
       name: getAttrByName(compAttrs, "name") || "",
       exported:
         exportedVal === undefined ? undefined : exportedVal === "true" || exportedVal === "1",
+      permission: getAttrByName(compAttrs, "permission") || undefined,
       foregroundServiceType:
         tagName === "service" ? getAttrByName(compAttrs, "foregroundServiceType") : undefined,
       hasIntentFilter,
+      intentActions: intentActions.length > 0 ? intentActions : undefined,
+      intentCategories: intentCategories.length > 0 ? intentCategories : undefined,
     };
   });
 }

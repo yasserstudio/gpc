@@ -65,7 +65,7 @@ function deriveOtpUpdateMask(data: Partial<OneTimeProduct>): string {
     .join(",");
 }
 
-const OTP_OFFER_ID_FIELDS = new Set(["productId", "offerId"]);
+const OTP_OFFER_ID_FIELDS = new Set(["packageName", "productId", "purchaseOptionId", "offerId"]);
 
 function deriveOtpOfferUpdateMask(data: Partial<OneTimeOffer>): string {
   return Object.keys(data)
@@ -114,9 +114,10 @@ export async function listOneTimeOffers(
   client: PlayApiClient,
   packageName: string,
   productId: string,
+  purchaseOptionId = "-",
 ): Promise<OneTimeOffersListResponse> {
   try {
-    return await client.oneTimeProducts.listOffers(packageName, productId);
+    return await client.oneTimeProducts.listOffers(packageName, productId, purchaseOptionId);
   } catch (error) {
     throw new GpcError(
       `Failed to list offers for product "${productId}": ${error instanceof Error ? error.message : String(error)}`,
@@ -132,9 +133,10 @@ export async function getOneTimeOffer(
   packageName: string,
   productId: string,
   offerId: string,
+  purchaseOptionId = "-",
 ): Promise<OneTimeOffer> {
   try {
-    return await client.oneTimeProducts.getOffer(packageName, productId, offerId);
+    return await client.oneTimeProducts.getOffer(packageName, productId, purchaseOptionId, offerId);
   } catch (error) {
     throw new GpcError(
       `Failed to get offer "${offerId}" for product "${productId}": ${error instanceof Error ? error.message : String(error)}`,
@@ -150,9 +152,10 @@ export async function createOneTimeOffer(
   packageName: string,
   productId: string,
   data: OneTimeOffer,
+  purchaseOptionId = "-",
 ): Promise<OneTimeOffer> {
   try {
-    return await client.oneTimeProducts.createOffer(packageName, productId, data);
+    return await client.oneTimeProducts.createOffer(packageName, productId, purchaseOptionId, data);
   } catch (error) {
     throw new GpcError(
       `Failed to create offer for product "${productId}": ${error instanceof Error ? error.message : String(error)}`,
@@ -170,10 +173,11 @@ export async function updateOneTimeOffer(
   offerId: string,
   data: Partial<OneTimeOffer>,
   updateMask?: string,
+  purchaseOptionId = "-",
 ): Promise<OneTimeOffer> {
   try {
     const mask = updateMask || deriveOtpOfferUpdateMask(data);
-    return await client.oneTimeProducts.updateOffer(packageName, productId, offerId, data, mask);
+    return await client.oneTimeProducts.updateOffer(packageName, productId, purchaseOptionId, offerId, data, mask);
   } catch (error) {
     throw new GpcError(
       `Failed to update offer "${offerId}" for product "${productId}": ${error instanceof Error ? error.message : String(error)}`,
@@ -217,9 +221,10 @@ export async function deleteOneTimeOffer(
   packageName: string,
   productId: string,
   offerId: string,
+  purchaseOptionId = "-",
 ): Promise<void> {
   try {
-    await client.oneTimeProducts.deleteOffer(packageName, productId, offerId);
+    await client.oneTimeProducts.deleteOffer(packageName, productId, purchaseOptionId, offerId);
   } catch (error) {
     throw new GpcError(
       `Failed to delete offer "${offerId}" for product "${productId}": ${error instanceof Error ? error.message : String(error)}`,

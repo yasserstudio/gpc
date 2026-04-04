@@ -58,6 +58,7 @@ export async function runPreflight(options: PreflightOptions): Promise<Preflight
     const aab = await readAab(options.aabPath);
     ctx.manifest = aab.manifest;
     ctx.zipEntries = aab.entries;
+    ctx.nativeLibHeaders = aab.nativeLibHeaders;
 
     // If manifest had a parse error, emit a warning and clear manifest
     // so manifest-dependent scanners are skipped gracefully

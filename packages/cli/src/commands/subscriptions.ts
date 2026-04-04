@@ -576,6 +576,41 @@ export function registerSubscriptionsCommands(program: Command): void {
         console.log(formatOutput(result, format));
     });
 
+  offers
+    .command("batch-get <product-id> <base-plan-id>")
+    .description("Batch get multiple offers (max 100)")
+    .requiredOption("--ids <offer-ids>", "Comma-separated offer IDs")
+    .action(async (productId: string, basePlanId: string, options: { ids: string }) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = getOutputFormat(program, config);
+
+      const offerIds = options.ids.split(",").map((id) => id.trim());
+      const result = await client.subscriptions.batchGetOffers(packageName, productId, basePlanId, offerIds);
+      console.log(formatOutput(result, format));
+    });
+
+  offers
+    .command("batch-update-states <product-id> <base-plan-id>")
+    .description("Batch activate or deactivate multiple offers (max 100)")
+    .requiredOption("--file <path>", "JSON file with state transition requests")
+    .action(async (productId: string, basePlanId: string, options: { file: string }) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const format = getOutputFormat(program, config);
+
+      if (isDryRun(program)) {
+        printDryRun({ command: "subscriptions offers batch-update-states", action: "batch update offer states", target: `${productId}/${basePlanId}`, details: { file: options.file } }, format, formatOutput);
+        return;
+      }
+
+      const client = await getClient(config);
+      const requests = await readJsonFile(options.file);
+      const result = await client.subscriptions.batchUpdateOfferStates(packageName, productId, basePlanId, requests as any);
+      console.log(formatOutput(result, format));
+    });
+
   // --- Diff ---
   subs
     .command("diff <product-id>")

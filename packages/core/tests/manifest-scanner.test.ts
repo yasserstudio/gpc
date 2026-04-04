@@ -166,4 +166,61 @@ describe("manifestScanner", () => {
     expect(f).toBeDefined();
     expect(f!.severity).toBe("info");
   });
+
+  it("flags exported service without permission", async () => {
+    const findings = await manifestScanner.scan(
+      makeCtx(
+        makeManifest({
+          services: [{ name: "com.example.MyService", exported: true, hasIntentFilter: true }],
+        }),
+      ),
+    );
+    const f = findings.find((f) => f.ruleId === "exported-no-permission");
+    expect(f).toBeDefined();
+    expect(f!.severity).toBe("warning");
+    expect(f!.message).toContain("MyService");
+  });
+
+  it("skips exported component with permission", async () => {
+    const findings = await manifestScanner.scan(
+      makeCtx(
+        makeManifest({
+          services: [
+            { name: "com.example.MyService", exported: true, permission: "com.example.PERM", hasIntentFilter: false },
+          ],
+        }),
+      ),
+    );
+    expect(findings.find((f) => f.ruleId === "exported-no-permission")).toBeUndefined();
+  });
+
+  it("skips main launcher activity", async () => {
+    const findings = await manifestScanner.scan(
+      makeCtx(
+        makeManifest({
+          activities: [
+            {
+              name: "com.example.MainActivity",
+              exported: true,
+              hasIntentFilter: true,
+              intentActions: ["android.intent.action.MAIN"],
+              intentCategories: ["android.intent.category.LAUNCHER"],
+            },
+          ],
+        }),
+      ),
+    );
+    expect(findings.find((f) => f.ruleId === "exported-no-permission")).toBeUndefined();
+  });
+
+  it("skips non-exported components", async () => {
+    const findings = await manifestScanner.scan(
+      makeCtx(
+        makeManifest({
+          receivers: [{ name: "com.example.MyReceiver", exported: false, hasIntentFilter: false }],
+        }),
+      ),
+    );
+    expect(findings.find((f) => f.ruleId === "exported-no-permission")).toBeUndefined();
+  });
 });

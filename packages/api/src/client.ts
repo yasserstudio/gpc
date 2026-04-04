@@ -71,8 +71,7 @@ import type {
   InternalAppSharingArtifact,
   GeneratedApk,
   GeneratedApksPerVersion,
-  PurchaseOption,
-  PurchaseOptionsListResponse,
+  SystemApkVariant,
   InAppProductsBatchUpdateRequest,
   InAppProductsBatchUpdateResponse,
   ResumableUploadOptions,
@@ -365,6 +364,12 @@ export interface PlayApiClient {
       data: InAppProduct,
       options?: { autoConvertMissingPrices?: boolean; allowMissing?: boolean },
     ): Promise<InAppProduct>;
+    patch(
+      packageName: string,
+      sku: string,
+      data: Partial<InAppProduct>,
+      options?: { autoConvertMissingPrices?: boolean; latencyTolerance?: string },
+    ): Promise<InAppProduct>;
     delete(packageName: string, sku: string): Promise<void>;
     batchUpdate(
       packageName: string,
@@ -403,7 +408,8 @@ export interface PlayApiClient {
       body?: { developerPayload?: string },
     ): Promise<void>;
     revokeSubscriptionV2(packageName: string, token: string): Promise<void>;
-    refundSubscriptionV2(packageName: string, token: string): Promise<void>;
+    // refundSubscriptionV2 removed: endpoint does not exist in official API.
+    // Use orders.refund or revokeSubscriptionV2 with revocationContext instead.
     /** V2 cancel with cancellationType support. (Sep 2025) */
     cancelSubscriptionV2(
       packageName: string,
@@ -456,6 +462,7 @@ export interface PlayApiClient {
   testers: {
     get(packageName: string, editId: string, track: string): Promise<Testers>;
     update(packageName: string, editId: string, track: string, testers: Testers): Promise<Testers>;
+    patch(packageName: string, editId: string, track: string, testers: Partial<Testers>): Promise<Testers>;
   };
 
   deobfuscation: {
@@ -512,30 +519,62 @@ export interface PlayApiClient {
       options?: MutationOptions,
     ): Promise<OneTimeProduct>;
     delete(packageName: string, productId: string): Promise<void>;
-    listOffers(packageName: string, productId: string): Promise<OneTimeOffersListResponse>;
-    getOffer(packageName: string, productId: string, offerId: string): Promise<OneTimeOffer>;
-    createOffer(packageName: string, productId: string, offer: OneTimeOffer, regionsVersion?: string): Promise<OneTimeOffer>;
+    listOffers(packageName: string, productId: string, purchaseOptionId?: string): Promise<OneTimeOffersListResponse>;
+    getOffer(packageName: string, productId: string, purchaseOptionId: string, offerId: string): Promise<OneTimeOffer>;
+    createOffer(packageName: string, productId: string, purchaseOptionId: string, offer: OneTimeOffer, regionsVersion?: string): Promise<OneTimeOffer>;
     updateOffer(
       packageName: string,
       productId: string,
+      purchaseOptionId: string,
       offerId: string,
       offer: Partial<OneTimeOffer>,
       updateMask?: string,
       regionsVersion?: string,
       options?: MutationOptions,
     ): Promise<OneTimeOffer>;
-    deleteOffer(packageName: string, productId: string, offerId: string): Promise<void>;
+    deleteOffer(packageName: string, productId: string, purchaseOptionId: string, offerId: string): Promise<void>;
     batchGet(packageName: string, productIds: string[]): Promise<OneTimeProduct[]>;
     batchUpdate(packageName: string, requests: { requests: Array<{ oneTimeProduct: Partial<OneTimeProduct>; updateMask?: string; regionsVersion?: string }> }): Promise<{ oneTimeProducts: OneTimeProduct[] }>;
     batchDelete(packageName: string, productIds: string[]): Promise<void>;
-  };
 
-  purchaseOptions: {
-    list(packageName: string): Promise<PurchaseOptionsListResponse>;
-    get(packageName: string, purchaseOptionId: string): Promise<PurchaseOption>;
-    create(packageName: string, data: PurchaseOption): Promise<PurchaseOption>;
-    activate(packageName: string, purchaseOptionId: string): Promise<PurchaseOption>;
-    deactivate(packageName: string, purchaseOptionId: string): Promise<PurchaseOption>;
+    // Purchase option batch operations
+    batchDeletePurchaseOptions(
+      packageName: string,
+      productId: string,
+      requests: Array<{ packageName: string; productId: string; purchaseOptionId: string; force?: boolean; latencyTolerance?: string }>,
+    ): Promise<void>;
+    batchUpdatePurchaseOptionStates(
+      packageName: string,
+      productId: string,
+      requests: Array<{ activatePurchaseOptionRequest?: { packageName: string; productId: string; purchaseOptionId: string; latencyTolerance?: string }; deactivatePurchaseOptionRequest?: { packageName: string; productId: string; purchaseOptionId: string; latencyTolerance?: string } }>,
+    ): Promise<{ oneTimeProducts: OneTimeProduct[] }>;
+
+    // Offer batch operations
+    cancelOffer(packageName: string, productId: string, purchaseOptionId: string, offerId: string, latencyTolerance?: string): Promise<OneTimeOffer>;
+    batchGetOffers(
+      packageName: string,
+      productId: string,
+      purchaseOptionId: string,
+      requests: Array<{ packageName: string; productId: string; purchaseOptionId: string; offerId: string }>,
+    ): Promise<{ oneTimeProductOffers: OneTimeOffer[] }>;
+    batchUpdateOffers(
+      packageName: string,
+      productId: string,
+      purchaseOptionId: string,
+      requests: Array<{ oneTimeProductOffer: Partial<OneTimeOffer>; updateMask?: string; regionsVersion?: { version: string }; allowMissing?: boolean; latencyTolerance?: string }>,
+    ): Promise<{ oneTimeProductOffers: OneTimeOffer[] }>;
+    batchUpdateOfferStates(
+      packageName: string,
+      productId: string,
+      purchaseOptionId: string,
+      requests: Array<{ activateOneTimeProductOfferRequest?: Record<string, unknown>; deactivateOneTimeProductOfferRequest?: Record<string, unknown>; cancelOneTimeProductOfferRequest?: Record<string, unknown> }>,
+    ): Promise<{ oneTimeProductOffers: OneTimeOffer[] }>;
+    batchDeleteOffers(
+      packageName: string,
+      productId: string,
+      purchaseOptionId: string,
+      requests: Array<{ packageName: string; productId: string; purchaseOptionId: string; offerId: string; latencyTolerance?: string }>,
+    ): Promise<void>;
   };
 
   internalAppSharing: {
@@ -546,6 +585,13 @@ export interface PlayApiClient {
   generatedApks: {
     list(packageName: string, versionCode: number): Promise<GeneratedApk[]>;
     download(packageName: string, versionCode: number, id: string): Promise<ArrayBuffer>;
+  };
+
+  systemApks: {
+    create(packageName: string, versionCode: number, variant: SystemApkVariant): Promise<SystemApkVariant>;
+    list(packageName: string, versionCode: number): Promise<{ variants: SystemApkVariant[] }>;
+    get(packageName: string, versionCode: number, variantId: number): Promise<SystemApkVariant>;
+    download(packageName: string, versionCode: number, variantId: number): Promise<ArrayBuffer>;
   };
 }
 
@@ -1172,6 +1218,18 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
+      async patch(packageName, sku, body, options?) {
+        const params: Record<string, string> = {};
+        if (options?.autoConvertMissingPrices) params["autoConvertMissingPrices"] = "true";
+        if (options?.latencyTolerance) params["latencyTolerance"] = options.latencyTolerance;
+        const hasParams = Object.keys(params).length > 0;
+        const path = hasParams
+          ? `/${packageName}/inappproducts/${sku}?${new URLSearchParams(params).toString()}`
+          : `/${packageName}/inappproducts/${sku}`;
+        const { data } = await http.patch<InAppProduct>(path, body);
+        return data;
+      },
+
       async delete(packageName, sku) {
         await http.delete(`/${packageName}/inappproducts/${sku}`);
       },
@@ -1268,10 +1326,6 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         await http.post(`/${packageName}/purchases/subscriptionsv2/tokens/${token}:revoke`);
       },
 
-      async refundSubscriptionV2(packageName, token) {
-        await http.post(`/${packageName}/purchases/subscriptionsv2/tokens/${token}:refund`);
-      },
-
       async cancelSubscriptionV2(packageName, token, body?) {
         await http.post(
           `/${packageName}/purchases/subscriptionsv2/tokens/${token}:cancel`,
@@ -1362,6 +1416,14 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
       async update(packageName, editId, track, testersData) {
         const { data } = await http.put<Testers>(
+          `/${packageName}/edits/${editId}/testers/${track}`,
+          testersData,
+        );
+        return data;
+      },
+
+      async patch(packageName, editId, track, testersData) {
+        const { data } = await http.patch<Testers>(
           `/${packageName}/edits/${editId}/testers/${track}`,
           testersData,
         );
@@ -1496,9 +1558,15 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async create(packageName, body, regionsVersion?) {
-        const params = new URLSearchParams({ "regionsVersion.version": regionsVersion || DEFAULT_REGIONS_VERSION });
-        const { data } = await http.post<OneTimeProduct>(
-          `/${packageName}/oneTimeProducts?${params.toString()}`,
+        // Official API has no POST create -- use PATCH with allowMissing=true
+        const productId = body.productId;
+        if (!productId) throw new Error("productId is required to create a one-time product");
+        const params = new URLSearchParams({
+          "regionsVersion.version": regionsVersion || DEFAULT_REGIONS_VERSION,
+          "allowMissing": "true",
+        });
+        const { data } = await http.patch<OneTimeProduct>(
+          `/${packageName}/oneTimeProducts/${productId}?${params.toString()}`,
           body,
         );
         return data;
@@ -1518,41 +1586,41 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         await http.delete(`/${packageName}/oneTimeProducts/${productId}`);
       },
 
-      async listOffers(packageName, productId) {
+      async listOffers(packageName, productId, purchaseOptionId = "-") {
         const { data } = await http.get<OneTimeOffersListResponse>(
-          `/${packageName}/oneTimeProducts/${productId}/offers`,
+          `/${packageName}/oneTimeProducts/${productId}/purchaseOptions/${purchaseOptionId}/offers`,
         );
         return data;
       },
 
-      async getOffer(packageName, productId, offerId) {
+      async getOffer(packageName, productId, purchaseOptionId, offerId) {
         const { data } = await http.get<OneTimeOffer>(
-          `/${packageName}/oneTimeProducts/${productId}/offers/${offerId}`,
+          `/${packageName}/oneTimeProducts/${productId}/purchaseOptions/${purchaseOptionId}/offers/${offerId}`,
         );
         return data;
       },
 
-      async createOffer(packageName, productId, body, regionsVersion?) {
+      async createOffer(packageName, productId, purchaseOptionId, body, regionsVersion?) {
         const params = new URLSearchParams({ "regionsVersion.version": regionsVersion || DEFAULT_REGIONS_VERSION });
         const { data } = await http.post<OneTimeOffer>(
-          `/${packageName}/oneTimeProducts/${productId}/offers?${params.toString()}`,
+          `/${packageName}/oneTimeProducts/${productId}/purchaseOptions/${purchaseOptionId}/offers?${params.toString()}`,
           body,
         );
         return data;
       },
 
-      async updateOffer(packageName, productId, offerId, body, updateMask?, regionsVersion?, options?) {
+      async updateOffer(packageName, productId, purchaseOptionId, offerId, body, updateMask?, regionsVersion?, options?) {
         const params: Record<string, string> = {};
         if (updateMask) params["updateMask"] = updateMask;
         params["regionsVersion.version"] = regionsVersion || DEFAULT_REGIONS_VERSION;
         applyMutationOptions(params, options);
-        const path = `/${packageName}/oneTimeProducts/${productId}/offers/${offerId}?${new URLSearchParams(params).toString()}`;
+        const path = `/${packageName}/oneTimeProducts/${productId}/purchaseOptions/${purchaseOptionId}/offers/${offerId}?${new URLSearchParams(params).toString()}`;
         const { data } = await http.patch<OneTimeOffer>(path, body);
         return data;
       },
 
-      async deleteOffer(packageName, productId, offerId) {
-        await http.delete(`/${packageName}/oneTimeProducts/${productId}/offers/${offerId}`);
+      async deleteOffer(packageName, productId, purchaseOptionId, offerId) {
+        await http.delete(`/${packageName}/oneTimeProducts/${productId}/purchaseOptions/${purchaseOptionId}/offers/${offerId}`);
       },
 
       async batchGet(packageName, productIds) {
@@ -1577,40 +1645,62 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           { requests: productIds.map((id) => ({ productId: id })) },
         );
       },
-    },
 
-    purchaseOptions: {
-      async list(packageName) {
-        const { data } = await http.get<PurchaseOptionsListResponse>(
-          `/${packageName}/purchaseOptions`,
+      // Purchase option batch operations
+      async batchDeletePurchaseOptions(packageName, productId, requests) {
+        await http.post(
+          `/${packageName}/oneTimeProducts/${productId}/purchaseOptions:batchDelete`,
+          { requests },
+        );
+      },
+
+      async batchUpdatePurchaseOptionStates(packageName, productId, requests) {
+        const { data } = await http.post<{ oneTimeProducts: OneTimeProduct[] }>(
+          `/${packageName}/oneTimeProducts/${productId}/purchaseOptions:batchUpdateStates`,
+          { requests },
         );
         return data;
       },
 
-      async get(packageName, purchaseOptionId) {
-        const { data } = await http.get<PurchaseOption>(
-          `/${packageName}/purchaseOptions/${purchaseOptionId}`,
+      // Offer batch operations
+      async cancelOffer(packageName, productId, purchaseOptionId, offerId, latencyTolerance?) {
+        const body = latencyTolerance ? { latencyTolerance } : {};
+        const { data } = await http.post<OneTimeOffer>(
+          `/${packageName}/oneTimeProducts/${productId}/purchaseOptions/${purchaseOptionId}/offers/${offerId}:cancel`,
+          body,
         );
         return data;
       },
 
-      async create(packageName, body) {
-        const { data } = await http.post<PurchaseOption>(`/${packageName}/purchaseOptions`, body);
-        return data;
-      },
-
-      async activate(packageName, purchaseOptionId) {
-        const { data } = await http.post<PurchaseOption>(
-          `/${packageName}/purchaseOptions/${purchaseOptionId}:activate`,
+      async batchGetOffers(packageName, productId, purchaseOptionId, requests) {
+        const { data } = await http.post<{ oneTimeProductOffers: OneTimeOffer[] }>(
+          `/${packageName}/oneTimeProducts/${productId}/purchaseOptions/${purchaseOptionId}/offers:batchGet`,
+          { requests },
         );
         return data;
       },
 
-      async deactivate(packageName, purchaseOptionId) {
-        const { data } = await http.post<PurchaseOption>(
-          `/${packageName}/purchaseOptions/${purchaseOptionId}:deactivate`,
+      async batchUpdateOffers(packageName, productId, purchaseOptionId, requests) {
+        const { data } = await http.post<{ oneTimeProductOffers: OneTimeOffer[] }>(
+          `/${packageName}/oneTimeProducts/${productId}/purchaseOptions/${purchaseOptionId}/offers:batchUpdate`,
+          { requests },
         );
         return data;
+      },
+
+      async batchUpdateOfferStates(packageName, productId, purchaseOptionId, requests) {
+        const { data } = await http.post<{ oneTimeProductOffers: OneTimeOffer[] }>(
+          `/${packageName}/oneTimeProducts/${productId}/purchaseOptions/${purchaseOptionId}/offers:batchUpdateStates`,
+          { requests },
+        );
+        return data;
+      },
+
+      async batchDeleteOffers(packageName, productId, purchaseOptionId, requests) {
+        await http.post(
+          `/${packageName}/oneTimeProducts/${productId}/purchaseOptions/${purchaseOptionId}/offers:batchDelete`,
+          { requests },
+        );
       },
     },
 
@@ -1644,6 +1734,36 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
       async download(packageName, versionCode, id) {
         return http.download(`/${packageName}/generatedApks/${versionCode}/download/${id}`);
+      },
+    },
+
+    systemApks: {
+      async create(packageName, versionCode, variant) {
+        const { data } = await http.post<SystemApkVariant>(
+          `/${packageName}/systemApks/${versionCode}/variants`,
+          variant,
+        );
+        return data;
+      },
+
+      async list(packageName, versionCode) {
+        const { data } = await http.get<{ variants: SystemApkVariant[] }>(
+          `/${packageName}/systemApks/${versionCode}/variants`,
+        );
+        return data;
+      },
+
+      async get(packageName, versionCode, variantId) {
+        const { data } = await http.get<SystemApkVariant>(
+          `/${packageName}/systemApks/${versionCode}/variants/${variantId}`,
+        );
+        return data;
+      },
+
+      async download(packageName, versionCode, variantId) {
+        return http.download(
+          `/${packageName}/systemApks/${versionCode}/variants/${variantId}:download`,
+        );
       },
     },
   };

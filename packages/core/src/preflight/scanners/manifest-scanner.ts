@@ -127,6 +127,35 @@ export const manifestScanner: PreflightScanner = {
       }
     }
 
+    // Exported components without permission protection
+    const allComponents = [
+      ...manifest.activities,
+      ...manifest.services,
+      ...manifest.receivers,
+      ...manifest.providers,
+    ];
+
+    for (const comp of allComponents) {
+      if (comp.exported !== true) continue;
+      if (comp.permission) continue;
+
+      // Skip main launcher activity (expected to be exported without permission)
+      const isLauncher =
+        comp.intentActions?.includes("android.intent.action.MAIN") &&
+        comp.intentCategories?.includes("android.intent.category.LAUNCHER");
+      if (isLauncher) continue;
+
+      findings.push({
+        scanner: "manifest",
+        ruleId: "exported-no-permission",
+        severity: "warning",
+        title: `Exported component "${comp.name}" has no permission`,
+        message: `"${comp.name}" is exported without an android:permission attribute. Any app on the device can access this component.`,
+        suggestion: `Add android:permission to restrict access, or set android:exported="false" if external access is not needed.`,
+        policyUrl: "https://developer.android.com/privacy-and-security/security-tips#components",
+      });
+    }
+
     // minSdkVersion advisory
     if (manifest.minSdk < 21) {
       findings.push({

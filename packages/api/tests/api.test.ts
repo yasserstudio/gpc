@@ -1555,14 +1555,7 @@ describe("createUsersClient", () => {
     expect(url).toContain("pageToken=next");
   });
 
-  it("get calls GET /developers/{id}/users/{userId}", async () => {
-    mockFetch.mockResolvedValueOnce(mockResponse({ email: "a@b.com", name: "Alice" }));
-    const client = makeClient();
-    const result = await client.get(DEV_ID, "a@b.com");
-    expect(result.email).toBe("a@b.com");
-    const [url] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${USERS_BASE}/${DEV_ID}/users/a@b.com`);
-  });
+  // users.get removed: no GET endpoint exists in the official API.
 
   it("create calls POST /developers/{id}/users", async () => {
     mockFetch.mockResolvedValueOnce(mockResponse({ email: "new@b.com" }));
@@ -2231,16 +2224,17 @@ describe("oneTimeProducts", () => {
     expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1`);
   });
 
-  it("create calls POST /{pkg}/oneTimeProducts with regionsVersion", async () => {
+  it("create calls PATCH with allowMissing=true (no POST create in official API)", async () => {
     const product = { productId: "otp1", packageName: PKG };
     mockFetch.mockResolvedValueOnce(mockResponse(product));
     const client = makeClient();
     const result = await client.oneTimeProducts.create(PKG, product as any);
     expect(result).toEqual(product);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toContain(`${BASE_URL}/${PKG}/oneTimeProducts`);
+    expect(url).toContain(`${BASE_URL}/${PKG}/oneTimeProducts/otp1`);
     expect(url).toContain("regionsVersion.version=2022%2F02");
-    expect(init.method).toBe("POST");
+    expect(url).toContain("allowMissing=true");
+    expect(init.method).toBe("PATCH");
   });
 
   it("update calls PATCH /{pkg}/oneTimeProducts/{id} with regionsVersion", async () => {
@@ -2263,12 +2257,13 @@ describe("oneTimeProducts", () => {
     expect(url).toContain("updateMask=listings");
   });
 
-  it("updateOffer passes regionsVersion and updateMask", async () => {
+  it("updateOffer passes regionsVersion, updateMask, and purchaseOptionId in URL", async () => {
     const offer = { productId: "otp1", offerId: "offer1" };
     mockFetch.mockResolvedValueOnce(mockResponse(offer));
     const client = makeClient();
-    await client.oneTimeProducts.updateOffer(PKG, "otp1", "offer1", offer as any, "pricing");
+    await client.oneTimeProducts.updateOffer(PKG, "otp1", "-", "offer1", offer as any, "pricing");
     const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toContain("/purchaseOptions/-/offers/offer1");
     expect(url).toContain("updateMask=pricing");
     expect(url).toContain("regionsVersion.version=2022%2F02");
     expect(init.method).toBe("PATCH");
@@ -2283,33 +2278,51 @@ describe("oneTimeProducts", () => {
     expect(init.method).toBe("DELETE");
   });
 
-  it("listOffers calls GET /{pkg}/oneTimeProducts/{id}/offers", async () => {
-    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeOffers: [] }));
+  it("listOffers calls GET with /purchaseOptions/-/offers path", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [] }));
     const client = makeClient();
     const result = await client.oneTimeProducts.listOffers(PKG, "otp1");
-    expect(result).toEqual({ oneTimeOffers: [] });
+    expect(result).toEqual({ oneTimeProductOffers: [] });
     const [url] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/offers`);
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/-/offers`);
   });
 
-  it("createOffer calls POST /{pkg}/oneTimeProducts/{id}/offers", async () => {
-    const offer = { productId: "otp1", offerId: "offer1" };
+  it("listOffers accepts explicit purchaseOptionId", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [] }));
+    const client = makeClient();
+    await client.oneTimeProducts.listOffers(PKG, "otp1", "po1");
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers`);
+  });
+
+  it("createOffer calls POST with /purchaseOptions/{id}/offers path", async () => {
+    const offer = { productId: "otp1", offerId: "offer1", purchaseOptionId: "-" };
     mockFetch.mockResolvedValueOnce(mockResponse(offer));
     const client = makeClient();
-    await client.oneTimeProducts.createOffer(PKG, "otp1", offer as any);
+    await client.oneTimeProducts.createOffer(PKG, "otp1", "po1", offer as any);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toContain(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/offers`);
+    expect(url).toContain(`/oneTimeProducts/otp1/purchaseOptions/po1/offers`);
     expect(url).toContain("regionsVersion.version=2022%2F02");
     expect(init.method).toBe("POST");
   });
 
-  it("deleteOffer calls DELETE /{pkg}/oneTimeProducts/{id}/offers/{offerId}", async () => {
+  it("deleteOffer calls DELETE with /purchaseOptions/{id}/offers/{offerId} path", async () => {
     mockFetch.mockResolvedValueOnce(mockResponse({}));
     const client = makeClient();
-    await client.oneTimeProducts.deleteOffer(PKG, "otp1", "offer1");
+    await client.oneTimeProducts.deleteOffer(PKG, "otp1", "-", "offer1");
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/offers/offer1`);
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/-/offers/offer1`);
     expect(init.method).toBe("DELETE");
+  });
+
+  it("getOffer calls GET with /purchaseOptions/{id}/offers/{offerId} path", async () => {
+    const offer = { productId: "otp1", offerId: "offer1", purchaseOptionId: "po1" };
+    mockFetch.mockResolvedValueOnce(mockResponse(offer));
+    const client = makeClient();
+    const result = await client.oneTimeProducts.getOffer(PKG, "otp1", "po1", "offer1");
+    expect(result).toEqual(offer);
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers/offer1`);
   });
 });
 
@@ -2441,77 +2454,8 @@ describe("generatedApks", () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// Purchase Options
-// ---------------------------------------------------------------------------
-describe("purchaseOptions", () => {
-  let mockFetch: ReturnType<typeof vi.fn>;
-
-  beforeEach(() => {
-    mockFetch = vi.fn();
-    vi.stubGlobal("fetch", mockFetch);
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  const PKG = "com.example.app";
-
-  function makeClient() {
-    return createApiClient({ auth: mockAuth(), maxRetries: 0 });
-  }
-
-  it("list calls GET /{pkg}/purchaseOptions", async () => {
-    mockFetch.mockResolvedValueOnce(mockResponse({ purchaseOptions: [] }));
-    const client = makeClient();
-    const result = await client.purchaseOptions.list(PKG);
-    expect(result).toEqual({ purchaseOptions: [] });
-    const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/purchaseOptions`);
-    expect(init.method).toBe("GET");
-  });
-
-  it("get calls GET /{pkg}/purchaseOptions/{id}", async () => {
-    const option = { purchaseOptionId: "po-1", packageName: PKG, productId: "prod1" };
-    mockFetch.mockResolvedValueOnce(mockResponse(option));
-    const client = makeClient();
-    const result = await client.purchaseOptions.get(PKG, "po-1");
-    expect(result).toEqual(option);
-    const [url] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/purchaseOptions/po-1`);
-  });
-
-  it("create calls POST /{pkg}/purchaseOptions", async () => {
-    const option = { purchaseOptionId: "po-1", packageName: PKG, productId: "prod1" };
-    mockFetch.mockResolvedValueOnce(mockResponse(option));
-    const client = makeClient();
-    await client.purchaseOptions.create(PKG, option as any);
-    const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/purchaseOptions`);
-    expect(init.method).toBe("POST");
-  });
-
-  it("activate calls POST /{pkg}/purchaseOptions/{id}:activate", async () => {
-    const option = { purchaseOptionId: "po-1", packageName: PKG, productId: "prod1" };
-    mockFetch.mockResolvedValueOnce(mockResponse(option));
-    const client = makeClient();
-    await client.purchaseOptions.activate(PKG, "po-1");
-    const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/purchaseOptions/po-1:activate`);
-    expect(init.method).toBe("POST");
-  });
-
-  it("deactivate calls POST /{pkg}/purchaseOptions/{id}:deactivate", async () => {
-    const option = { purchaseOptionId: "po-1", packageName: PKG, productId: "prod1" };
-    mockFetch.mockResolvedValueOnce(mockResponse(option));
-    const client = makeClient();
-    await client.purchaseOptions.deactivate(PKG, "po-1");
-    const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/purchaseOptions/po-1:deactivate`);
-    expect(init.method).toBe("POST");
-  });
-});
+// purchaseOptions tests removed: standalone /purchaseOptions/ resource does not exist in API.
+// Purchase options are managed through oneTimeProducts.purchaseOptions paths.
 
 // ---------------------------------------------------------------------------
 // IAP Batch Operations
