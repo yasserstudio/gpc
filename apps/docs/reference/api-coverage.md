@@ -323,4 +323,4 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 | Other (system APKs)                 | 3         | Publisher |
 | Error Issues + Reports              | 2         | Reporting |
 | Release Lifecycle                   | 1         | Publisher |
-| **Total**                           | **~204**  |           |
+| **Total**                           | **~215**  |           |

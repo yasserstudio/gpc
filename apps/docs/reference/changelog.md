@@ -11,7 +11,38 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.53 <Badge type="tip" text="latest" />
+## v0.9.54 <Badge type="tip" text="latest" />
+
+API audit, preflight hardening, and new resources.
+
+**Bug fixes (API audit):**
+- fix(api): OTP offer URLs now use correct `/purchaseOptions/{id}/offers/` path (was missing purchaseOptions segment)
+- fix(api): `onetimeproducts.create` now uses PATCH with `allowMissing=true` (official API has no POST create)
+- fix(api): removed phantom `refundSubscriptionV2` endpoint (does not exist in Google Play API). Use `gpc purchases orders refund` instead
+- fix(api): removed phantom `users.get` endpoint (no GET method on users resource). Now filters from `users.list`
+- fix(api): removed standalone `purchaseOptions` resource (phantom API, does not exist at top level)
+- fix(core): `getUser` now paginates all pages instead of only checking the first page
+- fix(core): OTP offer update mask no longer leaks `purchaseOptionId` or `packageName` into API requests
+- fix(core): manifest parser now extracts compiled primitive values (booleans, integers) for robustness
+- fix(core): AAB reader .so header extraction now destroys stream early instead of decompressing full files
+
+**New preflight rules:**
+- feat(preflight): 16KB page size alignment scanner -- checks ELF LOAD segments in native libraries (enforced by Google Play since Nov 2025). Downgrades to warning when `android:pageSizeCompat` is set
+- feat(preflight): exported-without-permission scanner -- flags components with `exported=true` but no `android:permission` attribute
+
+**New API methods:**
+- feat(api): OTP offer batch operations -- `cancelOffer`, `batchGetOffers`, `batchUpdateOffers`, `batchUpdateOfferStates`, `batchDeleteOffers`
+- feat(api): OTP purchase option batch operations -- `batchDeletePurchaseOptions`, `batchUpdatePurchaseOptionStates`
+- feat(api): subscription offers `batch-get` and `batch-update-states` CLI commands
+- feat(api): `edits.testers.patch` (partial update alongside existing PUT)
+- feat(api): `inappproducts.patch` (PATCH partial update, distinct from PUT full replace)
+- feat(api): `systemApks` resource -- `create`, `list`, `get`, `download` for OEM pre-install APKs
+
+**215 API endpoints · 1,874 tests**
+
+---
+
+## v0.9.53
 
 Preflight scanner reliability on Flutter and large AABs, plus batch price migration API.
 

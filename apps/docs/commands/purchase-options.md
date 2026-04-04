@@ -4,24 +4,30 @@ outline: deep
 
 <CommandHeader
   name="gpc purchase-options"
-  description="Manage purchase options for one-time products."
+  description="Purchase option management (redirects to OTP commands)."
   usage="gpc purchase-options <subcommand> [options]"
-  :badges="['--json', '--dry-run']"
+  :badges="['redirect']"
 />
 
-::: info Relationship to one-time-products
-Purchase options are part of the modern monetization API. They define how a one-time product can be purchased (pricing phases, eligibility, regional overrides). Use [`gpc otp`](./one-time-products) to manage the products themselves, and `gpc purchase-options` to manage the purchase options attached to them.
+::: warning Redirected to OTP commands
+The standalone `purchase-options` resource does not exist in the Google Play API. Purchase options are managed through one-time product offer paths. All `gpc purchase-options` commands redirect to the equivalent `gpc otp` commands.
+
+For batch operations on purchase options, use:
+- `gpc otp purchase-options batch-delete <product-id> --file <path>`
+- `gpc otp purchase-options batch-update-states <product-id> --file <path>`
 :::
 
 ## Commands
 
-| Command                                                       | Description                  |
-| ------------------------------------------------------------- | ---------------------------- |
-| [`purchase-options list`](#purchase-options-list)             | List purchase options        |
-| [`purchase-options get`](#purchase-options-get)               | Get a purchase option        |
-| [`purchase-options create`](#purchase-options-create)         | Create a purchase option     |
-| [`purchase-options activate`](#purchase-options-activate)     | Activate a purchase option   |
-| [`purchase-options deactivate`](#purchase-options-deactivate) | Deactivate a purchase option |
+All commands below redirect to their `gpc otp offers` equivalents:
+
+| Command                        | Redirects to                         |
+| ------------------------------ | ------------------------------------ |
+| `purchase-options list`        | `gpc otp offers list <product-id>`   |
+| `purchase-options get <id>`    | `gpc otp offers get <product-id> <id>` |
+| `purchase-options create`      | `gpc otp offers create <product-id>` |
+| `purchase-options activate`    | `gpc otp offers activate ...`        |
+| `purchase-options deactivate`  | `gpc otp offers deactivate ...`      |
 
 ## `purchase-options list`
 

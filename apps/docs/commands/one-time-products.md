@@ -165,6 +165,64 @@ Override prices per region by adding `regionalConfigs` to the offer payload. Eac
 
 Use `gpc pricing convert` to generate region prices from a single base price, then merge the output into your offer JSON.
 
+### `gpc otp offers cancel <product-id> <offer-id>`
+
+Permanently cancel an offer. Unlike deactivate (which is reversible), cancel is permanent and cannot be undone.
+
+```bash
+gpc otp offers cancel premium_upgrade launch_discount
+```
+
+### `gpc otp offers batch-get <product-id> --file <path>`
+
+Batch get multiple offers (max 100).
+
+```bash
+gpc otp offers batch-get premium_upgrade --file offer-ids.json
+```
+
+### `gpc otp offers batch-update <product-id> --file <path>`
+
+Batch create or update multiple offers (max 100).
+
+```bash
+gpc otp offers batch-update premium_upgrade --file updates.json --dry-run
+```
+
+### `gpc otp offers batch-update-states <product-id> --file <path>`
+
+Batch activate, deactivate, or cancel multiple offers.
+
+```bash
+gpc otp offers batch-update-states premium_upgrade --file states.json
+```
+
+### `gpc otp offers batch-delete <product-id> --file <path>`
+
+Batch delete multiple offers.
+
+```bash
+gpc otp offers batch-delete premium_upgrade --file delete-ids.json
+```
+
+## Purchase Option Batch Commands
+
+### `gpc otp purchase-options batch-delete <product-id> --file <path>`
+
+Batch delete purchase options across one or multiple products.
+
+```bash
+gpc otp purchase-options batch-delete premium_upgrade --file delete-requests.json
+```
+
+### `gpc otp purchase-options batch-update-states <product-id> --file <path>`
+
+Batch activate or deactivate purchase options.
+
+```bash
+gpc otp purchase-options batch-update-states premium_upgrade --file state-requests.json
+```
+
 ### `gpc otp diff <product-id> --file <path>`
 
 Compare a local JSON file against the remote one-time product state. Shows field-level differences.
@@ -177,13 +235,14 @@ Output shows each field that differs between local and remote. Use `--output jso
 
 ## Options
 
-| Option          | Type     | Description                                      |
-| --------------- | -------- | ------------------------------------------------ |
-| `--file`        | `string` | Path to JSON file                                |
-| `--update-mask` | `string` | Comma-separated field mask (for update commands) |
-| `--sort`        | `string` | Sort field for list output                       |
-| `--output`      | `string` | Output format                                    |
-| `--app`         | `string` | App package name                                 |
+| Option              | Type     | Description                                                        |
+| ------------------- | -------- | ------------------------------------------------------------------ |
+| `--file`            | `string` | Path to JSON file                                                  |
+| `--update-mask`     | `string` | Comma-separated field mask (for update commands)                   |
+| `--purchase-option` | `string` | Purchase option ID for offer commands (default: `"-"` for all)     |
+| `--sort`            | `string` | Sort field for list output                                         |
+| `--output`          | `string` | Output format                                                      |
+| `--app`             | `string` | App package name                                                   |
 
 ## Related
 

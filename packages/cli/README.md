@@ -2,7 +2,7 @@
 
 **Ship Android apps from your terminal.** The complete CLI for the Google Play Developer API.
 
-209 API endpoints. No Ruby. No browser. No ceremony.
+215 API endpoints. No Ruby. No browser. No ceremony.
 
 ```bash
 npm install -g @gpc-cli/cli
@@ -25,7 +25,7 @@ gpc doctor                                    # 20 setup checks
 
 |                   | **GPC**           | Fastlane supply   |
 | ----------------- | ----------------- | ----------------- |
-| API coverage      | **209 endpoints** | ~20               |
+| API coverage      | **215 endpoints** | ~20               |
 | Runtime           | Node.js or binary | Ruby + Bundler    |
 | Cold start        | <500ms            | 2-3s              |
 | Reviews & Vitals  | Yes               | No                |
@@ -85,7 +85,7 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 - [Commands reference](https://yasserstudio.github.io/gpc/commands/)
 - [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/)
 
-Free to use. 1,869 tests. 90%+ coverage. Every write operation supports `--dry-run`.
+Free to use. 1,874 tests. 90%+ coverage. Every write operation supports `--dry-run`.
 
 ## License
 

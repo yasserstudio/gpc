@@ -17,9 +17,9 @@ outline: deep
 
 | Scanner         | What it checks                                                                                   |
 | --------------- | ------------------------------------------------------------------------------------------------ |
-| **manifest**    | targetSdk, debuggable, testOnly, cleartext traffic, missing `exported`, foreground service types |
+| **manifest**    | targetSdk, debuggable, testOnly, cleartext traffic, missing `exported`, foreground service types, exported-without-permission |
 | **permissions** | 18 restricted permissions (SMS, call log, background location, photo/video, etc.)                |
-| **native-libs** | 64-bit compliance (arm64-v8a required if armeabi-v7a present)                                    |
+| **native-libs** | 64-bit compliance, **16KB page size alignment** (ELF LOAD segment check, enforced since Nov 2025) |
 | **metadata**    | Store listing character limits, missing title, screenshots, privacy policy URL                   |
 | **secrets**     | Hardcoded API keys (AWS, Google, Stripe, private keys)                                           |
 | **billing**     | Non-Play billing SDKs (Stripe, Braintree, PayPal)                                                |

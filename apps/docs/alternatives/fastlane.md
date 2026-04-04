@@ -10,7 +10,7 @@ If you are evaluating alternatives to Fastlane for Google Play automation, here 
 
 |                     | **GPC**                      | **Fastlane supply**  |
 | ------------------- | ---------------------------- | -------------------- |
-| API coverage        | **209 endpoints**            | ~20                  |
+| API coverage        | **215 endpoints**            | ~20                  |
 | Runtime             | Node.js or standalone binary | Ruby + Bundler       |
 | Cold start          | <500ms                       | 2-3s                 |
 | Reviews & Vitals    | Yes                          | No                   |

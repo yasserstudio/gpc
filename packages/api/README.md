@@ -2,7 +2,7 @@
 
 Typed Google Play Developer API v3 client for TypeScript. Part of [GPC](https://github.com/yasserstudio/gpc).
 
-209 endpoints across edits, releases, tracks, listings, subscriptions, in-app products, purchases, reviews, vitals, reports, users, and testers. Built-in rate limiting, retry logic, and pagination.
+215 endpoints across edits, releases, tracks, listings, subscriptions, in-app products, purchases, reviews, vitals, reports, users, and testers. Built-in rate limiting, retry logic, and pagination.
 
 ## Install
 

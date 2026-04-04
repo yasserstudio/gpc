@@ -29,6 +29,8 @@ outline: deep
 | [`subscriptions offers delete`](#subscriptions-offers-delete)                         | Delete an offer                 |
 | [`subscriptions offers activate`](#subscriptions-offers-activate)                     | Activate an offer               |
 | [`subscriptions offers deactivate`](#subscriptions-offers-deactivate)                 | Deactivate an offer             |
+| [`subscriptions offers batch-get`](#subscriptions-offers-batch-get)                   | Batch get multiple offers       |
+| [`subscriptions offers batch-update-states`](#subscriptions-offers-batch-update-states) | Batch activate/deactivate offers |
 | [`subscriptions diff`](#subscriptions-diff)                                           | Compare local JSON vs remote    |
 
 ## `subscriptions list`
@@ -532,6 +534,38 @@ No command-specific options.
 ```bash
 gpc subscriptions offers deactivate premium_monthly p1m free-trial-7d \
   --app com.example.myapp
+```
+
+## `subscriptions offers batch-get`
+
+Batch get multiple offers at once (max 100). Supports wildcard `-` for product-id and base-plan-id.
+
+### Synopsis
+
+```bash
+gpc subscriptions offers batch-get <product-id> <base-plan-id> --ids <offer-ids>
+```
+
+### Example
+
+```bash
+gpc subscriptions offers batch-get premium_monthly p1m --ids offer1,offer2,offer3
+```
+
+## `subscriptions offers batch-update-states`
+
+Batch activate or deactivate multiple offers at once (max 100).
+
+### Synopsis
+
+```bash
+gpc subscriptions offers batch-update-states <product-id> <base-plan-id> --file <path>
+```
+
+### Example
+
+```bash
+gpc subscriptions offers batch-update-states premium_monthly p1m --file states.json
 ```
 
 ## `subscriptions diff`

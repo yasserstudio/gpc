@@ -17,7 +17,7 @@ gpc reviews list --stars 1-2 --since 7d
 
 ## What GPC Covers
 
-209 API endpoints across every Google Play domain:
+215 API endpoints across every Google Play domain:
 
 | Domain              | Commands                                                             | What it does                                                   |
 | ------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------- |
