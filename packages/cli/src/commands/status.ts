@@ -299,10 +299,7 @@ export function registerStatusCommand(program: Command): void {
 
         for (const packageName of packages) {
           if (packages.length > 1) {
-            const label = statusHasBreach
-              ? `\n=== ${packageName} ===`
-              : `\n=== ${packageName} ===`;
-            console.log(label);
+            console.log(`\n=== ${packageName} ===`);
           }
 
           try {

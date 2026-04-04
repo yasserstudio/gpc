@@ -430,14 +430,14 @@ async function applyFix(check: CheckResult): Promise<string | null> {
       return `Created ${dirMatch[1]}`;
     }
     case "service-account-permissions": {
-      const saPath = check.fixData?.path;
+      const saPath = check.fixData?.["path"];
       if (!saPath) return null;
       const { chmod } = await import("node:fs/promises");
       await chmod(saPath, 0o600);
       return `Fixed permissions on ${saPath}`;
     }
     case "token-cache": {
-      const cachePath = check.fixData?.path;
+      const cachePath = check.fixData?.["path"];
       if (!cachePath) return null;
       const { unlink } = await import("node:fs/promises");
       await unlink(cachePath);
@@ -457,7 +457,7 @@ async function applyFix(check: CheckResult): Promise<string | null> {
       return "Run: gpc auth login --service-account <path/to/key.json>";
     }
     case "config-keys": {
-      const keys = check.fixData?.keys;
+      const keys = check.fixData?.["keys"];
       if (!keys) return null;
       const { deleteConfigValue } = await import("@gpc-cli/config");
       for (const key of keys.split(",")) {

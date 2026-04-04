@@ -58,7 +58,7 @@ const PAGE_MAP: Record<string, string> = {
   architecture: "advanced/architecture",
   conventions: "advanced/conventions",
   "error-codes": "advanced/error-codes",
-  plugins: "advanced/plugins",
+  "advanced-plugins": "advanced/plugins",
   "sdk-usage": "advanced/sdk-usage",
   security: "advanced/security",
   skills: "advanced/skills",
@@ -73,7 +73,7 @@ const PAGE_MAP: Record<string, string> = {
 
   // Reference
   "api-coverage": "reference/api-coverage",
-  changelog: "reference/changelog",
+  "reference-changelog": "reference/changelog",
   deprecations: "reference/deprecations",
   "environment-variables": "reference/environment-variables",
   "exit-codes": "reference/exit-codes",
