@@ -499,8 +499,6 @@ export interface SubscriptionPurchaseV2 {
   subscriptionState: string;
   acknowledgementState?: string;
   linkedPurchaseToken?: string;
-  /** Current offer phase: free trial, introductory price, proration, or base plan price. (Jan 2026) */
-  offerPhase?: string;
   /** Resubscription context when purchase originates from Play Store. (Nov 2025) */
   outOfAppPurchaseContext?: { externalTransactionToken?: string };
   /** Cancellation details: reason, survey result, time. */
@@ -554,8 +552,13 @@ export interface SubscriptionPurchaseLineItem {
     productId?: string;
     offerDetails?: { basePlanId?: string; offerId?: string };
   };
-  /** Current offer phase identifier. (Jan 2026) */
-  offerPhase?: string;
+  /** Current offer phase (union field — exactly one set). (Jan 2026) */
+  offerPhase?: {
+    basePrice?: Record<string, unknown>;
+    freeTrial?: Record<string, unknown>;
+    introductoryPrice?: Record<string, unknown>;
+    proratedPeriod?: Record<string, unknown>;
+  };
 }
 
 export interface SubscriptionPurchase {
