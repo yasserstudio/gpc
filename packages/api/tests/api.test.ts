@@ -1113,6 +1113,28 @@ describe("monetization API endpoints", () => {
       expect(init.method).toBe("POST");
     });
 
+    it("revokeSubscriptionV2 sends itemBasedRefund body when provided", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      await client.purchases.revokeSubscriptionV2(PKG, "tok456", {
+        revocationContext: { itemBasedRefund: { productId: "addon_premium" } },
+      });
+      const [, init] = mockFetch.mock.calls[0];
+      expect(JSON.parse(init.body)).toEqual({
+        revocationContext: { itemBasedRefund: { productId: "addon_premium" } },
+      });
+    });
+
+    it("revokeSubscriptionV2 sends fullRefund body when provided", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      await client.purchases.revokeSubscriptionV2(PKG, "tok456", {
+        revocationContext: { fullRefund: {} },
+      });
+      const [, init] = mockFetch.mock.calls[0];
+      expect(JSON.parse(init.body)).toEqual({ revocationContext: { fullRefund: {} } });
+    });
+
     it("listVoided calls GET /{pkg}/purchases/voidedpurchases", async () => {
       mockFetch.mockResolvedValueOnce(mockResponse({ voidedPurchases: [] }));
       const client = makeClient();
@@ -2840,6 +2862,18 @@ describe("purchases.acknowledgeSubscription", () => {
     );
     expect(init.method).toBe("POST");
     expect(JSON.parse(init.body)).toEqual({});
+  });
+
+  it("purchases.acknowledgeSubscription sends externalAccountId when provided", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+
+    const client = makeClient();
+    await client.purchases.acknowledgeSubscription(PKG, "sub_monthly", "purchase-token-abc", {
+      externalAccountId: "user-42",
+    });
+
+    const [, init] = mockFetch.mock.calls[0];
+    expect(JSON.parse(init.body)).toEqual({ externalAccountId: "user-42" });
   });
 });
 
