@@ -78,6 +78,7 @@ import type {
   Order,
   BatchGetOrdersResponse,
   ProductPurchaseV2,
+  RevokeSubscriptionV2Request,
   SubscriptionsV2CancelRequest,
   SubscriptionsV2DeferRequest,
   SubscriptionsV2DeferResponse,
@@ -430,7 +431,11 @@ export interface PlayApiClient {
       token: string,
       body?: { developerPayload?: string },
     ): Promise<void>;
-    revokeSubscriptionV2(packageName: string, token: string): Promise<void>;
+    revokeSubscriptionV2(
+      packageName: string,
+      token: string,
+      body?: RevokeSubscriptionV2Request,
+    ): Promise<void>;
     // refundSubscriptionV2 removed: endpoint does not exist in official API.
     // Use orders.refund or revokeSubscriptionV2 with revocationContext instead.
     /** V2 cancel with cancellationType support. (Sep 2025) */
@@ -1437,8 +1442,11 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         );
       },
 
-      async revokeSubscriptionV2(packageName, token) {
-        await http.post(`/${packageName}/purchases/subscriptionsv2/tokens/${token}:revoke`);
+      async revokeSubscriptionV2(packageName, token, body?) {
+        await http.post(
+          `/${packageName}/purchases/subscriptionsv2/tokens/${token}:revoke`,
+          body ?? {},
+        );
       },
 
       async cancelSubscriptionV2(packageName, token, body?) {

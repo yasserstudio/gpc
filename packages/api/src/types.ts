@@ -667,6 +667,20 @@ export interface SubscriptionsV2CancelRequest {
   cancellationType?: string;
 }
 
+/**
+ * Request body for purchases.subscriptionsv2.revoke.
+ * revocationContext is a union — exactly one of fullRefund, proratedRefund,
+ * or itemBasedRefund should be set. itemBasedRefund targets a single add-on
+ * product by productId. (May 2025)
+ */
+export interface RevokeSubscriptionV2Request {
+  revocationContext?: {
+    fullRefund?: Record<string, never>;
+    proratedRefund?: Record<string, never>;
+    itemBasedRefund?: { productId: string };
+  };
+}
+
 export interface SubscriptionsV2DeferRequest {
   deferralInfo: {
     desiredExpiryTime: string;
