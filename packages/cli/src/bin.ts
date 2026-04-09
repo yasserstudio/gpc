@@ -61,6 +61,14 @@ if (process.argv.includes("--json") || process.argv.includes("-j")) {
   }
 }
 
+// Propagate --profile / -p to GPC_PROFILE env var so loadConfig() picks it up.
+// Must run before any loadConfig() call (commands read env, not program.opts).
+import { extractProfileFromArgv } from "./argv-profile.js";
+{
+  const profile = extractProfileFromArgv(process.argv);
+  if (profile) process.env["GPC_PROFILE"] = profile;
+}
+
 const pluginManager = await loadPlugins();
 const program = await createProgram(pluginManager);
 
