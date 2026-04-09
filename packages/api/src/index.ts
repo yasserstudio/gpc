@@ -114,6 +114,7 @@ export type {
   SubscriptionPurchase,
   SubscriptionDeferRequest,
   SubscriptionDeferResponse,
+  AcknowledgeSubscriptionRequest,
   RevokeSubscriptionV2Request,
   SubscriptionsV2CancelRequest,
   SubscriptionsV2DeferRequest,

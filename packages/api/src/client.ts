@@ -78,6 +78,7 @@ import type {
   Order,
   BatchGetOrdersResponse,
   ProductPurchaseV2,
+  AcknowledgeSubscriptionRequest,
   RevokeSubscriptionV2Request,
   SubscriptionsV2CancelRequest,
   SubscriptionsV2DeferRequest,
@@ -429,7 +430,7 @@ export interface PlayApiClient {
       packageName: string,
       subscriptionId: string,
       token: string,
-      body?: { developerPayload?: string },
+      body?: AcknowledgeSubscriptionRequest,
     ): Promise<void>;
     revokeSubscriptionV2(
       packageName: string,

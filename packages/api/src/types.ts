@@ -663,6 +663,16 @@ export interface ProductPurchaseLineItem {
 
 // --- SubscriptionsV2 cancel/defer (Sep 2025 / Jan 2026) ---
 
+/**
+ * Request body for purchases.subscriptions.acknowledge.
+ * externalAccountId is used to associate a resubscription purchase with a
+ * user identifier. (Nov 2025)
+ */
+export interface AcknowledgeSubscriptionRequest {
+  developerPayload?: string;
+  externalAccountId?: string;
+}
+
 export interface SubscriptionsV2CancelRequest {
   cancellationType?: string;
 }
