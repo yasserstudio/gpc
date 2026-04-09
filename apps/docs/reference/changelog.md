@@ -11,7 +11,24 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.54 <Badge type="tip" text="latest" />
+## v0.9.55 <Badge type="tip" text="latest" />
+
+API freshness audit and a multi-profile bug fix.
+
+**API type corrections (synced with Jan 2026 Google Play API release notes):**
+
+- fix(api): `offerPhase` field now matches the official spec — it is a union object on `SubscriptionPurchaseLineItem` (not a string, and not present on the `SubscriptionPurchaseV2` root)
+- feat(api): `revokeSubscriptionV2` now accepts a typed request body with `revocationContext` (union of `fullRefund`, `proratedRefund`, `itemBasedRefund`). `itemBasedRefund.productId` targets a single add-on for refund
+- feat(api): `acknowledgeSubscription` body now includes `externalAccountId` (optional) — links a resubscription purchase to a user identifier
+- docs(api): clarified that `subscriptionsv2.defer` automatically defers all line items for subscriptions with add-ons — no request-shape change needed
+
+**CLI fix:**
+
+- fix(cli): `--profile` / `-p` global flag is now correctly applied. Previously, commands always used the default profile even when `--profile <name>` was passed. Multi-profile workflows (one profile per app) now work as documented
+
+**215 API endpoints · 1,882 tests**
+
+## v0.9.54
 
 API audit, preflight hardening, and new resources.
 
