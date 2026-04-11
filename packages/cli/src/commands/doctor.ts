@@ -388,6 +388,102 @@ async function checkAppAccess(packageName: string, accessToken: string): Promise
 }
 
 // ---------------------------------------------------------------------------
+// Enterprise / Play Custom App Publishing API probe
+// ---------------------------------------------------------------------------
+
+/**
+ * Best-effort probe of the Play Custom App Publishing API.
+ *
+ * The Custom App API only exposes `accounts.customApps.create` (POST). There's
+ * no read-only endpoint to probe with, so we issue a GET against the collection
+ * URL — which the API doesn't support. The response code reveals what we can
+ * and can't do:
+ *
+ *  - 400 / 404 / 405  → API reachable, auth working, permission likely present
+ *  - 403              → "create and publish private apps" permission is missing
+ *  - 401              → auth misconfigured (already caught by other doctor checks)
+ *  - network/timeout  → inconclusive, return info status
+ *
+ * This is best-effort. A passing result doesn't guarantee `gpc enterprise publish`
+ * will succeed against a specific enterprise — that also depends on organization
+ * membership. A failing result is a reliable signal that setup is incomplete.
+ */
+async function checkEnterpriseAccess(accessToken: string): Promise<CheckResult> {
+  try {
+    // Use account ID "1" as a harmless syntactic placeholder. We expect this
+    // to be rejected (404 or 400), which tells us the API is reachable and
+    // our auth is recognized.
+    const response = await fetch(
+      "https://playcustomapp.googleapis.com/playcustomapp/v1/accounts/1/customApps",
+      {
+        method: "GET",
+        headers: { Authorization: `Bearer ${accessToken}` },
+        signal: AbortSignal.timeout(10_000),
+      },
+    );
+
+    if (response.status === 403) {
+      const body = (await response.json().catch(() => ({}))) as {
+        error?: { message?: string; status?: string };
+      };
+
+      // API not enabled in this Google Cloud project
+      if (body.error?.message?.includes("has not been used")) {
+        return {
+          name: "enterprise-access",
+          status: "warn",
+          message: "Play Custom App Publishing API is not enabled for this project",
+          suggestion:
+            "Enable it (only required for `gpc enterprise publish`): https://console.cloud.google.com/apis/library/playcustomapp.googleapis.com",
+        };
+      }
+
+      return {
+        name: "enterprise-access",
+        status: "warn",
+        message: "Service account is missing the 'create and publish private apps' permission",
+        suggestion:
+          "In Play Console → Users and permissions, grant this service account the 'create and publish private apps' account-level permission. Only required if you use `gpc enterprise publish`.",
+      };
+    }
+
+    // 400 / 404 / 405 = API reachable, auth working, permission likely present.
+    // Google returns 400 for invalid account IDs once it gets past auth/permission.
+    if (response.status === 400 || response.status === 404 || response.status === 405) {
+      return {
+        name: "enterprise-access",
+        status: "pass",
+        message: "Play Custom App Publishing API is reachable",
+      };
+    }
+
+    // 401 = auth problem; let other doctor checks flag that.
+    if (response.status === 401) {
+      return {
+        name: "enterprise-access",
+        status: "info",
+        message: "Enterprise API probe skipped (auth not ready)",
+      };
+    }
+
+    // Any other status — inconclusive, don't fail the doctor run.
+    return {
+      name: "enterprise-access",
+      status: "info",
+      message: `Enterprise API probe inconclusive (HTTP ${response.status})`,
+      suggestion:
+        "This probe is best-effort. Run `gpc enterprise publish` to verify end-to-end.",
+    };
+  } catch (err) {
+    return {
+      name: "enterprise-access",
+      status: "info",
+      message: `Enterprise API probe skipped: ${err instanceof Error ? err.message : String(err)}`,
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Verification deadline check
 // ---------------------------------------------------------------------------
 
@@ -837,6 +933,13 @@ export function registerDoctorCommand(program: Command): void {
       // -----------------------------------------------------------------------
       if (accessToken && config?.app) {
         results.push(await checkAppAccess(config.app, accessToken));
+      }
+
+      // -----------------------------------------------------------------------
+      // 17b. Enterprise / Play Custom App Publishing API probe (best-effort)
+      // -----------------------------------------------------------------------
+      if (accessToken) {
+        results.push(await checkEnterpriseAccess(accessToken));
       }
 
       // -----------------------------------------------------------------------
