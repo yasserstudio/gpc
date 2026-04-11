@@ -5398,3 +5398,94 @@ describe("iap batch sync", () => {
     await rm(dir, { recursive: true });
   });
 });
+
+// ---------------------------------------------------------------------------
+// Enterprise / Managed Google Play
+// ---------------------------------------------------------------------------
+import {
+  createEnterpriseApp,
+  publishEnterpriseApp,
+} from "../src/commands/enterprise.js";
+
+describe("enterprise commands", () => {
+  function mockEnterpriseClient() {
+    return {
+      apps: {
+        create: vi.fn().mockResolvedValue({
+          packageName: "com.google.customapp.generated",
+          title: "Test Private App",
+          languageCode: "en_US",
+        }),
+      },
+    };
+  }
+
+  it("createEnterpriseApp passes accountId, bundlePath, and metadata through", async () => {
+    const client = mockEnterpriseClient();
+    const result = await createEnterpriseApp(client, {
+      accountId: "1234567890",
+      bundlePath: "/path/to/app.aab",
+      title: "Test Private App",
+      languageCode: "en_US",
+      organizations: [{ organizationId: "org-1" }],
+    });
+
+    expect(result.packageName).toBe("com.google.customapp.generated");
+    expect(client.apps.create).toHaveBeenCalledWith(
+      "1234567890",
+      "/path/to/app.aab",
+      {
+        title: "Test Private App",
+        languageCode: "en_US",
+        organizations: [{ organizationId: "org-1" }],
+      },
+    );
+  });
+
+  it("createEnterpriseApp defaults languageCode to en_US when omitted", async () => {
+    const client = mockEnterpriseClient();
+    await createEnterpriseApp(client, {
+      accountId: "999",
+      bundlePath: "/path/to/app.aab",
+      title: "No Lang",
+    });
+
+    expect(client.apps.create).toHaveBeenCalledWith(
+      "999",
+      "/path/to/app.aab",
+      expect.objectContaining({ languageCode: "en_US" }),
+    );
+  });
+
+  it("createEnterpriseApp passes undefined organizations when not specified", async () => {
+    const client = mockEnterpriseClient();
+    await createEnterpriseApp(client, {
+      accountId: "42",
+      bundlePath: "/path/to/app.aab",
+      title: "No Orgs",
+    });
+
+    expect(client.apps.create).toHaveBeenCalledWith(
+      "42",
+      "/path/to/app.aab",
+      expect.objectContaining({ organizations: undefined }),
+    );
+  });
+
+  it("publishEnterpriseApp delegates to the same client.apps.create call", async () => {
+    const client = mockEnterpriseClient();
+    const result = await publishEnterpriseApp(client, {
+      accountId: "7",
+      bundlePath: "/path/to/app.aab",
+      title: "Published",
+    });
+
+    expect(result.packageName).toBe("com.google.customapp.generated");
+    expect(client.apps.create).toHaveBeenCalledTimes(1);
+    expect(client.apps.create).toHaveBeenCalledWith(
+      "7",
+      "/path/to/app.aab",
+      expect.objectContaining({ title: "Published" }),
+    );
+  });
+});
