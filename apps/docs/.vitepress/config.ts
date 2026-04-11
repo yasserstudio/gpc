@@ -114,6 +114,8 @@ function getPageDescription(page: PageData): string {
       "Configure GPC with .gpcrc.json, environment variables, and named profiles. XDG paths, precedence rules, and multi-app setup.",
     "guide/developer-verification.md":
       "Android developer verification and app registration — what's changing, the timeline, and how GPC helps you stay compliant.",
+    "guide/enterprise-publishing.md":
+      "Publish private apps to Managed Google Play via the Play Custom App Publishing API. Full walkthrough from account setup to CI/CD.",
     "commands/verify.md":
       "gpc verify — Android developer verification status, enforcement deadlines, and resources. Check your account and open verification pages.",
     "guide/faq.md":
@@ -506,6 +508,7 @@ export default defineConfig({
             { text: "Authentication", link: "/guide/authentication" },
             { text: "Configuration", link: "/guide/configuration" },
             { text: "Developer Verification", link: "/guide/developer-verification" },
+            { text: "Enterprise Publishing", link: "/guide/enterprise-publishing" },
             { text: "FAQ", link: "/guide/faq" },
           ],
         },

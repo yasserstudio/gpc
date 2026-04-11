@@ -35,11 +35,10 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 ## Edits: APKs
 
-| API Endpoint                     | Method | GPC Command                               |
-| -------------------------------- | ------ | ----------------------------------------- |
-| `edits.apks.list`                | GET    | `gpc releases list --type apk`            |
-| `edits.apks.upload`              | POST   | `gpc releases upload <file.apk>`          |
-| `edits.apks.addexternallyhosted` | POST   | `gpc releases upload --externally-hosted` |
+| API Endpoint        | Method | GPC Command                      |
+| ------------------- | ------ | -------------------------------- |
+| `edits.apks.list`   | GET    | `gpc releases list --type apk`   |
+| `edits.apks.upload` | POST   | `gpc releases upload <file.apk>` |
 
 ## Edits: Tracks
 
@@ -163,14 +162,11 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 | API Endpoint                          | Method | GPC Command                                      |
 | ------------------------------------- | ------ | ------------------------------------------------ |
-| `purchases.products.get`              | GET    | `gpc purchases get <token>`                      |
 | `purchases.products.acknowledge`      | POST   | `gpc purchases acknowledge <token>`              |
 | `purchases.products.consume`          | POST   | `gpc purchases consume <token>`                  |
-| `purchases.subscriptions.get`         | GET    | `gpc purchases subscription get <token>`         |
 | `purchases.subscriptions.acknowledge` | POST   | `gpc purchases subscription acknowledge <token>` |
 | `purchases.subscriptions.cancel`      | POST   | `gpc purchases subscription cancel <token>`      |
 | `purchases.subscriptions.defer`       | POST   | `gpc purchases subscription defer <token>`       |
-| `purchases.subscriptions.revoke`      | POST   | `gpc purchases subscription revoke <token>`      |
 | `purchases.subscriptionsv2.get`       | GET    | `gpc purchases subscription get <token> --v2`    |
 | `purchases.subscriptionsv2.revoke`    | POST   | `gpc purchases subscription revoke <token> --v2` |
 | `purchases.subscriptionsv2.cancel`    | POST   | `gpc purchases subscription cancel-v2 <token>`   |
@@ -263,6 +259,14 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 | ------------------------------------------- | ------ | ------------------------------------ |
 | `internalappsharing.artifacts.uploadbundle` | POST   | `gpc internal-sharing upload <file>` |
 | `internalappsharing.artifacts.uploadapk`    | POST   | `gpc internal-sharing upload <file>` |
+
+## Managed Google Play (Play Custom App Publishing API)
+
+Private app publishing for enterprise customers. This is a separate Google API (`playcustomapp.googleapis.com`) from the standard Android Publisher API — GPC is the first publishing CLI to support it. See the [Enterprise publishing guide](../guide/enterprise-publishing.md) for details.
+
+| API Endpoint                  | Method | GPC Command                                    |
+| ----------------------------- | ------ | ---------------------------------------------- |
+| `accounts.customApps.create` | POST   | `gpc enterprise publish <bundle>` or `gpc enterprise create` |
 
 ## Generated APKs
 
