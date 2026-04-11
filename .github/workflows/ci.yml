@@ -40,17 +40,19 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Install Socket CLI
-        # Pinned to 1.1.76: v1.1.81 has a regression where it builds the API URL
-        # from the org display name ("Yasser's studio") instead of the slug
-        # ("yasser-s-studio"), causing a 404 "Organization not found" on every
-        # run. Verified locally with v1.1.76 that the token resolves the org
-        # correctly. Revisit and unpin once Socket ships a fix in a later release.
-        run: npm install -g socket@1.1.76
+        run: npm install -g socket@latest
 
       - name: Socket Security Scan
+        # SOCKET_CLI_ORG_SLUG is required in CI: a fresh runner has no local
+        # Socket config file, so the CLI cannot resolve the org slug from the
+        # token alone. Without this, the CLI falls back to the display name
+        # ("Yasser's studio" — with apostrophe + space) and produces a 404
+        # "Organization not found" on every run. The correct slug is the one
+        # in the Socket dashboard URL: https://socket.dev/dashboard/org/yasserstudio
         run: socket ci --repo gpc
         env:
           SOCKET_SECURITY_API_TOKEN: ${{ secrets.SOCKET_SECURITY_API_TOKEN }}
+          SOCKET_CLI_ORG_SLUG: yasserstudio
 
   check:
     runs-on: ubuntu-latest
