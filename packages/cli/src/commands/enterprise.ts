@@ -22,30 +22,60 @@ async function getClient() {
   return { client: createEnterpriseClient({ auth }), config };
 }
 
+/** Matches a developer account ID — Google uses int64-shaped integers. */
+const ACCOUNT_ID_RE = /^\d+$/;
+
 /**
- * Resolve the developer account ID from either `--account` (preferred) or
- * `--org` (deprecated alias). Emits a warning if `--org` is used. Throws if
- * neither is provided.
+ * Resolve and validate the developer account ID from either `--account`
+ * (preferred) or `--org` (deprecated alias). Emits a warning if `--org` is
+ * used. Throws a clear error if neither is provided or the value isn't
+ * numeric.
+ *
+ * Numeric validation happens here — BEFORE the permanent-private confirmation
+ * prompt prints — so a user with a malformed account ID sees the error
+ * immediately instead of typing "y" to a prompt showing the wrong target.
+ * The api-client's `assertAccountId` still runs as defense-in-depth in case
+ * this helper is bypassed.
  */
 function resolveAccountId(opts: Record<string, unknown>): string {
   const account = opts["account"];
   const org = opts["org"];
+  let raw: string | undefined;
+
   if (typeof account === "string" && account.length > 0) {
-    return account;
-  }
-  if (typeof org === "string" && org.length > 0) {
+    raw = account;
+  } else if (typeof org === "string" && org.length > 0) {
     console.warn(
       yellow("warning: --org is deprecated, use --account instead"),
       dim("(will be removed in a future version)"),
     );
-    return org;
+    raw = org;
   }
-  throw Object.assign(
-    new Error(
-      "Missing required option --account. Provide your developer account ID from the Play Console URL.",
-    ),
-    { code: "MISSING_REQUIRED_OPTION", exitCode: 2 },
-  );
+
+  if (!raw) {
+    throw Object.assign(
+      new Error(
+        "Missing required option --account. Provide your developer account ID from the Play Console URL.",
+      ),
+      { code: "MISSING_REQUIRED_OPTION", exitCode: 2 },
+    );
+  }
+
+  if (!ACCOUNT_ID_RE.test(raw)) {
+    throw Object.assign(
+      new Error(
+        [
+          `Developer account ID must be numeric (got "${raw}").`,
+          "Find your developer account ID in the Play Console URL:",
+          "  https://play.google.com/console/developers/[ID]",
+          "The ID is a long integer, not your Workspace or Cloud Identity organization ID.",
+        ].join("\n"),
+      ),
+      { code: "ENTERPRISE_INVALID_ACCOUNT_ID", exitCode: 2 },
+    );
+  }
+
+  return raw;
 }
 
 /**
