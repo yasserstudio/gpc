@@ -281,24 +281,37 @@ async function probeHttps(
   host: string,
   timeoutMs = 5000,
 ): Promise<{ ok: boolean; latencyMs: number; error?: string }> {
-  const { connect } = await import("node:tls");
-  return new Promise((resolve) => {
-    const start = performance.now();
-    const socket = connect({ host, port: 443 }, () => {
-      const latencyMs = Math.round(performance.now() - start);
-      socket.end();
-      resolve({ ok: true, latencyMs });
+  // Use fetch (undici under the hood) instead of raw tls.connect so the probe
+  // exercises the same HTTP stack as every real API call the rest of GPC
+  // makes. A raw tls.connect would bypass any configured undici dispatcher,
+  // HTTPS_PROXY, NODE_EXTRA_CA_CERTS injection, or TLS-intercepting corporate
+  // proxy — and report a misleading "self-signed certificate" failure on
+  // hosts that the actual API calls reach fine. Any HTTP response (including
+  // 4xx/5xx) proves we successfully talked to the host; only fetch-level
+  // errors (network, DNS, TLS) indicate real connectivity problems.
+  const start = performance.now();
+  try {
+    const response = await fetch(`https://${host}/`, {
+      method: "HEAD",
+      signal: AbortSignal.timeout(timeoutMs),
+      redirect: "manual",
     });
-    socket.setTimeout(timeoutMs);
-    socket.on("error", (err: Error) => {
-      socket.destroy();
-      resolve({ ok: false, latencyMs: 0, error: err.message });
-    });
-    socket.on("timeout", () => {
-      socket.destroy();
-      resolve({ ok: false, latencyMs: 0, error: "Connection timed out" });
-    });
-  });
+    // Consume (and discard) any response body to let the connection close
+    // cleanly without leaking the stream.
+    await response.body?.cancel?.().catch(() => {});
+    const latencyMs = Math.round(performance.now() - start);
+    return { ok: true, latencyMs };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    // AbortSignal.timeout fires with a TimeoutError name.
+    const isTimeout =
+      err instanceof Error && (err.name === "TimeoutError" || /timeout/i.test(err.message));
+    return {
+      ok: false,
+      latencyMs: 0,
+      error: isTimeout ? "Connection timed out" : message,
+    };
+  }
 }
 
 async function checkAppAccess(packageName: string, accessToken: string): Promise<CheckResult> {
