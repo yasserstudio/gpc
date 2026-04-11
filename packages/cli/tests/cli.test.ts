@@ -267,8 +267,14 @@ vi.mock("@gpc-cli/core", () => {
     listLeaderboards: vi.fn().mockResolvedValue([]),
     listAchievements: vi.fn().mockResolvedValue([]),
     listEvents: vi.fn().mockResolvedValue([]),
-    listEnterpriseApps: vi.fn().mockResolvedValue([]),
-    createEnterpriseApp: vi.fn().mockResolvedValue({}),
+    createEnterpriseApp: vi.fn().mockResolvedValue({
+      packageName: "com.google.customapp.test",
+      title: "Test Private App",
+    }),
+    publishEnterpriseApp: vi.fn().mockResolvedValue({
+      packageName: "com.google.customapp.test",
+      title: "Test Private App",
+    }),
     analyzeBundle: vi.fn().mockResolvedValue({
       filePath: "test.aab",
       fileType: "aab",
