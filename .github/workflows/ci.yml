@@ -47,12 +47,20 @@ jobs:
         # Socket config file, so the CLI cannot resolve the org slug from the
         # token alone. Without this, the CLI falls back to the display name
         # ("Yasser's studio" — with apostrophe + space) and produces a 404
-        # "Organization not found" on every run. The correct slug is the one
-        # in the Socket dashboard URL: https://socket.dev/dashboard/org/yasserstudio
+        # "Organization not found" on every run.
+        #
+        # The slug used here ("yasser-s-studio") is the one the current
+        # SOCKET_SECURITY_API_TOKEN is authorized for — visible in the passing
+        # "Socket Security: Project Report" dashboard URL:
+        #   https://socket.dev/dashboard/org/yasser-s-studio/sbom/...
+        #
+        # Note: there may be a newer Socket org at /org/yasserstudio without
+        # hyphens, but the current token is not provisioned for it. Swap the
+        # slug here if the token is rotated for the new org.
         run: socket ci --repo gpc
         env:
           SOCKET_SECURITY_API_TOKEN: ${{ secrets.SOCKET_SECURITY_API_TOKEN }}
-          SOCKET_CLI_ORG_SLUG: yasserstudio
+          SOCKET_CLI_ORG_SLUG: yasser-s-studio
 
   check:
     runs-on: ubuntu-latest
