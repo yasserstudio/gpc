@@ -1083,6 +1083,14 @@ export interface ResumableUploadOptions {
   resumeSessionUri?: string;
   /** Maximum resume attempts per chunk before giving up. Default: 5 */
   maxResumeAttempts?: number;
+  /**
+   * Optional JSON metadata to include in the initial session-initiation POST.
+   * When present, the initial request uses `Content-Type: application/json; charset=UTF-8`
+   * and the serialized body. Used by APIs like Play Custom App Publishing that
+   * accept resource metadata alongside the media upload (CustomApp.title, etc.).
+   * When omitted, the initial request sends an empty body (default Publisher API behavior).
+   */
+  initialMetadata?: object;
 }
 
 // --- Release Lifecycle (applications.tracks.releases) ---
