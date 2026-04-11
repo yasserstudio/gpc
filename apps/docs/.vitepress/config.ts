@@ -118,6 +118,8 @@ function getPageDescription(page: PageData): string {
       "Publish private apps to Managed Google Play via the Play Custom App Publishing API. Full walkthrough from account setup to CI/CD.",
     "guide/screenshots.md":
       "Manage Google Play store media with GPC. Screenshots, feature graphics, icons, and TV banners. Image requirements, bulk sync workflows, localization, CI/CD recipes.",
+    "guide/multi-account.md":
+      "Manage multiple Google Play developer accounts with GPC profiles. Agency workflows, per-customer CI pipelines, service account key management, permission model, and limitations.",
     "commands/verify.md":
       "gpc verify — Android developer verification status, enforcement deadlines, and resources. Check your account and open verification pages.",
     "guide/faq.md":
@@ -512,6 +514,7 @@ export default defineConfig({
             { text: "Developer Verification", link: "/guide/developer-verification" },
             { text: "Enterprise Publishing", link: "/guide/enterprise-publishing" },
             { text: "Store Listings & Screenshots", link: "/guide/screenshots" },
+            { text: "Multiple Developer Accounts", link: "/guide/multi-account" },
             { text: "FAQ", link: "/guide/faq" },
           ],
         },
