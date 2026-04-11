@@ -179,6 +179,6 @@ Error codes:
 - [Full documentation](https://yasserstudio.github.io/gpc/)
 - [SDK usage guide](https://yasserstudio.github.io/gpc/advanced/sdk-usage)
 
-## License
+## Licensing
 
-MIT
+Free to use. Source code is on GitHub at [yasserstudio/gpc](https://github.com/yasserstudio/gpc).

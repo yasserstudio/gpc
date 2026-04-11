@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 480" fill="none">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap');
+    .bg { fill: #0d1117; }
+    .header { fill: #161b22; }
+    .border { stroke: rgba(255,255,255,0.08); stroke-width: 1; fill: none; }
+    .dot-red { fill: #ff5f57; }
+    .dot-yellow { fill: #febc2e; }
+    .dot-green { fill: #28c840; }
+    .title { fill: rgba(255,255,255,0.28); font-family: 'Inter', system-ui, sans-serif; font-size: 11px; }
+    .prompt { fill: #4d95f1; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; }
+    .cmd { fill: #e6edf3; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; }
+    .flag { fill: #d2a8ff; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; }
+    .section { fill: #e6edf3; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; }
+    .label { fill: #7ee787; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+    .ok { fill: #3fb950; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .warn { fill: #d29922; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .val { fill: #79c0ff; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .dim { fill: #8b949e; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .muted { fill: #484f58; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .divider { fill: rgba(255,255,255,0.1); font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+    .cursor { fill: #4d95f1; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+    .cursor { animation: blink 1.2s step-end infinite; }
+  </style>
+
+  <!-- Window -->
+  <rect class="bg" x="0" y="0" width="680" height="480" rx="12"/>
+  <rect class="border" x="0" y="0" width="680" height="480" rx="12"/>
+
+  <!-- Header bar -->
+  <rect class="header" x="1" y="1" width="678" height="38" rx="12"/>
+  <rect class="header" x="1" y="27" width="678" height="12"/>
+  <line x1="1" y1="39" x2="679" y2="39" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+  <!-- Traffic lights -->
+  <circle class="dot-red" cx="20" cy="20" r="6"/>
+  <circle class="dot-yellow" cx="40" cy="20" r="6"/>
+  <circle class="dot-green" cx="60" cy="20" r="6"/>
+  <text class="title" x="635" y="24" text-anchor="end">terminal — doctor</text>
+
+  <!-- Command -->
+  <text class="prompt" x="24" y="72">$</text>
+  <text class="cmd" x="40" y="72">gpc doctor</text>
+  <text class="flag" x="128" y="72">--verify-app com.example.app</text>
+
+  <!-- Title -->
+  <text class="section" x="24" y="104">GPC Doctor</text>
+
+  <!-- Divider -->
+  <text class="divider" x="24" y="122">────────────────────────────────────────────────────</text>
+
+  <!-- ENVIRONMENT group -->
+  <text class="label" x="24" y="148">ENVIRONMENT</text>
+
+  <text class="ok" x="24" y="170">✓</text>
+  <text class="dim" x="44" y="170">Node.js</text>
+  <text class="val" x="160" y="170">22.22.1</text>
+
+  <text class="ok" x="24" y="190">✓</text>
+  <text class="dim" x="44" y="190">GPC</text>
+  <text class="val" x="160" y="190">v0.9.56</text>
+  <text class="muted" x="230" y="190">up to date</text>
+
+  <text class="ok" x="24" y="210">✓</text>
+  <text class="dim" x="44" y="210">Config loaded</text>
+  <text class="muted" x="180" y="210">~/.config/gpc/config.json</text>
+
+  <!-- AUTH group -->
+  <text class="label" x="24" y="246">AUTH</text>
+
+  <text class="ok" x="24" y="268">✓</text>
+  <text class="dim" x="44" y="268">Service account key</text>
+  <text class="muted" x="210" y="268">keys/yasserstudio.json · 600</text>
+
+  <text class="ok" x="24" y="288">✓</text>
+  <text class="dim" x="44" y="288">Authenticated</text>
+  <text class="muted" x="170" y="288">play-publisher@example.iam.gserviceaccount.com</text>
+
+  <!-- CONNECTIVITY group -->
+  <text class="label" x="24" y="324">CONNECTIVITY</text>
+
+  <text class="ok" x="24" y="346">✓</text>
+  <text class="dim" x="44" y="346">DNS</text>
+  <text class="muted" x="160" y="346">androidpublisher.googleapis.com · 63ms</text>
+
+  <text class="ok" x="24" y="366">✓</text>
+  <text class="dim" x="44" y="366">TLS handshake OK</text>
+
+  <!-- APP ACCESS group (the v0.9.56 highlight) -->
+  <text class="label" x="24" y="402">APP ACCESS</text>
+  <text class="muted" x="120" y="402">(--verify-app target)</text>
+
+  <text class="ok" x="24" y="424">✓</text>
+  <text class="dim" x="44" y="424">com.example.app</text>
+  <text class="muted" x="180" y="424">grants ok · edit/view verified</text>
+
+  <!-- Summary -->
+  <text class="ok" x="24" y="462">✓</text>
+  <text class="dim" x="44" y="462">All 10 checks passed. You are ready to ship.</text>
+</svg>

@@ -19,8 +19,8 @@ hero:
 features:
   - icon:
       src: /icons/goal.png
-    title: 215 API Endpoints
-    details: "Releases, vitals, reviews, subscriptions, purchases, reports, and more. Fastlane covers ~20. GPC covers everything."
+    title: 216 API Endpoints
+    details: "Releases, vitals, reviews, subscriptions, purchases, reports, Managed Google Play, and more. Fastlane covers ~20. GPC covers everything."
   - icon:
       src: /icons/shield.png
     title: Preflight Scanner
@@ -31,8 +31,8 @@ features:
     details: "JSON output when piped. Semantic exit codes. Env var config. --dry-run on every write. Drop into any pipeline."
   - icon:
       src: /icons/delivery-box.png
-    title: No Ruby. No JVM. No Browser.
-    details: "One npm install, brew install, or standalone binary. Under 500ms cold start. macOS, Linux, Windows."
+    title: Managed Google Play
+    details: "First publishing CLI to support the Play Custom App API. Publish private enterprise apps in 5 minutes via CI/CD instead of 2 hours in Play Console."
   - icon:
       src: /icons/analytics.png
     title: Full Picture in One Command
@@ -40,13 +40,13 @@ features:
   - icon:
       src: /icons/plug.png
     title: Plugin System + SDK
-    details: "1,882 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK."
+    details: "1,892 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK."
 ---
 
 <div class="stats-bar">
-  <span class="stat">215 API Endpoints</span>
+  <span class="stat">216 API Endpoints</span>
   <span class="stat-sep"></span>
-  <span class="stat">1,882 Tests</span>
+  <span class="stat">1,892 Tests</span>
   <span class="stat-sep"></span>
   <span class="stat">90%+ Coverage</span>
   <span class="stat-sep"></span>
@@ -119,16 +119,17 @@ gpc reviews list --stars 1-3 --since 7d
 
 ## Why GPC
 
-|                     | **GPC**                      | Fastlane supply | gradle-play-publisher | Console UI   |
-| ------------------- | ---------------------------- | --------------- | --------------------- | ------------ |
-| API coverage        | **215 endpoints**            | ~20             | ~15                   | All (manual) |
-| Runtime             | Node.js or standalone binary | Ruby + Bundler  | JVM                   | Browser      |
-| Cold start          | <500ms                       | 2-3s            | 3-5s                  | 5-10s        |
-| Reviews & Vitals    | Yes                          | No              | No                    | Yes (manual) |
-| Subscriptions & IAP | Yes                          | No              | No                    | Yes (manual) |
-| CI/CD native        | JSON + exit codes + env vars | Partial         | Gradle tasks          | No           |
-| Preflight scanner   | **9 offline policy checks**  | No              | No                    | No           |
-| Plugin system       | Yes                          | No              | No                    | No           |
+|                         | **GPC**                        | Fastlane supply | gradle-play-publisher | Console UI   |
+| ----------------------- | ------------------------------ | --------------- | --------------------- | ------------ |
+| API coverage            | **216 endpoints**              | ~20             | ~15                   | All (manual) |
+| Runtime                 | Node.js or standalone binary   | Ruby + Bundler  | JVM                   | Browser      |
+| Cold start              | <500ms                         | 2-3s            | 3-5s                  | 5-10s        |
+| Reviews & Vitals        | Yes                            | No              | No                    | Yes (manual) |
+| Subscriptions & IAP     | Yes                            | No              | No                    | Yes (manual) |
+| **Managed Google Play** | **Yes (first CLI to support)** | No              | No                    | Yes (manual) |
+| CI/CD native            | JSON + exit codes + env vars   | Partial         | Gradle tasks          | No           |
+| Preflight scanner       | **9 offline policy checks**    | No              | No                    | No           |
+| Plugin system           | Yes                            | No              | No                    | No           |
 
 Already on Fastlane? See the [migration guide](/migration/from-fastlane) or the [full comparison](/alternatives/fastlane).
 

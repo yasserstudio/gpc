@@ -61,6 +61,9 @@ const UPLOAD_BASE_URL =
 const INTERNAL_SHARING_UPLOAD_BASE_URL =
   "https://androidpublisher.googleapis.com/upload/internalappsharing/v3/applications";
 
+const CUSTOM_APP_UPLOAD_BASE_URL =
+  "https://playcustomapp.googleapis.com/upload/playcustomapp/v1/accounts";
+
 export interface HttpClient {
   get<T>(path: string, params?: Record<string, string>): Promise<ApiResponse<T>>;
   post<T>(path: string, body?: unknown): Promise<ApiResponse<T>>;
@@ -75,6 +78,18 @@ export interface HttpClient {
     options?: ResumableUploadOptions,
   ): Promise<ApiResponse<T>>;
   uploadInternal<T>(path: string, filePath: string, contentType: string): Promise<ApiResponse<T>>;
+  /**
+   * Play Custom App Publishing upload. Sends the media body AND a JSON metadata
+   * object in a single resumable session — the initial session-initiation POST
+   * carries the metadata (CustomApp shape), and subsequent chunks stream the
+   * bundle binary. Used by the Play Custom App API which requires both parts.
+   */
+  uploadCustomApp<T>(
+    path: string,
+    filePath: string,
+    metadata: object,
+    contentType: string,
+  ): Promise<ApiResponse<T>>;
   download(path: string): Promise<ArrayBuffer>;
 }
 
@@ -791,6 +806,28 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     },
     uploadInternal<T>(path: string, filePath: string, contentType: string) {
       return uploadRequest<T>(path, filePath, contentType, INTERNAL_SHARING_UPLOAD_BASE_URL);
+    },
+    async uploadCustomApp<T>(
+      path: string,
+      filePath: string,
+      metadata: object,
+      contentType: string,
+    ) {
+      const safeFilePath = validateFilePath(filePath);
+      const uploadUrl = `${CUSTOM_APP_UPLOAD_BASE_URL}${path}`;
+      return resumableUpload<T>(
+        uploadUrl,
+        safeFilePath,
+        contentType,
+        {
+          getAccessToken: () => options.auth.getAccessToken(),
+          maxRetries,
+          baseDelay,
+          maxDelay,
+          onRetry,
+        },
+        { initialMetadata: metadata },
+      );
     },
     async download(path: string): Promise<ArrayBuffer> {
       const url = `${options.baseUrl ?? BASE_URL}${path}`;

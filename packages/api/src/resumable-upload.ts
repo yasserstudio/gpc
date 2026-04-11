@@ -96,7 +96,13 @@ export async function resumableUpload<T>(
   // Step 1: Initiate resumable session (or resume existing)
   let sessionUri = options?.resumeSessionUri;
   if (!sessionUri) {
-    sessionUri = await initiateSession(uploadUrl, contentType, totalBytes, ctx);
+    sessionUri = await initiateSession(
+      uploadUrl,
+      contentType,
+      totalBytes,
+      ctx,
+      options?.initialMetadata,
+    );
   }
 
   // Step 2: Stream file in chunks
@@ -248,11 +254,30 @@ async function initiateSession(
   contentType: string,
   totalBytes: number,
   ctx: ResumableUploadContext,
+  initialMetadata?: object,
 ): Promise<string> {
   const token = await ctx.getAccessToken();
   const url = uploadUrl.includes("?")
     ? `${uploadUrl}&uploadType=resumable`
     : `${uploadUrl}?uploadType=resumable`;
+
+  // When initialMetadata is provided (e.g. CustomApp for Play Custom App Publishing),
+  // the initial session POST carries the JSON metadata as its body with
+  // Content-Type: application/json; charset=UTF-8. When absent (the default Publisher
+  // API case), the body is empty.
+  const hasMetadata = initialMetadata !== undefined;
+  const metadataBody = hasMetadata ? JSON.stringify(initialMetadata) : "";
+  const metadataBodyBytes = hasMetadata ? Buffer.byteLength(metadataBody, "utf8") : 0;
+
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+    "X-Upload-Content-Type": contentType,
+    "X-Upload-Content-Length": String(totalBytes),
+    "Content-Length": String(metadataBodyBytes),
+  };
+  if (hasMetadata) {
+    headers["Content-Type"] = "application/json; charset=UTF-8";
+  }
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 60_000); // 60s timeout for session initiation
@@ -260,12 +285,8 @@ async function initiateSession(
   try {
     response = await fetch(url, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "X-Upload-Content-Type": contentType,
-        "X-Upload-Content-Length": String(totalBytes),
-        "Content-Length": "0",
-      },
+      headers,
+      body: hasMetadata ? metadataBody : undefined,
       signal: controller.signal,
     });
   } finally {

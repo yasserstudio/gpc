@@ -464,4 +464,83 @@ describe("resumableUpload", () => {
     expect(result.data).toEqual(bundle);
     expect(result.status).toBe(200);
   });
+
+  it("sends initialMetadata as JSON in the session-initiation POST", async () => {
+    const fileSize = 1024 * 1024; // 1 MB, single chunk
+    const sessionUri = "https://upload.example.com/session/custom-app";
+
+    mockStat.mockResolvedValue({ size: fileSize });
+    mockOpen.mockResolvedValue(createMockFileHandle(fileSize));
+
+    // 1. Initiate session → return Location header
+    mockFetch.mockResolvedValueOnce(
+      new Response("", { status: 200, headers: { Location: sessionUri } }),
+    );
+
+    // 2. Upload single chunk → complete with response
+    const customApp = { packageName: "com.google.randomassigned.abc", title: "My Private App" };
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(customApp), { status: 200 }));
+
+    const metadata = {
+      title: "My Private App",
+      languageCode: "en_US",
+      organizations: [{ organizationId: "org-123" }],
+    };
+
+    const result = await resumableUpload(
+      "https://playcustomapp.googleapis.com/upload/playcustomapp/v1/accounts/1234567890/customApps",
+      "/tmp/app.aab",
+      "application/octet-stream",
+      mockCtx(),
+      {
+        chunkSize: 8 * 1024 * 1024, // 8 MB chunk > 1 MB file
+        initialMetadata: metadata,
+      },
+    );
+
+    expect(result.data).toEqual(customApp);
+    expect(result.status).toBe(200);
+
+    // Verify the session-initiation POST carried the JSON metadata body
+    const [initUrl, initOpts] = mockFetch.mock.calls[0];
+    expect(initUrl).toContain("uploadType=resumable");
+    expect(initOpts.method).toBe("POST");
+    expect(initOpts.headers["Content-Type"]).toBe("application/json; charset=UTF-8");
+    expect(initOpts.headers["X-Upload-Content-Type"]).toBe("application/octet-stream");
+    expect(initOpts.headers["X-Upload-Content-Length"]).toBe(String(fileSize));
+    expect(initOpts.body).toBe(JSON.stringify(metadata));
+    // Content-Length should match the metadata JSON byte length
+    expect(initOpts.headers["Content-Length"]).toBe(
+      String(Buffer.byteLength(JSON.stringify(metadata), "utf8")),
+    );
+  });
+
+  it("sends empty body on init when initialMetadata is omitted (default Publisher API behavior)", async () => {
+    const fileSize = 1024 * 1024;
+    const sessionUri = "https://upload.example.com/session/no-metadata";
+
+    mockStat.mockResolvedValue({ size: fileSize });
+    mockOpen.mockResolvedValue(createMockFileHandle(fileSize));
+
+    mockFetch.mockResolvedValueOnce(
+      new Response("", { status: 200, headers: { Location: sessionUri } }),
+    );
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ versionCode: 1 }), { status: 200 }),
+    );
+
+    await resumableUpload(
+      "https://upload.example.com/bundles",
+      "/tmp/app.aab",
+      "application/octet-stream",
+      mockCtx(),
+      { chunkSize: 8 * 1024 * 1024 },
+    );
+
+    const [, initOpts] = mockFetch.mock.calls[0];
+    expect(initOpts.body).toBeUndefined();
+    expect(initOpts.headers["Content-Length"]).toBe("0");
+    // No Content-Type header should be set on empty-body init
+    expect(initOpts.headers["Content-Type"]).toBeUndefined();
+  });
 });

@@ -2,7 +2,7 @@
 
 **Ship Android apps from your terminal.** The complete CLI for the Google Play Developer API.
 
-215 API endpoints. No Ruby. No browser. No ceremony.
+216 API endpoints. No Ruby. No browser. No ceremony. First publishing CLI with Managed Google Play support.
 
 ```bash
 npm install -g @gpc-cli/cli
@@ -18,20 +18,22 @@ gpc preflight app.aab                         # 9 offline policy scanners
 gpc vitals crashes --threshold 2.0            # Exit code 6 if breached
 gpc reviews list --stars 1-2 --since 7d       # Filter and reply to reviews
 gpc listings push --dir metadata/             # Sync store metadata
+gpc enterprise publish app.aab --account 123 --title "Private App"  # Managed Google Play (v0.9.56+)
 gpc doctor                                    # 20 setup checks
 ```
 
 ## Why this over Fastlane?
 
-|                   | **GPC**           | Fastlane supply |
-| ----------------- | ----------------- | --------------- |
-| API coverage      | **215 endpoints** | ~20             |
-| Runtime           | Node.js or binary | Ruby + Bundler  |
-| Cold start        | <500ms            | 2-3s            |
-| Reviews & Vitals  | Yes               | No              |
-| Subscriptions     | Yes               | No              |
-| Preflight scanner | 9 offline checks  | No              |
-| CI/CD native      | JSON + exit codes | Partial         |
+|                         | **GPC**                       | Fastlane supply |
+| ----------------------- | ----------------------------- | --------------- |
+| API coverage            | **216 endpoints**             | ~20             |
+| Runtime                 | Node.js or binary             | Ruby + Bundler  |
+| Cold start              | <500ms                        | 2-3s            |
+| Reviews & Vitals        | Yes                           | No              |
+| Subscriptions           | Yes                           | No              |
+| **Managed Google Play** | **Yes (Play Custom App API)** | No              |
+| Preflight scanner       | 9 offline checks              | No              |
+| CI/CD native            | JSON + exit codes             | Partial         |
 
 [Migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) with one-to-one command mapping.
 
@@ -85,8 +87,8 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 - [Commands reference](https://yasserstudio.github.io/gpc/commands/)
 - [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/)
 
-Free to use. 1,874 tests. 90%+ coverage. Every write operation supports `--dry-run`.
+Free to use. 1,892 tests. 90%+ coverage. Every write operation supports `--dry-run`.
 
-## License
+## Licensing
 
-MIT
+Free to use. Source code is on GitHub at [yasserstudio/gpc](https://github.com/yasserstudio/gpc).
