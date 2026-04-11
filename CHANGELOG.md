@@ -7,6 +7,44 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.56
+
+First Android publishing CLI with Managed Google Play support. Private app publishing via the [Play Custom App Publishing API](https://developers.google.com/android/work/play/custom-app-api).
+
+**New**
+
+- feat(cli): `gpc enterprise publish <bundle>` — publish a private app to Managed Google Play in one command. Creates the custom app, uploads the bundle, returns the assigned package name.
+- feat(cli): `gpc enterprise create --bundle <path>` — explicit-arg version of publish
+- feat(cli): repeatable `--org-id` / `--org-name` flags for target enterprise organizations
+- feat(cli): permanent-private confirmation prompt before create/publish (skip with `--yes`)
+- feat(cli): `gpc doctor` now probes the Play Custom App Publishing API and flags missing permissions
+- feat(docs): new guide `apps/docs/guide/enterprise-publishing.md` — full walkthrough from account setup to CI/CD
+- feat(api): `HttpClient.uploadCustomApp<T>` — multipart resumable upload for the Custom App API
+- feat(api): `ResumableUploadOptions.initialMetadata` — optional JSON metadata in the resumable session-initiation POST
+
+**Fixed**
+
+- fix(enterprise): the entire `gpc enterprise` command was fiction before this release. It called nonexistent URLs, missed the required multipart binary upload, and documented the wrong parameter (`--org` was never a Workspace org ID, it was always a developer account ID). All of this is now correct.
+
+**Deprecated**
+
+- `gpc enterprise --org` renamed to `--account`. `--org` still works in v0.9.56 with a deprecation warning on every use. Will be removed in a future version.
+
+**Removed**
+
+- `gpc enterprise list` — Google's Play Custom App Publishing API has no list method. Use `gpc apps list` instead; private apps appear in your regular developer account.
+
+**Actual new tests:** 10 → total 1,892
+
+---
+
+## v0.9.55
+
+> [!NOTE]
+> v0.9.55 shipped 2026-04-09 but was not added to this root CHANGELOG at the time. See `packages/*/CHANGELOG.md` for per-package notes. This gap will be backfilled in a future housekeeping pass.
+
+---
+
 ## v0.9.54
 
 API audit, preflight hardening, and new resources.
