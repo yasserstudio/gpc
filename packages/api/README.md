@@ -2,7 +2,7 @@
 
 Typed Google Play Developer API v3 client for TypeScript. Part of [GPC](https://github.com/yasserstudio/gpc).
 
-215 endpoints across edits, releases, tracks, listings, subscriptions, in-app products, purchases, reviews, vitals, reports, users, and testers. Built-in rate limiting, retry logic, and pagination.
+216 endpoints across edits, releases, tracks, listings, subscriptions, in-app products, purchases, reviews, vitals, reports, users, testers, and **Managed Google Play private app publishing** (Play Custom App Publishing API, v0.9.56+ — first Android publishing SDK to support this). Built-in rate limiting, retry logic, resumable uploads, and pagination.
 
 ## Install
 
@@ -192,6 +192,6 @@ import type {
 - [SDK usage guide](https://yasserstudio.github.io/gpc/advanced/sdk-usage)
 - [API coverage map](https://yasserstudio.github.io/gpc/reference/api-coverage)
 
-## License
+## Licensing
 
-MIT
+Free to use. Source code is on GitHub at [yasserstudio/gpc](https://github.com/yasserstudio/gpc).

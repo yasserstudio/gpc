@@ -8,9 +8,10 @@ GPC replaces `fastlane supply` (and parts of `fastlane deliver`) for Google Play
 
 ## Why Migrate?
 
-|                       | GPC                               | Fastlane supply            |
-| --------------------- | --------------------------------- | -------------------------- |
-| API coverage          | 215 endpoints                     | ~20 endpoints              |
+|                         | GPC                               | Fastlane supply            |
+| ----------------------- | --------------------------------- | -------------------------- |
+| API coverage            | 216 endpoints                     | ~20 endpoints              |
+| **Managed Google Play** | **Yes (first CLI to support)**    | No                         |
 | Runtime               | Node.js or standalone binary      | Ruby + Bundler + 150+ gems |
 | Reviews and Vitals    | Yes                               | No                         |
 | Subscriptions and IAP | Yes                               | No                         |

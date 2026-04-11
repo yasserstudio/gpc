@@ -17,21 +17,22 @@ gpc reviews list --stars 1-2 --since 7d
 
 ## What GPC Covers
 
-215 API endpoints across every Google Play domain:
+216 API endpoints across every Google Play domain:
 
-| Domain              | Commands                                                             | What it does                                                   |
-| ------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------- |
-| **Releases**        | `releases upload`, `releases promote`, `releases rollout`, `publish` | Upload AAB/APK, promote across tracks, manage staged rollouts  |
-| **Listings**        | `listings get`, `listings push`, `listings pull`, `listings images`  | Store metadata, screenshots, localization, Fastlane format     |
-| **Reviews**         | `reviews list`, `reviews reply`, `reviews export`                    | Filter by stars/language/time, reply, export to CSV            |
-| **Vitals**          | `vitals crashes`, `vitals anr`, `vitals startup`, `vitals compare`   | Crash rates, ANR, startup times, frame rates, CI quality gates |
-| **Subscriptions**   | `subscriptions list`, `subscriptions create`, `subscriptions offers` | Base plans, offers, activation, price migration                |
-| **In-App Products** | `iap list`, `iap create`, `iap sync`, `otp list`, `otp offers`       | Managed products, one-time products, bulk sync from files      |
-| **Purchases**       | `purchases get`, `purchases acknowledge`, `orders refund`            | Purchase verification, consumption, voided purchases           |
-| **Reports**         | `reports download financial`, `reports download stats`               | Earnings, installs, crashes, ratings CSV downloads             |
-| **Testers**         | `testers list`, `testers add`, `testers import`                      | Track-scoped tester management, CSV bulk import                |
-| **Users**           | `users list`, `users invite`, `users update`                         | Developer account user and permission management               |
-| **Bundle**          | `bundle analyze`, `bundle compare`                                   | AAB/APK size analysis, cross-build comparison, CI size gates   |
+| Domain                 | Commands                                                             | What it does                                                         |
+| ---------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| **Releases**           | `releases upload`, `releases promote`, `releases rollout`, `publish` | Upload AAB/APK, promote across tracks, manage staged rollouts        |
+| **Listings**           | `listings get`, `listings push`, `listings pull`, `listings images`  | Store metadata, screenshots, localization, Fastlane format           |
+| **Reviews**            | `reviews list`, `reviews reply`, `reviews export`                    | Filter by stars/language/time, reply, export to CSV                  |
+| **Vitals**             | `vitals crashes`, `vitals anr`, `vitals startup`, `vitals compare`   | Crash rates, ANR, startup times, frame rates, CI quality gates       |
+| **Subscriptions**      | `subscriptions list`, `subscriptions create`, `subscriptions offers` | Base plans, offers, activation, price migration                      |
+| **In-App Products**    | `iap list`, `iap create`, `iap sync`, `otp list`, `otp offers`       | Managed products, one-time products, bulk sync from files            |
+| **Purchases**          | `purchases get`, `purchases acknowledge`, `orders refund`            | Purchase verification, consumption, voided purchases                 |
+| **Reports**            | `reports download financial`, `reports download stats`               | Earnings, installs, crashes, ratings CSV downloads                   |
+| **Testers**            | `testers list`, `testers add`, `testers import`                      | Track-scoped tester management, CSV bulk import                      |
+| **Users**              | `users list`, `users invite`, `users update`                         | Developer account user and permission management                     |
+| **Managed Google Play** | `enterprise publish`, `enterprise create`                           | Private apps for enterprise customers (first publishing CLI to support this) |
+| **Bundle**             | `bundle analyze`, `bundle compare`                                   | AAB/APK size analysis, cross-build comparison, CI size gates         |
 
 Plus: device tiers, internal sharing, data safety, recovery actions, external transactions, and more. See the [full command reference](/commands/).
 
@@ -39,7 +40,7 @@ Plus: device tiers, internal sharing, data safety, recovery actions, external tr
 
 | Feature              | GPC                                                | Fastlane supply        | gradle-play-publisher | Console UI     |
 | -------------------- | -------------------------------------------------- | ---------------------- | --------------------- | -------------- |
-| **API endpoints**    | 208                                                | ~20                    | ~15                   | All (manual)   |
+| **API endpoints**    | 216                                                | ~20                    | ~15                   | All (manual)   |
 | **Language**         | TypeScript (Node.js)                               | Ruby                   | Kotlin (Gradle)       | Browser        |
 | **Install**          | `npm install -g @gpc-cli/cli` or standalone binary | `gem install fastlane` | Gradle plugin         | None           |
 | **Releases**         | Upload, promote, rollout, halt, resume, complete   | Upload, promote        | Upload, promote       | Manual         |

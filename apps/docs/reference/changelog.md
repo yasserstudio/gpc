@@ -11,7 +11,39 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.55 <Badge type="tip" text="latest" />
+## v0.9.56 <Badge type="tip" text="latest" />
+
+**First Android publishing CLI with Managed Google Play support.** Rewrote the `gpc enterprise` surface end-to-end against the [Play Custom App Publishing API](https://developers.google.com/android/work/play/custom-app-api) and bundled two polish fixes discovered during the release smoke test.
+
+**Managed Google Play (new):**
+
+- feat(cli): `gpc enterprise publish <bundle>` — create and publish a private custom app to Managed Google Play in one command. First Android publishing CLI to support this API. Fastlane doesn't. gradle-play-publisher doesn't.
+- feat(cli): `gpc enterprise create --bundle <path>` — explicit-arg version of publish
+- feat(cli): repeatable `--org-id` / `--org-name` flags for target enterprise organizations at create time
+- feat(cli): permanent-private confirmation prompt before create/publish, skippable with `--yes` in CI
+- feat(cli): `gpc doctor` probes the Play Custom App Publishing API and flags missing permissions or a disabled API in your Google Cloud project
+- feat(docs): new walkthrough [Publishing to Managed Google Play](../guide/enterprise-publishing) — from account setup to CI/CD, including a GitHub Actions example
+- feat(api): new `HttpClient.uploadCustomApp<T>` multipart resumable upload helper
+- feat(api): new `ResumableUploadOptions.initialMetadata` option — lets the initial resumable-session POST carry JSON metadata alongside the binary upload
+
+**Fixed:**
+
+- fix(enterprise): the entire `gpc enterprise` command has been fiction since it shipped. It called nonexistent URLs, wrapped a nonexistent list method, missed the required multipart binary upload entirely, and taught users the wrong parameter semantics. Every layer is now correct. If you tried `gpc enterprise` before and hit confusing errors, it should just work now.
+- fix(cli): `gpc enterprise` docs were telling users the wrong thing about `--org`. It was never a Google Workspace or Cloud Identity organization ID — it was always a developer account ID from the Play Console URL. The parameter is now named `--account` (with `--org` as a deprecation alias) and the docs explain the correct value.
+- fix(cli): the permanent-private confirmation prompt now validates numeric account IDs _before_ printing the warning block, so a malformed `--account` value errors immediately instead of asking you to confirm against the wrong target.
+- fix(cli): `gpc doctor` HTTPS probe no longer reports false-positive "self-signed certificate" failures on Google API hosts. The probe now uses `fetch()` so it exercises the same HTTP stack as every real API call (honoring HTTPS_PROXY, extra CAs, and undici dispatchers). Environments with corporate TLS interception now get accurate doctor results.
+
+**Deprecated:**
+
+- `gpc enterprise --org` renamed to `--account`. `--org` still works in v0.9.56 with a deprecation warning on every use. Will be removed in a future version.
+
+**Removed:**
+
+- `gpc enterprise list` — Google's Play Custom App Publishing API has no list method. Private apps created via this API appear in your regular developer account alongside public apps; use `gpc apps list` to find them. The removed subcommand now errors with a clear message pointing to the replacement.
+
+**216 API endpoints · 1,892 tests**
+
+## v0.9.55
 
 API freshness audit and a multi-profile bug fix.
 
@@ -26,7 +58,7 @@ API freshness audit and a multi-profile bug fix.
 
 - fix(cli): `--profile` / `-p` global flag is now correctly applied. Previously, commands always used the default profile even when `--profile <name>` was passed. Multi-profile workflows (one profile per app) now work as documented
 
-**215 API endpoints · 1,882 tests**
+**215 API endpoints · 1,882 tests** (at time of v0.9.55 release)
 
 ## v0.9.54
 
@@ -58,7 +90,7 @@ API audit, preflight hardening, and new resources.
 - feat(api): `inappproducts.patch` (PATCH partial update, distinct from PUT full replace)
 - feat(api): `systemApks` resource -- `create`, `list`, `get`, `download` for OEM pre-install APKs
 
-**215 API endpoints · 1,874 tests**
+**215 API endpoints · 1,874 tests** (at time of v0.9.54 release)
 
 ---
 

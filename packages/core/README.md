@@ -75,6 +75,6 @@ const analysis = await analyzeBundle("./app.aab");
 - [Full documentation](https://yasserstudio.github.io/gpc/)
 - [Architecture](https://yasserstudio.github.io/gpc/advanced/architecture)
 
-## License
+## Licensing
 
-MIT
+Free to use. Source code is on GitHub at [yasserstudio/gpc](https://github.com/yasserstudio/gpc).

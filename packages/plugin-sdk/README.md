@@ -100,6 +100,6 @@ Generates a complete plugin project with TypeScript config, tests, and example h
 
 See the [Plugin Development Guide](https://yasserstudio.github.io/gpc/advanced/plugins) for full documentation.
 
-## License
+## Licensing
 
-MIT
+Free to use. Source code is on GitHub at [yasserstudio/gpc](https://github.com/yasserstudio/gpc).

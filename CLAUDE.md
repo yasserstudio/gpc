@@ -44,13 +44,14 @@ e2e/               → End-to-end tests
 - Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, Homebrew tap, npm publish, README/CHANGELOG
 - Phase 10 ✓ — `gpc preflight` pre-submission compliance scanner (9 scanners, offline AAB policy checks)
 - Published to npm: `npm install -g @gpc-cli/cli`
-- Current version: v0.9.55 — pre-release series (`0.9.x` → `1.0.0` public launch)
-- 1,882 total tests, 7 packages building, 90%+ line coverage on all core packages
+- Current version: v0.9.56 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- 1,892 total tests, 7 packages building, 90%+ line coverage on all core packages
+- v0.9.56 highlight: first Android publishing CLI with Managed Google Play support (`gpc enterprise publish` via Play Custom App Publishing API)
 - GitHub Releases: umbrella `v*` tags only, user-facing notes (see `apps/docs/advanced/conventions.md` for template)
 
 ## Testing
 
-- Vitest for all tests (1,882 total across 7 packages + e2e)
+- Vitest for all tests (1,892 total across 7 packages + e2e)
 - Tests in `tests/` directory per package
 - Mock external APIs — never call real Google APIs in tests
 - Mock fetch with `vi.stubGlobal("fetch", mockFn)` for API tests

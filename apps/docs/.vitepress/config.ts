@@ -56,9 +56,9 @@ function getPageDescription(page: PageData): string {
   const path = page.relativePath;
   const map: Record<string, string> = {
     "index.md":
-      "The complete Google Play CLI. 215 API endpoints, one command-line tool. Upload AABs, manage releases and rollouts, monitor vitals and crash rates, sync metadata. No Ruby, no browser.",
+      "The complete Google Play CLI. 216 API endpoints including Managed Google Play (first CLI to support it). Upload AABs, manage releases, monitor vitals, sync metadata, publish private enterprise apps. No Ruby, no browser.",
     "guide/index.md":
-      "Get started with GPC, the Play Console command line tool. Install, authenticate, and ship your first release in minutes. Fastlane supply alternative with 215 endpoints.",
+      "Get started with GPC, the Play Console command line tool. Install, authenticate, and ship your first release in minutes. Fastlane supply alternative with 216 endpoints and Managed Google Play support.",
     "guide/installation.md":
       "Install GPC via npm, Homebrew, or standalone binary. No Ruby, no JVM. Works on macOS, Linux, and Windows.",
     "guide/authentication.md":
@@ -98,7 +98,7 @@ function getPageDescription(page: PageData): string {
     "advanced/plugins.md":
       "Build GPC plugins with lifecycle hooks and custom commands using the @gpc-cli/plugin-sdk.",
     "advanced/sdk-usage.md":
-      "Google Play API TypeScript SDK — use @gpc-cli/api and @gpc-cli/auth as standalone libraries in any Node.js project. Typed client for all 215 endpoints.",
+      "Google Play API TypeScript SDK — use @gpc-cli/api and @gpc-cli/auth as standalone libraries in any Node.js project. Typed client for all 216 endpoints including Play Custom App Publishing.",
     "commands/preflight.md":
       "gpc preflight — Scan your AAB against Google Play policies before submission. Offline, free, CI-ready. The missing compliance tool for Android.",
     "commands/init.md":
@@ -201,7 +201,7 @@ function getPageDescription(page: PageData): string {
       "Replace Play Console UI workflows with GPC CLI commands. 60+ task-to-command mappings.",
     // Alternatives
     "alternatives/fastlane.md":
-      "GPC vs Fastlane supply: 215 endpoints vs ~20, Node.js vs Ruby, plus vitals, reviews, subscriptions, and preflight scanning.",
+      "GPC vs Fastlane supply: 216 endpoints vs ~20, Node.js vs Ruby, plus vitals, reviews, subscriptions, preflight scanning, and Managed Google Play private app publishing.",
     "alternatives/index.md":
       "Google Play CLI tools compared. GPC vs Fastlane vs gradle-play-publisher vs play-console-cli. Feature matrix and API coverage.",
     "alternatives/android-release-automation.md":
@@ -210,7 +210,7 @@ function getPageDescription(page: PageData): string {
     "reference/json-contract.md":
       "GPC JSON output contract — structured response format for CI/CD scripting and automation.",
     "reference/api-coverage.md":
-      "Complete Google Play Developer API v3 coverage map. 215 endpoints across all resource types.",
+      "Complete Google Play Developer API coverage map. 216 endpoints across Android Publisher v3, Play Developer Reporting, and Play Custom App Publishing.",
     "reference/deprecations.md":
       "Deprecated Google Play API endpoints and GPC commands. Migration timelines and replacement commands.",
     // Advanced
@@ -229,7 +229,7 @@ function getPageDescription(page: PageData): string {
 export default defineConfig({
   title: "GPC — Google Play Console CLI",
   description:
-    "The complete Google Play CLI. 215 API endpoints, one command-line tool. Upload AABs, manage releases and rollouts, monitor vitals and crash rates, sync metadata. No Ruby, no browser.",
+    "The complete Google Play CLI. 216 API endpoints including Managed Google Play. Upload AABs, manage releases and rollouts, monitor vitals and crash rates, sync metadata, publish private enterprise apps. No Ruby, no browser.",
 
   base: "/gpc/",
   lang: "en-US",
@@ -271,7 +271,7 @@ export default defineConfig({
         "@type": "SoftwareApplication",
         name: "GPC — Google Play Console CLI",
         description:
-          "The complete Google Play CLI. 215 API endpoints, one command-line tool. Upload AABs, manage releases, monitor crash rates, sync metadata. Fastlane alternative for Android.",
+          "The complete Google Play CLI. 216 API endpoints including Managed Google Play. Upload AABs, manage releases, monitor crash rates, sync metadata, publish private enterprise apps. Fastlane alternative for Android.",
         applicationCategory: "DeveloperApplication",
         operatingSystem: "macOS, Linux, Windows",
         offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
