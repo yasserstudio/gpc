@@ -2420,6 +2420,127 @@ describe("internalAppSharing", () => {
 });
 
 // ---------------------------------------------------------------------------
+// Enterprise / Play Custom App Publishing
+// ---------------------------------------------------------------------------
+const CUSTOM_APP_UPLOAD_BASE =
+  "https://playcustomapp.googleapis.com/upload/playcustomapp/v1/accounts";
+
+describe("enterprise (Play Custom App Publishing)", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  async function importEnterprise() {
+    return import("../src/enterprise-client");
+  }
+
+  it("create calls the Custom App Publishing upload endpoint with metadata in the init POST", async () => {
+    const { createEnterpriseClient } = await importEnterprise();
+    const accountId = "1234567890";
+    const sessionUri = "https://upload.example.com/session/custom-app-abc";
+
+    // 1. Resumable session initiation → returns Location header
+    mockFetch.mockResolvedValueOnce(
+      new Response("", { status: 200, headers: { Location: sessionUri } }),
+    );
+    // 2. Chunk upload → returns the created CustomApp
+    const createdApp = {
+      packageName: "com.google.customapp.abc123",
+      title: "Test Private App",
+      languageCode: "en_US",
+    };
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify(createdApp), { status: 200 }),
+    );
+
+    const client = createEnterpriseClient({ auth: mockAuth(), maxRetries: 0 });
+    const result = await client.apps.create(accountId, "/path/to/app.aab", {
+      title: "Test Private App",
+      languageCode: "en_US",
+      organizations: [{ organizationId: "org-alpha" }],
+    });
+
+    expect(result).toEqual(createdApp);
+
+    // Verify initiation POST targets the Custom App upload URL with resumable type
+    const [initUrl, initOpts] = mockFetch.mock.calls[0];
+    expect(initUrl).toBe(
+      `${CUSTOM_APP_UPLOAD_BASE}/${accountId}/customApps?uploadType=resumable`,
+    );
+    expect(initOpts.method).toBe("POST");
+    expect(initOpts.headers["Content-Type"]).toBe("application/json; charset=UTF-8");
+    expect(initOpts.headers["X-Upload-Content-Type"]).toBe("application/octet-stream");
+
+    // Verify metadata JSON in the init body
+    const bodyJson = JSON.parse(initOpts.body);
+    expect(bodyJson.title).toBe("Test Private App");
+    expect(bodyJson.languageCode).toBe("en_US");
+    expect(bodyJson.organizations).toEqual([{ organizationId: "org-alpha" }]);
+  });
+
+  it("create detects APK content type from .apk extension", async () => {
+    const { createEnterpriseClient } = await importEnterprise();
+    mockFetch.mockResolvedValueOnce(
+      new Response("", {
+        status: 200,
+        headers: { Location: "https://upload.example.com/s/1" },
+      }),
+    );
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ packageName: "com.google.custom.xyz" }), { status: 200 }),
+    );
+
+    const client = createEnterpriseClient({ auth: mockAuth(), maxRetries: 0 });
+    await client.apps.create("999", "/path/to/app.apk", { title: "APK Test" });
+
+    const [, initOpts] = mockFetch.mock.calls[0];
+    expect(initOpts.headers["X-Upload-Content-Type"]).toBe(
+      "application/vnd.android.package-archive",
+    );
+  });
+
+  it("create rejects non-numeric account IDs", async () => {
+    const { createEnterpriseClient } = await importEnterprise();
+    const client = createEnterpriseClient({ auth: mockAuth(), maxRetries: 0 });
+
+    await expect(
+      client.apps.create("my-workspace-id", "/path/to/app.aab", { title: "X" }),
+    ).rejects.toThrow(/must be numeric/);
+    await expect(
+      client.apps.create("not-an-id", "/path/to/app.aab", { title: "X" }),
+    ).rejects.toThrow(PlayApiError);
+  });
+
+  it("create rejects when the bundle file is missing", async () => {
+    const { createEnterpriseClient } = await importEnterprise();
+    const { stat } = await import("node:fs/promises");
+    const mockStat = stat as unknown as ReturnType<typeof vi.fn>;
+
+    // Force the next stat() call to throw (simulate ENOENT)
+    const originalImpl = mockStat.getMockImplementation();
+    mockStat.mockRejectedValueOnce(new Error("ENOENT"));
+
+    try {
+      const client = createEnterpriseClient({ auth: mockAuth(), maxRetries: 0 });
+      await expect(
+        client.apps.create("1234", "/nonexistent/app.aab", { title: "Missing" }),
+      ).rejects.toThrow(/Bundle file not found/);
+    } finally {
+      // Restore the default mock for subsequent tests
+      if (originalImpl) mockStat.mockImplementation(originalImpl);
+      else mockStat.mockResolvedValue({ size: 1024 });
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Generated APKs
 // ---------------------------------------------------------------------------
 describe("generatedApks", () => {

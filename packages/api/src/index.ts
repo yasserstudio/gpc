@@ -16,7 +16,7 @@ export { createEnterpriseClient } from "./enterprise-client.js";
 export type {
   EnterpriseApiClient,
   CustomApp,
-  CustomAppsListResponse,
+  CustomAppCreateMetadata,
 } from "./enterprise-client.js";
 export { createHttpClient } from "./http.js";
 export type { HttpClient } from "./http.js";
