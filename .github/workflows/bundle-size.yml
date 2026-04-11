@@ -50,9 +50,14 @@ jobs:
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
-            const { cli, core, api, auth, config, cli_esm } = {
+            // NOTE: actions/github-script auto-injects `core` (from @actions/core),
+            // so we cannot destructure a local variable named `core` here —
+            // it would collide with the injected identifier and the script
+            // fails to parse with "Identifier 'core' has already been declared".
+            // Use `cliCore` for the @gpc-cli/core size output.
+            const { cli, cliCore, api, auth, config, cli_esm } = {
               cli:     '${{ steps.sizes.outputs.cli }}',
-              core:    '${{ steps.sizes.outputs.core }}',
+              cliCore: '${{ steps.sizes.outputs.core }}',
               api:     '${{ steps.sizes.outputs.api }}',
               auth:    '${{ steps.sizes.outputs.auth }}',
               config:  '${{ steps.sizes.outputs.config }}',
@@ -65,7 +70,7 @@ jobs:
               '| Package | dist size |',
               '| --- | --- |',
               `| \`@gpc-cli/cli\` | ${cli} |`,
-              `| \`@gpc-cli/core\` | ${core} |`,
+              `| \`@gpc-cli/core\` | ${cliCore} |`,
               `| \`@gpc-cli/api\` | ${api} |`,
               `| \`@gpc-cli/auth\` | ${auth} |`,
               `| \`@gpc-cli/config\` | ${config} |`,
