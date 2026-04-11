@@ -135,13 +135,20 @@ Already on Fastlane? See the [migration guide](/migration/from-fastlane) or the 
 
 ## What's New
 
+**Managed Google Play** (v0.9.56) -- GPC is the first Android publishing CLI to support the [Play Custom App Publishing API](https://developers.google.com/android/work/play/custom-app-api). Publish private apps to enterprise customers in one command from CI/CD instead of two hours clicking through Play Console. Fastlane doesn't do this; `gradle-play-publisher` doesn't do this. See the [Enterprise publishing guide](/guide/enterprise-publishing).
+
+```bash
+gpc enterprise publish ./app.aab \
+  --account 1234567890 \
+  --title "My Internal App" \
+  --org-id customer-acme
+```
+
+**`gpc doctor` now probes the Play Custom App API** (v0.9.56) -- Flags missing service-account permissions or a disabled API before you hit runtime errors.
+
+**API freshness audit** (v0.9.55) -- `offerPhase` field shape corrected, typed request bodies for `revokeSubscriptionV2` and `acknowledgeSubscription` (including the new `itemBasedRefund` union and `externalAccountId`), and the `--profile` global flag now actually switches profiles.
+
 **Rejected app support** (v0.9.51/v0.9.52) -- Apps stuck in rejection can now upload and promote with `--changes-not-sent-for-review`. CI pipelines can use `--error-if-in-review` to fail safely instead of silently cancelling an in-progress review.
-
-**Native debug symbols** -- Upload NDK native debug symbols alongside your AAB with `--mapping-type nativeCode` for crash symbolication in the Play Console.
-
-**Device tier targeting** -- Target a specific device tier config at upload time with `--device-tier-config`.
-
-**4 new API endpoints** -- Expansion file management (OBB) for legacy APKs. Plus pagination on one-time products, `startIndex` on reviews, and `allowMissing` upsert support on monetization endpoints.
 
 [Full changelog](/reference/changelog)
 
