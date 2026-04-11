@@ -53,12 +53,6 @@ features:
   <span class="stat">Free to Use</span>
 </div>
 
-<p align="center" style="margin-top: 1rem;">
-  <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/v/@gpc-cli/cli?color=00D26A" alt="npm version"></a>
-  <a href="https://github.com/yasserstudio/gpc/stargazers"><img src="https://img.shields.io/github/stars/yasserstudio/gpc" alt="GitHub Stars"></a>
-  <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?color=00BFA5" alt="npm downloads"></a>
-</p>
-
 ## Install
 
 ```bash
