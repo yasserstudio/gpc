@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 440" fill="none">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap');
+    .bg { fill: #0d1117; }
+    .header { fill: #161b22; }
+    .border { stroke: rgba(255,255,255,0.08); stroke-width: 1; fill: none; }
+    .dot-red { fill: #ff5f57; }
+    .dot-yellow { fill: #febc2e; }
+    .dot-green { fill: #28c840; }
+    .title { fill: rgba(255,255,255,0.28); font-family: 'Inter', system-ui, sans-serif; font-size: 11px; }
+    .prompt { fill: #4d95f1; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; }
+    .cmd { fill: #e6edf3; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; }
+    .flag { fill: #d2a8ff; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; }
+    .label { fill: #7ee787; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+    .ok { fill: #3fb950; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .val { fill: #79c0ff; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .dim { fill: #8b949e; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .muted { fill: #484f58; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .divider { fill: rgba(255,255,255,0.1); font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+    .cursor { fill: #4d95f1; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+    .cursor { animation: blink 1.2s step-end infinite; }
+  </style>
+
+  <!-- Window -->
+  <rect class="bg" x="0" y="0" width="680" height="440" rx="12"/>
+  <rect class="border" x="0" y="0" width="680" height="440" rx="12"/>
+
+  <!-- Header bar -->
+  <rect class="header" x="1" y="1" width="678" height="38" rx="12"/>
+  <rect class="header" x="1" y="27" width="678" height="12"/>
+  <line x1="1" y1="39" x2="679" y2="39" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+  <!-- Traffic lights -->
+  <circle class="dot-red" cx="20" cy="20" r="6"/>
+  <circle class="dot-yellow" cx="40" cy="20" r="6"/>
+  <circle class="dot-green" cx="60" cy="20" r="6"/>
+  <text class="title" x="635" y="24" text-anchor="end">terminal — one tool, many apps</text>
+
+  <!-- First command: staging profile -->
+  <text class="prompt" x="24" y="72">$</text>
+  <text class="cmd" x="40" y="72">gpc releases status</text>
+  <text class="flag" x="200" y="72">--profile staging</text>
+
+  <!-- Divider -->
+  <text class="divider" x="24" y="90">────────────────────────────────────────────────────</text>
+
+  <text class="label" x="24" y="114">com.acme.staging</text>
+
+  <text class="ok" x="24" y="138">✓</text>
+  <text class="dim" x="44" y="138">internal</text>
+  <text class="val" x="160" y="138">v1.8.0</text>
+  <text class="dim" x="230" y="138">completed</text>
+  <text class="muted" x="340" y="138">5 testers</text>
+
+  <text class="ok" x="24" y="162">✓</text>
+  <text class="dim" x="44" y="162">alpha</text>
+  <text class="val" x="160" y="162">v1.7.3</text>
+  <text class="dim" x="230" y="162">completed</text>
+  <text class="muted" x="340" y="162">100 testers</text>
+
+  <!-- Second command: production profile -->
+  <text class="prompt" x="24" y="210">$</text>
+  <text class="cmd" x="40" y="210">gpc releases status</text>
+  <text class="flag" x="200" y="210">--profile production</text>
+
+  <!-- Divider -->
+  <text class="divider" x="24" y="228">────────────────────────────────────────────────────</text>
+
+  <text class="label" x="24" y="252">com.acme.app</text>
+
+  <text class="ok" x="24" y="276">✓</text>
+  <text class="dim" x="44" y="276">production</text>
+  <text class="val" x="160" y="276">v2.4.1</text>
+  <text class="dim" x="230" y="276">completed</text>
+  <text class="muted" x="340" y="276">100%</text>
+
+  <text class="ok" x="24" y="300">✓</text>
+  <text class="dim" x="44" y="300">beta</text>
+  <text class="val" x="160" y="300">v2.5.0</text>
+  <text class="dim" x="230" y="300">inProgress</text>
+  <text class="muted" x="340" y="300">20% staged</text>
+
+  <text class="ok" x="24" y="324">✓</text>
+  <text class="dim" x="44" y="324">internal</text>
+  <text class="val" x="160" y="324">v2.5.1</text>
+  <text class="dim" x="230" y="324">draft</text>
+
+  <!-- Footnote -->
+  <text class="muted" x="24" y="370">One binary. Multiple apps. Multiple Google accounts.</text>
+  <text class="muted" x="24" y="388">Profiles defined once in ~/.config/gpc/config.json.</text>
+
+  <!-- Cursor line -->
+  <text class="prompt" x="24" y="422">$</text>
+  <text class="cursor" x="40" y="422">▋</text>
+</svg>

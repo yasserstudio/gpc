@@ -69,13 +69,13 @@ gpc bundle analyze app.aab --threshold 150
 
 ### Distribution
 
-| Command                                  | Description                                                                         |
-| ---------------------------------------- | ----------------------------------------------------------------------------------- |
-| [`bundle`](./bundle)                     | Local AAB/APK size analysis and comparison                                          |
-| [`internal-sharing`](./internal-sharing) | Review-free QA distribution                                                         |
-| [`enterprise`](./enterprise)             | Private apps for Managed Google Play (Play Custom App Publishing API, v0.9.56+)     |
-| [`generated-apks`](./generated-apks)     | Device-specific APK downloads                                                       |
-| [`device-tiers`](./device-tiers)         | Device capability targeting                                                         |
+| Command                                  | Description                                                                     |
+| ---------------------------------------- | ------------------------------------------------------------------------------- |
+| [`bundle`](./bundle)                     | Local AAB/APK size analysis and comparison                                      |
+| [`internal-sharing`](./internal-sharing) | Review-free QA distribution                                                     |
+| [`enterprise`](./enterprise)             | Private apps for Managed Google Play (Play Custom App Publishing API, v0.9.56+) |
+| [`generated-apks`](./generated-apks)     | Device-specific APK downloads                                                   |
+| [`device-tiers`](./device-tiers)         | Device capability targeting                                                     |
 
 ### Compliance & Recovery
 

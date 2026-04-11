@@ -43,17 +43,17 @@ gpc enterprise --account 1234567890 publish ./app.aab \
 
 **Positional:**
 
-| Argument | Description |
-| -------- | ----------- |
+| Argument   | Description                       |
+| ---------- | --------------------------------- |
 | `<bundle>` | Path to the AAB or APK to upload. |
 
 **Options:**
 
-| Option | Description |
-| ------ | ----------- |
-| `--title <title>` | App title (required). |
-| `--lang <code>` | Default listing language in BCP 47 format. Default: `en_US`. |
-| `--org-id <id>` | Target enterprise organization ID. Repeatable — use the flag once per organization. |
+| Option              | Description                                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------- |
+| `--title <title>`   | App title (required).                                                                       |
+| `--lang <code>`     | Default listing language in BCP 47 format. Default: `en_US`.                                |
+| `--org-id <id>`     | Target enterprise organization ID. Repeatable — use the flag once per organization.         |
 | `--org-name <name>` | Optional human-readable organization name. Repeatable, matched by position with `--org-id`. |
 
 ### `enterprise create`
@@ -69,12 +69,12 @@ gpc enterprise --account 1234567890 create \
 
 **Options:**
 
-| Option | Description |
-| ------ | ----------- |
-| `--title <title>` | App title (required). |
-| `--bundle <path>` | Path to AAB or APK (required). |
-| `--lang <code>` | Default listing language. Default: `en_US`. |
-| `--org-id <id>` | Target organization ID (repeatable). |
+| Option              | Description                                                         |
+| ------------------- | ------------------------------------------------------------------- |
+| `--title <title>`   | App title (required).                                               |
+| `--bundle <path>`   | Path to AAB or APK (required).                                      |
+| `--lang <code>`     | Default listing language. Default: `en_US`.                         |
+| `--org-id <id>`     | Target organization ID (repeatable).                                |
 | `--org-name <name>` | Human-readable organization name (repeatable, matched by position). |
 
 ### `enterprise list`
@@ -123,8 +123,8 @@ The `packageName` is assigned by Google and starts with `com.google.customapp.` 
 
 ## Deprecated flag
 
-| Flag | Status | Replacement |
-| ---- | ------ | ----------- |
+| Flag    | Status                                                  | Replacement              |
+| ------- | ------------------------------------------------------- | ------------------------ |
 | `--org` | **Deprecated** in v0.9.56, removed in a future version. | Use `--account` instead. |
 
 `--org` still works in v0.9.56 but prints a warning on every use. The name was historically misleading — it was always a developer account ID, never an organization ID.

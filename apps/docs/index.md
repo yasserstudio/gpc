@@ -119,17 +119,17 @@ gpc reviews list --stars 1-3 --since 7d
 
 ## Why GPC
 
-|                          | **GPC**                          | Fastlane supply | gradle-play-publisher | Console UI   |
-| ------------------------ | -------------------------------- | --------------- | --------------------- | ------------ |
-| API coverage             | **216 endpoints**                | ~20             | ~15                   | All (manual) |
-| Runtime                  | Node.js or standalone binary     | Ruby + Bundler  | JVM                   | Browser      |
-| Cold start               | <500ms                           | 2-3s            | 3-5s                  | 5-10s        |
-| Reviews & Vitals         | Yes                              | No              | No                    | Yes (manual) |
-| Subscriptions & IAP      | Yes                              | No              | No                    | Yes (manual) |
-| **Managed Google Play**  | **Yes (first CLI to support)**   | No              | No                    | Yes (manual) |
-| CI/CD native             | JSON + exit codes + env vars     | Partial         | Gradle tasks          | No           |
-| Preflight scanner        | **9 offline policy checks**      | No              | No                    | No           |
-| Plugin system            | Yes                              | No              | No                    | No           |
+|                         | **GPC**                        | Fastlane supply | gradle-play-publisher | Console UI   |
+| ----------------------- | ------------------------------ | --------------- | --------------------- | ------------ |
+| API coverage            | **216 endpoints**              | ~20             | ~15                   | All (manual) |
+| Runtime                 | Node.js or standalone binary   | Ruby + Bundler  | JVM                   | Browser      |
+| Cold start              | <500ms                         | 2-3s            | 3-5s                  | 5-10s        |
+| Reviews & Vitals        | Yes                            | No              | No                    | Yes (manual) |
+| Subscriptions & IAP     | Yes                            | No              | No                    | Yes (manual) |
+| **Managed Google Play** | **Yes (first CLI to support)** | No              | No                    | Yes (manual) |
+| CI/CD native            | JSON + exit codes + env vars   | Partial         | Gradle tasks          | No           |
+| Preflight scanner       | **9 offline policy checks**    | No              | No                    | No           |
+| Plugin system           | Yes                            | No              | No                    | No           |
 
 Already on Fastlane? See the [migration guide](/migration/from-fastlane) or the [full comparison](/alternatives/fastlane).
 

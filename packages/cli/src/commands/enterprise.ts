@@ -2,11 +2,7 @@ import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createEnterpriseClient } from "@gpc-cli/api";
-import {
-  createEnterpriseApp,
-  publishEnterpriseApp,
-  formatOutput,
-} from "@gpc-cli/core";
+import { createEnterpriseApp, publishEnterpriseApp, formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
@@ -126,7 +122,9 @@ async function confirmPermanentPrivate(
   const orgSummary =
     summary.organizations && summary.organizations.length > 0
       ? summary.organizations
-          .map((o) => (o.organizationName ? `${o.organizationId} (${o.organizationName})` : o.organizationId))
+          .map((o) =>
+            o.organizationName ? `${o.organizationId} (${o.organizationName})` : o.organizationId,
+          )
           .join(", ")
       : dim("none specified — add later via Play Console");
 
@@ -233,9 +231,7 @@ export function registerEnterpriseCommands(program: Command): void {
   // ----------------------------- publish -------------------------------
   enterprise
     .command("publish <bundle>")
-    .description(
-      "One-shot publish: validate, create, and return a private custom app package name",
-    )
+    .description("One-shot publish: validate, create, and return a private custom app package name")
     .requiredOption("--title <title>", "App title (required)")
     .option("--lang <code>", "Default listing language code (BCP 47)", "en_US")
     .option(

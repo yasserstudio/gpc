@@ -5402,10 +5402,7 @@ describe("iap batch sync", () => {
 // ---------------------------------------------------------------------------
 // Enterprise / Managed Google Play
 // ---------------------------------------------------------------------------
-import {
-  createEnterpriseApp,
-  publishEnterpriseApp,
-} from "../src/commands/enterprise.js";
+import { createEnterpriseApp, publishEnterpriseApp } from "../src/commands/enterprise.js";
 
 describe("enterprise commands", () => {
   function mockEnterpriseClient() {
@@ -5431,15 +5428,11 @@ describe("enterprise commands", () => {
     });
 
     expect(result.packageName).toBe("com.google.customapp.generated");
-    expect(client.apps.create).toHaveBeenCalledWith(
-      "1234567890",
-      "/path/to/app.aab",
-      {
-        title: "Test Private App",
-        languageCode: "en_US",
-        organizations: [{ organizationId: "org-1" }],
-      },
-    );
+    expect(client.apps.create).toHaveBeenCalledWith("1234567890", "/path/to/app.aab", {
+      title: "Test Private App",
+      languageCode: "en_US",
+      organizations: [{ organizationId: "org-1" }],
+    });
   });
 
   it("createEnterpriseApp defaults languageCode to en_US when omitted", async () => {

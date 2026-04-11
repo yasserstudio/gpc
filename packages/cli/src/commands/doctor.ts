@@ -484,8 +484,7 @@ async function checkEnterpriseAccess(accessToken: string): Promise<CheckResult> 
       name: "enterprise-access",
       status: "info",
       message: `Enterprise API probe inconclusive (HTTP ${response.status})`,
-      suggestion:
-        "This probe is best-effort. Run `gpc enterprise publish` to verify end-to-end.",
+      suggestion: "This probe is best-effort. Run `gpc enterprise publish` to verify end-to-end.",
     };
   } catch (err) {
     return {

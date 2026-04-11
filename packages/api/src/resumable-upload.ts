@@ -267,9 +267,7 @@ async function initiateSession(
   // API case), the body is empty.
   const hasMetadata = initialMetadata !== undefined;
   const metadataBody = hasMetadata ? JSON.stringify(initialMetadata) : "";
-  const metadataBodyBytes = hasMetadata
-    ? Buffer.byteLength(metadataBody, "utf8")
-    : 0;
+  const metadataBodyBytes = hasMetadata ? Buffer.byteLength(metadataBody, "utf8") : 0;
 
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,

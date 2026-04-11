@@ -49,13 +49,13 @@
 
   <!-- Stats row -->
   <rect x="64" y="405" width="140" height="48" rx="8" fill="rgba(77,149,241,0.12)" stroke="rgba(77,149,241,0.25)" stroke-width="1"/>
-  <text x="134" y="435" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#4d95f1" text-anchor="middle">204 endpoints</text>
+  <text x="134" y="435" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#4d95f1" text-anchor="middle">216 endpoints</text>
 
   <rect x="220" y="405" width="140" height="48" rx="8" fill="rgba(77,149,241,0.12)" stroke="rgba(77,149,241,0.25)" stroke-width="1"/>
-  <text x="290" y="435" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#4d95f1" text-anchor="middle">1,834 tests</text>
+  <text x="290" y="435" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#4d95f1" text-anchor="middle">1,892 tests</text>
 
   <rect x="376" y="405" width="140" height="48" rx="8" fill="rgba(77,149,241,0.12)" stroke="rgba(77,149,241,0.25)" stroke-width="1"/>
-  <text x="446" y="435" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#4d95f1" text-anchor="middle">MIT license</text>
+  <text x="446" y="435" font-family="system-ui, sans-serif" font-weight="700" font-size="15" fill="#4d95f1" text-anchor="middle">Free to use</text>
 
   <!-- URL -->
   <text x="64" y="560" font-family="monospace" font-size="16" fill="rgba(255,255,255,0.28)">yasserstudio.github.io/gpc</text>

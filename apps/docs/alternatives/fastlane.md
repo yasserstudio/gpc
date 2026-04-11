@@ -8,19 +8,19 @@ If you are evaluating alternatives to Fastlane for Google Play automation, here 
 
 ## At a Glance
 
-|                         | **GPC**                           | **Fastlane supply** |
-| ----------------------- | --------------------------------- | ------------------- |
-| API coverage            | **216 endpoints**                 | ~20                 |
-| Runtime                 | Node.js or standalone binary      | Ruby + Bundler      |
-| Cold start              | <500ms                            | 2-3s                |
-| Reviews & Vitals        | Yes                               | No                  |
-| Subscriptions & IAP     | Yes                               | No                  |
-| **Managed Google Play** | **Yes (Play Custom App API)**     | No                  |
-| Preflight scanner       | **9 offline policy checks**       | No                  |
-| CI/CD native            | JSON + exit codes + env vars      | Partial             |
-| Plugin system           | Yes (lifecycle hooks)             | Actions (different) |
-| Interactive mode    | Yes (guided prompts)         | No                  |
-| Test suite          | 1,860 tests, 90%+ coverage   | --                  |
+|                         | **GPC**                       | **Fastlane supply** |
+| ----------------------- | ----------------------------- | ------------------- |
+| API coverage            | **216 endpoints**             | ~20                 |
+| Runtime                 | Node.js or standalone binary  | Ruby + Bundler      |
+| Cold start              | <500ms                        | 2-3s                |
+| Reviews & Vitals        | Yes                           | No                  |
+| Subscriptions & IAP     | Yes                           | No                  |
+| **Managed Google Play** | **Yes (Play Custom App API)** | No                  |
+| Preflight scanner       | **9 offline policy checks**   | No                  |
+| CI/CD native            | JSON + exit codes + env vars  | Partial             |
+| Plugin system           | Yes (lifecycle hooks)         | Actions (different) |
+| Interactive mode        | Yes (guided prompts)          | No                  |
+| Test suite              | 1,892 tests, 90%+ coverage    | --                  |
 
 ## What GPC Covers That Fastlane Does Not
 

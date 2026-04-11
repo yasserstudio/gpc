@@ -525,7 +525,9 @@ describe("resumableUpload", () => {
     mockFetch.mockResolvedValueOnce(
       new Response("", { status: 200, headers: { Location: sessionUri } }),
     );
-    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({ versionCode: 1 }), { status: 200 }));
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ versionCode: 1 }), { status: 200 }),
+    );
 
     await resumableUpload(
       "https://upload.example.com/bundles",

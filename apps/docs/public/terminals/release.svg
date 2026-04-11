@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 440" fill="none">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap');
+    .bg { fill: #0d1117; }
+    .header { fill: #161b22; }
+    .border { stroke: rgba(255,255,255,0.08); stroke-width: 1; fill: none; }
+    .dot-red { fill: #ff5f57; }
+    .dot-yellow { fill: #febc2e; }
+    .dot-green { fill: #28c840; }
+    .title { fill: rgba(255,255,255,0.28); font-family: 'Inter', system-ui, sans-serif; font-size: 11px; }
+    .prompt { fill: #4d95f1; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; }
+    .cmd { fill: #e6edf3; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; }
+    .flag { fill: #d2a8ff; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; }
+    .label { fill: #7ee787; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+    .ok { fill: #3fb950; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .val { fill: #79c0ff; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .dim { fill: #8b949e; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .muted { fill: #484f58; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .divider { fill: rgba(255,255,255,0.1); font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+    .cursor { fill: #4d95f1; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .bar-bg { fill: #21262d; }
+    .bar-fill { fill: #3fb950; }
+    .bar-fill-dim { fill: #238636; }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+    .cursor { animation: blink 1.2s step-end infinite; }
+  </style>
+
+  <!-- Window -->
+  <rect class="bg" x="0" y="0" width="680" height="440" rx="12"/>
+  <rect class="border" x="0" y="0" width="680" height="440" rx="12"/>
+
+  <!-- Header bar -->
+  <rect class="header" x="1" y="1" width="678" height="38" rx="12"/>
+  <rect class="header" x="1" y="27" width="678" height="12"/>
+  <line x1="1" y1="39" x2="679" y2="39" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+  <!-- Traffic lights -->
+  <circle class="dot-red" cx="20" cy="20" r="6"/>
+  <circle class="dot-yellow" cx="40" cy="20" r="6"/>
+  <circle class="dot-green" cx="60" cy="20" r="6"/>
+  <text class="title" x="635" y="24" text-anchor="end">terminal — release</text>
+
+  <!-- Command -->
+  <text class="prompt" x="24" y="72">$</text>
+  <text class="cmd" x="40" y="72">gpc releases upload app.aab</text>
+  <text class="flag" x="264" y="72">--track production --rollout 10</text>
+
+  <!-- Divider -->
+  <text class="divider" x="24" y="90">────────────────────────────────────────────────────</text>
+
+  <!-- Auth + edit session -->
+  <text class="ok" x="24" y="118">✓</text>
+  <text class="dim" x="44" y="118">Authenticated</text>
+  <text class="muted" x="170" y="118">com.example.app</text>
+
+  <text class="ok" x="24" y="142">✓</text>
+  <text class="dim" x="44" y="142">Edit session opened</text>
+  <text class="muted" x="190" y="142">id: 14587923044</text>
+
+  <!-- Upload progress -->
+  <text class="label" x="24" y="178">UPLOADING APP.AAB</text>
+  <text class="muted" x="200" y="178">84.2 MB · 11 chunks</text>
+
+  <!-- Progress bar -->
+  <rect class="bar-bg" x="24" y="192" width="520" height="10" rx="3"/>
+  <rect class="bar-fill" x="24" y="192" width="520" height="10" rx="3"/>
+  <text class="val" x="556" y="201">100%</text>
+
+  <text class="dim" x="24" y="224">11/11 chunks · 24.3 MB/s · resumable · complete</text>
+
+  <!-- Verification -->
+  <text class="ok" x="24" y="260">✓</text>
+  <text class="dim" x="44" y="260">Bundle validated</text>
+  <text class="muted" x="170" y="260">versionCode 241</text>
+  <text class="muted" x="290" y="260">minSdk 24</text>
+  <text class="muted" x="380" y="260">targetSdk 35</text>
+
+  <text class="ok" x="24" y="284">✓</text>
+  <text class="dim" x="44" y="284">Assigned to track</text>
+  <text class="val" x="180" y="284">production</text>
+  <text class="muted" x="270" y="284">staged rollout 10%</text>
+
+  <text class="ok" x="24" y="308">✓</text>
+  <text class="dim" x="44" y="308">Release notes attached</text>
+  <text class="muted" x="210" y="308">6 locales</text>
+
+  <text class="ok" x="24" y="332">✓</text>
+  <text class="dim" x="44" y="332">Changes committed</text>
+  <text class="muted" x="190" y="332">edit 14587923044 closed</text>
+
+  <!-- Footer -->
+  <text class="label" x="24" y="378">DONE</text>
+  <text class="dim" x="74" y="378">v2.4.2 is live to 10% of production users.</text>
+
+  <!-- Cursor line -->
+  <text class="prompt" x="24" y="408">$</text>
+  <text class="cursor" x="40" y="408">▋</text>
+</svg>

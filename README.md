@@ -89,18 +89,18 @@ Every Android release is the same ritual: open the Play Console, upload your AAB
 
 GPC covers the **entire Google Play Developer API** in one CLI. 216 endpoints. No Ruby. No browser. No ceremony.
 
-|                        | **GPC**                        | Fastlane supply | gradle-play-publisher | Console UI   |
-| ---------------------- | ------------------------------ | --------------- | --------------------- | ------------ |
-| API coverage           | **216 endpoints**              | ~20             | ~15                   | All (manual) |
-| Runtime                | Node.js or standalone binary   | Ruby + Bundler  | JVM                   | Browser      |
-| Cold start             | <500ms                         | 2-3s            | 3-5s                  | 5-10s        |
-| Reviews & Vitals       | Yes                            | No              | No                    | Yes (manual) |
-| Subscriptions & IAP    | Yes                            | No              | No                    | Yes (manual) |
-| **Managed Google Play**| **Yes (first CLI to support)** | No              | No                    | Yes (manual) |
-| CI/CD native           | JSON + exit codes + env vars   | Partial         | Gradle tasks          | No           |
-| Preflight scanner      | **9 offline policy checks**    | No              | No                    | No           |
-| Interactive mode       | Yes (guided prompts)           | No              | No                    | N/A          |
-| Test suite             | 1,892 tests, 90%+ coverage     |                 |                       |              |
+|                         | **GPC**                        | Fastlane supply | gradle-play-publisher | Console UI   |
+| ----------------------- | ------------------------------ | --------------- | --------------------- | ------------ |
+| API coverage            | **216 endpoints**              | ~20             | ~15                   | All (manual) |
+| Runtime                 | Node.js or standalone binary   | Ruby + Bundler  | JVM                   | Browser      |
+| Cold start              | <500ms                         | 2-3s            | 3-5s                  | 5-10s        |
+| Reviews & Vitals        | Yes                            | No              | No                    | Yes (manual) |
+| Subscriptions & IAP     | Yes                            | No              | No                    | Yes (manual) |
+| **Managed Google Play** | **Yes (first CLI to support)** | No              | No                    | Yes (manual) |
+| CI/CD native            | JSON + exit codes + env vars   | Partial         | Gradle tasks          | No           |
+| Preflight scanner       | **9 offline policy checks**    | No              | No                    | No           |
+| Interactive mode        | Yes (guided prompts)           | No              | No                    | N/A          |
+| Test suite              | 1,892 tests, 90%+ coverage     |                 |                       |              |
 
 Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
 

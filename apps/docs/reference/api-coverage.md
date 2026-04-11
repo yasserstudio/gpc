@@ -264,8 +264,8 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 Private app publishing for enterprise customers. This is a separate Google API (`playcustomapp.googleapis.com`) from the standard Android Publisher API — GPC is the first publishing CLI to support it. See the [Enterprise publishing guide](../guide/enterprise-publishing.md) for details.
 
-| API Endpoint                  | Method | GPC Command                                    |
-| ----------------------------- | ------ | ---------------------------------------------- |
+| API Endpoint                 | Method | GPC Command                                                  |
+| ---------------------------- | ------ | ------------------------------------------------------------ |
 | `accounts.customApps.create` | POST   | `gpc enterprise publish <bundle>` or `gpc enterprise create` |
 
 ## Generated APKs

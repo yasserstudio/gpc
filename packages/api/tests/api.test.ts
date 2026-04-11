@@ -2456,9 +2456,7 @@ describe("enterprise (Play Custom App Publishing)", () => {
       title: "Test Private App",
       languageCode: "en_US",
     };
-    mockFetch.mockResolvedValueOnce(
-      new Response(JSON.stringify(createdApp), { status: 200 }),
-    );
+    mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(createdApp), { status: 200 }));
 
     const client = createEnterpriseClient({ auth: mockAuth(), maxRetries: 0 });
     const result = await client.apps.create(accountId, "/path/to/app.aab", {
@@ -2471,9 +2469,7 @@ describe("enterprise (Play Custom App Publishing)", () => {
 
     // Verify initiation POST targets the Custom App upload URL with resumable type
     const [initUrl, initOpts] = mockFetch.mock.calls[0];
-    expect(initUrl).toBe(
-      `${CUSTOM_APP_UPLOAD_BASE}/${accountId}/customApps?uploadType=resumable`,
-    );
+    expect(initUrl).toBe(`${CUSTOM_APP_UPLOAD_BASE}/${accountId}/customApps?uploadType=resumable`);
     expect(initOpts.method).toBe("POST");
     expect(initOpts.headers["Content-Type"]).toBe("application/json; charset=UTF-8");
     expect(initOpts.headers["X-Upload-Content-Type"]).toBe("application/octet-stream");
