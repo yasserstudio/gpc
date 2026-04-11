@@ -116,6 +116,8 @@ function getPageDescription(page: PageData): string {
       "Android developer verification and app registration — what's changing, the timeline, and how GPC helps you stay compliant.",
     "guide/enterprise-publishing.md":
       "Publish private apps to Managed Google Play via the Play Custom App Publishing API. Full walkthrough from account setup to CI/CD.",
+    "guide/screenshots.md":
+      "Manage Google Play store media with GPC. Screenshots, feature graphics, icons, and TV banners. Image requirements, bulk sync workflows, localization, CI/CD recipes.",
     "commands/verify.md":
       "gpc verify — Android developer verification status, enforcement deadlines, and resources. Check your account and open verification pages.",
     "guide/faq.md":
@@ -509,6 +511,7 @@ export default defineConfig({
             { text: "Configuration", link: "/guide/configuration" },
             { text: "Developer Verification", link: "/guide/developer-verification" },
             { text: "Enterprise Publishing", link: "/guide/enterprise-publishing" },
+            { text: "Store Listings & Screenshots", link: "/guide/screenshots" },
             { text: "FAQ", link: "/guide/faq" },
           ],
         },

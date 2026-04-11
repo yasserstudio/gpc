@@ -169,7 +169,7 @@ gpc listings pull [options]
 gpc listings pull --app com.example.myapp --dir ./metadata
 ```
 
-Creates the following directory structure:
+**Text metadata only.** This command downloads titles, short descriptions, full descriptions, and video URLs for every locale. It does NOT pull images — use `gpc listings images export` for those (they write to a separate directory layout). See the [Store Listings & Screenshots guide](../guide/screenshots.md) for the full story and how to sync both.
 
 ```
 metadata/
@@ -197,7 +197,7 @@ metadata/
 
 ## `listings push`
 
-Upload store listings from a local Fastlane-compatible directory structure.
+Upload store listings from a local Fastlane-compatible directory structure. **Text metadata only** (titles, descriptions, video URLs). Does NOT upload images — for screenshots and graphics, use `gpc listings images upload` per-file. See the [Store Listings & Screenshots guide](../guide/screenshots.md) for a shell-loop pattern that uploads an entire image tree.
 
 ### Synopsis
 
@@ -339,6 +339,110 @@ gpc listings images delete \
   --type phoneScreenshots \
   --id 1
 ```
+
+---
+
+## `listings images export`
+
+Download all images (or a filtered subset) from Google Play to a local directory. Useful for bootstrapping a Fastlane metadata directory from your current store state, or backing up screenshots before a risky re-upload.
+
+### Synopsis
+
+```bash
+gpc listings images export [options]
+```
+
+### Options
+
+| Flag     | Short | Type     | Default  | Description                                                |
+| -------- | ----- | -------- | -------- | ---------------------------------------------------------- |
+| `--dir`  |       | `string` | `images` | Output directory path                                      |
+| `--lang` |       | `string` |          | Language code (BCP 47). If omitted, exports all languages. |
+| `--type` |       | `string` |          | Image type. If omitted, exports all types.                 |
+
+### Example — export everything
+
+```bash
+gpc listings images export \
+  --app com.example.myapp \
+  --dir ./images
+```
+
+Creates the following structure (one directory per language, each containing one directory per image type, files numbered sequentially):
+
+```
+images/
+  en-US/
+    icon/
+      1.png
+    featureGraphic/
+      1.png
+    phoneScreenshots/
+      1.png
+      2.png
+      3.png
+    sevenInchScreenshots/
+      1.png
+    tenInchScreenshots/
+      1.png
+  ja-JP/
+    ...
+```
+
+::: warning Layout note
+This is **not** the same layout as Fastlane's `metadata/android/<lang>/images/<type>/` format. GPC's image export uses `<dir>/<lang>/<type>/` without the nested `images/` subdirectory. The exported files are suitable for re-upload via `gpc listings images upload` per-file, but cannot be round-tripped via `gpc listings push` (which only handles text metadata). See the [Store Listings & Screenshots guide](../guide/screenshots.md) for the round-trip pattern and limitations.
+:::
+
+### Example — export only phone screenshots for one locale
+
+```bash
+gpc listings images export \
+  --app com.example.myapp \
+  --dir ./screens \
+  --lang en-US \
+  --type phoneScreenshots
+```
+
+---
+
+## Image requirements
+
+Google Play validates every image at upload time. GPC does not run pre-upload validation (yet), so malformed images surface as opaque API errors. Meet these specs locally before calling `gpc listings images upload` or `gpc listings push`:
+
+| Type | Format | Dimensions | Aspect ratio | Max size |
+| --- | --- | --- | --- | --- |
+| `icon` | 32-bit PNG (with alpha) | exactly 512 × 512 | 1:1 | 1 MB |
+| `featureGraphic` | PNG or JPEG | exactly 1024 × 500 | 2048:1000 | 1 MB |
+| `phoneScreenshots` | PNG or JPEG | 320–3840 px per side, min dimension 320 | 16:9 or 9:16 | 8 MB |
+| `sevenInchScreenshots` | PNG or JPEG | same as phone | any | 8 MB |
+| `tenInchScreenshots` | PNG or JPEG | same as phone | any | 8 MB |
+| `tvScreenshots` | PNG or JPEG | 1280×720 or 1920×1080 recommended | 16:9 landscape | 8 MB |
+| `wearScreenshots` | PNG or JPEG | 384×384 recommended | 1:1 square | 8 MB |
+| `tvBanner` | PNG or JPEG | 1280×720 | 16:9 | 8 MB |
+
+**Per-listing limits:**
+
+- Up to 8 phone screenshots per locale (minimum 2 for new apps)
+- Up to 8 seven-inch tablet screenshots per locale
+- Up to 8 ten-inch tablet screenshots per locale
+- Up to 8 TV screenshots per locale
+- Up to 8 Wear OS screenshots per locale
+
+**A quick local check before upload:**
+
+```bash
+# macOS / Linux
+identify ./screens/home.png
+# Verify: width, height, format, and file size
+```
+
+Authoritative spec: [Google Play Console image requirements](https://support.google.com/googleplay/android-developer/answer/9866151).
+
+## Bulk workflow: text AND images
+
+`listings pull` / `listings push` handle **text metadata only**. `listings images export` / `listings images upload` handle **images only**. There is no single "sync everything" command today. See the [Store Listings & Screenshots guide](../guide/screenshots.md) for the working-but-imperfect bulk sync pattern (shell loop over files) and the reasoning behind the current split.
+
+Known gap: a future `gpc listings images push --dir <path>` or an extension of `listings push` to walk an `images/` subdirectory would make this a one-liner. Not implemented today.
 
 ---
 
