@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 
-const STORAGE_KEY = "gpc-banner-dismissed-v0950";
+const STORAGE_KEY = "gpc-banner-dismissed-v0956";
 const visible = ref(false);
 
 onMounted(() => {
@@ -18,15 +18,13 @@ function dismiss() {
   <div v-if="visible" class="ann-banner" role="banner">
     <span class="ann-badge">Pre-release</span>
     <span class="ann-text">
-      v0.9.50 is out -- security hardening, supply chain protection.
+      v0.9.56 -- first CLI with Managed Google Play support.
       <a
-        href="https://github.com/yasserstudio/gpc"
-        target="_blank"
-        rel="noopener noreferrer"
+        href="/gpc/guide/enterprise-publishing"
         class="ann-link"
-        >star on GitHub</a
+        >Enterprise publishing guide</a
       >
-      to follow the road to v1.0
+      &middot; road to v1.0
     </span>
     <button class="ann-close" aria-label="Dismiss" @click="dismiss">
       <svg
