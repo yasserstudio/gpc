@@ -234,8 +234,7 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 | API Endpoint        | Method | GPC Command              |
 | ------------------- | ------ | ------------------------ |
-| `dataSafety.get`    | GET    | `gpc data-safety get`    |
-| `dataSafety.update` | PUT    | `gpc data-safety update` |
+| `dataSafety.update` | POST   | `gpc data-safety update` |
 
 ## External Transactions
 
@@ -289,6 +288,8 @@ Private app publishing for enterprise customers. This is a separate Google API (
 | `oneTimeProducts.offers.create`       | POST   | `gpc otp offers create` |
 | `oneTimeProducts.offers.patch`        | PATCH  | `gpc otp offers update` |
 | `oneTimeProducts.offers.delete`       | DELETE | `gpc otp offers delete` |
+| `oneTimeProducts.offers.activate`     | POST   | (via SDK)               |
+| `oneTimeProducts.offers.deactivate`   | POST   | (via SDK)               |
 
 ## Purchase Options
 
@@ -327,4 +328,4 @@ Private app publishing for enterprise customers. This is a separate Google API (
 | Other (system APKs)                 | 3         | Publisher |
 | Error Issues + Reports              | 2         | Reporting |
 | Release Lifecycle                   | 1         | Publisher |
-| **Total**                           | **~216**  |           |
+| **Total**                           | **~217**  |           |
