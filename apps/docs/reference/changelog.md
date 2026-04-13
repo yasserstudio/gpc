@@ -11,7 +11,29 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.56 <Badge type="tip" text="latest" />
+## v0.9.57 <Badge type="tip" text="latest" />
+
+API correctness pass: 3 bug fixes, 2 new endpoints, 1 new command, and a full type completeness audit against Google's discovery document. Live-tested against production apps.
+
+**Fixed:**
+
+- fix(api): `apprecovery.cancel` and `apprecovery.deploy` used singular URL path (`/appRecovery/`), now plural (`/appRecoveries/`) matching Google's API
+- fix(api): `dataSafety.update` used HTTP PUT, now POST per Google's spec
+- fix(api): removed `dataSafety.get` (no Google endpoint exists; CLI already guarded against this)
+- fix(core): `gpc vitals error-count` now auto-includes the required `reportType` dimension
+
+**New:**
+
+- feat(cli): `gpc vitals error-count` command queries the `errorCountMetricSet` (error report counts broken down by ANR/CRASH)
+- feat(api): OTP offer `activateOffer` and `deactivateOffer` methods (subscription offers had these, one-time product offers didn't)
+- feat(api): `DeveloperLevelPermission` type (19 values with `_GLOBAL` suffix)
+- feat(api): `AppLevelPermission` type (15 values)
+- feat(api): `SubscriptionState` union type (9 values including `PENDING_PURCHASE_CANCELED`)
+- feat(api): `OneTimeOfferState` adds `INACTIVE_PUBLISHED`, `OneTimeProductAvailability` enum (5 values)
+
+**217 API endpoints · 1,866 tests**
+
+## v0.9.56
 
 **First Android publishing CLI with Managed Google Play support.** Rewrote the `gpc enterprise` surface end-to-end against the [Play Custom App Publishing API](https://developers.google.com/android/work/play/custom-app-api) and bundled two polish fixes discovered during the release smoke test.
 
