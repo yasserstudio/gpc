@@ -24,7 +24,7 @@ GPC is a TypeScript monorepo with a layered architecture. Each package has a sin
 | Linting         | ESLint 9 (flat config) + Prettier | Consistent code style                                  |
 | Bundling        | tsup                              | Fast, zero-config TypeScript bundling                  |
 | Docs            | VitePress                         | Lightweight, markdown-driven                           |
-| CI/CD           | GitHub Actions                    | Standard, free for open source                         |
+| CI/CD           | GitHub Actions                    | Standard, free for public repos                        |
 | Releases        | Changesets                        | Monorepo-aware versioning and changelogs               |
 
 ## Monorepo Structure
