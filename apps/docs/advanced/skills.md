@@ -51,7 +51,7 @@ GPC ships with 16 agent skills covering every workflow:
 | `gpc-migrate-fastlane`   | Fastlane-to-GPC migration, command mapping, CI migration                                                                    |
 | `gpc-plugin-development` | Plugin SDK, lifecycle hooks, permissions, custom commands                                                                   |
 | `gpc-troubleshooting`    | Exit codes, error catalog (42+ codes), debug mode, common fixes                                                             |
-| `gpc-sdk-usage`          | `@gpc-cli/api` and `@gpc-cli/auth` as standalone TypeScript SDK (216 endpoints), 6-bucket rate limiter                      |
+| `gpc-sdk-usage`          | `@gpc-cli/api` and `@gpc-cli/auth` as standalone TypeScript SDK (217 endpoints), 6-bucket rate limiter                      |
 | `gpc-multi-app`          | Multiple apps, profiles, batch operations, monorepo patterns                                                                |
 | `gpc-security`           | Credential storage, key rotation, audit logging, incident response                                                          |
 

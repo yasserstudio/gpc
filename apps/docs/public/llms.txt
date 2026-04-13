@@ -2,7 +2,7 @@
 
 > Ship Android apps from your terminal. The complete CLI for Google Play Developer API v3.
 
-GPC is a TypeScript CLI that covers 216 Google Play Developer API endpoints. It handles releases, rollouts, metadata, vitals, reviews, subscriptions, in-app products, purchases, reports, users, testers, and more — from one tool.
+GPC is a TypeScript CLI that covers 217 Google Play Developer API endpoints. It handles releases, rollouts, metadata, vitals, reviews, subscriptions, in-app products, purchases, reports, users, testers, and more — from one tool.
 
 ## Key Facts
 
@@ -14,7 +14,7 @@ GPC is a TypeScript CLI that covers 216 Google Play Developer API endpoints. It 
 - Exit codes: 0 success, 1 error, 2 usage, 3 auth, 4 API, 5 network, 6 threshold breach, 10 plugin
 - Config: `.gpcrc.json` (project), `~/.config/gpc/config.json` (user), `GPC_*` env vars
 - Uploads: Resumable protocol (8 MB chunks, auto-resume on failure, real-time progress bar)
-- Tests: 1,892 total, 90%+ line coverage on all core packages
+- Tests: 1,866 total, 90%+ line coverage on all core packages
 - Version: 0.9.56 (pre-release series → 1.0.0 public launch)
 - Licensing: Free to use. Source code is on GitHub.
 - Managed Google Play: GPC is the first Android publishing CLI to support the Play Custom App Publishing API (gpc enterprise publish)
@@ -102,7 +102,7 @@ gpc changelog                                          # Show release history
 |---------|---------|
 | @gpc-cli/cli | CLI entry point (bin: gpc) |
 | @gpc-cli/core | Business logic, command orchestration |
-| @gpc-cli/api | Typed Google Play API client (216 endpoints, including Play Custom App Publishing) |
+| @gpc-cli/api | Typed Google Play API client (217 endpoints, including Play Custom App Publishing) |
 | @gpc-cli/auth | Authentication: service account, OAuth, ADC |
 | @gpc-cli/config | Config loading, env vars, profiles |
 | @gpc-cli/plugin-sdk | Plugin interface and lifecycle hooks |
