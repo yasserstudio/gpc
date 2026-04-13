@@ -45,7 +45,7 @@
   <text x="64" y="295" font-family="system-ui, sans-serif" font-weight="600" font-size="28" fill="rgba(255,255,255,0.80)" letter-spacing="-0.5">Google Play Console CLI</text>
 
   <!-- Tagline -->
-  <text x="64" y="348" font-family="system-ui, sans-serif" font-weight="400" font-size="20" fill="rgba(255,255,255,0.45)">204 API endpoints · One tool · No Ruby, no browser, no ceremony.</text>
+  <text x="64" y="348" font-family="system-ui, sans-serif" font-weight="400" font-size="20" fill="rgba(255,255,255,0.45)">216 API endpoints · One tool · No Ruby, no browser, no ceremony.</text>
 
   <!-- Stats row -->
   <rect x="64" y="405" width="140" height="48" rx="8" fill="rgba(77,149,241,0.12)" stroke="rgba(77,149,241,0.25)" stroke-width="1"/>

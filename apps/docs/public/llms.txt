@@ -2,7 +2,7 @@
 
 > Ship Android apps from your terminal. The complete CLI for Google Play Developer API v3.
 
-GPC is a TypeScript CLI that covers 215 Google Play Developer API endpoints. It handles releases, rollouts, metadata, vitals, reviews, subscriptions, in-app products, purchases, reports, users, testers, and more — from one tool.
+GPC is a TypeScript CLI that covers 216 Google Play Developer API endpoints. It handles releases, rollouts, metadata, vitals, reviews, subscriptions, in-app products, purchases, reports, users, testers, and more — from one tool.
 
 ## Key Facts
 

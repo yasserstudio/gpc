@@ -347,7 +347,7 @@ export default defineConfig({
             name: "How is GPC different from Fastlane supply?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "GPC covers 215 Google Play API endpoints. Fastlane supply covers about 20. GPC adds reviews, vitals, subscriptions, reports, preflight scanning, and more. No Ruby required.",
+              text: "GPC covers 216 Google Play API endpoints. Fastlane supply covers about 20. GPC adds reviews, vitals, subscriptions, reports, preflight scanning, and more. No Ruby required.",
             },
           },
           {
