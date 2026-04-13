@@ -190,7 +190,11 @@ export async function getVitalsErrorCount(
   packageName: string,
   options?: VitalsQueryOptions,
 ): Promise<MetricSetResponse> {
-  return queryMetric(reporting, packageName, "errorCountMetricSet", options);
+  // API requires reportType as a dimension for errorCountMetricSet
+  const opts = options?.dimension
+    ? options
+    : { ...options, dimension: "reportType" as ReportingDimension };
+  return queryMetric(reporting, packageName, "errorCountMetricSet", opts);
 }
 
 export async function getVitalsAnomalies(
