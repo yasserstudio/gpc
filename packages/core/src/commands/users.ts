@@ -1,4 +1,4 @@
-import type { UsersApiClient, User, DeveloperPermission, Grant } from "@gpc-cli/api";
+import type { UsersApiClient, User, DeveloperLevelPermission, AppLevelPermission, Grant } from "@gpc-cli/api";
 import { paginateAll } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
 
@@ -59,7 +59,7 @@ export async function inviteUser(
   client: UsersApiClient,
   developerId: string,
   email: string,
-  permissions?: DeveloperPermission[],
+  permissions?: DeveloperLevelPermission[],
   grants?: Grant[],
 ): Promise<User> {
   const user: Partial<User> = { email };
@@ -72,7 +72,7 @@ export async function updateUser(
   client: UsersApiClient,
   developerId: string,
   userId: string,
-  permissions?: DeveloperPermission[],
+  permissions?: DeveloperLevelPermission[],
   grants?: Grant[],
 ): Promise<User> {
   const updates: Partial<User> = {};
@@ -110,6 +110,6 @@ export function parseGrantArg(grantStr: string): Grant {
     );
   }
   const packageName = grantStr.slice(0, colonIdx);
-  const perms = grantStr.slice(colonIdx + 1).split(",") as DeveloperPermission[];
+  const perms = grantStr.slice(colonIdx + 1).split(",") as AppLevelPermission[];
   return { packageName, appLevelPermissions: perms };
 }

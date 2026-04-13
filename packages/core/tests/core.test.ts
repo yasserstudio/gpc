@@ -58,6 +58,7 @@ import {
   getVitalsBattery,
   getVitalsMemory,
   getVitalsLmk,
+  getVitalsErrorCount,
   getVitalsAnomalies,
   searchVitalsErrors,
   checkThreshold,
@@ -2041,6 +2042,27 @@ describe("getVitalsLmk", () => {
     expect(query.metrics).toContain("stuckBgWakelockRate");
     expect(query.metrics).toContain("stuckBgWakelockRate7dUserWeighted");
     expect(query.metrics).toContain("stuckBgWakelockRate28dUserWeighted");
+    expect(query.metrics).toContain("distinctUsers");
+  });
+});
+
+describe("getVitalsErrorCount", () => {
+  it("queries errorCountMetricSet", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsErrorCount(reporting, PKG);
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(
+      PKG,
+      "errorCountMetricSet",
+      expect.any(Object),
+    );
+  });
+
+  it("requests errorReportCount and distinctUsers metrics", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsErrorCount(reporting, PKG);
+    const call = (reporting.queryMetricSet as ReturnType<typeof vi.fn>).mock.calls[0];
+    const query = call?.[2] as { metrics: string[] };
+    expect(query.metrics).toContain("errorReportCount");
     expect(query.metrics).toContain("distinctUsers");
   });
 });
@@ -4445,9 +4467,7 @@ describe("diffListings – edge cases", () => {
 // Data Safety
 // ---------------------------------------------------------------------------
 import {
-  getDataSafety,
   updateDataSafety,
-  exportDataSafety,
   importDataSafety,
 } from "../src/commands/data-safety.js";
 
@@ -4475,39 +4495,16 @@ describe("data-safety commands", () => {
   function mockClient(): any {
     return {
       dataSafety: {
-        get: vi.fn().mockResolvedValue(sampleDataSafety),
         update: vi.fn().mockResolvedValue(sampleDataSafety),
       },
     };
   }
-
-  it("getDataSafety calls dataSafety.get directly without edits", async () => {
-    const client = mockClient();
-    const result = await getDataSafety(client, "com.example");
-    expect(client.dataSafety.get).toHaveBeenCalledWith("com.example");
-    expect(result.securityPractices?.dataEncryptedInTransit).toBe(true);
-    expect(result.dataTypes).toHaveLength(1);
-  });
 
   it("updateDataSafety calls dataSafety.update directly without edits", async () => {
     const client = mockClient();
     const result = await updateDataSafety(client, "com.example", sampleDataSafety);
     expect(client.dataSafety.update).toHaveBeenCalledWith("com.example", sampleDataSafety);
     expect(result).toEqual(sampleDataSafety);
-  });
-
-  it("exportDataSafety writes JSON to file", async () => {
-    const client = mockClient();
-    const tmpDir = await mkdtemp(join(tmpdir(), "gpc-ds-"));
-    const outPath = join(tmpDir, "data-safety.json");
-    const result = await exportDataSafety(client, "com.example", outPath);
-    expect(result).toEqual(sampleDataSafety);
-
-    const { readFile } = await import("node:fs/promises");
-    const written = JSON.parse(await readFile(outPath, "utf-8"));
-    expect(written).toEqual(sampleDataSafety);
-
-    await rm(tmpDir, { recursive: true });
   });
 
   it("importDataSafety reads JSON from file and updates", async () => {
@@ -4523,12 +4520,6 @@ describe("data-safety commands", () => {
     expect(result).toEqual(sampleDataSafety);
 
     await rm(tmpDir, { recursive: true });
-  });
-
-  it("getDataSafety propagates errors", async () => {
-    const client = mockClient();
-    client.dataSafety.get.mockRejectedValue(new Error("API error"));
-    await expect(getDataSafety(client, "com.example")).rejects.toThrow("API error");
   });
 
   it("updateDataSafety propagates errors", async () => {

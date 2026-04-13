@@ -76,7 +76,7 @@ describe("API Coverage Audit — PlayApiClient", () => {
   });
 
   describe("dataSafety namespace", () => {
-    assertMethods(client.dataSafety, ["get", "update"], "dataSafety");
+    assertMethods(client.dataSafety, ["update"], "dataSafety");
   });
 
   describe("reviews namespace", () => {
@@ -204,6 +204,8 @@ describe("API Coverage Audit — PlayApiClient", () => {
         "deleteOffer",
         "batchDeletePurchaseOptions",
         "batchUpdatePurchaseOptionStates",
+        "activateOffer",
+        "deactivateOffer",
         "cancelOffer",
         "batchGetOffers",
         "batchUpdateOffers",

@@ -491,12 +491,23 @@ export interface ProductPurchase {
   regionCode?: string;
 }
 
+export type SubscriptionState =
+  | "SUBSCRIPTION_STATE_UNSPECIFIED"
+  | "SUBSCRIPTION_STATE_PENDING"
+  | "SUBSCRIPTION_STATE_ACTIVE"
+  | "SUBSCRIPTION_STATE_PAUSED"
+  | "SUBSCRIPTION_STATE_IN_GRACE_PERIOD"
+  | "SUBSCRIPTION_STATE_ON_HOLD"
+  | "SUBSCRIPTION_STATE_CANCELED"
+  | "SUBSCRIPTION_STATE_EXPIRED"
+  | "SUBSCRIPTION_STATE_PENDING_PURCHASE_CANCELED";
+
 export interface SubscriptionPurchaseV2 {
   kind: string;
   regionCode?: string;
   lineItems: SubscriptionPurchaseLineItem[];
   startTime?: string;
-  subscriptionState: string;
+  subscriptionState: SubscriptionState;
   acknowledgementState?: string;
   linkedPurchaseToken?: string;
   /** Resubscription context when purchase originates from Play Store. (Nov 2025) */
@@ -755,27 +766,56 @@ export interface ReportsListResponse {
 
 // --- Users ---
 
-export type DeveloperPermission =
-  | "ADMIN"
-  | "CAN_MANAGE_PERMISSIONS"
-  | "CAN_MANAGE_PUBLIC_APKS"
-  | "CAN_MANAGE_TRACK_USERS"
-  | "CAN_MANAGE_TRACK_CONFIGURATION"
+export type DeveloperLevelPermission =
+  | "DEVELOPER_LEVEL_PERMISSION_UNSPECIFIED"
+  | "CAN_SEE_ALL_APPS"
+  | "CAN_VIEW_FINANCIAL_DATA_GLOBAL"
+  | "CAN_MANAGE_PERMISSIONS_GLOBAL"
+  | "CAN_EDIT_GAMES_GLOBAL"
+  | "CAN_PUBLISH_GAMES_GLOBAL"
+  | "CAN_REPLY_TO_REVIEWS_GLOBAL"
+  | "CAN_MANAGE_PUBLIC_APKS_GLOBAL"
+  | "CAN_MANAGE_TRACK_APKS_GLOBAL"
+  | "CAN_MANAGE_TRACK_USERS_GLOBAL"
+  | "CAN_MANAGE_PUBLIC_LISTING_GLOBAL"
+  | "CAN_MANAGE_DRAFT_APPS_GLOBAL"
+  | "CAN_CREATE_MANAGED_PLAY_APPS_GLOBAL"
+  | "CAN_CHANGE_MANAGED_PLAY_SETTING_GLOBAL"
+  | "CAN_MANAGE_ORDERS_GLOBAL"
+  | "CAN_MANAGE_APP_CONTENT_GLOBAL"
+  | "CAN_VIEW_NON_FINANCIAL_DATA_GLOBAL"
+  | "CAN_VIEW_APP_QUALITY_GLOBAL"
+  | "CAN_MANAGE_DEEPLINKS_GLOBAL";
+
+export type AppLevelPermission =
+  | "APP_LEVEL_PERMISSION_UNSPECIFIED"
+  | "CAN_ACCESS_APP"
   | "CAN_VIEW_FINANCIAL_DATA"
+  | "CAN_MANAGE_PERMISSIONS"
   | "CAN_REPLY_TO_REVIEWS"
+  | "CAN_MANAGE_PUBLIC_APKS"
+  | "CAN_MANAGE_TRACK_APKS"
+  | "CAN_MANAGE_TRACK_USERS"
   | "CAN_MANAGE_PUBLIC_LISTING"
   | "CAN_MANAGE_DRAFT_APPS"
-  | "CAN_MANAGE_ORDERS";
+  | "CAN_MANAGE_ORDERS"
+  | "CAN_MANAGE_APP_CONTENT"
+  | "CAN_VIEW_NON_FINANCIAL_DATA"
+  | "CAN_VIEW_APP_QUALITY"
+  | "CAN_MANAGE_DEEPLINKS";
+
+/** @deprecated Use DeveloperLevelPermission instead */
+export type DeveloperPermission = DeveloperLevelPermission;
 
 export interface Grant {
   packageName: string;
-  appLevelPermissions: DeveloperPermission[];
+  appLevelPermissions: AppLevelPermission[];
 }
 
 export interface User {
   email: string;
   name?: string;
-  developerAccountPermission?: DeveloperPermission[];
+  developerAccountPermission?: DeveloperLevelPermission[];
   grants?: Grant[];
   expirationTime?: string;
 }
@@ -987,12 +1027,27 @@ export interface TaxAndComplianceSettings {
   isTokenizedDigitalAsset?: boolean;
 }
 
+export type OneTimeOfferState =
+  | "STATE_UNSPECIFIED"
+  | "DRAFT"
+  | "ACTIVE"
+  | "INACTIVE"
+  | "INACTIVE_PUBLISHED"
+  | "CANCELLED";
+
+export type OneTimeProductAvailability =
+  | "AVAILABILITY_UNSPECIFIED"
+  | "AVAILABLE"
+  | "NO_LONGER_AVAILABLE"
+  | "AVAILABLE_IF_RELEASED"
+  | "AVAILABLE_FOR_OFFERS_ONLY";
+
 export interface OneTimeOffer {
   packageName: string;
   productId: string;
   purchaseOptionId: string;
   offerId: string;
-  state?: "DRAFT" | "ACTIVE" | "CANCELLED" | "INACTIVE";
+  state?: OneTimeOfferState;
   regionalPricingAndAvailabilityConfigs?: Record<string, OneTimeOfferRegionalConfig>;
   /** @deprecated Use regionalPricingAndAvailabilityConfigs instead */
   regionalConfigs?: Record<string, OneTimeOfferRegionalConfig>;

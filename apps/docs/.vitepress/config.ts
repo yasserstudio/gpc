@@ -124,8 +124,6 @@ function getPageDescription(page: PageData): string {
       "gpc verify — Android developer verification status, enforcement deadlines, and resources. Check your account and open verification pages.",
     "guide/faq.md":
       "Frequently asked questions about GPC — authentication, CI/CD, Fastlane migration, troubleshooting, and production readiness.",
-    "guide/authentication.md":
-      "Authenticate GPC with service accounts, OAuth 2.0, or Application Default Credentials. Manage profiles for multiple apps.",
     // Commands — monetization
     "commands/one-time-products.md":
       "gpc one-time-products — Create, update, and manage one-time products and purchase options on Google Play.",

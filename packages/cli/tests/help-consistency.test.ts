@@ -135,7 +135,6 @@ vi.mock("@gpc-cli/core", () => {
     createRecoveryAction: vi.fn().mockResolvedValue({}),
     cancelRecoveryAction: vi.fn().mockResolvedValue({}),
     deployRecoveryAction: vi.fn().mockResolvedValue({}),
-    getDataSafety: vi.fn().mockResolvedValue({}),
     updateDataSafety: vi.fn().mockResolvedValue({}),
     listExternalTransactions: vi.fn().mockResolvedValue({ externalTransactions: [] }),
     createExternalTransaction: vi.fn().mockResolvedValue({}),
@@ -183,6 +182,7 @@ vi.mock("@gpc-cli/core", () => {
     topFiles: vi.fn().mockResolvedValue([]),
     checkBundleSize: vi.fn().mockResolvedValue({ pass: true, violations: [] }),
     getVitalsLmk: vi.fn().mockResolvedValue({ rows: [] }),
+    getVitalsErrorCount: vi.fn().mockResolvedValue({ rows: [] }),
     compareVitalsTrend: vi.fn().mockResolvedValue({
       metric: "crashRateMetricSet",
       current: undefined,

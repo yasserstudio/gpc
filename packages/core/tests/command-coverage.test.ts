@@ -73,6 +73,8 @@ describe("Core Command Coverage — Vitals & Reporting", () => {
       "getVitalsRendering",
       "getVitalsBattery",
       "getVitalsMemory",
+      "getVitalsLmk",
+      "getVitalsErrorCount",
       "getVitalsAnomalies",
       "searchVitalsErrors",
       "compareVitalsTrend",
@@ -180,7 +182,7 @@ describe("Core Command Coverage — App Recovery", () => {
 
 describe("Core Command Coverage — Data Safety", () => {
   assertExports(
-    ["getDataSafety", "updateDataSafety", "exportDataSafety", "importDataSafety"],
+    ["updateDataSafety", "importDataSafety"],
     "data-safety",
   );
 });

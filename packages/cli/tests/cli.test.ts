@@ -154,9 +154,7 @@ vi.mock("@gpc-cli/core", () => {
     createRecoveryAction: vi.fn().mockResolvedValue({}),
     addRecoveryTargeting: vi.fn().mockResolvedValue({}),
     // v0.9.7 – data safety
-    getDataSafety: vi.fn().mockResolvedValue({}),
     updateDataSafety: vi.fn().mockResolvedValue({}),
-    exportDataSafety: vi.fn().mockResolvedValue({}),
     importDataSafety: vi.fn().mockResolvedValue({}),
     // v0.9.7 – external transactions
     createExternalTransaction: vi.fn().mockResolvedValue({}),
@@ -215,6 +213,7 @@ vi.mock("@gpc-cli/core", () => {
     writeMigrationOutput: vi.fn().mockResolvedValue([]),
     // v0.9.35 new exports
     getVitalsLmk: vi.fn().mockResolvedValue({ rows: [] }),
+    getVitalsErrorCount: vi.fn().mockResolvedValue({ rows: [] }),
     compareVitalsTrend: vi.fn().mockResolvedValue({
       metric: "crashRateMetricSet",
       current: 0,

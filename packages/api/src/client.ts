@@ -226,7 +226,6 @@ export interface PlayApiClient {
   };
 
   dataSafety: {
-    get(packageName: string): Promise<DataSafety>;
     update(packageName: string, data: DataSafety): Promise<DataSafety>;
   };
 
@@ -642,6 +641,19 @@ export interface PlayApiClient {
       }>,
     ): Promise<{ oneTimeProducts: OneTimeProduct[] }>;
 
+    // Offer lifecycle
+    activateOffer(
+      packageName: string,
+      productId: string,
+      purchaseOptionId: string,
+      offerId: string,
+    ): Promise<OneTimeOffer>;
+    deactivateOffer(
+      packageName: string,
+      productId: string,
+      purchaseOptionId: string,
+      offerId: string,
+    ): Promise<OneTimeOffer>;
     // Offer batch operations
     cancelOffer(
       packageName: string,
@@ -1064,13 +1076,8 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
     },
 
     dataSafety: {
-      async get(packageName) {
-        const { data } = await http.get<DataSafety>(`/${packageName}/dataSafety`);
-        return data;
-      },
-
       async update(packageName, body) {
-        const { data } = await http.put<DataSafety>(`/${packageName}/dataSafety`, body);
+        const { data } = await http.post<DataSafety>(`/${packageName}/dataSafety`, body);
         return data;
       },
     },
@@ -1584,11 +1591,11 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async cancel(packageName, appRecoveryId) {
-        await http.post(`/${packageName}/appRecovery/${appRecoveryId}:cancel`);
+        await http.post(`/${packageName}/appRecoveries/${appRecoveryId}:cancel`);
       },
 
       async deploy(packageName, appRecoveryId) {
-        await http.post(`/${packageName}/appRecovery/${appRecoveryId}:deploy`);
+        await http.post(`/${packageName}/appRecoveries/${appRecoveryId}:deploy`);
       },
 
       async create(packageName, request) {
@@ -1790,6 +1797,21 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const { data } = await http.post<{ oneTimeProducts: OneTimeProduct[] }>(
           `/${packageName}/oneTimeProducts/${productId}/purchaseOptions:batchUpdateStates`,
           { requests },
+        );
+        return data;
+      },
+
+      // Offer lifecycle
+      async activateOffer(packageName, productId, purchaseOptionId, offerId) {
+        const { data } = await http.post<OneTimeOffer>(
+          `/${packageName}/oneTimeProducts/${productId}/purchaseOptions/${purchaseOptionId}/offers/${offerId}:activate`,
+        );
+        return data;
+      },
+
+      async deactivateOffer(packageName, productId, purchaseOptionId, offerId) {
+        const { data } = await http.post<OneTimeOffer>(
+          `/${packageName}/oneTimeProducts/${productId}/purchaseOptions/${purchaseOptionId}/offers/${offerId}:deactivate`,
         );
         return data;
       },

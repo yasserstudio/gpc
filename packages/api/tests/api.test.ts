@@ -1427,21 +1427,21 @@ describe("appRecovery API endpoints", () => {
     expect(url).toContain("versionCode=22");
   });
 
-  it("appRecovery.cancel calls POST /{pkg}/appRecovery/{id}:cancel", async () => {
+  it("appRecovery.cancel calls POST /{pkg}/appRecoveries/{id}:cancel", async () => {
     mockFetch.mockResolvedValueOnce(mockResponse({}));
     const client = makeClient();
     await client.appRecovery.cancel(PKG, "r1");
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/appRecovery/r1:cancel`);
+    expect(url).toBe(`${BASE_URL}/${PKG}/appRecoveries/r1:cancel`);
     expect(init.method).toBe("POST");
   });
 
-  it("appRecovery.deploy calls POST /{pkg}/appRecovery/{id}:deploy", async () => {
+  it("appRecovery.deploy calls POST /{pkg}/appRecoveries/{id}:deploy", async () => {
     mockFetch.mockResolvedValueOnce(mockResponse({}));
     const client = makeClient();
     await client.appRecovery.deploy(PKG, "r1");
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/appRecovery/r1:deploy`);
+    expect(url).toBe(`${BASE_URL}/${PKG}/appRecoveries/r1:deploy`);
     expect(init.method).toBe("POST");
   });
 });
@@ -1465,18 +1465,7 @@ describe("dataSafety API endpoints", () => {
     return createApiClient({ auth: mockAuth(), maxRetries: 0 });
   }
 
-  it("dataSafety.get calls GET /{pkg}/dataSafety", async () => {
-    const safety = { dataTypes: [], purposes: [] };
-    mockFetch.mockResolvedValueOnce(mockResponse(safety));
-    const client = makeClient();
-    const result = await client.dataSafety.get(PKG);
-    expect(result).toEqual(safety);
-    const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/dataSafety`);
-    expect(init.method).toBe("GET");
-  });
-
-  it("dataSafety.update calls PUT /{pkg}/dataSafety", async () => {
+  it("dataSafety.update calls POST /{pkg}/dataSafety", async () => {
     const safety = { dataTypes: ["location"], purposes: ["app_functionality"] };
     mockFetch.mockResolvedValueOnce(mockResponse(safety));
     const client = makeClient();
@@ -1484,7 +1473,7 @@ describe("dataSafety API endpoints", () => {
     expect(result).toEqual(safety);
     const [url, init] = mockFetch.mock.calls[0];
     expect(url).toBe(`${BASE_URL}/${PKG}/dataSafety`);
-    expect(init.method).toBe("PUT");
+    expect(init.method).toBe("POST");
   });
 });
 
@@ -2351,6 +2340,28 @@ describe("oneTimeProducts", () => {
     expect(result).toEqual(offer);
     const [url] = mockFetch.mock.calls[0];
     expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers/offer1`);
+  });
+
+  it("activateOffer calls POST with :activate action", async () => {
+    const offer = { productId: "otp1", offerId: "offer1" };
+    mockFetch.mockResolvedValueOnce(mockResponse(offer));
+    const client = makeClient();
+    const result = await client.oneTimeProducts.activateOffer(PKG, "otp1", "po1", "offer1");
+    expect(result).toEqual(offer);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers/offer1:activate`);
+    expect(init.method).toBe("POST");
+  });
+
+  it("deactivateOffer calls POST with :deactivate action", async () => {
+    const offer = { productId: "otp1", offerId: "offer1" };
+    mockFetch.mockResolvedValueOnce(mockResponse(offer));
+    const client = makeClient();
+    const result = await client.oneTimeProducts.deactivateOffer(PKG, "otp1", "po1", "offer1");
+    expect(result).toEqual(offer);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers/offer1:deactivate`);
+    expect(init.method).toBe("POST");
   });
 });
 

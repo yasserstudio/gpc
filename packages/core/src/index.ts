@@ -119,6 +119,7 @@ export {
   getVitalsBattery,
   getVitalsMemory,
   getVitalsLmk,
+  getVitalsErrorCount,
   getVitalsAnomalies,
   searchVitalsErrors,
   compareVitalsTrend,
@@ -218,9 +219,7 @@ export {
   addRecoveryTargeting,
 } from "./commands/app-recovery.js";
 export {
-  getDataSafety,
   updateDataSafety,
-  exportDataSafety,
   importDataSafety,
 } from "./commands/data-safety.js";
 export {

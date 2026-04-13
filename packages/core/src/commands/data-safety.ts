@@ -1,13 +1,6 @@
 import type { PlayApiClient, DataSafety } from "@gpc-cli/api";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { GpcError } from "../errors.js";
-
-export async function getDataSafety(
-  client: PlayApiClient,
-  packageName: string,
-): Promise<DataSafety> {
-  return client.dataSafety.get(packageName);
-}
 
 export async function updateDataSafety(
   client: PlayApiClient,
@@ -15,16 +8,6 @@ export async function updateDataSafety(
   data: DataSafety,
 ): Promise<DataSafety> {
   return client.dataSafety.update(packageName, data);
-}
-
-export async function exportDataSafety(
-  client: PlayApiClient,
-  packageName: string,
-  outputPath: string,
-): Promise<DataSafety> {
-  const dataSafety = await getDataSafety(client, packageName);
-  await writeFile(outputPath, JSON.stringify(dataSafety, null, 2) + "\n", "utf-8");
-  return dataSafety;
 }
 
 export async function importDataSafety(

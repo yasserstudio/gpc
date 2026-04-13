@@ -185,6 +185,14 @@ export async function getVitalsLmk(
   });
 }
 
+export async function getVitalsErrorCount(
+  reporting: ReportingApiClient,
+  packageName: string,
+  options?: VitalsQueryOptions,
+): Promise<MetricSetResponse> {
+  return queryMetric(reporting, packageName, "errorCountMetricSet", options);
+}
+
 export async function getVitalsAnomalies(
   reporting: ReportingApiClient,
   packageName: string,
