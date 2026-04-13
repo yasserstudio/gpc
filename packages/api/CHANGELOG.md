@@ -1,5 +1,11 @@
 # @gpc-cli/api
 
+## 1.0.32
+
+### Patch Changes
+
+- API fixes, new endpoints, type completeness
+
 ## 1.0.31
 
 ### Patch Changes
