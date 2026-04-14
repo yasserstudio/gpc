@@ -7,6 +7,17 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.59
+
+Hotfix for v0.9.58. `gpc vitals lmk` was returning 404 because the metric set name shipped with the wrong identifier. Caught by live smoke against `sfn-emploi` immediately after release; v0.9.59 is the corrected build, verified live.
+
+**Fixed**
+
+- fix(api): `lmkRateMetricSet` is the correct Google Play Developer Reporting API resource name (v0.9.58 used `lowMemoryKillerRateMetricSet`, which doesn't exist).
+- fix(core): metric list aligned with Google's actual response shape — `userPerceivedLmkRate`, `userPerceivedLmkRate7dUserWeighted`, `userPerceivedLmkRate28dUserWeighted`, `distinctUsers`. (v0.9.58's bare `lmkRate*` variants were also wrong.)
+
+---
+
 ## v0.9.58
 
 QoL and discoverability release. Shell completion now introspects Commander's live command tree so new commands complete without generator edits, and constrained flag values surface via TAB. Also fixes `gpc vitals lmk`, which had been returning the wrong metric since it was first wired.

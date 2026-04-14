@@ -377,7 +377,7 @@ export function registerVitalsCommands(program: Command): void {
     battery: "excessiveWakeupRateMetricSet",
     memory: "stuckBackgroundWakelockRateMetricSet",
     wakeup: "excessiveWakeupRateMetricSet",
-    lmk: "lowMemoryKillerRateMetricSet",
+    lmk: "lmkRateMetricSet",
     "error-count": "errorCountMetricSet",
   };
 

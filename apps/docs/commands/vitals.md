@@ -271,8 +271,8 @@ gpc vitals memory --app com.example.myapp --days 30
 
 Query low-memory killer (LMK) rate metrics. Tracks how often the system kills your app under memory pressure. Enforces `DAILY` aggregation as required by the API.
 
-::: warning Behavior change in v0.9.58
-Before v0.9.58, `vitals lmk` was a silent alias of `vitals memory` and returned stuck-background-wakelock data, not LMK data. Starting in v0.9.58 it queries the correct `lowMemoryKillerRateMetricSet` endpoint and returns LMK rate metrics (`lmkRate`, `userPerceivedLmkRate`, etc.). If you were building dashboards or CI thresholds against the old output, expect different values — the old values were incorrectly labeled.
+::: warning Behavior change in v0.9.58 (corrected in v0.9.59)
+Before v0.9.58, `vitals lmk` was a silent alias of `vitals memory` and returned stuck-background-wakelock data, not LMK data. v0.9.58 attempted to fix this but shipped with the wrong endpoint identifier (`lowMemoryKillerRateMetricSet`, which doesn't exist) and 404'd. **v0.9.59 is the working fix:** it queries `lmkRateMetricSet` and returns the correct LMK metrics (`userPerceivedLmkRate`, weighted variants, `distinctUsers`). If you were building dashboards or CI thresholds against pre-v0.9.59 output, expect different values.
 :::
 
 ### Synopsis

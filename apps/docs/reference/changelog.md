@@ -11,7 +11,18 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.58 <Badge type="tip" text="latest" />
+## v0.9.59 <Badge type="tip" text="latest" />
+
+Hotfix for v0.9.58. `gpc vitals lmk` was returning 404 because the metric set name shipped with the wrong identifier. Caught by live smoke against `sfn-emploi` immediately after release; v0.9.59 is the corrected build, verified live.
+
+**Fixed:**
+
+- fix(api): `lmkRateMetricSet` is the correct Google Play Developer Reporting API resource name (v0.9.58 used a non-existent `lowMemoryKillerRateMetricSet`).
+- fix(core): metric list aligned with Google's actual response — `userPerceivedLmkRate`, `userPerceivedLmkRate7dUserWeighted`, `userPerceivedLmkRate28dUserWeighted`, `distinctUsers`. v0.9.58's bare `lmkRate*` variants were also wrong.
+
+**217 API endpoints · 8 VitalsMetricSet variants**
+
+## v0.9.58
 
 QoL and discoverability release. Upgrades shell completion from a hand-maintained tree to an introspection-based generator (new commands auto-complete, constrained flag values surface via TAB) and fixes a long-standing `gpc vitals lmk` bug that was returning the wrong metric.
 

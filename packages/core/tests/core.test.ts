@@ -2022,27 +2022,26 @@ describe("getVitalsMemory", () => {
 });
 
 describe("getVitalsLmk", () => {
-  it("queries lowMemoryKillerRateMetricSet with DAILY aggregation", async () => {
+  it("queries lmkRateMetricSet with DAILY aggregation", async () => {
     const reporting = mockReportingClient();
     await getVitalsLmk(reporting, PKG);
     expect(reporting.queryMetricSet).toHaveBeenCalledWith(
       PKG,
-      "lowMemoryKillerRateMetricSet",
+      "lmkRateMetricSet",
       expect.objectContaining({
         timelineSpec: expect.objectContaining({ aggregationPeriod: "DAILY" }),
       }),
     );
   });
 
-  it("requests the base rate, weighted, and user-perceived metric variants", async () => {
+  it("requests the user-perceived LMK rate metric variants", async () => {
     const reporting = mockReportingClient();
     await getVitalsLmk(reporting, PKG);
     const call = (reporting.queryMetricSet as ReturnType<typeof vi.fn>).mock.calls[0];
     const query = call?.[2] as { metrics: string[] };
-    expect(query.metrics).toContain("lmkRate");
-    expect(query.metrics).toContain("lmkRate7dUserWeighted");
-    expect(query.metrics).toContain("lmkRate28dUserWeighted");
     expect(query.metrics).toContain("userPerceivedLmkRate");
+    expect(query.metrics).toContain("userPerceivedLmkRate7dUserWeighted");
+    expect(query.metrics).toContain("userPerceivedLmkRate28dUserWeighted");
     expect(query.metrics).toContain("distinctUsers");
   });
 });

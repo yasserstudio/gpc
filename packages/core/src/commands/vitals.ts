@@ -43,11 +43,10 @@ const METRIC_SET_METRICS: Record<VitalsMetricSet, string[]> = {
     "stuckBgWakelockRate28dUserWeighted",
     "distinctUsers",
   ],
-  lowMemoryKillerRateMetricSet: [
-    "lmkRate",
-    "lmkRate7dUserWeighted",
-    "lmkRate28dUserWeighted",
+  lmkRateMetricSet: [
     "userPerceivedLmkRate",
+    "userPerceivedLmkRate7dUserWeighted",
+    "userPerceivedLmkRate28dUserWeighted",
     "distinctUsers",
   ],
   errorCountMetricSet: ["errorReportCount", "distinctUsers"],
@@ -186,7 +185,7 @@ export async function getVitalsLmk(
   packageName: string,
   options?: VitalsQueryOptions,
 ): Promise<MetricSetResponse> {
-  return queryMetric(reporting, packageName, "lowMemoryKillerRateMetricSet", {
+  return queryMetric(reporting, packageName, "lmkRateMetricSet", {
     ...options,
     aggregation: "DAILY",
   });

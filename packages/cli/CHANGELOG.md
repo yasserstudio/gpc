@@ -1,5 +1,14 @@
 # @gpc-cli/cli
 
+## 0.9.59
+
+### Patch Changes
+
+- Hotfix: `gpc vitals lmk` was 404'ing in v0.9.58 because the metric set name shipped with the wrong identifier (`lowMemoryKillerRateMetricSet`). Google's Play Developer Reporting API actually exposes the resource as `lmkRateMetricSet`, with metrics `userPerceivedLmkRate`, `userPerceivedLmkRate7dUserWeighted`, `userPerceivedLmkRate28dUserWeighted`, `distinctUsers`. The corrected name is now in the type union and the query path. Verified live against `com.sfnemploiappli`.
+- Updated dependencies
+  - @gpc-cli/core@0.9.49
+  - @gpc-cli/api@1.0.34
+
 ## 0.9.58
 
 ### Patch Changes
