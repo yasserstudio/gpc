@@ -28,7 +28,7 @@ QoL and discoverability release. Upgrades shell completion from a hand-maintaine
 
 **Fixed:**
 
-- **breaking(cli): `gpc vitals lmk` output changed.** Before v0.9.58 this command returned stuck-background-wakelock data labeled as LMK. It now queries `lowMemoryKillerRateMetricSet` and returns correct LMK rate metrics (`lmkRate`, `userPerceivedLmkRate`, weighted variants). If you built dashboards or CI thresholds against the old output, expect different values — the old numbers were wrong.
+- **breaking(cli): `gpc vitals lmk` rewired to a different metric set.** Before v0.9.58 this command returned stuck-background-wakelock data labeled as LMK. v0.9.58 shipped with the wrong endpoint identifier and 404'd; **v0.9.59 is the corrected, working build** (queries `lmkRateMetricSet`, returns `userPerceivedLmkRate` and weighted variants). If you built dashboards or CI thresholds against the pre-v0.9.59 output, expect different values.
 - fix(cli): `gpc vitals compare <metric>` and `gpc vitals watch --metric <name>` now accept `wakeup`, `lmk`, and `error-count` (previously threw "Unknown metric" for these).
 - fix(cli): `vitals lmk` threshold config key corrected from `stuckWakelockRate` to `lmkRate`.
 
@@ -36,7 +36,7 @@ QoL and discoverability release. Upgrades shell completion from a hand-maintaine
 
 - feat(cli): shell completion now introspects the live Commander tree. New commands and plugin-registered commands complete automatically; generator edits are no longer required on every CLI addition.
 - feat(cli): completion scripts surface constrained flag values. Options registered with `.choices()` now emit their candidate values in all four shell outputs — `gpc publish --track=<TAB>` suggests `internal alpha beta production` when authors wire up choices.
-- feat(api): `lowMemoryKillerRateMetricSet` added to `VitalsMetricSet` with 5 metrics: `lmkRate`, `lmkRate7dUserWeighted`, `lmkRate28dUserWeighted`, `userPerceivedLmkRate`, `distinctUsers`.
+- feat(api): LMK metric set added to `VitalsMetricSet` (corrected in v0.9.59 to `lmkRateMetricSet` with metrics `userPerceivedLmkRate`, `userPerceivedLmkRate7dUserWeighted`, `userPerceivedLmkRate28dUserWeighted`, `distinctUsers`).
 
 **217 API endpoints · 8 VitalsMetricSet variants**
 

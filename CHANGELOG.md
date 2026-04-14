@@ -24,14 +24,14 @@ QoL and discoverability release. Shell completion now introspects Commander's li
 
 **Breaking**
 
-- breaking(cli): `gpc vitals lmk` now returns correct LMK rate metrics (`lmkRate`, `userPerceivedLmkRate`, weighted variants). Prior to v0.9.58 it returned stuck-background-wakelock data due to a misconfiguration. Expect different values; the old output was mislabeled.
+- breaking(cli): `gpc vitals lmk` rewired to a different metric set. Prior to v0.9.58 it returned stuck-background-wakelock data due to a misconfiguration. v0.9.58 shipped with the wrong endpoint identifier and 404'd; **v0.9.59 is the working build** (returns `userPerceivedLmkRate` and weighted variants). Expect different values; the old output was mislabeled.
 
 **New**
 
 - feat(cli): shell completion walker replaces the hand-maintained command tree. `gpc completion bash|zsh|fish|powershell` now discovers every registered command (including plugin-registered ones) at runtime.
 - feat(cli): completion scripts emit choice values for flags declared with `.choices()` in all four shells.
 - feat(cli): `gpc vitals compare <metric>` and `gpc vitals watch --metric <name>` accept `wakeup`, `lmk`, `error-count`.
-- feat(api): `lowMemoryKillerRateMetricSet` added to `VitalsMetricSet` with 5 metrics.
+- feat(api): LMK metric set added to `VitalsMetricSet` (corrected in v0.9.59 to `lmkRateMetricSet`).
 
 **Fixed**
 
