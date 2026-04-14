@@ -1,12 +1,16 @@
 import { describe, it, expect } from "vitest";
+import { Command } from "commander";
 import {
   getCommandTree,
   generateBashCompletions,
   generateZshCompletions,
   generateFishCompletions,
   generatePowerShellCompletions,
+  buildCommandTreeFromProgram,
+  collectGlobalOptions,
   SUPPORTED_SHELLS,
 } from "../src/commands/completion";
+import { createProgram } from "../src/program";
 
 describe("getCommandTree", () => {
   it("returns all top-level commands", () => {
@@ -304,6 +308,189 @@ describe("generateFishCompletions", () => {
 
   it("includes level-3 subcommands for one-time-products offers", () => {
     expect(output).toContain("# one-time-products offers subcommands");
+  });
+});
+
+describe("buildCommandTreeFromProgram", () => {
+  it("extracts commands, subcommands, options, and argChoices from a Commander program", () => {
+    const program = new Command();
+    program.name("test").description("Test program");
+    program
+      .command("publish")
+      .description("Publish an app")
+      .option("-t, --track <track>", "Release track")
+      .addOption(
+        new Command().createOption("--status <status>", "Release status").choices([
+          "completed",
+          "inProgress",
+          "draft",
+          "halted",
+        ]),
+      );
+    const rollout = program.command("rollout").description("Manage rollouts");
+    rollout.command("increase").description("Increase a rollout");
+    rollout.command("halt").description("Halt a rollout");
+
+    const tree = buildCommandTreeFromProgram(program);
+
+    expect(Object.keys(tree)).toContain("publish");
+    expect(Object.keys(tree)).toContain("rollout");
+    expect(tree["publish"]?.description).toBe("Publish an app");
+    expect(tree["publish"]?.options).toBeDefined();
+    const trackOpt = tree["publish"]?.options?.find((o) => o.long === "--track");
+    expect(trackOpt).toBeDefined();
+    expect(trackOpt?.takesValue).toBe(true);
+    const statusOpt = tree["publish"]?.options?.find((o) => o.long === "--status");
+    expect(statusOpt?.choices).toEqual(["completed", "inProgress", "draft", "halted"]);
+    expect(Object.keys(tree["rollout"]?.subcommands ?? {})).toEqual(["increase", "halt"]);
+  });
+
+  it("skips Commander's built-in help subcommand", () => {
+    const program = new Command();
+    program.command("real").description("Real command");
+    const tree = buildCommandTreeFromProgram(program);
+    expect(Object.keys(tree)).not.toContain("help");
+  });
+});
+
+describe("walker parity with the live createProgram()", () => {
+  it("introspected tree contains commands that the hardcoded fallback is missing", async () => {
+    const program = await createProgram();
+    const introspected = buildCommandTreeFromProgram(program);
+    const fallback = getCommandTree();
+
+    // Commands newly added since the fallback was last hand-edited must appear
+    // via introspection — this is the drift guard.
+    const expectedLiveCommands = ["rtdn", "init", "diff", "preflight", "quickstart", "enterprise"];
+    for (const cmd of expectedLiveCommands) {
+      expect(Object.keys(introspected), `expected ${cmd} in introspected tree`).toContain(cmd);
+    }
+
+    // And the fallback should still be a subset (no legacy commands disappear).
+    for (const cmd of Object.keys(fallback)) {
+      expect(
+        Object.keys(introspected),
+        `expected fallback command "${cmd}" in introspected tree`,
+      ).toContain(cmd);
+    }
+  });
+
+  it("collectGlobalOptions returns the root program's global flags", async () => {
+    const program = await createProgram();
+    const globals = collectGlobalOptions(program);
+    const longNames = globals.map((o) => o.long);
+    expect(longNames).toContain("--output");
+    expect(longNames).toContain("--profile");
+    expect(longNames).toContain("--app");
+    expect(longNames).toContain("--ci");
+  });
+});
+
+describe("flag-choice emission", () => {
+  // Use a standalone mock program so these tests stay valid regardless of
+  // whether live program options use `.choices()`. The walker path is what's
+  // under test — the live program's choice usage is a separate concern.
+  function mockProgram() {
+    const p = new Command();
+    p.name("gpc").description("Mock");
+    p.addOption(
+      p.createOption("-o, --output <format>", "Output format").choices([
+        "table",
+        "json",
+        "yaml",
+        "markdown",
+        "junit",
+      ]),
+    );
+    p.option("-p, --profile <name>", "Auth profile name");
+    p.option("-a, --app <package>", "App package name");
+    const pub = p.command("publish").description("Publish");
+    pub.addOption(
+      pub
+        .createOption("--track <track>", "Release track")
+        .choices(["internal", "alpha", "beta", "production"]),
+    );
+    return p;
+  }
+
+  it("bash output includes global --output choice values", () => {
+    const p = mockProgram();
+    const tree = buildCommandTreeFromProgram(p);
+    const globals = collectGlobalOptions(p);
+    const output = generateBashCompletions(tree, globals);
+    expect(output).toContain("--output)");
+    expect(output).toContain("table json yaml markdown junit");
+  });
+
+  it("bash output includes per-command --track choice values", () => {
+    const p = mockProgram();
+    const tree = buildCommandTreeFromProgram(p);
+    const globals = collectGlobalOptions(p);
+    const output = generateBashCompletions(tree, globals);
+    expect(output).toContain("--track)");
+    expect(output).toContain("internal alpha beta production");
+  });
+
+  it("bash output advertises global flag names for --<TAB> completion", () => {
+    const p = mockProgram();
+    const globals = collectGlobalOptions(p);
+    const output = generateBashCompletions(buildCommandTreeFromProgram(p), globals);
+    expect(output).toContain("--output");
+    expect(output).toContain("--profile");
+    expect(output).toContain("--app");
+  });
+
+  it("fish output includes global flag definitions with choice arrays", () => {
+    const p = mockProgram();
+    const tree = buildCommandTreeFromProgram(p);
+    const globals = collectGlobalOptions(p);
+    const output = generateFishCompletions(tree, globals);
+    expect(output).toContain("# Global flags");
+    expect(output).toContain("-l output");
+    expect(output).toContain("-a 'table json yaml markdown junit'");
+  });
+
+  it("fish output includes per-command flag definitions with choice arrays", () => {
+    const p = mockProgram();
+    const tree = buildCommandTreeFromProgram(p);
+    const globals = collectGlobalOptions(p);
+    const output = generateFishCompletions(tree, globals);
+    expect(output).toContain("# publish flags");
+    expect(output).toContain("-l track");
+    expect(output).toContain("-a 'internal alpha beta production'");
+  });
+
+  it("zsh output emits flag-choice reference hints", () => {
+    const p = mockProgram();
+    const tree = buildCommandTreeFromProgram(p);
+    const globals = collectGlobalOptions(p);
+    const output = generateZshCompletions(tree, globals);
+    expect(output).toContain("Flag choices (reference)");
+    expect(output).toContain("--output");
+    expect(output).toContain("(table json yaml markdown junit)");
+    expect(output).toContain("--track");
+    expect(output).toContain("(internal alpha beta production)");
+  });
+
+  it("powershell output includes global parameter completions", () => {
+    const p = mockProgram();
+    const tree = buildCommandTreeFromProgram(p);
+    const globals = collectGlobalOptions(p);
+    const output = generatePowerShellCompletions(tree, globals);
+    expect(output).toContain("[CompletionResultType]::ParameterName");
+    expect(output).toContain("'--output'");
+  });
+});
+
+describe("drift guard — introspected-tree commands appear in bash output", () => {
+  it("every top-level command from createProgram() appears in generated bash", async () => {
+    const program = await createProgram();
+    const tree = buildCommandTreeFromProgram(program);
+    const globals = collectGlobalOptions(program);
+    const output = generateBashCompletions(tree, globals);
+    for (const name of Object.keys(tree)) {
+      expect(output, `expected top-level command "${name}" in bash output`).toContain(name);
+    }
   });
 });
 

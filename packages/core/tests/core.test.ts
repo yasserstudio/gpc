@@ -2022,26 +2022,27 @@ describe("getVitalsMemory", () => {
 });
 
 describe("getVitalsLmk", () => {
-  it("queries stuckBackgroundWakelockRateMetricSet with DAILY aggregation", async () => {
+  it("queries lowMemoryKillerRateMetricSet with DAILY aggregation", async () => {
     const reporting = mockReportingClient();
     await getVitalsLmk(reporting, PKG);
     expect(reporting.queryMetricSet).toHaveBeenCalledWith(
       PKG,
-      "stuckBackgroundWakelockRateMetricSet",
+      "lowMemoryKillerRateMetricSet",
       expect.objectContaining({
         timelineSpec: expect.objectContaining({ aggregationPeriod: "DAILY" }),
       }),
     );
   });
 
-  it("requests the base rate and weighted metric variants", async () => {
+  it("requests the base rate, weighted, and user-perceived metric variants", async () => {
     const reporting = mockReportingClient();
     await getVitalsLmk(reporting, PKG);
     const call = (reporting.queryMetricSet as ReturnType<typeof vi.fn>).mock.calls[0];
     const query = call?.[2] as { metrics: string[] };
-    expect(query.metrics).toContain("stuckBgWakelockRate");
-    expect(query.metrics).toContain("stuckBgWakelockRate7dUserWeighted");
-    expect(query.metrics).toContain("stuckBgWakelockRate28dUserWeighted");
+    expect(query.metrics).toContain("lmkRate");
+    expect(query.metrics).toContain("lmkRate7dUserWeighted");
+    expect(query.metrics).toContain("lmkRate28dUserWeighted");
+    expect(query.metrics).toContain("userPerceivedLmkRate");
     expect(query.metrics).toContain("distinctUsers");
   });
 });

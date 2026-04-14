@@ -1,5 +1,17 @@
 # @gpc-cli/api
 
+## 1.0.33
+
+### Patch Changes
+
+- QoL & Discoverability release.
+
+  **Breaking**: `gpc vitals lmk` now returns correct LMK rate metrics (`lmkRate`, `userPerceivedLmkRate`, weighted variants). Before v0.9.58 it returned stuck-background-wakelock data due to a misconfiguration. Expect different values; the old output was mislabeled.
+
+  **New**: shell completion now introspects the live Commander tree — new commands and plugin-registered commands complete automatically. Constrained flag values (options with `.choices()`) now surface via TAB in bash/zsh/fish/powershell.
+
+  **Fixed**: `gpc vitals compare <metric>` and `gpc vitals watch --metric <name>` now accept `wakeup`, `lmk`, `error-count`. `THRESHOLD_CONFIG_KEYS.lmk` corrected from `stuckWakelockRate` to `lmkRate`.
+
 ## 1.0.32
 
 ### Patch Changes

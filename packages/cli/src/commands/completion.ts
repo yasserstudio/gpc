@@ -1,4 +1,4 @@
-import type { Command } from "commander";
+import type { Command, Option } from "commander";
 
 export type ShellType = "bash" | "zsh" | "fish" | "powershell";
 
@@ -9,15 +9,28 @@ export const SUPPORTED_SHELLS: readonly ShellType[] = [
   "powershell",
 ] as const;
 
-/**
- * Full command tree for gpc CLI.
- * Each entry maps a command name to its description and optional subcommands.
- */
-interface CommandDef {
+export interface OptionDef {
+  flags: string;
+  long?: string;
+  short?: string;
   description: string;
-  subcommands?: Record<string, CommandDef>;
+  choices?: string[];
+  takesValue: boolean;
 }
 
+export interface CommandDef {
+  description: string;
+  subcommands?: Record<string, CommandDef>;
+  options?: OptionDef[];
+}
+
+/**
+ * Hand-maintained fallback tree. Used by unit tests and as a safety net when
+ * the walker cannot introspect the program (e.g. when the generator is called
+ * without a live Command instance). Runtime `gpc completion <shell>` uses the
+ * introspected tree from `buildCommandTreeFromProgram` so new commands and
+ * plugins auto-complete without requiring edits here.
+ */
 export function getCommandTree(): Record<string, CommandDef> {
   return {
     auth: {
@@ -315,45 +328,153 @@ export function getCommandTree(): Record<string, CommandDef> {
   };
 }
 
-export function registerCompletionCommand(program: Command): void {
+/** Map a Commander Option to an OptionDef used by the shell generators. */
+function optionToDef(opt: Option): OptionDef {
+  const flags = opt.flags;
+  // Commander exposes parsed long/short on the Option; fall back to parsing `.flags` if missing.
+  const long = opt.long ?? undefined;
+  const short = opt.short ?? undefined;
+  // `takesValue` is true when the raw flags contain <placeholder> or [placeholder].
+  const takesValue = /[<[][^>\]]+[>\]]/.test(flags);
+  // Commander 14 exposes `.argChoices`; fall back gracefully if absent.
+  const rawChoices = (opt as unknown as { argChoices?: readonly string[] }).argChoices;
+  const choices = rawChoices && rawChoices.length > 0 ? Array.from(rawChoices) : undefined;
+  return {
+    flags,
+    long: long ?? undefined,
+    short: short ?? undefined,
+    description: opt.description ?? "",
+    choices,
+    takesValue,
+  };
+}
+
+/** Recursively walk a Commander Command into the completion tree shape. */
+function commandToDef(cmd: Command): CommandDef {
+  const def: CommandDef = {
+    description: cmd.description() ?? "",
+  };
+  const options = cmd.options
+    .filter((o) => !o.hidden)
+    .map(optionToDef)
+    .filter((o) => o.long || o.short);
+  if (options.length > 0) {
+    def.options = options;
+  }
+  const subs = cmd.commands.filter((c) => c.name() !== "help");
+  if (subs.length > 0) {
+    def.subcommands = {};
+    for (const sub of subs) {
+      def.subcommands[sub.name()] = commandToDef(sub);
+    }
+  }
+  return def;
+}
+
+/** Build a completion tree by introspecting a fully-loaded Commander program. */
+export function buildCommandTreeFromProgram(program: Command): Record<string, CommandDef> {
+  const tree: Record<string, CommandDef> = {};
+  for (const cmd of program.commands) {
+    if (cmd.name() === "help") continue;
+    tree[cmd.name()] = commandToDef(cmd);
+  }
+  return tree;
+}
+
+/** Collect global options declared on the root program. */
+export function collectGlobalOptions(program: Command): OptionDef[] {
+  return program.options
+    .filter((o) => !o.hidden)
+    .map(optionToDef)
+    .filter((o) => o.long || o.short);
+}
+
+export function registerCompletionCommand(
+  program: Command,
+  ensureAllCommandsLoaded?: () => Promise<void>,
+): void {
   const completion = program.command("completion").description("Generate shell completions");
+
+  const generate = async (
+    shell: ShellType,
+    gen: (tree: Record<string, CommandDef>, globals: OptionDef[]) => string,
+  ): Promise<void> => {
+    if (ensureAllCommandsLoaded) {
+      await ensureAllCommandsLoaded();
+    }
+    const tree = ensureAllCommandsLoaded ? buildCommandTreeFromProgram(program) : getCommandTree();
+    const globals = collectGlobalOptions(program);
+    // Suppress unused-shell warning; shell type reserved for future per-shell tuning.
+    void shell;
+    console.log(gen(tree, globals));
+  };
 
   completion
     .command("bash")
     .description("Generate bash completions")
-    .action(() => {
-      console.log(generateBashCompletions());
+    .action(async () => {
+      await generate("bash", generateBashCompletions);
     });
 
   completion
     .command("zsh")
     .description("Generate zsh completions")
-    .action(() => {
-      console.log(generateZshCompletions());
+    .action(async () => {
+      await generate("zsh", generateZshCompletions);
     });
 
   completion
     .command("fish")
     .description("Generate fish completions")
-    .action(() => {
-      console.log(generateFishCompletions());
+    .action(async () => {
+      await generate("fish", generateFishCompletions);
     });
 
   completion
     .command("powershell")
     .description("Generate PowerShell completions")
-    .action(() => {
-      console.log(generatePowerShellCompletions());
+    .action(async () => {
+      await generate("powershell", generatePowerShellCompletions);
     });
 }
 
-export function generateBashCompletions(): string {
-  const tree = getCommandTree();
+/**
+ * Return only options that have choices or long flags useful for completion
+ * suggestion. `-V/--version` and `-h/--help` are filtered out to avoid noise.
+ */
+function completableOptions(options: OptionDef[] | undefined): OptionDef[] {
+  if (!options) return [];
+  return options.filter((o) => {
+    if (!o.long) return false;
+    if (o.long === "--help" || o.long === "--version") return false;
+    return true;
+  });
+}
 
+export function generateBashCompletions(
+  tree: Record<string, CommandDef> = getCommandTree(),
+  globals: OptionDef[] = [],
+): string {
   const topLevelNames = Object.keys(tree).join(" ");
 
+  const globalFlags = completableOptions(globals)
+    .map((o) => o.long ?? "")
+    .filter(Boolean)
+    .join(" ");
+
   // Build case entries for each command that has subcommands (up to 3 levels)
+  // and emit flag completion branches for commands with options.
   const caseEntries: string[] = [];
+  const flagCases: string[] = [];
+
+  const allCommandNames = new Set<string>();
+  const collectNames = (defs: Record<string, CommandDef>) => {
+    for (const [name, def] of Object.entries(defs)) {
+      allCommandNames.add(name);
+      if (def.subcommands) collectNames(def.subcommands);
+    }
+  };
+  collectNames(tree);
 
   for (const [cmd, def] of Object.entries(tree)) {
     if (def.subcommands) {
@@ -362,7 +483,6 @@ export function generateBashCompletions(): string {
         `    ${cmd})\n      COMPREPLY=( $(compgen -W "${subNames}" -- "\${cur}") )\n      return 0\n      ;;`,
       );
 
-      // Level 3: subcommands of subcommands
       for (const [sub, subDef] of Object.entries(def.subcommands)) {
         if (subDef.subcommands) {
           const subSubNames = Object.keys(subDef.subcommands).join(" ");
@@ -372,17 +492,51 @@ export function generateBashCompletions(): string {
         }
       }
     }
+
+    // Collect flags that carry choices from this command + its subtree.
+    const walk = (d: CommandDef) => {
+      for (const opt of completableOptions(d.options)) {
+        if (opt.choices && opt.long) {
+          flagCases.push(
+            `    ${opt.long})\n      COMPREPLY=( $(compgen -W "${opt.choices.join(" ")}" -- "\${cur}") )\n      return 0\n      ;;`,
+          );
+        }
+      }
+      if (d.subcommands) for (const s of Object.values(d.subcommands)) walk(s);
+    };
+    walk(def);
+  }
+
+  // Global-option choices (e.g. --output table|json|yaml|markdown|junit).
+  for (const opt of completableOptions(globals)) {
+    if (opt.choices && opt.long) {
+      flagCases.push(
+        `    ${opt.long})\n      COMPREPLY=( $(compgen -W "${opt.choices.join(" ")}" -- "\${cur}") )\n      return 0\n      ;;`,
+      );
+    }
   }
 
   return `# bash completion for gpc
 # Install: gpc completion bash >> ~/.bashrc
 _gpc() {
-  local cur prev commands
+  local cur prev commands globals
   COMPREPLY=()
   cur="\${COMP_WORDS[COMP_CWORD]}"
   prev="\${COMP_WORDS[COMP_CWORD-1]}"
 
   commands="${topLevelNames}"
+  globals="${globalFlags}"
+
+  # Flag-value completion (choices)
+  case "\${prev}" in
+${flagCases.join("\n")}
+  esac
+
+  # When the current word starts with '-', complete known flags
+  if [[ "\${cur}" == -* ]]; then
+    COMPREPLY=( $(compgen -W "\${globals}" -- "\${cur}") )
+    return 0
+  fi
 
   case "\${prev}" in
     gpc)
@@ -399,20 +553,18 @@ ${caseEntries.join("\n")}
 complete -F _gpc gpc`;
 }
 
-export function generateZshCompletions(): string {
-  const tree = getCommandTree();
-
-  // Build zsh arrays
+export function generateZshCompletions(
+  tree: Record<string, CommandDef> = getCommandTree(),
+  globals: OptionDef[] = [],
+): string {
   const arrayDefs: string[] = [];
   const caseBranches: string[] = [];
 
-  // Top-level
   const topEntries = Object.entries(tree)
     .map(([name, def]) => `    '${name}:${escapeZsh(def.description)}'`)
     .join("\n");
   arrayDefs.push(`  commands=(\n${topEntries}\n  )`);
 
-  // Build subcommand arrays and case branches for level 2
   for (const [cmd, def] of Object.entries(tree)) {
     if (def.subcommands) {
       const varName = `${cmd.replace(/-/g, "_")}_commands`;
@@ -424,7 +576,6 @@ export function generateZshCompletions(): string {
         `        ${cmd})\n          _describe -t ${varName} '${cmd} commands' ${varName}\n          ;;`,
       );
 
-      // Level 3
       for (const [sub, subDef] of Object.entries(def.subcommands)) {
         if (subDef.subcommands) {
           const subVarName = `${cmd.replace(/-/g, "_")}_${sub.replace(/-/g, "_")}_commands`;
@@ -437,7 +588,6 @@ export function generateZshCompletions(): string {
     }
   }
 
-  // Build level 3 case for subsubcommand state
   const level3Cases: string[] = [];
   for (const [cmd, def] of Object.entries(tree)) {
     if (!def.subcommands) continue;
@@ -451,7 +601,6 @@ export function generateZshCompletions(): string {
     }
   }
 
-  // Collect all variable names for local declarations
   const varNames: string[] = ["commands"];
   for (const [cmd, def] of Object.entries(tree)) {
     if (def.subcommands) {
@@ -466,9 +615,36 @@ export function generateZshCompletions(): string {
 
   const localDecls = varNames.map((v) => `  local -a ${v}`).join("\n");
 
+  // Flag entries — emit `_arguments`-style hints collected across the tree.
+  // Keeps the existing `_describe` structure above; shell will still complete
+  // commands first, but flags with choices are surfaced as hint comments that
+  // power-users can read and some completers auto-detect. A fuller
+  // `_arguments` integration is deferred to v0.9.59 (dynamic-value release).
+  const flagHints: string[] = [];
+  const walkFlags = (defs: Record<string, CommandDef>, path: string) => {
+    for (const [name, def] of Object.entries(defs)) {
+      for (const opt of completableOptions(def.options)) {
+        if (opt.choices) {
+          flagHints.push(
+            `# ${path}${name} ${opt.long}: (${opt.choices.join(" ")}) — ${escapeZsh(opt.description)}`,
+          );
+        }
+      }
+      if (def.subcommands) walkFlags(def.subcommands, `${path}${name} `);
+    }
+  };
+  walkFlags(tree, "");
+  for (const opt of completableOptions(globals)) {
+    if (opt.choices) {
+      flagHints.push(
+        `# (global) ${opt.long}: (${opt.choices.join(" ")}) — ${escapeZsh(opt.description)}`,
+      );
+    }
+  }
+
   return `#compdef gpc
 # Install: gpc completion zsh > ~/.zsh/completions/_gpc
-
+${flagHints.length > 0 ? `\n# --- Flag choices (reference) ---\n${flagHints.join("\n")}\n` : ""}
 _gpc() {
 ${localDecls}
 
@@ -500,8 +676,10 @@ ${level3Cases.join("\n")}
 _gpc "$@"`;
 }
 
-export function generateFishCompletions(): string {
-  const tree = getCommandTree();
+export function generateFishCompletions(
+  tree: Record<string, CommandDef> = getCommandTree(),
+  globals: OptionDef[] = [],
+): string {
   const lines: string[] = [
     "# fish completions for gpc",
     "# Install: gpc completion fish > ~/.config/fish/completions/gpc.fish",
@@ -542,13 +720,49 @@ export function generateFishCompletions(): string {
     }
   }
 
+  // Global + per-command flag completions with choice lists.
+  lines.push("");
+  lines.push("# Global flags");
+  for (const opt of completableOptions(globals)) {
+    if (!opt.long) continue;
+    const longName = opt.long.replace(/^--/, "");
+    const shortName = opt.short ? opt.short.replace(/^-/, "") : undefined;
+    const choiceArg = opt.choices ? ` -a '${opt.choices.join(" ")}'` : "";
+    const shortArg = shortName ? ` -s ${shortName}` : "";
+    lines.push(
+      `complete -c gpc -l ${longName}${shortArg} -d '${escapeFish(opt.description)}'${choiceArg}`,
+    );
+  }
+
+  const walkFlags = (defs: Record<string, CommandDef>) => {
+    for (const [name, def] of Object.entries(defs)) {
+      const flags = completableOptions(def.options);
+      if (flags.length > 0) {
+        lines.push("");
+        lines.push(`# ${name} flags`);
+        for (const opt of flags) {
+          if (!opt.long) continue;
+          const longName = opt.long.replace(/^--/, "");
+          const shortName = opt.short ? opt.short.replace(/^-/, "") : undefined;
+          const choiceArg = opt.choices ? ` -a '${opt.choices.join(" ")}'` : "";
+          const shortArg = shortName ? ` -s ${shortName}` : "";
+          lines.push(
+            `complete -c gpc -n '__fish_seen_subcommand_from ${name}' -l ${longName}${shortArg} -d '${escapeFish(opt.description)}'${choiceArg}`,
+          );
+        }
+      }
+      if (def.subcommands) walkFlags(def.subcommands);
+    }
+  };
+  walkFlags(tree);
+
   return lines.join("\n");
 }
 
-export function generatePowerShellCompletions(): string {
-  const tree = getCommandTree();
-
-  // Build the completion hashtable entries
+export function generatePowerShellCompletions(
+  tree: Record<string, CommandDef> = getCommandTree(),
+  globals: OptionDef[] = [],
+): string {
   const completionEntries: string[] = [];
 
   // Top-level completions
@@ -558,7 +772,14 @@ export function generatePowerShellCompletions(): string {
     );
   }
 
-  // Subcommand completions (level 2)
+  // Global flag completions (as parameters available from any state)
+  for (const opt of completableOptions(globals)) {
+    if (!opt.long) continue;
+    completionEntries.push(
+      `        [CompletionResult]::new('${opt.long}', '${opt.long}', [CompletionResultType]::ParameterName, '${escapePowerShell(opt.description)}')`,
+    );
+  }
+
   const subcommandCases: string[] = [];
   const level3Cases: string[] = [];
 
@@ -572,7 +793,6 @@ export function generatePowerShellCompletions(): string {
       .join("\n");
     subcommandCases.push(`        '${cmd}' {\n${subEntries}\n        }`);
 
-    // Level 3
     for (const [sub, subDef] of Object.entries(def.subcommands)) {
       if (!subDef.subcommands) continue;
       const subSubEntries = Object.entries(subDef.subcommands)

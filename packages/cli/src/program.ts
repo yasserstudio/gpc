@@ -45,7 +45,15 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
       (await import("./commands/changelog.js")).registerChangelogCommand(program);
     },
     completion: async () => {
-      (await import("./commands/completion.js")).registerCompletionCommand(program);
+      (await import("./commands/completion.js")).registerCompletionCommand(program, async () => {
+        // Force-load every non-completion command so the introspection walker
+        // sees the full tree (including plugins registered later in createProgram).
+        await Promise.all(
+          Object.entries(commandLoaders)
+            .filter(([name]) => name !== "completion")
+            .map(([, loader]) => loader()),
+        );
+      });
     },
     apps: async () => {
       (await import("./commands/apps.js")).registerAppsCommands(program);

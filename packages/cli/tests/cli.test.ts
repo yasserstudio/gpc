@@ -826,8 +826,25 @@ describe("vitals subcommands", () => {
     expect(subcommandNames).toContain("rendering");
     expect(subcommandNames).toContain("battery");
     expect(subcommandNames).toContain("memory");
+    expect(subcommandNames).toContain("wakeup");
+    expect(subcommandNames).toContain("lmk");
+    expect(subcommandNames).toContain("error-count");
+    expect(subcommandNames).toContain("compare");
+    expect(subcommandNames).toContain("compare-versions");
+    expect(subcommandNames).toContain("watch");
     expect(subcommandNames).toContain("anomalies");
     expect(subcommandNames).toContain("errors");
+  });
+
+  it("vitals watch --metric help lists lmk, wakeup, and error-count", () => {
+    const vitalsCmd = program.commands.find((cmd) => cmd.name() === "vitals");
+    const watchCmd = vitalsCmd!.commands.find((cmd) => cmd.name() === "watch");
+    expect(watchCmd).toBeDefined();
+    const metricOption = watchCmd!.options.find((opt) => opt.long === "--metric");
+    expect(metricOption).toBeDefined();
+    expect(metricOption!.description).toContain("lmk");
+    expect(metricOption!.description).toContain("wakeup");
+    expect(metricOption!.description).toContain("error-count");
   });
 
   it("vitals metric commands have threshold option", () => {

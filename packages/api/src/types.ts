@@ -252,6 +252,7 @@ export type VitalsMetricSet =
   | "anrRateMetricSet"
   | "excessiveWakeupRateMetricSet"
   | "stuckBackgroundWakelockRateMetricSet"
+  | "lowMemoryKillerRateMetricSet"
   | "slowStartRateMetricSet"
   | "slowRenderingRateMetricSet"
   | "errorCountMetricSet";

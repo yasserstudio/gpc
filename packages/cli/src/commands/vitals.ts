@@ -57,7 +57,8 @@ const THRESHOLD_CONFIG_KEYS: Record<string, string> = {
   battery: "excessiveWakeupRate",
   memory: "stuckWakelockRate",
   wakeup: "excessiveWakeupRate",
-  lmk: "stuckWakelockRate",
+  lmk: "lmkRate",
+  "error-count": "errorReportCount",
 };
 
 function validateDimension(dim: string): ReportingDimension {
@@ -375,6 +376,9 @@ export function registerVitalsCommands(program: Command): void {
     rendering: "slowRenderingRateMetricSet",
     battery: "excessiveWakeupRateMetricSet",
     memory: "stuckBackgroundWakelockRateMetricSet",
+    wakeup: "excessiveWakeupRateMetricSet",
+    lmk: "lowMemoryKillerRateMetricSet",
+    "error-count": "errorCountMetricSet",
   };
 
   vitals
@@ -465,7 +469,7 @@ export function registerVitalsCommands(program: Command): void {
     .requiredOption("--threshold <value>", "Breach threshold value", parseFloat)
     .option(
       "--metric <name>",
-      "Metric to monitor (crashes, anr, startup, rendering, battery, memory)",
+      "Metric to monitor (crashes, anr, startup, rendering, battery, memory, wakeup, lmk, error-count)",
       "crashes",
     )
     .option("--interval <seconds>", "Polling interval in seconds", (v) => parseInt(v, 10), 300)

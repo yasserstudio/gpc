@@ -21,7 +21,8 @@ outline: deep
 | [`vitals battery`](#vitals-battery)             | Query excessive wakeup metrics         |
 | [`vitals wakeup`](#vitals-battery)              | Alias for `vitals battery`             |
 | [`vitals memory`](#vitals-memory)               | Query stuck wakelock metrics           |
-| [`vitals lmk`](#vitals-memory)                  | Alias for `vitals memory`              |
+| [`vitals lmk`](#vitals-lmk)                     | Query low-memory killer metrics        |
+| [`vitals error-count`](#vitals-error-count)     | Query error report count metrics       |
 | [`vitals errors search`](#vitals-errors-search) | Search error issues and reports        |
 | [`vitals compare`](#vitals-compare)             | Compare metric trend across periods    |
 
@@ -242,13 +243,12 @@ gpc vitals battery --app com.example.myapp --threshold 1.0
 
 ## `vitals memory`
 
-Query stuck background wakelock metrics (memory/battery impact). Also available as `vitals lmk` (low-memory killer).
+Query stuck background wakelock metrics (memory/battery impact).
 
 ### Synopsis
 
 ```bash
 gpc vitals memory [options]
-gpc vitals lmk [options]   # alias
 ```
 
 ### Options
@@ -263,6 +263,62 @@ gpc vitals lmk [options]   # alias
 
 ```bash
 gpc vitals memory --app com.example.myapp --days 30
+```
+
+---
+
+## `vitals lmk`
+
+Query low-memory killer (LMK) rate metrics. Tracks how often the system kills your app under memory pressure. Enforces `DAILY` aggregation as required by the API.
+
+::: warning Behavior change in v0.9.58
+Before v0.9.58, `vitals lmk` was a silent alias of `vitals memory` and returned stuck-background-wakelock data, not LMK data. Starting in v0.9.58 it queries the correct `lowMemoryKillerRateMetricSet` endpoint and returns LMK rate metrics (`lmkRate`, `userPerceivedLmkRate`, etc.). If you were building dashboards or CI thresholds against the old output, expect different values — the old values were incorrectly labeled.
+:::
+
+### Synopsis
+
+```bash
+gpc vitals lmk [options]
+```
+
+### Options
+
+| Flag          | Short | Type     | Default | Description                                    |
+| ------------- | ----- | -------- | ------- | ---------------------------------------------- |
+| `--dim`       |       | `string` |         | Group by dimension                             |
+| `--days`      |       | `number` |         | Number of days to query                        |
+| `--threshold` |       | `number` |         | LMK rate threshold (exit code 6 if breached)   |
+
+### Example
+
+```bash
+gpc vitals lmk --app com.example.myapp --days 30 --threshold 0.01
+```
+
+---
+
+## `vitals error-count`
+
+Query error report count metrics. Broken down by `reportType` dimension (auto-included).
+
+### Synopsis
+
+```bash
+gpc vitals error-count [options]
+```
+
+### Options
+
+| Flag          | Short | Type     | Default      | Description                                         |
+| ------------- | ----- | -------- | ------------ | --------------------------------------------------- |
+| `--dim`       |       | `string` | `reportType` | Group by dimension                                  |
+| `--days`      |       | `number` |              | Number of days to query                             |
+| `--threshold` |       | `number` |              | Error report count threshold (exit code 6 if breached) |
+
+### Example
+
+```bash
+gpc vitals error-count --app com.example.myapp --days 7
 ```
 
 ---
@@ -313,7 +369,7 @@ Compare a vitals metric between the current period and the previous period of th
 gpc vitals compare <metric> [options]
 ```
 
-The `<metric>` argument accepts: `crashes`, `anr`, `startup`, `rendering`, `battery`, `memory`.
+The `<metric>` argument accepts: `crashes`, `anr`, `startup`, `rendering`, `battery`, `memory`, `wakeup`, `lmk`, `error-count`.
 
 ### Options
 

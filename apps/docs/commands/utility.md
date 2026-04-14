@@ -421,6 +421,18 @@ If the browser cannot be opened, the URL is printed to stdout so you can copy it
 
 ---
 
+## Shell completion
+
+As of v0.9.58, `gpc completion` generates shell scripts by **introspecting Commander's registered command tree at runtime**. That means:
+
+- New commands (including plugin-registered ones) complete automatically — no generator edits required.
+- Flags with a defined set of valid values (e.g. `.choices(["table", "json", ...])`) surface those values via TAB.
+- Global flags (`--app`, `--profile`, `--output`, `--ci`, `--json`, etc.) complete in every context.
+
+Regenerate your completion file after upgrading GPC so the script matches the installed version.
+
+---
+
 ## `completion bash`
 
 Generate bash shell completions. Pipe the output to your bash completions directory or source it directly.

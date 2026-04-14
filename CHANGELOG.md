@@ -7,6 +7,35 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.58
+
+QoL and discoverability release. Shell completion now introspects Commander's live command tree so new commands complete without generator edits, and constrained flag values surface via TAB. Also fixes `gpc vitals lmk`, which had been returning the wrong metric since it was first wired.
+
+**Breaking**
+
+- breaking(cli): `gpc vitals lmk` now returns correct LMK rate metrics (`lmkRate`, `userPerceivedLmkRate`, weighted variants). Prior to v0.9.58 it returned stuck-background-wakelock data due to a misconfiguration. Expect different values; the old output was mislabeled.
+
+**New**
+
+- feat(cli): shell completion walker replaces the hand-maintained command tree. `gpc completion bash|zsh|fish|powershell` now discovers every registered command (including plugin-registered ones) at runtime.
+- feat(cli): completion scripts emit choice values for flags declared with `.choices()` in all four shells.
+- feat(cli): `gpc vitals compare <metric>` and `gpc vitals watch --metric <name>` accept `wakeup`, `lmk`, `error-count`.
+- feat(api): `lowMemoryKillerRateMetricSet` added to `VitalsMetricSet` with 5 metrics.
+
+**Fixed**
+
+- fix(cli): `THRESHOLD_CONFIG_KEYS.lmk` corrected from `stuckWakelockRate` to `lmkRate`.
+
+---
+
+## v0.9.57
+
+API correctness pass. Fixed `apprecovery.cancel`/`.deploy` URL (singular → plural), `dataSafety.update` verb (PUT → POST), removed phantom `dataSafety.get`. Added OTP offer `activateOffer`/`deactivateOffer`. New `gpc vitals error-count` command. Full type completeness audit: `AppLevelPermission`, `DeveloperLevelPermission` (`_GLOBAL` suffixes), `SubscriptionState`, `OneTimeOfferState`, `OneTimeProductAvailability`.
+
+**217 API endpoints · 1,866 tests**
+
+---
+
 ## v0.9.56
 
 First Android publishing CLI with Managed Google Play support. Private app publishing via the [Play Custom App Publishing API](https://developers.google.com/android/work/play/custom-app-api).

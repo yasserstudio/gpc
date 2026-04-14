@@ -11,7 +11,25 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.57 <Badge type="tip" text="latest" />
+## v0.9.58 <Badge type="tip" text="latest" />
+
+QoL and discoverability release. Upgrades shell completion from a hand-maintained tree to an introspection-based generator (new commands auto-complete, constrained flag values surface via TAB) and fixes a long-standing `gpc vitals lmk` bug that was returning the wrong metric.
+
+**Fixed:**
+
+- **breaking(cli): `gpc vitals lmk` output changed.** Before v0.9.58 this command returned stuck-background-wakelock data labeled as LMK. It now queries `lowMemoryKillerRateMetricSet` and returns correct LMK rate metrics (`lmkRate`, `userPerceivedLmkRate`, weighted variants). If you built dashboards or CI thresholds against the old output, expect different values — the old numbers were wrong.
+- fix(cli): `gpc vitals compare <metric>` and `gpc vitals watch --metric <name>` now accept `wakeup`, `lmk`, and `error-count` (previously threw "Unknown metric" for these).
+- fix(cli): `vitals lmk` threshold config key corrected from `stuckWakelockRate` to `lmkRate`.
+
+**New:**
+
+- feat(cli): shell completion now introspects the live Commander tree. New commands and plugin-registered commands complete automatically; generator edits are no longer required on every CLI addition.
+- feat(cli): completion scripts surface constrained flag values. Options registered with `.choices()` now emit their candidate values in all four shell outputs — `gpc publish --track=<TAB>` suggests `internal alpha beta production` when authors wire up choices.
+- feat(api): `lowMemoryKillerRateMetricSet` added to `VitalsMetricSet` with 5 metrics: `lmkRate`, `lmkRate7dUserWeighted`, `lmkRate28dUserWeighted`, `userPerceivedLmkRate`, `distinctUsers`.
+
+**217 API endpoints · 8 VitalsMetricSet variants**
+
+## v0.9.57
 
 API correctness pass: 3 bug fixes, 2 new endpoints, 1 new command, and a full type completeness audit against Google's discovery document. Live-tested against production apps.
 
