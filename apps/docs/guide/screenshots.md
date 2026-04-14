@@ -137,7 +137,7 @@ Files are numbered sequentially (`1.png`, `2.png`, ...). The original filenames 
 ## Bulk workflow (the honest version)
 
 ::: warning Current limitation
-GPC v0.9.56 does **not** have a single "sync all images from a directory" command. `gpc listings push` handles text metadata only. For bulk image upload, you need to loop over your files and call `gpc listings images upload` per file. The pattern below works and is what users should run today. A future `gpc listings images push --dir <path>` is an open feature request — if you want it, open an issue on [github.com/yasserstudio/gpc](https://github.com/yasserstudio/gpc/issues).
+GPC v0.9.57 does **not** have a single "sync all images from a directory" command. `gpc listings push` handles text metadata only. For bulk image upload, you need to loop over your files and call `gpc listings images upload` per file. The pattern below works and is what users should run today. A future `gpc listings images push --dir <path>` is an open feature request — if you want it, open an issue on [github.com/yasserstudio/gpc](https://github.com/yasserstudio/gpc/issues).
 :::
 
 ### The shell loop
@@ -327,7 +327,7 @@ Each upload is a separate API call. Google's rate limit is generous (several per
 - [Google Play Console image requirements](https://support.google.com/googleplay/android-developer/answer/9866151)
 - [Fastlane `screengrab`](https://docs.fastlane.tools/actions/screengrab/) — for automated screenshot generation
 
-## Known gaps (as of v0.9.56)
+## Known gaps (as of v0.9.57)
 
 These are tracked for future GPC versions. Your feedback on which matter most drives prioritization:
 

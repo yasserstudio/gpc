@@ -44,7 +44,7 @@ e2e/               → End-to-end tests
 - Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, Homebrew tap, npm publish, README/CHANGELOG
 - Phase 10 ✓ — `gpc preflight` pre-submission compliance scanner (9 scanners, offline AAB policy checks)
 - Published to npm: `npm install -g @gpc-cli/cli`
-- Current version: v0.9.56 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- Current version: v0.9.57 — pre-release series (`0.9.x` → `1.0.0` public launch)
 - 1,866 total tests, 7 packages building, 90%+ line coverage on all core packages
 - v0.9.56 highlight: first Android publishing CLI with Managed Google Play support (`gpc enterprise publish` via Play Custom App Publishing API)
 - GitHub Releases: umbrella `v*` tags only, user-facing notes (see `apps/docs/advanced/conventions.md` for template)

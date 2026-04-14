@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 
-const STORAGE_KEY = "gpc-banner-dismissed-v0956";
+const STORAGE_KEY = "gpc-banner-dismissed-v0957";
 const visible = ref(false);
 
 onMounted(() => {
@@ -18,7 +18,7 @@ function dismiss() {
   <div v-if="visible" class="ann-banner" role="banner">
     <span class="ann-badge">Pre-release</span>
     <span class="ann-text">
-      v0.9.56 -- first CLI with Managed Google Play support.
+      v0.9.57 -- 217 API endpoints. First CLI with Managed Google Play support.
       <a
         href="/gpc/guide/enterprise-publishing"
         class="ann-link"
