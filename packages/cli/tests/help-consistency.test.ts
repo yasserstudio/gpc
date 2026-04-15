@@ -319,8 +319,9 @@ describe("help text consistency", () => {
 
   it("has no unexpected top-level commands", () => {
     const commandNames = program.commands.map((cmd) => cmd.name());
-    // Also allow "status" which is registered in the loader map
-    const allowed = new Set([...EXPECTED_TOP_LEVEL_COMMANDS, "status"]);
+    // Also allow "status" (registered in the loader map) and "__complete"
+    // (hidden shell-completion value provider).
+    const allowed = new Set([...EXPECTED_TOP_LEVEL_COMMANDS, "status", "__complete"]);
     for (const name of commandNames) {
       expect(allowed, `unexpected command: ${name}`).toContain(name);
     }
