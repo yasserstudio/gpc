@@ -641,36 +641,65 @@ export function generateZshCompletions(
 
   const localDecls = varNames.map((v) => `  local -a ${v}`).join("\n");
 
-  // Flag entries — emit `_arguments`-style hints collected across the tree.
-  // Keeps the existing `_describe` structure above; shell will still complete
-  // commands first, but flags with choices are surfaced as hint comments that
-  // power-users can read and some completers auto-detect. A fuller
-  // `_arguments` integration is deferred to v0.9.59 (dynamic-value release).
-  const flagHints: string[] = [];
-  const walkFlags = (defs: Record<string, CommandDef>, path: string) => {
-    for (const [name, def] of Object.entries(defs)) {
+  // Static flag-choice option specs (e.g. --output table|json|yaml) harvested
+  // from Commander's `.choices()` across the entire tree. Emitted into the
+  // main _arguments call so zsh menu-completes them.
+  const choiceSpecs = new Set<string>();
+  const walkChoices = (defs: Record<string, CommandDef>) => {
+    for (const def of Object.values(defs)) {
       for (const opt of completableOptions(def.options)) {
-        if (opt.choices) {
-          flagHints.push(
-            `# ${path}${name} ${opt.long}: (${opt.choices.join(" ")}) — ${escapeZsh(opt.description)}`,
+        if (opt.choices && opt.long) {
+          choiceSpecs.add(
+            `'${opt.long}[${escapeZsh(opt.description)}]:value:(${opt.choices.join(" ")})'`,
           );
         }
       }
-      if (def.subcommands) walkFlags(def.subcommands, `${path}${name} `);
+      if (def.subcommands) walkChoices(def.subcommands);
     }
   };
-  walkFlags(tree, "");
+  walkChoices(tree);
   for (const opt of completableOptions(globals)) {
-    if (opt.choices) {
-      flagHints.push(
-        `# (global) ${opt.long}: (${opt.choices.join(" ")}) — ${escapeZsh(opt.description)}`,
+    if (opt.choices && opt.long) {
+      choiceSpecs.add(
+        `'${opt.long}[${escapeZsh(opt.description)}]:value:(${opt.choices.join(" ")})'`,
       );
     }
   }
 
+  // Dynamic-value option specs: each dynamic flag gets wired to a helper
+  // function that shells out to `gpc __complete <ctx>`.
+  const dynamicSpecs: string[] = [];
+  for (const { flags, context } of DYNAMIC_FLAG_CONTEXTS) {
+    for (const flag of flags) {
+      const fn = `_gpc_${context.replace(/-/g, "_")}`;
+      dynamicSpecs.push(`'${flag}[]:value:${fn}'`);
+    }
+  }
+
+  const helperFns = `
+_gpc_profiles() {
+  local -a items
+  items=(\${(f)"$(gpc __complete profiles 2>/dev/null)"})
+  compadd -a items
+}
+_gpc_packages() {
+  local -a items
+  items=(\${(f)"$(gpc __complete packages 2>/dev/null)"})
+  compadd -a items
+}
+_gpc_tracks_for_app() {
+  local -a items
+  items=(\${(f)"$(gpc __complete tracks-for-app 2>/dev/null)"})
+  compadd -a items
+}`;
+
+  const allSpecs = [...choiceSpecs, ...dynamicSpecs];
+  const extraArgs = allSpecs.length > 0 ? ` \\\n    ${allSpecs.join(" \\\n    ")}` : "";
+
   return `#compdef gpc
 # Install: gpc completion zsh > ~/.zsh/completions/_gpc
-${flagHints.length > 0 ? `\n# --- Flag choices (reference) ---\n${flagHints.join("\n")}\n` : ""}
+${helperFns}
+
 _gpc() {
 ${localDecls}
 
@@ -680,7 +709,7 @@ ${arrayDefs.join("\n\n")}
     '1: :->command' \\
     '2: :->subcommand' \\
     '3: :->subsubcommand' \\
-    '*::arg:->args'
+    '*::arg:->args'${extraArgs}
 
   case "$state" in
     command)

@@ -460,15 +460,17 @@ describe("flag-choice emission", () => {
     expect(output).toContain("-a 'internal alpha beta production'");
   });
 
-  it("zsh output emits flag-choice reference hints", () => {
+  it("zsh output emits flag-choice option specs", () => {
     const p = mockProgram();
     const tree = buildCommandTreeFromProgram(p);
     const globals = collectGlobalOptions(p);
     const output = generateZshCompletions(tree, globals);
-    expect(output).toContain("Flag choices (reference)");
-    expect(output).toContain("--output");
+    // New _arguments integration emits real option specs rather than hint
+    // comments. Dynamic values have their own specs (see dynamic-values test).
+    expect(output).toContain("'--output[");
     expect(output).toContain("(table json yaml markdown junit)");
-    expect(output).toContain("--track");
+    // --track here carries a .choices() on the mock program, so it stays as
+    // a static spec (the real CLI wires --track to a dynamic helper instead).
     expect(output).toContain("(internal alpha beta production)");
   });
 
