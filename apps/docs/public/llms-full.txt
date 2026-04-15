@@ -13,7 +13,7 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Pl
 - Binary: `gpc`
 - Version: 0.9.59
 - API endpoints covered: 217 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1)
-- Tests: 1,879 (90%+ coverage)
+- Tests: 1,914 (90%+ coverage)
 - Licensing: Free to use. Source code is on GitHub.
 - Repo: https://github.com/yasserstudio/gpc
 - Notable v0.9.56 feature: `gpc enterprise publish` — first Android publishing CLI with Managed Google Play / Play Custom App Publishing API support

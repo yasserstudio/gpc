@@ -100,7 +100,7 @@ GPC covers the **entire Google Play Developer API** in one CLI. 217 endpoints. N
 | CI/CD native            | JSON + exit codes + env vars   | Partial         | Gradle tasks          | No           |
 | Preflight scanner       | **9 offline policy checks**    | No              | No                    | No           |
 | Interactive mode        | Yes (guided prompts)           | No              | No                    | N/A          |
-| Test suite              | 1,879 tests, 90%+ coverage     |                 |                       |              |
+| Test suite              | 1,914 tests, 90%+ coverage     |                 |                       |              |
 
 Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
 

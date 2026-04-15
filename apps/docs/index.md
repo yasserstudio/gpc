@@ -40,13 +40,13 @@ features:
   - icon:
       src: /icons/plug.png
     title: Plugin System + SDK
-    details: "1,879 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK."
+    details: "1,914 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK."
 ---
 
 <div class="stats-bar">
   <span class="stat">217 API Endpoints</span>
   <span class="stat-sep"></span>
-  <span class="stat">1,879 Tests</span>
+  <span class="stat">1,914 Tests</span>
   <span class="stat-sep"></span>
   <span class="stat">90%+ Coverage</span>
   <span class="stat-sep"></span>

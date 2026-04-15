@@ -279,7 +279,11 @@ This checks:
 
 ## Shell Completions
 
-Generate shell completions for tab-completion support:
+::: tip Homebrew installs these automatically
+`brew install yasserstudio/tap/gpc` writes completion files for bash, zsh, and fish on install. No setup step required. Restart your shell (or run `compinit` / `exec zsh`) to pick them up.
+:::
+
+For npm or standalone-binary installs, generate shell completions manually:
 
 ```bash
 # Bash — add to ~/.bashrc
@@ -299,6 +303,8 @@ gpc completion bash > /usr/local/etc/bash_completion.d/gpc
 gpc completion zsh > "${fpath[1]}/_gpc"
 gpc completion fish > ~/.config/fish/completions/gpc.fish
 ```
+
+Completions fill in live values for `--profile`, `--app`, and `--track` by consulting your config and the `gpc status` cache at TAB time. See [Shell completion reference](/commands/utility#shell-completion) for details.
 
 ## Next Steps
 

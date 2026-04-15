@@ -20,7 +20,7 @@ If you are evaluating alternatives to Fastlane for Google Play automation, here 
 | CI/CD native            | JSON + exit codes + env vars  | Partial             |
 | Plugin system           | Yes (lifecycle hooks)         | Actions (different) |
 | Interactive mode        | Yes (guided prompts)          | No                  |
-| Test suite              | 1,879 tests, 90%+ coverage    | --                  |
+| Test suite              | 1,914 tests, 90%+ coverage    | --                  |
 
 ## What GPC Covers That Fastlane Does Not
 
