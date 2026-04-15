@@ -11,9 +11,30 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.59 <Badge type="tip" text="latest" />
+## v0.9.60 <Badge type="tip" text="latest" />
 
-Hotfix for v0.9.58. `gpc vitals lmk` was returning 404 because the metric set name shipped with the wrong identifier. Caught by live smoke against `sfn-emploi` immediately after release; v0.9.59 is the corrected build, verified live.
+Smarter tab-completion. The bash, zsh, and fish scripts now fill in live values for `--profile`, `--app`, and `--track` at TAB time by consulting your config and the `gpc status` cache (no API calls, under 150ms cold). Homebrew installs the completion files automatically, so `brew install yasserstudio/tap/gpc` means TAB completion works in a fresh shell with no setup.
+
+**New:**
+
+- feat(cli): tab-completion resolves `--profile`, `--app` / `--apps`, and `--track` to live values from your config and status cache. Hit TAB after any of these flags and you get the right candidates, not filesystem entries.
+- feat(cli): Homebrew installs now ship completion files for bash, zsh, and fish automatically. No `eval "$(gpc completion zsh)"` step needed.
+- feat(cli): zsh completion upgraded to a real `_arguments` integration. Flags with `.choices()` menu-complete as option specs, and dynamic flags route through helper functions with proper candidate descriptions.
+
+**Fixed:**
+
+- fix(e2e): `gpc doctor` e2e test no longer flakes on cold networks. The test's 5s vitest ceiling was too tight for the command's real DNS + HTTPS checks; raised to 20s to match observed latency.
+
+**Security:**
+
+- Prototype-pollution sanitization now applies to all JSON parsed by the completion handler (config + status cache), matching the guard already in place for `loadConfig()`.
+- Bash-choice values are escaped when emitted into `compgen -W` lists, so future flags declared with spaces or shell metacharacters in `.choices()` can't split into extra tokens.
+
+**217 API endpoints · 1,914 tests**
+
+## v0.9.59
+
+Hotfix for v0.9.58. `gpc vitals lmk` was returning 404 because the metric set name shipped with the wrong identifier. Caught by live smoke against a production profile immediately after release; v0.9.59 is the corrected build, verified live.
 
 **Fixed:**
 
