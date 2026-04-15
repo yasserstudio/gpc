@@ -55,6 +55,9 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
         );
       });
     },
+    __complete: async () => {
+      (await import("./commands/__complete.js")).registerCompleteCommand(program);
+    },
     apps: async () => {
       (await import("./commands/apps.js")).registerAppsCommands(program);
     },

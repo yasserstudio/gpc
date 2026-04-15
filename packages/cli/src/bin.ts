@@ -35,11 +35,15 @@ initAudit(getConfigDir());
 const currentVersion = process.env["__GPC_VERSION"] || "0.0.0";
 
 // Skip passive update check when the user is explicitly running `gpc update` —
-// that command does its own check against the GitHub Releases API.
+// that command does its own check against the GitHub Releases API. Also skip
+// for `__complete` (shell-completion hot path — must stay under the latency
+// budget; users see TAB lag otherwise).
 const isUpdateCommand = process.argv[2] === "update";
+const isCompletionProvider = process.argv[2] === "__complete";
 
 // Start update check before command execution (non-blocking)
-const updateCheckPromise = isUpdateCommand ? Promise.resolve(null) : checkForUpdate(currentVersion);
+const updateCheckPromise =
+  isUpdateCommand || isCompletionProvider ? Promise.resolve(null) : checkForUpdate(currentVersion);
 
 // Handle --ci and --json flags early (before command parsing)
 if (process.argv.includes("--ci")) {
@@ -116,23 +120,27 @@ if (notifyOpt !== undefined && notifyOpt !== false) {
 }
 
 // After command completes, show update notification if available
-// isUpdateCommand is declared above — update check was skipped for this command
-try {
-  const result = await Promise.race([
-    updateCheckPromise,
-    new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)),
-  ]);
+// isUpdateCommand is declared above — update check was skipped for this command.
+// Skip entirely for __complete: the setTimeout below would keep the event loop
+// alive for 3s, blowing the completion latency budget.
+if (!isCompletionProvider) {
+  try {
+    const result = await Promise.race([
+      updateCheckPromise,
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)),
+    ]);
 
-  if (
-    result &&
-    result.updateAvailable &&
-    !isUpdateCommand &&
-    process.stdout.isTTY &&
-    !process.argv.includes("--json") &&
-    program.opts()["output"] !== "json"
-  ) {
-    process.stderr.write(`\n${formatUpdateNotification(result)}\n`);
+    if (
+      result &&
+      result.updateAvailable &&
+      !isUpdateCommand &&
+      process.stdout.isTTY &&
+      !process.argv.includes("--json") &&
+      program.opts()["output"] !== "json"
+    ) {
+      process.stderr.write(`\n${formatUpdateNotification(result)}\n`);
+    }
+  } catch {
+    // Silently ignore update check failures
   }
-} catch {
-  // Silently ignore update check failures
 }
