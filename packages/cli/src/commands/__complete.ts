@@ -71,12 +71,26 @@ async function readFreshStatusCache(packageName: string): Promise<StatusCacheEnt
   return entry;
 }
 
-async function completeProfiles(): Promise<void> {
-  const names = await listProfiles();
-  emit(names);
+export async function runContext(context: string, args: readonly string[] = []): Promise<string[]> {
+  switch (context) {
+    case "profiles":
+      return completeProfiles();
+    case "packages":
+      return completePackages();
+    case "tracks-for-app":
+      return completeTracksForApp(args[0]);
+    case "releases-for-track":
+      return completeReleasesForTrack(args[0], args[1]);
+    default:
+      return [];
+  }
 }
 
-async function completePackages(): Promise<void> {
+export async function completeProfiles(): Promise<string[]> {
+  return listProfiles();
+}
+
+export async function completePackages(): Promise<string[]> {
   const seen = new Set<string>();
   const [proj, user, cached] = await Promise.all([
     readProjectConfig(),
@@ -92,10 +106,10 @@ async function completePackages(): Promise<void> {
     }
   }
   for (const pkg of cached) seen.add(pkg);
-  emit([...seen].sort());
+  return [...seen].sort();
 }
 
-async function completeTracksForApp(packageName: string | undefined): Promise<void> {
+export async function completeTracksForApp(packageName: string | undefined): Promise<string[]> {
   const tracks = new Set<string>(STATIC_TRACKS);
   if (packageName) {
     const entry = await readFreshStatusCache(packageName);
@@ -103,19 +117,18 @@ async function completeTracksForApp(packageName: string | undefined): Promise<vo
       if (r.track) tracks.add(r.track);
     }
   }
-  emit([...tracks]);
+  return [...tracks];
 }
 
-async function completeReleasesForTrack(
+export async function completeReleasesForTrack(
   packageName: string | undefined,
   track: string | undefined,
-): Promise<void> {
-  if (!packageName || !track) return;
+): Promise<string[]> {
+  if (!packageName || !track) return [];
   const entry = await readFreshStatusCache(packageName);
-  const versions = (entry?.data?.releases ?? [])
+  return (entry?.data?.releases ?? [])
     .filter((r) => r.track === track && r.versionCode)
     .map((r) => r.versionCode as string);
-  emit(versions);
 }
 
 /** Register the hidden `__complete` subcommand on the program. */
@@ -127,23 +140,8 @@ export function registerCompleteCommand(program: Command): void {
     .allowUnknownOption(true)
     .action(async (context: string, args: string[]) => {
       try {
-        switch (context) {
-          case "profiles":
-            await completeProfiles();
-            return;
-          case "packages":
-            await completePackages();
-            return;
-          case "tracks-for-app":
-            await completeTracksForApp(args[0]);
-            return;
-          case "releases-for-track":
-            await completeReleasesForTrack(args[0], args[1]);
-            return;
-          default:
-            // Unknown context — silent (shell falls back to file completion).
-            return;
-        }
+        const values = await runContext(context, args);
+        emit(values);
       } catch {
         // Never throw from a completion handler.
       }
