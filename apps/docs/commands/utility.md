@@ -423,11 +423,29 @@ If the browser cannot be opened, the URL is printed to stdout so you can copy it
 
 ## Shell completion
 
-As of v0.9.58, `gpc completion` generates shell scripts by **introspecting Commander's registered command tree at runtime**. That means:
+`gpc completion` generates shell scripts by **introspecting Commander's registered command tree at runtime**. That means:
 
 - New commands (including plugin-registered ones) complete automatically — no generator edits required.
 - Flags with a defined set of valid values (e.g. `.choices(["table", "json", ...])`) surface those values via TAB.
 - Global flags (`--app`, `--profile`, `--output`, `--ci`, `--json`, etc.) complete in every context.
+
+### Dynamic values (v0.9.60+)
+
+The generated bash, zsh, and fish scripts shell out to a hidden `gpc __complete` subcommand at TAB time to populate four flag slots with live values:
+
+| Flag                      | Values                                                                              |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| `--profile` / `-p`        | Profile names defined in your config                                                |
+| `--app` / `-a` / `--apps` | App packages from your config + cached `gpc status` data                            |
+| `--track`                 | `production`, `beta`, `alpha`, `internal` plus any custom tracks seen in cached status |
+
+The handler is lazy-loaded and reads only filesystem config (no API calls, no auth). If you've never run `gpc status` for an app, cache-backed values are empty and completion falls back silently — no errors, no delay.
+
+### Homebrew auto-install
+
+`brew install yasserstudio/tap/gpc` installs completion files for bash, zsh, and fish automatically. No `eval` step required. Restart your shell (or run `compinit` / `exec zsh`) to pick them up.
+
+### Manual install
 
 Regenerate your completion file after upgrading GPC so the script matches the installed version.
 
