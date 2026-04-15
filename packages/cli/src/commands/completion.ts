@@ -349,6 +349,11 @@ function optionToDef(opt: Option): OptionDef {
   };
 }
 
+/** Whether a Commander command was registered with `{ hidden: true }`. */
+function isHidden(cmd: Command): boolean {
+  return (cmd as unknown as { _hidden?: boolean })._hidden === true;
+}
+
 /** Recursively walk a Commander Command into the completion tree shape. */
 function commandToDef(cmd: Command): CommandDef {
   const def: CommandDef = {
@@ -361,7 +366,7 @@ function commandToDef(cmd: Command): CommandDef {
   if (options.length > 0) {
     def.options = options;
   }
-  const subs = cmd.commands.filter((c) => c.name() !== "help");
+  const subs = cmd.commands.filter((c) => c.name() !== "help" && !isHidden(c));
   if (subs.length > 0) {
     def.subcommands = {};
     for (const sub of subs) {
@@ -375,7 +380,7 @@ function commandToDef(cmd: Command): CommandDef {
 export function buildCommandTreeFromProgram(program: Command): Record<string, CommandDef> {
   const tree: Record<string, CommandDef> = {};
   for (const cmd of program.commands) {
-    if (cmd.name() === "help") continue;
+    if (cmd.name() === "help" || isHidden(cmd)) continue;
     tree[cmd.name()] = commandToDef(cmd);
   }
   return tree;
@@ -451,6 +456,18 @@ function completableOptions(options: OptionDef[] | undefined): OptionDef[] {
   });
 }
 
+/**
+ * Shell-completion flag slots that carry dynamic values (profiles, package
+ * names, track names). Generated scripts shell out to `gpc __complete <ctx>`
+ * to resolve these at TAB time. Shared across bash / zsh / fish generators.
+ */
+const DYNAMIC_FLAG_CONTEXTS: Array<{ flags: string[]; context: string }> = [
+  { flags: ["--profile", "-p"], context: "profiles" },
+  { flags: ["--app", "-a"], context: "packages" },
+  { flags: ["--apps"], context: "packages" },
+  { flags: ["--track"], context: "tracks-for-app" },
+];
+
 export function generateBashCompletions(
   tree: Record<string, CommandDef> = getCommandTree(),
   globals: OptionDef[] = [],
@@ -466,6 +483,15 @@ export function generateBashCompletions(
   // and emit flag completion branches for commands with options.
   const caseEntries: string[] = [];
   const flagCases: string[] = [];
+
+  // Dynamic flag-value completion: shell out to `gpc __complete <ctx>`.
+  for (const { flags, context } of DYNAMIC_FLAG_CONTEXTS) {
+    for (const flag of flags) {
+      flagCases.push(
+        `    ${flag})\n      COMPREPLY=( $(compgen -W "$(gpc __complete ${context} 2>/dev/null)" -- "\${cur}") )\n      return 0\n      ;;`,
+      );
+    }
+  }
 
   const allCommandNames = new Set<string>();
   const collectNames = (defs: Record<string, CommandDef>) => {
