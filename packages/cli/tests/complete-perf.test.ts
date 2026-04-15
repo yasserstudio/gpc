@@ -8,10 +8,12 @@ import { fileURLToPath } from "node:url";
  * Cold-start perf guard for `gpc __complete`.
  *
  * Shell completion fires on every TAB press. User-facing target is ~150ms
- * on node / ~80ms on the standalone binary. The in-test budget is 500ms
- * because vitest's parallel transformation load inflates spawn cost 2–3x on
- * CI — this test guards against order-of-magnitude regressions, not the
- * real user latency (validated manually before each release).
+ * on node / ~80ms on the standalone binary. The in-test budget is 1000ms
+ * because vitest's parallel transformation load (8 packages concurrently)
+ * can inflate spawn cost 5x or more on CI. This test guards against the
+ * specific regression we know about: the 3s setTimeout that used to block
+ * exit in bin.ts. Real user latency is validated by manual smoke tests
+ * against a real config before each release.
  *
  * Runs only when the built bin is present. Turborepo wires `test.dependsOn:
  * ["build"]`, so CI always exercises this; local watch mode skips gracefully.
@@ -19,7 +21,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const BIN = join(__dirname, "..", "dist", "bin.js");
-const BUDGET_MS = 500;
+const BUDGET_MS = 1000;
 const ITERATIONS = 3;
 
 function timeSpawn(args: string[]): number {

@@ -30,7 +30,7 @@ Smarter tab-completion. The bash, zsh, and fish scripts now fill in live values 
 - Prototype-pollution sanitization now applies to all JSON parsed by the completion handler (config + status cache), matching the guard already in place for `loadConfig()`.
 - Bash-choice values are escaped when emitted into `compgen -W` lists, so future flags declared with spaces or shell metacharacters in `.choices()` can't split into extra tokens.
 
-**217 API endpoints · 1,914 tests**
+**217 API endpoints · 1,941 tests**
 
 ## v0.9.59
 

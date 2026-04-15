@@ -1,5 +1,13 @@
 # @gpc-cli/plugin-ci
 
+## 0.9.9
+
+### Patch Changes
+
+- Smarter tab-completion. Bash, zsh, and fish scripts now fill in live values for --profile, --app, and --track at TAB time by consulting your config and the gpc status cache (no API calls, under 150ms cold). Homebrew installs completion files automatically, so brew install yasserstudio/tap/gpc means TAB completion works in a fresh shell with zero setup. Zsh completion upgraded to real \_arguments integration.
+- Updated dependencies
+  - @gpc-cli/plugin-sdk@0.9.9
+
 ## 0.9.8
 
 ### Patch Changes
