@@ -86,20 +86,43 @@ gpc bundle analyze app.aab --threshold 150
 | [`recovery`](./recovery)                           | App recovery actions                                  |
 | [`external-transactions`](./external-transactions) | External transactions (alternative billing)           |
 
+### Monetization Extras
+
+| Command                                | Description                                                      |
+| -------------------------------------- | ---------------------------------------------------------------- |
+| [`system-apks`](./system-apks)         | System APK variants for OEM/enterprise deployments               |
+| [`rtdn`](./rtdn)                       | Real-Time Developer Notifications (Pub/Sub webhooks)             |
+| [`games`](./games)                     | Play Games Services: leaderboards, achievements, events          |
+
+### Release Automation
+
+| Command                | Description                                                              |
+| ---------------------- | ------------------------------------------------------------------------ |
+| [`train`](./train)     | Config-driven staged rollout trains with time gates and vitals gates     |
+| [`quota`](./quota)     | View Google Play API quota usage tracked from the local audit log        |
+| [`verify`](./verify)   | Google developer verification tooling (signing keys, readiness checklist) |
+
 ### System
 
-| Command                                       | Description                                     |
-| --------------------------------------------- | ----------------------------------------------- |
-| [`auth`](./auth)                              | Authentication and profiles                     |
-| [`apps`](./apps)                              | App info and configuration                      |
-| [`config`](./config)                          | CLI configuration                               |
-| [`plugins`](./plugins)                        | Plugin management                               |
-| [`migrate`](./migrate)                        | Migrate from Fastlane to GPC                    |
-| [`doctor` / `docs` / `completion`](./utility) | Diagnostics, documentation, shell completions   |
-| [`install-skills`](./install-skills)          | Install AI agent skills for GPC workflows       |
-| [`init`](./init)                              | Scaffold project config, metadata, CI templates |
-| [`diff`](./diff)                              | Preview release state and pending changes       |
-| [`changelog`](./changelog)                    | Show release history from GitHub                |
+| Command                                       | Description                                      |
+| --------------------------------------------- | ------------------------------------------------ |
+| [`auth`](./auth)                              | Authentication and profiles                      |
+| [`apps`](./apps)                              | App info and configuration                       |
+| [`config`](./config)                          | CLI configuration                                |
+| [`plugins`](./plugins)                        | Plugin management                                |
+| [`grants`](./grants)                          | Per-app permission grants for developer users    |
+| [`migrate`](./migrate)                        | Migrate from Fastlane to GPC                     |
+| [`doctor` / `docs` / `completion`](./utility) | Diagnostics, documentation, shell completions    |
+| [`cache`](./utility#gpc-cache)                | Manage status, token, and update caches          |
+| [`audit`](./utility)                          | Inspect the local audit log of API calls         |
+| [`quickstart`](./utility)                     | Guided first-run setup wizard                    |
+| [`update`](./utility#gpc-update)              | Self-update to the latest release                |
+| [`feedback`](./utility#gpc-feedback)          | Open a pre-filled GitHub issue                   |
+| [`install-skills`](./install-skills)          | Install AI agent skills for GPC workflows        |
+| [`init`](./init)                              | Scaffold project config, metadata, CI templates  |
+| [`diff`](./diff)                              | Preview release state and pending changes        |
+| [`changelog`](./changelog)                    | Show release history from GitHub                 |
+| [`validate`](./publish#gpc-validate)          | Dry-run validation of a release before committing |
 
 ## Global Flags
 
@@ -228,9 +251,9 @@ All errors follow a consistent JSON structure:
 {
   "success": false,
   "error": {
-    "code": "AUTH_EXPIRED",
-    "message": "Access token has expired",
-    "suggestion": "Run 'gpc auth login' to re-authenticate"
+    "code": "AUTH_INVALID_KEY",
+    "message": "Service account JSON is malformed",
+    "suggestion": "Download a fresh key from Google Cloud Console"
   }
 }
 ```
@@ -240,13 +263,14 @@ All errors follow a consistent JSON structure:
 | Code | Meaning                                   |
 | ---- | ----------------------------------------- |
 | `0`  | Success                                   |
-| `1`  | General error                             |
+| `1`  | General error, config error, or plugin runtime error |
 | `2`  | Usage error (bad arguments)               |
 | `3`  | Authentication error                      |
 | `4`  | API error (rate limit, permission denied) |
 | `5`  | Network error                             |
 | `6`  | Threshold breach (vitals CI alerting)     |
-| `10` | Plugin error                              |
+
+See [Exit Codes Reference](/reference/exit-codes) for the full error-code catalog.
 
 ## Environment Variables
 
@@ -258,15 +282,16 @@ All errors follow a consistent JSON structure:
 | `GPC_OUTPUT`          | Default output format                      | auto       |
 | `GPC_NO_COLOR`        | Disable color output                       |            |
 | `GPC_NO_INTERACTIVE`  | Disable prompts                            | Auto in CI |
-| `GPC_SKIP_KEYCHAIN`   | Skip OS keychain, use file storage         |            |
-| `GPC_MAX_RETRIES`     | Max retry attempts on transient errors     | `3`        |
+| `GPC_NO_UPDATE_CHECK` | Suppress passive update check              |            |
+| `GPC_MAX_RETRIES`     | Max retry attempts on transient errors     | `5`        |
 | `GPC_TIMEOUT`         | Request timeout in milliseconds            | `30000`    |
 | `GPC_BASE_DELAY`      | Base retry delay in milliseconds           | `1000`     |
 | `GPC_MAX_DELAY`       | Max retry delay in milliseconds            | `60000`    |
-| `GPC_RATE_LIMIT`      | Requests per second                        | `50`       |
 | `GPC_DEVELOPER_ID`    | Developer account ID (for user management) |            |
 | `GPC_CA_CERT`         | Custom CA certificate path                 |            |
 | `HTTPS_PROXY`         | HTTP proxy URL                             |            |
+
+See [Environment Variables Reference](/reference/environment-variables) for the full list.
 
 ## Related
 

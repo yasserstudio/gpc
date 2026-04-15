@@ -12,7 +12,6 @@ All `GPC_*` environment variables and external variables that GPC respects.
 | --------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------- | ------- |
 | `GPC_SERVICE_ACCOUNT` | `string`  | Service account JSON string or file path. Accepts inline JSON (`{"type":"service_account",...}`) or a path to a `.json` file. | —       |
 | `GPC_PROFILE`         | `string`  | Named auth profile to use. Profiles are created via `gpc auth login --profile <name>`.                                        | —       |
-| `GPC_SKIP_KEYCHAIN`   | `boolean` | Skip OS keychain storage and use file-based token cache instead.                                                              | `false` |
 
 ## App & Project
 
@@ -30,6 +29,8 @@ All `GPC_*` environment variables and external variables that GPC respects.
 | `NO_COLOR`           | `boolean`                                    | Standard no-color.org variable. Disables all ANSI color output.                                                                                          | —                             |
 | `FORCE_COLOR`        | `1 \| 2 \| 3`                                | Force colored output even when stdout is not a TTY (e.g. in CI).                                                                                         | —                             |
 | `GPC_NO_INTERACTIVE` | `boolean`                                    | Disable interactive prompts. Auto-set when `CI=true` is detected.                                                                                        | Auto in CI                    |
+| `GPC_PAGER`          | `string`                                     | Custom pager command for long outputs. Falls back to `PAGER`, then `less`, then no pager.                                                                | —                             |
+| `PAGER`              | `string`                                     | Standard pager variable. Read when `GPC_PAGER` is not set.                                                                                               | —                             |
 
 ## Network & Retry
 
@@ -40,57 +41,55 @@ All `GPC_*` environment variables and external variables that GPC respects.
 | `GPC_BASE_DELAY`                 | `integer` | Base retry delay in milliseconds (exponential backoff).                                                                | `1000`           |
 | `GPC_MAX_DELAY`                  | `integer` | Maximum retry delay in milliseconds.                                                                                   | `60000`          |
 | `GPC_UPLOAD_TIMEOUT`             | `integer` | Upload timeout in milliseconds. If unset, auto-scales: 30s + 1s per MB.                                                | Auto             |
-| `GPC_UPLOAD_CHUNK_SIZE`          | `integer` | Resumable upload chunk size in bytes. Must be a multiple of 256 KB (262144). Larger chunks = fewer requests, more RAM. | `8388608` (8 MB) |
+| `GPC_UPLOAD_CHUNK_SIZE`          | `integer` | Resumable upload chunk size in bytes. Must be a multiple of 256 KB (262144). Larger chunks mean fewer requests and more RAM. | `8388608` (8 MB) |
 | `GPC_UPLOAD_RESUMABLE_THRESHOLD` | `integer` | File size threshold in bytes for switching from simple to resumable upload.                                            | `5242880` (5 MB) |
-| `GPC_RATE_LIMIT`                 | `integer` | Client-side requests per second.                                                                                       | `50`             |
 | `GPC_CA_CERT`                    | `string`  | Path to custom CA certificate file (PEM format). For corporate proxies.                                                | —                |
-| `HTTPS_PROXY`                    | `string`  | HTTP proxy URL (e.g., `https://proxy.corp:8080`). Also respected: `https_proxy`.                                       | —                |
-| `NO_PROXY`                       | `string`  | Comma-separated list of hosts to bypass proxy.                                                                         | —                |
+| `NODE_EXTRA_CA_CERTS`            | `string`  | Standard Node.js variable. Path to additional CA certificate bundle. Read at runtime by the network layer.             | —                |
+| `HTTPS_PROXY` / `HTTP_PROXY`     | `string`  | HTTP proxy URLs (e.g., `https://proxy.corp:8080`). Lowercase `https_proxy` / `http_proxy` also respected.              | —                |
+
+## Updates & Self-Maintenance
+
+| Variable               | Type      | Description                                                                                           | Default |
+| ---------------------- | --------- | ----------------------------------------------------------------------------------------------------- | ------- |
+| `GPC_NO_UPDATE_CHECK`  | `boolean` | Suppress the passive update check that runs after each command.                                       | `false` |
+| `GPC_GITHUB_TOKEN`     | `string`  | GitHub API token used by `gpc update` and `gpc changelog`. Raises rate limits and allows private assets. | —       |
+| `GITHUB_TOKEN`         | `string`  | Standard GitHub Actions token. Fallback when `GPC_GITHUB_TOKEN` is not set.                           | —       |
+
+## Agent Skills
+
+| Variable           | Type     | Description                                                                              | Default                                      |
+| ------------------ | -------- | ---------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `GPC_SKILLS_REPO`  | `string` | Override the git repo URL used by `gpc install-skills`. Useful for forks or mirrors.     | `https://github.com/yasserstudio/gpc-skills` |
 
 ## Debug & Logging
 
-| Variable      | Type      | Description                                                                                                    | Default |
-| ------------- | --------- | -------------------------------------------------------------------------------------------------------------- | ------- |
-| `GPC_DEBUG`   | `boolean` | Enable debug logging. Prints internal state, request/response details, and timing info to stderr.              | `false` |
-| `GPC_VERBOSE` | `boolean` | Enable verbose output. Shows additional context such as full API URLs, retry attempts, and rate-limit headers. | `false` |
+| Variable    | Type      | Description                                                                                                    | Default |
+| ----------- | --------- | -------------------------------------------------------------------------------------------------------------- | ------- |
+| `GPC_DEBUG` | `boolean` | Enable debug logging. Prints internal state, request/response details, and shell-completion diagnostics to stderr. | `false` |
 
 ```bash
 # Diagnose auth issues
-GPC_DEBUG=true gpc auth status
+GPC_DEBUG=1 gpc auth status
 
-# Verbose upload with retry visibility
-GPC_VERBOSE=true gpc releases upload app.aab --track internal
-```
-
-## Plugins
-
-| Variable         | Type     | Description                                                                                  | Default                 |
-| ---------------- | -------- | -------------------------------------------------------------------------------------------- | ----------------------- |
-| `GPC_PLUGIN_DIR` | `string` | Custom directory for plugin discovery. GPC scans this path for installed plugins at startup. | `~/.config/gpc/plugins` |
-| `GPC_AUDIT_LOG`  | `string` | File path for the audit log. When set, GPC appends a JSON line for each command invocation.  | —                       |
-
-```bash
-# Use a project-local plugin directory
-export GPC_PLUGIN_DIR="./my-plugins"
-
-# Enable audit logging for compliance
-export GPC_AUDIT_LOG="/var/log/gpc-audit.jsonl"
-gpc releases list
+# Diagnose shell completion (v0.9.60+)
+GPC_DEBUG=1 gpc __complete packages
 ```
 
 ## CI Provider Detection
 
-GPC auto-detects CI environments. These variables are read but not set by GPC:
+GPC auto-detects CI environments. These variables are read but never set by GPC:
 
-| Variable              | Provider       | Purpose                                        |
-| --------------------- | -------------- | ---------------------------------------------- |
-| `CI`                  | Generic        | Enables CI mode (non-interactive, JSON output) |
-| `GITHUB_ACTIONS`      | GitHub Actions | Enables step summary output                    |
-| `GITHUB_STEP_SUMMARY` | GitHub Actions | File path for markdown summary                 |
-| `GITLAB_CI`           | GitLab CI      | CI detection                                   |
-| `CIRCLECI`            | CircleCI       | CI detection                                   |
-| `BITRISE_IO`          | Bitrise        | CI detection                                   |
-| `JENKINS_URL`         | Jenkins        | CI detection                                   |
+| Variable                    | Provider          | Purpose                                        |
+| --------------------------- | ----------------- | ---------------------------------------------- |
+| `CI`                        | Generic           | Enables CI mode (non-interactive, JSON output) |
+| `GITHUB_ACTIONS`            | GitHub Actions    | Enables step summary output                    |
+| `GITLAB_CI`                 | GitLab CI         | CI detection                                   |
+| `CIRCLECI`                  | CircleCI          | CI detection                                   |
+| `TRAVIS`                    | Travis CI         | CI detection                                   |
+| `JENKINS_URL`               | Jenkins           | CI detection                                   |
+| `BITBUCKET_PIPELINE_UUID`   | Bitbucket         | CI detection                                   |
+| `BUILD_BUILDID`             | Azure Pipelines   | CI detection                                   |
+| `CODEBUILD_BUILD_ID`        | AWS CodeBuild     | CI detection                                   |
 
 ## Precedence Order
 
@@ -110,6 +109,7 @@ export GPC_APP="com.example.myapp"
 export GPC_OUTPUT="json"
 export GPC_MAX_RETRIES="5"
 export GPC_TIMEOUT="60000"
+export GPC_NO_UPDATE_CHECK="1"
 
 gpc releases upload app.aab --track internal
 ```
