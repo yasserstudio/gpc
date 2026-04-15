@@ -500,6 +500,16 @@ describe("drift guard — introspected-tree commands appear in bash output", () 
     const tree = buildCommandTreeFromProgram(program);
     expect(Object.keys(tree)).not.toContain("__complete");
   });
+
+  it("any command registered with addCommand({hidden:true}) is filtered", () => {
+    const p = new Command().name("gpc-test");
+    p.command("visible").description("Visible");
+    const hidden = new Command("hidden-one").description("Hidden");
+    p.addCommand(hidden, { hidden: true });
+    const tree = buildCommandTreeFromProgram(p);
+    expect(Object.keys(tree)).toContain("visible");
+    expect(Object.keys(tree)).not.toContain("hidden-one");
+  });
 });
 
 describe("dynamic shell-completion values", () => {

@@ -71,4 +71,19 @@ describe.skipIf(!existsSync(BIN))("__complete cold-start perf", () => {
     }).toString();
     expect(output).toBe("");
   });
+
+  // Regression guard for bin.ts: the update-check race inside bin.ts used to
+  // block exit for ~3s on every command because its setTimeout kept the event
+  // loop alive. `__complete` now short-circuits that path. If the guard is
+  // removed, this test catches it — the budget is a 10x margin over the
+  // observed post-fix latency (~150ms cold).
+  it("does NOT block for update-check (would be 3s+ if the guard regressed)", () => {
+    const start = Date.now();
+    execFileSync(process.execPath, [BIN, "__complete", "profiles"], {
+      stdio: "pipe",
+      timeout: 5000,
+    });
+    const elapsed = Date.now() - start;
+    expect(elapsed).toBeLessThan(1500);
+  });
 });

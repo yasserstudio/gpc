@@ -198,3 +198,65 @@ describe("__complete runContext dispatcher", () => {
     expect(await runContext("bogus")).toEqual([]);
   });
 });
+
+describe("__complete security: prototype-pollution defense", () => {
+  it("strips __proto__ from parsed config JSON without polluting Object", async () => {
+    // Write a config with a prototype-pollution payload
+    await writeFile(
+      join(configDir, "config.json"),
+      '{"profiles":{"p":{"app":"com.good.app"}},"__proto__":{"polluted":true}}',
+      "utf-8",
+    ).catch(async () => {
+      await mkdir(configDir, { recursive: true });
+      await writeFile(
+        join(configDir, "config.json"),
+        '{"profiles":{"p":{"app":"com.good.app"}},"__proto__":{"polluted":true}}',
+        "utf-8",
+      );
+    });
+    await completePackages();
+    expect(({} as Record<string, unknown>)["polluted"]).toBeUndefined();
+  });
+
+  it("strips __proto__ from parsed cache JSON", async () => {
+    await mkdir(cacheDir, { recursive: true });
+    await writeFile(
+      join(cacheDir, "status-com.example.app.json"),
+      JSON.stringify({
+        fetchedAt: new Date().toISOString(),
+        ttl: 3600,
+        data: { releases: [{ track: "production", versionCode: "1" }] },
+        __proto__: { polluted: "cache" },
+      }),
+      "utf-8",
+    );
+    await completeTracksForApp("com.example.app");
+    expect(({} as Record<string, unknown>)["polluted"]).toBeUndefined();
+  });
+});
+
+describe("__complete tracks-for-app aggregates custom tracks across caches", () => {
+  it("without a package arg, surfaces custom tracks from any fresh cache", async () => {
+    await writeStatusCache("com.app.one", {
+      releases: [{ track: "qa-ring", versionCode: "1" }],
+    });
+    await writeStatusCache("com.app.two", {
+      releases: [{ track: "canary", versionCode: "2" }],
+    });
+    const result = await completeTracksForApp(undefined);
+    expect(result).toContain("qa-ring");
+    expect(result).toContain("canary");
+    // Static tracks still present
+    expect(result).toContain("production");
+  });
+
+  it("ignores stale caches when aggregating (no package arg)", async () => {
+    await writeStatusCache(
+      "com.stale.app",
+      { releases: [{ track: "stale-track", versionCode: "1" }] },
+      4000,
+    );
+    const result = await completeTracksForApp(undefined);
+    expect(result).not.toContain("stale-track");
+  });
+});

@@ -9,6 +9,12 @@ import { getCacheDir, getUserConfigPath, listProfiles } from "@gpc-cli/config";
 
 const STATIC_TRACKS = ["production", "beta", "alpha", "internal"] as const;
 
+const DEBUG = process.env["GPC_DEBUG"] === "1";
+
+function debug(msg: string): void {
+  if (DEBUG) process.stderr.write(`[gpc __complete] ${msg}\n`);
+}
+
 /** Emit one value per line; silent on any error. */
 function emit(values: readonly string[]): void {
   for (const v of values) {
@@ -16,11 +22,38 @@ function emit(values: readonly string[]): void {
   }
 }
 
+// Prototype-pollution defense: strip __proto__/constructor/prototype from
+// parsed JSON. Mirrors packages/config/src/loader.ts:92 so cache and config
+// files are treated consistently.
+const DANGEROUS_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+function sanitize(obj: unknown): void {
+  if (!obj || typeof obj !== "object") return;
+  if (Array.isArray(obj)) {
+    for (const item of obj) sanitize(item);
+    return;
+  }
+  const record = obj as Record<string, unknown>;
+  for (const key of Object.keys(record)) {
+    if (DANGEROUS_KEYS.has(key)) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete record[key];
+    } else if (typeof record[key] === "object" && record[key] !== null) {
+      sanitize(record[key]);
+    }
+  }
+}
+
 async function readJson<T>(path: string): Promise<T | null> {
   try {
     const raw = await readFile(path, "utf-8");
-    return JSON.parse(raw) as T;
-  } catch {
+    const parsed = JSON.parse(raw) as T;
+    sanitize(parsed);
+    return parsed;
+  } catch (err) {
+    // Silent fallback is by design (empty/stale cache is indistinguishable
+    // from corrupt from the user's POV), but under GPC_DEBUG=1 surface the
+    // error so authors can diagnose bad config or cache files.
+    debug(`readJson(${path}) failed: ${err instanceof Error ? err.message : String(err)}`);
     return null;
   }
 }
@@ -115,6 +148,18 @@ export async function completeTracksForApp(packageName: string | undefined): Pro
     const entry = await readFreshStatusCache(packageName);
     for (const r of entry?.data?.releases ?? []) {
       if (r.track) tracks.add(r.track);
+    }
+  } else {
+    // No package arg: shell scripts don't currently parse the already-typed
+    // --app value. As a best-effort, aggregate custom track names from every
+    // fresh status cache so `gpc --track <TAB>` still surfaces non-standard
+    // tracks the user has published to recently.
+    const packages = await cachedPackageNames();
+    const entries = await Promise.all(packages.map((p) => readFreshStatusCache(p)));
+    for (const entry of entries) {
+      for (const r of entry?.data?.releases ?? []) {
+        if (r.track) tracks.add(r.track);
+      }
     }
   }
   return [...tracks];

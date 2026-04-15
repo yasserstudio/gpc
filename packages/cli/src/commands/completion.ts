@@ -524,7 +524,7 @@ export function generateBashCompletions(
       for (const opt of completableOptions(d.options)) {
         if (opt.choices && opt.long) {
           flagCases.push(
-            `    ${opt.long})\n      COMPREPLY=( $(compgen -W "${opt.choices.join(" ")}" -- "\${cur}") )\n      return 0\n      ;;`,
+            `    ${opt.long})\n      COMPREPLY=( $(compgen -W "${joinBashChoices(opt.choices)}" -- "\${cur}") )\n      return 0\n      ;;`,
           );
         }
       }
@@ -537,7 +537,7 @@ export function generateBashCompletions(
   for (const opt of completableOptions(globals)) {
     if (opt.choices && opt.long) {
       flagCases.push(
-        `    ${opt.long})\n      COMPREPLY=( $(compgen -W "${opt.choices.join(" ")}" -- "\${cur}") )\n      return 0\n      ;;`,
+        `    ${opt.long})\n      COMPREPLY=( $(compgen -W "${joinBashChoices(opt.choices)}" -- "\${cur}") )\n      return 0\n      ;;`,
       );
     }
   }
@@ -906,6 +906,18 @@ ${level3Cases.join("\n")}
         }
     }
 }`;
+}
+
+/**
+ * Escape a `.choices()` value for safe inclusion in a bash `compgen -W "..."`
+ * list. Choices in practice come from CLI source (not user input), but we
+ * defend anyway so a future `.choices(["yes", "no thanks"])` doesn't split on
+ * whitespace or interpolate a stray `$var`.
+ */
+function joinBashChoices(choices: readonly string[]): string {
+  return choices
+    .map((c) => c.replace(/([\\"$`])/g, "\\$1").replace(/ /g, "\\ "))
+    .join(" ");
 }
 
 function escapeZsh(str: string): string {
