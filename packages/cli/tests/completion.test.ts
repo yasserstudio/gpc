@@ -494,6 +494,55 @@ describe("drift guard — introspected-tree commands appear in bash output", () 
       expect(output, `expected top-level command "${name}" in bash output`).toContain(name);
     }
   });
+
+  it("hidden commands are filtered from the introspected tree", async () => {
+    const program = await createProgram();
+    const tree = buildCommandTreeFromProgram(program);
+    expect(Object.keys(tree)).not.toContain("__complete");
+  });
+});
+
+describe("dynamic shell-completion values", () => {
+  it("bash shells out to `gpc __complete` for profile/app/track flags", () => {
+    const output = generateBashCompletions();
+    expect(output).toContain("gpc __complete profiles");
+    expect(output).toContain("gpc __complete packages");
+    expect(output).toContain("gpc __complete tracks-for-app");
+    // Branches keyed on the flag name
+    expect(output).toMatch(/--profile\)[\s\S]*gpc __complete profiles/);
+    expect(output).toMatch(/--app\)[\s\S]*gpc __complete packages/);
+    expect(output).toMatch(/--track\)[\s\S]*gpc __complete tracks-for-app/);
+  });
+
+  it("fish emits `-a '(gpc __complete ... )'` for dynamic flags", () => {
+    const output = generateFishCompletions();
+    expect(output).toContain("(gpc __complete profiles 2>/dev/null)");
+    expect(output).toContain("(gpc __complete packages 2>/dev/null)");
+    expect(output).toContain("(gpc __complete tracks-for-app 2>/dev/null)");
+    expect(output).toContain("complete -c gpc -l profile -x -a");
+    expect(output).toContain("complete -c gpc -l app -x -a");
+    expect(output).toContain("complete -c gpc -l track -x -a");
+  });
+
+  it("zsh declares helper functions and wires them into _arguments specs", () => {
+    const output = generateZshCompletions();
+    expect(output).toContain("_gpc_profiles()");
+    expect(output).toContain("_gpc_packages()");
+    expect(output).toContain("_gpc_tracks_for_app()");
+    expect(output).toContain("gpc __complete profiles 2>/dev/null");
+    expect(output).toContain("gpc __complete packages 2>/dev/null");
+    expect(output).toContain("gpc __complete tracks-for-app 2>/dev/null");
+    expect(output).toContain("'--profile[]:value:_gpc_profiles'");
+    expect(output).toContain("'--app[]:value:_gpc_packages'");
+    expect(output).toContain("'--track[]:value:_gpc_tracks_for_app'");
+  });
+
+  it("powershell output is unchanged by dynamic-values work", () => {
+    const output = generatePowerShellCompletions();
+    // PowerShell dynamic values are deferred; ensure we did NOT leak __complete
+    // shell-outs into the PowerShell script (would be syntactically invalid).
+    expect(output).not.toContain("gpc __complete");
+  });
 });
 
 describe("generatePowerShellCompletions", () => {
