@@ -782,6 +782,23 @@ export function generateFishCompletions(
   };
   walkFlags(tree);
 
+  // Dynamic flag-value completion: shell out to `gpc __complete <ctx>`.
+  // Fish merges multiple `complete` directives for the same flag, so these
+  // layer on top of the description-only lines emitted above.
+  lines.push("");
+  lines.push("# Dynamic values (shell out to __complete)");
+  for (const { flags, context } of DYNAMIC_FLAG_CONTEXTS) {
+    for (const flag of flags) {
+      if (flag.startsWith("--")) {
+        const longName = flag.slice(2);
+        lines.push(`complete -c gpc -l ${longName} -x -a '(gpc __complete ${context} 2>/dev/null)'`);
+      } else if (flag.startsWith("-")) {
+        const shortName = flag.slice(1);
+        lines.push(`complete -c gpc -s ${shortName} -x -a '(gpc __complete ${context} 2>/dev/null)'`);
+      }
+    }
+  }
+
   return lines.join("\n");
 }
 
