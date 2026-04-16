@@ -50,6 +50,10 @@ gpc publish <file> [options]
 `--notes` and `--notes-dir` are mutually exclusive. Providing both causes exit code 2.
 :::
 
+::: tip GitHub Release notes
+The flags above set the **Play Store** `recentChanges[]` (per-locale, 500-char limit). For the **GitHub Release** notes that you'd publish via `gh release create`, use [`gpc changelog generate`](./changelog#changelog-generate) — different format, different consumer.
+:::
+
 ### Example
 
 Upload an AAB to the beta track with release notes:

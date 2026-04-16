@@ -11,7 +11,33 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.60 <Badge type="tip" text="latest" />
+## v0.9.61 <Badge type="tip" text="latest" />
+
+Smarter changelog generation. `gpc changelog generate` reads your local git log, clusters related commits, lints subjects against project voice, and emits one of three outputs: canonical GitHub Release markdown, structured JSON, or a paste-ready prompt for Claude or ChatGPT. Pipe straight into `gh release create -F -` to ship a release end-to-end. The existing `gpc changelog` (read-only viewer) is unchanged — `generate` is a new subcommand.
+
+This is the first release in a series ending with one-command commit→translated Play Store release notes (v0.9.62 adds `--target play-store`, v0.9.63 adds opt-in AI translation via the Vercel AI SDK).
+
+**New:**
+
+- feat(cli): `gpc changelog generate` produces release notes from local git commits. Three output modes: `--format md` (canonical GitHub Release markdown, default), `--format json` (structured for tooling), `--format prompt` (paste-ready LLM prompt).
+- feat(core): commit-clustering algorithm groups related commits via file-path overlap, Jaccard keyword similarity, and time proximity. Headline scoring picks the largest-weight cluster as the suggested release theme.
+- feat(core): revert-pair detection drops both sides; fixup commits (`wip`, `fix typo`, `address review`) are filtered. Verb canonicalization (`Added` → `add`). Conventional-commit scopes dropped per project convention.
+- feat(cli): `--strict` flag escalates linter warnings to a non-zero exit code. Useful in CI to enforce project voice consistency.
+- feat(cli): `--repo owner/name` overrides the auto-detected repo for the Full Changelog link. Both HTTPS and SSH git remotes are recognized.
+- feat(cli): jargon linter scans emitted subjects for words ruled out of public release notes (`mutex`, `token bucket`, `homedir`, etc.). Hits emit stderr warnings; `--strict` makes them fail CI.
+
+**Docs:**
+
+- New guide page: [Generating Release Notes](/guide/changelog-generation) — full walkthrough of the feature, the LLM-prompt workflow, and CI integration.
+- [`gpc changelog` reference](/commands/changelog) now documents both subcommands with options table and exit codes.
+
+**Tests:** 1,941 → 1,978 (+37).
+
+**Endpoint count:** unchanged at 217.
+
+---
+
+## v0.9.60
 
 Smarter tab-completion. The bash, zsh, and fish scripts now fill in live values for `--profile`, `--app`, and `--track` at TAB time by consulting your config and the `gpc status` cache (no API calls, under 150ms cold). Homebrew installs the completion files automatically, so `brew install yasserstudio/tap/gpc` means TAB completion works in a fresh shell with no setup.
 

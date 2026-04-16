@@ -552,8 +552,52 @@ jobs:
             --json
 ```
 
+## Generate GitHub Release Notes
+
+Auto-generate the release notes body from your local git log when cutting a tag. `gpc changelog generate` (v0.9.61+) clusters related commits, lints subjects against project voice, and emits canonical markdown that pipes straight into `gh release create -F -`.
+
+```yaml
+# .github/workflows/release.yml
+name: Cut Release
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write    # required for gh release create
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0    # required so gpc can read the full git history
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install GPC
+        run: npm install -g @gpc-cli/cli
+
+      - name: Enforce voice in release notes
+        run: gpc changelog generate --strict
+        # Fails the workflow if any commit subject contains internal jargon
+        # (e.g., "mutex", "token bucket", "homedir"). Forces consistency.
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gpc changelog generate | gh release create ${{ github.ref_name }} -F -
+```
+
+For Play Store per-locale `recentChanges[]` (different format), use [`gpc publish --notes-from-git`](/commands/publish).
+
 ## Related
 
 - [Vitals Gates](/ci-cd/vitals-gates) -- gate deployments on crash and ANR rates
 - [`gpc status`](/commands/status) -- post-deploy health snapshot
+- [`gpc changelog generate`](/guide/changelog-generation) -- full feature guide
 - [Migrate from Fastlane](/migration/from-fastlane) -- CI workflow migration guide

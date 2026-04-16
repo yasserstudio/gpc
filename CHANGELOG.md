@@ -7,6 +7,37 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.61
+
+Smarter changelog generation. `gpc changelog generate` reads your local git log, clusters related commits, lints subjects against project voice, and emits one of three outputs: canonical GitHub Release markdown, structured JSON, or a paste-ready prompt for Claude or ChatGPT. Pipe `gpc changelog generate | gh release create vX -F -` to ship a release end-to-end. The existing `gpc changelog` (read-only viewer) is unchanged — `generate` is a new subcommand under it.
+
+This is the first release in a series ending with one-command commit→translated Play Store release notes (v0.9.62 adds `--target play-store`).
+
+**New**
+
+- feat(cli): `gpc changelog generate` — produces release notes from local git commits with smart clustering of related commits, jargon linting against project voice, and three output modes (`md`, `json`, `prompt`).
+- feat(core): commit-clustering algorithm (Union-Find on file-path overlap + Jaccard keyword similarity + time proximity), headline scoring, revert-pair detection, fixup-commit merging, verb canonicalization.
+- feat(cli): `--strict` flag escalates linter warnings to a non-zero exit code for CI enforcement.
+
+**Docs**
+
+- docs: new guide page [Generating Release Notes](https://yasserstudio.github.io/gpc/guide/changelog-generation) — full walkthrough including the LLM-prompt workflow.
+- docs: `gpc changelog` reference page now documents both subcommands with options table and exit codes.
+
+---
+
+## v0.9.60
+
+Smarter tab-completion. The bash, zsh, and fish scripts now fill in live values for `--profile`, `--app`, and `--track` at TAB time by consulting your config and the `gpc status` cache (no API calls, under 150ms cold). Homebrew installs the completion files automatically.
+
+**New**
+
+- feat(cli): tab-completion resolves `--profile`, `--app` / `--apps`, and `--track` to live values from your config and status cache.
+- feat(cli): zsh completion rewritten to use real `_arguments` integration with helper functions (`_gpc_profiles`, `_gpc_packages`, `_gpc_tracks_for_app`).
+- feat(homebrew): formula auto-installs bash/zsh/fish completions via `generate_completions_from_executable` — no manual `eval` step needed.
+
+---
+
 ## v0.9.59
 
 Hotfix for v0.9.58. `gpc vitals lmk` was returning 404 because the metric set name shipped with the wrong identifier. Caught by live smoke against `sfn-emploi` immediately after release; v0.9.59 is the corrected build, verified live.

@@ -121,7 +121,7 @@ gpc bundle analyze app.aab --threshold 150
 | [`install-skills`](./install-skills)          | Install AI agent skills for GPC workflows        |
 | [`init`](./init)                              | Scaffold project config, metadata, CI templates  |
 | [`diff`](./diff)                              | Preview release state and pending changes        |
-| [`changelog`](./changelog)                    | Show release history from GitHub                 |
+| [`changelog`](./changelog)                    | Show GitHub history; `generate` makes notes from commits |
 | [`validate`](./publish#gpc-validate)          | Dry-run validation of a release before committing |
 
 ## Global Flags

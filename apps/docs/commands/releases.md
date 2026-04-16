@@ -46,7 +46,7 @@ gpc releases upload <file> [options]
 | `--name`                        |       | `string` |             | Release name                                                                     |
 | `--mapping`                     |       | `string` |             | Path to ProGuard/R8 mapping file for deobfuscation                               |
 | `--notes-dir`                   |       | `string` |             | Directory with per-language release notes (`<dir>/<lang>.txt`)                   |
-| `--notes-from-git`              |       | flag     |             | Generate release notes from git commit history                                   |
+| `--notes-from-git`              |       | flag     |             | Generate Play Store release notes from git commit history (per-locale, 500-char). For GitHub Release notes, see [`gpc changelog generate`](./changelog#changelog-generate). |
 | `--copy-notes-from`             |       | `string` |             | Copy release notes from another track's latest release                           |
 | `--since`                       |       | `string` |             | Git ref to start from (tag, SHA) — used with `--notes-from-git`                  |
 | `--timeout`                     |       | `number` |             | Upload timeout in milliseconds (auto-scales with file size)                      |

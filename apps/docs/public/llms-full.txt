@@ -11,12 +11,13 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Pl
 
 - Install: `npm install -g @gpc-cli/cli`
 - Binary: `gpc`
-- Version: 0.9.60
+- Version: 0.9.61
 - API endpoints covered: 217 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1)
-- Tests: 1,941 (90%+ coverage)
+- Tests: 1,978 (90%+ coverage)
 - Licensing: Free to use. Source code is on GitHub.
 - Repo: https://github.com/yasserstudio/gpc
 - Notable v0.9.56 feature: `gpc enterprise publish` — first Android publishing CLI with Managed Google Play / Play Custom App Publishing API support
+- Notable v0.9.61 feature: `gpc changelog generate` — produces GitHub Release notes from local git commits with smart clustering, jargon linting, and a paste-ready LLM prompt mode (Claude/ChatGPT)
 
 ---
 
@@ -91,6 +92,7 @@ gpc
   diff         [--from] [--to] [--metadata]
   rtdn         status, decode, test
   changelog    [--tag] [--limit] [--all]
+  changelog generate  [--from] [--to] [--format md|json|prompt] [--repo] [--strict]
   quota        status, usage
   train        start, status, pause, abort
   cache        list, info, clear
@@ -510,8 +512,11 @@ gpc update --check      # Check for updates (CI-friendly, no update)
 gpc cache list          # Show cached data
 gpc cache clear         # Clear all cached data
 gpc feedback            # Open GitHub issues
-gpc changelog           # Show release history
-gpc changelog --tag v0.9.50    # Details for a specific release
+gpc changelog                     # Show release history from GitHub
+gpc changelog --tag v0.9.50       # Details for a specific release
+gpc changelog generate            # Generate notes from local commits (md by default)
+gpc changelog generate --format prompt | pbcopy   # Paste-ready LLM prompt
+gpc changelog generate | gh release create v0.9.61 -F -   # One-command release
 gpc init                # Scaffold .gpcrc.json, metadata dirs, CI templates
 gpc diff                # Release status across all tracks
 gpc diff --from internal --to production  # Compare two tracks

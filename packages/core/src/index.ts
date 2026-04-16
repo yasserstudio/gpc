@@ -340,5 +340,24 @@ export type {
 export { fetchChangelog, formatChangelogEntry } from "./commands/changelog.js";
 export type { ChangelogEntry, FetchChangelogOptions } from "./commands/changelog.js";
 
+export {
+  generateChangelog,
+  defaultGitRunner,
+  parseCommit,
+  parseRemoteUrl,
+  SECTION_ORDER,
+} from "./commands/changelog-generate.js";
+export type {
+  OutputMode,
+  GitRunner,
+  RawCommit,
+  ParsedCommit,
+  CommitCluster,
+  GeneratedChangelog,
+  GenerateOptions,
+} from "./commands/changelog-generate.js";
+export { RENDERERS, renderMarkdown, renderJson, renderPrompt } from "./commands/changelog-renderers/index.js";
+export type { Renderer } from "./commands/changelog-renderers/index.js";
+
 export { getRtdnStatus, decodeNotification, formatNotification } from "./commands/rtdn.js";
 export type { RtdnStatus, DecodedNotification } from "./commands/rtdn.js";

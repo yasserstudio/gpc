@@ -75,10 +75,12 @@ function formatNotes(
   return { text, truncated };
 }
 
-async function gitExec(args: string[]): Promise<string> {
+export async function gitExec(args: string[], opts?: { cwd?: string }): Promise<string> {
   try {
-    const { stdout } = await execFile("git", args);
-    return stdout.trim();
+    const result = opts?.cwd
+      ? await execFile("git", args, { encoding: "utf8", cwd: opts.cwd })
+      : await execFile("git", args);
+    return result.stdout.trim();
   } catch (error: unknown) {
     const err = error as { code?: string; stderr?: string; message?: string };
     if (err.code === "ENOENT") {

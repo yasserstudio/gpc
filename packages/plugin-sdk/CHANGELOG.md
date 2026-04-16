@@ -1,5 +1,11 @@
 # @gpc-cli/plugin-sdk
 
+## 0.9.10
+
+### Patch Changes
+
+- Smarter changelog generation. `gpc changelog generate` reads your local git log, clusters related commits, lints subjects against project voice, and emits canonical GitHub Release markdown, JSON, or a paste-ready LLM prompt. Pipe `gpc changelog generate | gh release create vX -F -` to ship a release end-to-end. The existing `gpc changelog` (read-only viewer) is unchanged — `generate` is a new subcommand.
+
 ## 0.9.9
 
 ### Patch Changes

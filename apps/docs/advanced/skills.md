@@ -40,7 +40,7 @@ GPC ships with 16 agent skills covering every workflow:
 | ------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
 | `gpc-setup`              | Auth, config, profiles, `gpc doctor`                                                                                        |
 | `gpc-onboarding`         | First-run setup, `gpc quickstart`, `gpc init`, interactive wizard                                                           |
-| `gpc-release-flow`       | Upload AAB/APK, draft releases, rollouts, promote, rejected app handling, native debug symbols, `gpc diff`, `gpc changelog` |
+| `gpc-release-flow`       | Upload AAB/APK, draft releases, rollouts, promote, rejected app handling, native debug symbols, `gpc diff`, `gpc changelog`, `gpc changelog generate` |
 | `gpc-train`              | Automated staged rollout pipeline with time gates and vitals gates                                                          |
 | `gpc-preflight`          | Offline AAB/APK compliance scanner (9 scanners), `.preflightrc.json`                                                        |
 | `gpc-metadata-sync`      | Store listings, images, Fastlane metadata compat                                                                            |

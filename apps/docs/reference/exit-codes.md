@@ -89,14 +89,16 @@ When an error occurs with `--output json`, the response follows this structure:
 
 ### Error Code Prefixes
 
-| Prefix      | Category                    | Exit Code |
-| ----------- | --------------------------- | --------- |
-| `AUTH_*`    | Authentication errors       | 3         |
-| `API_*`     | Google Play API errors      | 4         |
-| `CONFIG_*`  | Configuration errors        | 1         |
-| `UPLOAD_*`  | File upload errors          | 4         |
-| `NETWORK_*` | Network / connectivity      | 5         |
-| `PLUGIN_*`  | Plugin system errors        | 1         |
+| Prefix       | Category                    | Exit Code |
+| ------------ | --------------------------- | --------- |
+| `AUTH_*`     | Authentication errors       | 3         |
+| `API_*`      | Google Play API errors      | 4         |
+| `CONFIG_*`   | Configuration errors        | 1         |
+| `UPLOAD_*`   | File upload errors          | 4         |
+| `NETWORK_*`  | Network / connectivity      | 5         |
+| `PLUGIN_*`   | Plugin system errors        | 1         |
+| `CHANGELOG_*`| Changelog generation errors | 1         |
+| `GIT_*`      | Git subprocess errors       | 1         |
 
 ### Common Error Codes
 

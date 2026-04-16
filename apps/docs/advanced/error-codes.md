@@ -232,6 +232,29 @@ Exit code: `6`
 | `THRESHOLD_CRASH_RATE` | Crash rate threshold breached | Crash rate exceeds `--threshold` value | Investigate crashes, halt rollout |
 | `THRESHOLD_ANR_RATE`   | ANR rate threshold breached   | ANR rate exceeds `--threshold` value   | Investigate ANRs, halt rollout    |
 
+### CHANGELOG\_\* -- Changelog Generation Errors
+
+Exit code: `1`
+
+Emitted by `gpc changelog generate` (v0.9.61+).
+
+| Code                  | Message                                  | Cause                                                      | Fix                                                                    |
+| --------------------- | ---------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `CHANGELOG_NO_TAG`    | No git tags found and --from not provided | Repo has no `v*` tag and no explicit `--from` ref          | Pass `--from <ref>` explicitly, or create an initial tag (`git tag v0.0.1`) |
+| `CHANGELOG_BAD_REF`   | Invalid `--from` or `--to` ref           | Ref does not resolve to a commit                           | Verify with `git rev-parse --verify <ref>`                             |
+
+### GIT\_\* -- Git Subprocess Errors
+
+Exit code: `1`
+
+Emitted by any command that shells out to `git` (`gpc changelog generate`, `gpc publish --notes-from-git`, `gpc releases create --notes-from-git`).
+
+| Code            | Message                            | Cause                                       | Fix                                                                |
+| --------------- | ---------------------------------- | ------------------------------------------- | ------------------------------------------------------------------ |
+| `GIT_NOT_FOUND` | git is not available on this system | `git` binary not on `PATH`                  | Install git and ensure it's on `PATH`                              |
+| `GIT_NO_TAGS`   | No git tags found                  | Used by `--notes-from-git` when no tag exists | Create a tag or pass `--since <ref>` explicitly                    |
+| `GIT_LOG_FAILED` | Failed to read git log             | Bad ref, corrupt repo, or git error         | Verify the ref with `git rev-parse --verify <ref>`                |
+
 ## Error Class Hierarchy
 
 GPC uses a typed error hierarchy. All errors extend the base `GpcError` class.

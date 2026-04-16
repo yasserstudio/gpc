@@ -14,10 +14,11 @@ GPC is a TypeScript CLI that covers 217 Google Play Developer API endpoints. It 
 - Exit codes: 0 success, 1 error, 2 usage, 3 auth, 4 API, 5 network, 6 threshold breach, 10 plugin
 - Config: `.gpcrc.json` (project), `~/.config/gpc/config.json` (user), `GPC_*` env vars
 - Uploads: Resumable protocol (8 MB chunks, auto-resume on failure, real-time progress bar)
-- Tests: 1,941 total, 90%+ line coverage on all core packages
-- Version: 0.9.60 (pre-release series → 1.0.0 public launch)
+- Tests: 1,978 total, 90%+ line coverage on all core packages
+- Version: 0.9.61 (pre-release series → 1.0.0 public launch)
 - Licensing: Free to use. Source code is on GitHub.
 - Managed Google Play: GPC is the first Android publishing CLI to support the Play Custom App Publishing API (gpc enterprise publish)
+- Release notes generation: gpc changelog generate produces GitHub Release markdown from local commits, with smart clustering, jargon linting, and a paste-ready LLM prompt mode
 
 ## Documentation
 
@@ -63,7 +64,8 @@ gpc testers import --track beta --file testers.csv     # Bulk tester import
 gpc publish app.aab --track beta --notes "Bug fixes"   # End-to-end release
 gpc anomalies list                                     # List Android vitals anomalies
 gpc migrate fastlane --dir fastlane/metadata           # Migrate Fastlane metadata
-gpc changelog                                          # Show release history
+gpc changelog                                          # Show release history from GitHub
+gpc changelog generate                                 # Generate notes from local commits (md/json/prompt)
 ```
 
 ## Environment Variables

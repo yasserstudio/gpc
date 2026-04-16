@@ -510,6 +510,19 @@ describe("drift guard — introspected-tree commands appear in bash output", () 
     expect(Object.keys(tree)).toContain("visible");
     expect(Object.keys(tree)).not.toContain("hidden-one");
   });
+
+  it("walker auto-discovers `changelog generate` subcommand (v0.9.61 regression guard)", async () => {
+    const program = new Command();
+    const { registerChangelogCommand } = await import("../src/commands/changelog.js");
+    registerChangelogCommand(program);
+    const tree = buildCommandTreeFromProgram(program);
+    const changelogSubs = Object.keys(tree["changelog"]?.subcommands ?? {});
+    expect(changelogSubs).toContain("generate");
+    const generate = tree["changelog"]?.subcommands?.["generate"];
+    const formatOpt = generate?.options?.find((o) => o.long === "--format");
+    expect(formatOpt).toBeDefined();
+    expect(formatOpt?.takesValue).toBe(true);
+  });
 });
 
 describe("dynamic shell-completion values", () => {

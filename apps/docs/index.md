@@ -40,13 +40,13 @@ features:
   - icon:
       src: /icons/plug.png
     title: Plugin System + SDK
-    details: "1,941 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK."
+    details: "1,978 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK."
 ---
 
 <div class="stats-bar">
   <span class="stat">217 API Endpoints</span>
   <span class="stat-sep"></span>
-  <span class="stat">1,941 Tests</span>
+  <span class="stat">1,978 Tests</span>
   <span class="stat-sep"></span>
   <span class="stat">90%+ Coverage</span>
   <span class="stat-sep"></span>
@@ -107,6 +107,7 @@ gpc reviews list --stars 1-3 --since 7d
 | **Team**         | Testers, users, permissions, CSV bulk import                                         |
 | **Compliance**   | Preflight scanner (9 checks), data safety, recovery actions, review-safe CI          |
 | **Analysis**     | Bundle size breakdown, cross-build comparison, size CI gates                         |
+| **Release Notes** | Generate GitHub Release markdown from local commits — clusters, lints, LLM prompt   |
 | **More**         | Device tiers, internal sharing, external transactions, project scaffolding           |
 
 [View the full command reference →](/commands/)

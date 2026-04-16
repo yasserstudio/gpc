@@ -106,7 +106,7 @@ function getPageDescription(page: PageData): string {
     "commands/diff.md":
       "gpc diff — Preview release state and pending changes before publishing. Read-only, no mutations.",
     "commands/changelog.md":
-      "gpc changelog — View release history and what changed across versions.",
+      "gpc changelog — View release history from GitHub and generate release notes from local git commits with smart clustering.",
     "commands/rtdn.md":
       "gpc rtdn — Real-Time Developer Notifications. Decode Pub/Sub payloads, check configuration, debug subscription events.",
     // Guide
@@ -116,6 +116,8 @@ function getPageDescription(page: PageData): string {
       "Android developer verification and app registration — what's changing, the timeline, and how GPC helps you stay compliant.",
     "guide/enterprise-publishing.md":
       "Publish private apps to Managed Google Play via the Play Custom App Publishing API. Full walkthrough from account setup to CI/CD.",
+    "guide/changelog-generation.md":
+      "Generate GitHub Release notes from local git commits with smart clustering, jargon linting, and a paste-ready LLM prompt mode. Pipe directly into gh release create.",
     "guide/screenshots.md":
       "Manage Google Play store media with GPC. Screenshots, feature graphics, icons, and TV banners. Image requirements, bulk sync workflows, localization, CI/CD recipes.",
     "guide/multi-account.md":
@@ -283,7 +285,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
 
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.60",
+        softwareVersion: "0.9.61",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: { "@type": "Person", name: "yasserstudio", url: "https://github.com/yasserstudio" },
@@ -377,7 +379,7 @@ export default defineConfig({
             name: "Is it stable enough for production CI/CD?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "1,941 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
+              text: "1,978 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
             },
           },
         ],
@@ -511,6 +513,7 @@ export default defineConfig({
             { text: "Configuration", link: "/guide/configuration" },
             { text: "Developer Verification", link: "/guide/developer-verification" },
             { text: "Enterprise Publishing", link: "/guide/enterprise-publishing" },
+            { text: "Generating Release Notes", link: "/guide/changelog-generation" },
             { text: "Store Listings & Screenshots", link: "/guide/screenshots" },
             { text: "Multiple Developer Accounts", link: "/guide/multi-account" },
             { text: "FAQ", link: "/guide/faq" },
