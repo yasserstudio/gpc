@@ -21,7 +21,7 @@ If you are evaluating alternatives to Fastlane for Google Play automation, here 
 | Plugin system           | Yes (lifecycle hooks)         | Actions (different) |
 | Interactive mode        | Yes (guided prompts)          | No                  |
 | Release notes generator | **`gpc changelog generate`** (clusters, lints, LLM prompt) | No |
-| Test suite              | 1,978 tests, 90%+ coverage    | --                  |
+| Test suite              | 1,999 tests, 90%+ coverage    | --                  |
 
 ## What GPC Covers That Fastlane Does Not
 

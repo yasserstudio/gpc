@@ -118,6 +118,8 @@ function getPageDescription(page: PageData): string {
       "Publish private apps to Managed Google Play via the Play Custom App Publishing API. Full walkthrough from account setup to CI/CD.",
     "guide/changelog-generation.md":
       "Generate GitHub Release notes from local git commits with smart clustering, jargon linting, and a paste-ready LLM prompt mode. Pipe directly into gh release create.",
+    "guide/multilingual-release-notes.md":
+      "Generate Play Store per-locale What's new text from git commits. 500-char budget per locale, auto-detect locales from your live listing, and a translation-ready LLM prompt mode.",
     "guide/screenshots.md":
       "Manage Google Play store media with GPC. Screenshots, feature graphics, icons, and TV banners. Image requirements, bulk sync workflows, localization, CI/CD recipes.",
     "guide/multi-account.md":
@@ -285,7 +287,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
 
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.61",
+        softwareVersion: "0.9.62",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: { "@type": "Person", name: "yasserstudio", url: "https://github.com/yasserstudio" },
@@ -379,7 +381,7 @@ export default defineConfig({
             name: "Is it stable enough for production CI/CD?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "1,978 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
+              text: "1,999 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
             },
           },
         ],
@@ -514,6 +516,7 @@ export default defineConfig({
             { text: "Developer Verification", link: "/guide/developer-verification" },
             { text: "Enterprise Publishing", link: "/guide/enterprise-publishing" },
             { text: "Generating Release Notes", link: "/guide/changelog-generation" },
+            { text: "Multilingual Release Notes", link: "/guide/multilingual-release-notes" },
             { text: "Store Listings & Screenshots", link: "/guide/screenshots" },
             { text: "Multiple Developer Accounts", link: "/guide/multi-account" },
             { text: "FAQ", link: "/guide/faq" },

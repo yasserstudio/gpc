@@ -16,7 +16,7 @@ Two modes:
 - **`gpc changelog`** — fetches published release notes from GitHub Releases (read-only, no auth)
 - **`gpc changelog generate`** — produces release notes from your local git log, ready to paste into `gh release create -F -`
 
-Full guide for the generator: [Generating Release Notes](/guide/changelog-generation).
+Full guide for the generator: [Generating Release Notes](/guide/changelog-generation). For Play Store per-locale output via --target play-store, see [Multilingual Release Notes](/guide/multilingual-release-notes).
 
 ## Commands
 
@@ -111,7 +111,9 @@ gpc changelog generate [options]
 | `--to <ref>`            | Ending git ref                                             | `HEAD`                 |
 | `--format <mode>`       | Renderer: `md`, `json`, or `prompt`                        | `md`                   |
 | `--repo <owner/name>`   | Override auto-detected repo (e.g., `yasserstudio/gpc`)     | parsed from `origin`   |
-| `--strict`              | Exit non-zero if linter warnings are emitted               | `false`                |
+| `--target <mode>`       | Output target: `github` or `play-store`                    | `github`               |
+| `--locales <csv\|auto>` | BCP 47 locales (play-store target only)                    | —                      |
+| `--strict`              | Exit non-zero on linter warnings or locale overflows       | `false`                |
 
 ### Examples
 
@@ -174,15 +176,35 @@ gpc changelog generate --from main --to my-feature-branch
 - Filters out `chore`, `refactor`, `test`, `build`, `style`, `merge` types from visible output (kept in JSON `commits[]` for tooling).
 - Conventional-commit scopes (`feat(cli):`) are dropped per project convention; a one-time scope-leak warning fires per generation.
 - Newlines in commit subjects are stripped to prevent injection into pasted release notes.
-- For Play Store per-locale `recentChanges[]`, see [`gpc publish --notes-from-git`](/commands/publish) and [`gpc releases create --notes-from-git`](/commands/releases) — different format, different consumer. Per-locale Play Store output ships as `--target play-store` in a follow-up release.
+- For Play Store per-locale `recentChanges[]`, use `--target play-store --locales <csv|auto>`. See [Multilingual Release Notes](/guide/multilingual-release-notes) for the full walkthrough.
+
+### Play Store target
+
+Emit per-locale "What's new" text for Play Console. The en-US source is the same set of bullets as the `github` target, truncated to 500 Unicode code points per Play's limit; other locales get a `[needs translation]` placeholder to keep the workflow explicit.
+
+```bash
+# Explicit locale list
+gpc changelog generate --target play-store --locales en-US,fr-FR,de-DE
+
+# Read locales from your live Play Store listing
+gpc changelog generate --target play-store --locales auto --app com.example.app
+
+# Emit a translation-ready LLM prompt
+gpc changelog generate --target play-store --locales en-US,fr-FR,de-DE --format prompt
+
+# Fail CI if any locale overflows 500 chars
+gpc changelog generate --target play-store --locales auto --strict
+```
+
+AI translation ships in v0.9.63; writing notes back into a draft release lands in v0.9.64.
 
 ### Exit codes
 
-| Code | Meaning                                                              |
-| ---- | -------------------------------------------------------------------- |
-| `0`  | Success (default mode)                                               |
-| `1`  | `--strict` enabled and linter warnings were emitted                  |
-| `2`  | Invalid `--format` or `--repo` value                                 |
+| Code | Meaning                                                                      |
+| ---- | ---------------------------------------------------------------------------- |
+| `0`  | Success                                                                      |
+| `1`  | `--strict` enabled and linter warnings or locale overflows were emitted      |
+| `2`  | Invalid `--format`, `--target`, `--repo`, or `--locales` value / combination |
 
 ## Related
 

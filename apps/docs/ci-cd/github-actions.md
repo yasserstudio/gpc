@@ -593,7 +593,24 @@ jobs:
           gpc changelog generate | gh release create ${{ github.ref_name }} -F -
 ```
 
-For Play Store per-locale `recentChanges[]` (different format), use [`gpc publish --notes-from-git`](/commands/publish).
+### Play Store per-locale "What's new" (v0.9.62+)
+
+Generate per-locale Play Store release notes in the same workflow. `gpc changelog generate --target play-store --locales auto` reads your live listing's locale list and emits a character-budget meter for each.
+
+```yaml
+      - name: Generate Play Store changelog
+        run: |
+          gpc changelog generate --target play-store \
+            --locales auto \
+            --format json \
+            --app com.example.app \
+            --strict > play-store-notes.json
+        # --strict exits 1 if any locale overflows 500 chars.
+```
+
+For opt-in AI translation of the `[needs translation]` placeholders, wait for v0.9.63 (Vercel AI SDK integration). To wire translated notes back into a draft release, wait for v0.9.64.
+
+For uploading pre-written release notes alongside an AAB, see [gpc publish --notes-from-git](/commands/publish) or [gpc releases create --notes-from-git](/commands/releases).
 
 ## Related
 

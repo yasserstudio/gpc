@@ -32,6 +32,10 @@ Vitals commands use the Google Play Developer Reporting API, which must be enabl
 Enable it at: `https://console.cloud.google.com/apis/library/playdeveloperreporting.googleapis.com`
 :::
 
+::: warning Known issue: `vitals errors reports`
+The per-issue drill-down path currently calls an endpoint that does not exist in Google's current Reporting API discovery doc (revision `20260415`). Scheduled for fix in v0.9.62 alongside additions for `apps.search`, `apps.fetchReleaseFilterOptions`, and extended `errorIssues.search` query parameters. See [Planned coverage](../reference/api-coverage.md#planned-coverage).
+:::
+
 ## Shared Options
 
 The metric commands (`crashes`, `anr`, `startup`, `rendering`, `battery`, `memory`) share these options:

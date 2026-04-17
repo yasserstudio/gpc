@@ -356,8 +356,28 @@ export type {
   GeneratedChangelog,
   GenerateOptions,
 } from "./commands/changelog-generate.js";
-export { RENDERERS, renderMarkdown, renderJson, renderPrompt } from "./commands/changelog-renderers/index.js";
-export type { Renderer } from "./commands/changelog-renderers/index.js";
+export {
+  RENDERERS,
+  renderMarkdown,
+  renderJson,
+  renderPrompt,
+  renderPlayStore,
+  renderPlayStoreMd,
+  renderPlayStoreJson,
+  renderPlayStorePrompt,
+  buildLocaleBundle,
+  PLAY_STORE_LIMIT,
+  PLACEHOLDER_TEXT,
+} from "./commands/changelog-renderers/index.js";
+export type {
+  Renderer,
+  LocaleBundle,
+  LocaleEntry,
+  PlayStoreFormat,
+  PlayStoreRenderOptions,
+} from "./commands/changelog-renderers/index.js";
+export { resolveLocales } from "./commands/changelog-locales.js";
+export type { ResolveLocalesOptions } from "./commands/changelog-locales.js";
 
 export { getRtdnStatus, decodeNotification, formatNotification } from "./commands/rtdn.js";
 export type { RtdnStatus, DecodedNotification } from "./commands/rtdn.js";

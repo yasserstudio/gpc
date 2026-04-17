@@ -11,7 +11,30 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.61 <Badge type="tip" text="latest" />
+## v0.9.62 <Badge type="tip" text="latest" />
+
+Multilingual Play Store release notes. `gpc changelog generate` now emits per-locale "What's new" text via `--target play-store --locales <csv|auto>`. The 500-character Play Store budget is checked per locale, non-source locales get a `[needs translation]` placeholder, and a new `--format prompt` emits a translation-ready LLM prompt — the bridge to opt-in AI translation in v0.9.63 (Vercel AI SDK) and `--apply` to draft releases in v0.9.64.
+
+**New:**
+
+- feat(cli): `gpc changelog generate --target play-store --locales <csv|auto>` emits per-locale Play Store "What's new" text. Three formats (`md`, `json`, `prompt`) mirror the github target.
+- feat(cli): `--locales auto` reads your live Play Store listing via `client.listings.list` and returns every locale with an existing listing. Explicit CSV (`--locales en-US,fr-FR,de-DE`) stays offline.
+- feat(core): `PlayStoreRenderer` plugged into the existing `Renderer` interface. New exports: `resolveLocales`, `renderPlayStore`, `buildLocaleBundle`, `PLAY_STORE_LIMIT` (500), `LocaleBundle`, `LocaleEntry` types.
+- feat(cli): en-US source text is lossless (same bullets as the github target) truncated to 500 Unicode code points (`[...text].length`) with a stderr warning when over.
+- feat(cli): `--strict` extended in play-store mode — exits 1 if any locale overflows 500 chars. Overflows are collected into a full report, not fail-fast.
+
+**Docs:**
+
+- New guide page: [Multilingual Release Notes](/guide/multilingual-release-notes) — full walkthrough, including the `--format prompt` workflow to bridge to v0.9.63.
+- [`gpc changelog` reference](/commands/changelog) updated with `--target` and `--locales` flags.
+
+**Tests:** 1,978 → 1,999 (+21).
+
+**Endpoint count:** unchanged at 217.
+
+---
+
+## v0.9.61
 
 Smarter changelog generation. `gpc changelog generate` reads your local git log, clusters related commits, lints subjects against project voice, and emits one of three outputs: canonical GitHub Release markdown, structured JSON, or a paste-ready prompt for Claude or ChatGPT. Pipe straight into `gh release create -F -` to ship a release end-to-end. The existing `gpc changelog` (read-only viewer) is unchanged — `generate` is a new subcommand.
 

@@ -12,3 +12,18 @@ export const RENDERERS: Record<OutputMode, Renderer> = {
 };
 
 export { renderMarkdown, renderJson, renderPrompt };
+export {
+  renderPlayStore,
+  renderPlayStoreMd,
+  renderPlayStoreJson,
+  renderPlayStorePrompt,
+  buildLocaleBundle,
+  PLAY_STORE_LIMIT,
+  PLACEHOLDER_TEXT,
+} from "./play-store.js";
+export type {
+  LocaleBundle,
+  LocaleEntry,
+  PlayStoreFormat,
+  PlayStoreRenderOptions,
+} from "./play-store.js";

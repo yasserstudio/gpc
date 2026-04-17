@@ -7,6 +7,24 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.62
+
+Multilingual Play Store release notes. `gpc changelog generate` now emits per-locale "What's new" text via `--target play-store --locales <csv|auto>`. The 500-character Play Store budget is checked per locale, non-source locales get a `[needs translation]` placeholder, and a new `--format prompt` emits a translation-ready LLM prompt — the bridge to opt-in AI translation in v0.9.63 (Vercel AI SDK) and `--apply` into draft releases in v0.9.64.
+
+**New**
+
+- feat(cli): `gpc changelog generate --target play-store --locales <csv|auto>` emits per-locale Play Store "What's new" text. Three formats (`md`, `json`, `prompt`) mirror the github target.
+- feat(cli): `--locales auto` reads your live Play Store listing and returns every locale with an existing listing. Explicit CSV (`--locales en-US,fr-FR,de-DE`) stays offline, no API call.
+- feat(core): `PlayStoreRenderer` plugged into the existing `Renderer` interface. New exports: `resolveLocales`, `renderPlayStore`, `buildLocaleBundle`, `PLAY_STORE_LIMIT` (500), plus `LocaleBundle` and `LocaleEntry` types.
+- feat(cli): `--strict` extended in play-store mode — exits 1 if any locale overflows 500 chars. Overflows are collected into a full report, not fail-fast, so CI sees every problem in one run.
+
+**Docs**
+
+- docs: new guide page [Multilingual Release Notes](https://yasserstudio.github.io/gpc/guide/multilingual-release-notes).
+- docs: `gpc changelog` reference updated with the `--target` / `--locales` flags and a Play Store target section.
+
+---
+
 ## v0.9.61
 
 Smarter changelog generation. `gpc changelog generate` reads your local git log, clusters related commits, lints subjects against project voice, and emits one of three outputs: canonical GitHub Release markdown, structured JSON, or a paste-ready prompt for Claude or ChatGPT. Pipe `gpc changelog generate | gh release create vX -F -` to ship a release end-to-end. The existing `gpc changelog` (read-only viewer) is unchanged — `generate` is a new subcommand under it.

@@ -245,7 +245,7 @@ Developer-account user management lives at a separate base URL (`androidpublishe
 | `errorCountMetricSet.query`                  | POST   | `gpc vitals error-count`    |
 | `anomalies.list`                             | GET    | `gpc vitals anomalies`      |
 | `errorIssues.search`                         | GET    | `gpc vitals errors search`  |
-| `errorReports.search`                        | GET    | `gpc vitals errors reports` |
+| `errorReports.search`                        | GET    | `gpc vitals errors reports` *(see [Planned coverage](#planned-coverage))* |
 
 ## App Recovery Actions
 
@@ -369,3 +369,63 @@ Private app publishing for enterprise customers. Separate Google API (`playcusto
 | **Total**                            | **~217**  |            |
 
 Numbers are approximate: several endpoints overload a single Google URL (for example, `reports.download` serves both financial and stats buckets via query parameters).
+
+## Planned coverage
+
+Tracked against the live discovery docs audited 2026-04-16:
+
+- `androidpublisher v3`, revision `20260416`: **134 / 137** methods covered (3 intentional gaps: `monetization.subscriptions.archive` plus two hard-deprecated v1 subscription methods)
+- `playdeveloperreporting v1beta1`, revision `20260415`: see gaps below
+- `playcustomapp v1`, revision `20260415`: **1 / 1** methods covered
+- `games*` APIs: see strategic direction below
+
+### Play Developer Reporting API: planned additions
+
+| Endpoint                                   | Use-case                                                              | Target        |
+| ------------------------------------------ | --------------------------------------------------------------------- | ------------- |
+| `apps.search`                              | `gpc apps list --source reporting`: list service-account-visible apps via Reporting ACL | Future        |
+| `apps.fetchReleaseFilterOptions`           | Validate `--version-code` / `--track` filters, power shell completion for vitals queries | Future        |
+| `errorIssues.search` (extended params)     | Add `orderBy`, `sampleErrorReportLimit`, `interval.*` windowing to `gpc vitals errors search` | Future        |
+
+::: warning Known issue: `vitals errors reports`
+The current `gpc vitals errors reports` command calls a path (`/apps/{pkg}/errorIssues/{name}/reports`) that does not exist in Google's discovery doc. The correct endpoint is `GET /apps/{pkg}/errorReports:search` with an `errorIssueId` filter. Scheduled for a future release alongside the other Reporting additions above.
+:::
+
+### Managed Google Play (playcustomapp): minor polish
+
+| Item                                             | Notes                                                                  |
+| ------------------------------------------------ | ---------------------------------------------------------------------- |
+| Accept BCP 47 hyphen form (`en-US`)              | Currently only `en_US` is documented; both work, hyphen is canonical   |
+| Pre-validate 10 GiB upload cap                   | Clearer error than mid-stream upload failure                           |
+
+No spec-driven changes needed: `accounts.customApps.create` is the entire API surface (1 method). Google has not added methods since v0.9.56 shipped (2026-04-11).
+
+### Games APIs: strategic direction
+
+GPC's current `games` command wraps the runtime `games v1` API (leaderboards, achievements, events, player-facing). This is off-mission for a publisher CLI and requires player OAuth rather than publisher credentials.
+
+The publisher-facing surface is `gamesconfiguration v1configuration` (10 methods, CRUD on achievement and leaderboard **definitions** from CI/CD):
+
+| Resource                      | Methods (5 each)                                  |
+| ----------------------------- | ------------------------------------------------- |
+| `achievementConfigurations`   | `list`, `get`, `insert`, `update`, `delete`       |
+| `leaderboardConfigurations`   | `list`, `get`, `insert`, `update`, `delete`       |
+
+Planned replacement:
+
+| Current (runtime)             | Planned (publisher config)                                     |
+| ----------------------------- | -------------------------------------------------------------- |
+| `gpc games leaderboards`      | `gpc games leaderboards {list,get,create,update,delete}`       |
+| `gpc games achievements`      | `gpc games achievements {list,get,create,update,delete}`       |
+| `gpc games events`            | *(removed, runtime-only, no publisher equivalent)*            |
+
+`games v1` and `gamesmanagement v1management` will not be expanded; they are runtime/QA-reset surfaces outside GPC's publisher-CLI mission.
+
+### Deprecation watch
+
+- **Developer Verification API (2026 rollout)**: not yet present in `androidpublisher v3` discovery as of revision `20260416`. Monitoring for a new discovery doc (likely `playdeveloperverification`-style) or Console-only feature. See [Developer Verification guide](../guide/developer-verification.md) for current posture.
+- **Soft-deprecated signals**: Google's discovery doesn't flag these but their descriptions point callers at v2 equivalents:
+  - `purchases.subscriptions.{acknowledge, cancel, defer}` → prefer `subscriptionsv2.*`
+  - `inappproducts.*` (for subscriptions only) → prefer `monetization.subscriptions.*`
+
+GPC currently emits a deprecation warning only on `purchases.subscriptions.get`. Expanding warning coverage to the soft-deprecated surfaces above is a candidate for a future release.

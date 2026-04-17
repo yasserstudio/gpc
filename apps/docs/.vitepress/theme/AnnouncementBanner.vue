@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 
-const STORAGE_KEY = "gpc-banner-dismissed-v0961";
+const STORAGE_KEY = "gpc-banner-dismissed-v0962";
 const visible = ref(false);
 
 onMounted(() => {
@@ -18,11 +18,11 @@ function dismiss() {
   <div v-if="visible" class="ann-banner" role="banner">
     <span class="ann-badge">Pre-release</span>
     <span class="ann-text">
-      v0.9.61 &middot; New: <code>gpc changelog generate</code> turns your git log into a GitHub Release in one pipe.
+      v0.9.62 &middot; New: <code>gpc changelog generate --target play-store</code> emits per-locale Play Store release notes with a 500-char budget meter.
       <a
-        href="/gpc/guide/changelog-generation"
+        href="/gpc/guide/multilingual-release-notes"
         class="ann-link"
-        >Generating release notes guide</a
+        >Multilingual release notes guide</a
       >
       &middot; road to v1.0
     </span>
