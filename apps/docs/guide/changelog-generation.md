@@ -221,9 +221,9 @@ The `--repo` value must match `owner/name` format (no URLs, no paths). Bad value
 
 ## What this is NOT
 
-- **Not a Play Store release notes generator** — the existing `gpc publish --notes-from-git` and `gpc releases create --notes-from-git` flags continue to handle Play Store `recentChanges[]` (per-locale, 500-char limit, different format). Per-locale Play Store output ships as `--target play-store` in v0.9.61's follow-up.
+- **Not the only way to write Play Store release notes** — for piped uploads alongside an AAB, `gpc publish --notes-from-git` and `gpc releases create --notes-from-git` handle Play Store `recentChanges[]` directly. For per-locale "What's new" text generation from your git log, use `gpc changelog generate --target play-store --locales <csv|auto>` (v0.9.62+). See [Multilingual Release Notes](/guide/multilingual-release-notes).
 - **Not a `CHANGELOG.md` generator** — GPC publishes its release notes as GitHub Releases, not a `CHANGELOG.md` file. If you want a `CHANGELOG.md` workflow, pipe the output to a file: `gpc changelog generate >> CHANGELOG.md`.
-- **Not an AI rewrite** (yet) — the CLI itself stays dependency-free. AI translation lands in a future version (`--ai`, BYO key via Vercel AI SDK). For v0.9.61, the LLM-prompt mode is the integration point.
+- **Not an AI rewrite** (yet) — the CLI itself stays dependency-free. Opt-in AI translation lands in v0.9.63 (`--ai`, BYO key via Vercel AI SDK). Until then, the LLM-prompt mode is the integration point — pipe `--format prompt` into your model of choice.
 
 ## Reference
 
