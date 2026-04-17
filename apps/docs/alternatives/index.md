@@ -49,9 +49,18 @@ Looking for a command-line tool for the Google Play Developer API? Here is how t
 - Need the fastest possible binary with zero dependencies
 - Only need basic operations (list apps, upload)
 
+## A note on Google's official Android CLI
+
+Google [shipped an official Android CLI on 2026-04-16](https://android-developers.googleblog.com/2026/04/build-android-apps-3x-faster-using-any-agent.html). It is **not an alternative to GPC**. Its scope, per Google's own announcement, is "environment setup, project creation, and device management" -- SDK install, project scaffolding, emulator management, and on-device deployment. It does not cover Play Store publishing, releases, vitals, reviews, subscriptions, or listings.
+
+GPC is the complementary publishing half. A full agent-driven workflow looks like `android create` → `android run` → `gpc preflight` → `gpc publish`. Both tools ship `SKILL.md` skill packs using the same convention, so agents can route prompts across the full Android app lifecycle.
+
+See [Using GPC with Google's Android CLI](/guide/android-cli-interop) for the end-to-end workflow, skill pack install commands, and agent-friendly output contracts.
+
 ## Detailed Comparisons
 
 - [GPC vs Fastlane Supply](/alternatives/fastlane) -- full feature-by-feature comparison with command mapping
+- [Android CLI Interop](/guide/android-cli-interop) -- agent workflow spanning Google's Android CLI and GPC
 
 ## Getting Started with GPC
 

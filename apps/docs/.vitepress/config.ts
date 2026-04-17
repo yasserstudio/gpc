@@ -124,6 +124,8 @@ function getPageDescription(page: PageData): string {
       "Manage Google Play store media with GPC. Screenshots, feature graphics, icons, and TV banners. Image requirements, bulk sync workflows, localization, CI/CD recipes.",
     "guide/multi-account.md":
       "Manage multiple Google Play developer accounts with GPC profiles. Agency workflows, per-customer CI pipelines, service account key management, permission model, and limitations.",
+    "guide/android-cli-interop.md":
+      "Using GPC with Google's official Android CLI. Agent-first workflow: android create, android run, gpc preflight, gpc publish. SKILL.md skill packs, JSON output, semantic exit codes, LLM-ready prompts.",
     "commands/verify.md":
       "gpc verify — Android developer verification status, enforcement deadlines, and resources. Check your account and open verification pages.",
     "guide/faq.md":
@@ -519,6 +521,7 @@ export default defineConfig({
             { text: "Multilingual Release Notes", link: "/guide/multilingual-release-notes" },
             { text: "Store Listings & Screenshots", link: "/guide/screenshots" },
             { text: "Multiple Developer Accounts", link: "/guide/multi-account" },
+            { text: "Android CLI Interop", link: "/guide/android-cli-interop" },
             { text: "FAQ", link: "/guide/faq" },
           ],
         },
