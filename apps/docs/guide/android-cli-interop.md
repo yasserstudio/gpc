@@ -165,6 +165,12 @@ gpc changelog generate \
 
 The emitted prompt is what the agent uses to generate the translations. GPC renders the constraints (500 code points per locale, voice rules, "don't translate CLI flags"). The agent runs the inference.
 
+## Further reading
+
+- **The Two Halves of Agent-First Android** — longer thesis on the build/publish split, SKILL.md as the interop layer, and why the two CLIs compose rather than compete.
+  - Read on [X](https://x.com/yassersstudio/status/2045485852231414228)
+  - Read on [LinkedIn](https://www.linkedin.com/pulse/two-halves-agent-first-android-yasser-berrehail-qt4qc/)
+
 ## Related
 
 - [Installation](/guide/installation) — get GPC installed
