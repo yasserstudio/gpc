@@ -22,14 +22,14 @@ If you only manage **multiple apps under the same developer account**, you don't
 
 ## When to use profiles
 
-| Scenario | Pattern |
-|---|---|
-| One person, one developer account, many apps | Single profile + `--app` flag per command |
-| One person, multiple developer accounts (staging + production) | Profile per account |
-| Agency/consultant with N customer accounts | Profile per customer |
-| Multi-customer SaaS shipping a per-customer build | Profile per customer, CI job per customer |
-| One team, one account, multiple humans | Shared config file OR one profile per human (different service accounts for audit trail) |
-| CI publishing to multiple accounts | Profile per account, `GPC_PROFILE` env var per job |
+| Scenario                                                       | Pattern                                                                                  |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| One person, one developer account, many apps                   | Single profile + `--app` flag per command                                                |
+| One person, multiple developer accounts (staging + production) | Profile per account                                                                      |
+| Agency/consultant with N customer accounts                     | Profile per customer                                                                     |
+| Multi-customer SaaS shipping a per-customer build              | Profile per customer, CI job per customer                                                |
+| One team, one account, multiple humans                         | Shared config file OR one profile per human (different service accounts for audit trail) |
+| CI publishing to multiple accounts                             | Profile per account, `GPC_PROFILE` env var per job                                       |
 
 ## Creating multiple profiles
 
@@ -203,7 +203,7 @@ name: Publish (Client Acme)
 on:
   workflow_dispatch:
   push:
-    tags: ['client-acme-v*']
+    tags: ["client-acme-v*"]
 
 jobs:
   publish:
@@ -261,8 +261,8 @@ jobs:
       fail-fast: false
       matrix:
         customer:
-          - { name: acme,  secret: GPC_SA_CLIENT_ACME,  app: com.clientacme.app }
-          - { name: beta,  secret: GPC_SA_CLIENT_BETA,  app: com.clientbeta.app }
+          - { name: acme, secret: GPC_SA_CLIENT_ACME, app: com.clientacme.app }
+          - { name: beta, secret: GPC_SA_CLIENT_BETA, app: com.clientbeta.app }
           - { name: gamma, secret: GPC_SA_CLIENT_GAMMA, app: com.clientgamma.app }
     env:
       GPC_PROFILE: client-${{ matrix.customer.name }}

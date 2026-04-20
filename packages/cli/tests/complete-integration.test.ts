@@ -120,4 +120,3 @@ describe.skipIf(!existsSync(BIN))("shell completion end-to-end", () => {
     expect(reply).toContain("qa-ring");
   });
 });
-

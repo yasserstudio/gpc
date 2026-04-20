@@ -409,16 +409,16 @@ gpc listings images export \
 
 Google Play validates every image at upload time. GPC does not run pre-upload validation (yet), so malformed images surface as opaque API errors. Meet these specs locally before calling `gpc listings images upload` or `gpc listings push`:
 
-| Type | Format | Dimensions | Aspect ratio | Max size |
-| --- | --- | --- | --- | --- |
-| `icon` | 32-bit PNG (with alpha) | exactly 512 × 512 | 1:1 | 1 MB |
-| `featureGraphic` | PNG or JPEG | exactly 1024 × 500 | 2048:1000 | 1 MB |
-| `phoneScreenshots` | PNG or JPEG | 320–3840 px per side, min dimension 320 | 16:9 or 9:16 | 8 MB |
-| `sevenInchScreenshots` | PNG or JPEG | same as phone | any | 8 MB |
-| `tenInchScreenshots` | PNG or JPEG | same as phone | any | 8 MB |
-| `tvScreenshots` | PNG or JPEG | 1280×720 or 1920×1080 recommended | 16:9 landscape | 8 MB |
-| `wearScreenshots` | PNG or JPEG | 384×384 recommended | 1:1 square | 8 MB |
-| `tvBanner` | PNG or JPEG | 1280×720 | 16:9 | 8 MB |
+| Type                   | Format                  | Dimensions                              | Aspect ratio   | Max size |
+| ---------------------- | ----------------------- | --------------------------------------- | -------------- | -------- |
+| `icon`                 | 32-bit PNG (with alpha) | exactly 512 × 512                       | 1:1            | 1 MB     |
+| `featureGraphic`       | PNG or JPEG             | exactly 1024 × 500                      | 2048:1000      | 1 MB     |
+| `phoneScreenshots`     | PNG or JPEG             | 320–3840 px per side, min dimension 320 | 16:9 or 9:16   | 8 MB     |
+| `sevenInchScreenshots` | PNG or JPEG             | same as phone                           | any            | 8 MB     |
+| `tenInchScreenshots`   | PNG or JPEG             | same as phone                           | any            | 8 MB     |
+| `tvScreenshots`        | PNG or JPEG             | 1280×720 or 1920×1080 recommended       | 16:9 landscape | 8 MB     |
+| `wearScreenshots`      | PNG or JPEG             | 384×384 recommended                     | 1:1 square     | 8 MB     |
+| `tvBanner`             | PNG or JPEG             | 1280×720                                | 16:9           | 8 MB     |
 
 **Per-listing limits:**
 

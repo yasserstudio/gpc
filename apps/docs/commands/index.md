@@ -88,41 +88,41 @@ gpc bundle analyze app.aab --threshold 150
 
 ### Monetization Extras
 
-| Command                                | Description                                                      |
-| -------------------------------------- | ---------------------------------------------------------------- |
-| [`system-apks`](./system-apks)         | System APK variants for OEM/enterprise deployments               |
-| [`rtdn`](./rtdn)                       | Real-Time Developer Notifications (Pub/Sub webhooks)             |
-| [`games`](./games)                     | Play Games Services: leaderboards, achievements, events          |
+| Command                        | Description                                             |
+| ------------------------------ | ------------------------------------------------------- |
+| [`system-apks`](./system-apks) | System APK variants for OEM/enterprise deployments      |
+| [`rtdn`](./rtdn)               | Real-Time Developer Notifications (Pub/Sub webhooks)    |
+| [`games`](./games)             | Play Games Services: leaderboards, achievements, events |
 
 ### Release Automation
 
-| Command                | Description                                                              |
-| ---------------------- | ------------------------------------------------------------------------ |
-| [`train`](./train)     | Config-driven staged rollout trains with time gates and vitals gates     |
-| [`quota`](./quota)     | View Google Play API quota usage tracked from the local audit log        |
-| [`verify`](./verify)   | Google developer verification tooling (signing keys, readiness checklist) |
+| Command              | Description                                                               |
+| -------------------- | ------------------------------------------------------------------------- |
+| [`train`](./train)   | Config-driven staged rollout trains with time gates and vitals gates      |
+| [`quota`](./quota)   | View Google Play API quota usage tracked from the local audit log         |
+| [`verify`](./verify) | Google developer verification tooling (signing keys, readiness checklist) |
 
 ### System
 
-| Command                                       | Description                                      |
-| --------------------------------------------- | ------------------------------------------------ |
-| [`auth`](./auth)                              | Authentication and profiles                      |
-| [`apps`](./apps)                              | App info and configuration                       |
-| [`config`](./config)                          | CLI configuration                                |
-| [`plugins`](./plugins)                        | Plugin management                                |
-| [`grants`](./grants)                          | Per-app permission grants for developer users    |
-| [`migrate`](./migrate)                        | Migrate from Fastlane to GPC                     |
-| [`doctor` / `docs` / `completion`](./utility) | Diagnostics, documentation, shell completions    |
-| [`cache`](./utility#gpc-cache)                | Manage status, token, and update caches          |
-| [`audit`](./utility)                          | Inspect the local audit log of API calls         |
-| [`quickstart`](./utility)                     | Guided first-run setup wizard                    |
-| [`update`](./utility#gpc-update)              | Self-update to the latest release                |
-| [`feedback`](./utility#gpc-feedback)          | Open a pre-filled GitHub issue                   |
-| [`install-skills`](./install-skills)          | Install AI agent skills for GPC workflows        |
-| [`init`](./init)                              | Scaffold project config, metadata, CI templates  |
-| [`diff`](./diff)                              | Preview release state and pending changes        |
+| Command                                       | Description                                              |
+| --------------------------------------------- | -------------------------------------------------------- |
+| [`auth`](./auth)                              | Authentication and profiles                              |
+| [`apps`](./apps)                              | App info and configuration                               |
+| [`config`](./config)                          | CLI configuration                                        |
+| [`plugins`](./plugins)                        | Plugin management                                        |
+| [`grants`](./grants)                          | Per-app permission grants for developer users            |
+| [`migrate`](./migrate)                        | Migrate from Fastlane to GPC                             |
+| [`doctor` / `docs` / `completion`](./utility) | Diagnostics, documentation, shell completions            |
+| [`cache`](./utility#gpc-cache)                | Manage status, token, and update caches                  |
+| [`audit`](./utility)                          | Inspect the local audit log of API calls                 |
+| [`quickstart`](./utility)                     | Guided first-run setup wizard                            |
+| [`update`](./utility#gpc-update)              | Self-update to the latest release                        |
+| [`feedback`](./utility#gpc-feedback)          | Open a pre-filled GitHub issue                           |
+| [`install-skills`](./install-skills)          | Install AI agent skills for GPC workflows                |
+| [`init`](./init)                              | Scaffold project config, metadata, CI templates          |
+| [`diff`](./diff)                              | Preview release state and pending changes                |
 | [`changelog`](./changelog)                    | Show GitHub history; `generate` makes notes from commits |
-| [`validate`](./publish#gpc-validate)          | Dry-run validation of a release before committing |
+| [`validate`](./publish#gpc-validate)          | Dry-run validation of a release before committing        |
 
 ## Global Flags
 
@@ -260,15 +260,15 @@ All errors follow a consistent JSON structure:
 
 ## Exit Codes
 
-| Code | Meaning                                   |
-| ---- | ----------------------------------------- |
-| `0`  | Success                                   |
+| Code | Meaning                                              |
+| ---- | ---------------------------------------------------- |
+| `0`  | Success                                              |
 | `1`  | General error, config error, or plugin runtime error |
-| `2`  | Usage error (bad arguments)               |
-| `3`  | Authentication error                      |
-| `4`  | API error (rate limit, permission denied) |
-| `5`  | Network error                             |
-| `6`  | Threshold breach (vitals CI alerting)     |
+| `2`  | Usage error (bad arguments)                          |
+| `3`  | Authentication error                                 |
+| `4`  | API error (rate limit, permission denied)            |
+| `5`  | Network error                                        |
+| `6`  | Threshold breach (vitals CI alerting)                |
 
 See [Exit Codes Reference](/reference/exit-codes) for the full error-code catalog.
 

@@ -51,7 +51,9 @@ describe("ai deps lazy-import guard", () => {
     const dynamicAi = source.match(/import\s*\(\s*["']ai["']\s*\)/);
     expect(dynamicAi, "expected a dynamic import of 'ai' inside translator factory").not.toBeNull();
 
-    const dynamicProvider = source.match(/import\s*\(\s*["']@ai-sdk\/(anthropic|openai|google)["']\s*\)/);
+    const dynamicProvider = source.match(
+      /import\s*\(\s*["']@ai-sdk\/(anthropic|openai|google)["']\s*\)/,
+    );
     expect(
       dynamicProvider,
       "expected dynamic imports of @ai-sdk/<provider> inside translator factory",

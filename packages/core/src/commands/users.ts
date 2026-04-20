@@ -1,4 +1,10 @@
-import type { UsersApiClient, User, DeveloperLevelPermission, AppLevelPermission, Grant } from "@gpc-cli/api";
+import type {
+  UsersApiClient,
+  User,
+  DeveloperLevelPermission,
+  AppLevelPermission,
+  Grant,
+} from "@gpc-cli/api";
 import { paginateAll } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
 

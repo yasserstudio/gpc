@@ -10,7 +10,7 @@ export function renderPrompt(g: GeneratedChangelog): string {
   lines.push("");
   lines.push("VOICE RULES (from project conventions):");
   lines.push("- Terse, present tense, user-facing language");
-  lines.push("- No internal jargon (no \"mutex\", \"token bucket\", \"barrel exports\", \"homedir\")");
+  lines.push('- No internal jargon (no "mutex", "token bucket", "barrel exports", "homedir")');
   lines.push("- One bullet per feature/fix, not one per commit");
   lines.push("- Drop conventional-commit scopes (e.g., feat(cli) → feat:)");
   lines.push("- Open with a single-sentence highlight describing the release theme");
@@ -23,7 +23,9 @@ export function renderPrompt(g: GeneratedChangelog): string {
   if (g.headlineCandidates.length > 0) {
     lines.push("HEADLINE CANDIDATES (largest first):");
     for (const c of g.headlineCandidates) {
-      lines.push(`  ${c.label} (weight ${c.weight}, ${c.commits.length} commits, primary ${c.primaryType})`);
+      lines.push(
+        `  ${c.label} (weight ${c.weight}, ${c.commits.length} commits, primary ${c.primaryType})`,
+      );
     }
     lines.push("");
   }
@@ -31,7 +33,9 @@ export function renderPrompt(g: GeneratedChangelog): string {
   lines.push("CLUSTERED COMMITS:");
   lines.push("");
   for (const cluster of g.clusters) {
-    lines.push(`[cluster: ${cluster.label}, weight ${cluster.weight}, ${cluster.commits.length} commits, primary ${cluster.primaryType}]`);
+    lines.push(
+      `[cluster: ${cluster.label}, weight ${cluster.weight}, ${cluster.commits.length} commits, primary ${cluster.primaryType}]`,
+    );
     for (const commit of cluster.commits) {
       lines.push(`- ${commit.type}: ${safeLine(commit.subject)} (${commit.sha.slice(0, 7)})`);
       if (commit.files.length > 0) {

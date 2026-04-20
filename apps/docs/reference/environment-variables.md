@@ -8,10 +8,10 @@ All `GPC_*` environment variables and external variables that GPC respects.
 
 ## Authentication
 
-| Variable              | Type      | Description                                                                                                                   | Default |
-| --------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `GPC_SERVICE_ACCOUNT` | `string`  | Service account JSON string or file path. Accepts inline JSON (`{"type":"service_account",...}`) or a path to a `.json` file. | —       |
-| `GPC_PROFILE`         | `string`  | Named auth profile to use. Profiles are created via `gpc auth login --profile <name>`.                                        | —       |
+| Variable              | Type     | Description                                                                                                                   | Default |
+| --------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `GPC_SERVICE_ACCOUNT` | `string` | Service account JSON string or file path. Accepts inline JSON (`{"type":"service_account",...}`) or a path to a `.json` file. | —       |
+| `GPC_PROFILE`         | `string` | Named auth profile to use. Profiles are created via `gpc auth login --profile <name>`.                                        | —       |
 
 ## App & Project
 
@@ -34,37 +34,37 @@ All `GPC_*` environment variables and external variables that GPC respects.
 
 ## Network & Retry
 
-| Variable                         | Type      | Description                                                                                                            | Default          |
-| -------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| `GPC_MAX_RETRIES`                | `integer` | Maximum retry attempts on transient errors (408, 429, 5xx).                                                            | `5`              |
-| `GPC_TIMEOUT`                    | `integer` | Request timeout in milliseconds.                                                                                       | `30000`          |
-| `GPC_BASE_DELAY`                 | `integer` | Base retry delay in milliseconds (exponential backoff).                                                                | `1000`           |
-| `GPC_MAX_DELAY`                  | `integer` | Maximum retry delay in milliseconds.                                                                                   | `60000`          |
-| `GPC_UPLOAD_TIMEOUT`             | `integer` | Upload timeout in milliseconds. If unset, auto-scales: 30s + 1s per MB.                                                | Auto             |
+| Variable                         | Type      | Description                                                                                                                  | Default          |
+| -------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| `GPC_MAX_RETRIES`                | `integer` | Maximum retry attempts on transient errors (408, 429, 5xx).                                                                  | `5`              |
+| `GPC_TIMEOUT`                    | `integer` | Request timeout in milliseconds.                                                                                             | `30000`          |
+| `GPC_BASE_DELAY`                 | `integer` | Base retry delay in milliseconds (exponential backoff).                                                                      | `1000`           |
+| `GPC_MAX_DELAY`                  | `integer` | Maximum retry delay in milliseconds.                                                                                         | `60000`          |
+| `GPC_UPLOAD_TIMEOUT`             | `integer` | Upload timeout in milliseconds. If unset, auto-scales: 30s + 1s per MB.                                                      | Auto             |
 | `GPC_UPLOAD_CHUNK_SIZE`          | `integer` | Resumable upload chunk size in bytes. Must be a multiple of 256 KB (262144). Larger chunks mean fewer requests and more RAM. | `8388608` (8 MB) |
-| `GPC_UPLOAD_RESUMABLE_THRESHOLD` | `integer` | File size threshold in bytes for switching from simple to resumable upload.                                            | `5242880` (5 MB) |
-| `GPC_CA_CERT`                    | `string`  | Path to custom CA certificate file (PEM format). For corporate proxies.                                                | —                |
-| `NODE_EXTRA_CA_CERTS`            | `string`  | Standard Node.js variable. Path to additional CA certificate bundle. Read at runtime by the network layer.             | —                |
-| `HTTPS_PROXY` / `HTTP_PROXY`     | `string`  | HTTP proxy URLs (e.g., `https://proxy.corp:8080`). Lowercase `https_proxy` / `http_proxy` also respected.              | —                |
+| `GPC_UPLOAD_RESUMABLE_THRESHOLD` | `integer` | File size threshold in bytes for switching from simple to resumable upload.                                                  | `5242880` (5 MB) |
+| `GPC_CA_CERT`                    | `string`  | Path to custom CA certificate file (PEM format). For corporate proxies.                                                      | —                |
+| `NODE_EXTRA_CA_CERTS`            | `string`  | Standard Node.js variable. Path to additional CA certificate bundle. Read at runtime by the network layer.                   | —                |
+| `HTTPS_PROXY` / `HTTP_PROXY`     | `string`  | HTTP proxy URLs (e.g., `https://proxy.corp:8080`). Lowercase `https_proxy` / `http_proxy` also respected.                    | —                |
 
 ## Updates & Self-Maintenance
 
-| Variable               | Type      | Description                                                                                           | Default |
-| ---------------------- | --------- | ----------------------------------------------------------------------------------------------------- | ------- |
-| `GPC_NO_UPDATE_CHECK`  | `boolean` | Suppress the passive update check that runs after each command.                                       | `false` |
-| `GPC_GITHUB_TOKEN`     | `string`  | GitHub API token used by `gpc update` and `gpc changelog`. Raises rate limits and allows private assets. | —       |
-| `GITHUB_TOKEN`         | `string`  | Standard GitHub Actions token. Fallback when `GPC_GITHUB_TOKEN` is not set.                           | —       |
+| Variable              | Type      | Description                                                                                              | Default |
+| --------------------- | --------- | -------------------------------------------------------------------------------------------------------- | ------- |
+| `GPC_NO_UPDATE_CHECK` | `boolean` | Suppress the passive update check that runs after each command.                                          | `false` |
+| `GPC_GITHUB_TOKEN`    | `string`  | GitHub API token used by `gpc update` and `gpc changelog`. Raises rate limits and allows private assets. | —       |
+| `GITHUB_TOKEN`        | `string`  | Standard GitHub Actions token. Fallback when `GPC_GITHUB_TOKEN` is not set.                              | —       |
 
 ## Agent Skills
 
-| Variable           | Type     | Description                                                                              | Default                                      |
-| ------------------ | -------- | ---------------------------------------------------------------------------------------- | -------------------------------------------- |
-| `GPC_SKILLS_REPO`  | `string` | Override the git repo URL used by `gpc install-skills`. Useful for forks or mirrors.     | `https://github.com/yasserstudio/gpc-skills` |
+| Variable          | Type     | Description                                                                          | Default                                      |
+| ----------------- | -------- | ------------------------------------------------------------------------------------ | -------------------------------------------- |
+| `GPC_SKILLS_REPO` | `string` | Override the git repo URL used by `gpc install-skills`. Useful for forks or mirrors. | `https://github.com/yasserstudio/gpc-skills` |
 
 ## Debug & Logging
 
-| Variable    | Type      | Description                                                                                                    | Default |
-| ----------- | --------- | -------------------------------------------------------------------------------------------------------------- | ------- |
+| Variable    | Type      | Description                                                                                                        | Default |
+| ----------- | --------- | ------------------------------------------------------------------------------------------------------------------ | ------- |
 | `GPC_DEBUG` | `boolean` | Enable debug logging. Prints internal state, request/response details, and shell-completion diagnostics to stderr. | `false` |
 
 ```bash
@@ -79,17 +79,17 @@ GPC_DEBUG=1 gpc __complete packages
 
 GPC auto-detects CI environments. These variables are read but never set by GPC:
 
-| Variable                    | Provider          | Purpose                                        |
-| --------------------------- | ----------------- | ---------------------------------------------- |
-| `CI`                        | Generic           | Enables CI mode (non-interactive, JSON output) |
-| `GITHUB_ACTIONS`            | GitHub Actions    | Enables step summary output                    |
-| `GITLAB_CI`                 | GitLab CI         | CI detection                                   |
-| `CIRCLECI`                  | CircleCI          | CI detection                                   |
-| `TRAVIS`                    | Travis CI         | CI detection                                   |
-| `JENKINS_URL`               | Jenkins           | CI detection                                   |
-| `BITBUCKET_PIPELINE_UUID`   | Bitbucket         | CI detection                                   |
-| `BUILD_BUILDID`             | Azure Pipelines   | CI detection                                   |
-| `CODEBUILD_BUILD_ID`        | AWS CodeBuild     | CI detection                                   |
+| Variable                  | Provider        | Purpose                                        |
+| ------------------------- | --------------- | ---------------------------------------------- |
+| `CI`                      | Generic         | Enables CI mode (non-interactive, JSON output) |
+| `GITHUB_ACTIONS`          | GitHub Actions  | Enables step summary output                    |
+| `GITLAB_CI`               | GitLab CI       | CI detection                                   |
+| `CIRCLECI`                | CircleCI        | CI detection                                   |
+| `TRAVIS`                  | Travis CI       | CI detection                                   |
+| `JENKINS_URL`             | Jenkins         | CI detection                                   |
+| `BITBUCKET_PIPELINE_UUID` | Bitbucket       | CI detection                                   |
+| `BUILD_BUILDID`           | Azure Pipelines | CI detection                                   |
+| `CODEBUILD_BUILD_ID`      | AWS CodeBuild   | CI detection                                   |
 
 ## Precedence Order
 

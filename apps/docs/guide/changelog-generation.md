@@ -40,7 +40,7 @@ gpc changelog generate
 ## What's Changed
 
 - feat: shell completion walker
-- feat: hidden __complete subcommand for dynamic shell completion
+- feat: hidden \_\_complete subcommand for dynamic shell completion
 - fix: pre-release code review follow-ups for completion v2
 - docs: sync Tests badge to 1,914
 - release: v0.9.60 — Smarter Tab-Completion

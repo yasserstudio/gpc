@@ -820,10 +820,14 @@ export function generateFishCompletions(
     for (const flag of flags) {
       if (flag.startsWith("--")) {
         const longName = flag.slice(2);
-        lines.push(`complete -c gpc -l ${longName} -x -a '(gpc __complete ${context} 2>/dev/null)'`);
+        lines.push(
+          `complete -c gpc -l ${longName} -x -a '(gpc __complete ${context} 2>/dev/null)'`,
+        );
       } else if (flag.startsWith("-")) {
         const shortName = flag.slice(1);
-        lines.push(`complete -c gpc -s ${shortName} -x -a '(gpc __complete ${context} 2>/dev/null)'`);
+        lines.push(
+          `complete -c gpc -s ${shortName} -x -a '(gpc __complete ${context} 2>/dev/null)'`,
+        );
       }
     }
   }
@@ -915,9 +919,7 @@ ${level3Cases.join("\n")}
  * whitespace or interpolate a stray `$var`.
  */
 function joinBashChoices(choices: readonly string[]): string {
-  return choices
-    .map((c) => c.replace(/([\\"$`])/g, "\\$1").replace(/ /g, "\\ "))
-    .join(" ");
+  return choices.map((c) => c.replace(/([\\"$`])/g, "\\$1").replace(/ /g, "\\ ")).join(" ");
 }
 
 function escapeZsh(str: string): string {

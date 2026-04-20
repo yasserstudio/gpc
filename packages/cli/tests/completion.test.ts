@@ -320,12 +320,9 @@ describe("buildCommandTreeFromProgram", () => {
       .description("Publish an app")
       .option("-t, --track <track>", "Release track")
       .addOption(
-        new Command().createOption("--status <status>", "Release status").choices([
-          "completed",
-          "inProgress",
-          "draft",
-          "halted",
-        ]),
+        new Command()
+          .createOption("--status <status>", "Release status")
+          .choices(["completed", "inProgress", "draft", "halted"]),
       );
     const rollout = program.command("rollout").description("Manage rollouts");
     rollout.command("increase").description("Increase a rollout");
@@ -394,13 +391,9 @@ describe("flag-choice emission", () => {
     const p = new Command();
     p.name("gpc").description("Mock");
     p.addOption(
-      p.createOption("-o, --output <format>", "Output format").choices([
-        "table",
-        "json",
-        "yaml",
-        "markdown",
-        "junit",
-      ]),
+      p
+        .createOption("-o, --output <format>", "Output format")
+        .choices(["table", "json", "yaml", "markdown", "junit"]),
     );
     p.option("-p, --profile <name>", "Auth profile name");
     p.option("-a, --app <package>", "App package name");

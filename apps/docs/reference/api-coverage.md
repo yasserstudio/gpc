@@ -9,23 +9,23 @@ Maps every Google Play Developer API endpoint that GPC implements to a CLI comma
 
 GPC interacts with three separate Google APIs:
 
-| API                                   | Base URL                                | Purpose                                             |
-| ------------------------------------- | --------------------------------------- | --------------------------------------------------- |
-| Android Publisher API v3              | `androidpublisher.googleapis.com`       | Publishing, monetization, reviews, purchases, users |
-| Play Developer Reporting API v1beta1  | `playdeveloperreporting.googleapis.com` | Vitals, crash rates, ANR, performance metrics       |
-| Play Custom App Publishing API v1     | `playcustomapp.googleapis.com`          | Managed Google Play private app publishing          |
+| API                                  | Base URL                                | Purpose                                             |
+| ------------------------------------ | --------------------------------------- | --------------------------------------------------- |
+| Android Publisher API v3             | `androidpublisher.googleapis.com`       | Publishing, monetization, reviews, purchases, users |
+| Play Developer Reporting API v1beta1 | `playdeveloperreporting.googleapis.com` | Vitals, crash rates, ANR, performance metrics       |
+| Play Custom App Publishing API v1    | `playcustomapp.googleapis.com`          | Managed Google Play private app publishing          |
 
 ## Edits
 
 The Edits resource is the transactional wrapper for most write operations. Edits are managed internally; users never interact with them directly.
 
-| API Endpoint     | Method | GPC Command                   |
-| ---------------- | ------ | ----------------------------- |
-| `edits.insert`   | POST   | (internal, auto-managed)      |
-| `edits.get`      | GET    | (internal)                    |
-| `edits.commit`   | POST   | (internal, auto on success)   |
-| `edits.validate` | POST   | (internal, pre-commit check)  |
-| `edits.delete`   | DELETE | (internal, auto on failure)   |
+| API Endpoint     | Method | GPC Command                  |
+| ---------------- | ------ | ---------------------------- |
+| `edits.insert`   | POST   | (internal, auto-managed)     |
+| `edits.get`      | GET    | (internal)                   |
+| `edits.commit`   | POST   | (internal, auto on success)  |
+| `edits.validate` | POST   | (internal, pre-commit check) |
+| `edits.delete`   | DELETE | (internal, auto on failure)  |
 
 ## Edits: Bundles
 
@@ -36,11 +36,11 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 ## Edits: APKs
 
-| API Endpoint                      | Method | GPC Command                      |
-| --------------------------------- | ------ | -------------------------------- |
-| `edits.apks.list`                 | GET    | `gpc releases list --type apk`   |
-| `edits.apks.upload`               | POST   | `gpc releases upload <file.apk>` |
-| `edits.apks.addExternallyHosted`  | POST   | (via SDK)                        |
+| API Endpoint                     | Method | GPC Command                      |
+| -------------------------------- | ------ | -------------------------------- |
+| `edits.apks.list`                | GET    | `gpc releases list --type apk`   |
+| `edits.apks.upload`              | POST   | `gpc releases upload <file.apk>` |
+| `edits.apks.addExternallyHosted` | POST   | (via SDK)                        |
 
 ## Edits: Tracks
 
@@ -66,12 +66,12 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 ## Edits: Expansion Files
 
-| API Endpoint                  | Method | GPC Command                |
-| ----------------------------- | ------ | -------------------------- |
-| `edits.expansionfiles.get`    | GET    | (via SDK)                  |
-| `edits.expansionfiles.update` | PUT    | (via SDK)                  |
-| `edits.expansionfiles.patch`  | PATCH  | (via SDK)                  |
-| `edits.expansionfiles.upload` | POST   | (via SDK)                  |
+| API Endpoint                  | Method | GPC Command |
+| ----------------------------- | ------ | ----------- |
+| `edits.expansionfiles.get`    | GET    | (via SDK)   |
+| `edits.expansionfiles.update` | PUT    | (via SDK)   |
+| `edits.expansionfiles.patch`  | PATCH  | (via SDK)   |
+| `edits.expansionfiles.upload` | POST   | (via SDK)   |
 
 ## Edits: Listings
 
@@ -191,11 +191,11 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 ## Orders
 
-| API Endpoint      | Method | GPC Command                                |
-| ----------------- | ------ | ------------------------------------------ |
-| `orders.get`      | GET    | `gpc purchases orders get <order-id>`      |
-| `orders.batchGet` | POST   | `gpc purchases orders batch-get --ids`     |
-| `orders.refund`   | POST   | `gpc purchases orders refund <order-id>`   |
+| API Endpoint      | Method | GPC Command                              |
+| ----------------- | ------ | ---------------------------------------- |
+| `orders.get`      | GET    | `gpc purchases orders get <order-id>`    |
+| `orders.batchGet` | POST   | `gpc purchases orders batch-get --ids`   |
+| `orders.refund`   | POST   | `gpc purchases orders refund <order-id>` |
 
 ## Monetization: Pricing
 
@@ -233,29 +233,29 @@ Developer-account user management lives at a separate base URL (`androidpublishe
 
 ## Play Developer Reporting API: Vitals
 
-| API Endpoint                                 | Method | GPC Command                 |
-| -------------------------------------------- | ------ | --------------------------- |
-| `crashRateMetricSet.query`                   | POST   | `gpc vitals crashes`        |
-| `anrRateMetricSet.query`                     | POST   | `gpc vitals anr`            |
-| `slowStartRateMetricSet.query`               | POST   | `gpc vitals startup`        |
-| `slowRenderingRateMetricSet.query`           | POST   | `gpc vitals rendering`      |
-| `excessiveWakeupRateMetricSet.query`         | POST   | `gpc vitals battery` / `gpc vitals wakeup` |
-| `stuckBackgroundWakelockRateMetricSet.query` | POST   | `gpc vitals memory`         |
-| `lmkRateMetricSet.query`                     | POST   | `gpc vitals lmk`            |
-| `errorCountMetricSet.query`                  | POST   | `gpc vitals error-count`    |
-| `anomalies.list`                             | GET    | `gpc vitals anomalies`      |
-| `errorIssues.search`                         | GET    | `gpc vitals errors search`  |
-| `errorReports.search`                        | GET    | `gpc vitals errors reports` *(see [Planned coverage](#planned-coverage))* |
+| API Endpoint                                 | Method | GPC Command                                                               |
+| -------------------------------------------- | ------ | ------------------------------------------------------------------------- |
+| `crashRateMetricSet.query`                   | POST   | `gpc vitals crashes`                                                      |
+| `anrRateMetricSet.query`                     | POST   | `gpc vitals anr`                                                          |
+| `slowStartRateMetricSet.query`               | POST   | `gpc vitals startup`                                                      |
+| `slowRenderingRateMetricSet.query`           | POST   | `gpc vitals rendering`                                                    |
+| `excessiveWakeupRateMetricSet.query`         | POST   | `gpc vitals battery` / `gpc vitals wakeup`                                |
+| `stuckBackgroundWakelockRateMetricSet.query` | POST   | `gpc vitals memory`                                                       |
+| `lmkRateMetricSet.query`                     | POST   | `gpc vitals lmk`                                                          |
+| `errorCountMetricSet.query`                  | POST   | `gpc vitals error-count`                                                  |
+| `anomalies.list`                             | GET    | `gpc vitals anomalies`                                                    |
+| `errorIssues.search`                         | GET    | `gpc vitals errors search`                                                |
+| `errorReports.search`                        | GET    | `gpc vitals errors reports` _(see [Planned coverage](#planned-coverage))_ |
 
 ## App Recovery Actions
 
-| API Endpoint               | Method | GPC Command                                  |
-| -------------------------- | ------ | -------------------------------------------- |
-| `appRecoveries.list`       | GET    | `gpc recovery list`                          |
-| `appRecoveries.create`     | POST   | `gpc recovery create`                        |
-| `appRecoveries.cancel`     | POST   | `gpc recovery cancel`                        |
-| `appRecoveries.deploy`     | POST   | `gpc recovery deploy`                        |
-| `appRecoveries.addTargeting` | POST | `gpc recovery add-targeting`                 |
+| API Endpoint                 | Method | GPC Command                  |
+| ---------------------------- | ------ | ---------------------------- |
+| `appRecoveries.list`         | GET    | `gpc recovery list`          |
+| `appRecoveries.create`       | POST   | `gpc recovery create`        |
+| `appRecoveries.cancel`       | POST   | `gpc recovery cancel`        |
+| `appRecoveries.deploy`       | POST   | `gpc recovery deploy`        |
+| `appRecoveries.addTargeting` | POST   | `gpc recovery add-targeting` |
 
 ## Data Safety
 
@@ -297,36 +297,36 @@ Developer-account user management lives at a separate base URL (`androidpublishe
 
 System APKs are bundled, unsigned variants produced for a specific version. Used by OEMs and enterprise deployments.
 
-| API Endpoint           | Method | GPC Command                          |
-| ---------------------- | ------ | ------------------------------------ |
-| `systemApks.list`      | GET    | `gpc system-apks list <version>`     |
-| `systemApks.get`       | GET    | `gpc system-apks get <version> <id>` |
-| `systemApks.create`    | POST   | `gpc system-apks create <version>`   |
-| `systemApks.download`  | GET    | `gpc system-apks download <id>`      |
+| API Endpoint          | Method | GPC Command                          |
+| --------------------- | ------ | ------------------------------------ |
+| `systemApks.list`     | GET    | `gpc system-apks list <version>`     |
+| `systemApks.get`      | GET    | `gpc system-apks get <version> <id>` |
+| `systemApks.create`   | POST   | `gpc system-apks create <version>`   |
+| `systemApks.download` | GET    | `gpc system-apks download <id>`      |
 
 ## One-Time Products
 
-| API Endpoint                                       | Method | GPC Command                                 |
-| -------------------------------------------------- | ------ | ------------------------------------------- |
-| `monetization.oneTimeProducts.list`                | GET    | `gpc otp list`                              |
-| `monetization.oneTimeProducts.get`                 | GET    | `gpc otp get <id>`                          |
-| `monetization.oneTimeProducts.create`              | POST   | `gpc otp create`                            |
-| `monetization.oneTimeProducts.patch`               | PATCH  | `gpc otp update <id>`                       |
-| `monetization.oneTimeProducts.delete`              | DELETE | `gpc otp delete <id>`                       |
-| `oneTimeProducts.offers.list`                      | GET    | `gpc otp offers list`                       |
-| `oneTimeProducts.offers.get`                       | GET    | `gpc otp offers get`                        |
-| `oneTimeProducts.offers.create`                    | POST   | `gpc otp offers create`                     |
-| `oneTimeProducts.offers.patch`                     | PATCH  | `gpc otp offers update`                     |
-| `oneTimeProducts.offers.delete`                    | DELETE | `gpc otp offers delete`                     |
-| `oneTimeProducts.offers.activate`                  | POST   | `gpc otp offers activate`                   |
-| `oneTimeProducts.offers.deactivate`                | POST   | `gpc otp offers deactivate`                 |
-| `oneTimeProducts.offers.cancel`                    | POST   | `gpc otp offers cancel`                     |
-| `oneTimeProducts.offers.batchGet`                  | POST   | `gpc otp offers batch-get`                  |
-| `oneTimeProducts.offers.batchUpdate`               | POST   | `gpc otp offers batch-update`               |
-| `oneTimeProducts.offers.batchUpdateStates`         | POST   | `gpc otp offers batch-update-states`        |
-| `oneTimeProducts.offers.batchDelete`               | POST   | `gpc otp offers batch-delete`               |
-| `oneTimeProducts.purchaseOptions.batchDelete`      | POST   | `gpc otp purchase-options batch-delete`     |
-| `oneTimeProducts.purchaseOptions.batchUpdateStates`| POST   | `gpc otp purchase-options batch-update-states` |
+| API Endpoint                                        | Method | GPC Command                                    |
+| --------------------------------------------------- | ------ | ---------------------------------------------- |
+| `monetization.oneTimeProducts.list`                 | GET    | `gpc otp list`                                 |
+| `monetization.oneTimeProducts.get`                  | GET    | `gpc otp get <id>`                             |
+| `monetization.oneTimeProducts.create`               | POST   | `gpc otp create`                               |
+| `monetization.oneTimeProducts.patch`                | PATCH  | `gpc otp update <id>`                          |
+| `monetization.oneTimeProducts.delete`               | DELETE | `gpc otp delete <id>`                          |
+| `oneTimeProducts.offers.list`                       | GET    | `gpc otp offers list`                          |
+| `oneTimeProducts.offers.get`                        | GET    | `gpc otp offers get`                           |
+| `oneTimeProducts.offers.create`                     | POST   | `gpc otp offers create`                        |
+| `oneTimeProducts.offers.patch`                      | PATCH  | `gpc otp offers update`                        |
+| `oneTimeProducts.offers.delete`                     | DELETE | `gpc otp offers delete`                        |
+| `oneTimeProducts.offers.activate`                   | POST   | `gpc otp offers activate`                      |
+| `oneTimeProducts.offers.deactivate`                 | POST   | `gpc otp offers deactivate`                    |
+| `oneTimeProducts.offers.cancel`                     | POST   | `gpc otp offers cancel`                        |
+| `oneTimeProducts.offers.batchGet`                   | POST   | `gpc otp offers batch-get`                     |
+| `oneTimeProducts.offers.batchUpdate`                | POST   | `gpc otp offers batch-update`                  |
+| `oneTimeProducts.offers.batchUpdateStates`          | POST   | `gpc otp offers batch-update-states`           |
+| `oneTimeProducts.offers.batchDelete`                | POST   | `gpc otp offers batch-delete`                  |
+| `oneTimeProducts.purchaseOptions.batchDelete`       | POST   | `gpc otp purchase-options batch-delete`        |
+| `oneTimeProducts.purchaseOptions.batchUpdateStates` | POST   | `gpc otp purchase-options batch-update-states` |
 
 ## Managed Google Play (Play Custom App Publishing API)
 
@@ -338,35 +338,35 @@ Private app publishing for enterprise customers. Separate Google API (`playcusto
 
 ## Coverage Summary
 
-| Domain                               | Endpoints | API        |
-| ------------------------------------ | --------- | ---------- |
-| Edits (internal transactional ops)   | 5         | Publisher  |
-| Edits: Bundles + APKs                | 5         | Publisher  |
-| Edits: Tracks + Release Lifecycle    | 6         | Publisher  |
-| Edits: Deobfuscation + Expansion     | 5         | Publisher  |
-| Edits: Listings + Images             | 10        | Publisher  |
-| Edits: Details                       | 3         | Publisher  |
-| Edits: Country Availability          | 1         | Publisher  |
-| Edits: Testers                       | 3         | Publisher  |
-| Reviews                              | 3         | Publisher  |
-| In-App Products                      | 9         | Publisher  |
-| Subscriptions + Base Plans + Offers  | 19        | Publisher  |
-| Purchases                            | 13        | Publisher  |
-| Orders                               | 3         | Publisher  |
-| Monetization (pricing)               | 1         | Publisher  |
-| Users + Grants                       | 8         | Publisher  |
-| Reports                              | 3         | Publisher  |
-| Vitals (metric sets + metadata)      | 11        | Reporting  |
-| App Recovery                         | 5         | Publisher  |
-| Data Safety                          | 1         | Publisher  |
-| External Transactions                | 3         | Publisher  |
-| Device Tiers                         | 3         | Publisher  |
-| Internal App Sharing                 | 2         | Publisher  |
-| Generated APKs                       | 2         | Publisher  |
-| System APKs                          | 4         | Publisher  |
-| One-Time Products + Offers           | 19        | Publisher  |
-| Managed Google Play (Custom Apps)    | 1         | Custom App |
-| **Total**                            | **~217**  |            |
+| Domain                              | Endpoints | API        |
+| ----------------------------------- | --------- | ---------- |
+| Edits (internal transactional ops)  | 5         | Publisher  |
+| Edits: Bundles + APKs               | 5         | Publisher  |
+| Edits: Tracks + Release Lifecycle   | 6         | Publisher  |
+| Edits: Deobfuscation + Expansion    | 5         | Publisher  |
+| Edits: Listings + Images            | 10        | Publisher  |
+| Edits: Details                      | 3         | Publisher  |
+| Edits: Country Availability         | 1         | Publisher  |
+| Edits: Testers                      | 3         | Publisher  |
+| Reviews                             | 3         | Publisher  |
+| In-App Products                     | 9         | Publisher  |
+| Subscriptions + Base Plans + Offers | 19        | Publisher  |
+| Purchases                           | 13        | Publisher  |
+| Orders                              | 3         | Publisher  |
+| Monetization (pricing)              | 1         | Publisher  |
+| Users + Grants                      | 8         | Publisher  |
+| Reports                             | 3         | Publisher  |
+| Vitals (metric sets + metadata)     | 11        | Reporting  |
+| App Recovery                        | 5         | Publisher  |
+| Data Safety                         | 1         | Publisher  |
+| External Transactions               | 3         | Publisher  |
+| Device Tiers                        | 3         | Publisher  |
+| Internal App Sharing                | 2         | Publisher  |
+| Generated APKs                      | 2         | Publisher  |
+| System APKs                         | 4         | Publisher  |
+| One-Time Products + Offers          | 19        | Publisher  |
+| Managed Google Play (Custom Apps)   | 1         | Custom App |
+| **Total**                           | **~217**  |            |
 
 Numbers are approximate: several endpoints overload a single Google URL (for example, `reports.download` serves both financial and stats buckets via query parameters).
 
@@ -381,11 +381,11 @@ Tracked against the live discovery docs audited 2026-04-16:
 
 ### Play Developer Reporting API: planned additions
 
-| Endpoint                                   | Use-case                                                              | Target        |
-| ------------------------------------------ | --------------------------------------------------------------------- | ------------- |
-| `apps.search`                              | `gpc apps list --source reporting`: list service-account-visible apps via Reporting ACL | Future        |
-| `apps.fetchReleaseFilterOptions`           | Validate `--version-code` / `--track` filters, power shell completion for vitals queries | Future        |
-| `errorIssues.search` (extended params)     | Add `orderBy`, `sampleErrorReportLimit`, `interval.*` windowing to `gpc vitals errors search` | Future        |
+| Endpoint                               | Use-case                                                                                      | Target |
+| -------------------------------------- | --------------------------------------------------------------------------------------------- | ------ |
+| `apps.search`                          | `gpc apps list --source reporting`: list service-account-visible apps via Reporting ACL       | Future |
+| `apps.fetchReleaseFilterOptions`       | Validate `--version-code` / `--track` filters, power shell completion for vitals queries      | Future |
+| `errorIssues.search` (extended params) | Add `orderBy`, `sampleErrorReportLimit`, `interval.*` windowing to `gpc vitals errors search` | Future |
 
 ::: warning Known issue: `vitals errors reports`
 The current `gpc vitals errors reports` command calls a path (`/apps/{pkg}/errorIssues/{name}/reports`) that does not exist in Google's discovery doc. The correct endpoint is `GET /apps/{pkg}/errorReports:search` with an `errorIssueId` filter. Scheduled for a future release alongside the other Reporting additions above.
@@ -393,10 +393,10 @@ The current `gpc vitals errors reports` command calls a path (`/apps/{pkg}/error
 
 ### Managed Google Play (playcustomapp): minor polish
 
-| Item                                             | Notes                                                                  |
-| ------------------------------------------------ | ---------------------------------------------------------------------- |
-| Accept BCP 47 hyphen form (`en-US`)              | Currently only `en_US` is documented; both work, hyphen is canonical   |
-| Pre-validate 10 GiB upload cap                   | Clearer error than mid-stream upload failure                           |
+| Item                                | Notes                                                                |
+| ----------------------------------- | -------------------------------------------------------------------- |
+| Accept BCP 47 hyphen form (`en-US`) | Currently only `en_US` is documented; both work, hyphen is canonical |
+| Pre-validate 10 GiB upload cap      | Clearer error than mid-stream upload failure                         |
 
 No spec-driven changes needed: `accounts.customApps.create` is the entire API surface (1 method). Google has not added methods since v0.9.56 shipped (2026-04-11).
 
@@ -406,18 +406,18 @@ GPC's current `games` command wraps the runtime `games v1` API (leaderboards, ac
 
 The publisher-facing surface is `gamesconfiguration v1configuration` (10 methods, CRUD on achievement and leaderboard **definitions** from CI/CD):
 
-| Resource                      | Methods (5 each)                                  |
-| ----------------------------- | ------------------------------------------------- |
-| `achievementConfigurations`   | `list`, `get`, `insert`, `update`, `delete`       |
-| `leaderboardConfigurations`   | `list`, `get`, `insert`, `update`, `delete`       |
+| Resource                    | Methods (5 each)                            |
+| --------------------------- | ------------------------------------------- |
+| `achievementConfigurations` | `list`, `get`, `insert`, `update`, `delete` |
+| `leaderboardConfigurations` | `list`, `get`, `insert`, `update`, `delete` |
 
 Planned replacement:
 
-| Current (runtime)             | Planned (publisher config)                                     |
-| ----------------------------- | -------------------------------------------------------------- |
-| `gpc games leaderboards`      | `gpc games leaderboards {list,get,create,update,delete}`       |
-| `gpc games achievements`      | `gpc games achievements {list,get,create,update,delete}`       |
-| `gpc games events`            | *(removed, runtime-only, no publisher equivalent)*            |
+| Current (runtime)        | Planned (publisher config)                               |
+| ------------------------ | -------------------------------------------------------- |
+| `gpc games leaderboards` | `gpc games leaderboards {list,get,create,update,delete}` |
+| `gpc games achievements` | `gpc games achievements {list,get,create,update,delete}` |
+| `gpc games events`       | _(removed, runtime-only, no publisher equivalent)_       |
 
 `games v1` and `gamesmanagement v1management` will not be expanded; they are runtime/QA-reset surfaces outside GPC's publisher-CLI mission.
 

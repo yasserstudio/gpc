@@ -108,9 +108,19 @@ describe("generateChangelog", () => {
     const runner = makeRunner({
       log: async () => [
         makeRaw({ sha: "1", subject: "fix: a bug", files: ["packages/core/x.ts"], additions: 5 }),
-        makeRaw({ sha: "2", subject: "feat: new thing", files: ["packages/cli/y.ts"], additions: 50 }),
+        makeRaw({
+          sha: "2",
+          subject: "feat: new thing",
+          files: ["packages/cli/y.ts"],
+          additions: 50,
+        }),
         makeRaw({ sha: "3", subject: "docs: update guide", files: ["docs/a.md"], additions: 5 }),
-        makeRaw({ sha: "4", subject: "perf: faster", files: ["packages/core/z.ts"], additions: 10 }),
+        makeRaw({
+          sha: "4",
+          subject: "perf: faster",
+          files: ["packages/core/z.ts"],
+          additions: 10,
+        }),
       ],
     });
     const g = await generateChangelog({}, runner);
@@ -190,8 +200,18 @@ describe("generateChangelog", () => {
   it("clusters two commits via Jaccard keyword overlap when files differ", async () => {
     const runner = makeRunner({
       log: async () => [
-        makeRaw({ sha: "1", subject: "feat: shell completion walker", files: ["a.ts"], additions: 10 }),
-        makeRaw({ sha: "2", subject: "fix: shell completion walker bug", files: ["b.ts"], additions: 3 }),
+        makeRaw({
+          sha: "1",
+          subject: "feat: shell completion walker",
+          files: ["a.ts"],
+          additions: 10,
+        }),
+        makeRaw({
+          sha: "2",
+          subject: "fix: shell completion walker bug",
+          files: ["b.ts"],
+          additions: 3,
+        }),
       ],
     });
     const g = await generateChangelog({}, runner);
@@ -222,7 +242,12 @@ describe("generateChangelog", () => {
   it("emits jargon warning for banned word", async () => {
     const runner = makeRunner({
       log: async () => [
-        makeRaw({ sha: "1", subject: "feat: cached homedir at module level", files: ["x.ts"], additions: 10 }),
+        makeRaw({
+          sha: "1",
+          subject: "feat: cached homedir at module level",
+          files: ["x.ts"],
+          additions: 10,
+        }),
       ],
     });
     const g = await generateChangelog({}, runner);

@@ -272,14 +272,7 @@ describe("changelog generate subcommand", () => {
     const program = makeProgram();
     registerChangelogCommand(program);
 
-    await program.parseAsync([
-      "node",
-      "gpc",
-      "changelog",
-      "generate",
-      "--format",
-      "yaml",
-    ]);
+    await program.parseAsync(["node", "gpc", "changelog", "generate", "--format", "yaml"]);
 
     expect(process.exitCode).toBe(2);
     expect(mockGenerateChangelog).not.toHaveBeenCalled();
@@ -320,14 +313,7 @@ describe("changelog generate subcommand", () => {
     const program = makeProgram();
     registerChangelogCommand(program);
 
-    await program.parseAsync([
-      "node",
-      "gpc",
-      "changelog",
-      "generate",
-      "--target",
-      "play-store",
-    ]);
+    await program.parseAsync(["node", "gpc", "changelog", "generate", "--target", "play-store"]);
 
     expect(process.exitCode).toBe(2);
     expect(mockGenerateChangelog).not.toHaveBeenCalled();
@@ -446,14 +432,7 @@ describe("changelog generate subcommand", () => {
     const program = makeProgram();
     registerChangelogCommand(program);
 
-    await program.parseAsync([
-      "node",
-      "gpc",
-      "changelog",
-      "generate",
-      "--target",
-      "bogus",
-    ]);
+    await program.parseAsync(["node", "gpc", "changelog", "generate", "--target", "bogus"]);
 
     expect(process.exitCode).toBe(2);
     const stderr = (process.stderr.write as ReturnType<typeof vi.fn>).mock.calls
@@ -467,14 +446,7 @@ describe("changelog generate subcommand", () => {
     const program = makeProgram();
     registerChangelogCommand(program);
 
-    await program.parseAsync([
-      "node",
-      "gpc",
-      "changelog",
-      "generate",
-      "--locales",
-      "en-US",
-    ]);
+    await program.parseAsync(["node", "gpc", "changelog", "generate", "--locales", "en-US"]);
 
     expect(process.exitCode).toBe(2);
     const stderr = (process.stderr.write as ReturnType<typeof vi.fn>).mock.calls

@@ -38,24 +38,24 @@ gpc releases upload <file> [options]
 
 ### Options
 
-| Flag                            | Short | Type     | Default     | Description                                                                      |
-| ------------------------------- | ----- | -------- | ----------- | -------------------------------------------------------------------------------- |
-| `--track`                       |       | `string` | `internal`  | Target track (`internal`, `alpha`, `beta`, `production`, or custom)              |
-| `--rollout`                     |       | `number` |             | Staged rollout percentage (1-100)                                                |
-| `--notes`                       |       | `string` |             | Release notes text (en-US)                                                       |
-| `--name`                        |       | `string` |             | Release name                                                                     |
-| `--mapping`                     |       | `string` |             | Path to ProGuard/R8 mapping file for deobfuscation                               |
-| `--notes-dir`                   |       | `string` |             | Directory with per-language release notes (`<dir>/<lang>.txt`)                   |
+| Flag                            | Short | Type     | Default     | Description                                                                                                                                                                 |
+| ------------------------------- | ----- | -------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--track`                       |       | `string` | `internal`  | Target track (`internal`, `alpha`, `beta`, `production`, or custom)                                                                                                         |
+| `--rollout`                     |       | `number` |             | Staged rollout percentage (1-100)                                                                                                                                           |
+| `--notes`                       |       | `string` |             | Release notes text (en-US)                                                                                                                                                  |
+| `--name`                        |       | `string` |             | Release name                                                                                                                                                                |
+| `--mapping`                     |       | `string` |             | Path to ProGuard/R8 mapping file for deobfuscation                                                                                                                          |
+| `--notes-dir`                   |       | `string` |             | Directory with per-language release notes (`<dir>/<lang>.txt`)                                                                                                              |
 | `--notes-from-git`              |       | flag     |             | Generate Play Store release notes from git commit history (per-locale, 500-char). For GitHub Release notes, see [`gpc changelog generate`](./changelog#changelog-generate). |
-| `--copy-notes-from`             |       | `string` |             | Copy release notes from another track's latest release                           |
-| `--since`                       |       | `string` |             | Git ref to start from (tag, SHA) — used with `--notes-from-git`                  |
-| `--timeout`                     |       | `number` |             | Upload timeout in milliseconds (auto-scales with file size)                      |
-| `--retry-log`                   |       | `string` |             | Write retry log entries to file (JSONL)                                          |
-| `--status`                      |       | `string` | `completed` | Release status: `completed`, `inProgress`, `draft`, `halted`                     |
-| `--mapping-type`                |       | `string` | `proguard`  | Deobfuscation file type: `proguard` or `nativeCode`                              |
-| `--device-tier-config`          |       | `string` |             | Device tier config ID (or `LATEST`) for targeted delivery                        |
-| `--changes-not-sent-for-review` |       | flag     |             | Commit without sending for review (required for [rejected apps](#rejected-apps)) |
-| `--error-if-in-review`          |       | flag     |             | Fail if changes are already in review instead of cancelling them                 |
+| `--copy-notes-from`             |       | `string` |             | Copy release notes from another track's latest release                                                                                                                      |
+| `--since`                       |       | `string` |             | Git ref to start from (tag, SHA) — used with `--notes-from-git`                                                                                                             |
+| `--timeout`                     |       | `number` |             | Upload timeout in milliseconds (auto-scales with file size)                                                                                                                 |
+| `--retry-log`                   |       | `string` |             | Write retry log entries to file (JSONL)                                                                                                                                     |
+| `--status`                      |       | `string` | `completed` | Release status: `completed`, `inProgress`, `draft`, `halted`                                                                                                                |
+| `--mapping-type`                |       | `string` | `proguard`  | Deobfuscation file type: `proguard` or `nativeCode`                                                                                                                         |
+| `--device-tier-config`          |       | `string` |             | Device tier config ID (or `LATEST`) for targeted delivery                                                                                                                   |
+| `--changes-not-sent-for-review` |       | flag     |             | Commit without sending for review (required for [rejected apps](#rejected-apps))                                                                                            |
+| `--error-if-in-review`          |       | flag     |             | Fail if changes are already in review instead of cancelling them                                                                                                            |
 
 ### Upload Progress
 

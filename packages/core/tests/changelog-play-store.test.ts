@@ -21,9 +21,7 @@ function commit(overrides: Partial<ParsedCommit> & { sha: string; subject: strin
   };
 }
 
-function makeGenerated(
-  overrides: Partial<GeneratedChangelog> = {},
-): GeneratedChangelog {
+function makeGenerated(overrides: Partial<GeneratedChangelog> = {}): GeneratedChangelog {
   const grouped = overrides.grouped ?? {
     feat: [commit({ sha: "abc1234", subject: "shell completion walker" })],
     fix: [commit({ sha: "def5678", subject: "correct vitals lmk endpoint", type: "fix" })],

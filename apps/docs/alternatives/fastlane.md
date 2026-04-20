@@ -8,38 +8,38 @@ If you are evaluating alternatives to Fastlane for Google Play automation, here 
 
 ## At a Glance
 
-|                         | **GPC**                       | **Fastlane supply** |
-| ----------------------- | ----------------------------- | ------------------- |
-| API coverage            | **217 endpoints**             | ~20                 |
-| Runtime                 | Node.js or standalone binary  | Ruby + Bundler      |
-| Cold start              | <500ms                        | 2-3s                |
-| Reviews & Vitals        | Yes                           | No                  |
-| Subscriptions & IAP     | Yes                           | No                  |
-| **Managed Google Play** | **Yes (Play Custom App API)** | No                  |
-| Preflight scanner       | **9 offline policy checks**   | No                  |
-| CI/CD native            | JSON + exit codes + env vars  | Partial             |
-| Plugin system           | Yes (lifecycle hooks)         | Actions (different) |
-| Interactive mode        | Yes (guided prompts)          | No                  |
-| Release notes generator | **`gpc changelog generate`** (clusters, lints, LLM prompt) | No |
-| Test suite              | 1,999 tests, 90%+ coverage    | --                  |
+|                         | **GPC**                                                    | **Fastlane supply** |
+| ----------------------- | ---------------------------------------------------------- | ------------------- |
+| API coverage            | **217 endpoints**                                          | ~20                 |
+| Runtime                 | Node.js or standalone binary                               | Ruby + Bundler      |
+| Cold start              | <500ms                                                     | 2-3s                |
+| Reviews & Vitals        | Yes                                                        | No                  |
+| Subscriptions & IAP     | Yes                                                        | No                  |
+| **Managed Google Play** | **Yes (Play Custom App API)**                              | No                  |
+| Preflight scanner       | **9 offline policy checks**                                | No                  |
+| CI/CD native            | JSON + exit codes + env vars                               | Partial             |
+| Plugin system           | Yes (lifecycle hooks)                                      | Actions (different) |
+| Interactive mode        | Yes (guided prompts)                                       | No                  |
+| Release notes generator | **`gpc changelog generate`** (clusters, lints, LLM prompt) | No                  |
+| Test suite              | 1,999 tests, 90%+ coverage                                 | --                  |
 
 ## What GPC Covers That Fastlane Does Not
 
 These capabilities have **no Fastlane equivalent**:
 
-| GPC Command              | What it does                                        |
-| ------------------------ | --------------------------------------------------- |
-| `gpc vitals crashes`     | Query crash rates with CI threshold gates           |
-| `gpc vitals anr`         | ANR rates with dimension grouping                   |
-| `gpc reviews list --all` | Auto-paginate all reviews, filter by stars/language |
-| `gpc reviews reply`      | Reply to reviews from the terminal                  |
-| `gpc subscriptions list` | Manage subscriptions, base plans, and offers        |
-| `gpc preflight app.aab`  | 9 offline policy scanners before upload             |
-| `gpc status`             | Releases + vitals + reviews in one command          |
-| `gpc bundle analyze`     | Per-module AAB/APK size breakdown with CI gates     |
-| `gpc rtdn decode`        | Decode Real-Time Developer Notifications            |
-| `gpc doctor`             | 20 automated setup checks with `--fix`              |
-| `gpc diff`               | Preview release state across all tracks             |
+| GPC Command              | What it does                                                           |
+| ------------------------ | ---------------------------------------------------------------------- |
+| `gpc vitals crashes`     | Query crash rates with CI threshold gates                              |
+| `gpc vitals anr`         | ANR rates with dimension grouping                                      |
+| `gpc reviews list --all` | Auto-paginate all reviews, filter by stars/language                    |
+| `gpc reviews reply`      | Reply to reviews from the terminal                                     |
+| `gpc subscriptions list` | Manage subscriptions, base plans, and offers                           |
+| `gpc preflight app.aab`  | 9 offline policy scanners before upload                                |
+| `gpc status`             | Releases + vitals + reviews in one command                             |
+| `gpc bundle analyze`     | Per-module AAB/APK size breakdown with CI gates                        |
+| `gpc rtdn decode`        | Decode Real-Time Developer Notifications                               |
+| `gpc doctor`             | 20 automated setup checks with `--fix`                                 |
+| `gpc diff`               | Preview release state across all tracks                                |
 | `gpc changelog generate` | Generate GitHub Release notes from local commits with smart clustering |
 
 ## Command Mapping

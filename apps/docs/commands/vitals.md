@@ -287,11 +287,11 @@ gpc vitals lmk [options]
 
 ### Options
 
-| Flag          | Short | Type     | Default | Description                                    |
-| ------------- | ----- | -------- | ------- | ---------------------------------------------- |
-| `--dim`       |       | `string` |         | Group by dimension                             |
-| `--days`      |       | `number` |         | Number of days to query                        |
-| `--threshold` |       | `number` |         | LMK rate threshold (exit code 6 if breached)   |
+| Flag          | Short | Type     | Default | Description                                  |
+| ------------- | ----- | -------- | ------- | -------------------------------------------- |
+| `--dim`       |       | `string` |         | Group by dimension                           |
+| `--days`      |       | `number` |         | Number of days to query                      |
+| `--threshold` |       | `number` |         | LMK rate threshold (exit code 6 if breached) |
 
 ### Example
 
@@ -313,10 +313,10 @@ gpc vitals error-count [options]
 
 ### Options
 
-| Flag          | Short | Type     | Default      | Description                                         |
-| ------------- | ----- | -------- | ------------ | --------------------------------------------------- |
-| `--dim`       |       | `string` | `reportType` | Group by dimension                                  |
-| `--days`      |       | `number` |              | Number of days to query                             |
+| Flag          | Short | Type     | Default      | Description                                            |
+| ------------- | ----- | -------- | ------------ | ------------------------------------------------------ |
+| `--dim`       |       | `string` | `reportType` | Group by dimension                                     |
+| `--days`      |       | `number` |              | Number of days to query                                |
 | `--threshold` |       | `number` |              | Error report count threshold (exit code 6 if breached) |
 
 ### Example

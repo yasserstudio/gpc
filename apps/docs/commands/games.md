@@ -49,11 +49,11 @@ The current commands wrap the runtime `games v1` API (player-facing leaderboards
 
 Planned shape:
 
-| Current                        | Planned (publisher config)                                     |
-| ------------------------------ | -------------------------------------------------------------- |
+| Current                                       | Planned (publisher config)                               |
+| --------------------------------------------- | -------------------------------------------------------- |
 | `gpc games leaderboards` (list-only, runtime) | `gpc games leaderboards {list,get,create,update,delete}` |
 | `gpc games achievements` (list-only, runtime) | `gpc games achievements {list,get,create,update,delete}` |
-| `gpc games events` (runtime)   | *(removed, no publisher equivalent)*                           |
+| `gpc games events` (runtime)                  | _(removed, no publisher equivalent)_                     |
 
 See [Planned coverage](../reference/api-coverage.md#games-apis-strategic-direction) for context.
 

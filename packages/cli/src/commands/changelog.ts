@@ -84,7 +84,10 @@ export function registerChangelogCommand(program: Command): void {
     .option("--format <mode>", "Renderer: md, json, or prompt", "md")
     .option("--repo <owner/name>", "Override auto-detected repo (e.g., yasserstudio/gpc)")
     .option("--target <mode>", "Output target: github or play-store", "github")
-    .option("--locales <csv|auto>", "Comma-separated BCP 47 locales, or 'auto' (play-store target only)")
+    .option(
+      "--locales <csv|auto>",
+      "Comma-separated BCP 47 locales, or 'auto' (play-store target only)",
+    )
     .option("--ai", "Translate non-source locales via LLM (play-store target only, BYO key)")
     .option(
       "--provider <name>",
@@ -141,9 +144,7 @@ export function registerChangelogCommand(program: Command): void {
         // globally by the user for unrelated reasons; we silently ignore it
         // on non-AI code paths.
         if (target === "github" && (opts.ai || opts.provider || opts.model)) {
-          process.stderr.write(
-            "--ai / --provider / --model only apply to --target play-store\n",
-          );
+          process.stderr.write("--ai / --provider / --model only apply to --target play-store\n");
           process.exitCode = 2;
           return;
         }

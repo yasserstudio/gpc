@@ -10,16 +10,16 @@ For flag-by-flag details on each command, see [`gpc listings images`](../command
 
 Google Play's store listing page for a single app can carry up to **8 image types**, each stored separately per locale:
 
-| Type (GPC `--type`) | What it is | Where it shows up |
-| --- | --- | --- |
-| `icon` | 512×512 app icon (separate from the APK icon) | Everywhere Google Play lists your app |
-| `featureGraphic` | 1024×500 hero banner | Top of your Play Store page |
-| `phoneScreenshots` | Phone UI screenshots | Main screenshot carousel on phones |
-| `sevenInchScreenshots` | 7-inch tablet UI screenshots | Screenshot carousel on 7-inch tablets |
-| `tenInchScreenshots` | 10-inch tablet UI screenshots | Screenshot carousel on 10-inch tablets |
-| `tvScreenshots` | Android TV UI screenshots | TV Play Store listings |
-| `wearScreenshots` | Wear OS UI screenshots | Wear OS Play Store listings |
-| `tvBanner` | 1280×720 TV banner | Android TV carousel |
+| Type (GPC `--type`)    | What it is                                    | Where it shows up                      |
+| ---------------------- | --------------------------------------------- | -------------------------------------- |
+| `icon`                 | 512×512 app icon (separate from the APK icon) | Everywhere Google Play lists your app  |
+| `featureGraphic`       | 1024×500 hero banner                          | Top of your Play Store page            |
+| `phoneScreenshots`     | Phone UI screenshots                          | Main screenshot carousel on phones     |
+| `sevenInchScreenshots` | 7-inch tablet UI screenshots                  | Screenshot carousel on 7-inch tablets  |
+| `tenInchScreenshots`   | 10-inch tablet UI screenshots                 | Screenshot carousel on 10-inch tablets |
+| `tvScreenshots`        | Android TV UI screenshots                     | TV Play Store listings                 |
+| `wearScreenshots`      | Wear OS UI screenshots                        | Wear OS Play Store listings            |
+| `tvBanner`             | 1280×720 TV banner                            | Android TV carousel                    |
 
 **Per-locale means per-language AND per-region.** `phoneScreenshots` for `en-US` is a distinct slot from `phoneScreenshots` for `en-GB` or `fr-FR`. You can have the same image in every locale (just upload it to each), or tailor screenshots per language (localized UI, regional pricing overlays, etc.).
 
@@ -27,16 +27,16 @@ Google Play's store listing page for a single app can carry up to **8 image type
 
 Google Play validates every image at upload time. Meet these specs locally before calling any GPC upload command. Core rejects malformed images pre-upload with a clear error message (see [`validateImage`](https://github.com/yasserstudio/gpc/blob/main/packages/core/src/utils/image-validation.ts) in the source).
 
-| Type | Format | Dimensions | Aspect ratio | Max size |
-| --- | --- | --- | --- | --- |
-| `icon` | 32-bit PNG (with alpha) | exactly 512 × 512 | 1:1 square | 1 MB |
-| `featureGraphic` | PNG or JPEG | exactly 1024 × 500 | ~2:1 | 1 MB |
-| `phoneScreenshots` | PNG or JPEG | 320–3840 px per side, min dim 320 | 16:9 or 9:16 | 8 MB |
-| `sevenInchScreenshots` | PNG or JPEG | 320–3840 px per side | any | 8 MB |
-| `tenInchScreenshots` | PNG or JPEG | 320–3840 px per side | any | 8 MB |
-| `tvScreenshots` | PNG or JPEG | 1280×720 or 1920×1080 | 16:9 landscape | 8 MB |
-| `wearScreenshots` | PNG or JPEG | 384×384 recommended | 1:1 square | 8 MB |
-| `tvBanner` | PNG or JPEG | 1280×720 | 16:9 | 8 MB |
+| Type                   | Format                  | Dimensions                        | Aspect ratio   | Max size |
+| ---------------------- | ----------------------- | --------------------------------- | -------------- | -------- |
+| `icon`                 | 32-bit PNG (with alpha) | exactly 512 × 512                 | 1:1 square     | 1 MB     |
+| `featureGraphic`       | PNG or JPEG             | exactly 1024 × 500                | ~2:1           | 1 MB     |
+| `phoneScreenshots`     | PNG or JPEG             | 320–3840 px per side, min dim 320 | 16:9 or 9:16   | 8 MB     |
+| `sevenInchScreenshots` | PNG or JPEG             | 320–3840 px per side              | any            | 8 MB     |
+| `tenInchScreenshots`   | PNG or JPEG             | 320–3840 px per side              | any            | 8 MB     |
+| `tvScreenshots`        | PNG or JPEG             | 1280×720 or 1920×1080             | 16:9 landscape | 8 MB     |
+| `wearScreenshots`      | PNG or JPEG             | 384×384 recommended               | 1:1 square     | 8 MB     |
+| `tvBanner`             | PNG or JPEG             | 1280×720                          | 16:9           | 8 MB     |
 
 **Per-listing quantity limits:**
 
@@ -240,8 +240,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'metadata/**'
-      - 'images/**'
+      - "metadata/**"
+      - "images/**"
 
 jobs:
   sync:

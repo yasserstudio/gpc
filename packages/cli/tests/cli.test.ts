@@ -349,9 +349,11 @@ vi.mock("@gpc-cli/core", () => {
       model: "claude-sonnet-4-6",
       runId: "test-run-id",
     }),
-    createTranslator: vi.fn().mockResolvedValue(
-      vi.fn().mockResolvedValue({ text: "translated", tokensIn: 10, tokensOut: 8 }),
-    ),
+    createTranslator: vi
+      .fn()
+      .mockResolvedValue(
+        vi.fn().mockResolvedValue({ text: "translated", tokensIn: 10, tokensOut: 8 }),
+      ),
     translateBundle: vi.fn().mockResolvedValue({
       from: "v0.9.62",
       to: "HEAD",

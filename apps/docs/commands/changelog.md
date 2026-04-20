@@ -20,10 +20,10 @@ Full guide for the generator: [Generating Release Notes](/guide/changelog-genera
 
 ## Commands
 
-| Command                                       | Description                                  |
-| --------------------------------------------- | -------------------------------------------- |
-| [`changelog`](#changelog)                     | Show release history from GitHub             |
-| [`changelog generate`](#changelog-generate)   | Generate notes from local git commits        |
+| Command                                     | Description                           |
+| ------------------------------------------- | ------------------------------------- |
+| [`changelog`](#changelog)                   | Show release history from GitHub      |
+| [`changelog generate`](#changelog-generate) | Generate notes from local git commits |
 
 ---
 
@@ -105,15 +105,15 @@ gpc changelog generate [options]
 
 ### Options
 
-| Option                  | Description                                                | Default                |
-| ----------------------- | ---------------------------------------------------------- | ---------------------- |
-| `--from <ref>`          | Starting git ref (tag, branch, or commit)                  | latest `v*` tag        |
-| `--to <ref>`            | Ending git ref                                             | `HEAD`                 |
-| `--format <mode>`       | Renderer: `md`, `json`, or `prompt`                        | `md`                   |
-| `--repo <owner/name>`   | Override auto-detected repo (e.g., `yasserstudio/gpc`)     | parsed from `origin`   |
-| `--target <mode>`       | Output target: `github` or `play-store`                    | `github`               |
-| `--locales <csv\|auto>` | BCP 47 locales (play-store target only)                    | —                      |
-| `--strict`              | Exit non-zero on linter warnings or locale overflows       | `false`                |
+| Option                  | Description                                            | Default              |
+| ----------------------- | ------------------------------------------------------ | -------------------- |
+| `--from <ref>`          | Starting git ref (tag, branch, or commit)              | latest `v*` tag      |
+| `--to <ref>`            | Ending git ref                                         | `HEAD`               |
+| `--format <mode>`       | Renderer: `md`, `json`, or `prompt`                    | `md`                 |
+| `--repo <owner/name>`   | Override auto-detected repo (e.g., `yasserstudio/gpc`) | parsed from `origin` |
+| `--target <mode>`       | Output target: `github` or `play-store`                | `github`             |
+| `--locales <csv\|auto>` | BCP 47 locales (play-store target only)                | —                    |
+| `--strict`              | Exit non-zero on linter warnings or locale overflows   | `false`              |
 
 ### Examples
 

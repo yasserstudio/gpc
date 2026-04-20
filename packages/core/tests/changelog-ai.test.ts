@@ -139,9 +139,9 @@ describe("resolveAiConfig", () => {
     expect(
       resolveAiConfig({ provider: "Anthropic", env: { ANTHROPIC_API_KEY: "x" } }).provider,
     ).toBe("anthropic");
-    expect(
-      resolveAiConfig({ provider: "OpenAI", env: { ANTHROPIC_API_KEY: "x" } }).provider,
-    ).toBe("openai");
+    expect(resolveAiConfig({ provider: "OpenAI", env: { ANTHROPIC_API_KEY: "x" } }).provider).toBe(
+      "openai",
+    );
   });
 
   it("treats empty-string AI_GATEWAY_API_KEY as unset", () => {
@@ -156,9 +156,7 @@ describe("resolveAiConfig", () => {
   });
 
   it("throws CHANGELOG_AI_NO_CREDENTIALS when no env key is set", () => {
-    expect(() => resolveAiConfig({ env: {} })).toThrowError(
-      /No AI provider credentials found/,
-    );
+    expect(() => resolveAiConfig({ env: {} })).toThrowError(/No AI provider credentials found/);
   });
 
   it("generates a distinct runId per invocation", () => {
@@ -183,12 +181,12 @@ describe("formatPathLabel", () => {
     expect(
       formatPathLabel({ path: "direct", provider: "openai", model: "gpt-4o-mini", runId: "r" }),
     ).toBe("direct OpenAI SDK (gpt-4o-mini)");
-    expect(
-      formatPathLabel({ path: "direct", provider: "anthropic", model: "m", runId: "r" }),
-    ).toBe("direct Anthropic SDK (m)");
-    expect(
-      formatPathLabel({ path: "direct", provider: "google", model: "m", runId: "r" }),
-    ).toBe("direct Google SDK (m)");
+    expect(formatPathLabel({ path: "direct", provider: "anthropic", model: "m", runId: "r" })).toBe(
+      "direct Anthropic SDK (m)",
+    );
+    expect(formatPathLabel({ path: "direct", provider: "google", model: "m", runId: "r" })).toBe(
+      "direct Google SDK (m)",
+    );
   });
 });
 

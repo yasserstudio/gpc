@@ -94,9 +94,7 @@ interface StatusCacheEntry {
 }
 
 async function readFreshStatusCache(packageName: string): Promise<StatusCacheEntry | null> {
-  const entry = await readJson<StatusCacheEntry>(
-    join(getCacheDir(), `status-${packageName}.json`),
-  );
+  const entry = await readJson<StatusCacheEntry>(join(getCacheDir(), `status-${packageName}.json`));
   if (!entry?.fetchedAt) return null;
   const ttl = entry.ttl ?? 3600;
   const ageSec = (Date.now() - new Date(entry.fetchedAt).getTime()) / 1000;

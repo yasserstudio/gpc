@@ -41,11 +41,7 @@ async function writeStatusCache(
   await mkdir(cacheDir, { recursive: true });
   const fetchedAt = new Date(Date.now() - ageSec * 1000).toISOString();
   const entry = { fetchedAt, ttl: 3600, data };
-  await writeFile(
-    join(cacheDir, `status-${packageName}.json`),
-    JSON.stringify(entry),
-    "utf-8",
-  );
+  await writeFile(join(cacheDir, `status-${packageName}.json`), JSON.stringify(entry), "utf-8");
 }
 
 beforeEach(async () => {
@@ -171,10 +167,7 @@ describe("__complete releases-for-track", () => {
         { track: "beta", versionCode: "200" },
       ],
     });
-    expect(await completeReleasesForTrack("com.example.app", "production")).toEqual([
-      "100",
-      "101",
-    ]);
+    expect(await completeReleasesForTrack("com.example.app", "production")).toEqual(["100", "101"]);
     expect(await completeReleasesForTrack("com.example.app", "beta")).toEqual(["200"]);
   });
 

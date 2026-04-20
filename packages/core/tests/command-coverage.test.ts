@@ -181,10 +181,7 @@ describe("Core Command Coverage — App Recovery", () => {
 });
 
 describe("Core Command Coverage — Data Safety", () => {
-  assertExports(
-    ["updateDataSafety", "importDataSafety"],
-    "data-safety",
-  );
+  assertExports(["updateDataSafety", "importDataSafety"], "data-safety");
 });
 
 describe("Core Command Coverage — External Transactions", () => {

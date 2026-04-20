@@ -77,7 +77,16 @@ const KNOWN_TYPES = new Set([
 
 const FILTERED_TYPES = new Set(["chore", "refactor", "test", "build", "style", "merge"]);
 
-export const SECTION_ORDER = ["breaking", "feat", "fix", "perf", "docs", "ci", "release", "other"] as const;
+export const SECTION_ORDER = [
+  "breaking",
+  "feat",
+  "fix",
+  "perf",
+  "docs",
+  "ci",
+  "release",
+  "other",
+] as const;
 
 const FIXUP_PATTERNS = [
   /^wip\b/i,
@@ -321,7 +330,12 @@ function jaccard(a: Set<string>, b: Set<string>): number {
   return union === 0 ? 0 : inter / union;
 }
 
-function shouldCluster(a: ParsedCommit, b: ParsedCommit, ta: Set<string>, tb: Set<string>): boolean {
+function shouldCluster(
+  a: ParsedCommit,
+  b: ParsedCommit,
+  ta: Set<string>,
+  tb: Set<string>,
+): boolean {
   const aPrefixes = new Set(a.files.map((f) => topPathPrefix(f)));
   for (const f of b.files) {
     if (aPrefixes.has(topPathPrefix(f))) return true;

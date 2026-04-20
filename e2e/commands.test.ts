@@ -45,16 +45,12 @@ describe.skipIf(!hasCliDist)("CLI commands", () => {
     // under normal network conditions (observed ~7s cold). Match the child-
     // process timeout to avoid a flaky e2e that doesn't actually exercise
     // anything the shorter ceiling would catch.
-    it(
-      "runs without crashing (exit 0 or 1, not 2)",
-      () => {
-        const { exitCode } = runWithExit("doctor");
-        // doctor may fail on auth (exit 1) but should not crash or show usage error (exit 2)
-        expect(exitCode).not.toBe(2);
-        expect([0, 1]).toContain(exitCode);
-      },
-      20_000,
-    );
+    it("runs without crashing (exit 0 or 1, not 2)", () => {
+      const { exitCode } = runWithExit("doctor");
+      // doctor may fail on auth (exit 1) but should not crash or show usage error (exit 2)
+      expect(exitCode).not.toBe(2);
+      expect([0, 1]).toContain(exitCode);
+    }, 20_000);
   });
 
   describe("gpc config show --output json", () => {

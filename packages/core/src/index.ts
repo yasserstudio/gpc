@@ -218,10 +218,7 @@ export {
   createRecoveryAction,
   addRecoveryTargeting,
 } from "./commands/app-recovery.js";
-export {
-  updateDataSafety,
-  importDataSafety,
-} from "./commands/data-safety.js";
+export { updateDataSafety, importDataSafety } from "./commands/data-safety.js";
 export {
   createExternalTransaction,
   getExternalTransaction,

@@ -433,10 +433,10 @@ If the browser cannot be opened, the URL is printed to stdout so you can copy it
 
 The generated bash, zsh, and fish scripts shell out to a hidden `gpc __complete` subcommand at TAB time to populate four flag slots with live values:
 
-| Flag                      | Values                                                                              |
-| ------------------------- | ----------------------------------------------------------------------------------- |
-| `--profile` / `-p`        | Profile names defined in your config                                                |
-| `--app` / `-a` / `--apps` | App packages from your config + cached `gpc status` data                            |
+| Flag                      | Values                                                                                 |
+| ------------------------- | -------------------------------------------------------------------------------------- |
+| `--profile` / `-p`        | Profile names defined in your config                                                   |
+| `--app` / `-a` / `--apps` | App packages from your config + cached `gpc status` data                               |
 | `--track`                 | `production`, `beta`, `alpha`, `internal` plus any custom tracks seen in cached status |
 
 The handler is lazy-loaded and reads only filesystem config (no API calls, no auth). If you've never run `gpc status` for an app, cache-backed values are empty and completion falls back silently — no errors, no delay.

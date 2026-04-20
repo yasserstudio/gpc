@@ -564,7 +564,7 @@ on:
     tags: ["v*"]
 
 permissions:
-  contents: write    # required for gh release create
+  contents: write # required for gh release create
 
 jobs:
   release:
@@ -572,7 +572,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0    # required so gpc can read the full git history
+          fetch-depth: 0 # required so gpc can read the full git history
 
       - uses: actions/setup-node@v4
         with:
@@ -598,14 +598,14 @@ jobs:
 Generate per-locale Play Store release notes in the same workflow. `gpc changelog generate --target play-store --locales auto` reads your live listing's locale list and emits a character-budget meter for each.
 
 ```yaml
-      - name: Generate Play Store changelog
-        run: |
-          gpc changelog generate --target play-store \
-            --locales auto \
-            --format json \
-            --app com.example.app \
-            --strict > play-store-notes.json
-        # --strict exits 1 if any locale overflows 500 chars.
+- name: Generate Play Store changelog
+  run: |
+    gpc changelog generate --target play-store \
+      --locales auto \
+      --format json \
+      --app com.example.app \
+      --strict > play-store-notes.json
+  # --strict exits 1 if any locale overflows 500 chars.
 ```
 
 For opt-in AI translation of the `[needs translation]` placeholders, wait for v0.9.63 (Vercel AI SDK integration). To wire translated notes back into a draft release, wait for v0.9.64.

@@ -77,24 +77,24 @@ After both are installed, an agent has matching prompt-metadata triggers for eve
 
 The full GPC skill index:
 
-| Skill                    | Covers                                                              |
-| ------------------------ | ------------------------------------------------------------------- |
-| `gpc-setup`              | Service account, OAuth, ADC, profiles, `gpc doctor`                 |
-| `gpc-onboarding`         | First-run setup and `gpc quickstart` wizard                         |
-| `gpc-release-flow`       | Upload, rollout, promote, `gpc publish`, `gpc diff`, `gpc changelog`|
-| `gpc-train`              | Automated staged rollout pipeline with crash and ANR gates          |
-| `gpc-preflight`          | Offline AAB compliance scanning (9 scanners)                        |
-| `gpc-metadata-sync`      | Store listings, images, Fastlane metadata compatibility             |
-| `gpc-vitals-monitoring`  | Crashes, ANR, LMK, thresholds, reviews, reports                     |
-| `gpc-ci-integration`     | GitHub Actions, GitLab CI, env vars, JSON output                    |
-| `gpc-monetization`       | Subscriptions, IAP, RTDN, pricing, analytics                        |
-| `gpc-user-management`    | Account users, permissions, grants, testers                         |
-| `gpc-migrate-fastlane`   | Fastlane-to-GPC migration with command mapping                      |
-| `gpc-plugin-development` | Plugin SDK and lifecycle hooks                                      |
-| `gpc-troubleshooting`    | Exit codes, error catalog, debug mode                               |
-| `gpc-sdk-usage`          | Standalone TypeScript SDK usage                                     |
-| `gpc-multi-app`          | Multiple apps, profiles, batch operations                           |
-| `gpc-security`           | Credential storage, key rotation, audit logging                     |
+| Skill                    | Covers                                                               |
+| ------------------------ | -------------------------------------------------------------------- |
+| `gpc-setup`              | Service account, OAuth, ADC, profiles, `gpc doctor`                  |
+| `gpc-onboarding`         | First-run setup and `gpc quickstart` wizard                          |
+| `gpc-release-flow`       | Upload, rollout, promote, `gpc publish`, `gpc diff`, `gpc changelog` |
+| `gpc-train`              | Automated staged rollout pipeline with crash and ANR gates           |
+| `gpc-preflight`          | Offline AAB compliance scanning (9 scanners)                         |
+| `gpc-metadata-sync`      | Store listings, images, Fastlane metadata compatibility              |
+| `gpc-vitals-monitoring`  | Crashes, ANR, LMK, thresholds, reviews, reports                      |
+| `gpc-ci-integration`     | GitHub Actions, GitLab CI, env vars, JSON output                     |
+| `gpc-monetization`       | Subscriptions, IAP, RTDN, pricing, analytics                         |
+| `gpc-user-management`    | Account users, permissions, grants, testers                          |
+| `gpc-migrate-fastlane`   | Fastlane-to-GPC migration with command mapping                       |
+| `gpc-plugin-development` | Plugin SDK and lifecycle hooks                                       |
+| `gpc-troubleshooting`    | Exit codes, error catalog, debug mode                                |
+| `gpc-sdk-usage`          | Standalone TypeScript SDK usage                                      |
+| `gpc-multi-app`          | Multiple apps, profiles, batch operations                            |
+| `gpc-security`           | Credential storage, key rotation, audit logging                      |
 
 ## Agent-friendly output contract
 
@@ -112,15 +112,15 @@ The `--json` flag returns a stable, versioned schema. When stdout is piped (non-
 
 ### Semantic exit codes
 
-| Code | Meaning            | Agent action                               |
-| ---- | ------------------ | ------------------------------------------ |
-| 0    | Success            | Proceed                                    |
-| 1    | Generic error      | Show stderr, halt                          |
-| 2    | Usage error        | Correct the flag, retry                    |
-| 3    | Auth error         | Prompt user to re-auth, halt               |
-| 4    | API error          | Back off, retry with exponential backoff   |
-| 5    | Network error      | Retry after a delay                        |
-| 6    | Threshold breach   | Block the release, surface the metric      |
+| Code | Meaning          | Agent action                             |
+| ---- | ---------------- | ---------------------------------------- |
+| 0    | Success          | Proceed                                  |
+| 1    | Generic error    | Show stderr, halt                        |
+| 2    | Usage error      | Correct the flag, retry                  |
+| 3    | Auth error       | Prompt user to re-auth, halt             |
+| 4    | API error        | Back off, retry with exponential backoff |
+| 5    | Network error    | Retry after a delay                      |
+| 6    | Threshold breach | Block the release, surface the metric    |
 
 Full catalog at [Exit Codes](/reference/exit-codes).
 

@@ -150,7 +150,9 @@ export function renderPlayStorePrompt(bundle: LocaleBundle, g: GeneratedChangelo
   const targets = bundle.locales.filter((e) => e.language !== bundle.sourceLanguage);
 
   const lines: string[] = [];
-  lines.push(`You are translating Play Store "What's new" release notes from ${bundle.sourceLanguage}.`);
+  lines.push(
+    `You are translating Play Store "What's new" release notes from ${bundle.sourceLanguage}.`,
+  );
   lines.push("");
   lines.push("TARGETS:");
   for (const t of targets) lines.push(`  - ${t.language}`);
@@ -158,10 +160,12 @@ export function renderPlayStorePrompt(bundle: LocaleBundle, g: GeneratedChangelo
   lines.push("");
   lines.push("CONSTRAINTS:");
   lines.push(`- Each translation MUST be ≤ ${bundle.limit} Unicode code points`);
-  lines.push("- Preserve the bullet format (one item per line, starts with \"- \")");
+  lines.push('- Preserve the bullet format (one item per line, starts with "- ")');
   lines.push("- Keep a user-facing tone (no internal jargon)");
-  lines.push("- Do not translate technical names (package names, CLI flags, \"GPC\")");
-  lines.push("- Drop the conventional-commit prefix (feat:/fix:) if it feels unnatural in the target language");
+  lines.push('- Do not translate technical names (package names, CLI flags, "GPC")');
+  lines.push(
+    "- Drop the conventional-commit prefix (feat:/fix:) if it feels unnatural in the target language",
+  );
   lines.push("");
   lines.push(`SOURCE (${bundle.sourceLanguage}, ${source?.chars ?? 0}/${bundle.limit} chars):`);
   lines.push("```");
@@ -304,9 +308,7 @@ export async function translateBundle(
     }
   }
 
-  const overflows = newLocales
-    .filter((e) => e.status === "over")
-    .map((e) => e.language);
+  const overflows = newLocales.filter((e) => e.status === "over").map((e) => e.language);
 
   const translated: TranslatedBundle = {
     ...bundle,

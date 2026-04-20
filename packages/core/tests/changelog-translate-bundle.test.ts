@@ -181,9 +181,6 @@ describe("translateBundle", () => {
     await translateBundle(bundle, { translator, onError, onTranslated });
 
     expect(onTranslated).toHaveBeenCalledTimes(1);
-    expect(onError).toHaveBeenCalledWith(
-      { language: "ja-JP", reason: "auth" },
-      expect.any(Error),
-    );
+    expect(onError).toHaveBeenCalledWith({ language: "ja-JP", reason: "auth" }, expect.any(Error));
   });
 });

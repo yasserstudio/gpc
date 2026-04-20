@@ -4466,10 +4466,7 @@ describe("diffListings – edge cases", () => {
 // ---------------------------------------------------------------------------
 // Data Safety
 // ---------------------------------------------------------------------------
-import {
-  updateDataSafety,
-  importDataSafety,
-} from "../src/commands/data-safety.js";
+import { updateDataSafety, importDataSafety } from "../src/commands/data-safety.js";
 
 describe("data-safety commands", () => {
   const sampleDataSafety = {

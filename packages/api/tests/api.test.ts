@@ -2349,7 +2349,9 @@ describe("oneTimeProducts", () => {
     const result = await client.oneTimeProducts.activateOffer(PKG, "otp1", "po1", "offer1");
     expect(result).toEqual(offer);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers/offer1:activate`);
+    expect(url).toBe(
+      `${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers/offer1:activate`,
+    );
     expect(init.method).toBe("POST");
   });
 
@@ -2360,7 +2362,9 @@ describe("oneTimeProducts", () => {
     const result = await client.oneTimeProducts.deactivateOffer(PKG, "otp1", "po1", "offer1");
     expect(result).toEqual(offer);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers/offer1:deactivate`);
+    expect(url).toBe(
+      `${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers/offer1:deactivate`,
+    );
     expect(init.method).toBe("POST");
   });
 });

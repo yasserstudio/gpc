@@ -34,16 +34,20 @@ Output (default `--format md`):
 # Play Store release notes (v0.9.61 → v0.9.62)
 
 ## en-US (412/500)
+
 - feat: shell completion walker
 - fix: correct vitals lmk endpoint
 
 ## fr-FR (needs translation)
+
 [needs translation — pass --ai once v0.9.63 ships, or paste the prompt emitted by --format prompt]
 
 ## de-DE (needs translation)
+
 [needs translation — pass --ai once v0.9.63 ships, or paste the prompt emitted by --format prompt]
 
 ## Summary
+
 - en-US: 412/500 ✓
 - fr-FR: placeholder
 - de-DE: placeholder
@@ -51,10 +55,10 @@ Output (default `--format md`):
 
 ## Locale resolution
 
-| Mode | Behavior |
-| --- | --- |
-| `--locales en-US,fr-FR,de-DE` | Validate each against BCP 47 / Play Store's supported list, emit in order. Offline — no API call. |
-| `--locales auto` | Calls `client.listings.list()` for `--app` (or the active profile's default app), returns every locale with an existing listing. Authenticated; one round-trip. |
+| Mode                          | Behavior                                                                                                                                                        |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--locales en-US,fr-FR,de-DE` | Validate each against BCP 47 / Play Store's supported list, emit in order. Offline — no API call.                                                               |
+| `--locales auto`              | Calls `client.listings.list()` for `--app` (or the active profile's default app), returns every locale with an existing listing. Authenticated; one round-trip. |
 
 `--locales auto` never adds locales your Play listing doesn't already have. If you want a locale that isn't live yet, list it explicitly.
 
@@ -80,8 +84,20 @@ Shape:
   "limit": 500,
   "sourceLanguage": "en-US",
   "locales": [
-    { "language": "en-US", "text": "- feat: ...\n- fix: ...", "chars": 412, "limit": 500, "status": "ok" },
-    { "language": "fr-FR", "text": "[needs translation ...]", "chars": 74, "limit": 500, "status": "placeholder" }
+    {
+      "language": "en-US",
+      "text": "- feat: ...\n- fix: ...",
+      "chars": 412,
+      "limit": 500,
+      "status": "ok"
+    },
+    {
+      "language": "fr-FR",
+      "text": "[needs translation ...]",
+      "chars": 74,
+      "limit": 500,
+      "status": "placeholder"
+    }
   ],
   "overflows": []
 }
