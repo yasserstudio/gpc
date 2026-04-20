@@ -1677,3 +1677,11 @@ html {
     display: none;
   }
 }
+
+/* Footer logo: light by default, swap to white on dark theme */
+html.dark .yasser-logo-light {
+  display: none !important;
+}
+html.dark .yasser-logo-dark {
+  display: inline-block !important;
+}

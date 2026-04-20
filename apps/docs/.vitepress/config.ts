@@ -397,34 +397,176 @@ export default defineConfig({
       ]);
     }
 
-    // HowTo schema on tutorial pages
-    if (pageData.relativePath === "guide/quick-start.md") {
-      const howToSchema = {
+    // FAQPage schema on /alternatives/fastlane
+    if (pageData.relativePath === "alternatives/fastlane.md") {
+      const fastlaneFaqSchema = {
         "@context": "https://schema.org",
-        "@type": "HowTo",
-        name: "Get started with GPC — Google Play Console CLI",
-        description:
-          "Install GPC, authenticate, and run your first Google Play command in 5 minutes.",
-        step: [
-          { "@type": "HowToStep", name: "Install", text: "npm install -g @gpc-cli/cli" },
+        "@type": "FAQPage",
+        mainEntity: [
           {
-            "@type": "HowToStep",
-            name: "Authenticate",
-            text: "gpc auth login --service-account path/to/key.json",
+            "@type": "Question",
+            name: "Is GPC a drop-in replacement for Fastlane supply?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "For uploads, tracks, rollouts, and metadata sync, yes. Most commands map one-to-one and Fastlane metadata directories work directly with GPC. For the roughly 197 API endpoints Fastlane does not cover (vitals, reviews, subscriptions, reports, Managed Google Play), GPC adds capability rather than replacing it.",
+            },
           },
-          { "@type": "HowToStep", name: "Verify", text: "gpc doctor" },
-          { "@type": "HowToStep", name: "Check status", text: "gpc status" },
           {
-            "@type": "HowToStep",
-            name: "Upload",
-            text: "gpc releases upload app.aab --track internal",
+            "@type": "Question",
+            name: "Does my existing Google Play service account work with GPC?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. GPC uses the same Google Play Developer API v3 service account you already created for Fastlane. No new credentials and no additional IAM roles required.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Can I run GPC alongside Fastlane during migration?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. GPC and Fastlane supply do not conflict. A common migration pattern is to keep Fastlane for uploads and add GPC for capabilities Fastlane does not cover (preflight scanning, vitals, reviews). Migrate the upload step after the team is comfortable.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "How much of the Fastlane supply API does GPC replace?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Fastlane supply covers roughly 20 Google Play Developer API endpoints. GPC covers 217 across Android Publisher v3, Play Developer Reporting v1beta1, and Play Custom App Publishing v1. GPC adds approximately 197 capabilities Fastlane does not, including vitals, reviews, subscriptions, reports, and private enterprise app publishing.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Do I need to rewrite my Fastfile to use GPC?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "No. GPC is a standalone CLI and does not require a Fastfile or a Ruby runtime. If Fastlane stays for iOS, the Fastfile is unchanged. If migrating fully off Fastlane, replace fastlane supply invocations in CI scripts with gpc releases upload.",
+            },
           },
         ],
       };
       pageData.frontmatter.head.push([
         "script",
         { type: "application/ld+json" },
-        JSON.stringify(howToSchema),
+        JSON.stringify(fastlaneFaqSchema),
+      ]);
+    }
+
+    // HowTo schema on tutorial pages
+    const howToByPath: Record<
+      string,
+      { name: string; description: string; step: Array<{ name: string; text: string }> }
+    > = {
+      "guide/quick-start.md": {
+        name: "Get started with GPC — Google Play Console CLI",
+        description:
+          "Install GPC, authenticate, and run your first Google Play command in 5 minutes.",
+        step: [
+          { name: "Install", text: "npm install -g @gpc-cli/cli" },
+          { name: "Authenticate", text: "gpc auth login --service-account path/to/key.json" },
+          { name: "Verify", text: "gpc doctor" },
+          { name: "Check status", text: "gpc status" },
+          { name: "Upload", text: "gpc releases upload app.aab --track internal" },
+        ],
+      },
+      "guide/android-cli-interop.md": {
+        name: "Publish an Android app using Google's Android CLI with GPC",
+        description:
+          "End-to-end agent-driven workflow from project creation to Play Store release. Google's Android CLI builds the AAB; GPC ships it to the store.",
+        step: [
+          { name: "Scaffold a new Android project", text: "android create my-app" },
+          { name: "Build a release AAB", text: "android build release" },
+          { name: "Scan the AAB for policy violations", text: "gpc preflight app.aab" },
+          {
+            name: "Upload to the internal track",
+            text: "gpc releases upload app.aab --track internal",
+          },
+          {
+            name: "Promote to production with staged rollout",
+            text: "gpc releases promote --from internal --to production --rollout 10",
+          },
+        ],
+      },
+      "guide/multilingual-release-notes.md": {
+        name: "Generate Play Store release notes in every language",
+        description:
+          "Turn your git log into per-locale Play Store What's New text with an enforced 500-character budget and optional AI-assisted translation.",
+        step: [
+          {
+            name: "Generate source-locale notes from commits",
+            text: "gpc changelog generate --target play-store --locales auto",
+          },
+          {
+            name: "Translate non-source locales via your own LLM key",
+            text: "gpc changelog generate --target play-store --locales auto --ai",
+          },
+          {
+            name: "Preview the translation prompt before spending tokens",
+            text: "gpc --dry-run changelog generate --target play-store --locales auto --ai",
+          },
+          {
+            name: "Publish with the release",
+            text: "gpc releases upload app.aab --track production --notes-dir ./release-notes",
+          },
+        ],
+      },
+      "guide/enterprise-publishing.md": {
+        name: "Publish a private Android app to enterprise customers",
+        description:
+          "Use the Play Custom App Publishing API through GPC to ship private apps to managed Google Play customers in a single CI/CD command.",
+        step: [
+          {
+            name: "Enable the Play Custom App Publishing API",
+            text: "Enable the API in your service-account project and grant the service account the Custom App Publisher role.",
+          },
+          { name: "Verify service-account permissions", text: "gpc doctor" },
+          {
+            name: "Publish the private app",
+            text: 'gpc enterprise publish ./app.aab --account 1234567890 --title "My Internal App" --org-id customer-acme',
+          },
+          {
+            name: "Verify on a managed device",
+            text: "Confirm the app appears in Managed Google Play for the target organization and installs successfully.",
+          },
+        ],
+      },
+      "guide/changelog-generation.md": {
+        name: "Generate GitHub Release notes from git commits",
+        description:
+          "Read your local git log, cluster related commits, lint subject lines, and emit a canonical GitHub Release markdown body in one command.",
+        step: [
+          { name: "Generate the release markdown", text: "gpc changelog generate" },
+          {
+            name: "Pipe directly to GitHub Release creation",
+            text: "gpc changelog generate | gh release create v1.2.3 -F -",
+          },
+          {
+            name: "Emit JSON for custom pipelines",
+            text: "gpc changelog generate --format json",
+          },
+          {
+            name: "Emit an LLM prompt to polish with an AI tool",
+            text: "gpc changelog generate --format prompt | pbcopy",
+          },
+        ],
+      },
+    };
+    const howToEntry = howToByPath[pageData.relativePath];
+    if (howToEntry) {
+      pageData.frontmatter.head.push([
+        "script",
+        { type: "application/ld+json" },
+        JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          name: howToEntry.name,
+          description: howToEntry.description,
+          step: howToEntry.step.map((s) => ({
+            "@type": "HowToStep",
+            name: s.name,
+            text: s.text,
+          })),
+        }),
       ]);
     }
 
@@ -730,7 +872,7 @@ export default defineConfig({
 
     footer: {
       message:
-        'Made by <a href="https://yasser.studio" target="_blank"><img src="/gpc/yasser-studio-logo.svg" alt="Yasser\'s Studio" style="display:inline-block;max-height:21px;vertical-align:sub;margin:0 4px"></a> · Free to use. <a href="https://github.com/yasserstudio/gpc" target="_blank" rel="noopener noreferrer">Code on GitHub</a>.',
+        'Made by <a href="https://yasser.studio" target="_blank"><img src="/gpc/yasser-studio-logo.svg" alt="Yasser\'s Studio" class="yasser-logo yasser-logo-light" style="display:inline-block;max-height:21px;vertical-align:sub;margin:0 4px"><img src="/gpc/yasser-studio-logo-white.svg" alt="Yasser\'s Studio" class="yasser-logo yasser-logo-dark" style="display:none;max-height:21px;vertical-align:sub;margin:0 4px"></a> · Free to use. <a href="https://github.com/yasserstudio/gpc" target="_blank" rel="noopener noreferrer">Code on GitHub</a>.',
       copyright: "Not affiliated with Google LLC. Google Play is a trademark of Google LLC.",
     },
   },
