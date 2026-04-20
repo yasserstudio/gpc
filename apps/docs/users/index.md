@@ -10,11 +10,12 @@ No harvested claims. No inflated "trusted by 10,000+" stats. If your team is her
 
 ## How to Be Listed
 
-Three paths, pick whichever you prefer:
+Four paths, pick whichever you prefer:
 
-1. **DM on X**: [@yassersstudio](https://x.com/yassersstudio) with a one-line description of how your team uses GPC and a link (app, company, or both).
-2. **GitHub Discussion**: open a thread in the [Show & Tell category](https://github.com/yasserstudio/gpc/discussions) titled "Using GPC at [company/app]". Include what you use it for and whether you want to be listed here.
-3. **Email**: reach the maintainer at the contact on [yasser.studio](https://yasser.studio) with the same details.
+1. **LinkedIn**: message [Yasser Berrehail](https://www.linkedin.com/in/yasserberrehail/) with a one-line description and a link (app, company, or both).
+2. **DM on X**: [@yassersstudio](https://x.com/yassersstudio) with the same information.
+3. **Email**: [hello@yasser.studio](mailto:hello@yasser.studio).
+4. **GitHub Discussion**: open a thread in the [Show & Tell category](https://github.com/yasserstudio/gpc/discussions) titled "Using GPC at [company/app]". Include what you use it for and whether you want to be listed here.
 
 You choose the exact wording that appears on this page. You can ask to be removed at any time, no questions.
 

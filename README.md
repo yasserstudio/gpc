@@ -329,7 +329,7 @@ Free to use. The code is on GitHub. See [LICENSE](./LICENSE) for legal details.
   <a href="https://yasser.studio"><picture><source media="(prefers-color-scheme: dark)" srcset="./assets/yasser-studio-logo-white.svg"><img src="./assets/yasser-studio-logo.png" alt="Yasser's Studio" height="50"></picture></a>
 </p>
 <p align="center">
-  <sub>Made by <a href="https://yasser.studio">Yasser's Studio</a> · <a href="https://x.com/yassersstudio">@yassersstudio</a></sub>
+  <sub>Made by <a href="https://yasser.studio">Yasser's Studio</a> · <a href="https://www.linkedin.com/in/yasserberrehail/">LinkedIn</a> · <a href="https://x.com/yassersstudio">X</a> · <a href="mailto:hello@yasser.studio">hello@yasser.studio</a></sub>
 </p>
 
 <p align="center">

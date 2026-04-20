@@ -888,7 +888,15 @@ export default defineConfig({
 
     socialLinks: [
       { icon: "github", link: "https://github.com/yasserstudio/gpc" },
+      { icon: "linkedin", link: "https://www.linkedin.com/in/yasserberrehail/" },
       { icon: "x", link: "https://x.com/yassersstudio" },
+      {
+        icon: {
+          svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7 12 13 2 7"/></svg>',
+        },
+        link: "mailto:hello@yasser.studio",
+        ariaLabel: "Email hello@yasser.studio",
+      },
     ],
 
     editLink: {
