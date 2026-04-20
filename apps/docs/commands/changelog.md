@@ -105,15 +105,20 @@ gpc changelog generate [options]
 
 ### Options
 
-| Option                  | Description                                            | Default              |
-| ----------------------- | ------------------------------------------------------ | -------------------- |
-| `--from <ref>`          | Starting git ref (tag, branch, or commit)              | latest `v*` tag      |
-| `--to <ref>`            | Ending git ref                                         | `HEAD`               |
-| `--format <mode>`       | Renderer: `md`, `json`, or `prompt`                    | `md`                 |
-| `--repo <owner/name>`   | Override auto-detected repo (e.g., `yasserstudio/gpc`) | parsed from `origin` |
-| `--target <mode>`       | Output target: `github` or `play-store`                | `github`             |
-| `--locales <csv\|auto>` | BCP 47 locales (play-store target only)                | —                    |
-| `--strict`              | Exit non-zero on linter warnings or locale overflows   | `false`              |
+| Option                  | Description                                                                               | Default              |
+| ----------------------- | ----------------------------------------------------------------------------------------- | -------------------- |
+| `--from <ref>`          | Starting git ref (tag, branch, or commit)                                                 | latest `v*` tag      |
+| `--to <ref>`            | Ending git ref                                                                            | `HEAD`               |
+| `--format <mode>`       | Renderer: `md`, `json`, or `prompt`                                                       | `md`                 |
+| `--repo <owner/name>`   | Override auto-detected repo (e.g., `yasserstudio/gpc`)                                    | parsed from `origin` |
+| `--target <mode>`       | Output target: `github` or `play-store`                                                   | `github`             |
+| `--locales <csv\|auto>` | BCP 47 locales (play-store target only)                                                   | —                    |
+| `--ai`                  | Translate non-source locales via LLM (play-store target only, BYO key)                    | `false`              |
+| `--provider <name>`     | AI provider: `anthropic`, `openai`, or `google`                                           | auto-detect          |
+| `--model <id>`          | Override per-provider model default                                                       | per-provider         |
+| `--strict`              | Exit non-zero on linter warnings, locale overflows, or (with `--ai`) translation failures | `false`              |
+
+Global `--dry-run` (from the root program) combined with `--ai` prints the prompt that would be sent per locale, without calling the LLM.
 
 ### Examples
 
@@ -180,31 +185,42 @@ gpc changelog generate --from main --to my-feature-branch
 
 ### Play Store target
 
-Emit per-locale "What's new" text for Play Console. The en-US source is the same set of bullets as the `github` target, truncated to 500 Unicode code points per Play's limit; other locales get a `[needs translation]` placeholder to keep the workflow explicit.
+Emit per-locale "What's new" text for Play Console. The en-US source is the same set of bullets as the `github` target, truncated to 500 Unicode code points per Play's limit. Non-source locales are translated via your own LLM key when you pass `--ai`, or left as a `[needs translation]` placeholder for the offline prompt workflow.
 
 ```bash
-# Explicit locale list
+# Translate non-source locales via your own LLM key
+gpc changelog generate --target play-store --locales auto --ai
+
+# Explicit provider + model
+gpc changelog generate --target play-store --locales auto --ai \
+  --provider anthropic --model claude-opus-4-7
+
+# Explicit locale list, no AI — placeholder text for non-source locales
 gpc changelog generate --target play-store --locales en-US,fr-FR,de-DE
 
 # Read locales from your live Play Store listing
 gpc changelog generate --target play-store --locales auto --app com.example.app
 
-# Emit a translation-ready LLM prompt
+# Preview the prompt that would be sent, no API call, zero tokens
+gpc --dry-run changelog generate --target play-store --locales auto --ai
+
+# Emit a translation-ready LLM prompt (paste into your LLM of choice)
 gpc changelog generate --target play-store --locales en-US,fr-FR,de-DE --format prompt
 
-# Fail CI if any locale overflows 500 chars
-gpc changelog generate --target play-store --locales auto --strict
+# Fail CI if any locale overflows 500 chars OR fails to translate
+gpc changelog generate --target play-store --locales auto --ai --strict
 ```
 
-AI translation ships in v0.9.63; writing notes back into a draft release lands in v0.9.64.
+AI translation auto-detects whichever provider key is set, in priority order: `AI_GATEWAY_API_KEY` → `ANTHROPIC_API_KEY` → `OPENAI_API_KEY` → `GOOGLE_GENERATIVE_AI_API_KEY`. See [Multilingual Release Notes](/guide/multilingual-release-notes#ai-translation) for the full `--ai` workflow. Writing translated notes back into a draft release lands in v0.9.64 via `--apply`.
 
 ### Exit codes
 
-| Code | Meaning                                                                      |
-| ---- | ---------------------------------------------------------------------------- |
-| `0`  | Success                                                                      |
-| `1`  | `--strict` enabled and linter warnings or locale overflows were emitted      |
-| `2`  | Invalid `--format`, `--target`, `--repo`, or `--locales` value / combination |
+| Code | Meaning                                                                                                  |
+| ---- | -------------------------------------------------------------------------------------------------------- |
+| `0`  | Success                                                                                                  |
+| `1`  | `--strict` enabled and linter warnings, locale overflows, or (with `--ai`) translation failures occurred |
+| `2`  | Invalid `--format` / `--target` / `--repo` / `--locales` / `--provider` / `--model` value or combination |
+| `3`  | `--ai` passed but no provider credentials found in env                                                   |
 
 ## Related
 

@@ -11,7 +11,36 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.62 <Badge type="tip" text="latest" />
+## v0.9.63 <Badge type="tip" text="latest" />
+
+AI-assisted Play Store translation. `gpc changelog generate --target play-store --locales auto --ai` turns the v0.9.62 `[needs translation]` placeholder into real translated text via your own LLM key. Auto-detects whichever provider key is set (`AI_GATEWAY_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`) and picks sensible non-reasoning model defaults (`claude-sonnet-4-6`, `gpt-4o-mini`, `gemini-2.5-flash`). If `AI_GATEWAY_API_KEY` is set, requests route via the Vercel AI Gateway for 20+ providers and aggregate cost in USD reported per run.
+
+**New:**
+
+- feat(cli): `--ai` flag on `gpc changelog generate --target play-store` translates non-source locales via your own LLM key. Opt-in, off by default.
+- feat(cli): `--provider <anthropic|openai|google>` and `--model <id>` override the auto-detected provider and per-provider defaults.
+- feat(cli): global `--dry-run` with `--ai` prints the prompt that would be sent, without calling the LLM or spending tokens.
+- feat(cli): `--strict` extended to translation failures — exits 1 if any locale fails (`rate_limited`, `auth`, `safety_blocked`, `timeout`, `network`, `no_source`).
+- feat(cli): JSON output adds a top-level `ai` block with `path`, `provider`, `model`, `tokensIn`, `tokensOut`, plus `runId` and `costUsd` on the Gateway path.
+- feat(core): Gateway-primary routing via `gateway("anthropic/claude-sonnet-4-6")` when `AI_GATEWAY_API_KEY` is present, falling back to direct `@ai-sdk/anthropic` / `@ai-sdk/openai` / `@ai-sdk/google` SDKs otherwise.
+- feat(core): new `@gpc-cli/core` exports — `translateBundle`, `createTranslator`, `resolveAiConfig`, `fetchAggregateCost`, `classifyError`, `formatPathLabel`.
+- perf(core): all four new AI SDK deps are lazy-loaded. `gpc changelog generate` without `--ai` imports none of them — cold-start budget preserved. A static-analysis test guards the built bundle against accidental top-level imports.
+- feat(core): Gemini 2.5 models automatically have `thinkingConfig.thinkingBudget: 0` applied so users don't pay for reasoning tokens on a translation task.
+
+**Docs:**
+
+- [Multilingual Release Notes](/guide/multilingual-release-notes) — updated with `--ai` as the primary translation workflow; `--format prompt` retained as the offline / no-key alternative.
+- [`gpc changelog` reference](/commands/changelog) updated with the new flags and exit codes.
+
+**Tests:** 1,999 → 2,037 (+38).
+
+**Endpoint count:** unchanged at 217.
+
+**Runtime deps:** four added (all lazy-loaded) — `ai`, `@ai-sdk/anthropic`, `@ai-sdk/openai`, `@ai-sdk/google`.
+
+---
+
+## v0.9.62
 
 Multilingual Play Store release notes. `gpc changelog generate` now emits per-locale "What's new" text via `--target play-store --locales <csv|auto>`. The 500-character Play Store budget is checked per locale, non-source locales get a `[needs translation]` placeholder, and a new `--format prompt` emits a translation-ready LLM prompt — the bridge to opt-in AI translation in v0.9.63 (Vercel AI SDK) and `--apply` to draft releases in v0.9.64.
 

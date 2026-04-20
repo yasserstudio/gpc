@@ -2,7 +2,7 @@
 
 Google Play "What's new" is a 500-character field per locale. Most apps either copy English to every locale (looks lazy) or maintain translations by hand (doesn't scale). `gpc changelog generate --target play-store` solves it end-to-end in one command.
 
-Shipped in v0.9.62. AI translation ships in v0.9.63; writing translated notes back into a draft release ships in v0.9.64.
+Per-locale budget enforcement shipped in v0.9.62. AI translation shipped in v0.9.63. Writing translated notes into a draft release ships in v0.9.64.
 
 ::: tip The end-state
 By v0.9.64:
@@ -16,41 +16,51 @@ From git commit to translated Play Store release notes, live on the store, in on
 
 ## What this does
 
-Extends `gpc changelog generate` (see the [main guide](/guide/changelog-generation)) with a `--target play-store` mode that emits per-locale output instead of GitHub-style markdown. The en-US source is lossless: same bullets as the GitHub target, clipped to 500 Unicode code points with a warning if over. Non-English locales get a `[needs translation]` placeholder you fill in via `--format prompt` (today) or `--ai` (v0.9.63+).
+Extends `gpc changelog generate` (see the [main guide](/guide/changelog-generation)) with a `--target play-store` mode that emits per-locale output instead of GitHub-style markdown. The en-US source is lossless: same bullets as the GitHub target, clipped to 500 Unicode code points with a warning if over. Non-English locales are translated via your own LLM key when you pass `--ai`, or left as a `[needs translation]` placeholder for the offline `--format prompt` workflow.
 
 ## Quick start
 
 ```bash
-# Explicit locales
+# Translate via your own LLM key (BYO — Anthropic, OpenAI, Google, or Vercel AI Gateway)
+gpc changelog generate --target play-store --locales auto --ai
+
+# Explicit locales, no AI — placeholder text for non-source locales
 gpc changelog generate --target play-store --locales en-US,fr-FR,de-DE
 
 # Read locales from your live Play Store listing
 gpc changelog generate --target play-store --locales auto --app com.example.app
 ```
 
-Output (default `--format md`):
+Output (default `--format md`, with `--ai`):
 
 ```markdown
-# Play Store release notes (v0.9.61 → v0.9.62)
+# Play Store release notes (v0.9.62 → v0.9.63)
 
-## en-US (412/500)
+## en-US (109/500)
 
-- feat: shell completion walker
-- fix: correct vitals lmk endpoint
+- feat: AI-assisted Play Store translation via --ai
 
-## fr-FR (needs translation)
+## fr-FR (130/500)
 
-[needs translation — pass --ai once v0.9.63 ships, or paste the prompt emitted by --format prompt]
+- Traduction des notes Play Store assistée par IA via --ai
 
-## de-DE (needs translation)
+## de-DE (124/500)
 
-[needs translation — pass --ai once v0.9.63 ships, or paste the prompt emitted by --format prompt]
+- KI-gestützte Play-Store-Übersetzung via --ai
 
 ## Summary
 
-- en-US: 412/500 ✓
-- fr-FR: placeholder
-- de-DE: placeholder
+- en-US: 109/500 ✓
+- fr-FR: 130/500 ✓
+- de-DE: 124/500 ✓
+```
+
+Without `--ai`, non-source locales keep the `[needs translation]` placeholder:
+
+```markdown
+## fr-FR (needs translation)
+
+[needs translation — pass --ai, or paste the prompt emitted by --format prompt]
 ```
 
 ## Locale resolution
@@ -103,15 +113,62 @@ Shape:
 }
 ```
 
-Status values: `ok`, `over`, `placeholder`, `empty`.
+Status values: `ok`, `over`, `placeholder`, `empty`, `failed`.
 
-### `--format prompt` — translation-ready LLM prompt
+When you pass `--ai`, the JSON output gains a top-level `ai` block:
 
-The bridge to v0.9.63. Emits a ready-to-paste prompt that includes the 500-char constraint, the source text, and each target locale. Pipe to your LLM of choice today; wait for `--ai` in v0.9.63 if you'd rather stay in the terminal.
+```json
+{
+  "ai": {
+    "path": "direct",
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "tokensIn": 2374,
+    "tokensOut": 646
+  }
+}
+```
+
+On the Gateway path the block also includes `runId` and `costUsd` (aggregate cost in USD for the run, fetched via one tagged `gateway.getSpendReport` call after all locales finish). On the direct-SDK path those fields are absent.
+
+### `--format prompt` — translation-ready LLM prompt (offline / no-key path)
+
+Emits a ready-to-paste prompt that includes the 500-char constraint, the source text, and each target locale. Use this when you don't want to pass an LLM key to GPC — paste into Claude, ChatGPT, or any LLM of your choice:
 
 ```bash
 gpc changelog generate --target play-store --locales en-US,fr-FR,de-DE --format prompt | pbcopy
 ```
+
+Combined with `gpc --dry-run ... --ai`, this is also how you inspect the exact per-locale prompt that would be sent before committing to an API call.
+
+## AI translation
+
+Add `--ai` to run each non-source locale through an LLM. The resolver auto-detects whichever provider key you have set, in priority order:
+
+1. `AI_GATEWAY_API_KEY` — routes via the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway). Unlocks 20+ providers through one interface, auto-fallback via `models: [...]`, and aggregate cost per run reported in USD.
+2. `ANTHROPIC_API_KEY` — direct `@ai-sdk/anthropic`, defaults to `claude-sonnet-4-6`
+3. `OPENAI_API_KEY` — direct `@ai-sdk/openai`, defaults to `gpt-4o-mini`
+4. `GOOGLE_GENERATIVE_AI_API_KEY` — direct `@ai-sdk/google`, defaults to `gemini-2.5-flash`
+
+Override with `--provider <anthropic|openai|google>` and `--model <id>` when you want a specific model (useful for comparing quality or cost across providers).
+
+```bash
+# Auto-detect
+gpc changelog generate --target play-store --locales auto --ai
+
+# Explicit provider + model
+gpc changelog generate --target play-store --locales auto --ai \
+  --provider anthropic --model claude-opus-4-7
+
+# Preview the prompt without spending tokens
+gpc --dry-run changelog generate --target play-store --locales auto --ai
+```
+
+**Reasoning models are explicitly avoided as defaults.** Translation is not a reasoning task — default models are picked to be non-reasoning so you don't pay for thinking tokens. Gemini 2.5 has `thinkingConfig.thinkingBudget: 0` applied automatically.
+
+**When a locale fails**, `gpc` classifies the error and emits a structured placeholder in the output (`rate_limited`, `auth`, `safety_blocked`, `timeout`, `network`, `no_source`). Sensitive error strings never reach the output or your Play Store draft. Add `--strict` to fail CI when any locale fails.
+
+**Lazy-loaded.** Running `gpc changelog generate` without `--ai` imports none of the four AI SDK deps. The cold-start budget is preserved for users who don't use this feature; a static-analysis test on the built bundle guards against accidental top-level imports.
 
 ## Strict mode
 
@@ -119,22 +176,23 @@ In play-store mode, `--strict` exits 1 if:
 
 - Any commit subject triggers the project-voice linter (same rule as the github target)
 - **Any locale's text exceeds 500 code points** (overflows are collected and reported together — not first-wins)
+- **With `--ai`: any locale fails to translate** (failures are also collected, not first-wins)
 
 Good for a CI gate before tagging:
 
 ```bash
-gpc changelog generate --target play-store --locales auto --strict
+gpc changelog generate --target play-store --locales auto --ai --strict
 ```
 
 ## Character counting
 
-Play Store's 500-char limit is applied per Unicode code point. `gpc` counts via `[...text].length`, the same rule `gpc listings lint` uses. Emoji and CJK characters each count as one.
+Play Store's 500-char limit is applied per Unicode code point. `gpc` counts via `[...text].length`, the same rule `gpc listings lint` uses. Emoji and CJK characters each count as one. When an AI-translated locale overflows, the text is truncated to 500 code points with a `…` ellipsis appended and `status: "over"` is set.
 
 ## Out of scope (today)
 
-- **AI translation** — opt-in via `--ai` in [v0.9.63](https://github.com/yasserstudio/gpc/milestones)
 - **Writing notes into a draft release** — `--apply` in v0.9.64 writes `recentChanges[]` on your current edit
 - **Reading existing "What's new" history from the Play API** — not planned; use `gpc listings pull` if you need that
+- **Translation caching across runs** — each `--ai` run translates fresh. Pipe output to a file if you want to reuse it.
 
 ## Related
 
