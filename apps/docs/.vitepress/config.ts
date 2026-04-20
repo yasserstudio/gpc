@@ -274,10 +274,12 @@ export default defineConfig({
   metaChunk: true,
 
   markdown: {
-    theme: {
-      light: "github-light",
-      dark: "github-dark-dimmed",
-    },
+    // Single theme in both modes: the obsidian code-block background
+    // (#090f1a light / #04060e dark) is a brand choice. Using
+    // github-dark tokens (brighter than github-dark-dimmed) keeps
+    // string values legible on the near-black bg instead of fading
+    // them to dark-blue-on-dark-blue.
+    theme: "github-dark",
     lineNumbers: true,
     image: { lazyLoading: true },
   },
