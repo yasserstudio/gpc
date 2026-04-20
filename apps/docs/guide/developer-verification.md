@@ -31,6 +31,8 @@ The following requirements apply to developers who distribute **only outside Goo
 
 ### Identity verification requirements
 
+Full Distribution accounts require a **$25 one-time registration fee**, the same as an existing Play Console account. Limited Distribution accounts are free (see [below](#limited-distribution-accounts)).
+
 **For individuals:**
 
 - Legal name and address
@@ -38,7 +40,7 @@ The following requirements apply to developers who distribute **only outside Goo
 - Proof of address document (utility bill, insurance statement, bank statement)
 - Contact email and phone number (verified with OTP)
 
-**For organizations — all of the above, plus:**
+**For organizations, all of the above plus:**
 
 - D-U-N-S number (free to obtain from Dun & Bradstreet)
 - Organization website verified via Google Search Console
@@ -99,6 +101,7 @@ This is designed to break the cycle of scam-driven coercion while preserving cho
 | **August 2025**    | New requirements [announced](https://android-developers.googleblog.com/2025/08/elevating-android-security.html) |
 | **November 2025**  | Early access began                                                                                              |
 | **March 2026**     | Registration opens to all developers                                                                            |
+| **April 2026**     | Android Developer Verifier rolls out to certified devices as a Google Play Services system component           |
 | **June 2026**      | Limited distribution accounts early access                                                                      |
 | **August 2026**    | Limited distribution and advanced flow launch globally                                                          |
 | **September 2026** | Enforcement begins in Brazil, Indonesia, Singapore, Thailand                                                    |
@@ -111,6 +114,7 @@ This is designed to break the cycle of scam-driven coercion while preserving cho
 - **Package name registration** — creating a formal, verifiable link between your app's package name and signing keys
 - **App signing key** — the certificate used to [sign your APK](https://developer.android.com/studio/publish/app-signing)
 - **Certified Android devices** — devices where verification requirements are enforced, regardless of download source
+- **Android Developer Verifier** — the on-device system service that performs the registration check at install or update time. Rolling out globally in April 2026 via Google Play Services. No developer-facing API; lives at Settings → Google services → All services → System services.
 
 ## How GPC helps today
 
@@ -142,14 +146,19 @@ Full health snapshot — releases, vitals, reviews — in one command.
 
 ## What's coming in GPC
 
-Google hasn't exposed public APIs for developer verification or app registration yet. Android Studio integration is expected in the coming months, which may signal programmatic access is coming.
+Google has not exposed public APIs for developer verification or app registration, and the Play Developer API v3 has no verification surface as of April 2026. Android Studio is expected to gain a registration-status indicator for signing bundles in the coming months. That will be the first credible signal that programmatic access is on its way, and is the trigger point for GPC to add API-backed verification commands.
 
-When APIs become available, GPC plans to add:
+**Near-term, shipping before an API exists:**
 
-- **`gpc doctor` verification check** — warn if your developer account is not verified or if deadlines are approaching
+- **Local keystore fingerprint advisory in `gpc doctor`** — read your configured Android signing keystore, compute the SHA-256 fingerprint, compare against the certificate inside your most recently uploaded AAB. Warns if your local key is out of sync with what the Play Store has on file, which is the same fingerprint Google uses for auto-registration.
+- **Signing-key consistency in `gpc preflight`** — flag AABs whose signing certificate does not match the previous release's fingerprint, which is the most common cause of the manual-registration bucket.
+
+**Deferred until Google ships endpoints:**
+
 - **Registration status in `gpc status`** — show whether your app is registered alongside releases and vitals
-- **Preflight verification scanner** — check app registration status before upload
-- **`gpc verify` commands** — check and manage verification and registration programmatically
+- **`gpc verify doctor / checklist / status`** — programmatic verification and registration management
+
+Today's `gpc verify` command is a static status and resources surface. It tells you which regional deadline applies, points you to the right console, and is account-aware when auth is configured. See `gpc verify --help`.
 
 ## Resources
 
