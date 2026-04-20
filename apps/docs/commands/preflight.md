@@ -13,6 +13,10 @@ outline: deep
 
 `gpc preflight` scans your Android App Bundle (AAB) against Google Play Developer Program Policies before you upload. It catches issues that would cause rejection — wrong target SDK, missing declarations, restricted permissions, hardcoded secrets — all without calling any API.
 
+::: tip Want the architecture and per-scanner detail?
+See the [Preflight Deep-Dive](/guide/preflight-deep-dive) guide — how the 9 scanners work, real rejection examples, CI patterns, and tuning recipes. This page is the flag reference.
+:::
+
 **9 scanners** run in parallel:
 
 | Scanner         | What it checks                                                                                                                |

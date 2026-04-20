@@ -101,6 +101,8 @@ function getPageDescription(page: PageData): string {
       "Google Play API TypeScript SDK — use @gpc-cli/api and @gpc-cli/auth as standalone libraries in any Node.js project. Typed client for all 217 endpoints including Play Custom App Publishing.",
     "commands/preflight.md":
       "gpc preflight — Scan your AAB against Google Play policies before submission. Offline, free, CI-ready. The missing compliance tool for Android.",
+    "guide/preflight-deep-dive.md":
+      "How the GPC preflight scanner works: 9 parallel scanners, offline AAB analysis, catches Google Play rejection reasons before submission. Real rejection examples, severity model, CI patterns, tuning guide.",
     "commands/init.md":
       "gpc init — Scaffold project config, metadata directory, and CI templates for Google Play Console CLI.",
     "commands/diff.md":
@@ -481,6 +483,117 @@ export default defineConfig({
       ]);
     }
 
+    // FAQPage schema on /guide/android-cli-interop — addresses the recurring
+    // "Does Google's CLI replace GPC?" misconception.
+    if (pageData.relativePath === "guide/android-cli-interop.md") {
+      const androidCliFaqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: "Does Google's Android CLI replace GPC?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "No. Google's Android CLI covers environment setup, project creation, and device management. It does not publish to the Play Store, manage tracks or rollouts, read vitals, or sync metadata. GPC handles that half of the workflow via 217 typed Play API endpoints.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Does GPC depend on Google's Android CLI?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "No. GPC is independent. It operates on any AAB or APK regardless of how it was built. Use Gradle directly, Google's Android CLI, or any other build tool. GPC only requires a valid bundle and a Google Play service account.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Which tool builds the AAB and which tool uploads it?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Google's Android CLI (or Gradle) builds the AAB. GPC uploads it to the Play Store. A common agent-driven flow is: android create and android run to scaffold and build, gpc preflight to scan for policy violations, gpc releases upload to ship.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Do I need both tools in my CI pipeline?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Only if you want agent-driven scaffolding and device management. Most CI pipelines already have Gradle configured for builds. In that case, just add GPC for the Play Store side: gpc preflight, gpc releases upload, gpc releases promote.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Can agents drive the full Android publish pipeline end-to-end?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. Google's Android CLI exposes build and device management to agents. GPC exposes publishing to agents via semantic exit codes, JSON output, and 217 typed endpoints. Together they cover scaffold through production release.",
+            },
+          },
+        ],
+      };
+      pageData.frontmatter.head.push([
+        "script",
+        { type: "application/ld+json" },
+        JSON.stringify(androidCliFaqSchema),
+      ]);
+    }
+
+    // FAQPage schema on /migration/from-fastlane
+    if (pageData.relativePath === "migration/from-fastlane.md") {
+      const migrationFaqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: "Can I migrate from Fastlane to GPC incrementally?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. GPC and Fastlane do not conflict. A typical migration keeps Fastlane for uploads initially and adds GPC for capabilities Fastlane does not cover, such as vitals gating, preflight scanning, and reviews. Migrate the upload step when the team is comfortable.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Does GPC read Fastlane metadata directories?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. gpc listings push and gpc listings pull read and write the same directory convention Fastlane supply uses (fastlane/metadata/android/<locale>/). No conversion step required.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "How do I convert Fastlane's --rollout 0.1 to GPC?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Fastlane uses decimal rollout (0.1 means 10%). GPC uses percentage (--rollout 10 means 10%). The runtime behavior is identical.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "What environment variables does GPC read?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "GPC reads GPC_SERVICE_ACCOUNT (path or JSON contents of the service account key), GPC_APP (default package name), and GPC_PROFILE (config profile name). Fastlane's SUPPLY_JSON_KEY and related env vars are not read directly, but the same service-account key file works with GPC unchanged.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Does migrating to GPC affect my Fastfile for iOS?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "No. GPC only handles Google Play. If you use Fastlane for iOS (fastlane deliver, fastlane pilot), the Fastfile is unchanged. Replace only the fastlane supply invocations in your Android lane with gpc releases upload.",
+            },
+          },
+        ],
+      };
+      pageData.frontmatter.head.push([
+        "script",
+        { type: "application/ld+json" },
+        JSON.stringify(migrationFaqSchema),
+      ]);
+    }
+
     // HowTo schema on tutorial pages
     const howToByPath: Record<
       string,
@@ -699,6 +812,7 @@ export default defineConfig({
             { text: "Enterprise Publishing", link: "/guide/enterprise-publishing" },
             { text: "Generating Release Notes", link: "/guide/changelog-generation" },
             { text: "Multilingual Release Notes", link: "/guide/multilingual-release-notes" },
+            { text: "Preflight Deep-Dive", link: "/guide/preflight-deep-dive" },
             { text: "Store Listings & Screenshots", link: "/guide/screenshots" },
             { text: "Multiple Developer Accounts", link: "/guide/multi-account" },
             { text: "Android CLI Interop", link: "/guide/android-cli-interop" },
