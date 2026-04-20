@@ -130,6 +130,10 @@ function getPageDescription(page: PageData): string {
       "gpc verify — Android developer verification status, enforcement deadlines, and resources. Check your account and open verification pages.",
     "guide/faq.md":
       "Frequently asked questions about GPC — authentication, CI/CD, Fastlane migration, troubleshooting, and production readiness.",
+    "guide/free-to-use.md":
+      "Why GPC is free to use and how source-available differs from open source. What you can do with the code, what is not for sale, and what may change after v1.0.0.",
+    "users/index.md":
+      "Teams and apps using GPC to ship Android releases. Opt-in adopter list with reciprocal backlink, Uses GPC badge, and early-access perks for listed teams.",
     // Commands — monetization
     "commands/one-time-products.md":
       "gpc one-time-products — Create, update, and manage one-time products and purchase options on Google Play.",
@@ -232,6 +236,29 @@ function getPageDescription(page: PageData): string {
       "Troubleshoot GPC — common errors, auth failures, upload issues, network problems, and debug mode.",
     "advanced/skills.md":
       "18 AI agent skills for GPC — teach Claude Code, Cursor, and other AI assistants to use Google Play CLI.",
+    // Glossary
+    "glossary/index.md":
+      "Play Store glossary. Plain-English definitions for AAB, APK, ANR, vitals, service accounts, Managed Google Play, edit lifecycle, and more. Each entry links to the GPC command that operates on it.",
+    "glossary/aab.md":
+      "What is an Android App Bundle (AAB)? Google Play's preferred upload format since 2021. Required for new apps. How GPC uploads and scans AABs via gpc releases upload and gpc preflight.",
+    "glossary/apk.md":
+      "What is an APK (Android Package Kit)? The original Android install format. Still valid for existing apps and sideloading. How it compares to AAB. How GPC handles APK uploads.",
+    "glossary/staged-rollout.md":
+      "What is a staged rollout on Google Play? Percentage-based release to production users. How to start, halt, resume, increase, and automate rollouts with gpc releases rollout and gpc train.",
+    "glossary/anr.md":
+      "What is an ANR (Application Not Responding) on Android? How Google Play tracks it, thresholds that trigger Bad Behavior flags, and how gpc vitals anr gates CI on ANR rate.",
+    "glossary/google-play-vitals.md":
+      "What are Google Play Vitals? The operational health metrics system that tracks crashes, ANRs, startup, rendering, battery, wakeups, and LMK. How GPC exposes every metric via gpc vitals.",
+    "glossary/play-service-account.md":
+      "What is a Google Play service account? The IAM identity for CI/CD access to the Play Developer API. How to create one, grant permissions, and authenticate with GPC.",
+    "glossary/managed-google-play.md":
+      "What is Managed Google Play? Google's enterprise app distribution model for managed Android devices. How to publish private apps to specific customer orgs with gpc enterprise publish.",
+    "glossary/play-custom-app-publishing.md":
+      "What is the Play Custom App Publishing API? The Google Play API for publishing private enterprise apps to specific organizations. GPC is the first CLI to wrap it.",
+    "glossary/play-edit-lifecycle.md":
+      "What is the Google Play edit lifecycle? The atomic session model for Play Developer API mutations. How GPC handles open, commit, and discard under the hood.",
+    "glossary/fastlane-metadata-format.md":
+      "What is the Fastlane metadata format? The directory convention Fastlane supply uses for Play Store listings. GPC reads and writes the same format via gpc listings push and pull.",
   };
   return map[path] ?? `GPC documentation — ${page.title ?? "Google Play Console CLI"}`;
 }
@@ -673,6 +700,9 @@ export default defineConfig({
             { text: "Store Listings & Screenshots", link: "/guide/screenshots" },
             { text: "Multiple Developer Accounts", link: "/guide/multi-account" },
             { text: "Android CLI Interop", link: "/guide/android-cli-interop" },
+            { text: "Free to Use", link: "/guide/free-to-use" },
+            { text: "Teams Using GPC", link: "/users/" },
+            { text: "Glossary", link: "/glossary/" },
             { text: "FAQ", link: "/guide/faq" },
           ],
         },
