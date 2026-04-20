@@ -11,9 +11,11 @@ withDefaults(
 <template>
   <div class="to-window">
     <div class="to-header">
-      <span class="to-dot to-red" />
-      <span class="to-dot to-yellow" />
-      <span class="to-dot to-green" />
+      <div class="to-dots">
+        <span class="to-dot to-red" />
+        <span class="to-dot to-yellow" />
+        <span class="to-dot to-green" />
+      </div>
       <span class="to-title">{{ title }}</span>
     </div>
     <div class="to-body">
@@ -45,10 +47,19 @@ withDefaults(
 .to-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
+  gap: 12px;
   padding: 10px 14px;
   background: #161b22;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: nowrap;
+}
+
+.to-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .to-dot {
@@ -68,11 +79,21 @@ withDefaults(
 }
 
 .to-title {
-  margin-left: auto;
   font-family: "Inter", sans-serif;
   font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.28);
   letter-spacing: 0.02em;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+}
+
+@media (max-width: 420px) {
+  .to-title {
+    display: none;
+  }
 }
 
 .to-body {
