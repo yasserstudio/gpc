@@ -1,15 +1,30 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 
-const STORAGE_KEY = "gpc-banner-dismissed-v0963";
+// Bump this with each release so dismissals from the previous version
+// don't silently suppress the new banner.
+const STORAGE_KEY = "gpc-banner-dismissed-v0963-at";
+const DISMISS_WINDOW_MS = 24 * 60 * 60 * 1000; // 24h — banner re-appears after this
+
 const visible = ref(false);
 
 onMounted(() => {
-  visible.value = !sessionStorage.getItem(STORAGE_KEY);
+  try {
+    const dismissedAt = Number(localStorage.getItem(STORAGE_KEY) ?? 0);
+    const ageMs = Date.now() - dismissedAt;
+    visible.value = !dismissedAt || ageMs >= DISMISS_WINDOW_MS;
+  } catch {
+    // localStorage disabled (private mode, blocked, quota) — fail open.
+    visible.value = true;
+  }
 });
 
 function dismiss() {
-  sessionStorage.setItem(STORAGE_KEY, "1");
+  try {
+    localStorage.setItem(STORAGE_KEY, String(Date.now()));
+  } catch {
+    // Ignore; banner just won't persist this tab's dismissal.
+  }
   visible.value = false;
 }
 </script>
