@@ -57,17 +57,17 @@ gpc changelog
 ```
 VERSION      DATE         TITLE
 ─────────────────────────────────────────────
+v0.9.63      2026-04-20   AI translation via --ai
+v0.9.62      2026-04-17   Multilingual Play Store release notes
 v0.9.61      2026-04-16   Smarter Changelog Generation
 v0.9.60      2026-04-15   Smarter Tab-Completion
 v0.9.59      2026-04-14   hotfix LMK metric set name
-v0.9.58      2026-04-14   QoL & Discoverability
-v0.9.57      2026-04-13   API fixes + type completeness
 ```
 
 #### Show details for a specific version
 
 ```bash
-gpc changelog --tag v0.9.61
+gpc changelog --tag v0.9.63
 ```
 
 #### JSON output for CI
@@ -131,18 +131,18 @@ gpc changelog generate
 ```markdown
 ## What's Changed
 
-- feat: shell completion walker
-- fix: pre-release code review follow-ups for completion v2
-- docs: sync Tests badge to 1,914
-- release: v0.9.60 — Smarter Tab-Completion
+- feat: AI-assisted Play Store translation via --ai
+- feat: Gateway-primary routing via Vercel AI Gateway when AI_GATEWAY_API_KEY is set
+- feat: structured error-reason classification for failed translations
+- release: v0.9.63 — AI translation: commit to translated Play Store notes in one flag
 
-**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.59...v0.9.60
+**Full Changelog**: https://github.com/yasserstudio/gpc/compare/v0.9.62...v0.9.63
 ```
 
 #### One-command release
 
 ```bash
-gpc changelog generate | gh release create v0.9.61 -F -
+gpc changelog generate | gh release create v1.2.3 -F -
 ```
 
 #### LLM-prompt mode

@@ -372,7 +372,7 @@ Numbers are approximate: several endpoints overload a single Google URL (for exa
 
 ## Planned coverage
 
-Tracked against the live discovery docs audited 2026-04-16:
+Tracked against the live discovery docs audited 2026-04-20:
 
 - `androidpublisher v3`, revision `20260416`: **134 / 137** methods covered (3 intentional gaps: `monetization.subscriptions.archive` plus two hard-deprecated v1 subscription methods)
 - `playdeveloperreporting v1beta1`, revision `20260415`: see gaps below

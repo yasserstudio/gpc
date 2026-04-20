@@ -17,7 +17,7 @@
   <img src="https://img.shields.io/badge/Free_to_use-Code_on_GitHub-yellow?style=for-the-badge" alt="Free to use">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-1999_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-2037_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
@@ -100,7 +100,7 @@ GPC covers the **entire Google Play Developer API** in one CLI. 217 endpoints. N
 | CI/CD native            | JSON + exit codes + env vars   | Partial         | Gradle tasks          | No           |
 | Preflight scanner       | **9 offline policy checks**    | No              | No                    | No           |
 | Interactive mode        | Yes (guided prompts)           | No              | No                    | N/A          |
-| Test suite              | 1,999 tests, 90%+ coverage     |                 |                       |              |
+| Test suite              | 2,037 tests, 90%+ coverage     |                 |                       |              |
 
 Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
 
@@ -126,6 +126,28 @@ gpc listings pull --dir metadata/          # Download all listings
 gpc listings push --dir metadata/          # Upload local changes
 gpc listings images upload --lang en-US --type phoneScreenshots ./screens/*.png
 ```
+
+---
+
+## Release Notes
+
+From git log to translated Play Store release notes, in one command.
+
+```bash
+# GitHub Release markdown from your commits — clusters, lints, LLM prompt
+gpc changelog generate                                     # paste into the GH Release body
+gpc changelog generate | gh release create v1.2.3 -F -    # one-command release
+
+# Per-locale Play Store "What's new" text (500-char budget enforced per locale)
+gpc changelog generate --target play-store --locales auto
+
+# Translate non-source locales via your own LLM key (BYO — no vendor lock-in)
+gpc changelog generate --target play-store --locales auto --ai
+```
+
+`--ai` auto-detects whichever provider key is set: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`, or `AI_GATEWAY_API_KEY` for the Vercel AI Gateway (20+ providers plus cost-per-run in USD). Non-reasoning model defaults so you don't pay for thinking tokens on a translation task.
+
+[Multilingual release notes guide](https://yasserstudio.github.io/gpc/guide/multilingual-release-notes) · [Generating release notes guide](https://yasserstudio.github.io/gpc/guide/changelog-generation)
 
 ---
 

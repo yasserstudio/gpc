@@ -61,6 +61,33 @@ All `GPC_*` environment variables and external variables that GPC respects.
 | ----------------- | -------- | ------------------------------------------------------------------------------------ | -------------------------------------------- |
 | `GPC_SKILLS_REPO` | `string` | Override the git repo URL used by `gpc install-skills`. Useful for forks or mirrors. | `https://github.com/yasserstudio/gpc-skills` |
 
+## AI Translation (v0.9.63+)
+
+Only read when `gpc changelog generate --target play-store --ai` is invoked. GPC never imports the AI SDK deps otherwise — the cold-start budget is preserved for users who don't use this feature. The resolver auto-detects whichever key is set, in priority order from top to bottom:
+
+| Variable                       | Type     | Description                                                                                                                                                                                                                                                               | Default model for direct path |
+| ------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| `AI_GATEWAY_API_KEY`           | `string` | Routes requests through the [Vercel AI Gateway](https://vercel.com/docs/ai-gateway). Unlocks 20+ providers plus aggregate cost in USD reported per run, auto-fallback, observability. Defaults to `anthropic/claude-sonnet-4-6` unless `--provider` / `--model` override. | n/a (routed via Gateway)      |
+| `ANTHROPIC_API_KEY`            | `string` | Direct `@ai-sdk/anthropic`. See [Anthropic Console](https://console.anthropic.com/settings/keys).                                                                                                                                                                         | `claude-sonnet-4-6`           |
+| `OPENAI_API_KEY`               | `string` | Direct `@ai-sdk/openai`. See [OpenAI Platform](https://platform.openai.com/api-keys).                                                                                                                                                                                     | `gpt-4o-mini`                 |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | `string` | Direct `@ai-sdk/google`. See [Google AI Studio](https://aistudio.google.com/app/apikey).                                                                                                                                                                                  | `gemini-2.5-flash`            |
+
+All defaults are non-reasoning models so you don't pay for thinking tokens on a translation task. Override with `--provider <anthropic\|openai\|google>` and `--model <id>`.
+
+```bash
+# Auto-detect (picks whichever key is set first in the priority order)
+gpc changelog generate --target play-store --locales auto --ai
+
+# Explicit overrides
+gpc changelog generate --target play-store --locales auto --ai \
+  --provider anthropic --model claude-opus-4-7
+
+# Preview without spending tokens
+gpc --dry-run changelog generate --target play-store --locales auto --ai
+```
+
+See the [AI translation guide](/guide/multilingual-release-notes#ai-translation) for the full workflow.
+
 ## Debug & Logging
 
 | Variable    | Type      | Description                                                                                                        | Default |

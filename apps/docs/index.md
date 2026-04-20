@@ -39,14 +39,14 @@ features:
     details: "gpc status — releases, vitals, and reviews in 3 seconds. Exit code 6 if any threshold is breached."
   - icon:
       src: /icons/plug.png
-    title: Plugin System + SDK
-    details: "1,999 tests. 90%+ coverage. Extend with plugins or import @gpc-cli/api as a typed SDK."
+    title: AI-Translated Release Notes
+    details: "gpc changelog generate --target play-store --locales auto --ai turns your git log into per-locale Play Store notes translated via your own Anthropic, OpenAI, Google, or Vercel AI Gateway key."
 ---
 
 <div class="stats-bar">
   <span class="stat">217 API Endpoints</span>
   <span class="stat-sep"></span>
-  <span class="stat">1,999 Tests</span>
+  <span class="stat">2,037 Tests</span>
   <span class="stat-sep"></span>
   <span class="stat">90%+ Coverage</span>
   <span class="stat-sep"></span>
@@ -95,20 +95,20 @@ gpc reviews list --stars 1-3 --since 7d
 
 ## What GPC Covers
 
-| Domain            | What you can do                                                                      |
-| ----------------- | ------------------------------------------------------------------------------------ |
-| **Releases**      | Upload, promote, staged rollouts, halt, resume, release notes, rejected app handling |
-| **Listings**      | Store metadata, screenshots, localization, Fastlane format compatible                |
-| **Reviews**       | Filter by stars/language/date, reply, export to CSV                                  |
-| **Vitals**        | Crashes, ANR, startup, rendering, battery, memory — with CI threshold gates          |
-| **Monetization**  | Subscriptions, base plans, offers, in-app products, pricing conversion               |
-| **Purchases**     | Verification, acknowledgment, refunds, voided purchases                              |
-| **Reports**       | Financial and stats CSV downloads                                                    |
-| **Team**          | Testers, users, permissions, CSV bulk import                                         |
-| **Compliance**    | Preflight scanner (9 checks), data safety, recovery actions, review-safe CI          |
-| **Analysis**      | Bundle size breakdown, cross-build comparison, size CI gates                         |
-| **Release Notes** | Generate GitHub Release markdown from local commits — clusters, lints, LLM prompt    |
-| **More**          | Device tiers, internal sharing, external transactions, project scaffolding           |
+| Domain            | What you can do                                                                                                                              |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Releases**      | Upload, promote, staged rollouts, halt, resume, release notes, rejected app handling                                                         |
+| **Listings**      | Store metadata, screenshots, localization, Fastlane format compatible                                                                        |
+| **Reviews**       | Filter by stars/language/date, reply, export to CSV                                                                                          |
+| **Vitals**        | Crashes, ANR, startup, rendering, battery, memory — with CI threshold gates                                                                  |
+| **Monetization**  | Subscriptions, base plans, offers, in-app products, pricing conversion                                                                       |
+| **Purchases**     | Verification, acknowledgment, refunds, voided purchases                                                                                      |
+| **Reports**       | Financial and stats CSV downloads                                                                                                            |
+| **Team**          | Testers, users, permissions, CSV bulk import                                                                                                 |
+| **Compliance**    | Preflight scanner (9 checks), data safety, recovery actions, review-safe CI                                                                  |
+| **Analysis**      | Bundle size breakdown, cross-build comparison, size CI gates                                                                                 |
+| **Release Notes** | GitHub Release markdown from git, per-locale Play Store text (500-char budget), AI translation via Anthropic/OpenAI/Google/Vercel AI Gateway |
+| **More**          | Device tiers, internal sharing, external transactions, project scaffolding                                                                   |
 
 [View the full command reference →](/commands/)
 
@@ -130,20 +130,21 @@ Already on Fastlane? See the [migration guide](/migration/from-fastlane) or the 
 
 ## What's New
 
-**Managed Google Play** (v0.9.56) -- GPC is the first Android publishing CLI to support the [Play Custom App Publishing API](https://developers.google.com/android/work/play/custom-app-api). Publish private apps to enterprise customers in one command from CI/CD instead of two hours clicking through Play Console. Fastlane doesn't do this; `gradle-play-publisher` doesn't do this. See the [Enterprise publishing guide](/guide/enterprise-publishing).
+**AI-assisted Play Store translation** (v0.9.63) -- `gpc changelog generate --target play-store --locales auto --ai` translates non-source locales via your own LLM key. Auto-detects whichever provider key is set: `AI_GATEWAY_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, or `GOOGLE_GENERATIVE_AI_API_KEY`. Non-reasoning model defaults (`claude-sonnet-4-6`, `gpt-4o-mini`, `gemini-2.5-flash`) — no billing surprises on a translation task. See the [AI translation guide](/guide/multilingual-release-notes#ai-translation).
 
 ```bash
-gpc enterprise publish ./app.aab \
-  --account 1234567890 \
-  --title "My Internal App" \
-  --org-id customer-acme
+# Translate non-source locales via your own key
+gpc changelog generate --target play-store --locales auto --ai
+
+# Preview the prompt before spending tokens
+gpc --dry-run changelog generate --target play-store --locales auto --ai
 ```
 
-**`gpc doctor` now probes the Play Custom App API** (v0.9.56) -- Flags missing service-account permissions or a disabled API before you hit runtime errors.
+**Multilingual Play Store release notes** (v0.9.62) -- `gpc changelog generate --target play-store --locales <csv|auto>` emits per-locale "What's new" text with the 500-character Play Store budget enforced per locale (counted in Unicode code points). `--locales auto` reads your live Play listing to detect which locales to emit for. See the [multilingual guide](/guide/multilingual-release-notes).
 
-**API freshness audit** (v0.9.55) -- `offerPhase` field shape corrected, typed request bodies for `revokeSubscriptionV2` and `acknowledgeSubscription` (including the new `itemBasedRefund` union and `externalAccountId`), and the `--profile` global flag now actually switches profiles.
+**Smarter changelog generation** (v0.9.61) -- `gpc changelog generate` reads your local git log, clusters related commits, lints subjects against project voice, and emits canonical GitHub Release markdown, structured JSON, or a paste-ready LLM prompt. Pipe into `gh release create -F -` to ship a release end-to-end.
 
-**Rejected app support** (v0.9.51/v0.9.52) -- Apps stuck in rejection can now upload and promote with `--changes-not-sent-for-review`. CI pipelines can use `--error-if-in-review` to fail safely instead of silently cancelling an in-progress review.
+**Managed Google Play** (v0.9.56) -- First Android publishing CLI to support the [Play Custom App Publishing API](https://developers.google.com/android/work/play/custom-app-api). Publish private enterprise apps in one command from CI/CD. See the [Enterprise publishing guide](/guide/enterprise-publishing).
 
 [Full changelog](/reference/changelog)
 

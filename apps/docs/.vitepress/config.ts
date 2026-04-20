@@ -119,7 +119,7 @@ function getPageDescription(page: PageData): string {
     "guide/changelog-generation.md":
       "Generate GitHub Release notes from local git commits with smart clustering, jargon linting, and a paste-ready LLM prompt mode. Pipe directly into gh release create.",
     "guide/multilingual-release-notes.md":
-      "Generate Play Store per-locale What's new text from git commits. 500-char budget per locale, auto-detect locales from your live listing, and a translation-ready LLM prompt mode.",
+      "Generate Play Store per-locale What's new text from git commits. 500-char budget per locale, auto-detect locales from your live listing, and AI-assisted translation via your own Anthropic, OpenAI, Google, or Vercel AI Gateway key.",
     "guide/screenshots.md":
       "Manage Google Play store media with GPC. Screenshots, feature graphics, icons, and TV banners. Image requirements, bulk sync workflows, localization, CI/CD recipes.",
     "guide/multi-account.md":
@@ -214,6 +214,8 @@ function getPageDescription(page: PageData): string {
       "Google Play CLI tools compared. GPC vs Fastlane vs gradle-play-publisher vs play-console-cli. Feature matrix and API coverage.",
     "alternatives/android-release-automation.md":
       "Automate Android releases with GPC. Upload, promote, staged rollout, vitals gating, and monitoring from the command line or CI/CD.",
+    "alternatives/gradle-play-publisher.md":
+      "GPC vs gradle-play-publisher: coexistence (GPP for build-time uploads + GPC for vitals, reviews, subscriptions, preflight, Managed Google Play) or full replacement.",
     // Reference
     "reference/json-contract.md":
       "GPC JSON output contract — structured response format for CI/CD scripting and automation.",
@@ -229,7 +231,7 @@ function getPageDescription(page: PageData): string {
     "advanced/troubleshooting.md":
       "Troubleshoot GPC — common errors, auth failures, upload issues, network problems, and debug mode.",
     "advanced/skills.md":
-      "16 AI agent skills for GPC — teach Claude Code, Cursor, and other AI assistants to use Google Play CLI.",
+      "18 AI agent skills for GPC — teach Claude Code, Cursor, and other AI assistants to use Google Play CLI.",
   };
   return map[path] ?? `GPC documentation — ${page.title ?? "Google Play Console CLI"}`;
 }
@@ -289,7 +291,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
 
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.62",
+        softwareVersion: "0.9.63",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: { "@type": "Person", name: "yasserstudio", url: "https://github.com/yasserstudio" },
@@ -383,7 +385,7 @@ export default defineConfig({
             name: "Is it stable enough for production CI/CD?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "1,999 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
+              text: "2,037 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
             },
           },
         ],
@@ -478,6 +480,13 @@ export default defineConfig({
       { text: "Guide", link: "/guide/" },
       { text: "Commands", link: "/commands/" },
       { text: "CI/CD", link: "/ci-cd/" },
+      {
+        text: "Release Notes",
+        items: [
+          { text: "Generate from git", link: "/guide/changelog-generation" },
+          { text: "Multilingual + AI", link: "/guide/multilingual-release-notes" },
+        ],
+      },
       {
         text: "Migration",
         items: [

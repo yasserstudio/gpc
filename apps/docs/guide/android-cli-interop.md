@@ -124,18 +124,28 @@ The `--json` flag returns a stable, versioned schema. When stdout is piped (non-
 
 Full catalog at [Exit Codes](/reference/exit-codes).
 
-### LLM-ready prompts
+### LLM-ready prompts and direct translation
 
-`gpc changelog generate --format prompt` emits a ready-to-paste LLM prompt for multilingual release notes. The binary never calls an LLM — it produces a prompt with constraints, voice rules, and source text that any agent can execute:
+Two paths for multilingual release notes, both intentional:
+
+- **`--format prompt`** — emits a ready-to-paste LLM prompt with 500-char constraints, voice rules, and source text. The binary doesn't call an LLM on this path; the agent runs the inference itself. Ship the prompt, not the model.
+- **`--ai`** (v0.9.63+) — GPC calls the LLM for you via your own key. Auto-detects `AI_GATEWAY_API_KEY` → `ANTHROPIC_API_KEY` → `OPENAI_API_KEY` → `GOOGLE_GENERATIVE_AI_API_KEY`. All AI SDK deps are lazy-loaded; running without `--ai` imports none of them.
 
 ```bash
+# Prompt-only (agent-executes inference)
 gpc changelog generate \
   --target play-store \
   --locales auto \
   --format prompt > prompt.txt
+
+# GPC-executes inference (BYO key)
+gpc changelog generate \
+  --target play-store \
+  --locales auto \
+  --ai
 ```
 
-This pattern (ship the prompt, not the model) is intentional. Agents choose their own model. The CLI stays dependency-free.
+The dependency-free default is intentional — agents that want full control over model choice stay on `--format prompt`. Agents that want a single-shot command use `--ai` with whichever provider key they already have.
 
 ## Example agent prompts
 
@@ -154,16 +164,23 @@ The agent will:
 
 > Generate Play Store release notes in English, French, and Japanese from the last 10 commits.
 
-Triggers `gpc-release-flow`, then:
+Triggers `gpc-release-flow`, then either of:
 
 ```bash
+# Single-shot: GPC runs the translation via the agent's (or user's) LLM key
+gpc changelog generate \
+  --target play-store \
+  --locales en-US,fr-FR,ja-JP \
+  --ai
+
+# Or: emit a prompt for the agent to execute itself (full model-choice control)
 gpc changelog generate \
   --target play-store \
   --locales en-US,fr-FR,ja-JP \
   --format prompt
 ```
 
-The emitted prompt is what the agent uses to generate the translations. GPC renders the constraints (500 code points per locale, voice rules, "don't translate CLI flags"). The agent runs the inference.
+GPC renders the constraints (500 code points per locale, voice rules, "don't translate CLI flags"). `--ai` calls the LLM for you via whichever provider key is set in env; `--format prompt` hands the agent a ready-to-execute prompt.
 
 ## Further reading
 
