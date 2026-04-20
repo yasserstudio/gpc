@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 
 // Bump this with each release so dismissals from the previous version
 // don't silently suppress the new banner.
 const STORAGE_KEY = "gpc-banner-dismissed-v0963-at";
 const DISMISS_WINDOW_MS = 24 * 60 * 60 * 1000; // 24h — banner re-appears after this
+const TAP_PAUSE_MS = 6000; // pause ticker for 6s after a tap so touch users
+// have time to read and activate the link inside the banner
 
 const visible = ref(false);
+const paused = ref(false);
+let resumeTimer: ReturnType<typeof setTimeout> | undefined;
 
 onMounted(() => {
   try {
@@ -19,6 +23,10 @@ onMounted(() => {
   }
 });
 
+onBeforeUnmount(() => {
+  if (resumeTimer) clearTimeout(resumeTimer);
+});
+
 function dismiss() {
   try {
     localStorage.setItem(STORAGE_KEY, String(Date.now()));
@@ -27,12 +35,29 @@ function dismiss() {
   }
   visible.value = false;
 }
+
+// Touch users can't reliably tap a moving link. Tapping the wrapper pauses
+// the ticker for TAP_PAUSE_MS so the user can read + tap the link with
+// a stationary target. Auto-resumes after the window so the banner keeps
+// animating if the user moves on.
+function pauseTicker() {
+  paused.value = true;
+  if (resumeTimer) clearTimeout(resumeTimer);
+  resumeTimer = setTimeout(() => {
+    paused.value = false;
+  }, TAP_PAUSE_MS);
+}
 </script>
 
 <template>
   <div v-if="visible" class="ann-banner" role="banner">
     <span class="ann-badge">Pre-release</span>
-    <div class="ann-text-wrapper">
+    <div
+      class="ann-text-wrapper"
+      :class="{ 'ann-paused': paused }"
+      @click="pauseTicker"
+      @touchstart.passive="pauseTicker"
+    >
       <span class="ann-text">
         v0.9.63 &middot; New: <code>--ai</code> on
         <code>gpc changelog generate --target play-store</code> translates release notes via your
@@ -154,11 +179,16 @@ function dismiss() {
   .ann-text {
     display: inline-block;
     padding-left: 100%;
-    animation: ann-ticker 28s linear infinite;
+    /* 22s loop — shorter than desktop-width ticker cadence so the message
+       completes a full pass in the narrow mobile viewport within attention
+       span. Paired with the tap-to-pause JS below so users can read. */
+    animation: ann-ticker 22s linear infinite;
   }
+  /* Keyboard/pointer users get hover/focus pause. Touch users get the
+     click/touchstart handler in script which toggles .ann-paused for 6s. */
   .ann-text-wrapper:hover .ann-text,
   .ann-text-wrapper:focus-within .ann-text,
-  .ann-text-wrapper:active .ann-text {
+  .ann-text-wrapper.ann-paused .ann-text {
     animation-play-state: paused;
   }
   @keyframes ann-ticker {
@@ -169,12 +199,14 @@ function dismiss() {
       transform: translateX(-100%);
     }
   }
-  /* Shrink the dismiss button slightly so it sits further from the text
-     edge and looks less visually heavy on narrow screens. */
+  /* Shrink the visual close button on narrow screens but keep the hit
+     area at 44x44 (WCAG 2.5.5 AAA). Transparent padding makes a finger-
+     friendly tap target without making the button look visually heavy. */
   .ann-close {
-    right: 6px;
-    width: 20px;
-    height: 20px;
+    right: -10px;
+    width: 44px;
+    height: 44px;
+    padding: 12px;
   }
   .ann-close svg {
     width: 11px;

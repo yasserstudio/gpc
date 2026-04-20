@@ -872,7 +872,7 @@ export default defineConfig({
 
     footer: {
       message:
-        'Made by <a href="https://yasser.studio" target="_blank"><img src="/gpc/yasser-studio-logo.svg" alt="Yasser\'s Studio" class="yasser-logo yasser-logo-light" style="display:inline-block;max-height:21px;vertical-align:sub;margin:0 4px"><img src="/gpc/yasser-studio-logo-white.svg" alt="Yasser\'s Studio" class="yasser-logo yasser-logo-dark" style="display:none;max-height:21px;vertical-align:sub;margin:0 4px"></a> · Free to use. <a href="https://github.com/yasserstudio/gpc" target="_blank" rel="noopener noreferrer">Code on GitHub</a>.',
+        'Made by <a href="https://yasser.studio" target="_blank"><img src="/gpc/yasser-studio-logo.svg" alt="Yasser\'s Studio" class="yasser-logo yasser-logo-light" style="display:inline-block;max-height:21px;vertical-align:sub;margin:0 4px"><img src="/gpc/yasser-studio-logo-white.svg" alt="" aria-hidden="true" class="yasser-logo yasser-logo-dark" style="display:none;max-height:21px;vertical-align:sub;margin:0 4px"></a> · Free to use. <a href="https://github.com/yasserstudio/gpc" target="_blank" rel="noopener noreferrer">Code on GitHub</a>.',
       copyright: "Not affiliated with Google LLC. Google Play is a trademark of Google LLC.",
     },
   },

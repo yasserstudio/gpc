@@ -486,6 +486,23 @@ html {
   }
 }
 
+/* Respect reduced-motion: stop the hero name shimmer and the hero entry
+   animations for users who've opted out. Ticker has its own guard inside
+   AnnouncementBanner.vue. */
+@media (prefers-reduced-motion: reduce) {
+  .VPHero .name .clip {
+    animation: none !important;
+  }
+  .VPHero .name,
+  .VPHero .text,
+  .VPHero .tagline,
+  .VPHero .actions {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
 .VPHero .text {
   font-family: var(--gpc-font-display) !important;
   font-weight: 600 !important;
@@ -1057,7 +1074,12 @@ html {
   color: var(--vp-c-brand-1) !important;
   font-weight: 500;
   border: 1px solid var(--vp-c-border);
-  white-space: nowrap;
+  /* Allow long inline code (flag chains, package names) to wrap at any
+     character rather than force horizontal page scroll on narrow viewports.
+     Break only when the container runs out of room — short codes stay on
+     one line. */
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .dark .vp-doc :not(pre) > code {
@@ -1339,11 +1361,12 @@ html {
    HOME — BODY SECTIONS (below features)
    ================================================================ */
 
-/* Wrap the home page markdown content in a contained, styled area */
+/* Wrap the home page markdown content in a contained, styled area.
+   Fluid side padding: 12px at 320px, 24px from 600px+. */
 .VPHome .vp-doc {
   max-width: 860px;
   margin: 0 auto;
-  padding: 0 24px 64px;
+  padding: 0 clamp(12px, 4vw, 24px) 64px;
 }
 
 .VPHome .vp-doc h2 {
@@ -1479,13 +1502,15 @@ html {
     font-size: 0.82rem !important;
   }
 
-  /* Feature blob — smaller on mobile */
+  /* Feature blob — smaller on mobile. Reduced blur radius (22 -> 14) cuts
+     the paint cost of compositing six stacked blurred circles during
+     scroll on older Android GPUs without meaningfully changing the look. */
   .VPFeature .box::before {
     width: 80px;
     height: 80px;
     top: -20px;
     left: -20px;
-    filter: blur(22px);
+    filter: blur(14px);
   }
 
   /* Feature icon — slightly smaller */
@@ -1503,11 +1528,18 @@ html {
     padding: 4px 0 40px !important;
   }
 
-  /* Tables — horizontal scroll instead of overflow */
+  /* Tables — scroll horizontally when cells genuinely don't fit, but let
+     prose-heavy rows wrap normally. Nowrap is kept on header cells so the
+     column labels stay legible; tbody prose wraps at the cell boundary. */
   .vp-doc table {
     display: block;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+  .vp-doc tbody td {
+    white-space: normal;
+  }
+  .vp-doc thead th {
     white-space: nowrap;
   }
 
@@ -1520,9 +1552,10 @@ html {
     border-right: none !important;
   }
 
-  /* Home body */
+  /* Home body — keep the fluid clamp from the base rule; just shorten
+     the bottom padding on mobile. */
   .VPHome .vp-doc {
-    padding: 0 16px 48px !important;
+    padding-bottom: 48px !important;
   }
 
   .VPHome .vp-doc h2 {
