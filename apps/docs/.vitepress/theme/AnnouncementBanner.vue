@@ -32,15 +32,17 @@ function dismiss() {
 <template>
   <div v-if="visible" class="ann-banner" role="banner">
     <span class="ann-badge">Pre-release</span>
-    <span class="ann-text">
-      v0.9.63 &middot; New: <code>--ai</code> on
-      <code>gpc changelog generate --target play-store</code> translates release notes via your own
-      Anthropic, OpenAI, Google, or Vercel AI Gateway key.
-      <a href="/gpc/guide/multilingual-release-notes#ai-translation" class="ann-link"
-        >AI translation guide</a
-      >
-      &middot; road to v1.0
-    </span>
+    <div class="ann-text-wrapper">
+      <span class="ann-text">
+        v0.9.63 &middot; New: <code>--ai</code> on
+        <code>gpc changelog generate --target play-store</code> translates release notes via your
+        own Anthropic, OpenAI, Google, or Vercel AI Gateway key.
+        <a href="/gpc/guide/multilingual-release-notes#ai-translation" class="ann-link"
+          >AI translation guide</a
+        >
+        &middot; road to v1.0
+      </span>
+    </div>
     <button class="ann-close" aria-label="Dismiss" @click="dismiss">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -97,8 +99,54 @@ function dismiss() {
   background: rgba(77, 149, 241, 0.15);
 }
 
+.ann-text-wrapper {
+  min-width: 0;
+  line-height: 1.4;
+}
+
 .ann-text {
   line-height: 1.4;
+}
+
+/* Mobile: slide the banner message as a ticker so the full copy is legible
+   without forcing a two-line wrap on narrow screens. Pauses on hover/focus/
+   tap so users can still read and click the link. Reduced-motion users
+   get the static fallback below. */
+@media (max-width: 640px) and (prefers-reduced-motion: no-preference) {
+  .ann-banner {
+    padding-right: 32px;
+    text-align: left;
+  }
+  .ann-text-wrapper {
+    flex: 1 1 auto;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ann-text {
+    display: inline-block;
+    padding-left: 100%;
+    animation: ann-ticker 32s linear infinite;
+  }
+  .ann-text-wrapper:hover .ann-text,
+  .ann-text-wrapper:focus-within .ann-text,
+  .ann-text-wrapper:active .ann-text {
+    animation-play-state: paused;
+  }
+  @keyframes ann-ticker {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+}
+
+/* Mobile + reduced-motion: fall back to wrapping static text. */
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  .ann-text {
+    white-space: normal;
+  }
 }
 
 .ann-link {
