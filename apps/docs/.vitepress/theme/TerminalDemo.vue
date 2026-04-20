@@ -35,9 +35,11 @@ onMounted(() => {
 <template>
   <div class="td-window">
     <div class="td-header">
-      <span class="td-dot td-red" />
-      <span class="td-dot td-yellow" />
-      <span class="td-dot td-green" />
+      <div class="td-dots">
+        <span class="td-dot td-red" />
+        <span class="td-dot td-yellow" />
+        <span class="td-dot td-green" />
+      </div>
       <span class="td-title">{{ title }}</span>
     </div>
     <div class="td-body">
@@ -100,10 +102,19 @@ onMounted(() => {
 .td-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
+  gap: 12px;
   padding: 10px 14px;
   background: #161b22;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: nowrap;
+}
+
+.td-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .td-dot {
@@ -123,11 +134,21 @@ onMounted(() => {
 }
 
 .td-title {
-  margin-left: auto;
   font-family: "Inter", sans-serif;
   font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.28);
   letter-spacing: 0.02em;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+}
+
+@media (max-width: 420px) {
+  .td-title {
+    display: none;
+  }
 }
 
 .td-body {
