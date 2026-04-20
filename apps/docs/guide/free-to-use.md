@@ -108,5 +108,5 @@ Not currently. If you are using GPC heavily and want to help it continue, the hi
 - [Installation](/guide/installation) — get started
 - [Architecture](/advanced/architecture) — how GPC is built
 - [Security](/advanced/security) — threat model and credential handling
-- [Pricing](/pricing.md) — machine-readable pricing for agents
+- [Pricing](https://yasserstudio.github.io/gpc/pricing.md) — machine-readable pricing for agents
 - [GitHub repository](https://github.com/yasserstudio/gpc) — source
