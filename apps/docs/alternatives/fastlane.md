@@ -63,9 +63,23 @@ See the full [Migration Guide](/migration/from-fastlane) for CI workflow example
 
 ## Why Developers Switch
 
-**Dependency fatigue.** Fastlane requires Ruby, Bundler, and 150+ gems. GPC is one `npm install` or a standalone binary.
+**Dependency fatigue.** Fastlane requires Ruby, Bundler, and 150+ gems. GPC is one `npm install` or a standalone binary. This has been a known pain point across the lifetime of Fastlane. Felix Krause, Fastlane's creator, acknowledged it [on Hacker News in 2015](https://news.ycombinator.com/item?id=8894653):
 
-**API coverage.** Fastlane covers the basics: upload, metadata, screenshots. GPC covers the entire Google Play Developer API: vitals, reviews, subscriptions, purchases, reports, recovery, device tiers, and more.
+> "You are right, installation is not super easy right now, due to Ruby dependencies, which also depend on Nokogiri and phantomjs."
+>
+> — Felix Krause (@krausefx), Fastlane creator
+
+The Ruby dependency has persisted for the decade since. In 2021, a developer summarized the ecosystem cost [on Hacker News](https://news.ycombinator.com/item?id=29576183):
+
+> "A lot of iOS build automation tooling is dependent on Ruby. fastlane is the de-facto standard in this space, which is a Ruby gem and CLI application. As a result, every iOS developer almost inevitably has to learn at least some basic Ruby to cobble together a deployment pipeline for their app."
+
+GPC is TypeScript and ships a standalone binary for teams that do not want Ruby, Bundler, or `rbenv` anywhere near their CI runners.
+
+**API coverage.** Fastlane covers the basics: upload, metadata, screenshots. GPC covers the entire Google Play Developer API: vitals, reviews, subscriptions, purchases, reports, recovery, device tiers, and more. Specific gaps in Fastlane supply have been open as GitHub Issues for years. One representative example, [filed against fastlane/fastlane in January 2023](https://github.com/fastlane/fastlane/issues/21004):
+
+> "[supply] can't upload changelog unless all languages are translated"
+
+`gpc changelog generate --target play-store --locales auto --ai` handles the multilingual changelog case end-to-end. Each locale gets its own 500-character budget; the AI-translation flag (v0.9.63) fills non-source locales using the user's own LLM key.
 
 **CI integration.** GPC outputs structured JSON when piped, uses semantic exit codes (0-6), and reads configuration from environment variables. No wrapper scripts needed.
 
@@ -81,5 +95,27 @@ gpc status
 ```
 
 Every write operation supports `--dry-run`. Works with your existing Google Play service account. No new credentials required.
+
+## Frequently Asked Questions
+
+### Is GPC a drop-in replacement for Fastlane supply?
+
+For uploads, tracks, rollouts, and metadata sync, yes. Most commands map one-to-one with the same service account key and Fastlane metadata directory format. The [migration guide](/migration/from-fastlane) documents every mapping. For the ~197 Google Play API endpoints Fastlane does not cover (vitals, reviews, subscriptions, reports, Managed Google Play), GPC adds capability rather than replacing it.
+
+### Does my existing Google Play service account work with GPC?
+
+Yes. GPC uses the same Google Play Developer API v3 service account you already created for Fastlane. No new credentials, no additional IAM roles, no re-verification step. `gpc auth login --service-account path/to/key.json` reuses the key file directly.
+
+### Can I run GPC alongside Fastlane during migration?
+
+Yes. They do not conflict. A common migration pattern is to keep Fastlane's `fastlane supply` lane for uploads while adding GPC for capabilities Fastlane does not cover (`gpc preflight`, `gpc vitals`, `gpc reviews`). Once the team is comfortable, the upload step can be migrated to `gpc releases upload` and Fastlane removed.
+
+### How much of the Fastlane supply API does GPC replace?
+
+Fastlane supply covers roughly 20 Google Play Developer API endpoints. GPC covers 217 across three Google APIs (Android Publisher v3, Play Developer Reporting v1beta1, Play Custom App Publishing v1). That is an additional ~197 capabilities, including reviews, vitals (crashes, ANR, startup, rendering, battery, memory), subscriptions, in-app products, financial reports, and private enterprise app publishing.
+
+### Do I need to rewrite my Fastfile?
+
+No. GPC is a standalone CLI — it does not require the Fastlane DSL, a Fastfile, or a Ruby runtime. If you still use Fastlane for iOS, your existing Fastfile stays unchanged. If you are migrating fully off Fastlane, replace `fastlane supply` calls in your Fastfile with direct `gpc releases upload` invocations in your CI script.
 
 [Full documentation](/) | [Quick Start](/guide/quick-start) | [Migration from Fastlane](/migration/from-fastlane)
