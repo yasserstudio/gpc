@@ -75,6 +75,12 @@ function dismiss() {
   color: var(--vp-c-text-2);
   position: relative;
   text-align: center;
+  /* Critical: the ticker uses padding-left: 100% which would otherwise push
+     the banner (and the whole page) wider than the viewport. Clip at the
+     banner level so the ticker stays contained. */
+  max-width: 100vw;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .dark .ann-banner {
