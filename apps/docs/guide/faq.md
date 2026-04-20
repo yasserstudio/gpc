@@ -87,7 +87,7 @@ Yes. Use the `--app` flag per command, set `GPC_APP` as an environment variable,
 
 ### Is GPC free?
 
-Yes. GPC is free to use. Source code is available at [github.com/yasserstudio/gpc](https://github.com/yasserstudio/gpc).
+Yes. GPC is free to use with no tiers, seat pricing, or usage limits. Source code is public at [github.com/yasserstudio/gpc](https://github.com/yasserstudio/gpc). The license is source-available rather than OSI open source, and outside contributions are deferred until v1.0.0. See [Why GPC Is Free to Use](./free-to-use) for the full stance, what is not for sale today, and what may change after v1.0.0.
 
 ## Features
 
