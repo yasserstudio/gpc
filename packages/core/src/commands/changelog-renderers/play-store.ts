@@ -1,7 +1,10 @@
 import { SECTION_ORDER, type GeneratedChangelog } from "../changelog-generate.js";
+import { classifyError, type ErrorReason, type Translator } from "../changelog-ai.js";
+import { GpcError } from "../../errors.js";
 
 export const PLAY_STORE_LIMIT = 500;
-export const PLACEHOLDER_TEXT = "[needs translation — pass --ai once v0.9.63 ships, or paste the prompt emitted by --format prompt]";
+export const PLACEHOLDER_TEXT =
+  "[needs translation — pass --ai, or paste the prompt emitted by --format prompt]";
 
 export type PlayStoreFormat = "md" | "json" | "prompt";
 
@@ -10,7 +13,7 @@ export interface LocaleEntry {
   text: string;
   chars: number;
   limit: number;
-  status: "ok" | "over" | "placeholder" | "empty";
+  status: "ok" | "over" | "placeholder" | "empty" | "failed";
 }
 
 export interface LocaleBundle {
@@ -201,4 +204,129 @@ export function renderPlayStore(
     case "prompt":
       return { output: renderPlayStorePrompt(bundle, g), bundle };
   }
+}
+
+// ---------------------------------------------------------------------------
+// AI translation (v0.9.63)
+// ---------------------------------------------------------------------------
+
+export interface TranslationFailure {
+  language: string;
+  reason: ErrorReason;
+}
+
+export interface TranslateBundleOptions {
+  translator: Translator;
+  strict?: boolean;
+  onError?: (failure: TranslationFailure, err: unknown) => void;
+  onTranslated?: (entry: LocaleEntry) => void;
+}
+
+export interface TranslatedBundle extends LocaleBundle {
+  tokensIn: number;
+  tokensOut: number;
+  failures: TranslationFailure[];
+}
+
+export async function translateBundle(
+  bundle: LocaleBundle,
+  options: TranslateBundleOptions,
+): Promise<TranslatedBundle> {
+  const source = bundle.locales.find((e) => e.language === bundle.sourceLanguage);
+  const sourceText = source?.text ?? "";
+  // Guard: if there is no usable source text (source locale missing from the
+  // bundle, or source body is empty/whitespace), don't call the translator —
+  // it would bill the user's key for hallucinated output.
+  const hasSource = source !== undefined && sourceText.trim().length > 0;
+
+  let tokensIn = 0;
+  let tokensOut = 0;
+  const failures: TranslationFailure[] = [];
+  const newLocales: LocaleEntry[] = [];
+
+  for (const entry of bundle.locales) {
+    if (entry.status !== "placeholder") {
+      newLocales.push(entry);
+      continue;
+    }
+
+    if (!hasSource) {
+      const failure: TranslationFailure = { language: entry.language, reason: "no_source" };
+      failures.push(failure);
+      options.onError?.(failure, new Error("source locale missing or empty"));
+      const failedText = `[translation failed: no_source]`;
+      newLocales.push({
+        language: entry.language,
+        text: failedText,
+        chars: countChars(failedText),
+        limit: PLAY_STORE_LIMIT,
+        status: "failed",
+      });
+      continue;
+    }
+
+    try {
+      const result = await options.translator(entry.language, sourceText);
+      tokensIn += result.tokensIn;
+      tokensOut += result.tokensOut;
+
+      let text = result.text.trim();
+      let chars = countChars(text);
+      let status: LocaleEntry["status"] = "ok";
+      if (chars > PLAY_STORE_LIMIT) {
+        text = truncateToLimit(text, PLAY_STORE_LIMIT);
+        chars = countChars(text);
+        status = "over";
+      }
+
+      const translated: LocaleEntry = {
+        language: entry.language,
+        text,
+        chars,
+        limit: PLAY_STORE_LIMIT,
+        status,
+      };
+      newLocales.push(translated);
+      options.onTranslated?.(translated);
+    } catch (err) {
+      const reason = classifyError(err);
+      const failure: TranslationFailure = { language: entry.language, reason };
+      failures.push(failure);
+      options.onError?.(failure, err);
+      const failedText = `[translation failed: ${reason}]`;
+      newLocales.push({
+        language: entry.language,
+        text: failedText,
+        chars: countChars(failedText),
+        limit: PLAY_STORE_LIMIT,
+        status: "failed",
+      });
+    }
+  }
+
+  const overflows = newLocales
+    .filter((e) => e.status === "over")
+    .map((e) => e.language);
+
+  const translated: TranslatedBundle = {
+    ...bundle,
+    locales: newLocales,
+    overflows,
+    tokensIn,
+    tokensOut,
+    failures,
+  };
+
+  if (options.strict && failures.length > 0) {
+    throw new GpcError(
+      `${failures.length} locale${failures.length === 1 ? "" : "s"} failed to translate: ${failures
+        .map((f) => `${f.language}=${f.reason}`)
+        .join(", ")}`,
+      "CHANGELOG_AI_TRANSLATION_FAILED",
+      1,
+      "Remove --strict to continue on errors, or check credentials and retry.",
+    );
+  }
+
+  return translated;
 }

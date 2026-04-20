@@ -366,6 +366,7 @@ export {
   renderPlayStoreJson,
   renderPlayStorePrompt,
   buildLocaleBundle,
+  translateBundle,
   PLAY_STORE_LIMIT,
   PLACEHOLDER_TEXT,
 } from "./commands/changelog-renderers/index.js";
@@ -375,9 +376,31 @@ export type {
   LocaleEntry,
   PlayStoreFormat,
   PlayStoreRenderOptions,
+  TranslateBundleOptions,
+  TranslatedBundle,
+  TranslationFailure,
 } from "./commands/changelog-renderers/index.js";
 export { resolveLocales } from "./commands/changelog-locales.js";
 export type { ResolveLocalesOptions } from "./commands/changelog-locales.js";
+
+export {
+  resolveAiConfig,
+  createTranslator,
+  fetchAggregateCost,
+  classifyError,
+  formatPathLabel,
+  PROVIDER_WHITELIST,
+  DEFAULT_MODELS,
+} from "./commands/changelog-ai.js";
+export type {
+  Provider,
+  TranslationPath,
+  ErrorReason,
+  TranslationResult,
+  Translator,
+  TranslatorConfig,
+  ResolveAiConfigOptions,
+} from "./commands/changelog-ai.js";
 
 export { getRtdnStatus, decodeNotification, formatNotification } from "./commands/rtdn.js";
 export type { RtdnStatus, DecodedNotification } from "./commands/rtdn.js";

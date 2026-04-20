@@ -18,6 +18,7 @@ export {
   renderPlayStoreJson,
   renderPlayStorePrompt,
   buildLocaleBundle,
+  translateBundle,
   PLAY_STORE_LIMIT,
   PLACEHOLDER_TEXT,
 } from "./play-store.js";
@@ -26,4 +27,7 @@ export type {
   LocaleEntry,
   PlayStoreFormat,
   PlayStoreRenderOptions,
+  TranslateBundleOptions,
+  TranslatedBundle,
+  TranslationFailure,
 } from "./play-store.js";

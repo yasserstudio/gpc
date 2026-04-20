@@ -1,5 +1,33 @@
 # @gpc-cli/core
 
+## 0.9.53
+
+### Patch Changes
+
+- feat(changelog): AI-assisted Play Store translation via `--ai`
+
+  Turns v0.9.62's `[needs translation]` placeholder into real translated release notes. Third release in the changelog-generation series (v0.9.61 → v0.9.64).
+
+  **New:**
+  - `gpc changelog generate --target play-store --locales auto --ai` — translate non-source locales via your own LLM key
+  - `--provider <anthropic|openai|google>` — choose provider (defaults to first env key detected)
+  - `--model <id>` — override the per-provider default model (`claude-sonnet-4-6`, `gpt-4o-mini`, `gemini-2.5-flash`)
+  - `--dry-run` — print the prompt that would be sent without calling the LLM or spending tokens
+  - `--strict` extends to translation failures — exits 1 if any locale fails in strict mode
+  - Gateway-primary routing: if `AI_GATEWAY_API_KEY` is set, requests route via the Vercel AI Gateway (unlocks 20+ providers, aggregate cost in USD reported per run, Vercel dashboard observability). Otherwise falls back to direct `@ai-sdk/anthropic` / `@ai-sdk/openai` / `@ai-sdk/google` SDKs.
+  - JSON output gains a top-level `ai` block with `path`, `provider`, `model`, `tokensIn`, `tokensOut`, plus `runId` + `costUsd` on the Gateway path.
+  - Structured error-reason classification for failed translations: `rate_limited`, `auth`, `safety_blocked`, `timeout`, `network`, `unknown`. Sensitive error details never surface to JSON output or Play Store draft.
+  - Gemini 2.5 models automatically have `thinkingConfig.thinkingBudget: 0` applied so users don't pay for reasoning tokens on a translation task.
+
+  **Architecture:**
+  - New `translateBundle(bundle, { translator, strict, onError, onTranslated })` async pass plugs into the v0.9.62 `buildLocaleBundle` output — keeps the bundle-builder sync and pure.
+  - New `createTranslator(config)`, `resolveAiConfig(opts)`, `fetchAggregateCost(runId)`, `classifyError(err)`, `formatPathLabel(config)` exports from `@gpc-cli/core`.
+  - All four new deps (`ai`, `@ai-sdk/anthropic`, `@ai-sdk/openai`, `@ai-sdk/google`) are lazy-loaded — `gpc changelog generate` without `--ai` imports none of them, cold-start budget preserved.
+
+  **Backwards-compatible:** the v0.9.62 `gpc changelog generate --target play-store --locales ... ` flow is unchanged when `--ai` is not passed. `[needs translation]` placeholder wording updated to point at `--ai` instead of referencing "v0.9.63 ships".
+
+  Paves the way for v0.9.64 `--apply` which will write the translated bundle into the next draft release's `recentChanges[]`.
+
 ## 0.9.52
 
 ### Patch Changes

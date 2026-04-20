@@ -336,6 +336,46 @@ vi.mock("@gpc-cli/core", () => {
     runWatchLoop: vi.fn().mockResolvedValue(undefined),
     trackBreachState: vi.fn().mockReturnValue(false),
     sendNotification: vi.fn().mockResolvedValue(undefined),
+    // changelog AI (v0.9.63)
+    PROVIDER_WHITELIST: ["anthropic", "openai", "google"],
+    DEFAULT_MODELS: {
+      anthropic: "claude-sonnet-4-6",
+      openai: "gpt-4o-mini",
+      google: "gemini-2.5-flash",
+    },
+    resolveAiConfig: vi.fn().mockReturnValue({
+      path: "direct",
+      provider: "anthropic",
+      model: "claude-sonnet-4-6",
+      runId: "test-run-id",
+    }),
+    createTranslator: vi.fn().mockResolvedValue(
+      vi.fn().mockResolvedValue({ text: "translated", tokensIn: 10, tokensOut: 8 }),
+    ),
+    translateBundle: vi.fn().mockResolvedValue({
+      from: "v0.9.62",
+      to: "HEAD",
+      limit: 500,
+      sourceLanguage: "en-US",
+      locales: [],
+      overflows: [],
+      failures: [],
+      tokensIn: 0,
+      tokensOut: 0,
+    }),
+    fetchAggregateCost: vi.fn().mockResolvedValue(undefined),
+    formatPathLabel: vi.fn().mockReturnValue("direct Anthropic SDK (claude-sonnet-4-6)"),
+    classifyError: vi.fn().mockReturnValue("unknown"),
+    buildLocaleBundle: vi.fn().mockReturnValue({
+      from: "v0.9.62",
+      to: "HEAD",
+      limit: 500,
+      sourceLanguage: "en-US",
+      locales: [],
+      overflows: [],
+    }),
+    renderPlayStoreMd: vi.fn().mockReturnValue(""),
+    renderPlayStorePrompt: vi.fn().mockReturnValue(""),
   };
 });
 

@@ -1,6 +1,6 @@
 {
   "name": "@gpc-cli/core",
-  "version": "0.9.52",
+  "version": "0.9.53",
   "description": "Core business logic for GPC — Google Play Console CLI",
   "type": "module",
   "main": "./dist/index.js",
@@ -24,10 +24,14 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.0",
+    "@ai-sdk/google": "^2.0.0",
+    "@ai-sdk/openai": "^2.0.0",
     "@gpc-cli/api": "workspace:*",
     "@gpc-cli/auth": "workspace:*",
     "@gpc-cli/config": "workspace:*",
     "@gpc-cli/plugin-sdk": "workspace:*",
+    "ai": "^5.0.0",
     "protobufjs": "^8.0.1",
     "yauzl": "^3.3.0"
   },

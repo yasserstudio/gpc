@@ -6,6 +6,15 @@ import {
   generateChangelog,
   RENDERERS,
   renderPlayStore,
+  renderPlayStoreMd,
+  renderPlayStorePrompt,
+  buildLocaleBundle,
+  translateBundle,
+  resolveAiConfig,
+  createTranslator,
+  fetchAggregateCost,
+  formatPathLabel,
+  PROVIDER_WHITELIST,
   resolveLocales,
   GpcError,
   type OutputMode,
@@ -76,7 +85,13 @@ export function registerChangelogCommand(program: Command): void {
     .option("--repo <owner/name>", "Override auto-detected repo (e.g., yasserstudio/gpc)")
     .option("--target <mode>", "Output target: github or play-store", "github")
     .option("--locales <csv|auto>", "Comma-separated BCP 47 locales, or 'auto' (play-store target only)")
-    .option("--strict", "Exit non-zero if linter warnings or locale overflows are emitted")
+    .option("--ai", "Translate non-source locales via LLM (play-store target only, BYO key)")
+    .option(
+      "--provider <name>",
+      `AI provider (${PROVIDER_WHITELIST.join("|")}). Defaults to first env key detected`,
+    )
+    .option("--model <id>", "Override default model for the chosen provider")
+    .option("--strict", "Exit non-zero if warnings, overflows, or translation failures occur")
     .action(
       async (opts: {
         from?: string;
@@ -86,7 +101,11 @@ export function registerChangelogCommand(program: Command): void {
         target: string;
         locales?: string;
         strict?: boolean;
+        ai?: boolean;
+        provider?: string;
+        model?: string;
       }) => {
+        const dryRun = !!program.opts()["dryRun"];
         const mode = opts.format as OutputMode;
         if (!VALID_OUTPUT_MODES.includes(mode)) {
           process.stderr.write(
@@ -113,6 +132,29 @@ export function registerChangelogCommand(program: Command): void {
         if (target === "github" && opts.locales) {
           process.stderr.write(
             `--locales only applies to --target play-store (current target: github)\n`,
+          );
+          process.exitCode = 2;
+          return;
+        }
+        // Only block when the AI-adjacent flags are explicitly set. The root
+        // program has its own `--dry-run` flag that may already be set
+        // globally by the user for unrelated reasons; we silently ignore it
+        // on non-AI code paths.
+        if (target === "github" && (opts.ai || opts.provider || opts.model)) {
+          process.stderr.write(
+            "--ai / --provider / --model only apply to --target play-store\n",
+          );
+          process.exitCode = 2;
+          return;
+        }
+        // --format prompt + --ai is nonsensical outside --dry-run: it would
+        // render a "please translate this" prompt from already-translated
+        // text. Either inspect the prompt via --dry-run, or pick md/json.
+        if (opts.ai && opts.format === "prompt" && !dryRun) {
+          process.stderr.write(
+            "--ai with --format prompt only makes sense with --dry-run\n" +
+              "  (otherwise it would re-wrap translated text in a translation prompt).\n" +
+              "  Hint: use --format md or --format json for live translation, or add --dry-run to inspect the prompt.\n",
           );
           process.exitCode = 2;
           return;
@@ -172,21 +214,135 @@ export function registerChangelogCommand(program: Command): void {
           throw error;
         }
 
-        const { output, bundle } = renderPlayStore(generated, {
-          locales,
-          format: mode as PlayStoreFormat,
-        });
-        console.log(output);
+        const playStoreFormat = mode as PlayStoreFormat;
 
-        for (const lang of bundle.overflows) {
+        // Non-AI path: existing v0.9.62 behavior
+        if (!opts.ai) {
+          const { output, bundle } = renderPlayStore(generated, {
+            locales,
+            format: playStoreFormat,
+          });
+          console.log(output);
+
+          for (const lang of bundle.overflows) {
+            process.stderr.write(
+              `${yellow("warn:")} ${lang} exceeds ${bundle.limit} chars (truncated)\n`,
+            );
+          }
+
+          const hasOverflow = bundle.overflows.length > 0;
+          const hasWarnings = generated.warnings.length > 0;
+          if (opts.strict && (hasWarnings || hasOverflow)) {
+            process.exitCode = 1;
+          }
+          return;
+        }
+
+        // --ai path: resolve config, translate, render with ai block
+        let aiConfig;
+        try {
+          aiConfig = resolveAiConfig({ provider: opts.provider, model: opts.model });
+        } catch (error) {
+          if (error instanceof GpcError) {
+            process.stderr.write(`${error.message}\n`);
+            if (error.suggestion) process.stderr.write(`${dim(error.suggestion)}\n`);
+            process.exitCode = error.exitCode;
+            return;
+          }
+          throw error;
+        }
+
+        process.stderr.write(`${dim(`→ ${formatPathLabel(aiConfig)}`)}\n`);
+
+        const baseBundle = buildLocaleBundle(generated, {
+          locales,
+          format: playStoreFormat,
+        });
+
+        if (dryRun) {
+          const preview = renderPlayStorePrompt(baseBundle, generated);
+          console.log(preview);
           process.stderr.write(
-            `${yellow("warn:")} ${lang} exceeds ${bundle.limit} chars (truncated)\n`,
+            `${dim("(--dry-run: no API call was made; the prompt above is what would be sent per locale)")}\n`,
+          );
+          return;
+        }
+
+        const translator = await createTranslator(aiConfig);
+        let translated;
+        try {
+          translated = await translateBundle(baseBundle, {
+            translator,
+            strict: opts.strict,
+            onError: ({ language, reason }) => {
+              process.stderr.write(
+                `${yellow("warn:")} ${language} translation failed: ${reason}\n`,
+              );
+            },
+          });
+        } catch (error) {
+          if (error instanceof GpcError) {
+            process.stderr.write(`${error.message}\n`);
+            if (error.suggestion) process.stderr.write(`${dim(error.suggestion)}\n`);
+            process.exitCode = error.exitCode;
+            return;
+          }
+          throw error;
+        }
+
+        const costUsd =
+          aiConfig.path === "gateway" ? await fetchAggregateCost(aiConfig.runId) : undefined;
+
+        const aiBlock: Record<string, unknown> = {
+          path: aiConfig.path,
+          provider: aiConfig.provider,
+          model: aiConfig.model,
+          tokensIn: translated.tokensIn,
+          tokensOut: translated.tokensOut,
+        };
+        if (aiConfig.path === "gateway") {
+          aiBlock["runId"] = aiConfig.runId;
+          if (typeof costUsd === "number") aiBlock["costUsd"] = costUsd;
+        }
+
+        if (playStoreFormat === "json") {
+          const payload = {
+            from: translated.from,
+            to: translated.to,
+            limit: translated.limit,
+            sourceLanguage: translated.sourceLanguage,
+            ai: aiBlock,
+            locales: translated.locales,
+            overflows: translated.overflows,
+            failures: translated.failures,
+          };
+          console.log(JSON.stringify(payload, null, 2));
+        } else if (playStoreFormat === "prompt") {
+          console.log(renderPlayStorePrompt(translated, generated));
+        } else {
+          console.log(renderPlayStoreMd(translated));
+        }
+
+        for (const lang of translated.overflows) {
+          process.stderr.write(
+            `${yellow("warn:")} ${lang} exceeds ${translated.limit} chars (truncated)\n`,
           );
         }
 
-        const hasOverflow = bundle.overflows.length > 0;
+        if (translated.failures.length > 0) {
+          process.stderr.write(
+            `${dim(`(${translated.failures.length} locale${translated.failures.length === 1 ? "" : "s"} failed — see placeholders in output)`)}\n`,
+          );
+        }
+
+        if (typeof costUsd === "number") {
+          process.stderr.write(`${dim(`(run cost: $${costUsd.toFixed(4)})`)}\n`);
+        }
+
+        const hasOverflow = translated.overflows.length > 0;
         const hasWarnings = generated.warnings.length > 0;
-        if (opts.strict && (hasWarnings || hasOverflow)) {
+        const hasFailures = translated.failures.length > 0;
+        if (opts.strict && (hasWarnings || hasOverflow || hasFailures)) {
           process.exitCode = 1;
         }
       },

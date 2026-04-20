@@ -231,6 +231,21 @@ vi.mock("@gpc-cli/core", () => {
     lintLocalListings: vi.fn().mockResolvedValue([]),
     analyzeRemoteListings: vi.fn().mockResolvedValue({ results: [] }),
     diffListingsEnhanced: vi.fn().mockResolvedValue([]),
+    PROVIDER_WHITELIST: ["anthropic", "openai", "google"],
+    DEFAULT_MODELS: {
+      anthropic: "claude-sonnet-4-6",
+      openai: "gpt-4o-mini",
+      google: "gemini-2.5-flash",
+    },
+    resolveAiConfig: vi.fn(),
+    createTranslator: vi.fn(),
+    translateBundle: vi.fn(),
+    fetchAggregateCost: vi.fn(),
+    formatPathLabel: vi.fn(),
+    classifyError: vi.fn(),
+    buildLocaleBundle: vi.fn(),
+    renderPlayStoreMd: vi.fn(),
+    renderPlayStorePrompt: vi.fn(),
   };
 });
 
