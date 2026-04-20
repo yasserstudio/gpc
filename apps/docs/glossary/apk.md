@@ -8,7 +8,7 @@ An APK is the original Android install format: a zipped container with compiled 
 
 ## Why it matters
 
-APKs are still the install format Android devices actually run. The difference between APKs and AABs is *who generates the APK*: with an APK upload, you generate one APK that every device gets. With an AAB upload, Google Play generates a per-device optimized APK from your bundle.
+APKs are still the install format Android devices actually run. The difference between APKs and AABs is _who generates the APK_: with an APK upload, you generate one APK that every device gets. With an AAB upload, Google Play generates a per-device optimized APK from your bundle.
 
 APKs are still valid for sideloading, internal distribution outside Play Store, Amazon Appstore submissions, and legacy apps on Play Store. New apps on Play Store must use AAB.
 

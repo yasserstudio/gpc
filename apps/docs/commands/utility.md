@@ -181,9 +181,9 @@ gpc update --check --output json | jq '.updateAvailable'
 **Update available:**
 
 ```
-Update available: 0.9.31 → 0.9.32
+Update available: 0.9.62 → 0.9.63
 Install method: homebrew
-Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.32
+Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.63
 
 Run: gpc update
 ```
@@ -191,7 +191,7 @@ Run: gpc update
 **Already on latest:**
 
 ```
-Already on latest version: v0.9.32
+Already on latest version: v0.9.63
 ```
 
 **`--output json` (update available):**

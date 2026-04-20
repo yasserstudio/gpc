@@ -36,7 +36,7 @@ This list is new. The first batch of adopters is being assembled now. If you shi
 
 <!-- Adopter entries go below this line. Each entry: one-line description, optional logo, opt-in date. -->
 
-*Seed adopters being confirmed. Check back soon, or [put your team here](#how-to-be-listed).*
+_Seed adopters being confirmed. Check back soon, or [put your team here](#how-to-be-listed)._
 
 ## What Being Listed Means
 

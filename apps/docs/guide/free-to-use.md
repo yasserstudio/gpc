@@ -46,13 +46,13 @@ This is the same model Tailwind CSS ran for years before going fully open source
 
 ## What Is Not for Sale
 
-| Offering | Status |
-|---|---|
-| Paid CLI tier | None. The CLI is free. |
-| Hosted SaaS version | None. Self-hosted only. |
-| Enterprise license | None. |
+| Offering              | Status                                          |
+| --------------------- | ----------------------------------------------- |
+| Paid CLI tier         | None. The CLI is free.                          |
+| Hosted SaaS version   | None. Self-hosted only.                         |
+| Enterprise license    | None.                                           |
 | Paid support contract | None. Community support via GitHub Discussions. |
-| SLA | None. |
+| SLA                   | None.                                           |
 
 ## What Might Change After v1.0.0
 

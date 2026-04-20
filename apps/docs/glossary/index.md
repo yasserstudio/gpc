@@ -24,25 +24,31 @@ Use this as a lookup reference when reading docs or debugging a release.
 ## By Category
 
 ### Build artifacts
+
 - [AAB](/glossary/aab)
 - [APK](/glossary/apk)
 
 ### Release management
+
 - [Staged Rollout](/glossary/staged-rollout)
 - [Play Edit Lifecycle](/glossary/play-edit-lifecycle)
 
 ### App health
+
 - [ANR](/glossary/anr)
 - [Google Play Vitals](/glossary/google-play-vitals)
 
 ### Authentication
+
 - [Google Play Service Account](/glossary/play-service-account)
 
 ### Enterprise and private distribution
+
 - [Managed Google Play](/glossary/managed-google-play)
 - [Play Custom App Publishing](/glossary/play-custom-app-publishing)
 
 ### Tooling compatibility
+
 - [Fastlane Metadata Format](/glossary/fastlane-metadata-format)
 
 ## Adding Terms
