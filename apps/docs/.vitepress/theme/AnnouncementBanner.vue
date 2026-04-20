@@ -114,18 +114,41 @@ function dismiss() {
    get the static fallback below. */
 @media (max-width: 640px) and (prefers-reduced-motion: no-preference) {
   .ann-banner {
-    padding-right: 32px;
+    padding-left: 12px;
+    padding-right: 30px;
     text-align: left;
+    gap: 0;
+  }
+  /* Hide the PRE-RELEASE chip on mobile — it eats ~80px of precious width
+     and the ticker text carries the same context ("v0.9.63 · New: ..."). */
+  .ann-badge {
+    display: none;
   }
   .ann-text-wrapper {
     flex: 1 1 auto;
     overflow: hidden;
     white-space: nowrap;
+    /* Soft fade on both edges so text doesn't hard-clip against the bezel
+       (left) or the dismiss button (right). */
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 14px,
+      #000 calc(100% - 14px),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 14px,
+      #000 calc(100% - 14px),
+      transparent 100%
+    );
   }
   .ann-text {
     display: inline-block;
     padding-left: 100%;
-    animation: ann-ticker 32s linear infinite;
+    animation: ann-ticker 28s linear infinite;
   }
   .ann-text-wrapper:hover .ann-text,
   .ann-text-wrapper:focus-within .ann-text,
@@ -140,9 +163,22 @@ function dismiss() {
       transform: translateX(-100%);
     }
   }
+  /* Shrink the dismiss button slightly so it sits further from the text
+     edge and looks less visually heavy on narrow screens. */
+  .ann-close {
+    right: 6px;
+    width: 20px;
+    height: 20px;
+  }
+  .ann-close svg {
+    width: 11px;
+    height: 11px;
+  }
 }
 
-/* Mobile + reduced-motion: fall back to wrapping static text. */
+/* Mobile + reduced-motion: fall back to wrapping static text. Keep the
+   badge visible here because wrapping text uses vertical space and the
+   badge adds helpful context rather than competing for width. */
 @media (max-width: 640px) and (prefers-reduced-motion: reduce) {
   .ann-text {
     white-space: normal;
