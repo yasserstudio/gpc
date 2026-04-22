@@ -11,7 +11,39 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.63 <Badge type="tip" text="latest" />
+## v0.9.64 <Badge type="tip" text="latest" />
+
+Write translated Play Store release notes into a draft release. `gpc changelog generate --target play-store --locales auto --ai --apply` completes the changelog-generation series (v0.9.61-v0.9.64): from git commit to translated "What's new" text, written into your draft release, in one command.
+
+Also fixes a race condition where large AAB uploads could fail validation because Google's server-side processing hadn't finished, and adds an embedded documentation system so all 99 docs pages are available offline in the terminal.
+
+**New:**
+
+- feat(cli): `--apply` flag on `gpc changelog generate --target play-store` writes generated release notes into the draft release on `--track` (default: production). Locales with `placeholder` or `failed` status are blocked. Retries on 409 Conflict with a fresh edit.
+- feat(cli): `--track <name>` flag selects which Play Store track to write to when using `--apply`.
+- feat(cli): `gpc docs list` lists all embedded documentation topics grouped by section.
+- feat(cli): `gpc docs show <topic>` renders a documentation page in the terminal with ANSI formatting. Fuzzy slug matching: `gpc docs show auth` finds `guide/authentication`.
+- feat(cli): `gpc docs search <query>` full-text search across all embedded documentation with ranked results and context snippets.
+- feat(cli): `gpc docs init` generates a `GPC.md` quick-reference for AI agents. Auto-links `CLAUDE.md` and `AGENTS.md` if present.
+- feat(cli): `gpc docs web [topic]` opens documentation in the browser (preserves pre-v0.9.64 behavior).
+- feat(core): `applyReleaseNotes()` opens an edit, finds the draft release on the target track, merges release notes, validates, and commits. Uses `withRetryOnConflict` for 409 handling.
+- feat(core): `validateBundleForApply()` and `bundleToReleaseNotes()` helpers for converting locale bundles to the Play Store API shape.
+- feat(core): `waitForBundleProcessing()` polls `bundles.list` after AAB upload with Fibonacci backoff (2s, 3s, 5s, 8s, 13s). Fixes validation failures on large AABs where Google's server-side processing hadn't completed.
+- perf(cli): documentation bundle (~120KB) is built at compile time and embedded in the binary. No runtime file reads, no network calls. Sub-millisecond search via a precomputed inverted index.
+
+**Docs:**
+
+- [Multilingual Release Notes](/guide/multilingual-release-notes) updated with `--apply` as the final workflow step.
+- [`gpc changelog` reference](/commands/changelog) updated with `--apply` and `--track` flags, exit code 4, and usage examples.
+- New page: [`gpc docs` reference](/commands/docs) documenting all five subcommands.
+
+**Tests:** 2,037 to 2,076 (+39).
+
+**Endpoint count:** unchanged at 217.
+
+---
+
+## v0.9.63
 
 AI-assisted Play Store translation. `gpc changelog generate --target play-store --locales auto --ai` turns the v0.9.62 `[needs translation]` placeholder into real translated text via your own LLM key. Auto-detects whichever provider key is set (`AI_GATEWAY_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`) and picks sensible non-reasoning model defaults (`claude-sonnet-4-6`, `gpt-4o-mini`, `gemini-2.5-flash`). If `AI_GATEWAY_API_KEY` is set, requests route via the Vercel AI Gateway for 20+ providers and aggregate cost in USD reported per run.
 

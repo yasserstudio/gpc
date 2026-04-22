@@ -116,9 +116,11 @@ gpc changelog generate [options]
 | `--ai`                  | Translate non-source locales via LLM (play-store target only, BYO key)                    | `false`              |
 | `--provider <name>`     | AI provider: `anthropic`, `openai`, or `google`                                           | auto-detect          |
 | `--model <id>`          | Override per-provider model default                                                       | per-provider         |
+| `--apply`               | Write notes into the draft release on `--track` (play-store target only)                   | `false`              |
+| `--track <name>`        | Play Store track for `--apply`                                                             | `production`         |
 | `--strict`              | Exit non-zero on linter warnings, locale overflows, or (with `--ai`) translation failures | `false`              |
 
-Global `--dry-run` (from the root program) combined with `--ai` prints the prompt that would be sent per locale, without calling the LLM.
+Global `--dry-run` (from the root program) combined with `--ai` prints the prompt that would be sent per locale, without calling the LLM. Combined with `--apply`, it previews the release notes payload without writing to the Play Store.
 
 ### Examples
 
@@ -211,7 +213,30 @@ gpc changelog generate --target play-store --locales en-US,fr-FR,de-DE --format 
 gpc changelog generate --target play-store --locales auto --ai --strict
 ```
 
-AI translation auto-detects whichever provider key is set, in priority order: `AI_GATEWAY_API_KEY` → `ANTHROPIC_API_KEY` → `OPENAI_API_KEY` → `GOOGLE_GENERATIVE_AI_API_KEY`. See [Multilingual Release Notes](/guide/multilingual-release-notes#ai-translation) for the full `--ai` workflow. Writing translated notes back into a draft release lands in v0.9.64 via `--apply`.
+AI translation auto-detects whichever provider key is set, in priority order: `AI_GATEWAY_API_KEY` → `ANTHROPIC_API_KEY` → `OPENAI_API_KEY` → `GOOGLE_GENERATIVE_AI_API_KEY`. See [Multilingual Release Notes](/guide/multilingual-release-notes#ai-translation) for the full `--ai` workflow.
+
+### Writing notes into a draft release
+
+Use `--apply` to write the generated release notes directly into a draft release on the Play Store. This is the final step in the one-command workflow:
+
+```bash
+# One command: git log to translated Play Store release notes, written into draft
+gpc changelog generate --target play-store --locales auto --ai --apply
+
+# Write to a specific track (default: production)
+gpc changelog generate --target play-store --locales auto --ai --apply --track beta
+
+# Preview what would be written, no API call
+gpc --dry-run changelog generate --target play-store --locales auto --ai --apply
+```
+
+Requirements:
+
+- `--apply` requires `--target play-store` (exits 2 otherwise)
+- `--apply` cannot be combined with `--format prompt` (exits 2)
+- A draft release must exist on the target track. Upload an AAB first (`gpc releases upload`) to create one.
+- Locales with `placeholder` or `failed` status are blocked from apply. With `--ai`, all non-source locales must translate successfully.
+- `--apply` uses the same edit-lifecycle pattern as other GPC commands: insert edit, update track, validate, commit. On 409 Conflict, it retries with a fresh edit.
 
 ### Exit codes
 
@@ -221,10 +246,12 @@ AI translation auto-detects whichever provider key is set, in priority order: `A
 | `1`  | `--strict` enabled and linter warnings, locale overflows, or (with `--ai`) translation failures occurred |
 | `2`  | Invalid `--format` / `--target` / `--repo` / `--locales` / `--provider` / `--model` value or combination |
 | `3`  | `--ai` passed but no provider credentials found in env                                                   |
+| `4`  | API error (e.g., no draft release on track when using `--apply`)                                         |
 
 ## Related
 
 - [Generating Release Notes](/guide/changelog-generation) — full feature guide
 - [GitHub Release Notes Template](/advanced/conventions#github-release-notes-template) — the template this command targets
 - [`gpc publish`](/commands/publish) — end-to-end upload + release workflow
+- [Multilingual Release Notes](/guide/multilingual-release-notes) — per-locale Play Store output + AI translation + `--apply`
 - [`gpc releases create`](/commands/releases) — Play Console release creation

@@ -608,7 +608,7 @@ Generate per-locale Play Store release notes in the same workflow. `gpc changelo
   # --strict exits 1 if any locale overflows 500 chars.
 ```
 
-For opt-in AI translation of the `[needs translation]` placeholders, wait for v0.9.63 (Vercel AI SDK integration). To wire translated notes back into a draft release, wait for v0.9.64.
+For opt-in AI translation of the `[needs translation]` placeholders, add `--ai` (v0.9.63+). To write translated notes directly into a draft release, add `--apply` (v0.9.64+). The full one-command pipeline: `gpc changelog generate --target play-store --locales auto --ai --apply`.
 
 For uploading pre-written release notes alongside an AAB, see [gpc publish --notes-from-git](/commands/publish) or [gpc releases create --notes-from-git](/commands/releases).
 

@@ -29,7 +29,7 @@ function mockClient() {
       delete: vi.fn().mockResolvedValue(undefined),
     },
     bundles: {
-      list: vi.fn(),
+      list: vi.fn().mockResolvedValue([{ versionCode: 42 }]),
       upload: vi.fn().mockResolvedValue({ versionCode: 42, sha1: "a", sha256: "b" }),
     },
     tracks: {

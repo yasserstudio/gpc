@@ -2,7 +2,7 @@
 
 **Ship Android apps from your terminal.** The complete CLI for the Google Play Developer API.
 
-217 API endpoints. No Ruby. No browser. No ceremony. First publishing CLI with Managed Google Play support.
+217 API endpoints. No Ruby. No browser. No ceremony. First publishing CLI with Managed Google Play support and AI-assisted Play Store release notes in 80+ locales.
 
 ```bash
 npm install -g @gpc-cli/cli
@@ -14,11 +14,14 @@ npm install -g @gpc-cli/cli
 gpc status                                    # Releases + vitals + reviews in 3 seconds
 gpc releases upload app.aab --track beta      # Upload to any track
 gpc releases promote --from beta --to production --rollout 10
+gpc publish app.aab --track beta --notes "Bug fixes"                # One-shot upload + release
 gpc preflight app.aab                         # 9 offline policy scanners
 gpc vitals crashes --threshold 2.0            # Exit code 6 if breached
-gpc reviews list --stars 1-2 --since 7d       # Filter and reply to reviews
-gpc listings push --dir metadata/             # Sync store metadata
-gpc enterprise publish app.aab --account 123 --title "Private App"  # Managed Google Play (v0.9.56+)
+gpc reviews list --stars 1-2 --since 7d       # Filter reviews
+gpc reviews reply <review-id> --text "Thanks for the feedback!"
+gpc listings push --dir metadata/             # Sync store metadata (Fastlane-compatible)
+gpc changelog generate --target play-store --locales auto --ai      # AI-translated "What's new" in every locale
+gpc enterprise publish app.aab --account 123 --title "Private App"  # Managed Google Play
 gpc doctor                                    # 20 setup checks
 ```
 
@@ -31,9 +34,10 @@ gpc doctor                                    # 20 setup checks
 | Cold start              | <500ms                        | 2-3s            |
 | Reviews & Vitals        | Yes                           | No              |
 | Subscriptions           | Yes                           | No              |
-| **Managed Google Play** | **Yes (Play Custom App API)** | No              |
-| Preflight scanner       | 9 offline checks              | No              |
-| CI/CD native            | JSON + exit codes             | Partial         |
+| **Managed Google Play**       | **Yes (Play Custom App API)**       | No              |
+| **AI-translated release notes** | **Yes (80+ locales, BYO key)**  | No              |
+| Preflight scanner             | 9 offline checks                    | No              |
+| CI/CD native                  | JSON + exit codes                   | Partial         |
 
 [Migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) with one-to-one command mapping.
 
@@ -87,7 +91,7 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 - [Commands reference](https://yasserstudio.github.io/gpc/commands/)
 - [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/)
 
-Free to use. 2,037 tests. 90%+ coverage. Every write operation supports `--dry-run`.
+Free to use. 2,076 tests. 90%+ coverage. Every write operation supports `--dry-run`.
 
 ## Licensing
 

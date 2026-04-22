@@ -16,6 +16,28 @@ import { PlayApiError } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
 import { validateUploadFile } from "../utils/file-validation.js";
 
+const BUNDLE_POLL_BACKOFF = [2_000, 3_000, 5_000, 8_000, 13_000];
+
+export async function waitForBundleProcessing(
+  client: PlayApiClient,
+  packageName: string,
+  editId: string,
+  versionCode: number,
+  backoff: number[] = BUNDLE_POLL_BACKOFF,
+): Promise<void> {
+  for (let i = 0; i < backoff.length; i++) {
+    const bundles = await client.bundles.list(packageName, editId);
+    if (bundles.some((b) => b.versionCode === versionCode)) return;
+    await new Promise((r) => setTimeout(r, backoff[i]));
+  }
+  throw new GpcError(
+    `Bundle versionCode ${versionCode} not ready after ${backoff.length} poll attempts (~${Math.round(backoff.reduce((a, b) => a + b, 0) / 1000)}s)`,
+    "BUNDLE_PROCESSING_TIMEOUT",
+    4,
+    "The AAB is still being processed by Google. Retry the upload, or use --status draft and commit later.",
+  );
+}
+
 /**
  * Retry an edit-based operation once if it fails with 409 Conflict (stale edit).
  * Automatically discards the stale edit and creates a fresh one on retry.
@@ -227,6 +249,14 @@ export async function uploadRelease(
           uploadOpts,
           options.deviceTierConfigId,
         );
+
+    // Wait for server-side AAB processing before proceeding.
+    // Google's API returns from bundles.upload before manifest extraction
+    // and signature verification finish, causing edits.validate to fail
+    // with "uploads are not completed yet" on large bundles (~65MB+).
+    if (!isApk) {
+      await waitForBundleProcessing(client, packageName, edit.id, bundle.versionCode);
+    }
 
     // Upload mapping file if provided
     if (options.mappingFile) {
@@ -561,6 +591,53 @@ export async function fetchReleaseNotes(
   } finally {
     await client.edits.delete(packageName, edit.id).catch(() => {});
   }
+}
+
+export interface ApplyReleaseNotesResult {
+  track: string;
+  versionCodes: string[];
+  localeCount: number;
+  releaseNotes: { language: string; text: string }[];
+}
+
+export async function applyReleaseNotes(
+  client: PlayApiClient,
+  packageName: string,
+  track: string,
+  releaseNotes: { language: string; text: string }[],
+  commitOptions?: EditCommitOptions,
+): Promise<ApplyReleaseNotesResult> {
+  return withRetryOnConflict(client, packageName, async (edit) => {
+    const trackData = await client.tracks.get(packageName, edit.id, track);
+    const draft = trackData.releases?.find((r) => r.status === "draft");
+
+    if (!draft) {
+      throw new GpcError(
+        `No draft release found on track "${track}"`,
+        "RELEASE_NO_DRAFT",
+        1,
+        `Upload an AAB/APK first to create a draft, or check the --track value. Current track: "${track}".`,
+      );
+    }
+
+    const patched: Release = {
+      ...draft,
+      releaseNotes,
+    };
+
+    await client.tracks.update(packageName, edit.id, track, patched);
+    if (!commitOptions?.changesNotSentForReview) {
+      await client.edits.validate(packageName, edit.id);
+    }
+    await client.edits.commit(packageName, edit.id, commitOptions);
+
+    return {
+      track,
+      versionCodes: draft.versionCodes || [],
+      localeCount: releaseNotes.length,
+      releaseNotes,
+    };
+  });
 }
 
 export interface ReleaseDiff {

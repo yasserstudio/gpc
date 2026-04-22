@@ -73,6 +73,6 @@ if (ci.hasStepSummary) {
 
 This is the first-party CI plugin for [GPC](https://github.com/yasserstudio/gpc). See the [CI/CD Guide](https://yasserstudio.github.io/gpc/ci-cd/) for pipeline recipes.
 
-## License
+## Licensing
 
-MIT
+Free to use. Source code is on GitHub at [yasserstudio/gpc](https://github.com/yasserstudio/gpc).

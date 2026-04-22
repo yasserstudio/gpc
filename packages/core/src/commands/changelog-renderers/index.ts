@@ -21,6 +21,8 @@ export {
   translateBundle,
   PLAY_STORE_LIMIT,
   PLACEHOLDER_TEXT,
+  validateBundleForApply,
+  bundleToReleaseNotes,
 } from "./play-store.js";
 export type {
   LocaleBundle,

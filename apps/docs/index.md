@@ -46,7 +46,7 @@ features:
 <div class="stats-bar">
   <span class="stat">217 API Endpoints</span>
   <span class="stat-sep"></span>
-  <span class="stat">2,037 Tests</span>
+  <span class="stat">2,076 Tests</span>
   <span class="stat-sep"></span>
   <span class="stat">90%+ Coverage</span>
   <span class="stat-sep"></span>

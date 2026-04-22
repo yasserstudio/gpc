@@ -192,7 +192,9 @@ function getPageDescription(page: PageData): string {
     "commands/install-skills.md":
       "gpc install-skills — Install AI agent skills for Claude Code, Cursor, and other AI coding assistants.",
     "commands/utility.md":
-      "GPC utility commands — version, update, cache, feedback, completion, and docs.",
+      "GPC utility commands — version, update, cache, feedback, and completion.",
+    "commands/docs.md":
+      "gpc docs — Access embedded documentation offline. List topics, show pages, search, generate AI agent reference, open in browser.",
     "commands/migrate.md":
       "gpc migrate — Migrate from Fastlane supply to GPC. Converts metadata, config, and CI workflows.",
     "commands/train.md":
@@ -416,7 +418,7 @@ export default defineConfig({
             name: "Is it stable enough for production CI/CD?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "2,037 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
+              text: "2,076 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
             },
           },
         ],
@@ -647,8 +649,8 @@ export default defineConfig({
             text: "gpc --dry-run changelog generate --target play-store --locales auto --ai",
           },
           {
-            name: "Publish with the release",
-            text: "gpc releases upload app.aab --track production --notes-dir ./release-notes",
+            name: "Write translated notes into the draft release",
+            text: "gpc changelog generate --target play-store --locales auto --ai --apply",
           },
         ],
       },
@@ -920,9 +922,10 @@ export default defineConfig({
             { text: "plugins", link: "/commands/plugins" },
             { text: "migrate", link: "/commands/migrate" },
             {
-              text: "doctor / docs / completion",
+              text: "doctor / completion",
               link: "/commands/utility",
             },
+            { text: "docs", link: "/commands/docs" },
             { text: "install-skills", link: "/commands/install-skills" },
             { text: "init", link: "/commands/init" },
             { text: "diff", link: "/commands/diff" },

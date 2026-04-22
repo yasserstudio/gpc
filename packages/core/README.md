@@ -60,6 +60,7 @@ const analysis = await analyzeBundle("./app.aab");
 | **Testers**       | `listTesters`, `addTesters`, `removeTesters`, `importTestersFromCsv`                                                |
 | **Bundle**        | `analyzeBundle`, `compareBundles` (zero-dependency AAB/APK size analysis)                                           |
 | **Publishing**    | `publish` (end-to-end: upload + track + notes + commit)                                                             |
+| **Changelog**     | `generateChangelog`, `fetchChangelog`, `formatChangelogEntry`, `buildLocaleBundle`, `renderPlayStore`, `renderMarkdown`, `renderJson`, `renderPrompt`, `translateBundle`, `resolveLocales` |
 | **Validation**    | `validateUploadFile`, `validateImage`, `validatePreSubmission`                                                      |
 
 ## Utilities

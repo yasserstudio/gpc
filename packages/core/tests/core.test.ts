@@ -424,7 +424,7 @@ function mockClient() {
       patch: vi.fn().mockResolvedValue({ defaultLanguage: "en-US", title: "My App" }),
     },
     bundles: {
-      list: vi.fn(),
+      list: vi.fn().mockResolvedValue([{ versionCode: 42 }]),
       upload: vi.fn().mockResolvedValue({ versionCode: 42, sha256: "abc123" }),
     },
     apks: {

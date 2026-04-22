@@ -14,6 +14,7 @@ export { getAppInfo } from "./commands/apps.js";
 export type { AppInfo } from "./commands/apps.js";
 export {
   uploadRelease,
+  waitForBundleProcessing,
   getReleasesStatus,
   promoteRelease,
   updateRollout,
@@ -23,12 +24,14 @@ export {
   uploadExternallyHosted,
   diffReleases,
   fetchReleaseNotes,
+  applyReleaseNotes,
 } from "./commands/releases.js";
 export type {
   UploadResult,
   ReleaseStatusResult,
   DryRunUploadResult,
   ReleaseDiff,
+  ApplyReleaseNotesResult,
 } from "./commands/releases.js";
 export {
   getListings,
@@ -366,6 +369,8 @@ export {
   translateBundle,
   PLAY_STORE_LIMIT,
   PLACEHOLDER_TEXT,
+  validateBundleForApply,
+  bundleToReleaseNotes,
 } from "./commands/changelog-renderers/index.js";
 export type {
   Renderer,

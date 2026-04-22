@@ -454,4 +454,81 @@ describe("changelog generate subcommand", () => {
       .join("");
     expect(stderr).toContain("--locales only applies to --target play-store");
   });
+
+  it("--apply without --target play-store exits 2", async () => {
+    mockGenerateChangelog.mockResolvedValue(makeGenerated());
+
+    const { registerChangelogCommand } = await import("../src/commands/changelog.js");
+    const program = makeProgram();
+    registerChangelogCommand(program);
+
+    await program.parseAsync(["node", "gpc", "changelog", "generate", "--apply"]);
+
+    expect(process.exitCode).toBe(2);
+    const stderr = (process.stderr.write as ReturnType<typeof vi.fn>).mock.calls
+      .map((c) => String(c[0]))
+      .join("");
+    expect(stderr).toContain("--apply only applies to --target play-store");
+  });
+
+  it("--apply with --format prompt exits 2", async () => {
+    mockGenerateChangelog.mockResolvedValue(makeGenerated());
+
+    const { registerChangelogCommand } = await import("../src/commands/changelog.js");
+    const program = makeProgram();
+    registerChangelogCommand(program);
+
+    await program.parseAsync([
+      "node",
+      "gpc",
+      "changelog",
+      "generate",
+      "--target",
+      "play-store",
+      "--locales",
+      "en-US",
+      "--format",
+      "prompt",
+      "--apply",
+    ]);
+
+    expect(process.exitCode).toBe(2);
+    const stderr = (process.stderr.write as ReturnType<typeof vi.fn>).mock.calls
+      .map((c) => String(c[0]))
+      .join("");
+    expect(stderr).toContain("--apply cannot be combined with --format prompt");
+  });
+
+  it("--apply --dry-run prints preview JSON without API call", async () => {
+    mockGenerateChangelog.mockResolvedValue(makeGenerated());
+    mockResolveLocales.mockResolvedValue(["en-US"]);
+
+    const { registerChangelogCommand } = await import("../src/commands/changelog.js");
+    const program = makeProgram();
+    program.option("--dry-run", "Dry run");
+    registerChangelogCommand(program);
+
+    await program.parseAsync([
+      "node",
+      "gpc",
+      "changelog",
+      "generate",
+      "--target",
+      "play-store",
+      "--locales",
+      "en-US",
+      "--apply",
+      "--dry-run",
+    ]);
+
+    // Should have printed the rendered play-store output first, then the dry-run preview
+    const logCalls = (console.log as ReturnType<typeof vi.fn>).mock.calls
+      .map((c) => String(c[0]));
+    const dryRunOutput = logCalls.find((c) => c.includes("dryRun"));
+    expect(dryRunOutput).toBeDefined();
+    const parsed = JSON.parse(dryRunOutput!);
+    expect(parsed.dryRun).toBe(true);
+    expect(parsed.action).toBe("apply release notes");
+    expect(parsed.packageName).toBe("com.example.app");
+  });
 });

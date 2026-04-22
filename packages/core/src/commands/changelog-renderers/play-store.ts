@@ -332,3 +332,24 @@ export async function translateBundle(
 
   return translated;
 }
+
+export function validateBundleForApply(bundle: LocaleBundle): string[] {
+  const errors: string[] = [];
+  for (const entry of bundle.locales) {
+    if (entry.status === "placeholder") {
+      errors.push(`${entry.language}: untranslated placeholder — use --ai or remove this locale`);
+    }
+    if (entry.status === "failed") {
+      errors.push(`${entry.language}: translation failed — retry or remove this locale`);
+    }
+  }
+  return errors;
+}
+
+export function bundleToReleaseNotes(
+  bundle: LocaleBundle,
+): { language: string; text: string }[] {
+  return bundle.locales
+    .filter((e) => e.status !== "placeholder" && e.status !== "failed")
+    .map((e) => ({ language: e.language, text: e.text }));
+}

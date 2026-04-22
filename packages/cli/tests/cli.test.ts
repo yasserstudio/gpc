@@ -1896,64 +1896,45 @@ describe("gpc status --watch + --since-last warning", () => {
 });
 
 // ---------------------------------------------------------------------------
-// v0.9.29 – gpc docs routing and --list
+// v0.9.29 – gpc docs routing (updated v0.9.64 for subcommand structure)
 // ---------------------------------------------------------------------------
 describe("gpc docs routing", () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it("gpc docs releases calls execFile with URL containing 'commands/releases'", async () => {
-    vi.spyOn(console, "log").mockImplementation(() => {});
+  it("gpc docs show releases renders content with heading", async () => {
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
 
-    // Mock at the module level so the namespace import in docs.ts picks up the spy
-    const cp = await import("node:child_process");
-    const execFileSpy = vi.spyOn(cp, "execFile").mockImplementation((_cmd, _args, cb) => {
-      if (typeof cb === "function") (cb as (err: null) => void)(null);
-      return undefined as unknown as ReturnType<typeof cp.execFile>;
-    });
-
     const program = await createProgram();
-    await program.parseAsync(["node", "gpc", "docs", "releases"]);
+    await program.parseAsync(["node", "gpc", "docs", "show", "releases"]);
 
-    // On Node 22+ the dynamic import may return a different module instance than
-    // the static `import * as cp` in docs.ts, so the spy on the dynamic import
-    // won't intercept the call. Fall back to verifying the command didn't error
-    // (no process.exit, no error logged) when the spy wasn't triggered.
-    if (execFileSpy.mock.calls.length > 0) {
-      expect(execFileSpy).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.arrayContaining([expect.stringContaining("commands/releases")]),
-        expect.any(Function),
-      );
-    }
+    const output = logSpy.mock.calls.map((c) => String(c[0])).join("\n");
+    expect(output).toContain("gpc releases");
   });
 
-  it("gpc docs bogus throws with 'Unknown topic' message and exitCode 2", async () => {
+  it("gpc docs show bogus-topic throws with DOCS_NOT_FOUND", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(console, "log").mockImplementation(() => {});
 
     const program = await createProgram();
     try {
-      await program.parseAsync(["node", "gpc", "docs", "bogus-topic"]);
+      await program.parseAsync(["node", "gpc", "docs", "show", "bogus-topic"]);
       expect.unreachable("should have thrown");
     } catch (err: unknown) {
-      expect((err as Error).message).toContain("Unknown topic");
-      expect((err as Record<string, unknown>).exitCode).toBe(2);
-      expect((err as Record<string, unknown>).code).toBe("USAGE_ERROR");
+      expect((err as Record<string, unknown>).code).toBe("DOCS_NOT_FOUND");
     }
   });
 
-  it("gpc docs --list prints available topics to stdout", async () => {
+  it("gpc docs list prints available topics to stdout", async () => {
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
 
     const program = await createProgram();
-    await program.parseAsync(["node", "gpc", "docs", "--list"]);
+    await program.parseAsync(["node", "gpc", "docs", "list"]);
 
     const output = logSpy.mock.calls.map((c) => String(c[0])).join("\n");
-    expect(output).toContain("Available topics:");
-    expect(output).toContain("gpc docs releases");
-    expect(output).toContain("gpc docs status");
+    expect(output).toContain("COMMANDS");
+    expect(output).toContain("topics");
   });
 });
 

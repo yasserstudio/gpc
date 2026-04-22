@@ -16,6 +16,9 @@ import {
   formatPathLabel,
   PROVIDER_WHITELIST,
   resolveLocales,
+  validateBundleForApply,
+  bundleToReleaseNotes,
+  applyReleaseNotes,
   GpcError,
   type OutputMode,
   type PlayStoreFormat,
@@ -29,6 +32,45 @@ const VALID_OUTPUT_MODES: OutputMode[] = ["md", "json", "prompt"];
 const VALID_TARGETS = ["github", "play-store"] as const;
 type ChangelogTarget = (typeof VALID_TARGETS)[number];
 const REPO_RE = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
+
+interface ApplyContext {
+  bundle: Parameters<typeof validateBundleForApply>[0];
+  program: Command;
+  track: string;
+  dryRun: boolean;
+  aiBlock?: Record<string, unknown>;
+}
+
+async function performApply(ctx: ApplyContext): Promise<boolean> {
+  const blocked = validateBundleForApply(ctx.bundle);
+  if (blocked.length > 0) {
+    process.stderr.write(
+      `Cannot --apply: ${blocked.length} locale(s) blocked:\n` +
+        blocked.map((b) => `  ${b}`).join("\n") +
+        "\n",
+    );
+    process.exitCode = 1;
+    return false;
+  }
+  const notes = bundleToReleaseNotes(ctx.bundle);
+  const config = await loadConfig();
+  const packageName = resolvePackageName(ctx.program.opts()["app"], config);
+  if (ctx.dryRun) {
+    const payload: Record<string, unknown> = {
+      dryRun: true, action: "apply release notes", track: ctx.track,
+      packageName, localeCount: notes.length, releaseNotes: notes,
+    };
+    if (ctx.aiBlock) payload["ai"] = ctx.aiBlock;
+    console.log(JSON.stringify(payload, null, 2));
+    return false;
+  }
+  const client = await getClient(config);
+  const result = await applyReleaseNotes(client, packageName, ctx.track, notes);
+  process.stderr.write(
+    `${dim(`→ Applied ${result.localeCount} locale(s) to draft on ${result.track} (${packageName})`)}\n`,
+  );
+  return true;
+}
 
 export function registerChangelogCommand(program: Command): void {
   const changelog = program
@@ -95,6 +137,8 @@ export function registerChangelogCommand(program: Command): void {
     )
     .option("--model <id>", "Override default model for the chosen provider")
     .option("--strict", "Exit non-zero if warnings, overflows, or translation failures occur")
+    .option("--apply", "Write notes into the draft release on --track (play-store target only)")
+    .option("--track <name>", "Play Store track for --apply (default: production)", "production")
     .action(
       async (opts: {
         from?: string;
@@ -107,6 +151,8 @@ export function registerChangelogCommand(program: Command): void {
         ai?: boolean;
         provider?: string;
         model?: string;
+        apply?: boolean;
+        track: string;
       }) => {
         const dryRun = !!program.opts()["dryRun"];
         const mode = opts.format as OutputMode;
@@ -156,6 +202,19 @@ export function registerChangelogCommand(program: Command): void {
             "--ai with --format prompt only makes sense with --dry-run\n" +
               "  (otherwise it would re-wrap translated text in a translation prompt).\n" +
               "  Hint: use --format md or --format json for live translation, or add --dry-run to inspect the prompt.\n",
+          );
+          process.exitCode = 2;
+          return;
+        }
+        if (opts.apply && target !== "play-store") {
+          process.stderr.write("--apply only applies to --target play-store\n");
+          process.exitCode = 2;
+          return;
+        }
+        if (opts.apply && mode === "prompt") {
+          process.stderr.write(
+            "--apply cannot be combined with --format prompt\n" +
+              "  Hint: use --format md or --format json.\n",
           );
           process.exitCode = 2;
           return;
@@ -229,6 +288,11 @@ export function registerChangelogCommand(program: Command): void {
             process.stderr.write(
               `${yellow("warn:")} ${lang} exceeds ${bundle.limit} chars (truncated)\n`,
             );
+          }
+
+          if (opts.apply) {
+            const ok = await performApply({ bundle, program, track: opts.track, dryRun });
+            if (!ok) return;
           }
 
           const hasOverflow = bundle.overflows.length > 0;
@@ -338,6 +402,11 @@ export function registerChangelogCommand(program: Command): void {
 
         if (typeof costUsd === "number") {
           process.stderr.write(`${dim(`(run cost: $${costUsd.toFixed(4)})`)}\n`);
+        }
+
+        if (opts.apply) {
+          const ok = await performApply({ bundle: translated, program, track: opts.track, dryRun, aiBlock });
+          if (!ok) return;
         }
 
         const hasOverflow = translated.overflows.length > 0;

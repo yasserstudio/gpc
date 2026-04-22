@@ -3,6 +3,8 @@ import {
   buildLocaleBundle,
   renderPlayStore,
   resolveLocales,
+  validateBundleForApply,
+  bundleToReleaseNotes,
   PLAY_STORE_LIMIT,
   PLACEHOLDER_TEXT,
   type GeneratedChangelog,
@@ -212,5 +214,81 @@ describe("resolveLocales", () => {
         packageName: "com.example.app",
       }),
     ).rejects.toMatchObject({ code: "CHANGELOG_LOCALES_EMPTY" });
+  });
+});
+
+describe("validateBundleForApply", () => {
+  const entry = (language: string, status: "ok" | "over" | "placeholder" | "empty" | "failed") => ({
+    language,
+    text: "test",
+    chars: 4,
+    limit: 500,
+    status,
+  });
+
+  it("returns empty for all-ok entries", () => {
+    const bundle = { locales: [entry("en-US", "ok"), entry("fr-FR", "ok")] } as any;
+    expect(validateBundleForApply(bundle)).toEqual([]);
+  });
+
+  it("blocks placeholder entries", () => {
+    const bundle = { locales: [entry("en-US", "ok"), entry("de-DE", "placeholder")] } as any;
+    const errors = validateBundleForApply(bundle);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain("de-DE");
+    expect(errors[0]).toContain("placeholder");
+  });
+
+  it("blocks failed entries", () => {
+    const bundle = { locales: [entry("en-US", "ok"), entry("ja", "failed")] } as any;
+    const errors = validateBundleForApply(bundle);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain("ja");
+  });
+
+  it("does not block over or empty entries", () => {
+    const bundle = {
+      locales: [entry("en-US", "over"), entry("fr-FR", "empty")],
+    } as any;
+    expect(validateBundleForApply(bundle)).toEqual([]);
+  });
+});
+
+describe("bundleToReleaseNotes", () => {
+  const entry = (language: string, status: "ok" | "over" | "placeholder" | "empty" | "failed") => ({
+    language,
+    text: `text-${language}`,
+    chars: 10,
+    limit: 500,
+    status,
+  });
+
+  it("maps ok and over entries to release notes", () => {
+    const bundle = {
+      locales: [entry("en-US", "ok"), entry("fr-FR", "over"), entry("de-DE", "empty")],
+    } as any;
+    const notes = bundleToReleaseNotes(bundle);
+    expect(notes).toEqual([
+      { language: "en-US", text: "text-en-US" },
+      { language: "fr-FR", text: "text-fr-FR" },
+      { language: "de-DE", text: "text-de-DE" },
+    ]);
+  });
+
+  it("filters out placeholder and failed entries", () => {
+    const bundle = {
+      locales: [
+        entry("en-US", "ok"),
+        entry("fr-FR", "placeholder"),
+        entry("ja", "failed"),
+      ],
+    } as any;
+    const notes = bundleToReleaseNotes(bundle);
+    expect(notes).toEqual([{ language: "en-US", text: "text-en-US" }]);
+  });
+
+  it("returns empty array for empty bundle", () => {
+    const bundle = { locales: [] } as any;
+    expect(bundleToReleaseNotes(bundle)).toEqual([]);
   });
 });

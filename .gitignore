@@ -4,6 +4,7 @@ node_modules/
 # Build output
 dist/
 *.tsbuildinfo
+packages/cli/src/generated/docs-bundle.json
 
 # Agent skills (installed per-machine)
 .agents/

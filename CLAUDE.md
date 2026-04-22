@@ -44,9 +44,9 @@ e2e/               → End-to-end tests
 - Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, Homebrew tap, npm publish, README/CHANGELOG
 - Phase 10 ✓ — `gpc preflight` pre-submission compliance scanner (9 scanners, offline AAB policy checks)
 - Published to npm: `npm install -g @gpc-cli/cli`
-- Current version: v0.9.63 — pre-release series (`0.9.x` → `1.0.0` public launch)
-- 2,037 total tests, 7 packages building, 90%+ line coverage on all core packages
-- Changelog-generation series (v0.9.61 → v0.9.64): three of four shipped. End-state is one-command commit → translated Play Store notes written into draft release.
+- Current version: v0.9.64 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- 2,076 total tests, 7 packages building, 90%+ line coverage on all core packages
+- Changelog-generation series (v0.9.61 → v0.9.64): complete. `gpc changelog generate --target play-store --locales auto --ai --apply` does commit → translated Play Store notes → written into draft release, one command.
 - v0.9.63 highlight: AI-assisted Play Store translation. `gpc changelog generate --target play-store --locales auto --ai` translates non-source locales via the user's own LLM key. Auto-detects env priority `AI_GATEWAY_API_KEY` → `ANTHROPIC_API_KEY` → `OPENAI_API_KEY` → `GOOGLE_GENERATIVE_AI_API_KEY`. Non-reasoning model defaults. Gateway path unlocks cost-per-run in USD. All 4 AI SDK deps lazy-loaded (cold-start preserved).
 - v0.9.62 highlight: multilingual Play Store release notes. `gpc changelog generate --target play-store --locales <csv|auto>` emits per-locale "What's new" text with 500-char budget enforcement.
 - v0.9.61 highlight: smarter changelog generation. `gpc changelog generate` clusters git commits via Union-Find on file-path overlap + Jaccard keyword similarity + time proximity, lints subjects against project voice, emits canonical GitHub Release markdown / JSON / LLM prompt.
@@ -55,7 +55,7 @@ e2e/               → End-to-end tests
 
 ## Testing
 
-- Vitest for all tests (2,037 total across 7 packages + e2e)
+- Vitest for all tests (2,076 total across 7 packages + e2e)
 - Tests in `tests/` directory per package
 - Mock external APIs — never call real Google APIs in tests
 - Mock fetch with `vi.stubGlobal("fetch", mockFn)` for API tests

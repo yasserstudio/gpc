@@ -2,16 +2,14 @@
 
 Google Play "What's new" is a 500-character field per locale. Most apps either copy English to every locale (looks lazy) or maintain translations by hand (doesn't scale). `gpc changelog generate --target play-store` solves it end-to-end in one command.
 
-Per-locale budget enforcement shipped in v0.9.62. AI translation shipped in v0.9.63. Writing translated notes into a draft release ships in v0.9.64.
+Per-locale budget enforcement shipped in v0.9.62. AI translation shipped in v0.9.63. Writing translated notes into a draft release shipped in v0.9.64.
 
-::: tip The end-state
-By v0.9.64:
-
+::: tip One command, end to end
 ```bash
 gpc changelog generate --target play-store --locales auto --ai --apply
 ```
 
-From git commit to translated Play Store release notes, live on the store, in one command.
+From git commit to translated Play Store release notes, written into your draft release, in one command.
 :::
 
 ## What this does
@@ -188,11 +186,49 @@ gpc changelog generate --target play-store --locales auto --ai --strict
 
 Play Store's 500-char limit is applied per Unicode code point. `gpc` counts via `[...text].length`, the same rule `gpc listings lint` uses. Emoji and CJK characters each count as one. When an AI-translated locale overflows, the text is truncated to 500 code points with a `…` ellipsis appended and `status: "over"` is set.
 
-## Out of scope (today)
+## Writing notes into a draft release
 
-- **Writing notes into a draft release** — `--apply` in v0.9.64 writes `recentChanges[]` on your current edit
-- **Reading existing "What's new" history from the Play API** — not planned; use `gpc listings pull` if you need that
-- **Translation caching across runs** — each `--ai` run translates fresh. Pipe output to a file if you want to reuse it.
+Add `--apply` to write the generated release notes directly into a draft release on the Play Store. This closes the loop: git commits become translated "What's new" text, live on the store.
+
+```bash
+# Full pipeline: generate, translate, write to draft
+gpc changelog generate --target play-store --locales auto --ai --apply
+
+# Target a specific track (default: production)
+gpc changelog generate --target play-store --locales auto --ai --apply --track beta
+
+# Preview first, no write
+gpc --dry-run changelog generate --target play-store --locales auto --ai --apply
+```
+
+### How it works
+
+1. Generates release notes from your git log (same as without `--apply`)
+2. Translates non-source locales via `--ai` (optional but recommended)
+3. Validates: locales with `placeholder` or `failed` status are blocked
+4. Opens a Play Store edit, finds the draft release on `--track`, writes `releaseNotes[]`, validates, and commits
+5. On 409 Conflict (stale edit), retries with a fresh edit automatically
+
+### Requirements
+
+- A draft release must exist on the target track. Upload an AAB first (`gpc releases upload`) to create one.
+- `--apply` requires `--target play-store`
+- `--apply` cannot be combined with `--format prompt` (use prompt mode for preview, apply mode for writing)
+
+### Dry-run preview
+
+Combined with `--dry-run`, `--apply` previews the exact payload that would be written:
+
+```bash
+gpc --dry-run changelog generate --target play-store --locales auto --ai --apply
+```
+
+This shows the release notes per locale and the track/versionCodes that would be updated, without touching the Play Store.
+
+## Out of scope
+
+- **Reading existing "What's new" history from the Play API** -- not planned; use `gpc listings pull` if you need that
+- **Translation caching across runs** -- each `--ai` run translates fresh. Pipe output to a file if you want to reuse it.
 
 ## Related
 
