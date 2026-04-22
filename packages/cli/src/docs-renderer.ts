@@ -26,8 +26,8 @@ export function renderMarkdown(content: string): string {
     const h1 = line.match(/^# (.+)$/);
     if (h1) {
       out.push("");
-      out.push(bold(green(`  ${h1[1]}`)));
-      out.push(green("  " + "─".repeat(h1[1].length)));
+      out.push(bold(green(`  ${h1[1]!}`)));
+      out.push(green("  " + "─".repeat(h1[1]!.length)));
       out.push("");
       continue;
     }
