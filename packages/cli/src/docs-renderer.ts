@@ -56,7 +56,10 @@ export function renderMarkdown(content: string): string {
         out.push(gray("  " + "─".repeat(Math.min(line.length, 60))));
         continue;
       }
-      const cells = line.split("|").filter(Boolean).map((c) => c.trim());
+      const cells = line
+        .split("|")
+        .filter(Boolean)
+        .map((c) => c.trim());
       out.push("  " + cells.join("  "));
       continue;
     }
@@ -88,7 +91,10 @@ export function renderMarkdown(content: string): string {
 function renderInline(text: string): string {
   let result = text.replace(/\*\*(.+?)\*\*/g, (_, t) => bold(t));
   result = result.replace(/`([^`]+)`/g, (_, t) => dim(t));
-  result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, url) => `${label} ${dim(`(${url})`)}`);
+  result = result.replace(
+    /\[([^\]]+)\]\(([^)]+)\)/g,
+    (_, label, url) => `${label} ${dim(`(${url})`)}`,
+  );
   return result;
 }
 

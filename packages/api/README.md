@@ -92,37 +92,37 @@ await client.purchases.acknowledgeProduct("com.example.app", "coins_100", token)
 
 ## All API Modules
 
-| Module                        | Methods                                                                                   |
-| ----------------------------- | ----------------------------------------------------------------------------------------- |
-| `client.edits`                | insert, get, validate, commit, delete                                                     |
-| `client.details`              | get, update, patch                                                                        |
-| `client.bundles`              | upload, list                                                                              |
-| `client.apks`                 | upload, list                                                                              |
-| `client.tracks`               | list, get, update, patch, create, delete                                                  |
-| `client.releases`             | get, update                                                                               |
-| `client.countryAvailability`  | get, list                                                                                 |
-| `client.listings`             | list, get, update, delete, deleteAll                                                      |
-| `client.images`               | list, upload, delete, deleteAll                                                           |
-| `client.subscriptions`        | list, get, create, patch, archive, activate/deactivate base plans and offers              |
-| `client.inappproducts`        | list, get, create, update, delete, batchGet, batchUpdate, batchDelete                     |
-| `client.oneTimeProducts`      | list, get, create, patch, delete, batchGet, batchUpdate, batchDelete, activateOffer, deactivateOffer |
+| Module                        | Methods                                                                                                     |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `client.edits`                | insert, get, validate, commit, delete                                                                       |
+| `client.details`              | get, update, patch                                                                                          |
+| `client.bundles`              | upload, list                                                                                                |
+| `client.apks`                 | upload, list                                                                                                |
+| `client.tracks`               | list, get, update, patch, create, delete                                                                    |
+| `client.releases`             | get, update                                                                                                 |
+| `client.countryAvailability`  | get, list                                                                                                   |
+| `client.listings`             | list, get, update, delete, deleteAll                                                                        |
+| `client.images`               | list, upload, delete, deleteAll                                                                             |
+| `client.subscriptions`        | list, get, create, patch, archive, activate/deactivate base plans and offers                                |
+| `client.inappproducts`        | list, get, create, update, delete, batchGet, batchUpdate, batchDelete                                       |
+| `client.oneTimeProducts`      | list, get, create, patch, delete, batchGet, batchUpdate, batchDelete, activateOffer, deactivateOffer        |
 | `client.purchases`            | getProduct, acknowledgeProduct, getSubscriptionV2, revokeSubscriptionV2, refund, listVoided, consumeProduct |
-| `client.orders`               | get, refund                                                                               |
-| `client.reviews`              | list, get, reply                                                                          |
-| `client.testers`              | get, update                                                                               |
-| `client.reports`              | list                                                                                      |
-| `client.monetization`         | convertRegionPrices                                                                       |
-| `client.deobfuscation`        | upload                                                                                    |
-| `client.expansionFiles`       | get, update, patch, upload                                                                |
-| `client.dataSafety`           | update                                                                                    |
-| `client.deviceTiers`          | list, get, create                                                                         |
-| `client.internalAppSharing`   | uploadBundle, uploadApk                                                                   |
-| `client.generatedApks`        | list, download                                                                            |
-| `client.systemApks`           | list, variants                                                                            |
-| `client.externalTransactions` | create, get, refund                                                                       |
-| `client.appRecovery`          | create, deploy, cancel, list                                                              |
-| `reporting.*`                 | queryMetricSet, getAnomalies, searchErrorIssues, searchErrorReports                       |
-| `users.*`                     | list, get, create, patch, delete, listGrants, createGrant, patchGrant, deleteGrant        |
+| `client.orders`               | get, refund                                                                                                 |
+| `client.reviews`              | list, get, reply                                                                                            |
+| `client.testers`              | get, update                                                                                                 |
+| `client.reports`              | list                                                                                                        |
+| `client.monetization`         | convertRegionPrices                                                                                         |
+| `client.deobfuscation`        | upload                                                                                                      |
+| `client.expansionFiles`       | get, update, patch, upload                                                                                  |
+| `client.dataSafety`           | update                                                                                                      |
+| `client.deviceTiers`          | list, get, create                                                                                           |
+| `client.internalAppSharing`   | uploadBundle, uploadApk                                                                                     |
+| `client.generatedApks`        | list, download                                                                                              |
+| `client.systemApks`           | list, variants                                                                                              |
+| `client.externalTransactions` | create, get, refund                                                                                         |
+| `client.appRecovery`          | create, deploy, cancel, list                                                                                |
+| `reporting.*`                 | queryMetricSet, getAnomalies, searchErrorIssues, searchErrorReports                                         |
+| `users.*`                     | list, get, create, patch, delete, listGrants, createGrant, patchGrant, deleteGrant                          |
 
 **Supported metric sets** (pass to `reporting.queryMetricSet`): `crashRateMetricSet`, `anrRateMetricSet`, `lmkRateMetricSet`, `excessiveWakeupRateMetricSet`, `slowStartRateMetricSet`, `slowRenderingRateMetricSet`, `stuckBackgroundWakelockRateMetricSet`, `errorCountMetricSet`.
 

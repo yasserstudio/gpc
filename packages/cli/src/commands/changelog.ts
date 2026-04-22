@@ -57,8 +57,12 @@ async function performApply(ctx: ApplyContext): Promise<boolean> {
   const packageName = resolvePackageName(ctx.program.opts()["app"], config);
   if (ctx.dryRun) {
     const payload: Record<string, unknown> = {
-      dryRun: true, action: "apply release notes", track: ctx.track,
-      packageName, localeCount: notes.length, releaseNotes: notes,
+      dryRun: true,
+      action: "apply release notes",
+      track: ctx.track,
+      packageName,
+      localeCount: notes.length,
+      releaseNotes: notes,
     };
     if (ctx.aiBlock) payload["ai"] = ctx.aiBlock;
     console.log(JSON.stringify(payload, null, 2));
@@ -405,7 +409,13 @@ export function registerChangelogCommand(program: Command): void {
         }
 
         if (opts.apply) {
-          const ok = await performApply({ bundle: translated, program, track: opts.track, dryRun, aiBlock });
+          const ok = await performApply({
+            bundle: translated,
+            program,
+            track: opts.track,
+            dryRun,
+            aiBlock,
+          });
           if (!ok) return;
         }
 

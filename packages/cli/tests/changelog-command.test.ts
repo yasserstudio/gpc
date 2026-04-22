@@ -522,8 +522,7 @@ describe("changelog generate subcommand", () => {
     ]);
 
     // Should have printed the rendered play-store output first, then the dry-run preview
-    const logCalls = (console.log as ReturnType<typeof vi.fn>).mock.calls
-      .map((c) => String(c[0]));
+    const logCalls = (console.log as ReturnType<typeof vi.fn>).mock.calls.map((c) => String(c[0]));
     const dryRunOutput = logCalls.find((c) => c.includes("dryRun"));
     expect(dryRunOutput).toBeDefined();
     const parsed = JSON.parse(dryRunOutput!);

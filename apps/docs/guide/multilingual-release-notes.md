@@ -5,6 +5,7 @@ Google Play "What's new" is a 500-character field per locale. Most apps either c
 Per-locale budget enforcement shipped in v0.9.62. AI translation shipped in v0.9.63. Writing translated notes into a draft release shipped in v0.9.64.
 
 ::: tip One command, end to end
+
 ```bash
 gpc changelog generate --target play-store --locales auto --ai --apply
 ```

@@ -58,7 +58,10 @@ function stripFrontmatter(raw: string): { content: string; meta: Record<string, 
     const idx = line.indexOf(":");
     if (idx > 0) {
       const key = line.slice(0, idx).trim();
-      const val = line.slice(idx + 1).trim().replace(/^["']|["']$/g, "");
+      const val = line
+        .slice(idx + 1)
+        .trim()
+        .replace(/^["']|["']$/g, "");
       if (key && val) meta[key] = val;
     }
   }
@@ -72,15 +75,30 @@ function stripVueSyntax(content: string): string {
     (_, name) => `# ${name}`,
   );
   // Remove known multi-line Vue components
-  result = result.replace(/<(?:TerminalDemo|TerminalOutput|CopyForAI|Badge)[\s\S]*?(?:\/>|<\/(?:TerminalDemo|TerminalOutput|CopyForAI|Badge)>)/g, "");
+  result = result.replace(
+    /<(?:TerminalDemo|TerminalOutput|CopyForAI|Badge)[\s\S]*?(?:\/>|<\/(?:TerminalDemo|TerminalOutput|CopyForAI|Badge)>)/g,
+    "",
+  );
   // Catch-all: strip any remaining PascalCase self-closing or paired Vue components
   result = result.replace(/<[A-Z][A-Za-z]*[\s\S]*?(?:\/>|<\/[A-Z][A-Za-z]*>)/g, "");
 
   // Convert ::: containers to markdown blockquotes
-  result = result.replace(/^:::\s*(tip|warning|danger|info|details)\s*(.*)?$/gm, (_, type, label) => {
-    const prefix = type === "tip" ? "Tip" : type === "warning" ? "Warning" : type === "danger" ? "Danger" : type === "info" ? "Info" : "Details";
-    return `> **${label?.trim() || prefix}:**`;
-  });
+  result = result.replace(
+    /^:::\s*(tip|warning|danger|info|details)\s*(.*)?$/gm,
+    (_, type, label) => {
+      const prefix =
+        type === "tip"
+          ? "Tip"
+          : type === "warning"
+            ? "Warning"
+            : type === "danger"
+              ? "Danger"
+              : type === "info"
+                ? "Info"
+                : "Details";
+      return `> **${label?.trim() || prefix}:**`;
+    },
+  );
   result = result.replace(/^:::$/gm, "");
 
   // Collapse excessive blank lines
@@ -181,7 +199,9 @@ async function main() {
   await writeFile(OUT_FILE, json, "utf-8");
 
   const sizeKb = (Buffer.byteLength(json) / 1024).toFixed(1);
-  console.log(`docs-bundle.json: ${pages.length} pages, ${sizeKb} KB, ${Object.keys(searchIndex).length} index terms`);
+  console.log(
+    `docs-bundle.json: ${pages.length} pages, ${sizeKb} KB, ${Object.keys(searchIndex).length} index terms`,
+  );
 }
 
 main().catch((err) => {

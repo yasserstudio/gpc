@@ -24,10 +24,12 @@ function mockClient(opts: {
         track: "production",
         releases: opts.releases ?? [],
       })),
-      update: opts.updateFn ?? vi.fn(async (_pkg: string, _eid: string, _track: string, release: any) => {
-        calls.lastUpdate = release;
-        return { track: "production", releases: [release] };
-      }),
+      update:
+        opts.updateFn ??
+        vi.fn(async (_pkg: string, _eid: string, _track: string, release: any) => {
+          calls.lastUpdate = release;
+          return { track: "production", releases: [release] };
+        }),
     },
     _calls: calls,
   } as any;
@@ -71,9 +73,9 @@ describe("applyReleaseNotes", () => {
   it("throws RELEASE_NO_DRAFT when track has no releases", async () => {
     const client = mockClient({ releases: [] });
 
-    await expect(
-      applyReleaseNotes(client, "com.example", "beta", NOTES),
-    ).rejects.toMatchObject({ code: "RELEASE_NO_DRAFT" });
+    await expect(applyReleaseNotes(client, "com.example", "beta", NOTES)).rejects.toMatchObject({
+      code: "RELEASE_NO_DRAFT",
+    });
   });
 
   it("preserves existing draft fields", async () => {
@@ -112,9 +114,9 @@ describe("applyReleaseNotes", () => {
       }),
     });
 
-    await expect(
-      applyReleaseNotes(client, "com.example", "production", NOTES),
-    ).rejects.toThrow("API error");
+    await expect(applyReleaseNotes(client, "com.example", "production", NOTES)).rejects.toThrow(
+      "API error",
+    );
     expect(client.edits.delete).toHaveBeenCalled();
   });
 
@@ -157,10 +159,8 @@ describe("applyReleaseNotes", () => {
     });
 
     expect(client.edits.validate).not.toHaveBeenCalled();
-    expect(client.edits.commit).toHaveBeenCalledWith(
-      "com.example",
-      "edit-1",
-      { changesNotSentForReview: true },
-    );
+    expect(client.edits.commit).toHaveBeenCalledWith("com.example", "edit-1", {
+      changesNotSentForReview: true,
+    });
   });
 });

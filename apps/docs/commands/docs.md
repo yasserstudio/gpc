@@ -15,13 +15,13 @@ GPC embeds all documentation from the VitePress site into the CLI binary. Every 
 
 Five subcommands:
 
-| Command                         | Description                                        |
-| ------------------------------- | -------------------------------------------------- |
-| [`docs list`](#docs-list)       | List all available documentation topics             |
-| [`docs show`](#docs-show)       | Show a documentation page in the terminal           |
-| [`docs search`](#docs-search)   | Full-text search across all documentation           |
-| [`docs init`](#docs-init)       | Create GPC.md quick-reference for AI agents         |
-| [`docs web`](#docs-web)         | Open documentation in your browser                  |
+| Command                       | Description                                 |
+| ----------------------------- | ------------------------------------------- |
+| [`docs list`](#docs-list)     | List all available documentation topics     |
+| [`docs show`](#docs-show)     | Show a documentation page in the terminal   |
+| [`docs search`](#docs-search) | Full-text search across all documentation   |
+| [`docs init`](#docs-init)     | Create GPC.md quick-reference for AI agents |
+| [`docs web`](#docs-web)       | Open documentation in your browser          |
 
 ---
 
@@ -155,10 +155,10 @@ gpc docs init [options]
 
 ### Options
 
-| Option          | Description                    | Default |
-| --------------- | ------------------------------ | ------- |
-| `--force`       | Overwrite existing GPC.md      | —       |
-| `--path <dir>`  | Output directory               | `.`     |
+| Option         | Description               | Default |
+| -------------- | ------------------------- | ------- |
+| `--force`      | Overwrite existing GPC.md | —       |
+| `--path <dir>` | Output directory          | `.`     |
 
 ### Examples
 

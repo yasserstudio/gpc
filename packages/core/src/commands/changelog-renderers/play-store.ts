@@ -346,9 +346,7 @@ export function validateBundleForApply(bundle: LocaleBundle): string[] {
   return errors;
 }
 
-export function bundleToReleaseNotes(
-  bundle: LocaleBundle,
-): { language: string; text: string }[] {
+export function bundleToReleaseNotes(bundle: LocaleBundle): { language: string; text: string }[] {
   return bundle.locales
     .filter((e) => e.status !== "placeholder" && e.status !== "failed")
     .map((e) => ({ language: e.language, text: e.text }));

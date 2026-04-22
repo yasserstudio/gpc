@@ -38,7 +38,11 @@ describe("waitForBundleProcessing", () => {
   });
 
   it("ignores other version codes in the list", async () => {
-    const client = mockClient([[10, 20], [10, 20], [10, 20, 42]]);
+    const client = mockClient([
+      [10, 20],
+      [10, 20],
+      [10, 20, 42],
+    ]);
     await waitForBundleProcessing(client, "com.example", "edit1", 42, FAST_BACKOFF);
     expect(client.bundles.list).toHaveBeenCalledTimes(3);
   });
@@ -65,8 +69,8 @@ describe("waitForBundleProcessing", () => {
         list: vi.fn().mockRejectedValue(new Error("500 Internal Server Error")),
       },
     } as any;
-    await expect(
-      waitForBundleProcessing(client, "com.example", "edit1", 42, [1]),
-    ).rejects.toThrow("500 Internal Server Error");
+    await expect(waitForBundleProcessing(client, "com.example", "edit1", 42, [1])).rejects.toThrow(
+      "500 Internal Server Error",
+    );
   });
 });

@@ -152,12 +152,12 @@ Not a rejection scanner — Google Play accepts up to 200 MB base APK — but un
 
 ## Severity model
 
-| Severity | Rejection risk | What to do |
-|---|---|---|
-| **critical** | Automatic rejection in review | Fix before merging. Zero exceptions. |
-| **error** | Likely rejection or extended review delay | Fix or explicitly `severityOverride` after Play Console declaration approval. |
-| **warning** | May surface issues in review or at install | Review case-by-case. Often needs a Data Safety update, not a code fix. |
-| **info** | Best-practice advisory | No action required. Reminders only. |
+| Severity     | Rejection risk                             | What to do                                                                    |
+| ------------ | ------------------------------------------ | ----------------------------------------------------------------------------- |
+| **critical** | Automatic rejection in review              | Fix before merging. Zero exceptions.                                          |
+| **error**    | Likely rejection or extended review delay  | Fix or explicitly `severityOverride` after Play Console declaration approval. |
+| **warning**  | May surface issues in review or at install | Review case-by-case. Often needs a Data Safety update, not a code fix.        |
+| **info**     | Best-practice advisory                     | No action required. Reminders only.                                           |
 
 CI default: fail on `error`+. The rationale: `warning` is too noisy for a hard gate (tracking SDKs + `cleartextTraffic` are ~normal for most apps), and `critical` alone is too permissive (you want to stop `QUERY_ALL_PACKAGES` before it ships).
 

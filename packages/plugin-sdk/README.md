@@ -72,19 +72,19 @@ const plugin: GpcPlugin = {
 };
 ```
 
-| Permission                  | Grants                                   |
-| --------------------------- | ---------------------------------------- |
-| `read:config`               | Read GPC configuration                   |
-| `write:config`              | Modify GPC configuration                 |
-| `read:auth`                 | Access auth credentials                  |
-| `api:read`                  | Read-only API access                     |
-| `api:write`                 | Write API access                         |
-| `commands:register`         | Register custom commands                 |
-| `hooks:beforeCommand`       | Run before any CLI command               |
-| `hooks:afterCommand`        | Run after any CLI command                |
-| `hooks:onError`             | Run when a command fails                 |
-| `hooks:beforeRequest`       | Run before each API call                 |
-| `hooks:afterResponse`       | Run after each API response              |
+| Permission            | Grants                      |
+| --------------------- | --------------------------- |
+| `read:config`         | Read GPC configuration      |
+| `write:config`        | Modify GPC configuration    |
+| `read:auth`           | Access auth credentials     |
+| `api:read`            | Read-only API access        |
+| `api:write`           | Write API access            |
+| `commands:register`   | Register custom commands    |
+| `hooks:beforeCommand` | Run before any CLI command  |
+| `hooks:afterCommand`  | Run after any CLI command   |
+| `hooks:onError`       | Run when a command fails    |
+| `hooks:beforeRequest` | Run before each API call    |
+| `hooks:afterResponse` | Run after each API response |
 
 Hook permissions are explicit — there is no wildcard. Declare only the hooks your plugin actually uses.
 

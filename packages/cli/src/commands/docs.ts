@@ -241,13 +241,14 @@ export function registerDocsCommand(program: Command): void {
 
       console.log(bold(`\n  Search results for "${query}"\n`));
       for (const r of results) {
-        console.log(
-          "  " +
-            formatSearchResult(r.page.slug, r.page.title, r.snippet, r.score),
-        );
+        console.log("  " + formatSearchResult(r.page.slug, r.page.title, r.snippet, r.score));
         console.log("");
       }
-      console.log(dim(`  ${results.length} result${results.length === 1 ? "" : "s"}. Use: gpc docs show <topic>`));
+      console.log(
+        dim(
+          `  ${results.length} result${results.length === 1 ? "" : "s"}. Use: gpc docs show <topic>`,
+        ),
+      );
     });
 
   docs
@@ -279,7 +280,11 @@ export function registerDocsCommand(program: Command): void {
           const existing = await readFile(agentPath, "utf-8");
           if (!existing.includes("GPC.md")) {
             const separator = existing.endsWith("\n") ? "\n" : "\n\n";
-            await writeFile(agentPath, existing + separator + "See also: @GPC.md for GPC CLI reference.\n", "utf-8");
+            await writeFile(
+              agentPath,
+              existing + separator + "See also: @GPC.md for GPC CLI reference.\n",
+              "utf-8",
+            );
             console.log(`Updated ${agentPath} (added @GPC.md reference)`);
           }
         }

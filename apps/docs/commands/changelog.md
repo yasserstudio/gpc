@@ -116,8 +116,8 @@ gpc changelog generate [options]
 | `--ai`                  | Translate non-source locales via LLM (play-store target only, BYO key)                    | `false`              |
 | `--provider <name>`     | AI provider: `anthropic`, `openai`, or `google`                                           | auto-detect          |
 | `--model <id>`          | Override per-provider model default                                                       | per-provider         |
-| `--apply`               | Write notes into the draft release on `--track` (play-store target only)                   | `false`              |
-| `--track <name>`        | Play Store track for `--apply`                                                             | `production`         |
+| `--apply`               | Write notes into the draft release on `--track` (play-store target only)                  | `false`              |
+| `--track <name>`        | Play Store track for `--apply`                                                            | `production`         |
 | `--strict`              | Exit non-zero on linter warnings, locale overflows, or (with `--ai`) translation failures | `false`              |
 
 Global `--dry-run` (from the root program) combined with `--ai` prints the prompt that would be sent per locale, without calling the LLM. Combined with `--apply`, it previews the release notes payload without writing to the Play Store.

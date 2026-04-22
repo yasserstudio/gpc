@@ -277,11 +277,7 @@ describe("bundleToReleaseNotes", () => {
 
   it("filters out placeholder and failed entries", () => {
     const bundle = {
-      locales: [
-        entry("en-US", "ok"),
-        entry("fr-FR", "placeholder"),
-        entry("ja", "failed"),
-      ],
+      locales: [entry("en-US", "ok"), entry("fr-FR", "placeholder"), entry("ja", "failed")],
     } as any;
     const notes = bundleToReleaseNotes(bundle);
     expect(notes).toEqual([{ language: "en-US", text: "text-en-US" }]);

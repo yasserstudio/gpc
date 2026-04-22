@@ -27,17 +27,17 @@ gpc doctor                                    # 20 setup checks
 
 ## Why this over Fastlane?
 
-|                         | **GPC**                       | Fastlane supply |
-| ----------------------- | ----------------------------- | --------------- |
-| API coverage            | **217 endpoints**             | ~20             |
-| Runtime                 | Node.js or binary             | Ruby + Bundler  |
-| Cold start              | <500ms                        | 2-3s            |
-| Reviews & Vitals        | Yes                           | No              |
-| Subscriptions           | Yes                           | No              |
-| **Managed Google Play**       | **Yes (Play Custom App API)**       | No              |
-| **AI-translated release notes** | **Yes (80+ locales, BYO key)**  | No              |
-| Preflight scanner             | 9 offline checks                    | No              |
-| CI/CD native                  | JSON + exit codes                   | Partial         |
+|                                 | **GPC**                        | Fastlane supply |
+| ------------------------------- | ------------------------------ | --------------- |
+| API coverage                    | **217 endpoints**              | ~20             |
+| Runtime                         | Node.js or binary              | Ruby + Bundler  |
+| Cold start                      | <500ms                         | 2-3s            |
+| Reviews & Vitals                | Yes                            | No              |
+| Subscriptions                   | Yes                            | No              |
+| **Managed Google Play**         | **Yes (Play Custom App API)**  | No              |
+| **AI-translated release notes** | **Yes (80+ locales, BYO key)** | No              |
+| Preflight scanner               | 9 offline checks               | No              |
+| CI/CD native                    | JSON + exit codes              | Partial         |
 
 [Migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) with one-to-one command mapping.
 

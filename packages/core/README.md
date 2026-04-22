@@ -45,23 +45,23 @@ const analysis = await analyzeBundle("./app.aab");
 
 ## Command Groups
 
-| Group             | Functions                                                                                                           |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------- |
-| **Releases**      | `uploadRelease`, `promoteRelease`, `updateRollout`, `getReleasesStatus`, `listTracks`                               |
-| **Listings**      | `getListings`, `updateListing`, `pullListings`, `pushListings`, `diffListings`                                      |
-| **Images**        | `listImages`, `uploadImage`, `deleteImage`                                                                          |
-| **Reviews**       | `listReviews`, `getReview`, `replyToReview`, `exportReviews`                                                        |
-| **Vitals**        | `getVitalsOverview`, `getVitalsCrashes`, `getVitalsAnr`, `getVitalsStartup`, `compareVitalsTrend`, `checkThreshold` |
-| **Subscriptions** | `listSubscriptions`, `createSubscription`, `updateSubscription`, `deleteSubscription`, `listOffers`, `createOffer`  |
-| **IAP**           | `listInAppProducts`, `createInAppProduct`, `syncInAppProducts`                                                      |
-| **Purchases**     | `getProductPurchase`, `acknowledgeProductPurchase`, `refundOrder`                                                   |
-| **Reports**       | `listReports`, `downloadReport`                                                                                     |
-| **Users**         | `listUsers`, `inviteUser`, `updateUser`, `removeUser`                                                               |
-| **Testers**       | `listTesters`, `addTesters`, `removeTesters`, `importTestersFromCsv`                                                |
-| **Bundle**        | `analyzeBundle`, `compareBundles` (zero-dependency AAB/APK size analysis)                                           |
-| **Publishing**    | `publish` (end-to-end: upload + track + notes + commit)                                                             |
+| Group             | Functions                                                                                                                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Releases**      | `uploadRelease`, `promoteRelease`, `updateRollout`, `getReleasesStatus`, `listTracks`                                                                                                      |
+| **Listings**      | `getListings`, `updateListing`, `pullListings`, `pushListings`, `diffListings`                                                                                                             |
+| **Images**        | `listImages`, `uploadImage`, `deleteImage`                                                                                                                                                 |
+| **Reviews**       | `listReviews`, `getReview`, `replyToReview`, `exportReviews`                                                                                                                               |
+| **Vitals**        | `getVitalsOverview`, `getVitalsCrashes`, `getVitalsAnr`, `getVitalsStartup`, `compareVitalsTrend`, `checkThreshold`                                                                        |
+| **Subscriptions** | `listSubscriptions`, `createSubscription`, `updateSubscription`, `deleteSubscription`, `listOffers`, `createOffer`                                                                         |
+| **IAP**           | `listInAppProducts`, `createInAppProduct`, `syncInAppProducts`                                                                                                                             |
+| **Purchases**     | `getProductPurchase`, `acknowledgeProductPurchase`, `refundOrder`                                                                                                                          |
+| **Reports**       | `listReports`, `downloadReport`                                                                                                                                                            |
+| **Users**         | `listUsers`, `inviteUser`, `updateUser`, `removeUser`                                                                                                                                      |
+| **Testers**       | `listTesters`, `addTesters`, `removeTesters`, `importTestersFromCsv`                                                                                                                       |
+| **Bundle**        | `analyzeBundle`, `compareBundles` (zero-dependency AAB/APK size analysis)                                                                                                                  |
+| **Publishing**    | `publish` (end-to-end: upload + track + notes + commit)                                                                                                                                    |
 | **Changelog**     | `generateChangelog`, `fetchChangelog`, `formatChangelogEntry`, `buildLocaleBundle`, `renderPlayStore`, `renderMarkdown`, `renderJson`, `renderPrompt`, `translateBundle`, `resolveLocales` |
-| **Validation**    | `validateUploadFile`, `validateImage`, `validatePreSubmission`                                                      |
+| **Validation**    | `validateUploadFile`, `validateImage`, `validatePreSubmission`                                                                                                                             |
 
 ## Utilities
 
