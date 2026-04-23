@@ -46,7 +46,7 @@ features:
 <div class="stats-bar">
   <span class="stat">217 API Endpoints</span>
   <span class="stat-sep"></span>
-  <span class="stat">2,076 Tests</span>
+  <span class="stat">2,093 Tests</span>
   <span class="stat-sep"></span>
   <span class="stat">90%+ Coverage</span>
   <span class="stat-sep"></span>
@@ -93,8 +93,8 @@ gpc changelog generate --target play-store --locales auto --ai
 
 ## What's New
 
-::: tip v0.9.63 shipped 2026-04-20 — AI-assisted Play Store translation
-`gpc changelog generate --target play-store --locales auto --ai` translates non-source locales via your own LLM key. Auto-detects whichever provider key is set: `AI_GATEWAY_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, or `GOOGLE_GENERATIVE_AI_API_KEY`. Non-reasoning model defaults (`claude-sonnet-4-6`, `gpt-4o-mini`, `gemini-2.5-flash`) so you don't pay for thinking tokens on a translation task.
+::: tip v0.9.64 shipped 2026-04-22 — `--apply`, bundle race fix, embedded docs
+`gpc changelog generate --target play-store --locales auto --ai --apply` now writes translated release notes directly into your draft release. The v0.9.61-v0.9.64 changelog series is complete: one command from git commits to translated, applied Play Store notes.
 
 ```bash
 gpc changelog generate --target play-store --locales auto --ai

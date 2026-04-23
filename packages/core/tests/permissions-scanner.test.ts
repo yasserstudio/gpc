@@ -129,4 +129,126 @@ describe("permissionsScanner", () => {
     expect(restricted.length).toBe(3);
     expect(restricted.every((f) => f.severity === "critical")).toBe(true);
   });
+
+  // --- April 2026 policy: Contacts Permission ---
+
+  it("flags READ_CONTACTS as contacts-permission-broad warning", async () => {
+    const findings = await permissionsScanner.scan(
+      makeCtx(["android.permission.READ_CONTACTS"]),
+    );
+    const f = findings.find((f) => f.ruleId === "contacts-permission-broad");
+    expect(f).toBeDefined();
+    expect(f!.severity).toBe("warning");
+    expect(f!.message).toContain("READ_CONTACTS");
+  });
+
+  it("flags WRITE_CONTACTS as contacts-permission-broad warning", async () => {
+    const findings = await permissionsScanner.scan(
+      makeCtx(["android.permission.WRITE_CONTACTS"]),
+    );
+    const f = findings.find((f) => f.ruleId === "contacts-permission-broad");
+    expect(f).toBeDefined();
+    expect(f!.severity).toBe("warning");
+  });
+
+  it("emits single finding when both READ_CONTACTS and WRITE_CONTACTS present", async () => {
+    const findings = await permissionsScanner.scan(
+      makeCtx([
+        "android.permission.READ_CONTACTS",
+        "android.permission.WRITE_CONTACTS",
+      ]),
+    );
+    const contactsFindings = findings.filter((f) => f.ruleId === "contacts-permission-broad");
+    expect(contactsFindings).toHaveLength(1);
+    expect(contactsFindings[0]!.message).toContain("READ_CONTACTS");
+    expect(contactsFindings[0]!.message).toContain("WRITE_CONTACTS");
+  });
+
+  it("respects allowedPermissions for contacts-permission-broad", async () => {
+    const findings = await permissionsScanner.scan(
+      makeCtx(
+        ["android.permission.READ_CONTACTS"],
+        ["android.permission.READ_CONTACTS"],
+      ),
+    );
+    expect(findings.find((f) => f.ruleId === "contacts-permission-broad")).toBeUndefined();
+  });
+
+  // --- April 2026 policy: Health Connect granular permissions ---
+
+  it("flags READ_ALL_HEALTH_DATA as warning on targetSdk 36", async () => {
+    const ctx: PreflightContext = {
+      manifest: {
+        ...makeManifest(["android.permission.health.READ_ALL_HEALTH_DATA"]),
+        targetSdk: 36,
+      },
+      config: { ...DEFAULT_PREFLIGHT_CONFIG },
+    };
+    const findings = await permissionsScanner.scan(ctx);
+    const f = findings.find((f) => f.ruleId === "health-connect-granular");
+    expect(f).toBeDefined();
+    expect(f!.severity).toBe("warning");
+    expect(f!.message).toContain("targetSdk >= 36");
+  });
+
+  it("flags READ_ALL_HEALTH_DATA as info on targetSdk 35", async () => {
+    const findings = await permissionsScanner.scan(
+      makeCtx(["android.permission.health.READ_ALL_HEALTH_DATA"]),
+    );
+    const f = findings.find((f) => f.ruleId === "health-connect-granular");
+    expect(f).toBeDefined();
+    expect(f!.severity).toBe("info");
+  });
+
+  it("does not flag health-connect-granular without READ_ALL_HEALTH_DATA", async () => {
+    const findings = await permissionsScanner.scan(
+      makeCtx(["android.permission.INTERNET"]),
+    );
+    expect(findings.find((f) => f.ruleId === "health-connect-granular")).toBeUndefined();
+  });
+
+  it("respects allowedPermissions for health-connect-granular", async () => {
+    const ctx: PreflightContext = {
+      manifest: {
+        ...makeManifest(["android.permission.health.READ_ALL_HEALTH_DATA"]),
+        targetSdk: 36,
+      },
+      config: {
+        ...DEFAULT_PREFLIGHT_CONFIG,
+        allowedPermissions: ["android.permission.health.READ_ALL_HEALTH_DATA"],
+      },
+    };
+    const findings = await permissionsScanner.scan(ctx);
+    expect(findings.find((f) => f.ruleId === "health-connect-granular")).toBeUndefined();
+  });
+
+  it("emits both contacts and health connect findings independently", async () => {
+    const ctx: PreflightContext = {
+      manifest: {
+        ...makeManifest([
+          "android.permission.READ_CONTACTS",
+          "android.permission.health.READ_ALL_HEALTH_DATA",
+        ]),
+        targetSdk: 36,
+      },
+      config: { ...DEFAULT_PREFLIGHT_CONFIG },
+    };
+    const findings = await permissionsScanner.scan(ctx);
+    expect(findings.find((f) => f.ruleId === "contacts-permission-broad")).toBeDefined();
+    expect(findings.find((f) => f.ruleId === "health-connect-granular")).toBeDefined();
+  });
+
+  it("flags health-connect-granular as warning on targetSdk 37", async () => {
+    const ctx: PreflightContext = {
+      manifest: {
+        ...makeManifest(["android.permission.health.READ_ALL_HEALTH_DATA"]),
+        targetSdk: 37,
+      },
+      config: { ...DEFAULT_PREFLIGHT_CONFIG },
+    };
+    const findings = await permissionsScanner.scan(ctx);
+    const f = findings.find((f) => f.ruleId === "health-connect-granular");
+    expect(f).toBeDefined();
+    expect(f!.severity).toBe("warning");
+  });
 });

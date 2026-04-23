@@ -21,8 +21,8 @@ See the [Preflight Deep-Dive](/guide/preflight-deep-dive) guide — how the 9 sc
 
 | Scanner         | What it checks                                                                                                                |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| **manifest**    | targetSdk, debuggable, testOnly, cleartext traffic, missing `exported`, foreground service types, exported-without-permission |
-| **permissions** | 18 restricted permissions (SMS, call log, background location, photo/video, etc.)                                             |
+| **manifest**    | targetSdk, debuggable, testOnly, cleartext traffic, missing `exported`, foreground service types, exported-without-permission, geofencing foreground service (April 2026 policy) |
+| **permissions** | 18 restricted permissions, contacts broad-access check, Health Connect granular permissions (April 2026 policy)                                                                  |
 | **native-libs** | 64-bit compliance, **16KB page size alignment** (ELF LOAD segment check, enforced since Nov 2025)                             |
 | **metadata**    | Store listing character limits, missing title, screenshots, privacy policy URL                                                |
 | **secrets**     | Hardcoded API keys (AWS, Google, Stripe, private keys)                                                                        |

@@ -228,4 +228,148 @@ describe("manifestScanner", () => {
     );
     expect(findings.find((f) => f.ruleId === "exported-no-permission")).toBeUndefined();
   });
+
+  // --- April 2026 policy: Geofencing foreground service ---
+
+  it("flags foreground service with location type + background location", async () => {
+    const findings = await manifestScanner.scan(
+      makeCtx(
+        makeManifest({
+          permissions: [
+            "android.permission.FOREGROUND_SERVICE",
+            "android.permission.ACCESS_BACKGROUND_LOCATION",
+          ],
+          services: [
+            {
+              name: ".GeoService",
+              hasIntentFilter: false,
+              foregroundServiceType: "location",
+            },
+          ],
+        }),
+      ),
+    );
+    const f = findings.find((f) => f.ruleId === "geofencing-foreground-service");
+    expect(f).toBeDefined();
+    expect(f!.severity).toBe("warning");
+    expect(f!.message).toContain("GeoService");
+  });
+
+  it("does not flag location foreground service without background location", async () => {
+    const findings = await manifestScanner.scan(
+      makeCtx(
+        makeManifest({
+          permissions: ["android.permission.FOREGROUND_SERVICE"],
+          services: [
+            {
+              name: ".TrackingService",
+              hasIntentFilter: false,
+              foregroundServiceType: "location",
+            },
+          ],
+        }),
+      ),
+    );
+    expect(findings.find((f) => f.ruleId === "geofencing-foreground-service")).toBeUndefined();
+  });
+
+  it("does not flag when no foreground services exist", async () => {
+    const findings = await manifestScanner.scan(
+      makeCtx(
+        makeManifest({
+          permissions: ["android.permission.ACCESS_BACKGROUND_LOCATION"],
+        }),
+      ),
+    );
+    expect(findings.find((f) => f.ruleId === "geofencing-foreground-service")).toBeUndefined();
+  });
+
+  it("flags pipe-separated foregroundServiceType containing location", async () => {
+    const findings = await manifestScanner.scan(
+      makeCtx(
+        makeManifest({
+          permissions: [
+            "android.permission.FOREGROUND_SERVICE",
+            "android.permission.ACCESS_BACKGROUND_LOCATION",
+          ],
+          services: [
+            {
+              name: ".TrackingService",
+              hasIntentFilter: false,
+              foregroundServiceType: "location|dataSync",
+            },
+          ],
+        }),
+      ),
+    );
+    const f = findings.find((f) => f.ruleId === "geofencing-foreground-service");
+    expect(f).toBeDefined();
+    expect(f!.severity).toBe("warning");
+  });
+
+  it("does not false-positive on foregroundServiceType substring like relocation", async () => {
+    const findings = await manifestScanner.scan(
+      makeCtx(
+        makeManifest({
+          permissions: [
+            "android.permission.FOREGROUND_SERVICE",
+            "android.permission.ACCESS_BACKGROUND_LOCATION",
+          ],
+          services: [
+            {
+              name: ".RelocService",
+              hasIntentFilter: false,
+              foregroundServiceType: "relocation",
+            },
+          ],
+        }),
+      ),
+    );
+    expect(findings.find((f) => f.ruleId === "geofencing-foreground-service")).toBeUndefined();
+  });
+
+  it("flags hex foregroundServiceType with location bit set", async () => {
+    const findings = await manifestScanner.scan(
+      makeCtx(
+        makeManifest({
+          permissions: [
+            "android.permission.FOREGROUND_SERVICE",
+            "android.permission.ACCESS_BACKGROUND_LOCATION",
+          ],
+          services: [
+            {
+              name: ".GeoService",
+              hasIntentFilter: false,
+              foregroundServiceType: "0x9", // dataSync(1) | location(8) in hex
+            },
+          ],
+        }),
+      ),
+    );
+    const f = findings.find((f) => f.ruleId === "geofencing-foreground-service");
+    expect(f).toBeDefined();
+  });
+
+  it("flags numeric foregroundServiceType with location bit set", async () => {
+    const findings = await manifestScanner.scan(
+      makeCtx(
+        makeManifest({
+          permissions: [
+            "android.permission.FOREGROUND_SERVICE",
+            "android.permission.ACCESS_BACKGROUND_LOCATION",
+          ],
+          services: [
+            {
+              name: ".GeoService",
+              hasIntentFilter: false,
+              foregroundServiceType: "9", // dataSync(1) | location(8)
+            },
+          ],
+        }),
+      ),
+    );
+    const f = findings.find((f) => f.ruleId === "geofencing-foreground-service");
+    expect(f).toBeDefined();
+    expect(f!.severity).toBe("warning");
+  });
 });

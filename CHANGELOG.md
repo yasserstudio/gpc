@@ -7,6 +7,26 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.64
+
+One-command Play Store release notes. `gpc changelog generate --target play-store --locales auto --ai --apply` now writes translated release notes directly into your draft release. The v0.9.61-v0.9.64 changelog series is complete: git commits to translated, applied Play Store notes in a single command.
+
+**New**
+
+- feat(cli): `--apply` flag on `gpc changelog generate --target play-store` writes generated release notes directly into the draft release on `--track` (default: production). Locales with placeholder or failed status are blocked from writing.
+- feat(cli): `--dry-run` with `--apply` previews the payload without touching the Play Store.
+- feat(core): retries automatically on 409 Conflict (stale edit) during apply.
+- feat(cli): `gpc docs list/show/search/init/web` with 99 embedded documentation pages available offline.
+
+**Fixes**
+
+- fix(core): bundle upload race condition resolved with Fibonacci backoff poll instead of fixed delay.
+- fix(cli): strict-mode non-null assertion in docs renderer.
+
+**Tests:** 2,037 → 2,076 (+39). **Endpoint count:** unchanged at 217.
+
+---
+
 ## v0.9.63
 
 AI-assisted Play Store translation. `gpc changelog generate --target play-store --locales auto --ai` turns the v0.9.62 `[needs translation]` placeholder into real translated text via your own LLM key. Auto-detects whichever provider key is set: `AI_GATEWAY_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, or `GOOGLE_GENERATIVE_AI_API_KEY`. Non-reasoning model defaults (`claude-sonnet-4-6`, `gpt-4o-mini`, `gemini-2.5-flash`). If `AI_GATEWAY_API_KEY` is set, requests route via the Vercel AI Gateway — 20+ providers through a single interface plus aggregate cost in USD reported per run.

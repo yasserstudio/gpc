@@ -127,6 +127,34 @@ export const manifestScanner: PreflightScanner = {
       }
     }
 
+    // April 2026 policy: Geofencing foreground service no longer approved
+    const hasBackgroundLocation = manifest.permissions.includes(
+      "android.permission.ACCESS_BACKGROUND_LOCATION",
+    );
+    if (hasBackgroundLocation) {
+      for (const service of manifest.services) {
+        const fst = service.foregroundServiceType;
+        if (!fst) continue;
+        const num = Number(fst);
+        const hasLocation =
+          fst.split("|").some((t) => t.trim() === "location") ||
+          (!isNaN(num) && (num & 0x8) !== 0);
+        if (hasLocation) {
+          findings.push({
+            scanner: "manifest",
+            ruleId: "geofencing-foreground-service",
+            severity: "warning",
+            title: `Possible geofencing via foreground service "${service.name}"`,
+            message: `Service "${service.name}" uses foregroundServiceType "location" and the app declares ACCESS_BACKGROUND_LOCATION. Google Play no longer approves geofencing as a foreground service use case (April 2026 policy). Compliance deadline: May 15, 2026.`,
+            suggestion:
+              'If this service performs geofencing, migrate to WorkManager or AlarmManager. If this is legitimate background location tracking (navigation, fitness), suppress this rule via .preflightrc.json: "disabledRules": ["geofencing-foreground-service"].',
+            policyUrl:
+              "https://support.google.com/googleplay/android-developer/answer/16926792",
+          });
+        }
+      }
+    }
+
     // Exported components without permission protection
     const allComponents = [
       ...manifest.activities,

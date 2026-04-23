@@ -1,5 +1,21 @@
 # @gpc-cli/cli
 
+## 0.9.65
+
+### Patch Changes
+
+- feat(preflight): three new scanner rules for April 2026 Google Play policy batch
+  - Contacts broad access: flags READ_CONTACTS / WRITE_CONTACTS (warning). Google now requires the Android Contact Picker.
+  - Geofencing foreground service: flags location-type foreground service + background location (warning). Geofencing removed as approved foreground service use case.
+  - Health Connect granular permissions: flags READ_ALL_HEALTH_DATA (warning on targetSdk 36+, info otherwise). Android 16 requires per-data-type permissions.
+
+  All three rules suppressible via `.preflightrc.json` (`allowedPermissions` or `disabledRules`). Compliance deadline: May 15, 2026.
+
+  fix(preflight): foreground service type parsing now handles pipe-separated values and hex numeric forms without false positives on substrings.
+
+- Updated dependencies
+  - @gpc-cli/core@0.9.55
+
 ## 0.9.63
 
 ### Patch Changes

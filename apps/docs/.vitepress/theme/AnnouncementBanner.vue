@@ -3,7 +3,7 @@ import { ref, onMounted, onBeforeUnmount } from "vue";
 
 // Bump this with each release so dismissals from the previous version
 // don't silently suppress the new banner.
-const STORAGE_KEY = "gpc-banner-dismissed-v0963-at";
+const STORAGE_KEY = "gpc-banner-dismissed-v0964-at";
 const DISMISS_WINDOW_MS = 24 * 60 * 60 * 1000; // 24h — banner re-appears after this
 const TAP_PAUSE_MS = 6000; // pause ticker for 6s after a tap so touch users
 // have time to read and activate the link inside the banner
@@ -59,12 +59,10 @@ function pauseTicker() {
       @touchstart.passive="pauseTicker"
     >
       <span class="ann-text">
-        v0.9.63 &middot; New: <code>--ai</code> on
-        <code>gpc changelog generate --target play-store</code> translates release notes via your
-        own Anthropic, OpenAI, Google, or Vercel AI Gateway key.
-        <a href="/gpc/guide/multilingual-release-notes#ai-translation" class="ann-link"
-          >AI translation guide</a
-        >
+        v0.9.64 &middot; New: <code>--apply</code> writes translated release notes directly into
+        your draft release. The changelog series is complete: git commits to Play Store notes in one
+        command.
+        <a href="/gpc/guide/multilingual-release-notes" class="ann-link">See the guide</a>
         &middot; road to v1.0
       </span>
     </div>
@@ -151,7 +149,7 @@ function pauseTicker() {
     gap: 0;
   }
   /* Hide the PRE-RELEASE chip on mobile — it eats ~80px of precious width
-     and the ticker text carries the same context ("v0.9.63 · New: ..."). */
+     and the ticker text carries the same context ("v0.9.64 · New: ..."). */
   .ann-badge {
     display: none;
   }

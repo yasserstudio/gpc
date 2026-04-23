@@ -70,12 +70,18 @@ Flags the `AndroidManifest.xml` configurations that cause the fastest rejections
 - `android:usesCleartextTraffic="true"` without a network security config — **warning**.
 - Components exported without a permission guard — **warning**.
 - `QUERY_ALL_PACKAGES` permission — **error**. Requires declared justification; rarely approved.
+- Geofencing foreground service (April 2026 policy) — **warning**. Flags services with `foregroundServiceType="location"` combined with `ACCESS_BACKGROUND_LOCATION`. Google removed geofencing as an approved foreground service use case; compliance deadline is May 15, 2026. Suppress via `.preflightrc.json` if your app uses legitimate background location tracking.
 
 ### 2. Permissions
 
 18 restricted permissions that require Play Console declaration or restricted-use approval:
 
 `READ_SMS`, `SEND_SMS`, `RECEIVE_SMS`, `READ_CALL_LOG`, `WRITE_CALL_LOG`, `PROCESS_OUTGOING_CALLS`, `ACCESS_BACKGROUND_LOCATION`, `MANAGE_EXTERNAL_STORAGE`, `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO`, `READ_MEDIA_AUDIO`, `REQUEST_INSTALL_PACKAGES`, `SYSTEM_ALERT_WINDOW`, `USE_FULL_SCREEN_INTENT`, `BIND_ACCESSIBILITY_SERVICE`, `PACKAGE_USAGE_STATS`, `BIND_DEVICE_ADMIN`, `BIND_NOTIFICATION_LISTENER_SERVICE`.
+
+**April 2026 policy rules** (compliance deadline: May 15, 2026):
+
+- **Contacts broad access** — **warning**. Flags `READ_CONTACTS` / `WRITE_CONTACTS`. Google now requires the Android Contact Picker API instead of broad contacts access.
+- **Health Connect granular permissions** — **warning** on targetSdk 36+, **info** otherwise. Flags `READ_ALL_HEALTH_DATA`. Android 16 requires individual Health Connect data type permissions.
 
 Declared permissions you've already approved in Play Console? Add them to `allowedPermissions` in `.preflightrc.json` and the scanner will skip them for that project.
 

@@ -91,7 +91,7 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 - [Commands reference](https://yasserstudio.github.io/gpc/commands/)
 - [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/)
 
-Free to use. 2,076 tests. 90%+ coverage. Every write operation supports `--dry-run`.
+Free to use. 2,093 tests. 90%+ coverage. Every write operation supports `--dry-run`.
 
 ## Licensing
 

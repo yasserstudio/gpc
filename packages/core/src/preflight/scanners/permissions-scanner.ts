@@ -224,6 +224,43 @@ export const permissionsScanner: PreflightScanner = {
       }
     }
 
+    // April 2026 policy: Contacts Permission — broad access deprecated
+    const contactsPerms = [
+      "android.permission.READ_CONTACTS",
+      "android.permission.WRITE_CONTACTS",
+    ].filter((p) => manifest.permissions.includes(p) && !allowed.has(p));
+
+    if (contactsPerms.length > 0) {
+      const names = contactsPerms.map((p) => p.split(".").pop()).join(", ");
+      findings.push({
+        scanner: "permissions",
+        ruleId: "contacts-permission-broad",
+        severity: "warning",
+        title: "Broad contacts access requires migration to Contact Picker",
+        message: `Your app declares ${names}. Google Play now requires the Android Contact Picker instead of broad contacts access. Compliance deadline: May 15, 2026.`,
+        suggestion:
+          "Migrate to the Android Contact Picker API for user-initiated contact selection. Remove READ_CONTACTS/WRITE_CONTACTS unless your app is a dialer, messaging, or contacts management app.",
+        policyUrl:
+          "https://support.google.com/googleplay/android-developer/answer/16926792",
+      });
+    }
+
+    // April 2026 policy: Health Connect granular permissions (Android 16+)
+    const broadHealthPerm = "android.permission.health.READ_ALL_HEALTH_DATA";
+    if (manifest.permissions.includes(broadHealthPerm) && !allowed.has(broadHealthPerm)) {
+      findings.push({
+        scanner: "permissions",
+        ruleId: "health-connect-granular",
+        severity: manifest.targetSdk >= 36 ? "warning" : "info",
+        title: "Broad Health Connect permission — use granular permissions",
+        message: `Your app declares READ_ALL_HEALTH_DATA. Android 16 requires granular Health Connect permissions for individual data types (e.g., steps, heart rate, sleep).${manifest.targetSdk >= 36 ? " Your targetSdk >= 36 makes this a policy requirement." : " This will become required when you target API 36+."}`,
+        suggestion:
+          "Replace READ_ALL_HEALTH_DATA with individual permissions like health.READ_STEPS, health.READ_HEART_RATE, etc. Only request the data types your app actually uses.",
+        policyUrl:
+          "https://developer.android.com/health-and-fitness/guides/health-connect/plan/data-types",
+      });
+    }
+
     // Data safety reminders for permissions that imply data collection
     const dataPermissions = [
       { perm: "android.permission.ACCESS_FINE_LOCATION", data: "precise location" },
