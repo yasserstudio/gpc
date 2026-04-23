@@ -133,9 +133,7 @@ describe("permissionsScanner", () => {
   // --- April 2026 policy: Contacts Permission ---
 
   it("flags READ_CONTACTS as contacts-permission-broad warning", async () => {
-    const findings = await permissionsScanner.scan(
-      makeCtx(["android.permission.READ_CONTACTS"]),
-    );
+    const findings = await permissionsScanner.scan(makeCtx(["android.permission.READ_CONTACTS"]));
     const f = findings.find((f) => f.ruleId === "contacts-permission-broad");
     expect(f).toBeDefined();
     expect(f!.severity).toBe("warning");
@@ -143,9 +141,7 @@ describe("permissionsScanner", () => {
   });
 
   it("flags WRITE_CONTACTS as contacts-permission-broad warning", async () => {
-    const findings = await permissionsScanner.scan(
-      makeCtx(["android.permission.WRITE_CONTACTS"]),
-    );
+    const findings = await permissionsScanner.scan(makeCtx(["android.permission.WRITE_CONTACTS"]));
     const f = findings.find((f) => f.ruleId === "contacts-permission-broad");
     expect(f).toBeDefined();
     expect(f!.severity).toBe("warning");
@@ -153,10 +149,7 @@ describe("permissionsScanner", () => {
 
   it("emits single finding when both READ_CONTACTS and WRITE_CONTACTS present", async () => {
     const findings = await permissionsScanner.scan(
-      makeCtx([
-        "android.permission.READ_CONTACTS",
-        "android.permission.WRITE_CONTACTS",
-      ]),
+      makeCtx(["android.permission.READ_CONTACTS", "android.permission.WRITE_CONTACTS"]),
     );
     const contactsFindings = findings.filter((f) => f.ruleId === "contacts-permission-broad");
     expect(contactsFindings).toHaveLength(1);
@@ -166,10 +159,7 @@ describe("permissionsScanner", () => {
 
   it("respects allowedPermissions for contacts-permission-broad", async () => {
     const findings = await permissionsScanner.scan(
-      makeCtx(
-        ["android.permission.READ_CONTACTS"],
-        ["android.permission.READ_CONTACTS"],
-      ),
+      makeCtx(["android.permission.READ_CONTACTS"], ["android.permission.READ_CONTACTS"]),
     );
     expect(findings.find((f) => f.ruleId === "contacts-permission-broad")).toBeUndefined();
   });
@@ -201,9 +191,7 @@ describe("permissionsScanner", () => {
   });
 
   it("does not flag health-connect-granular without READ_ALL_HEALTH_DATA", async () => {
-    const findings = await permissionsScanner.scan(
-      makeCtx(["android.permission.INTERNET"]),
-    );
+    const findings = await permissionsScanner.scan(makeCtx(["android.permission.INTERNET"]));
     expect(findings.find((f) => f.ruleId === "health-connect-granular")).toBeUndefined();
   });
 

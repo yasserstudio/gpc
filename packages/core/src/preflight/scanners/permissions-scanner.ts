@@ -240,8 +240,7 @@ export const permissionsScanner: PreflightScanner = {
         message: `Your app declares ${names}. Google Play now requires the Android Contact Picker instead of broad contacts access. Compliance deadline: May 15, 2026.`,
         suggestion:
           "Migrate to the Android Contact Picker API for user-initiated contact selection. Remove READ_CONTACTS/WRITE_CONTACTS unless your app is a dialer, messaging, or contacts management app.",
-        policyUrl:
-          "https://support.google.com/googleplay/android-developer/answer/16926792",
+        policyUrl: "https://support.google.com/googleplay/android-developer/answer/16926792",
       });
     }
 

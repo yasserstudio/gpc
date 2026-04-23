@@ -137,8 +137,7 @@ export const manifestScanner: PreflightScanner = {
         if (!fst) continue;
         const num = Number(fst);
         const hasLocation =
-          fst.split("|").some((t) => t.trim() === "location") ||
-          (!isNaN(num) && (num & 0x8) !== 0);
+          fst.split("|").some((t) => t.trim() === "location") || (!isNaN(num) && (num & 0x8) !== 0);
         if (hasLocation) {
           findings.push({
             scanner: "manifest",
@@ -148,8 +147,7 @@ export const manifestScanner: PreflightScanner = {
             message: `Service "${service.name}" uses foregroundServiceType "location" and the app declares ACCESS_BACKGROUND_LOCATION. Google Play no longer approves geofencing as a foreground service use case (April 2026 policy). Compliance deadline: May 15, 2026.`,
             suggestion:
               'If this service performs geofencing, migrate to WorkManager or AlarmManager. If this is legitimate background location tracking (navigation, fitness), suppress this rule via .preflightrc.json: "disabledRules": ["geofencing-foreground-service"].',
-            policyUrl:
-              "https://support.google.com/googleplay/android-developer/answer/16926792",
+            policyUrl: "https://support.google.com/googleplay/android-developer/answer/16926792",
           });
         }
       }
