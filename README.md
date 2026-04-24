@@ -17,7 +17,7 @@
   <img src="https://img.shields.io/badge/Free_to_use-Code_on_GitHub-yellow?style=for-the-badge" alt="Free to use">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-2093_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-2143_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
@@ -100,7 +100,7 @@ GPC covers the **entire Google Play Developer API** in one CLI. 217 endpoints. N
 | CI/CD native            | JSON + exit codes + env vars   | Partial         | Gradle tasks          | No           |
 | Preflight scanner       | **9 offline policy checks**    | No              | No                    | No           |
 | Interactive mode        | Yes (guided prompts)           | No              | No                    | N/A          |
-| Test suite              | 2,093 tests, 90%+ coverage     |                 |                       |              |
+| Test suite              | 2,143 tests, 90%+ coverage     |                 |                       |              |
 
 Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
 
@@ -190,6 +190,15 @@ gpc preflight --source app/src               # Secrets, billing SDKs, tracking
 <p align="center">
   <img src="./assets/preflight.svg" alt="gpc preflight — 9 offline compliance scanners" width="680">
 </p>
+
+Check your [developer verification](https://developer.android.com/developer-verification) readiness before enforcement begins (September 30, 2026).
+
+```bash
+gpc verify                              # Account-aware verification status
+gpc verify checklist                    # Interactive readiness walkthrough
+gpc doctor --verify                     # Signing key fingerprint comparison
+gpc preflight signing                   # Signing cert consistency across releases
+```
 
 Diagnose your setup with 20 automated checks.
 

@@ -87,6 +87,69 @@ export function registerPreflightCommand(program: Command): void {
         scanners: "secrets,billing,privacy",
       });
     });
+
+  // Subcommand: preflight signing
+  cmd
+    .command("signing")
+    .description("Check signing key consistency across releases (requires auth)")
+    .action(async (_options, subcmd) => {
+      const parentOpts = subcmd.parent?.parent?.opts() ?? {};
+      const jsonMode = !!(parentOpts["json"] || parentOpts["output"] === "json");
+
+      const config = await loadConfig();
+      const packageName = (parentOpts["app"] as string | undefined) ?? config.app;
+      if (!packageName) {
+        throw new GpcError(
+          "No app configured",
+          "MISSING_APP",
+          2,
+          "Set a default app with 'gpc config set app <package>' or use --app",
+        );
+      }
+
+      const { resolveAuth } = await import("@gpc-cli/auth");
+      const client = await resolveAuth({
+        serviceAccountPath: config.auth?.serviceAccount,
+      });
+      const accessToken = await client.getAccessToken();
+
+      const { checkSigningConsistency } = await import("@gpc-cli/core");
+      const result = await checkSigningConsistency(accessToken, packageName);
+
+      if (jsonMode) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        console.log("");
+        console.log(bold("Signing Key Consistency"));
+        console.log("");
+        if (result.firstRelease) {
+          console.log(
+            `  ${dim("ℹ")} First release (v${result.currentVersionCode}): ${result.currentFingerprint}`,
+          );
+          console.log(`  ${dim("Nothing to compare against yet.")}`);
+        } else if (result.consistent) {
+          console.log(
+            `  ${green("✓")} Consistent: v${result.previousVersionCode} → v${result.currentVersionCode}`,
+          );
+          console.log(`  ${dim("Fingerprint:")} ${result.currentFingerprint}`);
+        } else {
+          console.log(
+            `  ${red("✗")} Signing key changed between v${result.previousVersionCode} and v${result.currentVersionCode}`,
+          );
+          console.log(`  ${dim("Previous:")} ${result.previousFingerprint}`);
+          console.log(`  ${dim("Current:")}  ${result.currentFingerprint}`);
+          console.log("");
+          console.log(
+            `  ${yellow("⚠")} If intentional, register the new key in Play Console before September 2026.`,
+          );
+        }
+        console.log("");
+      }
+
+      if (!result.consistent) {
+        process.exitCode = 6;
+      }
+    });
 }
 
 async function runPreflightAction(

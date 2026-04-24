@@ -100,7 +100,12 @@ gpc bundle analyze app.aab --threshold 150
 | -------------------- | ------------------------------------------------------------------------- |
 | [`train`](./train)   | Config-driven staged rollout trains with time gates and vitals gates      |
 | [`quota`](./quota)   | View Google Play API quota usage tracked from the local audit log         |
-| [`verify`](./verify) | Google developer verification tooling (signing keys, readiness checklist) |
+
+### Compliance & Verification
+
+| Command              | Description                                                               |
+| -------------------- | ------------------------------------------------------------------------- |
+| [`verify`](./verify) | Developer verification status, signing key audit, readiness checklist     |
 
 ### System
 

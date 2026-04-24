@@ -31,14 +31,18 @@ Run diagnostic checks to verify your GPC setup end-to-end.
 ### Synopsis
 
 ```bash
-gpc doctor [--json]
+gpc doctor [--json] [--verify] [--keystore <path>] [--store-pass <password>] [--key-alias <alias>]
 ```
 
 ### Options
 
-| Flag     | Description                             |
-| -------- | --------------------------------------- |
-| `--json` | Output results as machine-readable JSON |
+| Flag                       | Description                                                                  |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| `--json`                   | Output results as machine-readable JSON                                      |
+| `--verify`                 | Run signing key verification checks (compares local keystore vs Play cert)   |
+| `--keystore <path>`        | Path to Android keystore file (or set `GPC_KEYSTORE_PATH`)                   |
+| `--store-pass <password>`  | Keystore password (or set `GPC_STORE_PASSWORD`)                              |
+| `--key-alias <alias>`      | Key alias in keystore (defaults to first entry)                              |
 
 ### Checks performed
 
@@ -58,6 +62,9 @@ gpc doctor [--json]
 | `dns`                         | Both API endpoints resolve: `androidpublisher.googleapis.com` and `playdeveloperreporting.googleapis.com` |
 | `auth`                        | Credentials load and authenticate successfully                                                            |
 | `api-connectivity`            | Access token can be obtained from Google                                                                  |
+| `verification-deadline`       | Days remaining until Android developer verification enforcement (September 30, 2026)                      |
+| `signing-api` *(--verify)*    | Fetches Play signing certificate fingerprint from generatedApks                                           |
+| `signing-local` *(--verify)*  | Compares local keystore fingerprint against Play signing certificate                                      |
 
 ### Example
 
@@ -122,6 +129,45 @@ gpc doctor --json
 
 Exits `0` if all checks pass, `1` if any check fails.
 
+### Signing key verification
+
+When `--verify` is passed, doctor fetches your Play signing certificate via the API and optionally compares it against a local keystore.
+
+Show the Play signing certificate fingerprint:
+
+```bash
+gpc doctor --verify
+```
+
+```
+  ✓ Play signing cert (v86): AB:CD:12:34:...
+  ℹ No local keystore provided for comparison
+    Provide --keystore <path> and --store-pass <password> to compare against Play signing cert
+```
+
+Full comparison against a local keystore:
+
+```bash
+gpc doctor --verify --keystore release.keystore --store-pass $STORE_PASSWORD
+```
+
+```
+  ✓ Play signing cert (v86): AB:CD:12:34:...
+  ✓ Local keystore (mykey) matches Play signing cert
+```
+
+If the fingerprints don't match:
+
+```
+  ✓ Play signing cert (v86): AB:CD:12:34:...
+  ✗ Signing key mismatch: local EF:56:78:90:... vs Play AB:CD:12:34:...
+    Your local keystore does not match the Play signing certificate. If you distribute
+    outside Play with this key, register it in Play Console to avoid installation blocks
+    after September 30, 2026.
+```
+
+Environment variable alternatives: `GPC_KEYSTORE_PATH` and `GPC_STORE_PASSWORD` can be used instead of `--keystore` and `--store-pass`.
+
 ---
 
 ## `gpc update`
@@ -181,9 +227,9 @@ gpc update --check --output json | jq '.updateAvailable'
 **Update available:**
 
 ```
-Update available: 0.9.63 → 0.9.64
+Update available: 0.9.65 → 0.9.66
 Install method: homebrew
-Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.64
+Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.66
 
 Run: gpc update
 ```
@@ -191,7 +237,7 @@ Run: gpc update
 **Already on latest:**
 
 ```
-Already on latest version: v0.9.64
+Already on latest version: v0.9.66
 ```
 
 **`--output json` (update available):**

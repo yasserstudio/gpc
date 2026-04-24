@@ -129,7 +129,7 @@ function getPageDescription(page: PageData): string {
     "guide/android-cli-interop.md":
       "Using GPC with Google's official Android CLI. Agent-first workflow: android create, android run, gpc preflight, gpc publish. SKILL.md skill packs, JSON output, semantic exit codes, LLM-ready prompts.",
     "commands/verify.md":
-      "gpc verify — Android developer verification status, enforcement deadlines, and resources. Check your account and open verification pages.",
+      "gpc verify — Android developer verification status, signing key audit, and readiness checklist. Check your account, app signing, and enforcement deadlines.",
     "guide/faq.md":
       "Frequently asked questions about GPC — authentication, CI/CD, Fastlane migration, troubleshooting, and production readiness.",
     "guide/free-to-use.md":
@@ -324,7 +324,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
 
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.63",
+        softwareVersion: "0.9.65",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: { "@type": "Person", name: "yasserstudio", url: "https://github.com/yasserstudio" },

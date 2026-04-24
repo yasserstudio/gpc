@@ -40,6 +40,7 @@ See the [Preflight Deep-Dive](/guide/preflight-deep-dive) guide — how the 9 sc
 | [`preflight permissions`](#preflight-permissions) | Permissions scanner only                         |
 | [`preflight metadata`](#preflight-metadata)       | Metadata/listing scanner only                    |
 | [`preflight codescan`](#preflight-codescan)       | Source code scanners (secrets, billing, privacy) |
+| [`preflight signing`](#preflight-signing)         | Signing key consistency check (requires auth)    |
 
 ## `gpc preflight`
 
@@ -146,6 +147,20 @@ gpc preflight codescan app/src
 ```
 
 Scans `.kt`, `.java`, `.ts`, `.js`, `.xml`, `.json`, `.gradle`, `.properties` files. Skips `node_modules/`, `build/`, `.git/`.
+
+## `preflight signing`
+
+Check signing key consistency across your two most recent bundle uploads. Unlike the offline scanners, this subcommand requires authentication.
+
+```bash
+gpc preflight signing
+```
+
+Compares the `certificateSha256Fingerprint` from `generatedApks` for the two latest version codes. Flags key changes that could indicate an unregistered key variant after [developer verification](/guide/developer-verification) enforcement.
+
+Exit code `6` on mismatch, `0` on match or first release. JSON output with `--json`.
+
+See the [Preflight Deep-Dive](/guide/preflight-deep-dive#signing-key-consistency-gpc-preflight-signing) for detailed output examples and architecture rationale.
 
 ## Severity Levels
 

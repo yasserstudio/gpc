@@ -23,6 +23,8 @@ gpc doctor
 - API access and permissions
 - Configuration file syntax
 - Network connectivity to Google Play APIs
+- Developer verification enforcement deadline
+- Signing key fingerprint comparison (with `--verify`)
 
 ### Enable Debug Mode
 

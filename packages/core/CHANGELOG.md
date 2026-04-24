@@ -1,5 +1,11 @@
 # @gpc-cli/core
 
+## 0.9.56
+
+### Patch Changes
+
+- Developer verification tooling: `gpc verify` (account-aware status), `gpc verify checklist` (readiness walkthrough), `gpc doctor --verify` (signing key audit), `gpc preflight signing` (signing cert consistency).
+
 ## 0.9.55
 
 ### Patch Changes

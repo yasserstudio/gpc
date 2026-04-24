@@ -276,8 +276,85 @@ Being honest about the tool's limits matters more than marketing. Preflight is *
 
 Run preflight on every release. Keep internal testing and beta tracks. Read the monthly Google Play policy updates. Preflight reduces rejection risk significantly; it does not eliminate it.
 
+## Signing key consistency (`gpc preflight signing`)
+
+Unlike the 9 offline scanners above, `gpc preflight signing` is an **online check** that requires authentication. It compares the signing certificate fingerprint across your two most recent bundle uploads to detect unintentional key changes.
+
+This is important for [developer verification](/guide/developer-verification): after enforcement begins (September 30, 2026), an unregistered signing key will block installation on certified Android devices.
+
+### How it works
+
+1. Creates an edit via the Play Developer API
+2. Lists all bundles, sorted by version code
+3. Fetches `generatedApks` for the two most recent versions
+4. Extracts `certificateSha256Fingerprint` from each
+5. Compares fingerprints and reports match/mismatch
+
+### Usage
+
+```bash
+gpc preflight signing
+```
+
+Consistent signing key:
+
+```
+Signing Key Consistency
+
+  ✓ Consistent: v85 → v86
+  Fingerprint: AB:CD:12:34:...
+```
+
+Key change detected:
+
+```
+Signing Key Consistency
+
+  ✗ Signing key changed between v85 and v86
+  Previous: AB:CD:12:34:...
+  Current:  EF:56:78:90:...
+
+  ⚠ If intentional, register the new key in Play Console before September 30, 2026.
+```
+
+First release (nothing to compare):
+
+```
+Signing Key Consistency
+
+  ℹ First release (v86): AB:CD:12:34:...
+  Nothing to compare against yet.
+```
+
+### JSON output
+
+```bash
+gpc preflight signing --json
+```
+
+```json
+{
+  "currentVersionCode": 86,
+  "currentFingerprint": "AB:CD:12:34:...",
+  "previousVersionCode": 85,
+  "previousFingerprint": "AB:CD:12:34:...",
+  "consistent": true,
+  "firstRelease": false
+}
+```
+
+### Exit codes
+
+Exits `6` (threshold breach) on mismatch, `0` on match or first release. Consistent with all other preflight exit codes.
+
+### Why this isn't a scanner
+
+The 9 offline scanners are fast, deterministic, and credential-free. Signing consistency requires API calls and authentication. Mixing online checks into the offline pipeline would break the core value proposition (run anywhere, no credentials). Instead, `gpc preflight signing` is a CLI subcommand that uses the same exit code semantics.
+
 ## Related
 
-- [`gpc preflight` command reference](/commands/preflight) — flags, subcommands, exit codes
-- [CI/CD integration guide](/ci-cd/) — platform-specific recipes
-- [Data Safety declaration workflow](/guide/developer-verification) — human steps preflight reminds you about
+- [`gpc preflight` command reference](/commands/preflight) -- flags, subcommands, exit codes
+- [CI/CD integration guide](/ci-cd/) -- platform-specific recipes
+- [Developer Verification guide](/guide/developer-verification) -- verification requirements, timeline, and GPC support
+- [`gpc doctor --verify`](/commands/utility#signing-key-verification) -- compare local keystore against Play signing cert
+- [`gpc verify checklist`](/commands/verify) -- full verification readiness walkthrough

@@ -104,7 +104,7 @@ This is designed to break the cycle of scam-driven coercion while preserving cho
 | **April 2026**     | Android Developer Verifier rolls out to certified devices as a Google Play Services system component            |
 | **June 2026**      | Limited distribution accounts early access                                                                      |
 | **August 2026**    | Limited distribution and advanced flow launch globally                                                          |
-| **September 2026** | Enforcement begins in Brazil, Indonesia, Singapore, Thailand                                                    |
+| **September 30, 2026** | Enforcement begins in Brazil, Indonesia, Singapore, Thailand                                                |
 | **2027+**          | Global enforcement rollout                                                                                      |
 
 ## Key concepts
@@ -113,12 +113,57 @@ This is designed to break the cycle of scam-driven coercion while preserving cho
 - **Google Play Console (PDC)** — console for developers who distribute apps on Google Play
 - **Package name registration** — creating a formal, verifiable link between your app's package name and signing keys
 - **App signing key** — the certificate used to [sign your APK](https://developer.android.com/studio/publish/app-signing)
-- **Certified Android devices** — devices where verification requirements are enforced, regardless of download source
+- **Certified Android devices** — devices where verification requirements are enforced, regardless of download source. Applies to Android 7+ via Google Play Services.
 - **Android Developer Verifier** — the on-device system service that performs the registration check at install or update time. Rolling out globally in April 2026 via Google Play Services. No developer-facing API; lives at Settings → Google services → All services → System services.
 
-## How GPC helps today
+## FAQ
 
-GPC already covers workflows relevant to verified developers:
+- **ADB installs are unaffected.** Developers can install apps without verification using ADB. The 24-hour waiting period for the advanced flow does not apply to ADB.
+- **Enterprise apps on managed devices are exempt.** Apps distributed through your organization store on managed devices don't need verification. Google still recommends registering them for smooth installs from other sources.
+- **Multiple signing keys per package are supported.** The Android Developer Console lets you add and verify multiple signing keys for a single package.
+- **Sanctioned countries are excluded** from verification checks.
+- **Lost signing keys cannot be recovered.** If you lose your signing key, you won't be able to register your packages. Use a secure key management solution.
+- **Play App Signing users are auto-registered.** If you use Play App Signing, Google has the information to securely identify your ownership. Your apps will be part of the automatic registration process.
+
+## How GPC helps
+
+### Signing key verification
+
+```bash
+gpc doctor --verify
+```
+
+Compares your local Android keystore fingerprint against the signing certificate on file in Google Play. Catches key mismatches before they cause installation blocks after enforcement.
+
+```bash
+gpc doctor --verify --keystore release.keystore --store-pass $STORE_PASSWORD
+```
+
+Full comparison: local keystore SHA-256 vs Play signing cert for your latest bundle.
+
+### Signing key consistency
+
+```bash
+gpc preflight signing
+```
+
+Checks that the signing certificate is consistent across your two most recent releases. Flags key changes that could indicate an unregistered key variant.
+
+### Verification readiness checklist
+
+```bash
+gpc verify checklist
+```
+
+Interactive walkthrough of all verification steps. Auto-detects what it can (account active, app accessible, bundles uploaded, Play App Signing enrolled) and prompts for manual confirmations. Outputs a markdown report for CI artifacts.
+
+### Verification status
+
+```bash
+gpc verify
+```
+
+Account-aware verification status: shows your app info, bundle count, Play App Signing enrollment, days until enforcement, and contextual action items.
 
 ### Preflight scanning
 
@@ -126,43 +171,29 @@ GPC already covers workflows relevant to verified developers:
 gpc preflight app.aab
 ```
 
-Runs 9 offline policy scanners including targetSdk compliance, permissions, and signing checks — catches issues before upload.
+Runs 9 offline policy scanners including targetSdk compliance, permissions, and signing checks.
 
-### Auth and account verification
+### Health checks
 
 ```bash
 gpc doctor
 ```
 
-Validates your credentials, tests API connectivity, and confirms your app is accessible in your developer account.
+Validates credentials, tests API connectivity, confirms app access, and shows verification deadline status.
 
-### Status monitoring
+## What's next
 
-```bash
-gpc status
-```
-
-Full health snapshot — releases, vitals, reviews — in one command.
-
-## What's coming in GPC
-
-Google has not exposed public APIs for developer verification or app registration, and the Play Developer API v3 has no verification surface as of April 2026. Android Studio is expected to gain a registration-status indicator for signing bundles in the coming months. That will be the first credible signal that programmatic access is on its way, and is the trigger point for GPC to add API-backed verification commands.
-
-**Near-term, shipping before an API exists:**
-
-- **Local keystore fingerprint advisory in `gpc doctor`** — read your configured Android signing keystore, compute the SHA-256 fingerprint, compare against the certificate inside your most recently uploaded AAB. Warns if your local key is out of sync with what the Play Store has on file, which is the same fingerprint Google uses for auto-registration.
-- **Signing-key consistency in `gpc preflight`** — flag AABs whose signing certificate does not match the previous release's fingerprint, which is the most common cause of the manual-registration bucket.
+Google has not exposed public APIs for developer verification or app registration, and the Play Developer API v3 has no verification surface as of April 2026. Android Studio is expected to gain a registration-status indicator for signing bundles in the coming months.
 
 **Deferred until Google ships endpoints:**
 
 - **Registration status in `gpc status`** — show whether your app is registered alongside releases and vitals
-- **`gpc verify doctor / checklist / status`** — programmatic verification and registration management
-
-Today's `gpc verify` command is a static status and resources surface. It tells you which regional deadline applies, points you to the right console, and is account-aware when auth is configured. See `gpc verify --help`.
+- **Programmatic registration management** — query and update registration status via API
 
 ## Resources
 
 - [Developer verification overview](https://developer.android.com/developer-verification)
+- [Frequently asked questions](https://developer.android.com/developer-verification/faq)
 - [Play Console registration guide](https://developer.android.com/developer-verification/guides/google-play-console)
 - [Android Developer Console registration guide](https://developer.android.com/developer-verification/guides/android-developer-console)
 - [Limited distribution accounts](https://developer.android.com/developer-verification/guides/limited-distribution)

@@ -46,7 +46,7 @@ features:
 <div class="stats-bar">
   <span class="stat">217 API Endpoints</span>
   <span class="stat-sep"></span>
-  <span class="stat">2,093 Tests</span>
+  <span class="stat">2,143 Tests</span>
   <span class="stat-sep"></span>
   <span class="stat">90%+ Coverage</span>
   <span class="stat-sep"></span>
@@ -93,36 +93,24 @@ gpc changelog generate --target play-store --locales auto --ai
 
 ## What's New
 
-::: tip v0.9.64 shipped 2026-04-22 — `--apply`, bundle race fix, embedded docs
-`gpc changelog generate --target play-store --locales auto --ai --apply` now writes translated release notes directly into your draft release. The v0.9.61-v0.9.64 changelog series is complete: one command from git commits to translated, applied Play Store notes.
+::: tip v0.9.66 — Developer verification tooling
+Google's [developer verification](https://developer.android.com/developer-verification) enforcement begins September 30, 2026. GPC now has signing key audit, verification readiness checks, and account-aware status in one place.
 
 ```bash
-gpc changelog generate --target play-store --locales auto --ai
+gpc verify                    # account-aware verification status
+gpc verify checklist          # interactive readiness walkthrough
+gpc doctor --verify           # signing key fingerprint comparison
+gpc preflight signing         # signing cert consistency across releases
 ```
 
-```markdown
-# Play Store release notes (v0.9.62 → v0.9.63)
-
-## en-US (109/500)
-
-- feat: AI-assisted Play Store translation via --ai
-
-## fr-FR (130/500)
-
-- Traduction des notes Play Store assistée par IA via --ai
-
-## de-DE (124/500)
-
-- KI-gestützte Play-Store-Übersetzung via --ai
-```
-
-[AI translation guide →](/guide/multilingual-release-notes#ai-translation)
+[Developer verification guide →](/guide/developer-verification)
 :::
 
 **Previous releases:**
 
+- **v0.9.65** — Preflight scanners for April 2026 Google Play policies (geofencing foreground service, contacts broad access, Health Connect granular permissions).
+- **v0.9.64** — `--apply` writes translated release notes directly into your draft release. The v0.9.61-v0.9.64 changelog series is complete.
 - **v0.9.62** — Multilingual Play Store release notes. `--target play-store --locales <csv|auto>` emits per-locale "What's new" text with the 500-character budget enforced per locale.
-- **v0.9.61** — Smarter changelog generation. `gpc changelog generate` clusters commits, lints against project voice, and emits canonical GitHub Release markdown.
 - **v0.9.56** — First Android publishing CLI to support the [Play Custom App Publishing API](https://developers.google.com/android/work/play/custom-app-api). Private enterprise apps in one command.
 
 [Full changelog →](/reference/changelog)
@@ -139,7 +127,7 @@ gpc changelog generate --target play-store --locales auto --ai
 | **Purchases**     | Verification, acknowledgment, refunds, voided purchases                                                                                      |
 | **Reports**       | Financial and stats CSV downloads                                                                                                            |
 | **Team**          | Testers, users, permissions, CSV bulk import                                                                                                 |
-| **Compliance**    | Preflight scanner (9 checks), data safety, recovery actions, review-safe CI                                                                  |
+| **Compliance**    | Preflight scanner (9 checks), signing key audit, developer verification readiness, data safety, recovery actions                             |
 | **Analysis**      | Bundle size breakdown, cross-build comparison, size CI gates                                                                                 |
 | **Release Notes** | GitHub Release markdown from git, per-locale Play Store text (500-char budget), AI translation via Anthropic/OpenAI/Google/Vercel AI Gateway |
 | **More**          | Device tiers, internal sharing, external transactions, project scaffolding                                                                   |

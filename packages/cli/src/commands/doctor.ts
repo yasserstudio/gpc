@@ -499,23 +499,195 @@ async function checkEnterpriseAccess(accessToken: string): Promise<CheckResult> 
 // Verification deadline check
 // ---------------------------------------------------------------------------
 
-const VERIFICATION_ENFORCEMENT = new Date("2026-09-01");
+const VERIFICATION_ENFORCEMENT = new Date("2026-09-30");
 
 export function checkVerificationDeadline(): CheckResult {
-  if (Date.now() < VERIFICATION_ENFORCEMENT.getTime()) {
+  const daysLeft = Math.ceil(
+    (VERIFICATION_ENFORCEMENT.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+  );
+  if (daysLeft > 0) {
     return {
       name: "verification",
-      status: "warn",
-      message: "Android developer verification enforcement begins September 2026 (BR, ID, SG, TH)",
-      suggestion: "Run 'gpc verify' for details and resources",
+      status: daysLeft <= 90 ? "warn" : "info",
+      message: `Android developer verification enforcement begins September 30, 2026 (${daysLeft} days, BR/ID/SG/TH)`,
+      suggestion:
+        "Run 'gpc verify' for details or 'gpc verify checklist' for a readiness walkthrough",
     };
   }
   return {
     name: "verification",
-    status: "info",
+    status: "warn",
     message: "Android developer verification is being enforced. Ensure your account is verified.",
-    suggestion: "Run 'gpc verify' to check your status",
+    suggestion: "Run 'gpc verify checklist' to check your readiness",
   };
+}
+
+// ---------------------------------------------------------------------------
+// Signing key verification (--verify)
+// ---------------------------------------------------------------------------
+
+async function checkSigningKey(
+  packageName: string,
+  accessToken: string,
+  keystorePath?: string,
+  storePassword?: string,
+  keyAlias?: string,
+): Promise<CheckResult[]> {
+  const results: CheckResult[] = [];
+  const baseUrl = `https://${API_HOST}/androidpublisher/v3/applications/${encodeURIComponent(packageName)}`;
+
+  let apiFingerprint: string | undefined;
+  let latestVersionCode: number | undefined;
+
+  try {
+    const editResp = await fetch(`${baseUrl}/edits`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!editResp.ok) {
+      results.push({
+        name: "signing-api",
+        status: "warn",
+        message: "Could not create edit to check signing key",
+      });
+      return results;
+    }
+    const edit = (await editResp.json()) as { id: string };
+
+    try {
+      const bundlesResp = await fetch(`${baseUrl}/edits/${edit.id}/bundles`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!bundlesResp.ok) {
+        results.push({
+          name: "signing-api",
+          status: "warn",
+          message: "Could not list bundles",
+        });
+        return results;
+      }
+      const bundlesData = (await bundlesResp.json()) as { bundles?: { versionCode: number }[] };
+      const bundles = bundlesData.bundles ?? [];
+
+      if (bundles.length === 0) {
+        results.push({
+          name: "signing-api",
+          status: "warn",
+          message: "No bundles uploaded yet",
+          suggestion:
+            "Upload at least one AAB with 'gpc publish' to enable signing key verification",
+        });
+        return results;
+      }
+
+      latestVersionCode = bundles.reduce((max, b) =>
+        b.versionCode > max.versionCode ? b : max,
+      ).versionCode;
+
+      const apksResp = await fetch(`${baseUrl}/generatedApks/${latestVersionCode}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (apksResp.ok) {
+        const apksData = (await apksResp.json()) as {
+          generatedApks?: { certificateSha256Fingerprint?: string }[];
+        };
+        apiFingerprint = apksData.generatedApks?.[0]?.certificateSha256Fingerprint;
+      }
+    } finally {
+      await fetch(`${baseUrl}/edits/${edit.id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${accessToken}` },
+        signal: AbortSignal.timeout(5_000),
+      }).catch(() => {});
+    }
+  } catch (err) {
+    results.push({
+      name: "signing-api",
+      status: "warn",
+      message: `Could not verify signing key: ${err instanceof Error ? err.message : String(err)}`,
+    });
+    return results;
+  }
+
+  if (apiFingerprint) {
+    results.push({
+      name: "signing-api",
+      status: "pass",
+      message: `Play signing cert (v${latestVersionCode}): ${apiFingerprint}`,
+    });
+  } else {
+    results.push({
+      name: "signing-api",
+      status: "warn",
+      message: `No signing certificate found for versionCode ${latestVersionCode}`,
+      suggestion: "Your app may not be enrolled in Play App Signing",
+    });
+    return results;
+  }
+
+  if (!keystorePath) {
+    results.push({
+      name: "signing-local",
+      status: "info",
+      message: "No local keystore provided for comparison",
+      suggestion:
+        "Provide --keystore <path> and --store-pass <password> to compare against Play signing cert",
+    });
+    return results;
+  }
+
+  if (!storePassword) {
+    results.push({
+      name: "signing-local",
+      status: "warn",
+      message: "Keystore path provided but no password",
+      suggestion: "Provide --store-pass <password> or set GPC_STORE_PASSWORD",
+    });
+    return results;
+  }
+
+  try {
+    const { getKeystoreFingerprint, compareFingerprints } = await import("@gpc-cli/core");
+    const local = await getKeystoreFingerprint(keystorePath, storePassword, keyAlias);
+
+    if (compareFingerprints(local.sha256, apiFingerprint)) {
+      results.push({
+        name: "signing-local",
+        status: "pass",
+        message: `Local keystore (${local.alias}) matches Play signing cert`,
+      });
+    } else {
+      results.push({
+        name: "signing-local",
+        status: "fail",
+        message: `Signing key mismatch: local ${local.sha256} vs Play ${apiFingerprint}`,
+        suggestion:
+          "Your local keystore does not match the Play signing certificate. If you distribute outside Play with this key, register it in Play Console to avoid installation blocks after September 30, 2026.",
+      });
+    }
+  } catch (err) {
+    const error = err as { code?: string; message?: string };
+    if (error.code === "KEYTOOL_NOT_FOUND") {
+      results.push({
+        name: "signing-local",
+        status: "warn",
+        message: "keytool not found",
+        suggestion: "Install a JDK to enable local keystore verification",
+      });
+    } else {
+      results.push({
+        name: "signing-local",
+        status: "warn",
+        message: `Could not read keystore: ${error.message ?? String(err)}`,
+      });
+    }
+  }
+
+  return results;
 }
 
 // ---------------------------------------------------------------------------
@@ -585,6 +757,10 @@ export function registerDoctorCommand(program: Command): void {
     .command("doctor")
     .description("Verify setup and connectivity")
     .option("--fix", "Attempt to auto-fix failing checks")
+    .option("--verify", "Run signing key verification checks")
+    .option("--keystore <path>", "Path to Android keystore (or set GPC_KEYSTORE_PATH)")
+    .option("--store-pass <password>", "Keystore password (or set GPC_STORE_PASSWORD)")
+    .option("--key-alias <alias>", "Key alias in keystore")
     .action(async (opts, cmd) => {
       const results: CheckResult[] = [];
       const parentOpts = cmd.parent?.opts() ?? {};
@@ -980,6 +1156,38 @@ export function registerDoctorCommand(program: Command): void {
       // 19. Developer verification deadline
       // -----------------------------------------------------------------------
       results.push(checkVerificationDeadline());
+
+      // -----------------------------------------------------------------------
+      // 20. Signing key verification (only when --verify is passed)
+      // -----------------------------------------------------------------------
+      if (opts["verify"] && accessToken && config?.app) {
+        const ksPath = (opts["keystore"] as string | undefined) ?? process.env["GPC_KEYSTORE_PATH"];
+        const ksPass =
+          (opts["storePass"] as string | undefined) ?? process.env["GPC_STORE_PASSWORD"];
+        const ksAlias = opts["keyAlias"] as string | undefined;
+        const signingResults = await checkSigningKey(
+          config.app,
+          accessToken,
+          ksPath,
+          ksPass,
+          ksAlias,
+        );
+        results.push(...signingResults);
+      } else if (opts["verify"] && !accessToken) {
+        results.push({
+          name: "signing-api",
+          status: "warn",
+          message: "Cannot verify signing key without authentication",
+          suggestion: "Run 'gpc auth login' first, then retry with --verify",
+        });
+      } else if (opts["verify"] && !config?.app) {
+        results.push({
+          name: "signing-api",
+          status: "warn",
+          message: "Cannot verify signing key without a configured app",
+          suggestion: "Set a default app with 'gpc config set app <package>' or use --app",
+        });
+      }
 
       // -----------------------------------------------------------------------
       // Output
