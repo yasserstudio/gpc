@@ -96,16 +96,16 @@ This is designed to break the cycle of scam-driven coercion while preserving cho
 
 ## Timeline
 
-| Date               | Milestone                                                                                                       |
-| ------------------ | --------------------------------------------------------------------------------------------------------------- |
-| **August 2025**    | New requirements [announced](https://android-developers.googleblog.com/2025/08/elevating-android-security.html) |
-| **November 2025**  | Early access began                                                                                              |
-| **March 2026**     | Registration opens to all developers                                                                            |
-| **April 2026**     | Android Developer Verifier rolls out to certified devices as a Google Play Services system component            |
-| **June 2026**      | Limited distribution accounts early access                                                                      |
-| **August 2026**    | Limited distribution and advanced flow launch globally                                                          |
-| **September 30, 2026** | Enforcement begins in Brazil, Indonesia, Singapore, Thailand                                                |
-| **2027+**          | Global enforcement rollout                                                                                      |
+| Date                   | Milestone                                                                                                       |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **August 2025**        | New requirements [announced](https://android-developers.googleblog.com/2025/08/elevating-android-security.html) |
+| **November 2025**      | Early access began                                                                                              |
+| **March 2026**         | Registration opens to all developers                                                                            |
+| **April 2026**         | Android Developer Verifier rolls out to certified devices as a Google Play Services system component            |
+| **June 2026**          | Limited distribution accounts early access                                                                      |
+| **August 2026**        | Limited distribution and advanced flow launch globally                                                          |
+| **September 30, 2026** | Enforcement begins in Brazil, Indonesia, Singapore, Thailand                                                    |
+| **2027+**              | Global enforcement rollout                                                                                      |
 
 ## Key concepts
 

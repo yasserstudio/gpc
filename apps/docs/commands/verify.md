@@ -119,9 +119,13 @@ gpc verify --json
     "playAppSigningEnrolled": true
   },
   "actionItems": [
-    { "priority": "low", "title": "Run full readiness walkthrough", "command": "gpc verify checklist" }
+    {
+      "priority": "low",
+      "title": "Run full readiness walkthrough",
+      "command": "gpc verify checklist"
+    }
   ],
-  "resources": { "..." : "..." }
+  "resources": { "...": "..." }
 }
 ```
 

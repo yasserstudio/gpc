@@ -36,13 +36,13 @@ gpc doctor [--json] [--verify] [--keystore <path>] [--store-pass <password>] [--
 
 ### Options
 
-| Flag                       | Description                                                                  |
-| -------------------------- | ---------------------------------------------------------------------------- |
-| `--json`                   | Output results as machine-readable JSON                                      |
-| `--verify`                 | Run signing key verification checks (compares local keystore vs Play cert)   |
-| `--keystore <path>`        | Path to Android keystore file (or set `GPC_KEYSTORE_PATH`)                   |
-| `--store-pass <password>`  | Keystore password (or set `GPC_STORE_PASSWORD`)                              |
-| `--key-alias <alias>`      | Key alias in keystore (defaults to first entry)                              |
+| Flag                      | Description                                                                |
+| ------------------------- | -------------------------------------------------------------------------- |
+| `--json`                  | Output results as machine-readable JSON                                    |
+| `--verify`                | Run signing key verification checks (compares local keystore vs Play cert) |
+| `--keystore <path>`       | Path to Android keystore file (or set `GPC_KEYSTORE_PATH`)                 |
+| `--store-pass <password>` | Keystore password (or set `GPC_STORE_PASSWORD`)                            |
+| `--key-alias <alias>`     | Key alias in keystore (defaults to first entry)                            |
 
 ### Checks performed
 
@@ -63,8 +63,8 @@ gpc doctor [--json] [--verify] [--keystore <path>] [--store-pass <password>] [--
 | `auth`                        | Credentials load and authenticate successfully                                                            |
 | `api-connectivity`            | Access token can be obtained from Google                                                                  |
 | `verification-deadline`       | Days remaining until Android developer verification enforcement (September 30, 2026)                      |
-| `signing-api` *(--verify)*    | Fetches Play signing certificate fingerprint from generatedApks                                           |
-| `signing-local` *(--verify)*  | Compares local keystore fingerprint against Play signing certificate                                      |
+| `signing-api` _(--verify)_    | Fetches Play signing certificate fingerprint from generatedApks                                           |
+| `signing-local` _(--verify)_  | Compares local keystore fingerprint against Play signing certificate                                      |
 
 ### Example
 

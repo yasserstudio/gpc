@@ -414,7 +414,11 @@ export {
   normalizeFingerprint,
   parseKeytoolOutput,
 } from "./signing.js";
-export type { KeystoreFingerprint, ApiSigningFingerprint, SigningKeyComparison } from "./signing.js";
+export type {
+  KeystoreFingerprint,
+  ApiSigningFingerprint,
+  SigningKeyComparison,
+} from "./signing.js";
 export { checkSigningConsistency } from "./signing-consistency.js";
 export type { SigningConsistencyResult } from "./signing-consistency.js";
 export { buildChecklist, renderChecklistMarkdown } from "./verify-checklist.js";
