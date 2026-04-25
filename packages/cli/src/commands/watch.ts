@@ -169,7 +169,7 @@ export function registerWatchCommand(program: Command): void {
       }
 
       // Resolve thresholds: CLI flags > config > defaults
-      const configThresholds = (config as Record<string, unknown>)["vitals"] as
+      const configThresholds = (config as unknown as Record<string, unknown>)["vitals"] as
         | { thresholds?: Record<string, number> }
         | undefined;
 
@@ -196,7 +196,7 @@ export function registerWatchCommand(program: Command): void {
 
       const webhookUrl =
         (opts["webhookUrl"] as string | undefined) ??
-        ((config as Record<string, unknown>)["webhooks"] as Record<string, string> | undefined)?.[
+        ((config as unknown as Record<string, unknown>)["webhooks"] as Record<string, string> | undefined)?.[
           "watch"
         ];
 
