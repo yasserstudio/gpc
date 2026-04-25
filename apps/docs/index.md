@@ -40,13 +40,13 @@ features:
   - icon:
       src: /icons/analytics.png
     title: Full Picture in One Command
-    details: "gpc status — releases, vitals, and reviews in 3 seconds. Exit code 6 if any threshold is breached."
+    details: "gpc status for a snapshot. gpc watch for real-time rollout monitoring with auto-halt on threshold breach. Exit code 6 for CI."
 ---
 
 <div class="stats-bar">
   <span class="stat">217 API Endpoints</span>
   <span class="stat-sep"></span>
-  <span class="stat">2,143 Tests</span>
+  <span class="stat">2,170 Tests</span>
   <span class="stat-sep"></span>
   <span class="stat">90%+ Coverage</span>
   <span class="stat-sep"></span>
@@ -87,27 +87,32 @@ gpc releases upload app.aab --track internal
 # Promote to production with staged rollout
 gpc releases promote --from internal --to production --rollout 10
 
+# Watch your rollout, auto-halt on threshold breach
+gpc watch --on-breach halt
+
 # Translate your release notes into every locale on your live listing
 gpc changelog generate --target play-store --locales auto --ai
 ```
 
 ## What's New
 
-::: tip v0.9.66 — Developer verification tooling
-Google's [developer verification](https://developer.android.com/developer-verification) enforcement begins September 30, 2026. GPC now has signing key audit, verification readiness checks, and account-aware status in one place.
+::: tip v0.9.67 — Real-time rollout monitoring
+Ship your release, then watch it from the terminal. `gpc watch` monitors vitals alongside rollout progress and takes action when thresholds breach.
 
 ```bash
-gpc verify                    # account-aware verification status
-gpc verify checklist          # interactive readiness walkthrough
-gpc doctor --verify           # signing key fingerprint comparison
-gpc preflight signing         # signing cert consistency across releases
+gpc watch                                    # crashes + ANR on production
+gpc watch --track beta --on-breach halt      # auto-halt on breach
+gpc watch --on-breach notify,webhook \
+  --webhook-url https://hooks.slack.com/...  # Slack alerts
+gpc watch --rounds 3 --interval 300 --json   # CI mode
 ```
 
-[Developer verification guide →](/guide/developer-verification)
+[Watch command reference →](/commands/watch)
 :::
 
 **Previous releases:**
 
+- **v0.9.66** — Developer verification tooling: `gpc verify`, `gpc verify checklist`, `gpc doctor --verify`, `gpc preflight signing`.
 - **v0.9.65** — Preflight scanners for April 2026 Google Play policies (geofencing foreground service, contacts broad access, Health Connect granular permissions).
 - **v0.9.64** — `--apply` writes translated release notes directly into your draft release. The v0.9.61-v0.9.64 changelog series is complete.
 - **v0.9.62** — Multilingual Play Store release notes. `--target play-store --locales <csv|auto>` emits per-locale "What's new" text with the 500-character budget enforced per locale.
@@ -123,6 +128,7 @@ gpc preflight signing         # signing cert consistency across releases
 | **Listings**      | Store metadata, screenshots, localization, Fastlane format compatible                                                                        |
 | **Reviews**       | Filter by stars/language/date, reply, export to CSV                                                                                          |
 | **Vitals**        | Crashes, ANR, startup, rendering, battery, memory — with CI threshold gates                                                                  |
+| **Monitoring**    | Real-time rollout monitoring with 6 vitals metrics, threshold alerts, auto-halt, and webhook notifications                                   |
 | **Monetization**  | Subscriptions, base plans, offers, in-app products, pricing conversion                                                                       |
 | **Purchases**     | Verification, acknowledgment, refunds, voided purchases                                                                                      |
 | **Reports**       | Financial and stats CSV downloads                                                                                                            |
