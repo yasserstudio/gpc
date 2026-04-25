@@ -196,9 +196,11 @@ export function registerWatchCommand(program: Command): void {
 
       const webhookUrl =
         (opts["webhookUrl"] as string | undefined) ??
-        ((config as unknown as Record<string, unknown>)["webhooks"] as Record<string, string> | undefined)?.[
-          "watch"
-        ];
+        (
+          (config as unknown as Record<string, unknown>)["webhooks"] as
+            | Record<string, string>
+            | undefined
+        )?.["watch"];
 
       if (actions.includes("webhook") && !webhookUrl) {
         throw Object.assign(new Error("--webhook-url is required when using --on-breach webhook"), {
