@@ -195,6 +195,9 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     rtdn: async () => {
       (await import("./commands/rtdn.js")).registerRtdnCommands(program);
     },
+    watch: async () => {
+      (await import("./commands/watch.js")).registerWatchCommand(program);
+    },
   };
 
   // "Did you mean?" suggestions for unknown commands

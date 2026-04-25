@@ -410,4 +410,5 @@ gpc vitals compare anr --app com.example.myapp --days 30
 - [anomalies](./anomalies) -- Automatic anomaly detection across all vitals metrics
 - [reviews](./reviews) -- User feedback monitoring
 - [CI/CD Vitals Gates](/ci-cd/vitals-gates) -- Automated quality gates
+- [watch](./watch) -- Real-time rollout monitoring with multi-metric vitals and auto-actions
 - [Exit Codes](/reference/exit-codes) -- Exit code 6 for threshold breach

@@ -312,6 +312,7 @@ const EXPECTED_TOP_LEVEL_COMMANDS = [
   "changelog",
   "rtdn",
   "verify",
+  "watch",
 ];
 
 describe("help text consistency", () => {

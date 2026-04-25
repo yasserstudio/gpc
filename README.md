@@ -159,6 +159,8 @@ Know if something broke before your users do.
 gpc status                                 # Releases + vitals + reviews in one view
 gpc status --watch 60                      # Live polling every 60 seconds
 gpc status --all-apps                      # Check all your apps at once
+gpc watch --track production               # Real-time rollout monitoring with alerts
+gpc watch --on-breach halt                 # Auto-halt rollout on threshold breach
 gpc vitals crashes --threshold 2.0         # Exit code 6 if breached — CI gate
 gpc reviews list --stars 1-2 --since 7d    # Filter reviews by stars and date
 gpc reviews reply <id> --text "Thanks!"    # Reply without opening a browser

@@ -67,6 +67,8 @@ function getPageDescription(page: PageData): string {
       "Five minutes to your first release. Authenticate, upload, promote, check vitals, and monitor reviews with GPC.",
     "commands/index.md":
       "Complete command reference for GPC — the Google Play Console CLI. 30+ commands covering every Play Console operation.",
+    "commands/watch.md":
+      "gpc watch — Real-time rollout monitoring with multi-metric vitals, threshold alerts, and auto-halt. Ship your release, then watch it from your terminal.",
     "commands/status.md":
       "gpc status — App health at a glance. Releases, vitals, and reviews in one command. Six parallel API calls in under 3 seconds.",
     "commands/releases.md":
@@ -324,7 +326,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
 
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.65",
+        softwareVersion: "0.9.66",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: { "@type": "Person", name: "yasserstudio", url: "https://github.com/yasserstudio" },
@@ -846,6 +848,7 @@ export default defineConfig({
           text: si(ICONS.activity, "Monitoring"),
           collapsed: false,
           items: [
+            { text: "watch", link: "/commands/watch" },
             { text: "reviews", link: "/commands/reviews" },
             { text: "vitals", link: "/commands/vitals" },
             { text: "anomalies", link: "/commands/anomalies" },

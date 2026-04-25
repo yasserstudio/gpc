@@ -16,6 +16,7 @@ gpc releases upload app.aab --track beta      # Upload to any track
 gpc releases promote --from beta --to production --rollout 10
 gpc publish app.aab --track beta --notes "Bug fixes"                # One-shot upload + release
 gpc preflight app.aab                         # 9 offline policy scanners
+gpc watch --on-breach halt                     # Real-time rollout monitoring + auto-halt
 gpc vitals crashes --threshold 2.0            # Exit code 6 if breached
 gpc reviews list --stars 1-2 --since 7d       # Filter reviews
 gpc reviews reply <review-id> --text "Thanks for the feedback!"

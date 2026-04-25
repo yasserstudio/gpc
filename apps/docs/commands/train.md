@@ -121,3 +121,4 @@ gpc train advance
 
 - [`gpc releases rollout`](/commands/releases) — manual rollout control
 - [`gpc vitals`](/commands/vitals) — monitor vitals that power the gates
+- [`gpc watch`](/commands/watch) — real-time rollout monitoring with threshold alerts

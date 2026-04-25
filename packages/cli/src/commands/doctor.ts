@@ -3,7 +3,7 @@ import { loadConfig, getCacheDir, getConfigDir } from "@gpc-cli/config";
 import { green, red, yellow } from "../colors.js";
 import { resolveAuth, AuthError } from "@gpc-cli/auth";
 import { existsSync, accessSync, statSync, constants } from "node:fs";
-import { readFile, stat, statfs } from "node:fs/promises";
+import { readFile, readdir, stat, statfs } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { lookup } from "node:dns/promises";
 import { isNewerVersion } from "../update-check.js";
@@ -519,6 +519,90 @@ export function checkVerificationDeadline(): CheckResult {
     status: "warn",
     message: "Android developer verification is being enforced. Ensure your account is verified.",
     suggestion: "Run 'gpc verify checklist' to check your readiness",
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Stale cache check
+// ---------------------------------------------------------------------------
+
+export async function checkStaleCache(cacheDir: string): Promise<CheckResult | null> {
+  const STALE_DAYS = 7;
+  try {
+    if (!existsSync(cacheDir)) return null;
+    const files = await readdir(cacheDir);
+    const statusFiles = files.filter((f) => f.startsWith("status-") && f.endsWith(".json"));
+    if (statusFiles.length === 0) return null;
+
+    const stale: string[] = [];
+    for (const file of statusFiles) {
+      const filePath = join(cacheDir, file);
+      const stats = await stat(filePath);
+      const ageDays = Math.floor((Date.now() - stats.mtimeMs) / (1000 * 60 * 60 * 24));
+      if (ageDays > STALE_DAYS) {
+        stale.push(file.replace("status-", "").replace(".json", ""));
+      }
+    }
+
+    if (stale.length === 0) return null;
+    return {
+      name: "stale-cache",
+      status: "warn",
+      message: `Stale status cache (>${STALE_DAYS} days): ${stale.join(", ")}`,
+      suggestion: "Refresh with: gpc status --refresh",
+    };
+  } catch {
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Shell completion check
+// ---------------------------------------------------------------------------
+
+export async function checkShellCompletion(): Promise<CheckResult | null> {
+  const shell = process.env["SHELL"] ?? "";
+  if (!shell) return null;
+
+  const home = process.env["HOME"] ?? "";
+  if (!home) return null;
+
+  const shellName = shell.split("/").pop() ?? "";
+  let installed = false;
+
+  if (shellName === "zsh") {
+    const rcPath = join(home, ".zshrc");
+    try {
+      if (existsSync(rcPath)) {
+        const rc = await readFile(rcPath, "utf-8");
+        const fpath = process.env["FPATH"] ?? "";
+        installed = rc.includes("gpc") && (rc.includes("compdef") || fpath.includes("gpc"));
+      }
+    } catch {
+      // fall through
+    }
+  } else if (shellName === "bash") {
+    const rcPath = join(home, ".bashrc");
+    try {
+      if (existsSync(rcPath)) {
+        const rc = await readFile(rcPath, "utf-8");
+        installed = rc.includes("gpc") && rc.includes("complete");
+      }
+    } catch {
+      // fall through
+    }
+  } else {
+    return null;
+  }
+
+  if (installed) {
+    return { name: "shell-completion", status: "pass", message: `Shell completion: ${shellName}` };
+  }
+  return {
+    name: "shell-completion",
+    status: "info",
+    message: `Shell completion not detected for ${shellName}`,
+    suggestion: "Install with: gpc completion install",
   };
 }
 
@@ -1158,7 +1242,19 @@ export function registerDoctorCommand(program: Command): void {
       results.push(checkVerificationDeadline());
 
       // -----------------------------------------------------------------------
-      // 20. Signing key verification (only when --verify is passed)
+      // 20. Stale status cache
+      // -----------------------------------------------------------------------
+      const staleCacheResult = await checkStaleCache(cacheDir);
+      if (staleCacheResult) results.push(staleCacheResult);
+
+      // -----------------------------------------------------------------------
+      // 21. Shell completion
+      // -----------------------------------------------------------------------
+      const completionResult = await checkShellCompletion();
+      if (completionResult) results.push(completionResult);
+
+      // -----------------------------------------------------------------------
+      // 22. Signing key verification (only when --verify is passed)
       // -----------------------------------------------------------------------
       if (opts["verify"] && accessToken && config?.app) {
         const ksPath = (opts["keystore"] as string | undefined) ?? process.env["GPC_KEYSTORE_PATH"];

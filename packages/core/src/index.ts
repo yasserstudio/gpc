@@ -138,6 +138,23 @@ export type {
   VersionVitalsComparison,
   WatchVitalsOptions,
 } from "./commands/vitals.js";
+export {
+  runWatch,
+  handleBreach,
+  dispatchWebhook,
+  VALID_WATCH_METRICS,
+  DEFAULT_WATCH_THRESHOLDS,
+} from "./commands/watch.js";
+export type {
+  WatchMetric,
+  WatchAction,
+  WatchConfig,
+  WatchRollout,
+  WatchVitalReading,
+  WatchEvent,
+  WatchSummary,
+  WatchCallbacks,
+} from "./commands/watch.js";
 export { validateImage } from "./utils/image-validation.js";
 export type { ImageValidationResult } from "./utils/image-validation.js";
 export {

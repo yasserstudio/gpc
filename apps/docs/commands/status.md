@@ -395,4 +395,5 @@ gpc status --watch 300 --notify --sections vitals
 - [`gpc releases status`](/commands/releases) — detailed release data including version codes and rollout history
 - [`gpc releases rollout`](/commands/releases#rollout) — adjust, halt, or resume a staged rollout
 - [Vitals Gates in CI](/ci-cd/vitals-gates) — gate deployments on crash and ANR rates
+- [`gpc watch`](/commands/watch) — real-time rollout monitoring with threshold alerts and auto-actions
 - [GPC vs Fastlane](/alternatives/fastlane) — feature comparison with Fastlane supply

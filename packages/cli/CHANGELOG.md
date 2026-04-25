@@ -1,5 +1,13 @@
 # @gpc-cli/cli
 
+## 0.9.67
+
+### Patch Changes
+
+- feat(cli,core): v0.9.67 — real-time rollout monitoring with `gpc watch`
+- Updated dependencies
+  - @gpc-cli/core@0.9.57
+
 ## 0.9.66
 
 ### Patch Changes

@@ -7,6 +7,9 @@ import {
   checkConflictingCredentials,
   checkConfigKeys,
   checkCiEnvironment,
+  checkStaleCache,
+  checkShellCompletion,
+  checkVerificationDeadline,
 } from "../src/commands/doctor.js";
 
 // ---------------------------------------------------------------------------
@@ -351,5 +354,83 @@ describe("checkCiEnvironment", () => {
     process.env["GPC_NO_UPDATE_CHECK"] = "1";
     const result = checkCiEnvironment();
     expect(result?.suggestion).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// checkStaleCache
+// ---------------------------------------------------------------------------
+
+describe("checkStaleCache", () => {
+  it("returns null for non-existent directory", async () => {
+    const result = await checkStaleCache("/tmp/gpc-test-nonexistent-" + Date.now());
+    expect(result).toBeNull();
+  });
+
+  it("returns null when no status files exist", async () => {
+    const { mkdtempSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const dir = mkdtempSync(`${tmpdir()}/gpc-doctor-test-`);
+    const result = await checkStaleCache(dir);
+    expect(result).toBeNull();
+    const { rmSync } = await import("node:fs");
+    rmSync(dir, { recursive: true });
+  });
+
+  it("warns about stale status files", async () => {
+    const { mkdtempSync, writeFileSync, utimesSync } = await import("node:fs");
+    const { tmpdir } = await import("node:os");
+    const { join } = await import("node:path");
+    const dir = mkdtempSync(`${tmpdir()}/gpc-doctor-test-`);
+    const filePath = join(dir, "status-com.example.app.json");
+    writeFileSync(filePath, "{}");
+    const oldDate = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+    utimesSync(filePath, oldDate, oldDate);
+
+    const result = await checkStaleCache(dir);
+    expect(result).not.toBeNull();
+    expect(result!.status).toBe("warn");
+    expect(result!.message).toContain("com.example.app");
+    expect(result!.suggestion).toContain("--refresh");
+
+    const { rmSync } = await import("node:fs");
+    rmSync(dir, { recursive: true });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// checkShellCompletion
+// ---------------------------------------------------------------------------
+
+describe("checkShellCompletion", () => {
+  const origShell = process.env["SHELL"];
+
+  afterEach(() => {
+    if (origShell !== undefined) process.env["SHELL"] = origShell;
+    else delete process.env["SHELL"];
+  });
+
+  it("returns null when SHELL is not set", async () => {
+    delete process.env["SHELL"];
+    const result = await checkShellCompletion();
+    expect(result).toBeNull();
+  });
+
+  it("returns null for unsupported shells", async () => {
+    process.env["SHELL"] = "/bin/fish";
+    const result = await checkShellCompletion();
+    expect(result).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// checkVerificationDeadline
+// ---------------------------------------------------------------------------
+
+describe("checkVerificationDeadline", () => {
+  it("returns a result with days remaining", () => {
+    const result = checkVerificationDeadline();
+    expect(result.name).toBe("verification");
+    expect(result.message).toContain("September 30, 2026");
   });
 });

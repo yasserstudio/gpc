@@ -44,8 +44,8 @@ e2e/               → End-to-end tests
 - Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, Homebrew tap, npm publish, README/CHANGELOG
 - Phase 10 ✓ — `gpc preflight` pre-submission compliance scanner (9 scanners, offline AAB policy checks)
 - Published to npm: `npm install -g @gpc-cli/cli`
-- Current version: v0.9.65 — pre-release series (`0.9.x` → `1.0.0` public launch)
-- v0.9.66 in progress: developer verification tooling (`gpc verify` enriched, `gpc verify checklist`, `gpc doctor --verify`, `gpc preflight signing`)
+- Current version: v0.9.66 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- v0.9.67 in progress: `gpc watch` real-time rollout monitoring with multi-metric vitals, threshold alerts, and auto-actions (notify, halt, webhook). Smarter `gpc doctor` (stale cache, shell completion checks).
 - 2,143 total tests, 7 packages building, 90%+ line coverage on all core packages
 - Changelog-generation series (v0.9.61 → v0.9.64): complete. `gpc changelog generate --target play-store --locales auto --ai --apply` does commit → translated Play Store notes → written into draft release, one command.
 - v0.9.63 highlight: AI-assisted Play Store translation. `gpc changelog generate --target play-store --locales auto --ai` translates non-source locales via the user's own LLM key. Auto-detects env priority `AI_GATEWAY_API_KEY` → `ANTHROPIC_API_KEY` → `OPENAI_API_KEY` → `GOOGLE_GENERATIVE_AI_API_KEY`. Non-reasoning model defaults. Gateway path unlocks cost-per-run in USD. All 4 AI SDK deps lazy-loaded (cold-start preserved).

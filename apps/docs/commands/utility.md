@@ -63,6 +63,8 @@ gpc doctor [--json] [--verify] [--keystore <path>] [--store-pass <password>] [--
 | `auth`                        | Credentials load and authenticate successfully                                                            |
 | `api-connectivity`            | Access token can be obtained from Google                                                                  |
 | `verification-deadline`       | Days remaining until Android developer verification enforcement (September 30, 2026)                      |
+| `stale-cache`                 | Warns if cached `gpc status` data is older than 7 days                                                    |
+| `shell-completion`            | Detects whether shell completions are installed for your shell (bash/zsh)                                 |
 | `signing-api` _(--verify)_    | Fetches Play signing certificate fingerprint from generatedApks                                           |
 | `signing-local` _(--verify)_  | Compares local keystore fingerprint against Play signing certificate                                      |
 
