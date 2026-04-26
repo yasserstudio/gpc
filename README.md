@@ -7,7 +7,11 @@
   <a href="https://yasser.studio"><picture><source media="(prefers-color-scheme: dark)" srcset="./assets/yasser-studio-logo-white.svg"><img src="./assets/yasser-studio-logo.svg" alt="Yasser's Studio" height="30"></picture></a>
 </p>
 
-# GPC — Google Play Console CLI
+# GPC - Google Play Console CLI
+
+**GPC** is a command-line interface for the Google Play Developer API that covers all 217 API endpoints from a single binary. It handles releases, rollouts, store listings, vitals monitoring, reviews, subscriptions, reports, and Managed Google Play publishing without requiring Ruby, a JVM, or a browser. Built for Android developers, release engineers, and DevOps teams who ship from the terminal.
+
+GPC also includes an offline compliance scanner that catches Google Play policy violations before you upload, and a real-time rollout monitor that auto-halts on crash rate spikes.
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/v/@gpc-cli/cli?style=for-the-badge&color=00D26A" alt="npm version"></a>
@@ -17,18 +21,8 @@
   <img src="https://img.shields.io/badge/Free_to_use-Code_on_GitHub-yellow?style=for-the-badge" alt="Free to use">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-2170_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-2143_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
-</p>
-
-<p align="center"><strong>Ship Android apps from your terminal.</strong></p>
-
-<p align="center"><sub>Built for Android developers, release engineers, and DevOps teams who are done clicking through the Play Console.</sub></p>
-
-<p align="center">
-The complete CLI for Google Play — 217 API endpoints, one tool.<br>
-Releases, rollouts, metadata, vitals, reviews, subscriptions, reports, Managed Google Play, and more.<br>
-<strong>Plus an offline compliance scanner that catches policy violations before you upload.</strong><br>
 </p>
 
 <p align="center"><a href="#install"><strong>Install in 30 seconds</strong></a> · <a href="https://yasserstudio.github.io/gpc/guide/quick-start">Quick Start Guide</a> · <a href="https://github.com/yasserstudio/gpc">GitHub</a></p>
@@ -55,30 +49,16 @@ Free to use. No account required beyond your existing Google Play service accoun
 
 ---
 
-## Quick Start
+## How to Ship an Android Release from the Terminal
 
-```bash
-# Authenticate
-gpc auth login --service-account path/to/key.json
-
-# Verify your setup
-gpc doctor
-
-# App health at a glance — releases, vitals, and reviews in one command
-gpc status
-
-# Upload and release
-gpc releases upload app.aab --track internal
-
-# Promote to production with staged rollout
-gpc releases promote --from internal --to production --rollout 10
-
-# Watch your rollout with auto-halt on threshold breach
-gpc watch --on-breach halt
-
-# Monitor reviews
-gpc reviews list --stars 1-3 --since 7d
-```
+1. **Install GPC** - `npm install -g @gpc-cli/cli` (also available via [Homebrew](https://yasserstudio.github.io/gpc/guide/installation) or standalone binary)
+2. **Authenticate with your service account** - `gpc auth login --service-account path/to/key.json`
+3. **Verify your setup** - `gpc doctor` runs 20 automated checks on auth, config, and connectivity
+4. **Check app health** - `gpc status` shows releases, vitals, and reviews in one view
+5. **Upload your build** - `gpc releases upload app.aab --track internal`
+6. **Promote to production** - `gpc releases promote --from internal --to production --rollout 10`
+7. **Monitor the rollout** - `gpc watch --on-breach halt` tracks crash rates and auto-halts on threshold breach
+8. **Check reviews** - `gpc reviews list --stars 1-3 --since 7d`
 
 <p align="center">
   <img src="./assets/demo.svg" alt="gpc status — releases, vitals, reviews at a glance" width="680">
@@ -324,6 +304,28 @@ Full docs at **[yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)
 - [GitHub Discussions](https://github.com/yasserstudio/gpc/discussions) — questions, ideas, show what you built
 - [Issues](https://github.com/yasserstudio/gpc/issues) — bug reports and feature requests
 - `gpc doctor` — diagnose setup problems locally
+
+---
+
+## FAQ
+
+**Is GPC free?**
+Yes. GPC is free to use. The code is on GitHub. No subscription, no usage limits, no account required beyond your existing Google Play developer account and service account key.
+
+**Does GPC replace Fastlane for Android?**
+For Google Play, yes. GPC covers 217 API endpoints compared to Fastlane supply's ~20. It handles vitals, reviews, subscriptions, Managed Google Play, and offline compliance scanning, none of which Fastlane supports. See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) for a command-by-command mapping.
+
+**Can GPC create new apps on Google Play?**
+No. Google Play does not offer an API endpoint to create apps. You create the app once in the Play Console UI, then GPC handles the entire lifecycle after that: uploads, releases, rollouts, metadata, vitals, reviews, and more.
+
+**Does GPC work in CI/CD pipelines?**
+Yes. Every command supports `--json` output and uses semantic exit codes (0-6). Authenticate with a service account key via environment variable. See the [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/) for GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI.
+
+**What is the preflight scanner?**
+`gpc preflight` runs 9 offline scanners against your AAB or APK before you upload it. It checks target SDK, restricted permissions, 64-bit compliance, data safety, secrets in code, non-Play billing SDKs, tracking libraries, Families/COPPA policy, and download size. Catches rejection reasons before Google does.
+
+**Does GPC support Managed Google Play (enterprise)?**
+Yes. GPC is the first command-line tool to support the Play Custom App Publishing API. `gpc enterprise publish` creates and updates private apps for Managed Google Play without touching a browser.
 
 ---
 

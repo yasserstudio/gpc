@@ -221,7 +221,7 @@ function getPageDescription(page: PageData): string {
     "alternatives/fastlane.md":
       "GPC vs Fastlane supply: 217 endpoints vs ~20, Node.js vs Ruby, plus vitals, reviews, subscriptions, preflight scanning, and Managed Google Play private app publishing.",
     "alternatives/index.md":
-      "Google Play CLI tools compared. GPC vs Fastlane vs gradle-play-publisher vs play-console-cli. Feature matrix and API coverage.",
+      "Compare every Google Play Console CLI tool: GPC (217 endpoints), Fastlane supply, gradle-play-publisher, and Go-based CLIs. Feature matrix, API coverage, runtime, CI/CD support, and how to choose.",
     "alternatives/android-release-automation.md":
       "Automate Android releases with GPC. Upload, promote, staged rollout, vitals gating, and monitoring from the command line or CI/CD.",
     "alternatives/gradle-play-publisher.md":
@@ -326,7 +326,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
 
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.66",
+        softwareVersion: "0.9.67",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: { "@type": "Person", name: "yasserstudio", url: "https://github.com/yasserstudio" },
@@ -484,6 +484,53 @@ export default defineConfig({
         "script",
         { type: "application/ld+json" },
         JSON.stringify(fastlaneFaqSchema),
+      ]);
+    }
+
+    // FAQPage schema on /alternatives/index — comparison hub page
+    if (pageData.relativePath === "alternatives/index.md") {
+      const altIndexFaqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: "Can any CLI tool create new apps on Google Play?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "No. Google Play has no public API for app creation. Every CLI tool requires that you create the app once in the Play Console web UI. After that, the CLI handles the full lifecycle.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Which Google Play CLI tool has the most complete API coverage?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "GPC, with 217 endpoints. This includes the full Google Play Developer API v3 surface plus the Play Custom App Publishing API for Managed Google Play. The next closest covers around 80 endpoints.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Do I need Node.js to run GPC?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "No. GPC is available as a standalone binary for macOS (arm64, x64), Linux (arm64, x64), and Windows (x64) with no runtime dependencies.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Can I use GPC and Fastlane together?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. GPC reads Fastlane's metadata directory format. You can migrate incrementally, command by command, keeping Fastlane for iOS while using GPC for Android.",
+            },
+          },
+        ],
+      };
+      pageData.frontmatter.head.push([
+        "script",
+        { type: "application/ld+json" },
+        JSON.stringify(altIndexFaqSchema),
       ]);
     }
 
