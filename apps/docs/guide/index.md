@@ -53,7 +53,7 @@ Plus: device tiers, internal sharing, data safety, recovery actions, external tr
 | **Purchases**        | Verify, acknowledge, consume, refund               | None                   | None                  | Manual         |
 | **Reports**          | Financial and stats CSV download                   | None                   | None                  | Download       |
 | **Plugins**          | SDK with lifecycle hooks                           | Lanes + actions        | None                  | None           |
-| **Output formats**   | `table`, `json`, `yaml`, `markdown`                | Stdout                 | Stdout                | N/A            |
+| **Output formats**   | `table`, `json`, `yaml`, `markdown`, `csv`, `tsv`  | Stdout                 | Stdout                | N/A            |
 | **Dry run**          | All write operations                               | None                   | None                  | N/A            |
 | **Auth methods**     | Service account, OAuth, ADC, env var               | Service account        | Service account       | Google account |
 | **Cold start**       | <500ms                                             | 2-3s                   | 3-5s                  | 5-10s          |

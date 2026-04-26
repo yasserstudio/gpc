@@ -26,6 +26,7 @@ import {
 const result = await uploadRelease(context, {
   file: "app.aab",
   track: "internal",
+  validateOnly: true, // dry-run: server-side validation without committing
 });
 
 // Promote between tracks
@@ -37,7 +38,7 @@ await promoteRelease(context, {
 
 // Check vitals
 const vitals = await getVitalsOverview(context);
-console.log(formatOutput(vitals, "table"));
+console.log(formatOutput(vitals, "table")); // also: "json", "csv", "tsv"
 
 // Analyze bundle size
 const analysis = await analyzeBundle("./app.aab");
@@ -59,13 +60,13 @@ const analysis = await analyzeBundle("./app.aab");
 | **Users**         | `listUsers`, `inviteUser`, `updateUser`, `removeUser`                                                                                                                                      |
 | **Testers**       | `listTesters`, `addTesters`, `removeTesters`, `importTestersFromCsv`                                                                                                                       |
 | **Bundle**        | `analyzeBundle`, `compareBundles` (zero-dependency AAB/APK size analysis)                                                                                                                  |
-| **Publishing**    | `publish` (end-to-end: upload + track + notes + commit)                                                                                                                                    |
+| **Publishing**    | `publish` (end-to-end: upload + track + notes + commit; supports `validateOnly` dry-run)                                                                                                   |
 | **Changelog**     | `generateChangelog`, `fetchChangelog`, `formatChangelogEntry`, `buildLocaleBundle`, `renderPlayStore`, `renderMarkdown`, `renderJson`, `renderPrompt`, `translateBundle`, `resolveLocales` |
 | **Validation**    | `validateUploadFile`, `validateImage`, `validatePreSubmission`                                                                                                                             |
 
 ## Utilities
 
-- **Output formatting** — `formatOutput()`, `detectOutputFormat()`, `redactSensitive()`
+- **Output formatting** - `formatOutput(data, format)` supports `"json"`, `"table"`, `"csv"`, `"tsv"`; plus `detectOutputFormat()`, `redactSensitive()`
 - **Error hierarchy** — `GpcError`, `ConfigError`, `ApiError`, `NetworkError` with exit codes
 - **Audit logging** — `initAudit()`, `writeAuditLog()` for write operation tracking
 - **Path safety** — `safePath()`, `safePathWithin()` for path traversal prevention

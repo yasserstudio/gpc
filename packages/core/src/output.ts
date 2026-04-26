@@ -31,6 +31,10 @@ export function formatOutput(data: unknown, format: OutputFormat, redact = true)
       return formatYaml(safe);
     case "markdown":
       return formatMarkdown(safe);
+    case "csv":
+      return formatCsv(safe);
+    case "tsv":
+      return formatTsv(safe);
     case "table":
       return formatTable(safe);
     case "junit":
@@ -253,6 +257,50 @@ function formatMarkdown(data: unknown): string {
     .join("\n");
 
   return `${header}\n${separator}\n${body}`;
+}
+
+function escapeCsvField(val: string): string {
+  if (val.includes(",") || val.includes('"') || val.includes("\n") || val.includes("\r")) {
+    return `"${val.replace(/"/g, '""')}"`;
+  }
+  return val;
+}
+
+function formatCsv(data: unknown): string {
+  const rows = toRows(data);
+  if (rows.length === 0) return "";
+
+  const firstRow = rows[0];
+  if (!firstRow) return "";
+  const keys = Object.keys(firstRow);
+  if (keys.length === 0) return "";
+
+  const header = keys.map(escapeCsvField).join(",");
+  const body = rows
+    .map((row) => keys.map((key) => escapeCsvField(cellValue(row[key]))).join(","))
+    .join("\n");
+
+  return `${header}\n${body}`;
+}
+
+function formatTsv(data: unknown): string {
+  const rows = toRows(data);
+  if (rows.length === 0) return "";
+
+  const firstRow = rows[0];
+  if (!firstRow) return "";
+  const keys = Object.keys(firstRow);
+  if (keys.length === 0) return "";
+
+  const escape = (val: string): string =>
+    val.replace(/\t/g, "\\t").replace(/\r/g, "\\r").replace(/\n/g, "\\n");
+
+  const header = keys.join("\t");
+  const body = rows
+    .map((row) => keys.map((key) => escape(cellValue(row[key]))).join("\t"))
+    .join("\n");
+
+  return `${header}\n${body}`;
 }
 
 function toRows(data: unknown): Record<string, unknown>[] {

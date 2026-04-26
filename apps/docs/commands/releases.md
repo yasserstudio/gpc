@@ -56,6 +56,7 @@ gpc releases upload <file> [options]
 | `--device-tier-config`          |       | `string` |             | Device tier config ID (or `LATEST`) for targeted delivery                                                                                                                   |
 | `--changes-not-sent-for-review` |       | flag     |             | Commit without sending for review (required for [rejected apps](#rejected-apps))                                                                                            |
 | `--error-if-in-review`          |       | flag     |             | Fail if changes are already in review instead of cancelling them                                                                                                            |
+| `--validate-only`               |       | flag     |             | Upload and validate without committing (edit is discarded after validation)                                                                                                 |
 
 ### Upload Progress
 

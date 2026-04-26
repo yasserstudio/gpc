@@ -294,6 +294,92 @@ describe("formatOutput – markdown", () => {
 });
 
 // ---------------------------------------------------------------------------
+// formatOutput – CSV
+// ---------------------------------------------------------------------------
+describe("formatOutput – csv", () => {
+  it("formats as comma-separated values with header row", () => {
+    const data = [
+      { name: "app-v1", track: "internal" },
+      { name: "app-v2", track: "production" },
+    ];
+    const result = formatOutput(data, "csv");
+    const lines = result.split("\n");
+    expect(lines[0]).toBe("name,track");
+    expect(lines[1]).toBe("app-v1,internal");
+    expect(lines[2]).toBe("app-v2,production");
+  });
+
+  it("quotes fields containing commas", () => {
+    const data = [{ desc: "one, two", val: "ok" }];
+    const result = formatOutput(data, "csv");
+    expect(result).toContain('"one, two"');
+  });
+
+  it("escapes double quotes inside fields", () => {
+    const data = [{ text: 'say "hello"' }];
+    const result = formatOutput(data, "csv");
+    expect(result).toContain('"say ""hello"""');
+  });
+
+  it("quotes fields containing newlines", () => {
+    const data = [{ note: "line1\nline2" }];
+    const result = formatOutput(data, "csv");
+    expect(result).toContain('"line1\nline2"');
+  });
+
+  it("returns empty string for empty array", () => {
+    expect(formatOutput([], "csv")).toBe("");
+  });
+
+  it("handles single object as one-row table", () => {
+    const result = formatOutput({ key: "val" }, "csv");
+    const lines = result.split("\n");
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toBe("key");
+    expect(lines[1]).toBe("val");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// formatOutput – TSV
+// ---------------------------------------------------------------------------
+describe("formatOutput – tsv", () => {
+  it("formats as tab-separated values with header row", () => {
+    const data = [
+      { name: "app-v1", track: "internal" },
+      { name: "app-v2", track: "production" },
+    ];
+    const result = formatOutput(data, "tsv");
+    const lines = result.split("\n");
+    expect(lines[0]).toBe("name\ttrack");
+    expect(lines[1]).toBe("app-v1\tinternal");
+    expect(lines[2]).toBe("app-v2\tproduction");
+  });
+
+  it("escapes tabs in values", () => {
+    const data = [{ text: "col1\tcol2" }];
+    const result = formatOutput(data, "tsv");
+    expect(result).toContain("col1\\tcol2");
+  });
+
+  it("escapes newlines in values", () => {
+    const data = [{ text: "line1\nline2" }];
+    const result = formatOutput(data, "tsv");
+    expect(result).toContain("line1\\nline2");
+  });
+
+  it("escapes carriage returns in values", () => {
+    const data = [{ text: "line1\rline2" }];
+    const result = formatOutput(data, "tsv");
+    expect(result).toContain("line1\\rline2");
+  });
+
+  it("returns empty string for empty array", () => {
+    expect(formatOutput([], "tsv")).toBe("");
+  });
+});
+
+// ---------------------------------------------------------------------------
 // formatOutput – JUnit
 // ---------------------------------------------------------------------------
 describe("formatOutput – junit", () => {
@@ -628,6 +714,40 @@ describe("uploadRelease", () => {
 
     expect(client.bundles.upload).toHaveBeenCalled();
     expect(client.apks.upload).not.toHaveBeenCalled();
+  });
+
+  it("validateOnly: validates but does not commit, then deletes edit", async () => {
+    const client = mockClient();
+    const result = await uploadRelease(client, PKG, "/tmp/app.aab", {
+      track: "internal",
+      status: "completed",
+      validateOnly: true,
+    });
+
+    expect(client.edits.validate).toHaveBeenCalledWith(PKG, "edit-1");
+    expect(client.edits.commit).not.toHaveBeenCalled();
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+    expect(result).toEqual({
+      versionCode: 42,
+      track: "internal",
+      status: "completed",
+      validateOnly: true,
+    });
+  });
+
+  it("validateOnly with changesNotSentForReview: skips validate and commit, deletes edit", async () => {
+    const client = mockClient();
+    const result = await uploadRelease(client, PKG, "/tmp/app.aab", {
+      track: "internal",
+      status: "completed",
+      validateOnly: true,
+      commitOptions: { changesNotSentForReview: true },
+    });
+
+    expect(client.edits.validate).not.toHaveBeenCalled();
+    expect(client.edits.commit).not.toHaveBeenCalled();
+    expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
+    expect((result as { validateOnly?: boolean }).validateOnly).toBe(true);
   });
 });
 

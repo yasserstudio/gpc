@@ -112,6 +112,7 @@ gpc bundle analyze app.aab --threshold 150
 
 | Command                                       | Description                                              |
 | --------------------------------------------- | -------------------------------------------------------- |
+| [`setup`](./setup)                            | Guided first-time setup (auth + config + verify)         |
 | [`auth`](./auth)                              | Authentication and profiles                              |
 | [`apps`](./apps)                              | App info and configuration                               |
 | [`config`](./config)                          | CLI configuration                                        |
@@ -136,7 +137,7 @@ Every command accepts these flags:
 
 | Flag               | Short | Type      | Default | Description                                                 |
 | ------------------ | ----- | --------- | ------- | ----------------------------------------------------------- |
-| `--output`         | `-o`  | `string`  | auto    | Output format: `table`, `json`, `yaml`, `markdown`, `junit` |
+| `--output`         | `-o`  | `string`  | auto    | Output format: `table`, `json`, `yaml`, `markdown`, `csv`, `tsv`, `junit` |
 | `--json`           | `-j`  | `boolean` |         | Shorthand for `--output json`                               |
 | `--ci`             |       | `boolean` | `false` | CI mode: JSON output, no prompts, strict exit codes         |
 | `--quiet`          | `-q`  | `boolean` | `false` | Suppress non-essential output                               |
@@ -169,7 +170,7 @@ The `--output` flag overrides auto-detection in all cases.
 
 ## Output Formats
 
-GPC supports five output formats: `table`, `json`, `yaml`, `markdown`, and `junit`.
+GPC supports seven output formats: `table`, `json`, `yaml`, `markdown`, `csv`, `tsv`, and `junit`.
 
 ### table
 
@@ -238,6 +239,34 @@ gpc vitals crashes --output junit > test-results.xml
 ```
 
 Produces JUnit XML compatible with CI systems (Jenkins, GitHub Actions, GitLab CI). Threshold breaches appear as `<failure>` elements.
+
+### csv
+
+```bash
+gpc apps list --output csv
+```
+
+```csv
+packageName,title,defaultLanguage
+com.example.app,"My App",en-US
+com.example.other,"Another App, with commas",fr-FR
+```
+
+RFC 4180 compliant comma-separated values. Header row with column names. Fields containing commas, quotes, or newlines are quoted. Double quotes inside fields are escaped as `""`. Good for spreadsheets, data analysis, and Excel import.
+
+### tsv
+
+```bash
+gpc apps list --output tsv
+```
+
+```tsv
+packageName	title	defaultLanguage
+com.example.app	My App	en-US
+com.example.other	Another App	fr-FR
+```
+
+Tab-separated values. Header row with column names. Tabs, newlines, and carriage returns in values are backslash-escaped. No quoting needed since tabs are the only delimiter. Good for clipboard paste into spreadsheets and Unix text processing (`cut`, `awk`).
 
 ### CI mode shorthand
 

@@ -15,6 +15,7 @@ export interface PublishOptions {
   mappingFileType?: DeobfuscationFileType;
   deviceTierConfigId?: string;
   dryRun?: boolean;
+  validateOnly?: boolean;
   commitOptions?: EditCommitOptions;
 }
 
@@ -74,6 +75,7 @@ export async function publish(
     mappingFile: options.mappingFile,
     mappingFileType: options.mappingFileType,
     deviceTierConfigId: options.deviceTierConfigId,
+    validateOnly: options.validateOnly,
     commitOptions: options.commitOptions,
   });
 

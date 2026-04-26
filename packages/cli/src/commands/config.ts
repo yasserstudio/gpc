@@ -67,7 +67,7 @@ export function registerConfigCommands(program: Command): void {
         // Output format
         const output = await promptSelect(
           "Default output format:",
-          ["table", "json", "yaml", "markdown"],
+          ["table", "json", "yaml", "markdown", "csv", "tsv"],
           "table",
         );
         if (output !== "table") initialConfig["output"] = output;

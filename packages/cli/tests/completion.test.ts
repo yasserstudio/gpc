@@ -393,7 +393,7 @@ describe("flag-choice emission", () => {
     p.addOption(
       p
         .createOption("-o, --output <format>", "Output format")
-        .choices(["table", "json", "yaml", "markdown", "junit"]),
+        .choices(["table", "json", "yaml", "markdown", "csv", "tsv", "junit"]),
     );
     p.option("-p, --profile <name>", "Auth profile name");
     p.option("-a, --app <package>", "App package name");
@@ -412,7 +412,7 @@ describe("flag-choice emission", () => {
     const globals = collectGlobalOptions(p);
     const output = generateBashCompletions(tree, globals);
     expect(output).toContain("--output)");
-    expect(output).toContain("table json yaml markdown junit");
+    expect(output).toContain("table json yaml markdown csv tsv junit");
   });
 
   it("bash output includes per-command --track choice values", () => {
@@ -440,7 +440,7 @@ describe("flag-choice emission", () => {
     const output = generateFishCompletions(tree, globals);
     expect(output).toContain("# Global flags");
     expect(output).toContain("-l output");
-    expect(output).toContain("-a 'table json yaml markdown junit'");
+    expect(output).toContain("-a 'table json yaml markdown csv tsv junit'");
   });
 
   it("fish output includes per-command flag definitions with choice arrays", () => {
@@ -461,7 +461,7 @@ describe("flag-choice emission", () => {
     // New _arguments integration emits real option specs rather than hint
     // comments. Dynamic values have their own specs (see dynamic-values test).
     expect(output).toContain("'--output[");
-    expect(output).toContain("(table json yaml markdown junit)");
+    expect(output).toContain("(table json yaml markdown csv tsv junit)");
     // --track here carries a .choices() on the mock program, so it stays as
     // a static spec (the real CLI wires --track to a dynamic helper instead).
     expect(output).toContain("(internal alpha beta production)");

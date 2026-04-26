@@ -14,7 +14,7 @@ import {
   formatOutput,
   GpcError,
 } from "@gpc-cli/core";
-import type { PublishResult, DryRunPublishResult } from "@gpc-cli/core";
+import type { PublishResult, DryRunPublishResult, UploadResult } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun } from "../dry-run.js";
 import { isInteractive, promptSelect, promptInput } from "../prompt.js";
@@ -120,6 +120,10 @@ export function registerPublishCommand(program: Command): void {
       "--error-if-in-review",
       "Fail if changes are already in review instead of cancelling them",
     )
+    .option(
+      "--validate-only",
+      "Upload and validate without committing (changes are discarded after validation)",
+    )
     .action(async (file: string, options) => {
       try {
         await stat(file);
@@ -139,6 +143,15 @@ export function registerPublishCommand(program: Command): void {
           "PUBLISH_USAGE_ERROR",
           2,
           "Pick one release notes source.",
+        );
+      }
+
+      if (options.validateOnly && isDryRun(program)) {
+        throw new GpcError(
+          "Cannot combine --dry-run and --validate-only.",
+          "PUBLISH_USAGE_ERROR",
+          2,
+          "Use --dry-run to preview without any API changes, or --validate-only to upload and validate without committing.",
         );
       }
 
@@ -252,6 +265,7 @@ export function registerPublishCommand(program: Command): void {
           mappingFile: options.mapping,
           mappingFileType: options.mappingType,
           deviceTierConfigId: options.deviceTierConfig,
+          validateOnly: options.validateOnly,
           commitOptions: buildCommitOptions(options),
         });
 
@@ -263,7 +277,11 @@ export function registerPublishCommand(program: Command): void {
           return;
         }
 
-        console.log(formatPublishOutput(result as PublishResult, format));
+        if ((result.upload as UploadResult).validateOnly) {
+          console.log(formatOutput({ ...result.upload, message: "Validation passed (not committed)" }, format));
+        } else {
+          console.log(formatPublishOutput(result as PublishResult, format));
+        }
         auditEntry.success = true;
       } catch (error) {
         auditEntry.success = false;

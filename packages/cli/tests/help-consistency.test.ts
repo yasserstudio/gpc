@@ -313,6 +313,7 @@ const EXPECTED_TOP_LEVEL_COMMANDS = [
   "rtdn",
   "verify",
   "watch",
+  "setup",
 ];
 
 describe("help text consistency", () => {

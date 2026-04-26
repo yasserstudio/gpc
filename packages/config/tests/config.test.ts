@@ -74,8 +74,20 @@ describe("loadEnvConfig", () => {
     expect(config.output).toBe("json");
   });
 
-  it("ignores invalid GPC_OUTPUT values", () => {
+  it("accepts csv as valid GPC_OUTPUT", () => {
     process.env["GPC_OUTPUT"] = "csv";
+    const config = loadEnvConfig();
+    expect(config.output).toBe("csv");
+  });
+
+  it("accepts tsv as valid GPC_OUTPUT", () => {
+    process.env["GPC_OUTPUT"] = "tsv";
+    const config = loadEnvConfig();
+    expect(config.output).toBe("tsv");
+  });
+
+  it("ignores invalid GPC_OUTPUT values", () => {
+    process.env["GPC_OUTPUT"] = "html";
     const config = loadEnvConfig();
     expect(config.output).toBeUndefined();
   });
@@ -169,7 +181,7 @@ describe("readConfigFile", () => {
 
   it("throws on invalid output format in config", async () => {
     const filePath = join(tmpDir, "bad-output.json");
-    await writeFile(filePath, JSON.stringify({ output: "csv" }));
+    await writeFile(filePath, JSON.stringify({ output: "html" }));
 
     await expect(readConfigFile(filePath)).rejects.toThrow(/Invalid output format/);
   });

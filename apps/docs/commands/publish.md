@@ -45,6 +45,7 @@ gpc publish <file> [options]
 | `--retry-log`                   |       | `string` |            | Write retry log entries to file (JSONL)                                                    |
 | `--changes-not-sent-for-review` |       | flag     |            | Commit without sending for review (required for [rejected apps](./releases#rejected-apps)) |
 | `--error-if-in-review`          |       | flag     |            | Fail if changes are already in review instead of cancelling them                           |
+| `--validate-only`               |       | flag     |            | Upload and validate without committing (edit is discarded after validation)                |
 
 ::: warning
 `--notes` and `--notes-dir` are mutually exclusive. Providing both causes exit code 2.

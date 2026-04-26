@@ -11,10 +11,12 @@ npm install -g @gpc-cli/cli
 ## What it does
 
 ```bash
+gpc setup                                     # Guided first-time setup (or --auto for CI)
 gpc status                                    # Releases + vitals + reviews in 3 seconds
 gpc releases upload app.aab --track beta      # Upload to any track
 gpc releases promote --from beta --to production --rollout 10
 gpc publish app.aab --track beta --notes "Bug fixes"                # One-shot upload + release
+gpc publish app.aab --validate-only                                 # Dry-run validation without releasing
 gpc preflight app.aab                         # 9 offline policy scanners
 gpc watch --on-breach halt                     # Real-time rollout monitoring + auto-halt
 gpc vitals crashes --threshold 2.0            # Exit code 6 if breached
@@ -39,13 +41,14 @@ gpc doctor                                    # 20 setup checks
 | **Managed Google Play**         | **Yes (Play Custom App API)**  | No              |
 | **AI-translated release notes** | **Yes (80+ locales, BYO key)** | No              |
 | Preflight scanner               | 9 offline checks               | No              |
+| Output formats                  | JSON, CSV, TSV                 | JSON only       |
 | CI/CD native                    | JSON + exit codes              | Partial         |
 
 [Migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) with one-to-one command mapping.
 
 ## CI/CD
 
-JSON output when piped. Semantic exit codes your pipeline can react to.
+JSON, CSV, and TSV output when piped. Semantic exit codes your pipeline can react to.
 
 ```yaml
 - name: Ship to Play Store
@@ -54,6 +57,7 @@ JSON output when piped. Semantic exit codes your pipeline can react to.
     GPC_APP: com.example.myapp
   run: |
     npm install -g @gpc-cli/cli
+    gpc setup --auto
     gpc preflight app.aab --fail-on error
     gpc releases upload app.aab --track internal
 ```
@@ -93,7 +97,7 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 - [Commands reference](https://yasserstudio.github.io/gpc/commands/)
 - [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/)
 
-Free to use. 2,143 tests. 90%+ coverage. Every write operation supports `--dry-run`.
+Free to use. 2,196 tests. 90%+ coverage. Every write operation supports `--dry-run`.
 
 ## Licensing
 

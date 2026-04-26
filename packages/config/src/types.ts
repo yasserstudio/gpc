@@ -27,7 +27,7 @@ export interface ProfileConfig {
   developerId?: string;
 }
 
-export type OutputFormat = "table" | "json" | "yaml" | "markdown" | "junit";
+export type OutputFormat = "table" | "json" | "yaml" | "markdown" | "junit" | "csv" | "tsv";
 
 export interface ResolvedConfig extends Required<Pick<GpcConfig, "output">> {
   app?: string;

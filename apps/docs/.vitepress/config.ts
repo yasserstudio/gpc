@@ -176,6 +176,8 @@ function getPageDescription(page: PageData): string {
       "gpc quota — View Google Play API quota usage tracked from local audit log.",
     // Commands — team
     "commands/apps.md": "gpc apps — List accessible apps from your Google Play developer account.",
+    "commands/setup.md":
+      "gpc setup — Guided first-time setup for Google Play Console CLI. Auth, config, verification, and shell completion in one command.",
     "commands/auth.md":
       "gpc auth — Authenticate with service accounts, OAuth, or ADC. Manage profiles and tokens.",
     "commands/config.md":
@@ -966,6 +968,7 @@ export default defineConfig({
           text: si(ICONS.settings, "System"),
           collapsed: false,
           items: [
+            { text: "setup", link: "/commands/setup" },
             { text: "auth", link: "/commands/auth" },
             { text: "apps", link: "/commands/apps" },
             { text: "config", link: "/commands/config" },

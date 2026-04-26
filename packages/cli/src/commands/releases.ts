@@ -23,6 +23,7 @@ import {
   GpcError,
 } from "@gpc-cli/core";
 import { formatOutput, sortResults, createSpinner, maybePaginate } from "@gpc-cli/core";
+import type { UploadResult } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import {
@@ -98,6 +99,10 @@ export function registerReleasesCommands(program: Command): void {
       "--error-if-in-review",
       "Fail if changes are already in review instead of cancelling them",
     )
+    .option(
+      "--validate-only",
+      "Upload and validate without committing (changes are discarded after validation)",
+    )
     .action(async (file: string, options) => {
       try {
         await stat(file);
@@ -134,6 +139,15 @@ export function registerReleasesCommands(program: Command): void {
           "Pick one release notes source.",
         );
       }
+      if (options.validateOnly && isDryRun(program)) {
+        throw new GpcError(
+          "Cannot combine --dry-run and --validate-only.",
+          "RELEASES_USAGE_ERROR",
+          2,
+          "Use --dry-run to preview without any API changes, or --validate-only to upload and validate without committing.",
+        );
+      }
+
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const format = getOutputFormat(program, config);
@@ -264,13 +278,14 @@ export function registerReleasesCommands(program: Command): void {
           mappingFile: options.mapping,
           mappingFileType: options.mappingType,
           deviceTierConfigId: options.deviceTierConfig,
+          validateOnly: options.validateOnly,
           onUploadProgress,
           commitOptions: buildCommitOptions(options),
         });
         if (showProgress) {
           process.stderr.write(`\r  ✓ Uploaded ${basename(file)}  ${sizeMB} MB\x1b[K\n`);
         }
-        spinner.stop("Upload complete");
+        spinner.stop((result as UploadResult).validateOnly ? "Validation passed (not committed)" : "Upload complete");
         console.log(formatOutput(result, format));
         auditEntry.success = true;
       } catch (error) {

@@ -104,7 +104,7 @@ gpc config set profile production
 | --------------- | ------------------------------------------- | --------------------------------- | ---------------------------------------------------------------- |
 | `app`           | `string`                                    | `undefined`                       | Default package name (e.g., `com.example.myapp`)                 |
 | `profile`       | `string`                                    | `"default"`                       | Active auth profile name                                         |
-| `output`        | `"table" \| "json" \| "yaml" \| "markdown"` | `"table"` (TTY) / `"json"` (pipe) | Default output format                                            |
+| `output`        | `"table" \| "json" \| "yaml" \| "markdown" \| "csv" \| "tsv"` | `"table"` (TTY) / `"json"` (pipe) | Default output format                                            |
 | `developerId`   | `string`                                    | `undefined`                       | Developer account ID for user management commands                |
 | `maxRetries`    | `number`                                    | `3`                               | Maximum retry attempts on transient errors (429, 5xx)            |
 | `timeout`       | `number`                                    | `30000`                           | Request timeout in milliseconds                                  |
@@ -313,7 +313,7 @@ These flags are available on every command and override all other configuration 
 | --------------------- | ----- | ------------------------------------------- | --------------------------------- |
 | `--app <package>`     | `-a`  | `string`                                    | App package name                  |
 | `--profile <name>`    | `-p`  | `string`                                    | Auth profile name                 |
-| `--output <format>`   | `-o`  | `"table" \| "json" \| "yaml" \| "markdown"` | Output format                     |
+| `--output <format>`   | `-o`  | `"table" \| "json" \| "yaml" \| "markdown" \| "csv" \| "tsv"` | Output format                     |
 | `--quiet`             | `-q`  | `boolean`                                   | Suppress non-essential output     |
 | `--verbose`           | `-v`  | `boolean`                                   | Enable debug logging              |
 | `--no-color`          |       | `boolean`                                   | Disable colored output            |

@@ -1,5 +1,11 @@
 # @gpc-cli/config
 
+## 0.9.15
+
+### Patch Changes
+
+- gpc setup guided wizard, CSV/TSV output formats, --validate-only flag
+
 ## 0.9.14
 
 ### Patch Changes

@@ -42,6 +42,10 @@ No service account needed. Scans your AAB against 9 Google Play policies.
 
 **Time estimate:** 5 minutes if you have a service account key. 20 minutes if you need to create one.
 
+::: info One-command setup
+For a guided experience that handles auth, config, and verification in one step, run `gpc setup`. The steps below explain each part individually.
+:::
+
 ## Step 1: Authenticate
 
 Set up authentication with a service account key file:

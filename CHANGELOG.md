@@ -7,6 +7,35 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.68 (Unreleased)
+
+Three new features: guided first-time setup, CSV/TSV output formats across all commands, and a `--validate-only` dry-validation flag for publish and upload workflows.
+
+**New**
+
+- feat(cli): `gpc setup` guided first-time setup command walks through auth, config, shell completion, and doctor verification in one flow.
+- feat(cli): `gpc setup --auto` mode for CI configures from env vars (`GPC_SERVICE_ACCOUNT`, `GPC_APP`) with zero prompts.
+- feat(cli): setup detects existing credentials and config, reuses them with confirmation. Service account auto-detection from common file paths.
+- feat(cli): `--output csv` format (RFC 4180 compliant) with quoted fields for commas, newlines, and quotes.
+- feat(cli): `--output tsv` format with escaped tabs, newlines, and carriage returns.
+- feat(cli): all 39 commands inherit csv and tsv formats automatically via `formatOutput()`. Added to `GPC_OUTPUT` env var, config file, and interactive config wizard.
+- feat(cli): `OutputFormat` type extended to `"table" | "json" | "yaml" | "markdown" | "csv" | "tsv" | "junit"`.
+- feat(cli): `gpc publish --validate-only` uploads and validates via Google Play API, then discards the edit without committing.
+- feat(cli): `gpc releases upload --validate-only` same behavior as publish. Catches real API validation errors (track conflicts, policy violations) before going live.
+- feat(cli): `--validate-only` is mutually exclusive with `--dry-run` (explicit error if combined).
+
+**Docs**
+
+- docs: new `commands/setup.md` reference page with examples and comparison table.
+- docs: updated 7 docs pages with csv/tsv in output format lists.
+- docs: added `--validate-only` to publish.md and releases.md option tables.
+- docs: added `gpc setup` to command index, sidebar, and Quick Start guide.
+- docs: SEO metadata for setup page.
+
+**Tests:** 2,143 → 2,196 (+53). 10 CSV format tests, 5 TSV format tests, 2 validate-only core tests, 2 config format validation tests, 5 setup command tests, updated completion tests for new format choices. **Endpoint count:** unchanged at 217.
+
+---
+
 ## v0.9.64
 
 One-command Play Store release notes. `gpc changelog generate --target play-store --locales auto --ai --apply` now writes translated release notes directly into your draft release. The v0.9.61-v0.9.64 changelog series is complete: git commits to translated, applied Play Store notes in a single command.

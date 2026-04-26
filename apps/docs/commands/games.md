@@ -41,7 +41,7 @@ gpc games events
 
 ## Output
 
-All subcommands support the standard `--output` formats: `table`, `json`, `yaml`, `markdown`.
+All subcommands support the standard `--output` formats: `table`, `json`, `yaml`, `markdown`, `csv`, `tsv`.
 
 ## Roadmap
 

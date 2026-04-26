@@ -12,6 +12,8 @@ const VALID_OUTPUT_FORMATS: ReadonlySet<string> = new Set([
   "yaml",
   "markdown",
   "junit",
+  "csv",
+  "tsv",
 ]);
 
 function isValidOutputFormat(value: string): value is OutputFormat {

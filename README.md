@@ -21,7 +21,7 @@ GPC also includes an offline compliance scanner that catches Google Play policy 
   <img src="https://img.shields.io/badge/Free_to_use-Code_on_GitHub-yellow?style=for-the-badge" alt="Free to use">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-2143_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-2196_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
@@ -52,8 +52,8 @@ Free to use. No account required beyond your existing Google Play service accoun
 ## How to Ship an Android Release from the Terminal
 
 1. **Install GPC** - `npm install -g @gpc-cli/cli` (also available via [Homebrew](https://yasserstudio.github.io/gpc/guide/installation) or standalone binary)
-2. **Authenticate with your service account** - `gpc auth login --service-account path/to/key.json`
-3. **Verify your setup** - `gpc doctor` runs 20 automated checks on auth, config, and connectivity
+2. **Set up** - Run `gpc setup` for guided first-time configuration (or `gpc setup --auto` in CI), or authenticate manually: `gpc auth login --service-account path/to/key.json`
+3. **Verify your setup** - `gpc doctor` runs 20+ automated checks on auth, config, and connectivity
 4. **Check app health** - `gpc status` shows releases, vitals, and reviews in one view
 5. **Upload your build** - `gpc releases upload app.aab --track internal`
 6. **Promote to production** - `gpc releases promote --from internal --to production --rollout 10`
@@ -83,7 +83,7 @@ GPC covers the **entire Google Play Developer API** in one CLI. 217 endpoints. N
 | CI/CD native            | JSON + exit codes + env vars   | Partial         | Gradle tasks          | No           |
 | Preflight scanner       | **9 offline policy checks**    | No              | No                    | No           |
 | Interactive mode        | Yes (guided prompts)           | No              | No                    | N/A          |
-| Test suite              | 2,143 tests, 90%+ coverage     |                 |                       |              |
+| Test suite              | 2,196 tests, 90%+ coverage     |                 |                       |              |
 
 Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
 
@@ -100,6 +100,7 @@ gpc releases promote --from beta --to production --rollout 5
 gpc releases rollout increase --track production --to 50
 gpc releases rollout halt --track production               # Emergency brake
 gpc validate app.aab --track beta                          # Dry-run before committing
+gpc publish app.aab --track beta --validate-only           # Validate without creating a release
 ```
 
 Manage store listings, screenshots, and localization. Works with Fastlane metadata format.
@@ -185,7 +186,7 @@ gpc doctor --verify                     # Signing key fingerprint comparison
 gpc preflight signing                   # Signing cert consistency across releases
 ```
 
-Diagnose your setup with 20 automated checks.
+Diagnose your setup with 20+ automated checks.
 
 ```bash
 gpc doctor                  # Run all checks
@@ -258,11 +259,13 @@ See the full [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/) for GitH
 
 ## Developer Experience
 
-- **Smart output** — formatted tables in your terminal, structured JSON when piped or in CI. Override with `--output json|yaml|markdown`.
-- **Dry run everything** — every write command supports `--dry-run`. Run your full pipeline against real data without publishing a thing.
-- **Interactive prompts** — miss a required flag and GPC asks. In CI, it fails fast instead. Disable with `--no-interactive`.
-- **Four auth methods** — service account, OAuth, env var, or Application Default Credentials.
-- **Multiple accounts** — `gpc auth profiles`, `gpc auth switch`, `gpc auth whoami`.
+- **Smart output** - formatted tables in your terminal, structured JSON when piped or in CI. Override with `--output json|yaml|markdown|csv|tsv`.
+- **Guided setup** - `gpc setup` walks you through first-time configuration. Use `gpc setup --auto` for unattended CI provisioning.
+- **Dry run everything** - every write command supports `--dry-run`. Run your full pipeline against real data without publishing a thing.
+- **Validate without committing** - `--validate-only` on publish and release commands checks everything server-side without creating a release.
+- **Interactive prompts** - miss a required flag and GPC asks. In CI, it fails fast instead. Disable with `--no-interactive`.
+- **Four auth methods** - service account, OAuth, env var, or Application Default Credentials.
+- **Multiple accounts** - `gpc auth profiles`, `gpc auth switch`, `gpc auth whoami`.
 
 ---
 

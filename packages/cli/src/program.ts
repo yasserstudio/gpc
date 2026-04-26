@@ -10,7 +10,7 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     .name("gpc")
     .description("GPC — Google Play Console CLI")
     .version(process.env["__GPC_VERSION"] || "0.0.0", "-V, --version")
-    .option("-o, --output <format>", "Output format: table, json, yaml, markdown, junit")
+    .option("-o, --output <format>", "Output format: table, json, yaml, markdown, csv, tsv, junit")
     .option("-v, --verbose", "Enable debug logging")
     .option("-q, --quiet", "Suppress non-essential output")
     .option("-a, --app <package>", "App package name")
@@ -161,6 +161,9 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     },
     feedback: async () => {
       (await import("./commands/feedback.js")).registerFeedbackCommand(program);
+    },
+    setup: async () => {
+      (await import("./commands/setup.js")).registerSetupCommand(program);
     },
     quickstart: async () => {
       (await import("./commands/quickstart.js")).registerQuickstartCommand(program);

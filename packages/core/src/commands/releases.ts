@@ -127,6 +127,7 @@ export interface UploadResult {
   versionCode: number;
   track: string;
   status: string;
+  validateOnly?: true;
 }
 
 export interface ReleaseStatusResult {
@@ -158,6 +159,7 @@ export async function uploadRelease(
     mappingFile?: string;
     mappingFileType?: DeobfuscationFileType;
     dryRun?: boolean;
+    validateOnly?: boolean;
     onProgress?: (uploaded: number, total: number) => void;
     onUploadProgress?: (event: UploadProgressEvent) => void;
     uploadOptions?: Pick<
@@ -285,6 +287,17 @@ export async function uploadRelease(
     if (!options.commitOptions?.changesNotSentForReview) {
       await client.edits.validate(packageName, edit.id);
     }
+
+    if (options.validateOnly) {
+      await client.edits.delete(packageName, edit.id).catch(() => {});
+      return {
+        versionCode: bundle.versionCode,
+        track: options.track,
+        status: release.status,
+        validateOnly: true,
+      };
+    }
+
     await client.edits.commit(packageName, edit.id, options.commitOptions);
 
     return {
