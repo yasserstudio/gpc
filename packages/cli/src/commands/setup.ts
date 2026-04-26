@@ -37,9 +37,8 @@ export function registerSetupCommand(program: Command): void {
       // Step 1: Credentials
       // ---------------------------------------------------------------
       let saPath: string | undefined;
-      let useAdc = false;
       let authOk = false;
-      let email = "";
+      let email: string;
 
       if (options.auto) {
         // Auto mode: try env vars, existing config, then ADC
@@ -85,7 +84,6 @@ export function registerSetupCommand(program: Command): void {
           );
 
           if (method === "adc") {
-            useAdc = true;
             try {
               const auth = await resolveAuth();
               email = auth.getClientEmail();
