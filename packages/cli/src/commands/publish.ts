@@ -278,7 +278,12 @@ export function registerPublishCommand(program: Command): void {
         }
 
         if ((result.upload as UploadResult).validateOnly) {
-          console.log(formatOutput({ ...result.upload, message: "Validation passed (not committed)" }, format));
+          console.log(
+            formatOutput(
+              { ...result.upload, message: "Validation passed (not committed)" },
+              format,
+            ),
+          );
         } else {
           console.log(formatPublishOutput(result as PublishResult, format));
         }

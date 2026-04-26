@@ -15,12 +15,10 @@ export function registerSetupCommand(program: Command): void {
     .description("Guided first-time setup: auth, config, verification, and shell completion")
     .option("--auto", "Non-interactive setup from env vars and auto-detected credentials")
     .action(async (options: { auto?: boolean }) => {
-      const { isInteractive, promptInput, promptSelect, promptConfirm } = await import(
-        "../prompt.js"
-      );
-      const { loadConfig, initConfig, setConfigValue, getUserConfigPath } = await import(
-        "@gpc-cli/config"
-      );
+      const { isInteractive, promptInput, promptSelect, promptConfirm } =
+        await import("../prompt.js");
+      const { loadConfig, initConfig, setConfigValue, getUserConfigPath } =
+        await import("@gpc-cli/config");
       const { resolveAuth, loadServiceAccountKey } = await import("@gpc-cli/auth");
 
       const interactive = !options.auto && isInteractive(program);
@@ -138,9 +136,7 @@ export function registerSetupCommand(program: Command): void {
                 authOk = true;
                 step(1, total, "Authenticate", `✓ ${email}`);
               } catch (err) {
-                console.log(
-                  `  Auth failed: ${err instanceof Error ? err.message : String(err)}`,
-                );
+                console.log(`  Auth failed: ${err instanceof Error ? err.message : String(err)}`);
                 attempts++;
               }
             }
@@ -186,9 +182,7 @@ export function registerSetupCommand(program: Command): void {
           );
           if (input) {
             if (!ANDROID_PACKAGE_RE.test(input)) {
-              console.log(
-                `  Warning: "${input}" doesn't look like a valid Android package name`,
-              );
+              console.log(`  Warning: "${input}" doesn't look like a valid Android package name`);
             }
             packageName = input;
           }
@@ -250,10 +244,9 @@ export function registerSetupCommand(program: Command): void {
           if (shell.includes("zsh")) {
             completionHint = "gpc completion zsh > ~/.zsh/completions/_gpc && compinit";
           } else if (shell.includes("bash")) {
-            completionHint = 'gpc completion bash >> ~/.bashrc && source ~/.bashrc';
+            completionHint = "gpc completion bash >> ~/.bashrc && source ~/.bashrc";
           } else if (shell.includes("fish")) {
-            completionHint =
-              "gpc completion fish > ~/.config/fish/completions/gpc.fish";
+            completionHint = "gpc completion fish > ~/.config/fish/completions/gpc.fish";
           }
 
           if (completionHint) {

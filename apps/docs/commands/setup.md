@@ -17,8 +17,8 @@ gpc setup [options]
 
 ## Options
 
-| Flag     | Description                                                   |
-| -------- | ------------------------------------------------------------- |
+| Flag     | Description                                                                     |
+| -------- | ------------------------------------------------------------------------------- |
 | `--auto` | Non-interactive setup from env vars and auto-detected credentials (CI-friendly) |
 
 ## What It Does
@@ -56,13 +56,13 @@ Auto mode tries `resolveAuth()` (which checks `GPC_SERVICE_ACCOUNT`, `GOOGLE_APP
 
 ## Differences from Other Commands
 
-| Command          | Purpose                                      |
-| ---------------- | -------------------------------------------- |
-| `gpc setup`      | Full guided setup (auth + config + verify)   |
-| `gpc auth login` | Auth-only wizard                             |
-| `gpc config init`| Config-only wizard                           |
-| `gpc quickstart` | Read-only verification (checks existing state) |
-| `gpc doctor`     | Detailed diagnostics and auto-fix            |
+| Command           | Purpose                                        |
+| ----------------- | ---------------------------------------------- |
+| `gpc setup`       | Full guided setup (auth + config + verify)     |
+| `gpc auth login`  | Auth-only wizard                               |
+| `gpc config init` | Config-only wizard                             |
+| `gpc quickstart`  | Read-only verification (checks existing state) |
+| `gpc doctor`      | Detailed diagnostics and auto-fix              |
 
 ## Examples
 

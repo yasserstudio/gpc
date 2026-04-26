@@ -135,26 +135,26 @@ gpc bundle analyze app.aab --threshold 150
 
 Every command accepts these flags:
 
-| Flag               | Short | Type      | Default | Description                                                 |
-| ------------------ | ----- | --------- | ------- | ----------------------------------------------------------- |
+| Flag               | Short | Type      | Default | Description                                                               |
+| ------------------ | ----- | --------- | ------- | ------------------------------------------------------------------------- |
 | `--output`         | `-o`  | `string`  | auto    | Output format: `table`, `json`, `yaml`, `markdown`, `csv`, `tsv`, `junit` |
-| `--json`           | `-j`  | `boolean` |         | Shorthand for `--output json`                               |
-| `--ci`             |       | `boolean` | `false` | CI mode: JSON output, no prompts, strict exit codes         |
-| `--quiet`          | `-q`  | `boolean` | `false` | Suppress non-essential output                               |
-| `--verbose`        | `-v`  | `boolean` | `false` | Enable debug logging                                        |
-| `--profile`        | `-p`  | `string`  |         | Use a named auth profile                                    |
-| `--app`            | `-a`  | `string`  |         | App package name (overrides config)                         |
-| `--no-color`       |       | `boolean` | `false` | Disable colored output                                      |
-| `--no-interactive` |       | `boolean` | `false` | Disable interactive prompts                                 |
-| `--dry-run`        |       | `boolean` | `false` | Preview changes without executing                           |
-| `--limit`          |       | `number`  |         | Max results per page                                        |
-| `--next-page`      |       | `string`  |         | Pagination token for next page                              |
-| `--retry-log`      |       | `string`  |         | Log retry attempts to file (JSONL)                          |
-| `--config`         |       | `string`  |         | Path to config file                                         |
-| `--notify`         |       | `string`  |         | Send webhook on completion (`slack`, `discord`, `custom`)   |
-| `--sort`           |       | `string`  |         | Sort results by field (prefix with `-` for descending)      |
-| `--version`        | `-V`  | `boolean` |         | Show version                                                |
-| `--help`           | `-h`  | `boolean` |         | Show help                                                   |
+| `--json`           | `-j`  | `boolean` |         | Shorthand for `--output json`                                             |
+| `--ci`             |       | `boolean` | `false` | CI mode: JSON output, no prompts, strict exit codes                       |
+| `--quiet`          | `-q`  | `boolean` | `false` | Suppress non-essential output                                             |
+| `--verbose`        | `-v`  | `boolean` | `false` | Enable debug logging                                                      |
+| `--profile`        | `-p`  | `string`  |         | Use a named auth profile                                                  |
+| `--app`            | `-a`  | `string`  |         | App package name (overrides config)                                       |
+| `--no-color`       |       | `boolean` | `false` | Disable colored output                                                    |
+| `--no-interactive` |       | `boolean` | `false` | Disable interactive prompts                                               |
+| `--dry-run`        |       | `boolean` | `false` | Preview changes without executing                                         |
+| `--limit`          |       | `number`  |         | Max results per page                                                      |
+| `--next-page`      |       | `string`  |         | Pagination token for next page                                            |
+| `--retry-log`      |       | `string`  |         | Log retry attempts to file (JSONL)                                        |
+| `--config`         |       | `string`  |         | Path to config file                                                       |
+| `--notify`         |       | `string`  |         | Send webhook on completion (`slack`, `discord`, `custom`)                 |
+| `--sort`           |       | `string`  |         | Sort results by field (prefix with `-` for descending)                    |
+| `--version`        | `-V`  | `boolean` |         | Show version                                                              |
+| `--help`           | `-h`  | `boolean` |         | Show help                                                                 |
 
 ## Output Behavior
 

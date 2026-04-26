@@ -100,22 +100,22 @@ gpc config set profile production
 
 ### Config file field reference
 
-| Field           | Type                                        | Default                           | Description                                                      |
-| --------------- | ------------------------------------------- | --------------------------------- | ---------------------------------------------------------------- |
-| `app`           | `string`                                    | `undefined`                       | Default package name (e.g., `com.example.myapp`)                 |
-| `profile`       | `string`                                    | `"default"`                       | Active auth profile name                                         |
+| Field           | Type                                                          | Default                           | Description                                                      |
+| --------------- | ------------------------------------------------------------- | --------------------------------- | ---------------------------------------------------------------- |
+| `app`           | `string`                                                      | `undefined`                       | Default package name (e.g., `com.example.myapp`)                 |
+| `profile`       | `string`                                                      | `"default"`                       | Active auth profile name                                         |
 | `output`        | `"table" \| "json" \| "yaml" \| "markdown" \| "csv" \| "tsv"` | `"table"` (TTY) / `"json"` (pipe) | Default output format                                            |
-| `developerId`   | `string`                                    | `undefined`                       | Developer account ID for user management commands                |
-| `maxRetries`    | `number`                                    | `3`                               | Maximum retry attempts on transient errors (429, 5xx)            |
-| `timeout`       | `number`                                    | `30000`                           | Request timeout in milliseconds                                  |
-| `baseDelay`     | `number`                                    | `1000`                            | Base retry delay in milliseconds (used with exponential backoff) |
-| `maxDelay`      | `number`                                    | `60000`                           | Maximum retry delay in milliseconds (backoff cap)                |
-| `rateLimit`     | `number`                                    | `50`                              | Maximum requests per second to the Google Play API               |
-| `caCert`        | `string`                                    | `undefined`                       | Path to a custom CA certificate file (PEM format)                |
-| `proxy`         | `string`                                    | `undefined`                       | HTTP/HTTPS proxy URL                                             |
-| `noColor`       | `boolean`                                   | `false`                           | Disable colored output                                           |
-| `noInteractive` | `boolean`                                   | `false` (auto-set in CI)          | Disable interactive prompts                                      |
-| `plugins`       | `string[]`                                  | `[]`                              | List of plugin package names to load                             |
+| `developerId`   | `string`                                                      | `undefined`                       | Developer account ID for user management commands                |
+| `maxRetries`    | `number`                                                      | `3`                               | Maximum retry attempts on transient errors (429, 5xx)            |
+| `timeout`       | `number`                                                      | `30000`                           | Request timeout in milliseconds                                  |
+| `baseDelay`     | `number`                                                      | `1000`                            | Base retry delay in milliseconds (used with exponential backoff) |
+| `maxDelay`      | `number`                                                      | `60000`                           | Maximum retry delay in milliseconds (backoff cap)                |
+| `rateLimit`     | `number`                                                      | `50`                              | Maximum requests per second to the Google Play API               |
+| `caCert`        | `string`                                                      | `undefined`                       | Path to a custom CA certificate file (PEM format)                |
+| `proxy`         | `string`                                                      | `undefined`                       | HTTP/HTTPS proxy URL                                             |
+| `noColor`       | `boolean`                                                     | `false`                           | Disable colored output                                           |
+| `noInteractive` | `boolean`                                                     | `false` (auto-set in CI)          | Disable interactive prompts                                      |
+| `plugins`       | `string[]`                                                    | `[]`                              | List of plugin package names to load                             |
 
 ## Environment Variables
 
@@ -309,22 +309,22 @@ The Google Play Developer API has separate rate limit buckets. GPC respects thes
 
 These flags are available on every command and override all other configuration sources.
 
-| Flag                  | Short | Type                                        | Description                       |
-| --------------------- | ----- | ------------------------------------------- | --------------------------------- |
-| `--app <package>`     | `-a`  | `string`                                    | App package name                  |
-| `--profile <name>`    | `-p`  | `string`                                    | Auth profile name                 |
+| Flag                  | Short | Type                                                          | Description                       |
+| --------------------- | ----- | ------------------------------------------------------------- | --------------------------------- |
+| `--app <package>`     | `-a`  | `string`                                                      | App package name                  |
+| `--profile <name>`    | `-p`  | `string`                                                      | Auth profile name                 |
 | `--output <format>`   | `-o`  | `"table" \| "json" \| "yaml" \| "markdown" \| "csv" \| "tsv"` | Output format                     |
-| `--quiet`             | `-q`  | `boolean`                                   | Suppress non-essential output     |
-| `--verbose`           | `-v`  | `boolean`                                   | Enable debug logging              |
-| `--no-color`          |       | `boolean`                                   | Disable colored output            |
-| `--no-interactive`    |       | `boolean`                                   | Disable interactive prompts       |
-| `--dry-run`           |       | `boolean`                                   | Preview changes without executing |
-| `--limit <n>`         |       | `number`                                    | Maximum results per page          |
-| `--next-page <token>` |       | `string`                                    | Pagination token for next page    |
-| `--retry-log <path>`  |       | `string`                                    | Log retry attempts to file        |
-| `--config <path>`     |       | `string`                                    | Path to config file               |
-| `--version`           | `-V`  | `boolean`                                   | Show version                      |
-| `--help`              | `-h`  | `boolean`                                   | Show help                         |
+| `--quiet`             | `-q`  | `boolean`                                                     | Suppress non-essential output     |
+| `--verbose`           | `-v`  | `boolean`                                                     | Enable debug logging              |
+| `--no-color`          |       | `boolean`                                                     | Disable colored output            |
+| `--no-interactive`    |       | `boolean`                                                     | Disable interactive prompts       |
+| `--dry-run`           |       | `boolean`                                                     | Preview changes without executing |
+| `--limit <n>`         |       | `number`                                                      | Maximum results per page          |
+| `--next-page <token>` |       | `string`                                                      | Pagination token for next page    |
+| `--retry-log <path>`  |       | `string`                                                      | Log retry attempts to file        |
+| `--config <path>`     |       | `string`                                                      | Path to config file               |
+| `--version`           | `-V`  | `boolean`                                                     | Show version                      |
+| `--help`              | `-h`  | `boolean`                                                     | Show help                         |
 
 ## Example: Complete Project Setup
 

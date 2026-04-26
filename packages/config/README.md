@@ -38,14 +38,14 @@ Configuration is merged in priority order:
 
 ## Environment Variables
 
-| Variable              | Description                              |
-| --------------------- | ---------------------------------------- |
-| `GPC_SERVICE_ACCOUNT` | Service account JSON string or file path |
-| `GPC_APP`             | Default package name                     |
-| `GPC_PROFILE`         | Auth profile name                        |
+| Variable              | Description                                                          |
+| --------------------- | -------------------------------------------------------------------- |
+| `GPC_SERVICE_ACCOUNT` | Service account JSON string or file path                             |
+| `GPC_APP`             | Default package name                                                 |
+| `GPC_PROFILE`         | Auth profile name                                                    |
 | `GPC_OUTPUT`          | Default output format (table, json, yaml, markdown, csv, tsv, junit) |
-| `GPC_NO_COLOR`        | Disable color output                     |
-| `GPC_NO_INTERACTIVE`  | Disable prompts                          |
+| `GPC_NO_COLOR`        | Disable color output                                                 |
+| `GPC_NO_INTERACTIVE`  | Disable prompts                                                      |
 
 ## Profiles
 

@@ -285,7 +285,11 @@ export function registerReleasesCommands(program: Command): void {
         if (showProgress) {
           process.stderr.write(`\r  ✓ Uploaded ${basename(file)}  ${sizeMB} MB\x1b[K\n`);
         }
-        spinner.stop((result as UploadResult).validateOnly ? "Validation passed (not committed)" : "Upload complete");
+        spinner.stop(
+          (result as UploadResult).validateOnly
+            ? "Validation passed (not committed)"
+            : "Upload complete",
+        );
         console.log(formatOutput(result, format));
         auditEntry.success = true;
       } catch (error) {

@@ -10,25 +10,25 @@ This page compares every actively maintained option as of April 2026.
 
 ## At a Glance
 
-|                              | **GPC**                        | **Fastlane supply**      | **gradle-play-publisher** | **Go-based CLIs**      |
-| ---------------------------- | ------------------------------ | ------------------------ | ------------------------- | ---------------------- |
-| Language                     | TypeScript                     | Ruby                     | Kotlin                    | Go                     |
-| API coverage                 | **217 endpoints**              | ~20                      | ~15                       | ~80                    |
-| Runtime                      | Node.js or standalone binary   | Ruby + Bundler           | Gradle / JVM              | Single binary          |
-| Cold start                   | <500ms                         | 2-3s                     | 5-10s (Gradle boot)       | <100ms                 |
-| Standalone use               | Yes                            | Yes                      | No (Gradle plugin)        | Yes                    |
-| Reviews and vitals           | Yes                            | No                       | No                        | No                     |
-| Subscriptions and IAP        | Yes                            | No                       | No                        | No                     |
-| **Managed Google Play**      | **Yes (first CLI to support)** | No                       | No                        | No                     |
-| Preflight scanner            | **9 offline policy checks**    | No                       | No                        | No                     |
-| Rollout monitoring           | **`gpc watch` with auto-halt** | No                       | No                        | No                     |
-| Multilingual release notes   | **AI-assisted translation**    | No                       | No                        | No                     |
-| CI/CD integration            | JSON + exit codes (0-6)        | Partial                  | Gradle tasks              | Basic                  |
-| Plugin system                | Yes (lifecycle hooks, SDK)     | Actions                  | No                        | No                     |
-| SDK / library use            | Yes (@gpc-cli/api)             | No                       | No                        | No                     |
-| Test suite                   | 2,143 tests, 90%+ coverage    | Community-maintained     | Kotlin tests              | Minimal                |
-| Image sync (SHA-256 diffing) | Planned (v0.9.69)             | Yes                      | No                        | No                     |
-| Upload progress reporting    | Planned (v0.9.69)             | No                       | Yes (progress callbacks)  | No                     |
+|                              | **GPC**                        | **Fastlane supply**  | **gradle-play-publisher** | **Go-based CLIs** |
+| ---------------------------- | ------------------------------ | -------------------- | ------------------------- | ----------------- |
+| Language                     | TypeScript                     | Ruby                 | Kotlin                    | Go                |
+| API coverage                 | **217 endpoints**              | ~20                  | ~15                       | ~80               |
+| Runtime                      | Node.js or standalone binary   | Ruby + Bundler       | Gradle / JVM              | Single binary     |
+| Cold start                   | <500ms                         | 2-3s                 | 5-10s (Gradle boot)       | <100ms            |
+| Standalone use               | Yes                            | Yes                  | No (Gradle plugin)        | Yes               |
+| Reviews and vitals           | Yes                            | No                   | No                        | No                |
+| Subscriptions and IAP        | Yes                            | No                   | No                        | No                |
+| **Managed Google Play**      | **Yes (first CLI to support)** | No                   | No                        | No                |
+| Preflight scanner            | **9 offline policy checks**    | No                   | No                        | No                |
+| Rollout monitoring           | **`gpc watch` with auto-halt** | No                   | No                        | No                |
+| Multilingual release notes   | **AI-assisted translation**    | No                   | No                        | No                |
+| CI/CD integration            | JSON + exit codes (0-6)        | Partial              | Gradle tasks              | Basic             |
+| Plugin system                | Yes (lifecycle hooks, SDK)     | Actions              | No                        | No                |
+| SDK / library use            | Yes (@gpc-cli/api)             | No                   | No                        | No                |
+| Test suite                   | 2,143 tests, 90%+ coverage     | Community-maintained | Kotlin tests              | Minimal           |
+| Image sync (SHA-256 diffing) | Planned (v0.9.69)              | Yes                  | No                        | No                |
+| Upload progress reporting    | Planned (v0.9.69)              | No                   | Yes (progress callbacks)  | No                |
 
 ## How to Choose a Google Play CLI
 
@@ -45,16 +45,16 @@ This page compares every actively maintained option as of April 2026.
 
 These capabilities have no equivalent in any other Google Play CLI tool:
 
-| Feature | Command | What it does |
-| --- | --- | --- |
-| Offline compliance scanning | `gpc preflight app.aab` | 9 parallel scanners check target SDK, restricted permissions, 64-bit compliance, secrets in code, billing SDKs, tracking libraries, Families/COPPA policy, and download size |
-| Real-time rollout monitoring | `gpc watch --on-breach halt` | Multi-metric vitals tracking with configurable thresholds and auto-halt |
-| App health dashboard | `gpc status` | Releases, vitals, and reviews in one command with 6 parallel API calls |
-| AI-assisted release notes | `gpc changelog generate --ai` | Git log to translated Play Store "What's new" text across all locales |
-| Enterprise publishing | `gpc enterprise publish` | Create and update private Managed Google Play apps from the terminal |
-| Developer verification | `gpc verify` | Check verification readiness before the September 2026 enforcement deadline |
-| Bundle size analysis | `gpc bundle analyze` | Per-module AAB breakdown with CI gates via `--threshold` |
-| Setup diagnostics | `gpc doctor --fix` | 20 automated checks with auto-repair |
+| Feature                      | Command                       | What it does                                                                                                                                                                 |
+| ---------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Offline compliance scanning  | `gpc preflight app.aab`       | 9 parallel scanners check target SDK, restricted permissions, 64-bit compliance, secrets in code, billing SDKs, tracking libraries, Families/COPPA policy, and download size |
+| Real-time rollout monitoring | `gpc watch --on-breach halt`  | Multi-metric vitals tracking with configurable thresholds and auto-halt                                                                                                      |
+| App health dashboard         | `gpc status`                  | Releases, vitals, and reviews in one command with 6 parallel API calls                                                                                                       |
+| AI-assisted release notes    | `gpc changelog generate --ai` | Git log to translated Play Store "What's new" text across all locales                                                                                                        |
+| Enterprise publishing        | `gpc enterprise publish`      | Create and update private Managed Google Play apps from the terminal                                                                                                         |
+| Developer verification       | `gpc verify`                  | Check verification readiness before the September 2026 enforcement deadline                                                                                                  |
+| Bundle size analysis         | `gpc bundle analyze`          | Per-module AAB breakdown with CI gates via `--threshold`                                                                                                                     |
+| Setup diagnostics            | `gpc doctor --fix`            | 20 automated checks with auto-repair                                                                                                                                         |
 
 ### Where Fastlane Supply Leads
 
