@@ -67,7 +67,7 @@ GPC has shipped this exact pattern since v0.9.56. Both skill packs install via `
 
 ```bash
 # Android skills (from Google)
-npx skills add android/official-skills
+android skills add --all
 
 # GPC skills (for the publishing half)
 npx skills add yasserstudio/gpc-skills
@@ -95,6 +95,35 @@ The full GPC skill index:
 | `gpc-sdk-usage`          | Standalone TypeScript SDK usage                                      |
 | `gpc-multi-app`          | Multiple apps, profiles, batch operations                            |
 | `gpc-security`           | Credential storage, key rotation, audit logging                      |
+
+## Google's official Android Skills repo
+
+Google maintains an official skill repository at [github.com/android/skills](https://github.com/android/skills) (Apache 2.0). It contains skills for the app-development side of the Android lifecycle:
+
+| Skill                                  | Domain          | What it covers                          |
+| -------------------------------------- | --------------- | --------------------------------------- |
+| `agp-9-upgrade`                        | Build           | Android Gradle Plugin 9 migration       |
+| `migrate-xml-views-to-jetpack-compose` | UI              | XML layout to Jetpack Compose migration |
+| `navigation-3`                         | Navigation      | Navigation 3 library patterns           |
+| `r8-analyzer`                          | Performance     | R8/ProGuard keep rules analysis         |
+| `play-billing-library-version-upgrade` | Play (app-side) | Play Billing Library version migration  |
+| `edge-to-edge`                         | System          | Edge-to-edge display implementation     |
+
+These skills cover **app code**: Gradle config, Kotlin/Compose UI, SDK integration. They stop at the boundary of the built artifact.
+
+GPC's 18 skills pick up where Google's stop: everything after you have an AAB on disk. Publishing, rollouts, vitals, monetization, compliance, CI/CD.
+
+### Installing both
+
+```bash
+# Google's Android skills (via Android CLI)
+android skills add --all
+
+# GPC skills (via npx)
+npx skills add yasserstudio/gpc-skills
+```
+
+Together, the two skill packs give an agent full coverage from project scaffold to staged rollout. There is no overlap: Google's `play-billing-library-version-upgrade` handles in-app billing Kotlin code, while GPC's `gpc-monetization` handles the publishing API for subscriptions and IAP products.
 
 ## Agent-friendly output contract
 
@@ -197,3 +226,4 @@ GPC renders the constraints (500 code points per locale, voice rules, "don't tra
 - [JSON Output Contract](/reference/json-contract) — full schema for agent consumption
 - [Exit Codes](/reference/exit-codes) — semantic error handling
 - [GPC Skills on GitHub](https://github.com/yasserstudio/gpc-skills) — skill pack source
+- [Android Skills on GitHub](https://github.com/android/skills) — Google's official app-development skills
