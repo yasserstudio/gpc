@@ -436,6 +436,12 @@ export type {
   ApiSigningFingerprint,
   SigningKeyComparison,
 } from "./signing.js";
+export { validateAndCommit, commitWithRescue } from "./utils/edit-helpers.js";
+export { sha256File } from "./utils/hash.js";
+export { syncImages } from "./commands/image-sync.js";
+export type { ImageSyncOptions, ImageSyncResult, ImageSyncDetail } from "./commands/image-sync.js";
+export { listBundles, findBundle, waitForBundle } from "./commands/bundles.js";
+export type { BundlesWaitOptions } from "./commands/bundles.js";
 export { checkSigningConsistency } from "./signing-consistency.js";
 export type { SigningConsistencyResult } from "./signing-consistency.js";
 export { buildChecklist, renderChecklistMarkdown } from "./verify-checklist.js";

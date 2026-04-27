@@ -21,6 +21,7 @@ outline: deep
 | [`listings images list`](#listings-images-list)     | List images for a language and type            |
 | [`listings images upload`](#listings-images-upload) | Upload an image                                |
 | [`listings images delete`](#listings-images-delete) | Delete an image                                |
+| [`listings images sync`](#listings-images-sync)     | Sync local image directory to Google Play      |
 | [`listings availability`](#listings-availability)   | Get country availability for a track           |
 
 ## `listings get`
@@ -405,6 +406,76 @@ gpc listings images export \
 
 ---
 
+## `listings images sync`
+
+Sync a local image directory to Google Play. Compares local file SHA-256 against Google's `Image.sha256` field and uploads only changed files. Operates inside a single edit for efficiency. Deletes are applied before uploads to avoid per-type image count limits.
+
+### Synopsis
+
+```bash
+gpc listings images sync [options]
+```
+
+### Options
+
+| Flag                            | Short | Type      | Default  | Description                                                                                              |
+| ------------------------------- | ----- | --------- | -------- | -------------------------------------------------------------------------------------------------------- |
+| `--dir`                         |       | `string`  | `images` | Local image directory path                                                                               |
+| `--lang`                        |       | `string`  |          | Filter to a single language code (BCP 47). If omitted, syncs all languages found in `--dir`.            |
+| `--type`                        |       | `string`  |          | Filter to a single image type. If omitted, syncs all types. See valid types below.                      |
+| `--delete`                      |       | flag      |          | Remove remote images that are not present locally. Opt-in; no deletions occur without this flag.         |
+| `--dry-run`                     |       | `boolean` | `false`  | Preview uploads and deletes without executing any changes.                                               |
+| `--changes-not-sent-for-review` |       | flag      |          | Commit without sending for review                                                                        |
+| `--error-if-in-review`          |       | flag      |          | Fail if changes are already in review                                                                    |
+
+Valid image types: `icon`, `featureGraphic`, `tvBanner`, `phoneScreenshots`, `sevenInchScreenshots`, `tenInchScreenshots`, `tvScreenshots`, `wearScreenshots`.
+
+The command expects the same `<dir>/<lang>/<type>/` layout produced by `gpc listings images export`.
+
+### Example — sync all images
+
+```bash
+gpc listings images sync \
+  --app com.example.myapp \
+  --dir ./images
+```
+
+```
+Synced 18 images: 14 skipped (unchanged), uploaded 4
+```
+
+### Example — sync one locale with deletions
+
+```bash
+gpc listings images sync \
+  --app com.example.myapp \
+  --dir ./images \
+  --lang en-US \
+  --delete
+```
+
+### Example — preview changes without applying
+
+```bash
+gpc listings images sync \
+  --app com.example.myapp \
+  --dir ./images \
+  --dry-run
+```
+
+```json
+{
+  "dryRun": true,
+  "changes": [
+    { "lang": "en-US", "type": "phoneScreenshots", "file": "1.png", "action": "upload" },
+    { "lang": "en-US", "type": "phoneScreenshots", "file": "5.png", "action": "upload" },
+    { "lang": "ja-JP", "type": "featureGraphic", "file": "1.png", "action": "skip" }
+  ]
+}
+```
+
+---
+
 ## Image requirements
 
 Google Play validates every image at upload time. GPC does not run pre-upload validation (yet), so malformed images surface as opaque API errors. Meet these specs locally before calling `gpc listings images upload` or `gpc listings push`:
@@ -440,9 +511,7 @@ Authoritative spec: [Google Play Console image requirements](https://support.goo
 
 ## Bulk workflow: text AND images
 
-`listings pull` / `listings push` handle **text metadata only**. `listings images export` / `listings images upload` handle **images only**. There is no single "sync everything" command today. See the [Store Listings & Screenshots guide](../guide/screenshots.md) for the working-but-imperfect bulk sync pattern (shell loop over files) and the reasoning behind the current split.
-
-Known gap: a future `gpc listings images push --dir <path>` or an extension of `listings push` to walk an `images/` subdirectory would make this a one-liner. Not implemented today.
+`listings pull` / `listings push` handle **text metadata only**. For images, use `listings images export` to download and `listings images sync` to upload with SHA-256 deduplication (skips unchanged files, optionally deletes remote-only images with `--delete`). There is no single "sync everything" command that handles both text and images today. See the [Store Listings & Screenshots guide](../guide/screenshots.md) for the full round-trip pattern.
 
 ---
 

@@ -15,6 +15,7 @@ import type { AppEdit } from "@gpc-cli/api";
 import { PlayApiError } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
 import { validateUploadFile } from "../utils/file-validation.js";
+import { validateAndCommit, commitWithRescue } from "../utils/edit-helpers.js";
 
 const BUNDLE_POLL_BACKOFF = [2_000, 3_000, 5_000, 8_000, 13_000];
 
@@ -283,7 +284,6 @@ export async function uploadRelease(
 
     await client.tracks.update(packageName, edit.id, options.track, release);
 
-    // Validate and commit (skip validate for rejected apps -- validate rejects changesNotSentForReview)
     if (!options.commitOptions?.changesNotSentForReview) {
       await client.edits.validate(packageName, edit.id);
     }
@@ -298,7 +298,7 @@ export async function uploadRelease(
       };
     }
 
-    await client.edits.commit(packageName, edit.id, options.commitOptions);
+    await commitWithRescue(client, packageName, edit.id, options.commitOptions);
 
     return {
       versionCode: bundle.versionCode,
@@ -390,10 +390,7 @@ export async function promoteRelease(
     };
 
     await client.tracks.update(packageName, edit.id, toTrack, release);
-    if (!options?.commitOptions?.changesNotSentForReview) {
-      await client.edits.validate(packageName, edit.id);
-    }
-    await client.edits.commit(packageName, edit.id, options?.commitOptions);
+    await validateAndCommit(client, packageName, edit.id, options?.commitOptions);
 
     return {
       track: toTrack,
@@ -473,10 +470,7 @@ export async function updateRollout(
     };
 
     await client.tracks.update(packageName, edit.id, track, release);
-    if (!commitOptions?.changesNotSentForReview) {
-      await client.edits.validate(packageName, edit.id);
-    }
-    await client.edits.commit(packageName, edit.id, commitOptions);
+    await validateAndCommit(client, packageName, edit.id, commitOptions);
 
     return {
       track,
@@ -520,10 +514,7 @@ export async function createTrack(
   const edit = await client.edits.insert(packageName);
   try {
     const track = await client.tracks.create(packageName, edit.id, trackName);
-    if (!commitOptions?.changesNotSentForReview) {
-      await client.edits.validate(packageName, edit.id);
-    }
-    await client.edits.commit(packageName, edit.id, commitOptions);
+    await validateAndCommit(client, packageName, edit.id, commitOptions);
     return track;
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});
@@ -564,10 +555,7 @@ export async function updateTrackConfig(
     }
 
     const track = await client.tracks.update(packageName, edit.id, trackName, release);
-    if (!commitOptions?.changesNotSentForReview) {
-      await client.edits.validate(packageName, edit.id);
-    }
-    await client.edits.commit(packageName, edit.id, commitOptions);
+    await validateAndCommit(client, packageName, edit.id, commitOptions);
     return track;
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});
@@ -639,10 +627,7 @@ export async function applyReleaseNotes(
     };
 
     await client.tracks.update(packageName, edit.id, track, patched);
-    if (!commitOptions?.changesNotSentForReview) {
-      await client.edits.validate(packageName, edit.id);
-    }
-    await client.edits.commit(packageName, edit.id, commitOptions);
+    await validateAndCommit(client, packageName, edit.id, commitOptions);
 
     return {
       track,
@@ -720,10 +705,7 @@ export async function uploadExternallyHosted(
   const edit = await client.edits.insert(packageName);
   try {
     const result = await client.apks.addExternallyHosted(packageName, edit.id, data);
-    if (!commitOptions?.changesNotSentForReview) {
-      await client.edits.validate(packageName, edit.id);
-    }
-    await client.edits.commit(packageName, edit.id, commitOptions);
+    await validateAndCommit(client, packageName, edit.id, commitOptions);
     return result;
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});

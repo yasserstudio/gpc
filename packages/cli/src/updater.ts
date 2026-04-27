@@ -9,10 +9,10 @@ import { createWriteStream } from "node:fs";
 import { rename, chmod, unlink, stat, readdir } from "node:fs/promises";
 import { realpathSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { createHash } from "node:crypto";
 import { pipeline } from "node:stream/promises";
 import { Readable, Transform } from "node:stream";
 import { spawn } from "node:child_process";
+import { sha256File } from "@gpc-cli/core";
 import { isNewerVersion } from "./update-check.js";
 
 // ---------------------------------------------------------------------------
@@ -326,21 +326,7 @@ function isPermissionError(err: unknown): boolean {
   return err instanceof Error && "code" in err && (err.code === "EACCES" || err.code === "EPERM");
 }
 
-async function sha256File(filePath: string): Promise<string> {
-  const hash = createHash("sha256");
-  const { size } = await stat(filePath);
-  if (size === 0) return hash.digest("hex");
-
-  // Read in 64 KB chunks
-  const { createReadStream } = await import("node:fs");
-  const stream = createReadStream(filePath);
-  await new Promise<void>((resolve, reject) => {
-    stream.on("data", (chunk: Buffer) => hash.update(chunk));
-    stream.on("end", resolve);
-    stream.on("error", reject);
-  });
-  return hash.digest("hex");
-}
+// sha256File imported from @gpc-cli/core
 
 /**
  * Clean up stale `.gpc-old-*` and `.gpc-update-*.tmp` files left by

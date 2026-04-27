@@ -1,5 +1,11 @@
 # @gpc-cli/core
 
+## 0.9.59
+
+### Patch Changes
+
+- SHA-256 image sync, standalone bundle API commands, changesNotSentForReview auto-rescue
+
 ## 0.9.58
 
 ### Patch Changes

@@ -11,7 +11,24 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.64 <Badge type="tip" text="latest" />
+## v0.9.69 <Badge type="tip" text="latest" />
+
+SHA-256 image sync, standalone bundle commands, and automatic rescue for rejected-update 403s.
+
+**New:**
+
+- feat: `gpc listings images sync` with SHA-256 content-hash dedup — only uploads images that have actually changed. `--delete` removes remote images with no local match. `--dry-run` previews the diff without touching Play.
+- feat: `gpc bundles list` lists all bundles for the app. `gpc bundles find <version-code>` fetches a specific bundle. `gpc bundles wait <version-code>` polls until the bundle finishes processing (Fibonacci backoff).
+- feat: `changesNotSentForReview` auto-rescue — when a commit 403s with the `changesNotSentForReview` error, GPC now detects it and automatically retries with `changesNotSentForReview: true`, recovering the edit without user intervention.
+- fix: bundles command auth resolution now uses the shared `getClient` helper, consistent with all other commands.
+
+**Tests:** 2,196 to 2,237 (+41).
+
+**Endpoint count:** unchanged at 217.
+
+---
+
+## v0.9.64
 
 Write translated Play Store release notes into a draft release. `gpc changelog generate --target play-store --locales auto --ai --apply` completes the changelog-generation series (v0.9.61-v0.9.64): from git commit to translated "What's new" text, written into your draft release, in one command.
 

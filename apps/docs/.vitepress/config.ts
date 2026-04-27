@@ -154,6 +154,8 @@ function getPageDescription(page: PageData): string {
       "gpc tracks — List, create, and manage release tracks (internal, alpha, beta, production, custom).",
     "commands/bundle.md":
       "gpc bundle — Analyze AAB/APK size per module and category. Compare builds. CI size gates with --threshold.",
+    "commands/bundles.md":
+      "gpc bundles — Query uploaded app bundles on Google Play. List, find by version code, and wait for processing in CI pipelines.",
     "commands/internal-sharing.md":
       "gpc internal-sharing — Upload AAB or APK for internal app sharing. Quick testing without creating a release.",
     "commands/generated-apks.md":
@@ -328,7 +330,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
 
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.67",
+        softwareVersion: "0.9.69",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: { "@type": "Person", name: "yasserstudio", url: "https://github.com/yasserstudio" },
@@ -934,6 +936,7 @@ export default defineConfig({
           collapsed: false,
           items: [
             { text: "bundle", link: "/commands/bundle" },
+            { text: "bundles", link: "/commands/bundles" },
             { text: "internal-sharing", link: "/commands/internal-sharing" },
             { text: "generated-apks", link: "/commands/generated-apks" },
             { text: "system-apks", link: "/commands/system-apks" },

@@ -246,6 +246,13 @@ vi.mock("@gpc-cli/core", () => {
     buildLocaleBundle: vi.fn(),
     renderPlayStoreMd: vi.fn(),
     renderPlayStorePrompt: vi.fn(),
+    validateAndCommit: vi.fn().mockResolvedValue(undefined),
+    commitWithRescue: vi.fn().mockResolvedValue(undefined),
+    sha256File: vi.fn().mockResolvedValue("abc123"),
+    syncImages: vi.fn().mockResolvedValue({ uploaded: 0, skipped: 0, deleted: 0, total: 0, details: [] }),
+    listBundles: vi.fn().mockResolvedValue([]),
+    findBundle: vi.fn().mockResolvedValue(null),
+    waitForBundle: vi.fn().mockResolvedValue({ versionCode: 1, sha1: "", sha256: "" }),
   };
 });
 
@@ -292,6 +299,7 @@ const EXPECTED_TOP_LEVEL_COMMANDS = [
   "system-apks",
   "purchase-options",
   "bundle",
+  "bundles",
   "audit",
   "migrate",
   "docs",

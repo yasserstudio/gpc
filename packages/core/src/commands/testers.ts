@@ -1,6 +1,7 @@
 import type { PlayApiClient, Testers, EditCommitOptions } from "@gpc-cli/api";
 import { readFile } from "node:fs/promises";
 import { GpcError } from "../errors.js";
+import { validateAndCommit } from "../utils/edit-helpers.js";
 
 export async function listTesters(
   client: PlayApiClient,
@@ -33,10 +34,7 @@ export async function addTesters(
     const updated = await client.testers.update(packageName, edit.id, track, {
       googleGroups: [...existing],
     });
-    if (!commitOptions?.changesNotSentForReview) {
-      await client.edits.validate(packageName, edit.id);
-    }
-    await client.edits.commit(packageName, edit.id, commitOptions);
+    await validateAndCommit(client, packageName, edit.id, commitOptions);
     return updated;
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});
@@ -59,10 +57,7 @@ export async function removeTesters(
     const updated = await client.testers.update(packageName, edit.id, track, {
       googleGroups: filtered,
     });
-    if (!commitOptions?.changesNotSentForReview) {
-      await client.edits.validate(packageName, edit.id);
-    }
-    await client.edits.commit(packageName, edit.id, commitOptions);
+    await validateAndCommit(client, packageName, edit.id, commitOptions);
     return updated;
   } catch (error) {
     await client.edits.delete(packageName, edit.id).catch(() => {});

@@ -97,6 +97,9 @@ gpc/
 - Business logic and command orchestration
 - Combines auth + api + config into cohesive workflows
 - Release pipelines, rollout strategies, metadata sync
+- SHA-256 image diffing for efficient listing image sync (skips unchanged images)
+- Auto-retry on `changesNotSentForReview` 403 errors before surfacing failures
+- Bundle API commands: list, find, and wait for server-side processing
 - Plugin manager -- loads, validates, and runs plugin lifecycle hooks
 - Dry-run support for all write operations
 

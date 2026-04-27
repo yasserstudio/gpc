@@ -138,6 +138,9 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     bundle: async () => {
       (await import("./commands/bundle.js")).registerBundleCommands(program);
     },
+    bundles: async () => {
+      (await import("./commands/bundles.js")).registerBundlesCommands(program);
+    },
     audit: async () => {
       (await import("./commands/audit.js")).registerAuditCommands(program);
     },

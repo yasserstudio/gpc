@@ -478,12 +478,16 @@ gpc releases count --output json
 
 When Google Play rejects an app update, the API requires special handling. Attempting to commit an edit without the right flags will fail with an API error.
 
+### Auto-rescue on 403
+
+GPC automatically handles the most common rejected-app scenario. When a commit fails with a `403 changesNotSentForReview` error, GPC retries the commit once with `changesNotSentForReview` set automatically. If the retry succeeds, a warning is printed and the command exits 0. No flag required in most cases.
+
 ### `--changes-not-sent-for-review`
 
-If your app has a **rejected** status in the Play Console, the Google Play API refuses to commit edits unless you explicitly acknowledge that the changes will not be automatically sent for review. Add this flag to any command that modifies your app:
+If your app has a **rejected** status in the Play Console and the auto-rescue does not apply (for example, when combined with `--error-if-in-review` or when you want explicit control), you can force the flag manually on any command that modifies your app:
 
 ```bash
-# Upload to a rejected app
+# Upload to a rejected app (explicit flag)
 gpc releases upload app.aab --track internal --changes-not-sent-for-review
 
 # Promote on a rejected app

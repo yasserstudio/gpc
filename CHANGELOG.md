@@ -7,7 +7,22 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
-## v0.9.68 (Unreleased)
+## v0.9.69
+
+SHA-256 image sync, standalone bundle commands, and automatic rescue for rejected-update 403s.
+
+**New**
+
+- feat: `gpc listings images sync` with SHA-256 content-hash dedup — only uploads images that have changed. `--delete` removes remote images with no local match. `--dry-run` previews the diff without touching Play.
+- feat: `gpc bundles list/find/wait` — list all bundles, fetch a specific bundle by version code, or poll until a bundle finishes processing (Fibonacci backoff).
+- feat: `changesNotSentForReview` auto-rescue — when a commit 403s with this error, GPC detects it and retries with `changesNotSentForReview: true` automatically.
+- fix: bundles command auth resolution now uses the shared `getClient` helper.
+
+**Tests:** 2,196 → 2,237 (+41). **Endpoint count:** unchanged at 217.
+
+---
+
+## v0.9.68
 
 Three new features: guided first-time setup, CSV/TSV output formats across all commands, and a `--validate-only` dry-validation flag for publish and upload workflows.
 

@@ -16,6 +16,7 @@ import {
   uploadImage,
   deleteImage,
   exportImages,
+  syncImages,
   getCountryAvailability,
   formatOutput,
   createSpinner,
@@ -558,6 +559,63 @@ export function registerListingsCommands(program: Command): void {
         spinner.fail("Image export failed");
         throw error;
       }
+    });
+
+  images
+    .command("sync")
+    .description("Sync local images to Google Play by SHA-256 hash (upload only changed)")
+    .option("--dir <path>", "Local images directory", "images")
+    .option("--lang <language>", "Sync only this language")
+    .option("--type <type>", "Sync only this image type", undefined)
+    .option("--delete", "Delete remote images not present locally")
+    .option("--changes-not-sent-for-review", "Commit changes without sending for review")
+    .option("--error-if-in-review", "Fail if changes are already in review")
+    .action(async (options: Record<string, unknown>) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const client = await getClient(config);
+      const format = getOutputFormat(program, config);
+
+      const imageType = options["type"]
+        ? validateImageType(options["type"] as string)
+        : undefined;
+
+      const result = await syncImages(client, packageName, options["dir"] as string, {
+        lang: options["lang"] as string | undefined,
+        type: imageType,
+        delete: !!options["delete"],
+        dryRun: isDryRun(program),
+        commitOptions: buildCommitOptions(options),
+      });
+
+      if (format === "json") {
+        console.log(formatOutput(result, "json"));
+        return;
+      }
+
+      if (isDryRun(program)) {
+        printDryRun(
+          {
+            command: "listings images sync",
+            action: "sync images in",
+            target: options["dir"] as string,
+            details: result,
+          },
+          format,
+          formatOutput,
+        );
+      }
+
+      if (result.total === 0) {
+        console.log("No images found to sync.");
+        return;
+      }
+
+      const parts: string[] = [];
+      if (result.skipped > 0) parts.push(`${result.skipped} skipped (unchanged)`);
+      if (result.uploaded > 0) parts.push(`${result.uploaded} uploaded`);
+      if (result.deleted > 0) parts.push(`${result.deleted} deleted`);
+      console.log(`Synced ${result.total} images: ${parts.join(", ")}`);
     });
 
   // Availability
