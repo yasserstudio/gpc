@@ -6,7 +6,7 @@
  */
 
 import { createWriteStream } from "node:fs";
-import { rename, chmod, unlink, stat, readdir } from "node:fs/promises";
+import { rename, chmod, unlink, readdir } from "node:fs/promises";
 import { realpathSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { pipeline } from "node:stream/promises";
