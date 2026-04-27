@@ -24,14 +24,14 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^2.0.0",
-    "@ai-sdk/google": "^2.0.0",
-    "@ai-sdk/openai": "^2.0.0",
+    "@ai-sdk/anthropic": "^3.0.71",
+    "@ai-sdk/google": "^3.0.64",
+    "@ai-sdk/openai": "^3.0.53",
     "@gpc-cli/api": "workspace:*",
     "@gpc-cli/auth": "workspace:*",
     "@gpc-cli/config": "workspace:*",
     "@gpc-cli/plugin-sdk": "workspace:*",
-    "ai": "^5.0.0",
+    "ai": "^6.0.168",
     "protobufjs": "^8.0.1",
     "yauzl": "^3.3.0"
   },
