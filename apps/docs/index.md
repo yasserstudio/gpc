@@ -96,27 +96,25 @@ gpc changelog generate --target play-store --locales auto --ai
 
 ## What's New
 
-::: tip v0.9.67 — Real-time rollout monitoring
-Ship your release, then watch it from the terminal. `gpc watch` monitors vitals alongside rollout progress and takes action when thresholds breach.
+::: tip v0.9.69 — Smart image sync, bundle tracking, auto-rescue
+Sync local images to Google Play by content hash. Skip unchanged files, upload only what's different. Query and wait for bundle processing in CI. Auto-retry on rejected-update 403s.
 
 ```bash
-gpc watch                                    # crashes + ANR on production
-gpc watch --track beta --on-breach halt      # auto-halt on breach
-gpc watch --on-breach notify,webhook \
-  --webhook-url https://hooks.slack.com/...  # Slack alerts
-gpc watch --rounds 3 --interval 300 --json   # CI mode
+gpc listings images sync --dir images --dry-run  # preview changes
+gpc listings images sync --dir images --delete    # sync + remove stale
+gpc bundles wait --version-code 42 --timeout 300  # CI: wait for processing
 ```
 
-[Watch command reference →](/commands/watch)
+[Image sync reference →](/commands/listings#listings-images-sync) | [Bundles reference →](/commands/bundles)
 :::
 
 **Previous releases:**
 
+- **v0.9.68** — `gpc setup` guided onboarding wizard, CSV/TSV output formats, `--validate-only` on releases commit.
+- **v0.9.67** — `gpc watch` real-time rollout monitoring with vitals gates and Slack alerts.
 - **v0.9.66** — Developer verification tooling: `gpc verify`, `gpc verify checklist`, `gpc doctor --verify`, `gpc preflight signing`.
-- **v0.9.65** — Preflight scanners for April 2026 Google Play policies (geofencing foreground service, contacts broad access, Health Connect granular permissions).
+- **v0.9.65** — Preflight scanners for April 2026 Google Play policies.
 - **v0.9.64** — `--apply` writes translated release notes directly into your draft release. The v0.9.61-v0.9.64 changelog series is complete.
-- **v0.9.62** — Multilingual Play Store release notes. `--target play-store --locales <csv|auto>` emits per-locale "What's new" text with the 500-character budget enforced per locale.
-- **v0.9.56** — First Android publishing CLI to support the [Play Custom App Publishing API](https://developers.google.com/android/work/play/custom-app-api). Private enterprise apps in one command.
 
 [Full changelog →](/reference/changelog)
 
