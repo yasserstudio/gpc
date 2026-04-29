@@ -11,7 +11,33 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.69 <Badge type="tip" text="latest" />
+## v0.9.70 <Badge type="tip" text="latest" />
+
+Release polish, Fastlane-style changelog fallback, and Node.js 22 CI.
+
+**New:**
+
+- feat: `--in-app-update-priority <0-5>` flag on `gpc releases upload` sets Android in-app update priority (0 = default, 5 = highest).
+- feat: `--retain-version-codes <csv>` flag on `gpc releases upload` keeps previous version codes alongside the new upload in the same track release.
+- feat: `default.txt` changelog fallback for `--notes-dir`. Directories with locale subdirectories are auto-detected as Fastlane-style versioned notes: reads `{lang}/{versionCode}.txt` first, falls back to `{lang}/default.txt` per language.
+
+**Fixes:**
+
+- fix: `promoteRelease` now preserves `inAppUpdatePriority` and `name` from the source release (previously dropped on promote).
+- fix: vitals commands no longer fail with `400 INVALID_ARGUMENT` when Google's reporting freshness lags behind yesterday's date. GPC now queries the metric set freshness endpoint and clamps the date range automatically. Affects `gpc vitals crashes`, `gpc vitals anr`, `gpc status`, `gpc watch`, and all other vitals queries.
+
+**Infrastructure:**
+
+- ci: all GitHub Actions workflows upgraded from Node.js 20 to Node.js 22 LTS.
+- api: new `getMetricSetFreshness()` method on the reporting client for querying Google's data freshness boundary per metric set.
+
+**Tests:** 2,237 to 2,260 (+23).
+
+**Endpoint count:** unchanged at 217.
+
+---
+
+## v0.9.69
 
 SHA-256 image sync, standalone bundle commands, and automatic rescue for rejected-update 403s.
 

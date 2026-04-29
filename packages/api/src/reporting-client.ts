@@ -5,6 +5,7 @@ import type {
   ApiClientOptions,
   ErrorIssuesResponse,
   ErrorReportsResponse,
+  FreshnessResponse,
   MetricSetQuery,
   MetricSetResponse,
   VitalsMetricSet,
@@ -18,6 +19,11 @@ export interface ReportingApiClient {
     metricSet: VitalsMetricSet,
     query: MetricSetQuery,
   ): Promise<MetricSetResponse>;
+
+  getMetricSetFreshness(
+    packageName: string,
+    metricSet: VitalsMetricSet,
+  ): Promise<FreshnessResponse>;
 
   getAnomalies(packageName: string): Promise<AnomalyDetectionResponse>;
 
@@ -48,6 +54,14 @@ export function createReportingClient(options: ApiClientOptions): ReportingApiCl
       const { data } = await http.post<MetricSetResponse>(
         `/apps/${packageName}/${metricSet}:query`,
         query,
+      );
+      return data;
+    },
+
+    async getMetricSetFreshness(packageName, metricSet) {
+      await limiter.acquire("reporting");
+      const { data } = await http.get<FreshnessResponse>(
+        `/apps/${packageName}/${metricSet}`,
       );
       return data;
     },

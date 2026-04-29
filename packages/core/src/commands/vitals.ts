@@ -52,13 +52,40 @@ const METRIC_SET_METRICS: Record<VitalsMetricSet, string[]> = {
   errorCountMetricSet: ["errorReportCount", "distinctUsers"],
 };
 
-function buildQuery(metricSet: VitalsMetricSet, options?: VitalsQueryOptions): MetricSetQuery {
+async function getFreshnessEndDate(
+  reporting: ReportingApiClient,
+  packageName: string,
+  metricSet: VitalsMetricSet,
+  aggregation: ReportingAggregation = "DAILY",
+): Promise<Date | undefined> {
+  try {
+    const info = await reporting.getMetricSetFreshness(packageName, metricSet);
+    const match = info.freshnessInfo?.freshnesses?.find(
+      (f) => f.aggregationPeriod === aggregation,
+    );
+    if (match) {
+      return new Date(
+        Date.UTC(match.latestEndTime.year, match.latestEndTime.month - 1, match.latestEndTime.day),
+      );
+    }
+  } catch {
+    // Freshness endpoint unavailable — fall back to yesterday
+  }
+  return undefined;
+}
+
+function buildQuery(
+  metricSet: VitalsMetricSet,
+  options?: VitalsQueryOptions,
+  freshnessEnd?: Date,
+): MetricSetQuery {
   const metrics = METRIC_SET_METRICS[metricSet] ?? ["errorReportCount", "distinctUsers"];
 
   const days = options?.days ?? 30;
   const DAY_MS = 24 * 60 * 60 * 1000;
-  const end = new Date(Date.now() - DAY_MS); // API data lags ~1 day; cap to yesterday
-  const start = new Date(Date.now() - DAY_MS - days * DAY_MS);
+  const yesterday = new Date(Date.now() - DAY_MS);
+  const end = freshnessEnd && freshnessEnd < yesterday ? freshnessEnd : yesterday;
+  const start = new Date(end.getTime() - days * DAY_MS);
 
   const query: MetricSetQuery = {
     metrics,
@@ -90,7 +117,13 @@ async function queryMetric(
   metricSet: VitalsMetricSet,
   options?: VitalsQueryOptions,
 ): Promise<MetricSetResponse> {
-  const query = buildQuery(metricSet, options);
+  const freshnessEnd = await getFreshnessEndDate(
+    reporting,
+    packageName,
+    metricSet,
+    options?.aggregation,
+  );
+  const query = buildQuery(metricSet, options, freshnessEnd);
   return reporting.queryMetricSet(packageName, metricSet, query);
 }
 
@@ -107,8 +140,16 @@ export async function getVitalsOverview(
     ["stuckBackgroundWakelockRateMetricSet", "stuckWakelockRate"],
   ];
 
+  const freshnessResults = await Promise.allSettled(
+    metricSets.map(([metric]) => getFreshnessEndDate(reporting, packageName, metric)),
+  );
+
   const results = await Promise.allSettled(
-    metricSets.map(([metric]) => reporting.queryMetricSet(packageName, metric, buildQuery(metric))),
+    metricSets.map(([metric], i) => {
+      const fr = freshnessResults[i];
+      const freshnessEnd = fr?.status === "fulfilled" ? fr.value : undefined;
+      return reporting.queryMetricSet(packageName, metric, buildQuery(metric, undefined, freshnessEnd));
+    }),
   );
 
   const overview: VitalsOverview = {};
@@ -235,9 +276,9 @@ export async function compareVitalsTrend(
   const DAY_MS = 24 * 60 * 60 * 1000;
   const nowMs = Date.now();
 
-  // Cap to 2 days ago — API data typically lags 1-2 days; using 2 ensures
-  // the endTime is always within the available data window.
-  const baseMs = nowMs - 2 * DAY_MS;
+  const freshnessEnd = await getFreshnessEndDate(reporting, packageName, metricSet);
+  const fallback = nowMs - 2 * DAY_MS;
+  const baseMs = freshnessEnd ? Math.min(freshnessEnd.getTime(), fallback) : fallback;
 
   // Current period: [base - days, base]
   const currentEnd = new Date(baseMs);

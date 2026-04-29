@@ -87,6 +87,7 @@ export type {
   MetricRow,
   Anomaly,
   AnomalyDetectionResponse,
+  FreshnessResponse,
   ErrorIssue,
   ErrorIssuesResponse,
   ErrorReport,

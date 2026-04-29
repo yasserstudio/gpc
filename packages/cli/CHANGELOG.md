@@ -1,5 +1,14 @@
 # @gpc-cli/cli
 
+## 0.9.70
+
+### Patch Changes
+
+- Release polish, Fastlane-style changelog fallback, vitals freshness fix
+- Updated dependencies
+  - @gpc-cli/core@0.9.60
+  - @gpc-cli/api@1.0.37
+
 ## 0.9.69
 
 ### Patch Changes

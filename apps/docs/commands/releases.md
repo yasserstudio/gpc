@@ -45,7 +45,7 @@ gpc releases upload <file> [options]
 | `--notes`                       |       | `string` |             | Release notes text (en-US)                                                                                                                                                  |
 | `--name`                        |       | `string` |             | Release name                                                                                                                                                                |
 | `--mapping`                     |       | `string` |             | Path to ProGuard/R8 mapping file for deobfuscation                                                                                                                          |
-| `--notes-dir`                   |       | `string` |             | Directory with per-language release notes (`<dir>/<lang>.txt`)                                                                                                              |
+| `--notes-dir`                   |       | `string` |             | Directory with per-language release notes. Flat: `<dir>/<lang>.txt`. Versioned (auto-detected): `<dir>/<lang>/{versionCode}.txt` with `default.txt` fallback per language.  |
 | `--notes-from-git`              |       | flag     |             | Generate Play Store release notes from git commit history (per-locale, 500-char). For GitHub Release notes, see [`gpc changelog generate`](./changelog#changelog-generate). |
 | `--copy-notes-from`             |       | `string` |             | Copy release notes from another track's latest release                                                                                                                      |
 | `--since`                       |       | `string` |             | Git ref to start from (tag, SHA) — used with `--notes-from-git`                                                                                                             |
@@ -57,6 +57,8 @@ gpc releases upload <file> [options]
 | `--changes-not-sent-for-review` |       | flag     |             | Commit without sending for review (required for [rejected apps](#rejected-apps))                                                                                            |
 | `--error-if-in-review`          |       | flag     |             | Fail if changes are already in review instead of cancelling them                                                                                                            |
 | `--validate-only`               |       | flag     |             | Upload and validate without committing (edit is discarded after validation)                                                                                                 |
+| `--in-app-update-priority`      |       | `number` |             | In-app update priority (0-5, where 0 is default and 5 is highest). Cannot be changed after release is rolled out.                                                           |
+| `--retain-version-codes`        |       | `string` |             | Comma-separated version codes to retain alongside the new upload in the same track release (e.g., `40,41`).                                                                 |
 
 ### Upload Progress
 
@@ -65,6 +67,25 @@ In interactive terminals, uploads show a real-time progress bar:
 ```
   ████████████░░░░░░░░  58%  120.3/207.5 MB  2.4 MB/s  ETA 36s
 ```
+
+### Versioned Release Notes (Fastlane-style)
+
+When `--notes-dir` points to a directory with locale subdirectories, GPC auto-detects it as a Fastlane-style versioned changelog. After the bundle is uploaded and the version code is known, it resolves release notes per language:
+
+1. `{lang}/{versionCode}.txt` -- if found, use it
+2. `{lang}/default.txt` -- fallback when no version-specific file exists
+3. Neither -- language is skipped
+
+```
+changelogs/
+  en-US/
+    42.txt          # Used for version code 42
+    default.txt     # Used for any version without a specific file
+  de-DE/
+    default.txt     # German always gets the default text
+```
+
+Flat directories (containing `.txt` files directly) continue to work as before: `{dir}/{lang}.txt`.
 
 ### File Size Limits
 
@@ -202,7 +223,7 @@ The `userFraction` column shows rollout percentage (e.g., `10%`) or `—` for a 
 
 ## `releases promote`
 
-Promote a release from one track to another. Copies the latest release from the source track to the target track.
+Promote a release from one track to another. Copies the latest release from the source track to the target track. The `inAppUpdatePriority` and `name` fields from the source release are preserved.
 
 ### Synopsis
 

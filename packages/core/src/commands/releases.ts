@@ -1,5 +1,6 @@
 import { stat } from "node:fs/promises";
 import { extname } from "node:path";
+import { readReleaseNotesForVersion } from "../utils/release-notes.js";
 import type {
   PlayApiClient,
   Release,
@@ -169,6 +170,9 @@ export async function uploadRelease(
     >;
     deviceTierConfigId?: string;
     commitOptions?: EditCommitOptions;
+    inAppUpdatePriority?: number;
+    retainVersionCodes?: string[];
+    notesDirVersioned?: string;
   },
 ): Promise<UploadResult | DryRunUploadResult> {
   // Validate file before upload
@@ -272,14 +276,31 @@ export async function uploadRelease(
       );
     }
 
+    // Resolve versioned release notes now that versionCode is known
+    let releaseNotes = options.releaseNotes;
+    if (!releaseNotes && options.notesDirVersioned) {
+      releaseNotes = await readReleaseNotesForVersion(
+        options.notesDirVersioned,
+        bundle.versionCode,
+      );
+      if (releaseNotes.length === 0) releaseNotes = undefined;
+    }
+
     // Create release and assign to track
+    const uploadedCode = String(bundle.versionCode);
     const release: Release = {
-      versionCodes: [String(bundle.versionCode)],
+      versionCodes: [
+        ...(options.retainVersionCodes || []).filter((vc) => vc !== uploadedCode),
+        uploadedCode,
+      ],
       status: (options.status ||
         (options.userFraction ? "inProgress" : "completed")) as Release["status"],
       ...(options.userFraction && { userFraction: options.userFraction }),
-      ...(options.releaseNotes && { releaseNotes: options.releaseNotes }),
+      ...(releaseNotes && { releaseNotes }),
       ...(options.releaseName && { name: options.releaseName }),
+      ...(options.inAppUpdatePriority !== undefined && {
+        inAppUpdatePriority: options.inAppUpdatePriority,
+      }),
     };
 
     await client.tracks.update(packageName, edit.id, options.track, release);
@@ -387,6 +408,10 @@ export async function promoteRelease(
         (options?.userFraction ? "inProgress" : "completed")) as Release["status"],
       ...(options?.userFraction && { userFraction: options.userFraction }),
       releaseNotes: options?.releaseNotes || currentRelease.releaseNotes || [],
+      ...(currentRelease.inAppUpdatePriority !== undefined && {
+        inAppUpdatePriority: currentRelease.inAppUpdatePriority,
+      }),
+      ...(currentRelease.name && { name: currentRelease.name }),
     };
 
     await client.tracks.update(packageName, edit.id, toTrack, release);

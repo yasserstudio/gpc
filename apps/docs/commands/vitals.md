@@ -36,6 +36,10 @@ Enable it at: `https://console.cloud.google.com/apis/library/playdeveloperreport
 The per-issue drill-down path currently calls an endpoint that does not exist in Google's current Reporting API discovery doc (revision `20260415`). Scheduled for a future release alongside additions for `apps.search`, `apps.fetchReleaseFilterOptions`, and extended `errorIssues.search` query parameters. See [Planned coverage](../reference/api-coverage.md#planned-coverage).
 :::
 
+::: tip Automatic freshness clamping (v0.9.70+)
+Google's vitals data typically lags 3-4 days behind real-time. GPC automatically queries the freshness endpoint for each metric set and clamps the date range to avoid `400 INVALID_ARGUMENT` errors. No configuration needed.
+:::
+
 ## Shared Options
 
 The metric commands (`crashes`, `anr`, `startup`, `rendering`, `battery`, `memory`) share these options:

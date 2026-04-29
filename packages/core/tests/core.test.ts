@@ -749,6 +749,63 @@ describe("uploadRelease", () => {
     expect(client.edits.delete).toHaveBeenCalledWith(PKG, "edit-1");
     expect((result as { validateOnly?: boolean }).validateOnly).toBe(true);
   });
+
+  it("passes inAppUpdatePriority to the track update", async () => {
+    const client = mockClient();
+    await uploadRelease(client, PKG, "/tmp/app.aab", {
+      track: "production",
+      inAppUpdatePriority: 3,
+    });
+
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "production",
+      expect.objectContaining({ inAppUpdatePriority: 3 }),
+    );
+  });
+
+  it("omits inAppUpdatePriority when not provided", async () => {
+    const client = mockClient();
+    await uploadRelease(client, PKG, "/tmp/app.aab", { track: "internal" });
+
+    const releaseArg = client.tracks.update.mock.calls[0][3];
+    expect(releaseArg).not.toHaveProperty("inAppUpdatePriority");
+  });
+
+  it("merges retainVersionCodes with uploaded versionCode", async () => {
+    const client = mockClient();
+    await uploadRelease(client, PKG, "/tmp/app.aab", {
+      track: "production",
+      retainVersionCodes: ["40", "41"],
+    });
+
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "production",
+      expect.objectContaining({ versionCodes: ["40", "41", "42"] }),
+    );
+  });
+
+  it("works without retainVersionCodes (single versionCode)", async () => {
+    const client = mockClient();
+    await uploadRelease(client, PKG, "/tmp/app.aab", { track: "internal" });
+
+    const releaseArg = client.tracks.update.mock.calls[0][3];
+    expect(releaseArg.versionCodes).toEqual(["42"]);
+  });
+
+  it("deduplicates retainVersionCodes when it contains the uploaded code", async () => {
+    const client = mockClient();
+    await uploadRelease(client, PKG, "/tmp/app.aab", {
+      track: "production",
+      retainVersionCodes: ["40", "42"],
+    });
+
+    const releaseArg = client.tracks.update.mock.calls[0][3];
+    expect(releaseArg.versionCodes).toEqual(["40", "42"]);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -949,6 +1006,54 @@ describe("promoteRelease", () => {
 
     const result = await promoteRelease(client, PKG, "production", "beta");
     expect(result.versionCodes).toEqual(["6"]);
+  });
+
+  it("preserves inAppUpdatePriority from source release", async () => {
+    const client = mockClient();
+    client.tracks.get.mockResolvedValue({
+      track: "internal",
+      releases: [
+        {
+          versionCodes: ["42"],
+          status: "completed",
+          inAppUpdatePriority: 5,
+          releaseNotes: [],
+        },
+      ],
+    });
+
+    await promoteRelease(client, PKG, "internal", "production");
+
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "production",
+      expect.objectContaining({ inAppUpdatePriority: 5 }),
+    );
+  });
+
+  it("preserves name from source release", async () => {
+    const client = mockClient();
+    client.tracks.get.mockResolvedValue({
+      track: "internal",
+      releases: [
+        {
+          versionCodes: ["42"],
+          status: "completed",
+          name: "v2.0 RC1",
+          releaseNotes: [],
+        },
+      ],
+    });
+
+    await promoteRelease(client, PKG, "internal", "production");
+
+    expect(client.tracks.update).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "production",
+      expect.objectContaining({ name: "v2.0 RC1" }),
+    );
   });
 });
 

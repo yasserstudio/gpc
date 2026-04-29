@@ -3,7 +3,7 @@ import { ref, onMounted, onBeforeUnmount } from "vue";
 
 // Bump this with each release so dismissals from the previous version
 // don't silently suppress the new banner.
-const STORAGE_KEY = "gpc-banner-dismissed-v0964-at";
+const STORAGE_KEY = "gpc-banner-dismissed-v0970-at";
 const DISMISS_WINDOW_MS = 24 * 60 * 60 * 1000; // 24h — banner re-appears after this
 const TAP_PAUSE_MS = 6000; // pause ticker for 6s after a tap so touch users
 // have time to read and activate the link inside the banner
@@ -59,11 +59,11 @@ function pauseTicker() {
       @touchstart.passive="pauseTicker"
     >
       <span class="ann-text">
-        v0.9.64 &middot; New: <code>--apply</code> writes translated release notes directly into
-        your draft release. The changelog series is complete: git commits to Play Store notes in one
-        command.
-        <a href="/gpc/guide/multilingual-release-notes" class="ann-link">See the guide</a>
-        &middot; road to v1.0
+        v0.9.70 &middot; New: <code>--in-app-update-priority</code>,
+        <code>--retain-version-codes</code>, Fastlane-style <code>default.txt</code> changelog
+        fallback.
+        <a href="/gpc/reference/changelog" class="ann-link">See what changed</a>
+        &middot; last stop before v1.0
       </span>
     </div>
     <button class="ann-close" aria-label="Dismiss" @click="dismiss">
@@ -149,7 +149,7 @@ function pauseTicker() {
     gap: 0;
   }
   /* Hide the PRE-RELEASE chip on mobile — it eats ~80px of precious width
-     and the ticker text carries the same context ("v0.9.64 · New: ..."). */
+     and the ticker text carries the same context ("v0.9.70 · New: ..."). */
   .ann-badge {
     display: none;
   }

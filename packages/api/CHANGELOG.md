@@ -1,5 +1,11 @@
 # @gpc-cli/api
 
+## 1.0.37
+
+### Patch Changes
+
+- Release polish, Fastlane-style changelog fallback, vitals freshness fix
+
 ## 1.0.36
 
 ### Patch Changes

@@ -88,7 +88,12 @@ export {
 } from "./utils/validation.js";
 export { validateUploadFile } from "./utils/file-validation.js";
 export type { FileValidationResult } from "./utils/file-validation.js";
-export { readReleaseNotesFromDir, validateReleaseNotes } from "./utils/release-notes.js";
+export {
+  readReleaseNotesFromDir,
+  readReleaseNotesForVersion,
+  isVersionedNotesDir,
+  validateReleaseNotes,
+} from "./utils/release-notes.js";
 export type { ReleaseNotesValidation } from "./utils/release-notes.js";
 export { validatePreSubmission } from "./commands/validate.js";
 export type { ValidateOptions, ValidateCheck, ValidateResult } from "./commands/validate.js";

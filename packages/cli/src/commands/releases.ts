@@ -12,6 +12,7 @@ import {
   promoteRelease,
   updateRollout,
   readReleaseNotesFromDir,
+  isVersionedNotesDir,
   generateNotesFromGit,
   writeAuditLog,
   createAuditEntry,
@@ -102,6 +103,27 @@ export function registerReleasesCommands(program: Command): void {
     .option(
       "--validate-only",
       "Upload and validate without committing (changes are discarded after validation)",
+    )
+    .option(
+      "--in-app-update-priority <priority>",
+      "In-app update priority (0-5, where 5 is highest)",
+      (v: string) => {
+        const n = parseInt(v, 10);
+        if (isNaN(n) || n < 0 || n > 5) {
+          throw new GpcError(
+            `Invalid in-app update priority: ${v}`,
+            "RELEASES_USAGE_ERROR",
+            2,
+            "Use a value from 0 (default, no priority) to 5 (highest priority).",
+          );
+        }
+        return n;
+      },
+    )
+    .option(
+      "--retain-version-codes <codes>",
+      "Retain previous version codes alongside the new upload (comma-separated)",
+      (v: string) => v.split(",").map((s) => s.trim()).filter(Boolean),
     )
     .action(async (file: string, options) => {
       try {
@@ -237,6 +259,8 @@ export function registerReleasesCommands(program: Command): void {
           userFraction: options.rollout ? Number(options.rollout) / 100 : undefined,
           mappingFileType: options.mappingType,
           deviceTierConfigId: options.deviceTierConfig,
+          inAppUpdatePriority: options.inAppUpdatePriority,
+          retainVersionCodes: options.retainVersionCodes,
           dryRun: true,
         });
         console.log(formatOutput(result, format));
@@ -258,13 +282,18 @@ export function registerReleasesCommands(program: Command): void {
 
       try {
         let releaseNotes: { language: string; text: string }[] | undefined;
+        let notesDirVersioned: string | undefined;
         if (options.copyNotesFrom) {
           releaseNotes = await fetchReleaseNotes(client, packageName, options.copyNotesFrom);
         } else if (options.notesFromGit) {
           const gitNotes = await generateNotesFromGit({ since: options.since });
           releaseNotes = [{ language: gitNotes.language, text: gitNotes.text }];
         } else if (options.notesDir) {
-          releaseNotes = await readReleaseNotesFromDir(options.notesDir);
+          if (await isVersionedNotesDir(options.notesDir)) {
+            notesDirVersioned = options.notesDir;
+          } else {
+            releaseNotes = await readReleaseNotesFromDir(options.notesDir);
+          }
         } else if (options.notes) {
           releaseNotes = [{ language: "en-US", text: options.notes }];
         }
@@ -279,6 +308,9 @@ export function registerReleasesCommands(program: Command): void {
           mappingFileType: options.mappingType,
           deviceTierConfigId: options.deviceTierConfig,
           validateOnly: options.validateOnly,
+          inAppUpdatePriority: options.inAppUpdatePriority,
+          retainVersionCodes: options.retainVersionCodes,
+          notesDirVersioned,
           onUploadProgress,
           commitOptions: buildCommitOptions(options),
         });

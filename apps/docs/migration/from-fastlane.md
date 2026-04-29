@@ -137,7 +137,15 @@ gpc listings push --dir metadata/ --dry-run
 
 # Push release notes from changelogs directory
 gpc releases notes set --track beta --file metadata/en-US/changelogs/
+
+# Upload with Fastlane-style versioned changelogs (v0.9.70+)
+# Auto-detects locale subdirs, reads {versionCode}.txt or default.txt per language
+gpc releases upload app.aab --notes-dir metadata/en-US/changelogs/
 ```
+
+::: tip Fastlane changelog fallback (v0.9.70+)
+When `--notes-dir` points to a directory with locale subdirectories (e.g., `changelogs/en-US/`, `changelogs/ja-JP/`), GPC auto-detects the Fastlane-style structure. It reads `{versionCode}.txt` for the uploaded bundle's version code, falling back to `default.txt` per language if no version-specific file exists. No extra flags needed.
+:::
 
 ## CI Migration: GitHub Actions
 
@@ -204,7 +212,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Deploy to Play Store
         env:

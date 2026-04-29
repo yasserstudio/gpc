@@ -320,6 +320,22 @@ export interface AnomalyDetectionResponse {
   anomalies: Anomaly[];
 }
 
+export interface FreshnessResponse {
+  name: string;
+  freshnessInfo: {
+    freshnesses: Array<{
+      aggregationPeriod: ReportingAggregation;
+      latestEndTime: {
+        year: number;
+        month: number;
+        day: number;
+        hours?: number;
+        timeZone?: { id: string };
+      };
+    }>;
+  };
+}
+
 export interface ErrorIssue {
   name: string;
   type: string;
