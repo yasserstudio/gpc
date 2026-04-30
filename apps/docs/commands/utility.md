@@ -65,7 +65,7 @@ gpc doctor [--json] [--verify] [--keystore <path>] [--store-pass <password>] [--
 | `verification-deadline`       | Days remaining until Android developer verification enforcement (September 30, 2026)                      |
 | `stale-cache`                 | Warns if cached `gpc status` data is older than 7 days                                                    |
 | `shell-completion`            | Detects whether shell completions are installed for your shell (bash/zsh)                                 |
-| `quota`                       | API quota proximity: warns if daily or per-minute usage exceeds 80%                                      |
+| `quota`                       | API quota proximity: warns if daily or per-minute usage exceeds 80%                                       |
 | `plugin-*`                    | Plugin health: verifies each configured plugin loads without errors                                       |
 | `signing-api` _(--verify)_    | Fetches Play signing certificate fingerprint from generatedApks                                           |
 | `signing-local` _(--verify)_  | Compares local keystore fingerprint against Play signing certificate                                      |

@@ -60,9 +60,7 @@ export function createReportingClient(options: ApiClientOptions): ReportingApiCl
 
     async getMetricSetFreshness(packageName, metricSet) {
       await limiter.acquire("reporting");
-      const { data } = await http.get<FreshnessResponse>(
-        `/apps/${packageName}/${metricSet}`,
-      );
+      const { data } = await http.get<FreshnessResponse>(`/apps/${packageName}/${metricSet}`);
       return data;
     },
 

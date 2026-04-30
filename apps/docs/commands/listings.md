@@ -418,15 +418,15 @@ gpc listings images sync [options]
 
 ### Options
 
-| Flag                            | Short | Type      | Default  | Description                                                                                              |
-| ------------------------------- | ----- | --------- | -------- | -------------------------------------------------------------------------------------------------------- |
-| `--dir`                         |       | `string`  | `images` | Local image directory path                                                                               |
-| `--lang`                        |       | `string`  |          | Filter to a single language code (BCP 47). If omitted, syncs all languages found in `--dir`.            |
-| `--type`                        |       | `string`  |          | Filter to a single image type. If omitted, syncs all types. See valid types below.                      |
-| `--delete`                      |       | flag      |          | Remove remote images that are not present locally. Opt-in; no deletions occur without this flag.         |
-| `--dry-run`                     |       | `boolean` | `false`  | Preview uploads and deletes without executing any changes.                                               |
-| `--changes-not-sent-for-review` |       | flag      |          | Commit without sending for review                                                                        |
-| `--error-if-in-review`          |       | flag      |          | Fail if changes are already in review                                                                    |
+| Flag                            | Short | Type      | Default  | Description                                                                                      |
+| ------------------------------- | ----- | --------- | -------- | ------------------------------------------------------------------------------------------------ |
+| `--dir`                         |       | `string`  | `images` | Local image directory path                                                                       |
+| `--lang`                        |       | `string`  |          | Filter to a single language code (BCP 47). If omitted, syncs all languages found in `--dir`.     |
+| `--type`                        |       | `string`  |          | Filter to a single image type. If omitted, syncs all types. See valid types below.               |
+| `--delete`                      |       | flag      |          | Remove remote images that are not present locally. Opt-in; no deletions occur without this flag. |
+| `--dry-run`                     |       | `boolean` | `false`  | Preview uploads and deletes without executing any changes.                                       |
+| `--changes-not-sent-for-review` |       | flag      |          | Commit without sending for review                                                                |
+| `--error-if-in-review`          |       | flag      |          | Fail if changes are already in review                                                            |
 
 Valid image types: `icon`, `featureGraphic`, `tvBanner`, `phoneScreenshots`, `sevenInchScreenshots`, `tenInchScreenshots`, `tvScreenshots`, `wearScreenshots`.
 

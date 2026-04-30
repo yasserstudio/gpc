@@ -123,7 +123,11 @@ export function registerReleasesCommands(program: Command): void {
     .option(
       "--retain-version-codes <codes>",
       "Retain previous version codes alongside the new upload (comma-separated)",
-      (v: string) => v.split(",").map((s) => s.trim()).filter(Boolean),
+      (v: string) =>
+        v
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
     )
     .action(async (file: string, options) => {
       try {

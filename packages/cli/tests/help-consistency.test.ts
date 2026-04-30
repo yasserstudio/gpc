@@ -249,7 +249,9 @@ vi.mock("@gpc-cli/core", () => {
     validateAndCommit: vi.fn().mockResolvedValue(undefined),
     commitWithRescue: vi.fn().mockResolvedValue(undefined),
     sha256File: vi.fn().mockResolvedValue("abc123"),
-    syncImages: vi.fn().mockResolvedValue({ uploaded: 0, skipped: 0, deleted: 0, total: 0, details: [] }),
+    syncImages: vi
+      .fn()
+      .mockResolvedValue({ uploaded: 0, skipped: 0, deleted: 0, total: 0, details: [] }),
     listBundles: vi.fn().mockResolvedValue([]),
     findBundle: vi.fn().mockResolvedValue(null),
     waitForBundle: vi.fn().mockResolvedValue({ versionCode: 1, sha1: "", sha256: "" }),

@@ -21,10 +21,11 @@ function mockClient(remoteImages: Record<string, Image[]> = {}) {
       commit: vi.fn().mockResolvedValue({}),
     },
     images: {
-      list: vi.fn().mockImplementation(
-        (_pkg: string, _edit: string, lang: string, type: string) =>
+      list: vi
+        .fn()
+        .mockImplementation((_pkg: string, _edit: string, lang: string, type: string) =>
           Promise.resolve(remoteImages[`${lang}/${type}`] ?? []),
-      ),
+        ),
       upload: vi.fn().mockResolvedValue(makeImage("new", "newsha")),
       delete: vi.fn().mockResolvedValue(undefined),
     },

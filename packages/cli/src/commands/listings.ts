@@ -576,9 +576,7 @@ export function registerListingsCommands(program: Command): void {
       const client = await getClient(config);
       const format = getOutputFormat(program, config);
 
-      const imageType = options["type"]
-        ? validateImageType(options["type"] as string)
-        : undefined;
+      const imageType = options["type"] ? validateImageType(options["type"] as string) : undefined;
 
       const result = await syncImages(client, packageName, options["dir"] as string, {
         lang: options["lang"] as string | undefined,

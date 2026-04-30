@@ -88,7 +88,9 @@ vi.mock("@gpc-cli/core", () => {
     uploadImage: vi.fn().mockResolvedValue({}),
     deleteImage: vi.fn().mockResolvedValue(undefined),
     exportImages: vi.fn().mockResolvedValue({ languages: 1, images: 5, totalSize: 50000 }),
-    syncImages: vi.fn().mockResolvedValue({ uploaded: 0, skipped: 0, deleted: 0, total: 0, details: [] }),
+    syncImages: vi
+      .fn()
+      .mockResolvedValue({ uploaded: 0, skipped: 0, deleted: 0, total: 0, details: [] }),
     getCountryAvailability: vi.fn().mockResolvedValue({}),
     updateAppDetails: vi.fn().mockResolvedValue({}),
     getAppInfo: vi.fn().mockResolvedValue({}),

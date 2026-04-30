@@ -44,7 +44,10 @@ describe("commitWithRescue", () => {
     expect(client.edits.commit).toHaveBeenLastCalledWith("com.example", "edit1", {
       changesNotSentForReview: true,
     });
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("auto-setting"), "AutoRescueWarning");
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining("auto-setting"),
+      "AutoRescueWarning",
+    );
     warnSpy.mockRestore();
   });
 
@@ -98,7 +101,8 @@ describe("commitWithRescue", () => {
 
     const warnSpy = vi.spyOn(process, "emitWarning").mockImplementation(() => {});
     await commitWithRescue(client, "com.example", "edit1", {
-      changesInReviewBehavior: "BLOCK_UNTIL_IN_REVIEW_CHANGES_DONE" as "CANCEL_IN_REVIEW_AND_SUBMIT",
+      changesInReviewBehavior:
+        "BLOCK_UNTIL_IN_REVIEW_CHANGES_DONE" as "CANCEL_IN_REVIEW_AND_SUBMIT",
     });
 
     expect(client.edits.commit).toHaveBeenLastCalledWith("com.example", "edit1", {

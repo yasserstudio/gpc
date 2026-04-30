@@ -58,9 +58,7 @@ describe("findBundle", () => {
 describe("waitForBundle", () => {
   it("returns when bundle appears", async () => {
     const client = mockClient();
-    vi.mocked(client.bundles.list)
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([BUNDLE_42]);
+    vi.mocked(client.bundles.list).mockResolvedValueOnce([]).mockResolvedValueOnce([BUNDLE_42]);
 
     const result = await waitForBundle(client, PKG, 42, {
       timeout: 5000,
@@ -71,16 +69,14 @@ describe("waitForBundle", () => {
 
   it("throws BUNDLE_WAIT_TIMEOUT when bundle never appears", async () => {
     const client = mockClient([]);
-    await expect(
-      waitForBundle(client, PKG, 42, { timeout: 50, interval: 10 }),
-    ).rejects.toThrow("not found after");
+    await expect(waitForBundle(client, PKG, 42, { timeout: 50, interval: 10 })).rejects.toThrow(
+      "not found after",
+    );
   });
 
   it("cleans up edit on each poll", async () => {
     const client = mockClient();
-    vi.mocked(client.bundles.list)
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([BUNDLE_42]);
+    vi.mocked(client.bundles.list).mockResolvedValueOnce([]).mockResolvedValueOnce([BUNDLE_42]);
 
     await waitForBundle(client, PKG, 42, { timeout: 5000, interval: 10 });
     expect(client.edits.delete).toHaveBeenCalledTimes(2);
@@ -98,9 +94,9 @@ describe("waitForBundle", () => {
     const authError = new PlayApiError("unauthorized", "API_AUTH_ERROR", 401);
     vi.mocked(client.bundles.list).mockRejectedValueOnce(authError);
 
-    await expect(
-      waitForBundle(client, PKG, 42, { timeout: 5000, interval: 10 }),
-    ).rejects.toThrow("unauthorized");
+    await expect(waitForBundle(client, PKG, 42, { timeout: 5000, interval: 10 })).rejects.toThrow(
+      "unauthorized",
+    );
   });
 
   it("retries on 503 and eventually succeeds", async () => {

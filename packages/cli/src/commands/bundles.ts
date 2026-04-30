@@ -1,11 +1,6 @@
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
-import {
-  listBundles,
-  findBundle,
-  waitForBundle,
-  formatOutput,
-} from "@gpc-cli/core";
+import { listBundles, findBundle, waitForBundle, formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { resolvePackageName, getClient } from "../resolve.js";
 
@@ -30,13 +25,15 @@ export function registerBundlesCommands(program: Command): void {
           console.log("No bundles found.");
           return;
         }
-        console.log(formatOutput(
-          result.map((b) => ({
-            versionCode: b.versionCode,
-            sha256: b.sha256.slice(0, 12) + "...",
-          })),
-          format,
-        ));
+        console.log(
+          formatOutput(
+            result.map((b) => ({
+              versionCode: b.versionCode,
+              sha256: b.sha256.slice(0, 12) + "...",
+            })),
+            format,
+          ),
+        );
       }
     });
 
@@ -69,7 +66,9 @@ export function registerBundlesCommands(program: Command): void {
     .description("Wait for a bundle to finish server-side processing")
     .requiredOption("--version-code <n>", "Version code to wait for", (v) => parseInt(v, 10))
     .option("--timeout <seconds>", "Timeout in seconds (default: 600)", (v) => parseInt(v, 10))
-    .option("--interval <seconds>", "Poll interval in seconds (default: 15)", (v) => parseInt(v, 10))
+    .option("--interval <seconds>", "Poll interval in seconds (default: 15)", (v) =>
+      parseInt(v, 10),
+    )
     .action(async (options: { versionCode: number; timeout?: number; interval?: number }) => {
       const config = await loadConfig();
       const format = getOutputFormat(program, config);
@@ -77,9 +76,7 @@ export function registerBundlesCommands(program: Command): void {
       const client = await getClient(config);
 
       if (format !== "json") {
-        process.stderr.write(
-          `Waiting for bundle ${options.versionCode} to finish processing...\n`,
-        );
+        process.stderr.write(`Waiting for bundle ${options.versionCode} to finish processing...\n`);
       }
 
       const result = await waitForBundle(client, packageName, options.versionCode, {

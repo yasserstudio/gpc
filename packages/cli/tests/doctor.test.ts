@@ -580,9 +580,7 @@ describe("checkPluginHealth", () => {
     const goodPlugin = { name: "plugin-good", version: "1.0.0", register: vi.fn() };
     const badPlugin = { name: "plugin-bad", version: "0.1.0", register: vi.fn() };
     mockDiscoverPlugins.mockResolvedValue([goodPlugin, badPlugin]);
-    mockPluginManagerLoad
-      .mockResolvedValueOnce(undefined)
-      .mockRejectedValueOnce(new Error("fail"));
+    mockPluginManagerLoad.mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error("fail"));
 
     const results = await checkPluginHealth(["plugin-good", "plugin-bad"]);
     expect(results).toHaveLength(2);

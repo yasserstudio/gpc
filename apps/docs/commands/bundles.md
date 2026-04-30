@@ -15,11 +15,11 @@ outline: deep
 
 ## Commands
 
-| Command                           | Description                                           |
-| --------------------------------- | ----------------------------------------------------- |
-| [`bundles list`](#bundles-list)   | List all processed bundles for the configured app     |
-| [`bundles find`](#bundles-find)   | Find a specific bundle by version code                |
-| [`bundles wait`](#bundles-wait)   | Wait for a bundle to finish server-side processing    |
+| Command                         | Description                                        |
+| ------------------------------- | -------------------------------------------------- |
+| [`bundles list`](#bundles-list) | List all processed bundles for the configured app  |
+| [`bundles find`](#bundles-find) | Find a specific bundle by version code             |
+| [`bundles wait`](#bundles-wait) | Wait for a bundle to finish server-side processing |
 
 ## `bundles list`
 
@@ -33,10 +33,10 @@ gpc bundles list [options]
 
 ### Options
 
-| Flag               | Short | Type     | Default  | Description                 |
-| ------------------ | ----- | -------- | -------- | --------------------------- |
-| `--output <format>` |       | `string` | `table`  | Output format: `table`, `json`, `csv`, `tsv` |
-| `--json`           |       | flag     |          | Alias for `--output json`   |
+| Flag                | Short | Type     | Default | Description                                  |
+| ------------------- | ----- | -------- | ------- | -------------------------------------------- |
+| `--output <format>` |       | `string` | `table` | Output format: `table`, `json`, `csv`, `tsv` |
+| `--json`            |       | flag     |         | Alias for `--output json`                    |
 
 ### Example
 
@@ -66,11 +66,11 @@ gpc bundles find [options]
 
 ### Options
 
-| Flag                    | Short | Type     | Default        | Description                          |
-| ----------------------- | ----- | -------- | -------------- | ------------------------------------ |
-| `--version-code <n>`    |       | `number` | **(required)** | Version code to find                 |
-| `--output <format>`     |       | `string` | `table`        | Output format: `table`, `json`, `csv`, `tsv` |
-| `--json`                |       | flag     |                | Alias for `--output json`            |
+| Flag                 | Short | Type     | Default        | Description                                  |
+| -------------------- | ----- | -------- | -------------- | -------------------------------------------- |
+| `--version-code <n>` |       | `number` | **(required)** | Version code to find                         |
+| `--output <format>`  |       | `string` | `table`        | Output format: `table`, `json`, `csv`, `tsv` |
+| `--json`             |       | flag     |                | Alias for `--output json`                    |
 
 Exits with code `1` if no bundle with the given version code is found.
 
@@ -94,13 +94,13 @@ gpc bundles wait [options]
 
 ### Options
 
-| Flag                  | Short | Type     | Default        | Description                                       |
-| --------------------- | ----- | -------- | -------------- | ------------------------------------------------- |
-| `--version-code <n>`  |       | `number` | **(required)** | Version code to wait for                          |
-| `--timeout <seconds>` |       | `number` | `600`          | Maximum time to wait before failing               |
-| `--interval <seconds>`|       | `number` | `15`           | Poll interval in seconds                          |
-| `--output <format>`   |       | `string` | `table`        | Output format: `table`, `json`, `csv`, `tsv`      |
-| `--json`              |       | flag     |                | Alias for `--output json`                         |
+| Flag                   | Short | Type     | Default        | Description                                  |
+| ---------------------- | ----- | -------- | -------------- | -------------------------------------------- |
+| `--version-code <n>`   |       | `number` | **(required)** | Version code to wait for                     |
+| `--timeout <seconds>`  |       | `number` | `600`          | Maximum time to wait before failing          |
+| `--interval <seconds>` |       | `number` | `15`           | Poll interval in seconds                     |
+| `--output <format>`    |       | `string` | `table`        | Output format: `table`, `json`, `csv`, `tsv` |
+| `--json`               |       | flag     |                | Alias for `--output json`                    |
 
 Throws `BUNDLE_WAIT_TIMEOUT` if the bundle does not appear within the configured timeout. Retries automatically on transient errors (429, 500, 503).
 

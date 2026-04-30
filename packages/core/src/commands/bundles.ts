@@ -7,10 +7,7 @@ export interface BundlesWaitOptions {
   interval?: number;
 }
 
-export async function listBundles(
-  client: PlayApiClient,
-  packageName: string,
-): Promise<Bundle[]> {
+export async function listBundles(client: PlayApiClient, packageName: string): Promise<Bundle[]> {
   const edit = await client.edits.insert(packageName);
   try {
     const bundles = await client.bundles.list(packageName, edit.id);

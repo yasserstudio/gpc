@@ -635,7 +635,8 @@ export async function checkQuotaProximity(): Promise<CheckResult | null> {
         name: "quota",
         status: "warn",
         message: `Daily quota: ${usage.dailyCallsUsed}/${usage.dailyCallsLimit} (${Math.round(dailyPct * 100)}%)`,
-        suggestion: "You are approaching the daily API call limit. Monitor usage with: gpc quota status",
+        suggestion:
+          "You are approaching the daily API call limit. Monitor usage with: gpc quota status",
       };
     }
 
@@ -653,9 +654,7 @@ export async function checkQuotaProximity(): Promise<CheckResult | null> {
 // Plugin health check
 // ---------------------------------------------------------------------------
 
-export async function checkPluginHealth(
-  configPlugins?: string[],
-): Promise<CheckResult[]> {
+export async function checkPluginHealth(configPlugins?: string[]): Promise<CheckResult[]> {
   try {
     const { discoverPlugins, PluginManager } = await import("@gpc-cli/core");
     const plugins = await discoverPlugins({ configPlugins });

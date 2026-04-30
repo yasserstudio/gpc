@@ -60,9 +60,7 @@ async function getFreshnessEndDate(
 ): Promise<Date | undefined> {
   try {
     const info = await reporting.getMetricSetFreshness(packageName, metricSet);
-    const match = info.freshnessInfo?.freshnesses?.find(
-      (f) => f.aggregationPeriod === aggregation,
-    );
+    const match = info.freshnessInfo?.freshnesses?.find((f) => f.aggregationPeriod === aggregation);
     if (match) {
       return new Date(
         Date.UTC(match.latestEndTime.year, match.latestEndTime.month - 1, match.latestEndTime.day),
@@ -148,7 +146,11 @@ export async function getVitalsOverview(
     metricSets.map(([metric], i) => {
       const fr = freshnessResults[i];
       const freshnessEnd = fr?.status === "fulfilled" ? fr.value : undefined;
-      return reporting.queryMetricSet(packageName, metric, buildQuery(metric, undefined, freshnessEnd));
+      return reporting.queryMetricSet(
+        packageName,
+        metric,
+        buildQuery(metric, undefined, freshnessEnd),
+      );
     }),
   );
 
