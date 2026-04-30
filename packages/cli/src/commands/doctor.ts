@@ -607,6 +607,88 @@ export async function checkShellCompletion(): Promise<CheckResult | null> {
 }
 
 // ---------------------------------------------------------------------------
+// Quota proximity check
+// ---------------------------------------------------------------------------
+
+export async function checkQuotaProximity(): Promise<CheckResult | null> {
+  try {
+    const { getQuotaUsage } = await import("@gpc-cli/core");
+    const usage = await getQuotaUsage();
+
+    if (usage.dailyCallsUsed === 0) return null;
+    if (usage.dailyCallsLimit === 0 || usage.minuteCallsLimit === 0) return null;
+
+    const minutePct = usage.minuteCallsUsed / usage.minuteCallsLimit;
+    if (minutePct > 0.8) {
+      return {
+        name: "quota",
+        status: "warn",
+        message: `Per-minute quota: ${usage.minuteCallsUsed}/${usage.minuteCallsLimit} (${Math.round(minutePct * 100)}%)`,
+        suggestion:
+          "You are approaching the per-minute rate limit. Space out API calls or wait before retrying.",
+      };
+    }
+
+    const dailyPct = usage.dailyCallsUsed / usage.dailyCallsLimit;
+    if (dailyPct > 0.8) {
+      return {
+        name: "quota",
+        status: "warn",
+        message: `Daily quota: ${usage.dailyCallsUsed}/${usage.dailyCallsLimit} (${Math.round(dailyPct * 100)}%)`,
+        suggestion: "You are approaching the daily API call limit. Monitor usage with: gpc quota status",
+      };
+    }
+
+    return {
+      name: "quota",
+      status: "pass",
+      message: `Quota: ${usage.dailyCallsUsed}/${usage.dailyCallsLimit} daily, ${usage.minuteCallsUsed}/${usage.minuteCallsLimit}/min`,
+    };
+  } catch {
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Plugin health check
+// ---------------------------------------------------------------------------
+
+export async function checkPluginHealth(
+  configPlugins?: string[],
+): Promise<CheckResult[]> {
+  try {
+    const { discoverPlugins, PluginManager } = await import("@gpc-cli/core");
+    const plugins = await discoverPlugins({ configPlugins });
+    if (plugins.length === 0) return [];
+
+    const results: CheckResult[] = [];
+    const manager = new PluginManager();
+
+    for (const plugin of plugins) {
+      try {
+        await manager.load(plugin);
+        results.push({
+          name: `plugin-${plugin.name}`,
+          status: "pass",
+          message: `Plugin: ${plugin.name}@${plugin.version ?? "unknown"}`,
+        });
+      } catch {
+        results.push({
+          name: `plugin-${plugin.name}`,
+          status: "warn",
+          message: `Plugin failed to load: ${plugin.name}`,
+          suggestion: `Try reinstalling: npm install ${plugin.name}`,
+        });
+      }
+    }
+
+    return results;
+  } catch {
+    return [];
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Signing key verification (--verify)
 // ---------------------------------------------------------------------------
 
@@ -1254,7 +1336,19 @@ export function registerDoctorCommand(program: Command): void {
       if (completionResult) results.push(completionResult);
 
       // -----------------------------------------------------------------------
-      // 22. Signing key verification (only when --verify is passed)
+      // 22. Quota proximity (reads local audit log, no API needed)
+      // -----------------------------------------------------------------------
+      const quotaResult = await checkQuotaProximity();
+      if (quotaResult) results.push(quotaResult);
+
+      // -----------------------------------------------------------------------
+      // 23. Plugin health
+      // -----------------------------------------------------------------------
+      const pluginResults = await checkPluginHealth(config?.plugins);
+      results.push(...pluginResults);
+
+      // -----------------------------------------------------------------------
+      // 24. Signing key verification (only when --verify is passed)
       // -----------------------------------------------------------------------
       if (opts["verify"] && accessToken && config?.app) {
         const ksPath = (opts["keystore"] as string | undefined) ?? process.env["GPC_KEYSTORE_PATH"];

@@ -276,6 +276,8 @@ This checks:
 - Network connectivity to `googleapis.com`
 - Authentication credentials are configured and valid
 - Config file is found and valid (if present)
+- API quota proximity (warns if usage exceeds 80%)
+- Plugin health (verifies each configured plugin loads)
 
 ## Shell Completions
 

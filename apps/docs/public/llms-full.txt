@@ -11,11 +11,12 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Pl
 
 - Install: `npm install -g @gpc-cli/cli`
 - Binary: `gpc`
-- Version: 0.9.70
+- Version: 0.9.71
 - API endpoints covered: 217 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1)
-- Tests: 2,260 (90%+ coverage)
+- Tests: 2,269 (90%+ coverage)
 - Licensing: Free to use. Source code is on GitHub.
 - Repo: https://github.com/yasserstudio/gpc
+- Notable v0.9.71 feature: `gpc doctor` now checks API quota proximity (warns when daily or per-minute usage exceeds 80%) and plugin health (discovers, loads, and reports each configured plugin). Two new check names: `quota` and `plugin-*`.
 - Notable v0.9.70 feature: `--in-app-update-priority <0-5>` and `--retain-version-codes <csv>` flags on release upload. `default.txt` Fastlane-style changelog fallback (versioned release notes from `{lang}/{versionCode}.txt` with `default.txt` per language). Promote preserves `inAppUpdatePriority` and `name` from source release. Vitals freshness clamping: queries Google's freshness endpoint to avoid 400 errors when data lags. GitHub Actions Node.js 22.
 - Notable v0.9.69 feature: `gpc listings images sync` — SHA-256 content-hash image sync (skip unchanged, upload only what's different). `gpc bundles list/find/wait` for querying and waiting on bundle processing. `changesNotSentForReview` auto-rescue on rejected-update 403s.
 - Notable v0.9.56 feature: `gpc enterprise publish` — first Android publishing CLI with Managed Google Play / Play Custom App Publishing API support
@@ -141,13 +142,13 @@ gpc publish app.aab --track beta --dry-run
 ```
 
 ### gpc doctor
-20 automated checks — diagnoses auth, config, connectivity, and app access.
+22 automated checks — diagnoses auth, config, connectivity, app access, API quota, and plugin health.
 ```
 gpc doctor                 # Run all checks
 gpc doctor --json          # Structured output for CI
 gpc doctor --fix           # Auto-fix what it can
 ```
-Checks: Node.js version, GPC version, CI detection, config file, unknown config keys, service account path, key readability, key age (>90 days warning), token validity, DNS resolution, HTTPS connectivity with latency, API connectivity, app access verification, package name format, conflicting credentials, token cache health, disk space, developer ID format.
+Checks: Node.js version, GPC version, CI detection, config file, unknown config keys, service account path, key readability, key age (>90 days warning), token validity, DNS resolution, HTTPS connectivity with latency, API connectivity, app access verification, package name format, conflicting credentials, token cache health, disk space, developer ID format, API quota proximity (warns at >80% daily/per-minute usage), plugin health (verifies each configured plugin loads).
 
 ---
 
@@ -702,5 +703,5 @@ All errors include a code, message, and suggestion. Common codes:
 
 ---
 
-*Generated from GPC v0.9.50 documentation.*
+*Generated from GPC v0.9.71 documentation.*
 *Source: https://github.com/yasserstudio/gpc*

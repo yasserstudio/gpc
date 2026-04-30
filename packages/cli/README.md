@@ -26,7 +26,7 @@ gpc listings push --dir metadata/             # Sync store metadata (Fastlane-co
 gpc changelog generate --target play-store --locales auto --ai      # AI-translated "What's new" in every locale
 gpc enterprise publish app.aab --account 123 --title "Private App"  # Managed Google Play
 gpc verify                                    # Developer verification readiness
-gpc doctor                                    # 20 setup checks
+gpc doctor                                    # 22 setup checks
 ```
 
 ## Why this over Fastlane?
@@ -97,7 +97,7 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 - [Commands reference](https://yasserstudio.github.io/gpc/commands/)
 - [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/)
 
-Free to use. 2,260 tests. 90%+ coverage. Every write operation supports `--dry-run`.
+Free to use. 2,269 tests. 90%+ coverage. Every write operation supports `--dry-run`.
 
 ## Licensing
 

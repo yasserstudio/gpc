@@ -46,7 +46,7 @@ features:
 <div class="stats-bar">
   <span class="stat">217 API Endpoints</span>
   <span class="stat-sep"></span>
-  <span class="stat">2,260 Tests</span>
+  <span class="stat">2,269 Tests</span>
   <span class="stat-sep"></span>
   <span class="stat">90%+ Coverage</span>
   <span class="stat-sep"></span>
@@ -96,25 +96,24 @@ gpc changelog generate --target play-store --locales auto --ai
 
 ## What's New
 
-::: tip v0.9.70 — Release polish + vitals freshness fix
-In-app update priority, version code retention, Fastlane-style versioned release notes, and automatic vitals freshness clamping. Last stop before v1.0.
+::: tip v0.9.71 — Smarter Doctor
+`gpc doctor` now checks API quota proximity and plugin health. Warns before you hit rate limits. Validates every configured plugin loads cleanly.
 
 ```bash
-gpc releases upload app.aab --in-app-update-priority 5        # highest priority
-gpc releases upload app.aab --retain-version-codes 40,41       # keep old codes
-gpc releases upload app.aab --notes-dir changelogs/            # auto-detect versioned
+gpc doctor                # now includes quota + plugin checks
+gpc doctor --json         # machine-readable with new check names
 ```
 
-[Releases reference →](/commands/releases) | [Full changelog →](/reference/changelog)
+[Doctor reference →](/commands/utility#gpc-doctor) | [Full changelog →](/reference/changelog)
 :::
 
 **Previous releases:**
 
+- **v0.9.70** — In-app update priority, version code retention, Fastlane-style changelog fallback, vitals freshness fix.
 - **v0.9.69** — SHA-256 image sync, `gpc bundles list/find/wait`, `changesNotSentForReview` auto-rescue.
 - **v0.9.68** — `gpc setup` guided onboarding wizard, CSV/TSV output formats, `--validate-only` on releases commit.
 - **v0.9.67** — `gpc watch` real-time rollout monitoring with vitals gates and Slack alerts.
 - **v0.9.66** — Developer verification tooling: `gpc verify`, `gpc verify checklist`, `gpc doctor --verify`, `gpc preflight signing`.
-- **v0.9.65** — Preflight scanners for April 2026 Google Play policies.
 
 [Full changelog →](/reference/changelog)
 

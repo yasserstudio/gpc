@@ -24,6 +24,8 @@ gpc doctor
 - Configuration file syntax
 - Network connectivity to Google Play APIs
 - Developer verification enforcement deadline
+- API quota proximity (warns at >80% daily or per-minute usage)
+- Plugin health (verifies each configured plugin loads)
 - Signing key fingerprint comparison (with `--verify`)
 
 ### Enable Debug Mode

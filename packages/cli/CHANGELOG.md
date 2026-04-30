@@ -1,5 +1,11 @@
 # @gpc-cli/cli
 
+## 0.9.71
+
+### Patch Changes
+
+- gpc doctor now checks API quota proximity and plugin health
+
 ## 0.9.70
 
 ### Patch Changes

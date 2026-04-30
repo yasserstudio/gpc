@@ -10,6 +10,8 @@ import {
   checkStaleCache,
   checkShellCompletion,
   checkVerificationDeadline,
+  checkQuotaProximity,
+  checkPluginHealth,
 } from "../src/commands/doctor.js";
 
 // ---------------------------------------------------------------------------
@@ -432,5 +434,159 @@ describe("checkVerificationDeadline", () => {
     const result = checkVerificationDeadline();
     expect(result.name).toBe("verification");
     expect(result.message).toContain("September 30, 2026");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// checkQuotaProximity
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// checkQuotaProximity + checkPluginHealth — shared mock
+// ---------------------------------------------------------------------------
+
+const mockGetQuotaUsage = vi.fn();
+const mockDiscoverPlugins = vi.fn();
+const mockPluginManagerLoad = vi.fn();
+
+vi.mock("@gpc-cli/core", () => ({
+  getQuotaUsage: (...args: unknown[]) => mockGetQuotaUsage(...args),
+  discoverPlugins: (...args: unknown[]) => mockDiscoverPlugins(...args),
+  PluginManager: class MockPluginManager {
+    load = mockPluginManagerLoad;
+  },
+}));
+
+describe("checkQuotaProximity", () => {
+  beforeEach(() => {
+    mockGetQuotaUsage.mockReset();
+  });
+
+  it("returns null when no audit entries", async () => {
+    mockGetQuotaUsage.mockResolvedValue({
+      dailyCallsUsed: 0,
+      dailyCallsLimit: 200_000,
+      dailyCallsRemaining: 200_000,
+      minuteCallsUsed: 0,
+      minuteCallsLimit: 3_000,
+      minuteCallsRemaining: 3_000,
+      topCommands: [],
+    });
+    expect(await checkQuotaProximity()).toBeNull();
+  });
+
+  it("passes when usage is below 80%", async () => {
+    mockGetQuotaUsage.mockResolvedValue({
+      dailyCallsUsed: 100_000,
+      dailyCallsLimit: 200_000,
+      dailyCallsRemaining: 100_000,
+      minuteCallsUsed: 1_000,
+      minuteCallsLimit: 3_000,
+      minuteCallsRemaining: 2_000,
+      topCommands: [],
+    });
+    const result = await checkQuotaProximity();
+    expect(result?.status).toBe("pass");
+    expect(result?.message).toContain("100000/200000");
+  });
+
+  it("warns when daily calls exceed 80%", async () => {
+    mockGetQuotaUsage.mockResolvedValue({
+      dailyCallsUsed: 170_000,
+      dailyCallsLimit: 200_000,
+      dailyCallsRemaining: 30_000,
+      minuteCallsUsed: 100,
+      minuteCallsLimit: 3_000,
+      minuteCallsRemaining: 2_900,
+      topCommands: [],
+    });
+    const result = await checkQuotaProximity();
+    expect(result?.status).toBe("warn");
+    expect(result?.message).toContain("Daily quota");
+    expect(result?.suggestion).toContain("gpc quota status");
+  });
+
+  it("warns when per-minute calls exceed 80%", async () => {
+    mockGetQuotaUsage.mockResolvedValue({
+      dailyCallsUsed: 1_000,
+      dailyCallsLimit: 200_000,
+      dailyCallsRemaining: 199_000,
+      minuteCallsUsed: 2_500,
+      minuteCallsLimit: 3_000,
+      minuteCallsRemaining: 500,
+      topCommands: [],
+    });
+    const result = await checkQuotaProximity();
+    expect(result?.status).toBe("warn");
+    expect(result?.message).toContain("Per-minute");
+  });
+
+  it("per-minute warning takes priority over daily", async () => {
+    mockGetQuotaUsage.mockResolvedValue({
+      dailyCallsUsed: 180_000,
+      dailyCallsLimit: 200_000,
+      dailyCallsRemaining: 20_000,
+      minuteCallsUsed: 2_600,
+      minuteCallsLimit: 3_000,
+      minuteCallsRemaining: 400,
+      topCommands: [],
+    });
+    const result = await checkQuotaProximity();
+    expect(result?.status).toBe("warn");
+    expect(result?.message).toContain("Per-minute");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// checkPluginHealth
+// ---------------------------------------------------------------------------
+
+describe("checkPluginHealth", () => {
+  beforeEach(() => {
+    mockDiscoverPlugins.mockReset();
+    mockPluginManagerLoad.mockReset();
+  });
+
+  it("returns empty array when no plugins discovered", async () => {
+    mockDiscoverPlugins.mockResolvedValue([]);
+    const results = await checkPluginHealth(undefined);
+    expect(results).toEqual([]);
+  });
+
+  it("reports loaded plugin with name and version", async () => {
+    const mockPlugin = { name: "@gpc-cli/plugin-ci", version: "1.0.0", register: vi.fn() };
+    mockDiscoverPlugins.mockResolvedValue([mockPlugin]);
+    mockPluginManagerLoad.mockResolvedValue(undefined);
+
+    const results = await checkPluginHealth(["@gpc-cli/plugin-ci"]);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.status).toBe("pass");
+    expect(results[0]!.message).toContain("@gpc-cli/plugin-ci@1.0.0");
+  });
+
+  it("reports failed plugin as warn with reinstall suggestion", async () => {
+    const mockPlugin = { name: "gpc-plugin-bad", version: "0.1.0", register: vi.fn() };
+    mockDiscoverPlugins.mockResolvedValue([mockPlugin]);
+    mockPluginManagerLoad.mockRejectedValue(new Error("Module not found"));
+
+    const results = await checkPluginHealth(["gpc-plugin-bad"]);
+    expect(results).toHaveLength(1);
+    expect(results[0]!.status).toBe("warn");
+    expect(results[0]!.message).toContain("failed to load");
+    expect(results[0]!.suggestion).toContain("npm install");
+  });
+
+  it("handles mix of passing and failing plugins", async () => {
+    const goodPlugin = { name: "plugin-good", version: "1.0.0", register: vi.fn() };
+    const badPlugin = { name: "plugin-bad", version: "0.1.0", register: vi.fn() };
+    mockDiscoverPlugins.mockResolvedValue([goodPlugin, badPlugin]);
+    mockPluginManagerLoad
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error("fail"));
+
+    const results = await checkPluginHealth(["plugin-good", "plugin-bad"]);
+    expect(results).toHaveLength(2);
+    expect(results[0]!.status).toBe("pass");
+    expect(results[1]!.status).toBe("warn");
   });
 });

@@ -11,7 +11,16 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.70 <Badge type="tip" text="latest" />
+## v0.9.71 <Badge type="tip" text="latest" />
+
+Smarter `gpc doctor` with quota and plugin health checks.
+
+**New:**
+
+- feat: `gpc doctor` now checks API quota proximity. Warns if daily usage exceeds 80% of the 200,000 call limit or per-minute usage exceeds 80% of the 3,000 call limit. Reads from the local audit log.
+- feat: `gpc doctor` now validates plugin health. Discovers and attempts to load all configured plugins, reporting each by name and version. Failed plugins are flagged with a reinstall suggestion.
+
+## v0.9.70
 
 Release polish, Fastlane-style changelog fallback, and Node.js 22 CI.
 
