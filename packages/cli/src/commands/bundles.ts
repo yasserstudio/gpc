@@ -5,7 +5,6 @@ import {
   findBundle,
   waitForBundle,
   formatOutput,
-  GpcError,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { resolvePackageName, getClient } from "../resolve.js";
