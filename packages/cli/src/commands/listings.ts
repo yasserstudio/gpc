@@ -599,7 +599,7 @@ export function registerListingsCommands(program: Command): void {
             command: "listings images sync",
             action: "sync images in",
             target: options["dir"] as string,
-            details: result,
+            details: result as unknown as Record<string, unknown>,
           },
           format,
           formatOutput,
