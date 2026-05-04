@@ -42,7 +42,8 @@ export interface DecodedNotification {
   };
 }
 
-// RTDN notification type names
+// Values match Google's SubscriptionNotification.notificationType enum.
+// Gaps (14-16, 21) are reserved by Google and intentionally omitted.
 const SUBSCRIPTION_NOTIFICATION_TYPES: Record<number, string> = {
   1: "SUBSCRIPTION_RECOVERED",
   2: "SUBSCRIPTION_RENEWED",
@@ -57,7 +58,11 @@ const SUBSCRIPTION_NOTIFICATION_TYPES: Record<number, string> = {
   11: "SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED",
   12: "SUBSCRIPTION_REVOKED",
   13: "SUBSCRIPTION_EXPIRED",
+  17: "SUBSCRIPTION_ITEMS_CHANGED",
+  18: "SUBSCRIPTION_CANCELLATION_SCHEDULED",
+  19: "SUBSCRIPTION_PRICE_CHANGE_UPDATED",
   20: "SUBSCRIPTION_PENDING_PURCHASE_CANCELED",
+  22: "SUBSCRIPTION_PRICE_STEP_UP_CONSENT_UPDATED",
 };
 
 const OTP_NOTIFICATION_TYPES: Record<number, string> = {
