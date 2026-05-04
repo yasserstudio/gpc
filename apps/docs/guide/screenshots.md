@@ -327,7 +327,7 @@ Each upload is a separate API call. Google's rate limit is generous (several per
 - [Google Play Console image requirements](https://support.google.com/googleplay/android-developer/answer/9866151)
 - [Fastlane `screengrab`](https://docs.fastlane.tools/actions/screengrab/) — for automated screenshot generation
 
-## Known gaps (as of v0.9.66)
+## Known gaps
 
 These are tracked for future GPC versions. Your feedback on which matter most drives prioritization:
 

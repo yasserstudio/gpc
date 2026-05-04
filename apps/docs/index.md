@@ -44,32 +44,56 @@ features:
 ---
 
 <div class="stats-bar">
-  <span class="stat">217 API Endpoints</span>
-  <span class="stat-sep"></span>
-  <span class="stat">2,269 Tests</span>
-  <span class="stat-sep"></span>
-  <span class="stat">90%+ Coverage</span>
-  <span class="stat-sep"></span>
-  <span class="stat">Free to Use</span>
+  <div class="stat-item">
+    <span class="stat-number">217</span>
+    <span class="stat-label">API Endpoints</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-number">2,269</span>
+    <span class="stat-label">Tests</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-number">90%+</span>
+    <span class="stat-label">Coverage</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-number">Free</span>
+    <span class="stat-label">to Use</span>
+  </div>
 </div>
 
-## Why GPC
+<section class="home-section section-why">
+<div class="section-inner">
 
-Every Android release is the same ritual: open the Play Console, upload your AAB, copy-paste release notes, pick a track, set the rollout percentage, click through confirmation screens. Fifteen minutes of clicking, every single time. And when you ship to 16 locales, the copy-paste ritual runs 16 times.
+<h2 class="section-title">Why GPC</h2>
 
-GPC covers the entire Google Play Developer API in one CLI. 217 endpoints. Plus a preflight compliance scanner that catches policy violations before you upload, and AI translation that turns your git log into localized "What's new" text in one command.
+<div class="why-content">
+<p>Every Android release is the same ritual: open the Play Console, upload your AAB, copy-paste release notes, pick a track, set the rollout percentage, click through confirmation screens. <strong>Fifteen minutes of clicking, every single time.</strong> Ship to 16 locales and the ritual runs 16 times.</p>
+<p>GPC covers the entire Google Play Developer API in one CLI. 217 endpoints. Plus a preflight compliance scanner that catches policy violations before you upload, and AI translation that turns your git log into localized "What's new" text in one command.</p>
+<p class="why-tagline">No Ruby. No browser. No ceremony.</p>
+</div>
 
-No Ruby. No browser. No ceremony.
+</div>
+</section>
 
-## Install
+<section class="home-section section-install">
+<div class="section-inner">
+
+<h2 class="section-title">Install</h2>
 
 ```bash
 npm install -g @gpc-cli/cli
 ```
 
-[Homebrew, standalone binaries, Windows →](/guide/installation)
+<p class="install-alt"><a href="/guide/installation">Homebrew, standalone binaries, Windows →</a></p>
 
-## Quick Start
+</div>
+</section>
+
+<section class="home-section section-quickstart">
+<div class="section-inner">
+
+<h2 class="section-title">Quick Start</h2>
 
 ```bash
 # Authenticate
@@ -78,7 +102,7 @@ gpc auth login --service-account path/to/key.json
 # Verify your setup
 gpc doctor
 
-# App health at a glance — releases, vitals, reviews in one command
+# App health at a glance
 gpc status
 
 # Upload and release
@@ -90,77 +114,161 @@ gpc releases promote --from internal --to production --rollout 10
 # Watch your rollout, auto-halt on threshold breach
 gpc watch --on-breach halt
 
-# Translate your release notes into every locale on your live listing
+# AI-translate release notes into every locale
 gpc changelog generate --target play-store --locales auto --ai
 ```
 
-## What's New
+</div>
+</section>
 
-::: tip v0.9.71 — Smarter Doctor
-`gpc doctor` now checks API quota proximity and plugin health. Warns before you hit rate limits. Validates every configured plugin loads cleanly.
+<section class="home-section section-whats-new">
+<div class="section-inner">
+
+<h2 class="section-title">What's New</h2>
+
+<div class="release-card release-latest">
+<div class="release-badge">Latest</div>
+<h3 class="release-version">v0.9.71 — Smarter Doctor</h3>
+<p><code>gpc doctor</code> now checks API quota proximity and plugin health. Warns before you hit rate limits. Validates every configured plugin loads cleanly.</p>
 
 ```bash
 gpc doctor                # now includes quota + plugin checks
 gpc doctor --json         # machine-readable with new check names
 ```
 
-[Doctor reference →](/commands/utility#gpc-doctor) | [Full changelog →](/reference/changelog)
-:::
+<div class="release-links">
+<a href="/commands/utility#gpc-doctor">Doctor reference →</a>
+<a href="/reference/changelog">Full changelog →</a>
+</div>
+</div>
 
-**Previous releases:**
+<div class="releases-prev">
+<div class="release-mini"><strong>v0.9.70</strong> In-app update priority, version code retention, Fastlane-style changelog fallback.</div>
+<div class="release-mini"><strong>v0.9.69</strong> SHA-256 image sync, <code>gpc bundles list/find/wait</code>, auto-rescue on review errors.</div>
+<div class="release-mini"><strong>v0.9.68</strong> <code>gpc setup</code> guided onboarding wizard, CSV/TSV output, <code>--validate-only</code>.</div>
+</div>
 
-- **v0.9.70** — In-app update priority, version code retention, Fastlane-style changelog fallback, vitals freshness fix.
-- **v0.9.69** — SHA-256 image sync, `gpc bundles list/find/wait`, `changesNotSentForReview` auto-rescue.
-- **v0.9.68** — `gpc setup` guided onboarding wizard, CSV/TSV output formats, `--validate-only` on releases commit.
-- **v0.9.67** — `gpc watch` real-time rollout monitoring with vitals gates and Slack alerts.
-- **v0.9.66** — Developer verification tooling: `gpc verify`, `gpc verify checklist`, `gpc doctor --verify`, `gpc preflight signing`.
+<p class="release-all-link"><a href="/reference/changelog">View all releases →</a></p>
 
-[Full changelog →](/reference/changelog)
+</div>
+</section>
 
-## What GPC Covers
+<section class="home-section section-coverage">
+<div class="section-inner">
 
-| Domain            | What you can do                                                                                                                              |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Releases**      | Upload, promote, staged rollouts, halt, resume, release notes, rejected app handling                                                         |
-| **Listings**      | Store metadata, screenshots, localization, Fastlane format compatible                                                                        |
-| **Reviews**       | Filter by stars/language/date, reply, export to CSV                                                                                          |
-| **Vitals**        | Crashes, ANR, startup, rendering, battery, memory — with CI threshold gates                                                                  |
-| **Monitoring**    | Real-time rollout monitoring with 6 vitals metrics, threshold alerts, auto-halt, and webhook notifications                                   |
-| **Monetization**  | Subscriptions, base plans, offers, in-app products, pricing conversion                                                                       |
-| **Purchases**     | Verification, acknowledgment, refunds, voided purchases                                                                                      |
-| **Reports**       | Financial and stats CSV downloads                                                                                                            |
-| **Team**          | Testers, users, permissions, CSV bulk import                                                                                                 |
-| **Compliance**    | Preflight scanner (9 checks), signing key audit, developer verification readiness, data safety, recovery actions                             |
-| **Analysis**      | Bundle size breakdown, cross-build comparison, size CI gates                                                                                 |
-| **Release Notes** | GitHub Release markdown from git, per-locale Play Store text (500-char budget), AI translation via Anthropic/OpenAI/Google/Vercel AI Gateway |
-| **More**          | Device tiers, internal sharing, external transactions, project scaffolding                                                                   |
+<h2 class="section-title">What GPC Covers</h2>
 
-[View the full command reference →](/commands/)
+<div class="coverage-grid">
+<div class="coverage-card">
+<div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+<h3>Releases</h3>
+<p>Upload, promote, staged rollouts, halt, resume, release notes, rejected app handling</p>
+</div>
+<div class="coverage-card">
+<div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
+<h3>Listings</h3>
+<p>Store metadata, screenshots, localization, Fastlane format compatible</p>
+</div>
+<div class="coverage-card">
+<div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+<h3>Reviews</h3>
+<p>Filter by stars, language, date. Reply, export to CSV</p>
+</div>
+<div class="coverage-card">
+<div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+<h3>Vitals</h3>
+<p>Crashes, ANR, startup, rendering, battery, memory with CI threshold gates</p>
+</div>
+<div class="coverage-card">
+<div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+<h3>Monitoring</h3>
+<p>Real-time rollout monitoring, 6 vitals metrics, auto-halt, webhooks</p>
+</div>
+<div class="coverage-card">
+<div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+<h3>Monetization</h3>
+<p>Subscriptions, base plans, offers, in-app products, pricing conversion</p>
+</div>
+<div class="coverage-card">
+<div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+<h3>Purchases</h3>
+<p>Verification, acknowledgment, refunds, voided purchases</p>
+</div>
+<div class="coverage-card">
+<div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+<h3>Reports</h3>
+<p>Financial and stats CSV downloads</p>
+</div>
+<div class="coverage-card">
+<div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+<h3>Team</h3>
+<p>Testers, users, permissions, CSV bulk import</p>
+</div>
+<div class="coverage-card">
+<div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+<h3>Compliance</h3>
+<p>Preflight scanner (9 checks), signing audit, developer verification, data safety</p>
+</div>
+<div class="coverage-card">
+<div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+<h3>Analysis</h3>
+<p>Bundle size breakdown, cross-build comparison, size CI gates</p>
+</div>
+<div class="coverage-card">
+<div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+<h3>Release Notes</h3>
+<p>Git-to-markdown, per-locale Play Store text (500-char), AI translation</p>
+</div>
+</div>
 
-## Why GPC vs the alternatives
+<p class="coverage-link"><a href="/commands/">View the full command reference →</a></p>
+
+</div>
+</section>
+
+<section class="home-section section-compare">
+<div class="section-inner">
+
+<h2 class="section-title">How GPC compares</h2>
+
+<div class="compare-table-wrap">
 
 |                         | **GPC**                        | Fastlane supply | gradle-play-publisher | Console UI   |
 | ----------------------- | ------------------------------ | --------------- | --------------------- | ------------ |
 | API coverage            | **217 endpoints**              | ~20             | ~15                   | All (manual) |
 | Runtime                 | Node.js or standalone binary   | Ruby + Bundler  | JVM                   | Browser      |
 | Cold start              | **<500ms**                     | 2-3s            | 3-5s                  | 5-10s        |
-| Reviews & Vitals        | Yes                            | No              | No                    | Yes (manual) |
-| Subscriptions & IAP     | Yes                            | No              | No                    | Yes (manual) |
-| **Managed Google Play** | **Yes (first CLI to support)** | No              | No                    | Yes (manual) |
-| **AI translation**      | **`--ai`, BYO key**            | No              | No                    | No           |
-| CI/CD native            | JSON + exit codes + env vars   | Partial         | Gradle tasks          | No           |
-| Preflight scanner       | **9 offline policy checks**    | No              | No                    | No           |
-| Plugin system           | Yes                            | No              | No                    | No           |
+| Reviews & Vitals        | ✓                              | ✗               | ✗                     | Manual       |
+| Subscriptions & IAP     | ✓                              | ✗               | ✗                     | Manual       |
+| Managed Google Play     | **✓ First CLI**                | ✗               | ✗                     | Manual       |
+| AI translation          | **✓ BYO key**                  | ✗               | ✗                     | ✗            |
+| CI/CD native            | JSON + exit codes + env vars   | Partial         | Gradle tasks          | ✗            |
+| Preflight scanner       | **9 offline checks**           | ✗               | ✗                     | ✗            |
+| Plugin system           | ✓                              | ✗               | ✗                     | ✗            |
 
-Already on Fastlane? See the [migration guide](/migration/from-fastlane) or the [full comparison](/alternatives/fastlane).
+</div>
 
-## Ready to stop clicking?
+<p class="compare-note">Already on Fastlane? See the <a href="/migration/from-fastlane">migration guide</a> or the <a href="/alternatives/fastlane">full comparison</a>.</p>
+
+</div>
+</section>
+
+<section class="home-section section-cta">
+<div class="section-inner">
+<div class="cta-block">
+<h2 class="cta-title">Ready to stop clicking?</h2>
+<p class="cta-subtitle">Free to use. Works with your existing Google Play service account. Every write operation supports <code>--dry-run</code>.</p>
 
 ```bash
 npm install -g @gpc-cli/cli
 gpc doctor
 ```
 
-Free to use. Works with your existing Google Play service account. Every write operation supports `--dry-run`.
-
-[Get started](/guide/quick-start) · [Full installation options](/guide/installation) · [Star on GitHub](https://github.com/yasserstudio/gpc) · [Report an issue](https://github.com/yasserstudio/gpc/issues)
+<div class="cta-links">
+<a href="/guide/quick-start" class="cta-btn cta-primary">Get started</a>
+<a href="/guide/installation" class="cta-btn cta-secondary">Installation options</a>
+<a href="https://github.com/yasserstudio/gpc" class="cta-btn cta-secondary">Star on GitHub</a>
+</div>
+</div>
+</div>
+</section>

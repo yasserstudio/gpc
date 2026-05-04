@@ -26,9 +26,9 @@ This page compares every actively maintained option as of April 2026.
 | CI/CD integration            | JSON + exit codes (0-6)        | Partial              | Gradle tasks              | Basic             |
 | Plugin system                | Yes (lifecycle hooks, SDK)     | Actions              | No                        | No                |
 | SDK / library use            | Yes (@gpc-cli/api)             | No                   | No                        | No                |
-| Test suite                   | 2,143 tests, 90%+ coverage     | Community-maintained | Kotlin tests              | Minimal           |
-| Image sync (SHA-256 diffing) | Planned (v0.9.69)              | Yes                  | No                        | No                |
-| Upload progress reporting    | Planned (v0.9.69)              | No                   | Yes (progress callbacks)  | No                |
+| Test suite                   | 2,269 tests, 90%+ coverage     | Community-maintained | Kotlin tests              | Minimal           |
+| Image sync (SHA-256 diffing) | Yes (shipped v0.9.69)          | Yes                  | No                        | No                |
+| Upload progress reporting    | Yes (shipped v0.9.69)          | No                   | Yes (progress callbacks)  | No                |
 
 ## How to Choose a Google Play CLI
 
@@ -60,13 +60,12 @@ These capabilities have no equivalent in any other Google Play CLI tool:
 
 Fastlane supply has a few features GPC does not have yet:
 
-- **SHA-256 image diffing** - Only uploads images that changed, avoiding re-uploading your entire screenshot set. GPC plans this for v0.9.69.
 - **iOS and Android in one tool** - If you ship both platforms, Fastlane gives you a single toolchain. GPC is Android-only by design.
 
 ### Where gradle-play-publisher Leads
 
 - **Gradle-native workflow** - Publishing is a Gradle task, not a separate CLI step. If your CI already runs `./gradlew`, this is zero additional setup.
-- **Upload progress callbacks** - Shows upload percentage during large AAB uploads. GPC plans this for v0.9.69.
+- **Upload progress callbacks** - Shows upload percentage during large AAB uploads.
 
 ## A Note on Google's Official Android CLI
 
