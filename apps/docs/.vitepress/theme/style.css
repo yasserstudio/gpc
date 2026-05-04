@@ -877,7 +877,6 @@ html {
   color: var(--vp-c-text-2) !important;
 }
 
-
 /* ================================================================
    CONTENT — TABLES
    ================================================================ */
@@ -1604,7 +1603,10 @@ html {
   border-radius: var(--gpc-radius);
   border: 1px solid var(--vp-c-border);
   background: var(--vp-c-bg-elv);
-  transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .coverage-card:hover {
@@ -1730,7 +1732,10 @@ html {
   border-radius: 999px;
   padding: 10px 24px;
   text-decoration: none !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
 }
 
 .cta-btn:hover {
@@ -1752,7 +1757,9 @@ html {
 .dark .cta-primary {
   background: linear-gradient(135deg, #4d6ad0, #2e4293);
   border-color: rgba(77, 106, 208, 0.3);
-  box-shadow: 0 0 22px rgba(77, 106, 208, 0.28), 0 4px 14px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 0 22px rgba(77, 106, 208, 0.28),
+    0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
 .cta-secondary {

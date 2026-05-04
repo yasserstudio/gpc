@@ -233,18 +233,18 @@ gpc doctor --json         # machine-readable with new check names
 
 <div class="compare-table-wrap">
 
-|                         | **GPC**                        | Fastlane supply | gradle-play-publisher | Console UI   |
-| ----------------------- | ------------------------------ | --------------- | --------------------- | ------------ |
-| API coverage            | **217 endpoints**              | ~20             | ~15                   | All (manual) |
-| Runtime                 | Node.js or standalone binary   | Ruby + Bundler  | JVM                   | Browser      |
-| Cold start              | **<500ms**                     | 2-3s            | 3-5s                  | 5-10s        |
-| Reviews & Vitals        | ✓                              | ✗               | ✗                     | Manual       |
-| Subscriptions & IAP     | ✓                              | ✗               | ✗                     | Manual       |
-| Managed Google Play     | **✓ First CLI**                | ✗               | ✗                     | Manual       |
-| AI translation          | **✓ BYO key**                  | ✗               | ✗                     | ✗            |
-| CI/CD native            | JSON + exit codes + env vars   | Partial         | Gradle tasks          | ✗            |
-| Preflight scanner       | **9 offline checks**           | ✗               | ✗                     | ✗            |
-| Plugin system           | ✓                              | ✗               | ✗                     | ✗            |
+|                     | **GPC**                      | Fastlane supply | gradle-play-publisher | Console UI   |
+| ------------------- | ---------------------------- | --------------- | --------------------- | ------------ |
+| API coverage        | **217 endpoints**            | ~20             | ~15                   | All (manual) |
+| Runtime             | Node.js or standalone binary | Ruby + Bundler  | JVM                   | Browser      |
+| Cold start          | **<500ms**                   | 2-3s            | 3-5s                  | 5-10s        |
+| Reviews & Vitals    | ✓                            | ✗               | ✗                     | Manual       |
+| Subscriptions & IAP | ✓                            | ✗               | ✗                     | Manual       |
+| Managed Google Play | **✓ First CLI**              | ✗               | ✗                     | Manual       |
+| AI translation      | **✓ BYO key**                | ✗               | ✗                     | ✗            |
+| CI/CD native        | JSON + exit codes + env vars | Partial         | Gradle tasks          | ✗            |
+| Preflight scanner   | **9 offline checks**         | ✗               | ✗                     | ✗            |
+| Plugin system       | ✓                            | ✗               | ✗                     | ✗            |
 
 </div>
 

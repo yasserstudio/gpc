@@ -383,14 +383,14 @@ Tracked against the live discovery docs audited 2026-05-04:
 
 These fields were added by Google in 2025-2026 and are already present in GPC's `SubscriptionPurchaseV2` / `SubscriptionPurchaseLineItem` types:
 
-| Field | Added | Notes |
-| ----- | ----- | ----- |
-| `SubscriptionPurchaseLineItem.latestSuccessfulOrderId` | May 2025 | Replaces deprecated `latestOrderId` |
-| `SubscriptionPurchaseLineItem.autoRenewingPlan.priceStepUpConsentDetails` | Sep 2025 | Consent status + timestamp for price step-ups |
-| `SubscriptionPurchaseLineItem.itemReplacement` | Nov 2025 | Details about the item being replaced |
-| `SubscriptionPurchaseV2.outOfAppPurchaseContext` | Nov 2025 | Links resubscriptions from Play Store to expired subscriptions |
-| `SubscriptionPurchaseLineItem.offerPhase` | Jan 2026 | Current phase: free trial, intro price, base plan, prorated |
-| `Orders.offerPhaseDetails` | Nov 2025 | Detailed info on orders funding a prorated period |
+| Field                                                                     | Added    | Notes                                                          |
+| ------------------------------------------------------------------------- | -------- | -------------------------------------------------------------- |
+| `SubscriptionPurchaseLineItem.latestSuccessfulOrderId`                    | May 2025 | Replaces deprecated `latestOrderId`                            |
+| `SubscriptionPurchaseLineItem.autoRenewingPlan.priceStepUpConsentDetails` | Sep 2025 | Consent status + timestamp for price step-ups                  |
+| `SubscriptionPurchaseLineItem.itemReplacement`                            | Nov 2025 | Details about the item being replaced                          |
+| `SubscriptionPurchaseV2.outOfAppPurchaseContext`                          | Nov 2025 | Links resubscriptions from Play Store to expired subscriptions |
+| `SubscriptionPurchaseLineItem.offerPhase`                                 | Jan 2026 | Current phase: free trial, intro price, base plan, prorated    |
+| `Orders.offerPhaseDetails`                                                | Nov 2025 | Detailed info on orders funding a prorated period              |
 
 ### RTDN event types
 
@@ -444,13 +444,13 @@ Planned replacement:
 
 Google formally deprecated these subscription APIs with shutdown scheduled for **August 31, 2027** (extension available to November 1, 2027):
 
-| Deprecated | Replacement | GPC status |
-| ---------- | ----------- | ---------- |
-| `purchases.subscriptions.get` | `purchases.subscriptionsv2.get` | Emits warning, redirects to v2 |
-| `purchases.subscriptions.refund` | `orders.refund` (via `subscriptionsv2.get` for order ID) | Removed; users directed to `gpc purchases orders refund` |
-| `purchases.subscriptions.revoke` | `purchases.subscriptionsv2.revoke` | v2 method available |
-| `SubscriptionPurchaseV2.latestOrderId` | `SubscriptionPurchaseLineItem.latestSuccessfulOrderId` | Types updated |
-| `SUBSCRIPTION_PRICE_CHANGE_CONFIRMED` RTDN | `SUBSCRIPTION_PRICE_CHANGE_UPDATED` | Both mapped in RTDN decoder |
+| Deprecated                                 | Replacement                                              | GPC status                                               |
+| ------------------------------------------ | -------------------------------------------------------- | -------------------------------------------------------- |
+| `purchases.subscriptions.get`              | `purchases.subscriptionsv2.get`                          | Emits warning, redirects to v2                           |
+| `purchases.subscriptions.refund`           | `orders.refund` (via `subscriptionsv2.get` for order ID) | Removed; users directed to `gpc purchases orders refund` |
+| `purchases.subscriptions.revoke`           | `purchases.subscriptionsv2.revoke`                       | v2 method available                                      |
+| `SubscriptionPurchaseV2.latestOrderId`     | `SubscriptionPurchaseLineItem.latestSuccessfulOrderId`   | Types updated                                            |
+| `SUBSCRIPTION_PRICE_CHANGE_CONFIRMED` RTDN | `SUBSCRIPTION_PRICE_CHANGE_UPDATED`                      | Both mapped in RTDN decoder                              |
 
 Client libraries released after November 1, 2025 no longer include the deprecated methods. GPC's typed API client already prefers v2 surfaces.
 
