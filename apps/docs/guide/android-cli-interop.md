@@ -100,16 +100,20 @@ The full GPC skill index:
 
 Google maintains an official skill repository at [github.com/android/skills](https://github.com/android/skills) (Apache 2.0). It contains skills for the app-development side of the Android lifecycle:
 
-| Skill                                  | Domain          | What it covers                          |
-| -------------------------------------- | --------------- | --------------------------------------- |
-| `agp-9-upgrade`                        | Build           | Android Gradle Plugin 9 migration       |
-| `migrate-xml-views-to-jetpack-compose` | UI              | XML layout to Jetpack Compose migration |
-| `navigation-3`                         | Navigation      | Navigation 3 library patterns           |
-| `r8-analyzer`                          | Performance     | R8/ProGuard keep rules analysis         |
-| `play-billing-library-version-upgrade` | Play (app-side) | Play Billing Library version migration  |
-| `edge-to-edge`                         | System          | Edge-to-edge display implementation     |
+| Skill                                  | Domain          | What it covers                                        |
+| -------------------------------------- | --------------- | ----------------------------------------------------- |
+| `android-cli`                          | Dev tools       | Android CLI usage, journeys, interactive workflows     |
+| `agp-9-upgrade`                        | Build           | Android Gradle Plugin 9 migration                     |
+| `camera1-to-camerax`                   | Camera          | Camera1 API to CameraX migration                      |
+| `migrate-xml-views-to-jetpack-compose` | UI              | XML layout to Jetpack Compose migration                |
+| `navigation-3`                         | Navigation      | Navigation 3 library patterns and recipes              |
+| `r8-analyzer`                          | Performance     | R8/ProGuard keep rules analysis                        |
+| `perfetto-sql`                         | Profilers       | Perfetto trace analysis with PerfettoSQL               |
+| `play-billing-library-version-upgrade` | Play (app-side) | Play Billing Library version migration                 |
+| `edge-to-edge`                         | System          | Edge-to-edge display implementation                    |
+| `display-ai-glasses-with-compose-glimmer` | XR           | Jetpack Compose Glimmer UI for AI glasses              |
 
-These skills cover **app code**: Gradle config, Kotlin/Compose UI, SDK integration. They stop at the boundary of the built artifact.
+These skills cover **app code**: Gradle config, Kotlin/Compose UI, SDK integration, device profiling, and on-device APIs. They stop at the boundary of the built artifact.
 
 GPC's 18 skills pick up where Google's stop: everything after you have an AAB on disk. Publishing, rollouts, vitals, monetization, compliance, CI/CD.
 
@@ -123,7 +127,7 @@ android skills add --all
 npx skills add yasserstudio/gpc-skills
 ```
 
-Together, the two skill packs give an agent full coverage from project scaffold to staged rollout. There is no overlap: Google's `play-billing-library-version-upgrade` handles in-app billing Kotlin code, while GPC's `gpc-monetization` handles the publishing API for subscriptions and IAP products.
+Together, the two skill packs give an agent full coverage from project scaffold to staged rollout. There is no overlap: Google's `play-billing-library-version-upgrade` handles in-app billing Kotlin code, while GPC's `gpc-monetization` handles the publishing API for subscriptions and IAP products. Google's `android-cli` skill teaches agents the build/device commands, while GPC's 18 skills teach agents the publishing commands.
 
 ## Agent-friendly output contract
 
