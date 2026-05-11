@@ -11,7 +11,7 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.72 <Badge type="tip" text="latest" />
+## v0.9.73 <Badge type="tip" text="latest" />
 
 Skills check, Android CLI detection, upload with inline AI changelog.
 
@@ -37,6 +37,18 @@ Skills check, Android CLI detection, upload with inline AI changelog.
 **Tests:** 2,269 to 2,281 (+12).
 
 **Endpoint count:** unchanged at 217.
+
+---
+
+## v0.9.72
+
+API compliance patch.
+
+- fix(api): Correct `errorReports:search` endpoint path and add input validation.
+- fix(api): Add warn-once deprecation notices to v1 subscription methods.
+- fix(core): Add missing RTDN subscription notification types.
+- docs(api): Update API coverage map with 2025-2026 changes.
+- docs(homepage): Redesign below-features sections and align docs with v0.9.71.
 
 ---
 
