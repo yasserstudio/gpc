@@ -307,6 +307,7 @@ const EXPECTED_TOP_LEVEL_COMMANDS = [
   "docs",
   "completion",
   "install-skills",
+  "skills",
   "version",
   "cache",
   "feedback",

@@ -9,7 +9,7 @@ A Google Play rejection costs a week. `gpc preflight` is the offline scanner tha
 The [command reference](/commands/preflight) covers flags and options. This guide covers **why it exists, how it works, what each scanner catches, and how to tune it** for your project.
 
 ::: tip TL;DR
-`gpc preflight app.aab` reads the AAB, parses the manifest, walks native libs, and runs 9 scanners in parallel. No API calls. Takes 1–3 seconds on a typical app. Returns findings grouped by severity. CI breaks the build on `error`+ by default.
+`gpc preflight app.aab` reads the [AAB](/glossary/aab), parses the manifest, walks native libs, and runs 9 scanners in parallel. No API calls. Takes 1–3 seconds on a typical app. Returns findings grouped by severity. CI breaks the build on `error`+ by default.
 :::
 
 ## Why preflight exists

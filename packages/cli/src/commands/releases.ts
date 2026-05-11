@@ -78,7 +78,14 @@ export function registerReleasesCommands(program: Command): void {
     .option("--notes-dir <dir>", "Read release notes from directory (<dir>/<lang>.txt)")
     .option("--notes-from-git", "Generate release notes from git commit history")
     .option("--copy-notes-from <track>", "Copy release notes from another track")
-    .option("--since <ref>", "Git ref to start from (tag, SHA) — used with --notes-from-git")
+    .option("--changelog-ai", "Generate AI-translated release notes from git history")
+    .option(
+      "--locales <csv|auto>",
+      "Locales for --changelog-ai (comma-separated BCP 47 or 'auto')",
+    )
+    .option("--provider <name>", "AI provider for --changelog-ai (anthropic|openai|google)")
+    .option("--model <id>", "Override AI model for --changelog-ai")
+    .option("--since <ref>", "Git ref to start from (tag, SHA) — used with --notes-from-git or --changelog-ai")
     .option("--retry-log <path>", "Write retry log entries to file (JSONL)")
     .option(
       "--timeout <ms>",
@@ -156,13 +163,22 @@ export function registerReleasesCommands(program: Command): void {
         options.notesDir,
         options.notesFromGit,
         options.copyNotesFrom,
+        options.changelogAi,
       ].filter(Boolean);
       if (noteSources.length > 1) {
         throw new GpcError(
-          "Cannot combine --notes, --notes-dir, --notes-from-git, and --copy-notes-from. Use only one.",
+          "Cannot combine --notes, --notes-dir, --notes-from-git, --copy-notes-from, and --changelog-ai. Use only one.",
           "RELEASES_USAGE_ERROR",
           2,
           "Pick one release notes source.",
+        );
+      }
+      if (options.changelogAi && !options.locales) {
+        throw new GpcError(
+          "--changelog-ai requires --locales <csv|auto>",
+          "RELEASES_USAGE_ERROR",
+          2,
+          "Example: --changelog-ai --locales en-US,fr-FR or --changelog-ai --locales auto",
         );
       }
       if (options.validateOnly && isDryRun(program)) {
@@ -297,6 +313,54 @@ export function registerReleasesCommands(program: Command): void {
             notesDirVersioned = options.notesDir;
           } else {
             releaseNotes = await readReleaseNotesFromDir(options.notesDir);
+          }
+        } else if (options.changelogAi) {
+          const {
+            generateChangelog,
+            buildLocaleBundle,
+            resolveAiConfig,
+            createTranslator,
+            translateBundle,
+            bundleToReleaseNotes,
+            resolveLocales,
+            formatPathLabel,
+          } = await import("@gpc-cli/core");
+
+          const generated = await generateChangelog({ from: options.since });
+
+          let locales: string[];
+          if (options.locales === "auto") {
+            locales = await resolveLocales("auto", { client, packageName });
+          } else {
+            locales = await resolveLocales(options.locales);
+          }
+
+          const baseBundle = buildLocaleBundle(generated, { locales, format: "md" });
+
+          const aiConfig = resolveAiConfig({
+            provider: options.provider,
+            model: options.model,
+          });
+          if (!jsonMode) {
+            process.stderr.write(`  → AI: ${formatPathLabel(aiConfig)}\n`);
+          }
+
+          const translator = await createTranslator(aiConfig);
+          const translated = await translateBundle(baseBundle, {
+            translator,
+            strict: false,
+            onError: ({ language, reason }: { language: string; reason: string }) => {
+              if (!jsonMode) {
+                process.stderr.write(`  warn: ${language} translation failed: ${reason}\n`);
+              }
+            },
+          });
+
+          releaseNotes = bundleToReleaseNotes(translated);
+          if (!jsonMode && releaseNotes.length > 0) {
+            process.stderr.write(
+              `  → ${releaseNotes.length} locale${releaseNotes.length !== 1 ? "s" : ""} generated\n`,
+            );
           }
         } else if (options.notes) {
           releaseNotes = [{ language: "en-US", text: options.notes }];

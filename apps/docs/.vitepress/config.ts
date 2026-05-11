@@ -116,10 +116,14 @@ function getPageDescription(page: PageData): string {
     // Guide
     "guide/configuration.md":
       "Configure GPC with .gpcrc.json, environment variables, and named profiles. XDG paths, precedence rules, and multi-app setup.",
+    "guide/recipes.md":
+      "Copy-pasteable GPC command snippets for common workflows. Upload, release, promote, rollouts, vitals, metadata sync, CI/CD patterns, monetization, and team management.",
     "guide/developer-verification.md":
       "Android developer verification and app registration — what's changing, the timeline, and how GPC helps you stay compliant.",
     "guide/enterprise-publishing.md":
       "Publish private apps to Managed Google Play via the Play Custom App Publishing API. Full walkthrough from account setup to CI/CD.",
+    "guide/staged-rollout-strategy.md":
+      "Staged rollout strategy for Google Play with GPC. Conservative and aggressive stage patterns, gpc train automation, vitals monitoring, auto-halt, CI/CD integration, and manual rollout control.",
     "guide/changelog-generation.md":
       "Generate GitHub Release notes from local git commits with smart clustering, jargon linting, and a paste-ready LLM prompt mode. Pipe directly into gh release create.",
     "guide/multilingual-release-notes.md":
@@ -237,6 +241,8 @@ function getPageDescription(page: PageData): string {
       "Complete Google Play Developer API coverage map. 217 endpoints across Android Publisher v3, Play Developer Reporting, and Play Custom App Publishing.",
     "reference/deprecations.md":
       "Deprecated Google Play API endpoints and GPC commands. Migration timelines and replacement commands.",
+    "reference/rate-limits.md":
+      "Google Play API rate limits, GPC's 6-bucket rate limiter, quota monitoring, and best practices for staying within limits.",
     // Advanced
     "advanced/conventions.md":
       "GPC code conventions — TypeScript strict mode, ESM, named exports, testing patterns, git workflow.",
@@ -312,6 +318,8 @@ export default defineConfig({
     ["link", { rel: "dns-prefetch", href: "https://fonts.googleapis.com" }],
     ["link", { rel: "dns-prefetch", href: "https://fonts.gstatic.com" }],
     ["meta", { property: "og:type", content: "website" }],
+    ["meta", { property: "og:site_name", content: "GPC — Google Play Console CLI" }],
+    ["meta", { property: "og:locale", content: "en_US" }],
     [
       "script",
       { type: "application/ld+json" },
@@ -323,20 +331,53 @@ export default defineConfig({
           "The complete Google Play CLI. 217 API endpoints including Managed Google Play. Upload AABs, manage releases, monitor crash rates, sync metadata, publish private enterprise apps. Fastlane alternative for Android.",
         applicationCategory: "DeveloperApplication",
         operatingSystem: "macOS, Linux, Windows",
-        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+          availability: "https://schema.org/InStock",
+        },
         url: "https://yasserstudio.github.io/gpc/",
         downloadUrl: "https://www.npmjs.com/package/@gpc-cli/cli",
         installUrl: "https://www.npmjs.com/package/@gpc-cli/cli",
         codeRepository: "https://github.com/yasserstudio/gpc",
 
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.69",
+        softwareVersion: "0.9.72",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
-        author: { "@type": "Person", name: "yasserstudio", url: "https://github.com/yasserstudio" },
+        author: {
+          "@type": "Person",
+          name: "Yasser Berrehail",
+          url: "https://yasser.studio",
+          sameAs: [
+            "https://github.com/yasserstudio",
+            "https://x.com/yassersstudio",
+            "https://www.linkedin.com/in/yasserberrehail/",
+          ],
+        },
+      }),
+    ],
+    [
+      "script",
+      { type: "application/ld+json" },
+      JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: "GPC Documentation",
+        url: "https://yasserstudio.github.io/gpc/",
+        description:
+          "Documentation for GPC, the Google Play Console CLI. Guides, command reference, CI/CD integration, and API coverage.",
+        publisher: {
+          "@type": "Person",
+          name: "Yasser Berrehail",
+          url: "https://yasser.studio",
+        },
       }),
     ],
     ["meta", { name: "twitter:card", content: "summary_large_image" }],
+    ["meta", { name: "twitter:site", content: "@yassersstudio" }],
+    ["meta", { name: "twitter:creator", content: "@yassersstudio" }],
     [
       "meta",
       {
@@ -424,7 +465,31 @@ export default defineConfig({
             name: "Is it stable enough for production CI/CD?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "2,076 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
+              text: "2,281 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "How do I upload an AAB from the command line?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Run gpc releases upload app-release.aab --track internal. Add --rollout for staged rollouts, --changelog-ai --locales auto for AI-translated release notes, or --dry-run to validate.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "How do I translate Play Store release notes?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Run gpc changelog generate --target play-store --locales auto --ai. Bring your own LLM key (Anthropic, OpenAI, Google, or Vercel AI Gateway). 500-character budget enforcement per locale.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Does GPC work with Managed Google Play?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. GPC is the first Android publishing CLI to support the Play Custom App Publishing API. Publish private enterprise apps via gpc enterprise publish.",
             },
           },
         ],
@@ -488,6 +553,45 @@ export default defineConfig({
         "script",
         { type: "application/ld+json" },
         JSON.stringify(fastlaneFaqSchema),
+      ]);
+    }
+
+    // FAQPage schema on troubleshooting page
+    if (pageData.relativePath === "advanced/troubleshooting.md") {
+      const troubleshootingFaqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: "How do I fix GPC authentication errors?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Run gpc doctor to check credentials. Common fixes: verify service account JSON path, ensure API access is enabled in Google Cloud Console, check that the service account has Play Console permissions. Use GPC_DEBUG=1 for detailed logs.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "How do I fix changesNotSentForReview error?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Add --changes-not-sent-for-review to your upload or promote command. This flag is required when your app has pending policy compliance issues or is in a review state. GPC auto-rescues this error since v0.9.69.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "How do I debug GPC network errors?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Set GPC_DEBUG=1 to see full HTTP request/response details. Check proxy settings with GPC_PROXY or HTTPS_PROXY. Run gpc doctor to verify API connectivity. Common cause: corporate firewalls blocking googleapis.com.",
+            },
+          },
+        ],
+      };
+      pageData.frontmatter.head.push([
+        "script",
+        { type: "application/ld+json" },
+        JSON.stringify(troubleshootingFaqSchema),
       ]);
     }
 
@@ -820,7 +924,7 @@ export default defineConfig({
       { text: "Commands", link: "/commands/" },
       { text: "CI/CD", link: "/ci-cd/" },
       {
-        text: "Release Notes",
+        text: "Changelogs",
         items: [
           { text: "Generate from git", link: "/guide/changelog-generation" },
           { text: "Multilingual + AI", link: "/guide/multilingual-release-notes" },
@@ -848,6 +952,7 @@ export default defineConfig({
           { text: "JSON Output Contract", link: "/reference/json-contract" },
           { text: "API Coverage Map", link: "/reference/api-coverage" },
           { text: "API Deprecations", link: "/reference/deprecations" },
+          { text: "Rate Limits", link: "/reference/rate-limits" },
           { text: "Changelog", link: "/reference/changelog" },
         ],
       },
@@ -863,14 +968,37 @@ export default defineConfig({
             { text: "Quick Start", link: "/guide/quick-start" },
             { text: "Authentication", link: "/guide/authentication" },
             { text: "Configuration", link: "/guide/configuration" },
-            { text: "Developer Verification", link: "/guide/developer-verification" },
-            { text: "Enterprise Publishing", link: "/guide/enterprise-publishing" },
+            { text: "Recipes", link: "/guide/recipes" },
+          ],
+        },
+        {
+          text: si(ICONS.layers, "Publishing"),
+          collapsed: false,
+          items: [
             { text: "Generating Release Notes", link: "/guide/changelog-generation" },
             { text: "Multilingual Release Notes", link: "/guide/multilingual-release-notes" },
             { text: "Preflight Deep-Dive", link: "/guide/preflight-deep-dive" },
             { text: "Store Listings & Screenshots", link: "/guide/screenshots" },
+            { text: "Enterprise Publishing", link: "/guide/enterprise-publishing" },
+            {
+              text: "Staged Rollout Strategy",
+              link: "/guide/staged-rollout-strategy",
+            },
+          ],
+        },
+        {
+          text: si(ICONS.settings, "Advanced"),
+          collapsed: false,
+          items: [
+            { text: "Developer Verification", link: "/guide/developer-verification" },
             { text: "Multiple Developer Accounts", link: "/guide/multi-account" },
             { text: "Android CLI Interop", link: "/guide/android-cli-interop" },
+          ],
+        },
+        {
+          text: si(ICONS.book, "Resources"),
+          collapsed: false,
+          items: [
             { text: "Free to Use", link: "/guide/free-to-use" },
             { text: "Teams Using GPC", link: "/users/" },
             { text: "Glossary", link: "/glossary/" },
@@ -968,24 +1096,36 @@ export default defineConfig({
           ],
         },
         {
-          text: si(ICONS.settings, "System"),
+          text: si(ICONS.settings, "Setup & Config"),
           collapsed: false,
           items: [
             { text: "setup", link: "/commands/setup" },
             { text: "auth", link: "/commands/auth" },
             { text: "apps", link: "/commands/apps" },
             { text: "config", link: "/commands/config" },
-            { text: "plugins", link: "/commands/plugins" },
-            { text: "migrate", link: "/commands/migrate" },
+            { text: "init", link: "/commands/init" },
+          ],
+        },
+        {
+          text: si(ICONS.wrench, "Tools"),
+          collapsed: false,
+          items: [
+            { text: "diff", link: "/commands/diff" },
+            { text: "changelog", link: "/commands/changelog" },
             {
               text: "doctor / completion",
               link: "/commands/utility",
             },
             { text: "docs", link: "/commands/docs" },
+          ],
+        },
+        {
+          text: si(ICONS.plug, "Extensibility"),
+          collapsed: false,
+          items: [
+            { text: "plugins", link: "/commands/plugins" },
             { text: "install-skills", link: "/commands/install-skills" },
-            { text: "init", link: "/commands/init" },
-            { text: "diff", link: "/commands/diff" },
-            { text: "changelog", link: "/commands/changelog" },
+            { text: "migrate", link: "/commands/migrate" },
           ],
         },
       ],
@@ -1045,6 +1185,7 @@ export default defineConfig({
             },
             { text: "API Coverage Map", link: "/reference/api-coverage" },
             { text: "API Deprecations", link: "/reference/deprecations" },
+            { text: "Rate Limits", link: "/reference/rate-limits" },
             { text: "Changelog", link: "/reference/changelog" },
           ],
         },

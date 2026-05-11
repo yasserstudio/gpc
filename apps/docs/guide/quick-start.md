@@ -4,7 +4,7 @@ outline: deep
 
 # Quick Start
 
-Five minutes to your first release. This guide covers the most common GPC operations: authenticate, upload, promote, check vitals, and monitor reviews.
+Five minutes to your first release. This guide covers the most common GPC operations: authenticate, upload, promote, check vitals, and monitor reviews. New to Play Store concepts? See the [Glossary](/glossary/).
 
 <TerminalDemo title="quick-start" :lines="[
   { type: 'cmd',  text: 'gpc auth login --service-account key.json' },

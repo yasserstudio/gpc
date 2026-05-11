@@ -11,9 +11,9 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Pl
 
 - Install: `npm install -g @gpc-cli/cli`
 - Binary: `gpc`
-- Version: 0.9.71
+- Version: 0.9.72
 - API endpoints covered: 217 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1)
-- Tests: 2,269 (90%+ coverage)
+- Tests: 2,281 (90%+ coverage)
 - Licensing: Free to use. Source code is on GitHub.
 - Repo: https://github.com/yasserstudio/gpc
 - Notable v0.9.71 feature: `gpc doctor` now checks API quota proximity (warns when daily or per-minute usage exceeds 80%) and plugin health (discovers, loads, and reports each configured plugin). Two new check names: `quota` and `plugin-*`.

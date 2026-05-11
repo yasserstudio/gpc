@@ -1599,10 +1599,14 @@ html {
 }
 
 .coverage-card {
+  display: block;
   padding: 22px 18px;
   border-radius: var(--gpc-radius);
   border: 1px solid var(--vp-c-border);
   background: var(--vp-c-bg-elv);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
   transition:
     border-color 0.18s ease,
     transform 0.18s ease,

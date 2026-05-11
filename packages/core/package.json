@@ -1,7 +1,7 @@
 {
   "name": "@gpc-cli/core",
   "version": "0.9.60",
-  "description": "Core business logic for GPC — Google Play Console CLI",
+  "description": "Core business logic for GPC. Releases, rollouts, vitals, preflight scanner, AI changelog, metadata sync for Google Play Developer API.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -35,10 +35,20 @@
     "protobufjs": "^8.0.1",
     "yauzl": "^3.3.0"
   },
+  "homepage": "https://yasserstudio.github.io/gpc/",
   "keywords": [
     "google-play",
     "google-play-console",
-    "core"
+    "google-play-api",
+    "android-publisher",
+    "play-developer-api",
+    "releases",
+    "rollouts",
+    "vitals",
+    "preflight",
+    "changelog",
+    "metadata",
+    "typescript"
   ],
   "engines": {
     "node": ">=20"

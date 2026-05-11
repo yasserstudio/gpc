@@ -1,6 +1,6 @@
 # Publishing to Managed Google Play
 
-A full walkthrough for publishing private apps to enterprise customers via Managed Google Play. GPC is the first Android publishing CLI to support the [Play Custom App Publishing API](https://developers.google.com/android/work/play/custom-app-api).
+A full walkthrough for publishing private apps to enterprise customers via [Managed Google Play](/glossary/managed-google-play). GPC is the first Android publishing CLI to support the [Play Custom App Publishing API](/glossary/play-custom-app-publishing).
 
 ::: warning Permanently private
 Apps created via this flow are **permanently private** and cannot be made public later. If you want a normal public Play Store app, use `gpc releases upload` against the public Play Store, not `gpc enterprise`.

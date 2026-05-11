@@ -12,6 +12,7 @@ import {
   checkVerificationDeadline,
   checkQuotaProximity,
   checkPluginHealth,
+  checkAndroidCli,
 } from "../src/commands/doctor.js";
 
 // ---------------------------------------------------------------------------
@@ -586,5 +587,54 @@ describe("checkPluginHealth", () => {
     expect(results).toHaveLength(2);
     expect(results[0]!.status).toBe("pass");
     expect(results[1]!.status).toBe("warn");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// checkAndroidCli
+// ---------------------------------------------------------------------------
+
+vi.mock("node:child_process", async (importOriginal) => {
+  const orig = (await importOriginal()) as Record<string, unknown>;
+  return { ...orig };
+});
+
+describe("checkAndroidCli", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("returns pass when Android CLI is available", async () => {
+    const cp = await import("node:child_process");
+    vi.spyOn(cp, "execFileSync").mockReturnValue("Android CLI 1.2.3\nSome other line");
+
+    const result = checkAndroidCli();
+    expect(result.status).toBe("pass");
+    expect(result.name).toBe("android-cli");
+    expect(result.message).toContain("Android CLI 1.2.3");
+  });
+
+  it("returns info when Android CLI is not found", async () => {
+    const cp = await import("node:child_process");
+    vi.spyOn(cp, "execFileSync").mockImplementation(() => {
+      throw new Error("ENOENT");
+    });
+
+    const result = checkAndroidCli();
+    expect(result.status).toBe("info");
+    expect(result.name).toBe("android-cli");
+    expect(result.message).toContain("not installed");
+    expect(result.suggestion).toContain("developer.android.com");
+  });
+
+  it("returns info on timeout", async () => {
+    const cp = await import("node:child_process");
+    vi.spyOn(cp, "execFileSync").mockImplementation(() => {
+      throw Object.assign(new Error("ETIMEDOUT"), { code: "ETIMEDOUT" });
+    });
+
+    const result = checkAndroidCli();
+    expect(result.status).toBe("info");
+    expect(result.name).toBe("android-cli");
   });
 });

@@ -3,6 +3,7 @@ import { loadConfig, getCacheDir, getConfigDir } from "@gpc-cli/config";
 import { green, red, yellow } from "../colors.js";
 import { resolveAuth, AuthError } from "@gpc-cli/auth";
 import { existsSync, accessSync, statSync, constants } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { readFile, readdir, stat, statfs } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { lookup } from "node:dns/promises";
@@ -688,6 +689,34 @@ export async function checkPluginHealth(configPlugins?: string[]): Promise<Check
 }
 
 // ---------------------------------------------------------------------------
+// Android CLI detection
+// ---------------------------------------------------------------------------
+
+export function checkAndroidCli(): CheckResult {
+  try {
+    const output = execFileSync("android", ["--version"], {
+      timeout: 5000,
+      encoding: "utf-8",
+      stdio: ["pipe", "pipe", "pipe"],
+    }).trim();
+    const firstLine = output.split("\n")[0] ?? output;
+    return {
+      name: "android-cli",
+      status: "pass",
+      message: `Android CLI: ${firstLine}`,
+    };
+  } catch {
+    return {
+      name: "android-cli",
+      status: "info",
+      message: "Android CLI not installed (optional)",
+      suggestion:
+        "Google's Android CLI complements GPC for build and device management. See: https://developer.android.com/tools/agents/android-cli",
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Signing key verification (--verify)
 // ---------------------------------------------------------------------------
 
@@ -1347,7 +1376,12 @@ export function registerDoctorCommand(program: Command): void {
       results.push(...pluginResults);
 
       // -----------------------------------------------------------------------
-      // 24. Signing key verification (only when --verify is passed)
+      // 24. Android CLI detection (optional)
+      // -----------------------------------------------------------------------
+      results.push(checkAndroidCli());
+
+      // -----------------------------------------------------------------------
+      // 25. Signing key verification (only when --verify is passed)
       // -----------------------------------------------------------------------
       if (opts["verify"] && accessToken && config?.app) {
         const ksPath = (opts["keystore"] as string | undefined) ?? process.env["GPC_KEYSTORE_PATH"];

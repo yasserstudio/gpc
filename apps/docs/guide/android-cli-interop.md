@@ -1,8 +1,12 @@
+---
+outline: deep
+---
+
 # Using GPC with Google's Android CLI
 
 Google [shipped the official Android CLI on 2026-04-16](https://android-developers.googleblog.com/2026/04/build-android-apps-3x-faster-using-any-agent.html). It covers the build-and-device half of Android development. GPC covers the Play Store half. This page documents how to use them together in an agent-driven workflow.
 
-## Scope split
+## What each CLI covers
 
 Google's announcement defines the Android CLI's scope explicitly:
 
@@ -30,7 +34,7 @@ What the Android CLI does **not** cover:
 
 That entire surface is what GPC handles. 217 typed endpoints across the Android Publisher API, the Play Developer Reporting API, and the Play Custom App Publishing API.
 
-## The handoff
+## Using them together
 
 A full agent-driven flow from scaffold to shipped release looks like this:
 
@@ -59,7 +63,7 @@ gpc releases promote --from internal --to production --rollout 0.1
 
 The handoff point is deterministic: once you have an AAB on disk, you're in Play Store territory.
 
-## Agent handoff via skills
+## Shared skills format
 
 Google's announcement standardizes `SKILL.md` as the agent-readable instruction format. Modular markdown, auto-triggered from prompt metadata, installable as a skill pack.
 
@@ -129,7 +133,7 @@ npx skills add yasserstudio/gpc-skills
 
 Together, the two skill packs give an agent full coverage from project scaffold to staged rollout. There is no overlap: Google's `play-billing-library-version-upgrade` handles in-app billing Kotlin code, while GPC's `gpc-monetization` handles the publishing API for subscriptions and IAP products. Google's `android-cli` skill teaches agents the build/device commands, while GPC's 18 skills teach agents the publishing commands.
 
-## Agent-friendly output contract
+## How GPC talks to agents
 
 Google's announcement explicitly names "third-party agents like Claude Code or Codex" as supported clients. GPC's output contract was designed for the same audience:
 
@@ -180,7 +184,7 @@ gpc changelog generate \
 
 The dependency-free default is intentional — agents that want full control over model choice stay on `--format prompt`. Agents that want a single-shot command use `--ai` with whichever provider key they already have.
 
-## Example agent prompts
+## Example prompts
 
 These prompts work across both skill packs, assuming both are installed:
 

@@ -4,7 +4,7 @@ outline: deep
 
 # Authentication
 
-GPC supports four authentication methods. Service accounts are recommended for CI/CD; OAuth is available for interactive use.
+GPC supports four authentication methods. [Service accounts](/glossary/play-service-account) are recommended for CI/CD; OAuth is available for interactive use.
 
 | Method                                                              | Best For             | Requires                    | Interactive |
 | ------------------------------------------------------------------- | -------------------- | --------------------------- | ----------- |

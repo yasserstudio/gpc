@@ -1,7 +1,7 @@
 {
   "name": "@gpc-cli/config",
   "version": "0.9.15",
-  "description": "Configuration loading and validation for GPC",
+  "description": "Configuration loading, validation, profiles, and environment variable support for GPC Google Play Console CLI.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -23,10 +23,15 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
+  "homepage": "https://yasserstudio.github.io/gpc/",
   "keywords": [
     "google-play",
     "google-play-console",
-    "config"
+    "config",
+    "profiles",
+    "environment-variables",
+    "play-store",
+    "android"
   ],
   "engines": {
     "node": ">=20"

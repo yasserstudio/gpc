@@ -34,7 +34,7 @@ gpc reviews list --stars 1-2 --since 7d
 | **Managed Google Play** | `enterprise publish`, `enterprise create`                            | Private apps for enterprise customers (first publishing CLI to support this) |
 | **Bundle**              | `bundle analyze`, `bundle compare`                                   | AAB/APK size analysis, cross-build comparison, CI size gates                 |
 
-Plus: device tiers, internal sharing, data safety, recovery actions, external transactions, and more. See the [full command reference](/commands/).
+Plus: device tiers, internal sharing, data safety, recovery actions, external transactions, and more. See the [full command reference](/commands/) or the [Glossary](/glossary/) for Play Store terminology.
 
 ## Why GPC Over Alternatives?
 

@@ -1,7 +1,7 @@
 {
   "name": "@gpc-cli/plugin-ci",
   "version": "0.9.10",
-  "description": "CI/CD helpers for GPC",
+  "description": "CI/CD plugin for GPC Google Play Console CLI. GitHub Actions, GitLab CI, JSON output, exit codes, environment variable config.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -29,11 +29,17 @@
   "devDependencies": {
     "@types/node": "^25.6.0"
   },
+  "homepage": "https://yasserstudio.github.io/gpc/",
   "keywords": [
     "google-play",
     "google-play-console",
-    "ci",
-    "plugin"
+    "ci-cd",
+    "github-actions",
+    "gitlab-ci",
+    "plugin",
+    "android",
+    "release-automation",
+    "play-store"
   ],
   "engines": {
     "node": ">=20"

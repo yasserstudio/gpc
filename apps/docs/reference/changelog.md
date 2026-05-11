@@ -11,7 +11,36 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.71 <Badge type="tip" text="latest" />
+## v0.9.72 <Badge type="tip" text="latest" />
+
+Skills check, Android CLI detection, upload with inline AI changelog.
+
+**New:**
+
+- feat: `gpc skills check` scans installed agent skills across `.agents/skills/`, `~/.claude/skills/`, `~/.cursor/skills/`, and `~/.gemini/skills/`. Reports local version, latest pack version (via GitHub API), and path. Supports `--json`, `--dir`, `--repo`.
+- feat: `gpc doctor` now detects Google's Android CLI installation (check #24). Reports version if found, suggests install URL if not.
+- feat: `--changelog-ai` flag on `gpc releases upload`. Generates AI-translated release notes inline during upload. Combine with `--locales <csv|auto>`, `--provider`, and `--model`. Reuses the existing `@gpc-cli/core` translation pipeline.
+
+**Docs:**
+
+- Guide sidebar split into 4 groups (Getting Started, Publishing, Advanced, Resources).
+- Commands "System" group split into 3 (Setup & Config, Tools, Extensibility).
+- New pages: Recipes (17 copy-pasteable commands), Staged Rollout Strategy, Rate Limits reference.
+- FAQPage schema added on troubleshooting page. 4 new FAQ entries (AAB upload, staged rollouts, translation, Managed Google Play).
+- Homepage coverage grid cards now link to command pages.
+- Glossary cross-links on quick-start, authentication, enterprise publishing, preflight pages.
+- All 7 package.json files updated with `homepage` and expanded `keywords`.
+- WebSite JSON-LD, `og:site_name`, `og:locale`, `twitter:site`, `twitter:creator` meta tags added.
+- Nav dropdown renamed "Release Notes" to "Changelogs".
+- Stale counts fixed across 10+ files (tests, skills).
+
+**Tests:** 2,269 to 2,281 (+12).
+
+**Endpoint count:** unchanged at 217.
+
+---
+
+## v0.9.71
 
 Smarter `gpc doctor` with quota and plugin health checks.
 

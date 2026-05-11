@@ -1,7 +1,7 @@
 {
   "name": "@gpc-cli/auth",
   "version": "0.9.14",
-  "description": "Authentication strategies for Google Play Developer API",
+  "description": "Google Play API authentication for Node.js. Service account, OAuth 2.0, and Application Default Credentials.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -23,11 +23,17 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
+  "homepage": "https://yasserstudio.github.io/gpc/",
   "keywords": [
     "google-play",
     "google-play-console",
+    "android",
     "auth",
-    "service-account"
+    "service-account",
+    "oauth",
+    "google-auth",
+    "play-store",
+    "application-default-credentials"
   ],
   "engines": {
     "node": ">=20"

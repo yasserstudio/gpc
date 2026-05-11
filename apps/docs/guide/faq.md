@@ -77,7 +77,7 @@ See the [CI/CD guide](../ci-cd/) for copy-pasteable GitHub Actions, GitLab CI, B
 
 ### Is it stable enough for production CI/CD?
 
-2,269 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The CLI is in a pre-release stability soak before v1.0.
+2,281 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The CLI is in a pre-release stability soak before v1.0.
 
 ## Configuration
 
@@ -101,7 +101,7 @@ The `iap` commands use the legacy in-app purchases API. The `otp` (one-time prod
 
 ### Can AI assistants use GPC?
 
-Yes. GPC ships 16 agent skills that teach AI coding assistants (Claude Code, Cursor, etc.) how to use every GPC workflow:
+Yes. GPC ships 18 agent skills that teach AI coding assistants (Claude Code, Cursor, etc.) how to use every GPC workflow:
 
 ```bash
 gpc install-skills
@@ -112,6 +112,42 @@ The interactive wizard lets you pick skills and target agents. See [Agent Skills
 ### What Google Play APIs does GPC cover?
 
 217 endpoints across the Android Publisher API v3, Play Developer Reporting API v1beta1, and Play Custom App Publishing API v1. This includes apps, releases, tracks, listings, images, reviews, vitals, subscriptions, in-app products, one-time products, purchases, users, testers, device tiers, data safety, recovery, external transactions, internal sharing, generated APKs, and **Managed Google Play private app publishing** (new in v0.9.56 — first Android publishing CLI to support this). See [API Coverage](../reference/api-coverage) for the full endpoint map.
+
+### How do I upload an AAB from the command line?
+
+```bash
+gpc releases upload app-release.aab --track internal
+```
+
+Add `--rollout 10` for staged rollouts, `--changelog-ai --locales auto` for AI-translated release notes, or `--dry-run` to validate without uploading. See [releases](/commands/releases) for all options.
+
+### How do I automate staged rollouts?
+
+Use `gpc train` for automated staged rollouts with time gates and crash rate gates:
+
+```bash
+gpc train --track production --stages 1,5,10,25,50,100 --gate crash-rate:2
+```
+
+Each stage advances only after the gate conditions are met. See [train](/commands/train) for the full pipeline configuration.
+
+### How do I translate release notes for the Play Store?
+
+```bash
+gpc changelog generate --target play-store --locales auto --ai
+```
+
+This generates "What's new" text from your git history, translates it into every configured locale with 500-character budget enforcement, and writes the result to your draft release. Bring your own LLM key (Anthropic, OpenAI, Google, or Vercel AI Gateway). See [Multilingual Release Notes](./multilingual-release-notes) for the full guide.
+
+### Does GPC work with Managed Google Play?
+
+Yes. GPC is the first Android publishing CLI to support the Play Custom App Publishing API. Publish private enterprise apps via CI/CD:
+
+```bash
+gpc enterprise publish app.aab --title "Internal Tools"
+```
+
+See [Enterprise Publishing](./enterprise-publishing) for setup and requirements.
 
 ## Color & Output
 

@@ -1,7 +1,7 @@
 {
   "name": "@gpc-cli/plugin-sdk",
   "version": "0.9.10",
-  "description": "Plugin interface and SDK for extending GPC",
+  "description": "Plugin SDK for extending GPC Google Play Console CLI. Lifecycle hooks, custom commands, and permissions.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -23,11 +23,15 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
+  "homepage": "https://yasserstudio.github.io/gpc/",
   "keywords": [
     "google-play",
     "google-play-console",
     "plugin",
-    "sdk"
+    "sdk",
+    "lifecycle-hooks",
+    "extensible",
+    "play-store"
   ],
   "engines": {
     "node": ">=20"
