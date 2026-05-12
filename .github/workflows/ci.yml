@@ -6,6 +6,8 @@ on:
   push:
     branches: [main]
 
+permissions: {}
+
 jobs:
   dependency-review:
     name: Dependency Review
@@ -24,7 +26,7 @@ jobs:
   socket-security:
     name: Socket Security
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     permissions:
       contents: read
     steps:
