@@ -39,10 +39,10 @@ jobs:
           node-version: 22
           cache: "pnpm"
 
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Install Socket CLI
-        run: npm install -g socket@latest
+        run: npm install -g socket@1.1.76
 
       - name: Socket Security Scan
         # SOCKET_CLI_ORG_SLUG is required in CI: a fresh runner has no local
@@ -64,6 +64,41 @@ jobs:
           SOCKET_SECURITY_API_TOKEN: ${{ secrets.SOCKET_SECURITY_API_TOKEN }}
           SOCKET_CLI_ORG_SLUG: yasser-s-studio
 
+  deepsec:
+    name: Deep Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Deep security scan
+        run: |
+          npx deepsec scan
+          npx deepsec process
+          npx deepsec revalidate
+          npx deepsec export --format json --out deepsec-results.json
+        env:
+          AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
+
+      - name: Upload findings
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: deepsec-findings
+          path: deepsec-results.json
+          retention-days: 30
+
   check:
     runs-on: ubuntu-latest
     permissions:
@@ -78,7 +113,10 @@ jobs:
           node-version: 22
           cache: "pnpm"
 
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Lockfile integrity hash
+        run: shasum -a 256 pnpm-lock.yaml
 
       - name: Audit production dependencies
         run: pnpm audit --prod --audit-level=high

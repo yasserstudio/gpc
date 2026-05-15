@@ -32,7 +32,7 @@
     "@gpc-cli/config": "workspace:*",
     "@gpc-cli/plugin-sdk": "workspace:*",
     "ai": "^5.0.0",
-    "protobufjs": "^8.0.1",
+    "protobufjs": "^8.0.2",
     "yauzl": "^3.3.0"
   },
   "homepage": "https://yasserstudio.github.io/gpc/",

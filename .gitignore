@@ -30,6 +30,10 @@ skills-lock.json
 # Agent skills metadata (machine-specific)
 AGENTS.md
 
+# Security scan artifacts
+deepsec-findings/
+deepsec-results.json
+
 # Test
 coverage/
 

@@ -23,7 +23,8 @@
     "license:check": "tsx scripts/check-licenses.ts",
     "audit": "pnpm audit --prod --audit-level=high",
     "audit:all": "pnpm audit --audit-level=moderate",
-    "security:check": "pnpm audit --prod --audit-level=high && pnpm license:check"
+    "security:check": "pnpm audit --prod --audit-level=high && pnpm license:check",
+    "security:deep": "npx deepsec scan && npx deepsec process && npx deepsec revalidate && npx deepsec export --format md-dir --out ./deepsec-findings"
   },
   "prettier": {
     "semi": true,
@@ -31,6 +32,9 @@
     "trailingComma": "all",
     "tabWidth": 2,
     "printWidth": 100
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": []
   },
   "devDependencies": {
     "@changesets/cli": "^2.30.0",
@@ -44,6 +48,7 @@
     "turbo": "^2.9.6",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.58.1",
+    "vite": "~7.3.3",
     "vitest": "^4.1.4"
   }
 }

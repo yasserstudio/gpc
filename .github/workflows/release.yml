@@ -24,7 +24,7 @@ jobs:
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
 
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --ignore-scripts
 
       - run: pnpm build
 
@@ -73,4 +73,12 @@ jobs:
           for pkg in @gpc-cli/auth @gpc-cli/config @gpc-cli/plugin-sdk @gpc-cli/api @gpc-cli/core @gpc-cli/cli @gpc-cli/plugin-ci; do
             echo "--- verifying: $pkg ---"
             npm view "$pkg" version || echo "WARNING: $pkg not yet available"
+          done
+
+      - name: Verify provenance attestation
+        if: steps.changesets.outputs.published == 'true'
+        run: |
+          for pkg in @gpc-cli/auth @gpc-cli/config @gpc-cli/plugin-sdk @gpc-cli/api @gpc-cli/core @gpc-cli/cli @gpc-cli/plugin-ci; do
+            echo "--- provenance: $pkg ---"
+            npm audit signatures "$pkg" 2>&1 || echo "WARNING: provenance check failed for $pkg"
           done

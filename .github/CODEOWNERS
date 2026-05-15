@@ -11,3 +11,4 @@
 socket.yml @yasserstudio
 SECURITY.md @yasserstudio
 packages/auth/ @yasserstudio
+.deepsec/ @yasserstudio
