@@ -30,12 +30,11 @@ function sanitizeErrorBody(body: string): string {
   return cleaned.length > 200 ? cleaned.slice(0, 200) + "..." : cleaned;
 }
 
-const SENSITIVE_PATH_SEGMENTS = /\/(tokens|purchases|purchaseToken)\//i;
+const SENSITIVE_PATH_SEGMENTS = /\/(tokens|purchases|purchaseToken)\/([^/?#]*)/gi;
 
 function redactPath(path: string): string {
-  return path.replace(SENSITIVE_PATH_SEGMENTS, (match) => {
-    const parts = match.split("/").filter(Boolean);
-    return `/${parts[0]}/***REDACTED***/`;
+  return path.replace(SENSITIVE_PATH_SEGMENTS, (_match, segment: string) => {
+    return `/${segment}/***REDACTED***`;
   });
 }
 
@@ -540,7 +539,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
 
         if (error instanceof DOMException && error.name === "AbortError") {
           const timeoutErr = new PlayApiError(
-            `${method} ${path} timed out after ${timeout}ms`,
+            `${method} ${redactPath(path)} timed out after ${timeout}ms`,
             "API_TIMEOUT",
             undefined,
             "The request exceeded the configured timeout. Consider increasing the timeout value.",
@@ -550,7 +549,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
             onRetry?.({
               attempt: attempt + 1,
               method,
-              path,
+              path: redactPath(path),
               error: timeoutErr.message,
               delayMs: Math.round(jitteredDelay(baseDelay, attempt, maxDelay)),
               timestamp: new Date().toISOString(),
@@ -561,7 +560,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         }
 
         const networkErr = new PlayApiError(
-          `${method} ${path} failed: ${error instanceof Error ? error.message : String(error)}`,
+          `${method} ${redactPath(path)} failed: ${error instanceof Error ? error.message : String(error)}`,
           "API_NETWORK_ERROR",
           undefined,
           "A network error occurred. Check your internet connection.",
@@ -571,7 +570,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
           onRetry?.({
             attempt: attempt + 1,
             method,
-            path,
+            path: redactPath(path),
             error: networkErr.message,
             delayMs: Math.round(jitteredDelay(baseDelay, attempt, maxDelay)),
             timestamp: new Date().toISOString(),
@@ -693,7 +692,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         if (error instanceof DOMException && error.name === "AbortError") {
           const sizeMb = Math.round(fileBuffer.byteLength / (1024 * 1024));
           const timeoutErr = new PlayApiError(
-            `POST upload ${path} timed out after ${effectiveTimeout}ms (file: ${sizeMb} MB)`,
+            `POST upload ${redactPath(path)} timed out after ${effectiveTimeout}ms (file: ${sizeMb} MB)`,
             "API_TIMEOUT",
             undefined,
             `Upload timed out. Set GPC_UPLOAD_TIMEOUT=${effectiveTimeout * 2} (ms) or use --timeout to increase.`,
@@ -703,7 +702,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
             onRetry?.({
               attempt: attempt + 1,
               method: "POST",
-              path: `upload ${path}`,
+              path: `upload ${redactPath(path)}`,
               error: timeoutErr.message,
               delayMs: Math.round(jitteredDelay(baseDelay, attempt, maxDelay)),
               timestamp: new Date().toISOString(),
@@ -714,7 +713,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         }
 
         const networkErr = new PlayApiError(
-          `POST upload ${path} failed: ${error instanceof Error ? error.message : String(error)}`,
+          `POST upload ${redactPath(path)} failed: ${error instanceof Error ? error.message : String(error)}`,
           "API_NETWORK_ERROR",
           undefined,
           "A network error occurred. Check your internet connection.",
@@ -724,7 +723,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
           onRetry?.({
             attempt: attempt + 1,
             method: "POST",
-            path: `upload ${path}`,
+            path: `upload ${redactPath(path)}`,
             error: networkErr.message,
             delayMs: Math.round(jitteredDelay(baseDelay, attempt, maxDelay)),
             timestamp: new Date().toISOString(),
@@ -861,7 +860,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
           const mapped = mapStatusToError(response.status, errorBody);
           throw new PlayApiError(
             mapped.message ??
-              `GET ${path} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
+              `GET ${redactPath(path)} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
             mapped.code,
             response.status,
             mapped.suggestion,

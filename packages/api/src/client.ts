@@ -1023,7 +1023,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
       async delete(packageName, editId, language, imageType, imageId) {
         await http.delete(
-          `/${p(packageName)}/edits/${p(editId)}/listings/${p(language)}/${p(imageType)}/${imageId}`,
+          `/${p(packageName)}/edits/${p(editId)}/listings/${p(language)}/${p(imageType)}/${p(imageId)}`,
         );
       },
 
@@ -1517,7 +1517,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
     orders: {
       async get(packageName, orderId) {
-        const { data } = await http.get<Order>(`/${p(packageName)}/orders/${orderId}`);
+        const { data } = await http.get<Order>(`/${p(packageName)}/orders/${p(orderId)}`);
         return data;
       },
 
@@ -1530,7 +1530,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async refund(packageName, orderId, body?) {
-        await http.post(`/${p(packageName)}/orders/${orderId}:refund`, body);
+        await http.post(`/${p(packageName)}/orders/${p(orderId)}:refund`, body);
       },
     },
 
@@ -1671,7 +1671,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
       async get(packageName, configId) {
         const { data } = await http.get<DeviceTierConfig>(
-          `/${p(packageName)}/deviceTierConfigs/${configId}`,
+          `/${p(packageName)}/deviceTierConfigs/${p(configId)}`,
         );
         return data;
       },
@@ -1908,7 +1908,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async download(packageName, versionCode, id) {
-        return http.download(`/${p(packageName)}/generatedApks/${p(String(versionCode))}/download/${id}`);
+        return http.download(`/${p(packageName)}/generatedApks/${p(String(versionCode))}/download/${p(id)}`);
       },
     },
 

@@ -229,10 +229,7 @@ function isPluginTrusted(specifier: string, approved?: Set<string>): boolean {
 }
 
 /**
- * Discover plugins from multiple sources:
- * 1. Explicit config: gpc.config.ts → plugins: [...]
- * 2. Convention: node_modules/@gpc-cli/plugin-*
- * 3. Convention: node_modules/gpc-plugin-*
+ * Discover plugins from config: gpc.config.ts → plugins: [...]
  *
  * Only trusted/approved plugins are imported. Untrusted specifiers are
  * skipped before import() to prevent top-level module code execution.
