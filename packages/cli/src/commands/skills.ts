@@ -4,7 +4,7 @@ import { join, resolve } from "node:path";
 import { homedir } from "node:os";
 import { getOutputFormat } from "../format.js";
 import { formatOutput } from "@gpc-cli/core";
-import { green, yellow, dim } from "../colors.js";
+import { green, dim } from "../colors.js";
 
 interface InstalledSkill {
   name: string;
