@@ -166,6 +166,8 @@ vitals-gate:
 
 The recommended pattern is to run a vitals gate before every rollout percentage increase. This ensures bad releases are caught early, before they affect a large portion of users.
 
+As of v0.9.74, GPC enforces this ordering internally: when `gpc releases rollout increase` is run with `--threshold` flags, threshold checks complete before any rollout change is applied. The rollout is not touched if a threshold is breached.
+
 ### Rollout Progression with Gates
 
 ```

@@ -7,6 +7,39 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.74
+
+Security hardening release. 16 findings from a deepsec audit addressed across plugin loading, upload, config, CI, and API path handling.
+
+**Security**
+
+- fix(plugins): require explicit approval before executing imported plugin module code (RCE hardening)
+- fix(api): validate resumable upload session URI origin against expected upload host (SSRF prevention)
+- fix(cli): reject symlinks in `--notes-dir` to prevent path traversal
+- fix(cli): stop echoing sensitive values in `gpc config set` output
+- fix(cli): strip proxy credentials from `gpc doctor` diagnostic output
+- fix(cli): allowlist env vars passed to child processes in skills installer
+- fix(core): evaluate vitals thresholds before increasing rollout percentage, not after
+- fix(cli): apply `--dry-run` flag to image upload and image delete commands
+- fix(api): `encodeURIComponent` on all path parameter interpolations
+- fix(cli): redact purchase tokens in RTDN notification output
+- fix(api): sanitize sensitive path segments from HTTP error messages
+- fix(cli): filter sensitive flags from argv payload in webhook notify
+- fix(cli): prevent formula injection in CSV export for review spreadsheets
+- fix(core): harden AI changelog prompt against injection via commit message content
+- fix(core): per-bucket mutex in rate limiter to fix concurrent waiter race condition
+- fix(ci): scope GitHub Actions secrets to upload step only
+
+**CI**
+
+- ci: add deepsec scanning step to CI workflow
+- ci: `pnpm.onlyBuiltDependencies` supply chain protection
+- ci: lockfile verification on install
+
+**Tests:** 2,281 (unchanged). **Endpoint count:** unchanged at 217.
+
+---
+
 ## v0.9.69
 
 SHA-256 image sync, standalone bundle commands, and automatic rescue for rejected-update 403s.

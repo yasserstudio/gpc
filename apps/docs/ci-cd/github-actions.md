@@ -88,9 +88,8 @@ on:
         type: string
         default: "Bug fixes and performance improvements"
 
-env:
-  GPC_SERVICE_ACCOUNT: ${{ secrets.GPC_SERVICE_ACCOUNT }}
-  GPC_APP: com.example.myapp
+# Security: do not set GPC_SERVICE_ACCOUNT at workflow level.
+# Scope it to individual steps that need it (see upload step below).
 
 jobs:
   build:
@@ -137,6 +136,9 @@ jobs:
         run: gpc preflight app-release.aab --fail-on error --json
 
       - name: Upload to internal track
+        env:
+          GPC_SERVICE_ACCOUNT: ${{ secrets.GPC_SERVICE_ACCOUNT }}
+          GPC_APP: com.example.myapp
         run: |
           gpc releases upload app-release.aab \
             --track internal \
@@ -162,6 +164,9 @@ jobs:
         run: npm install -g @gpc-cli/cli
 
       - name: Promote to target track
+        env:
+          GPC_SERVICE_ACCOUNT: ${{ secrets.GPC_SERVICE_ACCOUNT }}
+          GPC_APP: com.example.myapp
         run: |
           ROLLOUT_FLAG=""
           if [[ "${{ inputs.track }}" == "production" ]]; then
@@ -611,6 +616,50 @@ Generate per-locale Play Store release notes in the same workflow. `gpc changelo
 For opt-in AI translation of the `[needs translation]` placeholders, add `--ai` (v0.9.63+). To write translated notes directly into a draft release, add `--apply` (v0.9.64+). The full one-command pipeline: `gpc changelog generate --target play-store --locales auto --ai --apply`.
 
 For uploading pre-written release notes alongside an AAB, see [gpc publish --notes-from-git](/commands/publish) or [gpc releases create --notes-from-git](/commands/releases).
+
+## CI Security Hardening
+
+### Scope secrets to individual steps
+
+Never set `GPC_SERVICE_ACCOUNT` at the workflow or job level. Scoping it to the step that needs it limits exposure if a step is compromised by a supply chain attack.
+
+```yaml
+# Good: secret scoped to the step that needs it
+- name: Upload to Play Console
+  env:
+    GPC_SERVICE_ACCOUNT: ${{ secrets.GPC_SERVICE_ACCOUNT }}
+  run: gpc releases upload app.aab --track internal --json
+
+# Avoid: secret visible to every step in the job
+env:
+  GPC_SERVICE_ACCOUNT: ${{ secrets.GPC_SERVICE_ACCOUNT }}
+jobs:
+  upload:
+    steps:
+      - name: Some other step  # can read GPC_SERVICE_ACCOUNT
+```
+
+### deepsec scan (v0.9.74+)
+
+GPC's own CI runs deepsec on every PR. You can run the same scanner against your GPC-based workflow files:
+
+```yaml
+# .github/workflows/security.yml
+name: Security
+on: [push, pull_request]
+
+jobs:
+  deepsec:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run deepsec
+        run: npx deepsec scan .github/workflows/
+```
+
+### Lockfile verification
+
+Always run `pnpm install --frozen-lockfile` (or `npm ci`) in CI to prevent unexpected dependency upgrades. Combined with `min-release-age=7` in `.npmrc`, this blocks packages published within the last 7 days from being installed.
 
 ## Related
 

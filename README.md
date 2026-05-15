@@ -162,7 +162,7 @@ gpc pricing convert --from USD --amount 9.99
 
 ## Protect
 
-Catch problems before Google does. No other tool does this.
+Catch problems before Google does. No other tool does this. v0.9.74 adds a full security hardening pass: plugin RCE prevention, SSRF protection on resumable uploads, symlink traversal rejection, credential redaction across doctor and config output, and 10 additional hardening fixes. See the [changelog](./CHANGELOG.md) for the full list.
 
 ```bash
 gpc preflight app.aab                        # Run all 9 scanners

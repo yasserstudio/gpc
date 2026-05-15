@@ -11,7 +11,41 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.73 <Badge type="tip" text="latest" />
+## v0.9.74 <Badge type="tip" text="latest" />
+
+Security hardening release based on a deepsec audit (16 findings resolved).
+
+**Security fixes:**
+
+- fix(core): approve plugins before `import()` executes module code (plugin RCE)
+- fix(api): validate resumable upload session URI origin against upload host (SSRF)
+- fix(core): use `lstat()` to reject symlinks in `--notes-dir` (path traversal)
+- fix(cli): stop echoing sensitive values in `gpc config set` output
+- fix(cli): strip proxy credentials from `gpc doctor` diagnostic output
+- fix(cli): allowlist env vars for child process in `gpc install-skills`
+- fix(cli): check vitals thresholds before rollout increase in `gpc releases`
+- fix(cli): respect `--dry-run` for image upload and delete in `gpc listings`
+- fix(api): apply `encodeURIComponent` to all API path parameter interpolations
+- fix(cli): redact purchase tokens in RTDN notification output
+- fix(api): sanitize sensitive path segments in HTTP error messages
+- fix(cli): filter sensitive flags from argv in webhook notify payload
+- fix(core): sanitize formula injection characters in review CSV export
+- fix(core): harden AI changelog prompt against injection via commit messages
+- fix(api): add per-bucket mutex to rate limiter to fix concurrent waiter race
+- fix(core): scope CI template secrets to upload step only
+
+**CI hardening:**
+
+- feat(ci): deepsec scan added to CI pipeline (runs on every PR)
+- feat(ci): `pnpm.onlyBuiltDependencies` enforces install-script allowlist
+
+**Tests:** unchanged at 2,281.
+
+**Endpoint count:** unchanged at 217.
+
+---
+
+## v0.9.73
 
 Skills check, Android CLI detection, upload with inline AI changelog.
 

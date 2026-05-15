@@ -23,11 +23,16 @@ GPC handles sensitive credentials (service account keys, OAuth tokens) and inter
 | Vector                       | Risk   | Mitigation                                                                       |
 | ---------------------------- | ------ | -------------------------------------------------------------------------------- |
 | Credential committed to repo | High   | `.gitignore` templates, `gpc doctor` warnings                                    |
-| Credential leaked in logs    | High   | Redaction in verbose/debug output                                                |
+| Credential leaked in logs    | High   | Redaction in verbose/debug output; proxy credentials stripped from diagnostics   |
 | Token theft from disk        | Medium | OS keychain storage, file permissions (0600)                                     |
 | Man-in-the-middle            | Low    | TLS-only, custom CA certificate support                                          |
-| Malicious plugin             | Medium | Plugin permission scoping, approval flow                                         |
+| Malicious plugin             | Medium | Plugin approval gate before module code executes; permission scoping             |
 | Dependency supply chain      | Medium | Lockfile, audit, 4 runtime deps, `min-release-age=7`, Socket.dev CI + GitHub App |
+| SSRF via resumable upload    | Low    | Session URI origin validated against upload host before use                      |
+| Symlink traversal            | Low    | `lstat()` rejects symlinks in `--notes-dir`                                      |
+| Path injection in API calls  | Medium | `encodeURIComponent` on all path parameter interpolations                        |
+| Formula injection (CSV)      | Low    | Review spreadsheet export sanitizes leading `=`, `+`, `-`, `@` characters        |
+| Prompt injection             | Low    | AI changelog prompt isolates commit messages from instructions                   |
 
 ## Credential Storage
 
@@ -94,6 +99,10 @@ All output layers (human, JSON, YAML, debug logs) pass through a redaction filte
 | Refresh tokens         | `1//0eXy...`                       | `1//[REDACTED]`                  |
 | Client secret          | `"client_secret": "GOCSPX-..."`    | `"client_secret": "[REDACTED]"`  |
 | Client email           | `"client_email": "sa@proj.iam..."` | Shown (needed for debugging)     |
+| Proxy credentials      | `https://user:pass@proxy:8080`     | `https://[REDACTED]@proxy:8080`  |
+| API path segments      | `/purchases/tokens/abc123`         | `/purchases/tokens/[REDACTED]`   |
+| Purchase tokens (RTDN) | `purchaseToken: "xyz..."`          | `purchaseToken: "[REDACTED]"`    |
+| CI argv payload        | `--service-account <path>`         | Sensitive flags removed          |
 
 ### Redaction Architecture
 
@@ -198,6 +207,7 @@ Redaction is applied before formatting and cannot be disabled.
 ### Filesystem Operations
 
 - Fastlane metadata directory reads validate language folder names against `^[a-zA-Z]{2,3}(-[a-zA-Z0-9]{2,8})*$` to prevent path traversal
+- `--notes-dir` uses `lstat()` to detect and reject symlinks before reading any file in the directory
 - Upload responses are validated before use -- null/missing data from the API triggers a clear error
 
 ## Plugin Security
@@ -231,7 +241,7 @@ type PluginPermission =
 **Rules:**
 
 1. Plugins cannot access credentials directly
-2. Third-party plugins require explicit user approval on first run
+2. Third-party plugins require explicit user approval before `import()` executes any module code
 3. Unknown permissions throw `PLUGIN_INVALID_PERMISSION` (exit code 10)
 4. Error handlers in plugins are wrapped -- a failing handler cannot crash GPC
 5. Plugin approval can be revoked: `gpc plugins revoke <name>`
@@ -267,6 +277,7 @@ Push protection blocks any commit containing a detected secret before it reaches
 
 | Tool         | Trigger                | What it checks                                             |
 | ------------ | ---------------------- | ---------------------------------------------------------- |
+| deepsec      | Every PR               | AI-powered security audit (RCE, SSRF, injection, etc.)     |
 | Socket.dev   | Every PR               | Supply chain alerts, malware, typosquats, license risks    |
 | `pnpm audit` | Every PR (`check` job) | Known CVEs in dependency tree (moderate+)                  |
 | CodeQL       | Every push and PR      | Static analysis for JS/TS vulnerabilities                  |
@@ -345,18 +356,19 @@ GPC does **not** depend on `axios`, `node-fetch`, `got`, or any HTTP client libr
 
 | Layer                           | What it does                                                                                |
 | ------------------------------- | ------------------------------------------------------------------------------------------- |
-| `min-release-age=7` in `.npmrc` | Blocks packages published less than 7 days ago. Would have prevented the axios attack.      |
-| `pnpm-lock.yaml`                | Exact version pinning. No unexpected upgrades on install.                                   |
-| Socket.dev CI scan              | Runs `socket ci` on every PR. Blocks merges when critical supply chain alerts are detected. |
-| Socket.dev GitHub App           | Inline PR comments when risky dependencies are added. Configured via `socket.yml`.          |
-| `pnpm audit` in CI              | Checks for known CVEs (moderate+) on every pull request.                                    |
-| GitHub Actions SHA pins         | All action references pinned to commit hashes, not mutable version tags.                    |
-| SBOM (CycloneDX)                | Software bill of materials generated and archived on every npm release.                     |
-| CODEOWNERS                      | Security-sensitive paths (workflows, auth, .npmrc) require explicit review.                 |
-| Dependabot                      | Weekly security update PRs (direct dependencies only, actions grouped).                     |
-| Socket CLI wrapper              | Scans every local `npm install` and `npx` for malware, typosquats, and suspicious behavior. |
-| CodeQL                          | Static analysis on every push for JS/TS vulnerabilities.                                    |
-| GitHub secret scanning          | Blocks pushes containing 200+ secret patterns.                                              |
+| `min-release-age=7` in `.npmrc`     | Blocks packages published less than 7 days ago. Would have prevented the axios attack.                |
+| `pnpm-lock.yaml`                    | Exact version pinning. No unexpected upgrades on install.                                             |
+| `pnpm.onlyBuiltDependencies`        | Allowlists which packages may run install scripts. Prevents malicious `postinstall` code from running. |
+| Socket.dev CI scan                  | Runs `socket ci` on every PR. Blocks merges when critical supply chain alerts are detected.           |
+| Socket.dev GitHub App               | Inline PR comments when risky dependencies are added. Configured via `socket.yml`.                    |
+| `pnpm audit` in CI                  | Checks for known CVEs (moderate+) on every pull request.                                              |
+| GitHub Actions SHA pins             | All action references pinned to commit hashes, not mutable version tags.                              |
+| SBOM (CycloneDX)                    | Software bill of materials generated and archived on every npm release.                               |
+| CODEOWNERS                          | Security-sensitive paths (workflows, auth, .npmrc) require explicit review.                           |
+| Dependabot                          | Weekly security update PRs (direct dependencies only, actions grouped).                               |
+| Socket CLI wrapper                  | Scans every local `npm install` and `npx` for malware, typosquats, and suspicious behavior.           |
+| CodeQL                              | Static analysis on every push for JS/TS vulnerabilities.                                              |
+| GitHub secret scanning              | Blocks pushes containing 200+ secret patterns.                                                        |
 
 ### Socket.dev security score
 
@@ -382,6 +394,33 @@ As of v0.9.51, `pnpm audit --prod` reports **1 moderate finding** in a transitiv
 | `brace-expansion` 2.0.x | Moderate (DoS) | `google-auth-library > gaxios > rimraf > glob > minimatch` | No. GPC never passes user-controlled glob patterns to this code path. |
 
 All other findings (8 total) are in dev-only tooling (`eslint`, `tsup`, `vitepress`, `@changesets/cli`) and do not ship to users. These will be cleared as upstream packages release patches.
+
+## Security Audits
+
+### deepsec audit (v0.9.74)
+
+GPC v0.9.74 was audited with [deepsec](https://deepsec.vercel.app/) (Vercel Labs AI security scanner). The audit produced 16 findings, all resolved in this release.
+
+| # | Category             | Finding                                                     | Fix                                                     |
+| - | -------------------- | ----------------------------------------------------------- | ------------------------------------------------------- |
+| 1 | Plugin RCE           | `import()` executed module code before user approval        | Approval gate checks before dynamic import              |
+| 2 | SSRF                 | Resumable upload accepted arbitrary session URIs            | Session URI origin validated against upload host        |
+| 3 | Path traversal       | Symlinks in `--notes-dir` could escape the intended tree    | `lstat()` rejects symlinks before file reads            |
+| 4 | Info disclosure      | `gpc config set` echoed sensitive values                    | Values suppressed from output after write               |
+| 5 | Info disclosure      | `gpc doctor` included proxy credentials in diagnostics      | Proxy userinfo stripped before display                  |
+| 6 | Supply chain         | `install-skills` passed full environment to child process   | Allowlisted env vars for child process execution        |
+| 7 | Logic flaw           | Vitals gate checked thresholds after rollout increase       | Threshold check enforced before rollout increase        |
+| 8 | `--dry-run` bypass   | Image upload and delete ignored `--dry-run`                 | `--dry-run` respected for all image operations          |
+| 9 | Injection            | API path parameters not encoded                             | `encodeURIComponent` applied to all path parameters     |
+| 10 | Info disclosure      | Purchase tokens visible in RTDN notification output         | Tokens redacted in all notification output              |
+| 11 | Info disclosure      | Sensitive path segments leaked in HTTP error messages       | Path segments sanitized before error message emission   |
+| 12 | Info disclosure      | Full `argv` included in webhook payloads                    | Sensitive flags filtered from argv before webhook send  |
+| 13 | Formula injection    | Review CSV export vulnerable to spreadsheet formula attacks | Leading `=`, `+`, `-`, `@` characters sanitized         |
+| 14 | Prompt injection     | AI changelog prompt injectable via commit messages          | Commit messages isolated from prompt instructions       |
+| 15 | Race condition       | Rate limiter lacked per-bucket mutex for concurrent waiters | Per-bucket mutex added to fix concurrent waiter race    |
+| 16 | Least privilege      | CI template scoped secrets at job level                     | Secrets scoped to upload step only                      |
+
+deepsec is run on every PR as of v0.9.74. See the [Automated Security](#automated-security) table above.
 
 ## Dependency Policy
 
@@ -421,6 +460,7 @@ New dependencies are reviewed for: maintenance status, download count, transitiv
 - [ ] Plugin permission model enforced
 - [ ] Error messages do not leak sensitive information
 - [ ] TLS enforced for all network communication
+- [ ] deepsec scan passes in CI
 
 ### For Contributors
 

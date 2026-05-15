@@ -130,26 +130,28 @@ gpc changelog generate --target play-store --locales auto --ai
 
 <div class="release-card release-latest">
 <div class="release-badge">Latest</div>
-<h3 class="release-version">v0.9.73 — Skills, Android CLI, Upload + AI Changelog</h3>
-<p><code>gpc skills check</code> reports installed agent skill versions. <code>gpc doctor</code> detects Google's Android CLI. <code>gpc releases upload --changelog-ai</code> generates AI-translated release notes inline during upload.</p>
+<h3 class="release-version">v0.9.74 — Security Hardening</h3>
+<p>16 security findings from a deepsec audit resolved: plugin RCE prevention, SSRF protection on resumable uploads, symlink traversal fix, proxy credential redaction, formula injection sanitization, and more. <code>--dry-run</code> now applies to image operations.</p>
 
 ```bash
-gpc skills check                          # scan installed skills
-gpc releases upload app.aab \
-  --track internal --changelog-ai \
-  --locales auto                          # upload + AI changelog
+# dry-run now covers image upload and delete
+gpc listings images upload ./screenshot.png \
+  --lang en-US --type phoneScreenshots --dry-run
+
+# proxy credentials are stripped from diagnostic output
+gpc doctor
 ```
 
 <div class="release-links">
-<a href="/guide/recipes">Recipes →</a>
+<a href="/advanced/security">Security docs →</a>
 <a href="/reference/changelog">Full changelog →</a>
 </div>
 </div>
 
 <div class="releases-prev">
+<div class="release-mini"><strong>v0.9.73</strong> <code>gpc skills check</code>, <code>gpc doctor</code> Android CLI detection, <code>--changelog-ai</code> on upload.</div>
 <div class="release-mini"><strong>v0.9.72</strong> API compliance patch: errorReports endpoint fix, subscription deprecation notices, RTDN types.</div>
 <div class="release-mini"><strong>v0.9.71</strong> <code>gpc doctor</code> quota proximity check and plugin health validation.</div>
-<div class="release-mini"><strong>v0.9.70</strong> In-app update priority, version code retention, Fastlane-style changelog fallback.</div>
 </div>
 
 <p class="release-all-link"><a href="/reference/changelog">View all releases →</a></p>

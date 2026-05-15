@@ -293,12 +293,13 @@ gpc listings images upload <file> --lang <language> --type <type>
 
 ### Options
 
-| Flag                            | Short | Type     | Default        | Description                           |
-| ------------------------------- | ----- | -------- | -------------- | ------------------------------------- |
-| `--lang`                        |       | `string` | **(required)** | Language code (BCP 47)                |
-| `--type`                        |       | `string` | **(required)** | Image type                            |
-| `--changes-not-sent-for-review` |       | flag     |                | Commit without sending for review     |
-| `--error-if-in-review`          |       | flag     |                | Fail if changes are already in review |
+| Flag                            | Short | Type      | Default        | Description                                  |
+| ------------------------------- | ----- | --------- | -------------- | -------------------------------------------- |
+| `--lang`                        |       | `string`  | **(required)** | Language code (BCP 47)                       |
+| `--type`                        |       | `string`  | **(required)** | Image type                                   |
+| `--dry-run`                     |       | `boolean` | `false`        | Preview the upload without applying changes  |
+| `--changes-not-sent-for-review` |       | flag      |                | Commit without sending for review            |
+| `--error-if-in-review`          |       | flag      |                | Fail if changes are already in review        |
 
 ### Example
 
@@ -323,13 +324,14 @@ gpc listings images delete --lang <language> --type <type> --id <imageId>
 
 ### Options
 
-| Flag                            | Short | Type     | Default        | Description                           |
-| ------------------------------- | ----- | -------- | -------------- | ------------------------------------- |
-| `--lang`                        |       | `string` | **(required)** | Language code (BCP 47)                |
-| `--type`                        |       | `string` | **(required)** | Image type                            |
-| `--id`                          |       | `string` | **(required)** | Image ID to delete                    |
-| `--changes-not-sent-for-review` |       | flag     |                | Commit without sending for review     |
-| `--error-if-in-review`          |       | flag     |                | Fail if changes are already in review |
+| Flag                            | Short | Type      | Default        | Description                                  |
+| ------------------------------- | ----- | --------- | -------------- | -------------------------------------------- |
+| `--lang`                        |       | `string`  | **(required)** | Language code (BCP 47)                       |
+| `--type`                        |       | `string`  | **(required)** | Image type                                   |
+| `--id`                          |       | `string`  | **(required)** | Image ID to delete                           |
+| `--dry-run`                     |       | `boolean` | `false`        | Preview the delete without applying changes  |
+| `--changes-not-sent-for-review` |       | flag      |                | Commit without sending for review            |
+| `--error-if-in-review`          |       | flag      |                | Fail if changes are already in review        |
 
 ### Example
 

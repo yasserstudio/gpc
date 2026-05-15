@@ -58,6 +58,7 @@ The remaining items before the stable `1.0.0` release:
 - [x] **v0.9.71 — Smarter Doctor** (shipped 2026-04-30). `gpc doctor` quota proximity check (warns at >80% daily/per-minute API usage) and plugin health check (discovers, loads, reports each configured plugin). Two new check names: `quota` and `plugin-*`. 2,269 tests. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.71
 - [x] **v0.9.72 — API Compliance Patch** (shipped 2026-05-08). errorReports:search endpoint path fix, v1 subscription deprecation notices, missing RTDN notification types, API coverage map update, homepage redesign. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.72
 - [x] **v0.9.73 — Skills check, Android CLI detection, upload --changelog-ai** (shipped 2026-05-11). `gpc skills check` scans installed agent skills and checks for updates. `gpc doctor` detects Google's Android CLI (check #24). `--changelog-ai --locales <csv|auto>` on `gpc releases upload` generates AI-translated release notes inline during upload. Docs: sidebar restructured (Guide 4 groups, Commands System 3 subgroups), 3 new pages (recipes, staged rollout strategy, rate limits reference), FAQPage schema on troubleshooting, clickable coverage grid, glossary cross-links. SEO: all 7 package.json files with homepage + keywords, WebSite JSON-LD, og/twitter meta. 2,281 tests.
+- [x] **v0.9.74 — Security Hardening** (shipped 2026-05-15). Full deepsec (Vercel Labs AI security scanner) audit of 74 files. 54 findings triaged: 16 real issues fixed, remainder false positives or by-design behaviors. Fixes: plugin RCE (approve before import), resumable upload SSRF, symlink traversal via --notes-dir, config set secret echo, proxy credential leakage in doctor output, skills installer env scrubbing, vitals gate ordering (check before rollout increase), image upload/delete dry-run bypass, central API path encoding (encodeURIComponent on all path params), RTDN purchase token redaction, HTTP error path sanitization, webhook argv filtering, CSV formula injection in review export, AI changelog prompt injection hardening, rate limiter per-bucket mutex. CI: deepsec scanning added to ci.yml (PR-only), `pnpm.onlyBuiltDependencies: []` supply chain lockdown, `ignore-scripts=true` in .npmrc and all 6 CI workflows, Socket CLI pinned (was @latest), lockfile integrity hash in CI, provenance verification post-publish. CVEs patched: protobufjs HIGH (code injection), vite HIGH x2 (server.fs.deny bypass, WebSocket arbitrary file read). 2,309 tests. Audit document: `.dev/engineering/SECURITY_AUDIT_2026-05-15.md`.
 - [ ] Wall of Apps community showcase
 - [ ] Public marketing push (Dev.to retrospective, Android Weekly)
 - [ ] Stability soak period -- no critical bugs for 2+ weeks in production usage (soak started 2026-04-22, earliest 1.0: 2026-05-06)
@@ -70,7 +71,7 @@ Once these items are addressed and the CLI has been validated in production work
 
 ## Supply Chain Status
 
-Last scanned: 2026-04-01 (Socket.dev CLI v1.1.76 + pnpm audit).
+Last scanned: 2026-05-15 (deepsec v2.0.8 + Socket.dev CLI v1.1.76 + pnpm audit). Hardened in v0.9.74.
 
 ### Socket.dev: Clean
 
@@ -2356,18 +2357,19 @@ Entirely separate APIs beyond the Publisher suite:
 
 ---
 
-## Current Status (v0.9.71)
+## Current Status (v0.9.74)
 
-- **Version:** `v0.9.71` (latest, shipped 2026-04-30)
-- **Tests:** 2,269 across 7 packages + e2e
+- **Version:** `v0.9.74` (latest, shipped 2026-05-15)
+- **Tests:** 2,309 across 7 packages + e2e
 - **Coverage:** 90%+ line coverage on all core packages
 - **API endpoints:** 217 (Publisher v3 + Reporting v1beta1 + Custom App Publishing v1)
 - **Packages:** 7 published under `@gpc-cli` scope on npm
 - **Agent skills:** 18 skills, v1.12.0 (`gpc install-skills`)
-- **Docs:** [yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/) (99 pages)
+- **Docs:** [yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/) (102 pages)
 - **Install:** `npm install -g @gpc-cli/cli` or `brew install yasserstudio/tap/gpc`
 - **Open bugs:** zero
 - **Rate limiter:** rewritten to 6-bucket Google model, all API calls auto-rate-limited
+- **Security:** deepsec audit complete (2026-05-15), 16 findings resolved, CI supply chain hardened
 - **Live test coverage:** v0.9.71 live tested on visioo + sfn-emploi (2026-04-30)
 - **Next milestone:** v1.0.0 (stability soak + marketing push)
 
