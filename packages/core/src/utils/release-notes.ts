@@ -1,5 +1,5 @@
 import { readdir, readFile, lstat } from "node:fs/promises";
-import { extname, basename, join, resolve } from "node:path";
+import { extname, basename, join } from "node:path";
 import { GpcError } from "../errors.js";
 
 export interface ReleaseNote {
