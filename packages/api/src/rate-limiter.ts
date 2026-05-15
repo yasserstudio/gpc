@@ -80,9 +80,7 @@ export function createRateLimiter(buckets?: RateLimitBucket[]): RateLimiter {
   function acquireSync(state: BucketState): number {
     const now = Date.now();
     const elapsed = now - state.lastRefillTime;
-    const refill = Math.floor(
-      (elapsed / state.config.refillIntervalMs) * state.config.refillRate,
-    );
+    const refill = Math.floor((elapsed / state.config.refillIntervalMs) * state.config.refillRate);
 
     if (refill > 0) {
       state.tokens = Math.min(state.config.maxTokens, state.tokens + refill);
@@ -94,9 +92,7 @@ export function createRateLimiter(buckets?: RateLimitBucket[]): RateLimiter {
       return 0;
     }
 
-    return Math.ceil(
-      (1 / state.config.refillRate) * state.config.refillIntervalMs,
-    );
+    return Math.ceil((1 / state.config.refillRate) * state.config.refillIntervalMs);
   }
 
   return {

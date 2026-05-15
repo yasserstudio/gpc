@@ -1,0 +1,6 @@
+{
+  "tags": ["github-actions", "node"],
+  "sentinels": ["package.json"],
+  "detectedAt": "2026-05-15T15:17:54.984Z",
+  "rootPath": "/Volumes/Work/GPC"
+}

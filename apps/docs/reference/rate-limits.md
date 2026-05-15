@@ -10,10 +10,10 @@ How GPC handles Google Play Developer API rate limits, and how to monitor your q
 
 Google imposes per-project quotas on the Play Developer API. Every request your service account makes counts against two independent limits:
 
-| Quota type | Typical default |
-| ---------- | --------------- |
-| Daily       | 200,000 requests/day (resets at midnight Pacific) |
-| Per-minute  | Varies by endpoint category |
+| Quota type | Typical default                                   |
+| ---------- | ------------------------------------------------- |
+| Daily      | 200,000 requests/day (resets at midnight Pacific) |
+| Per-minute | Varies by endpoint category                       |
 
 Exact limits depend on your Google Cloud project configuration and the specific API endpoint. Some write-heavy endpoints (edits, uploads) have stricter per-minute caps than read-only endpoints.
 
@@ -58,10 +58,10 @@ Both commands query the Google Cloud quota API and report usage as a percentage 
 
 ## Rate limit errors
 
-| Error | Meaning | What to do |
-| ----- | ------- | ---------- |
-| HTTP `429` Too Many Requests | Per-minute quota exceeded | GPC retries automatically. If retries fail, wait a few minutes and try again. |
-| HTTP `403` with `rateLimitExceeded` | Daily quota exhausted | Wait until midnight Pacific for the quota to reset. No amount of retrying will help until then. |
-| HTTP `403` with `userRateLimitExceeded` | Per-user rate limit hit | Reduce concurrency or spread requests over a longer window. |
+| Error                                   | Meaning                   | What to do                                                                                      |
+| --------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------- |
+| HTTP `429` Too Many Requests            | Per-minute quota exceeded | GPC retries automatically. If retries fail, wait a few minutes and try again.                   |
+| HTTP `403` with `rateLimitExceeded`     | Daily quota exhausted     | Wait until midnight Pacific for the quota to reset. No amount of retrying will help until then. |
+| HTTP `403` with `userRateLimitExceeded` | Per-user rate limit hit   | Reduce concurrency or spread requests over a longer window.                                     |
 
 Run [`gpc doctor`](/commands/utility) to see quota proximity warnings before you hit these errors. The [`gpc quota`](/commands/quota) command gives a detailed breakdown of usage by endpoint category.

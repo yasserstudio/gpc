@@ -822,7 +822,9 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
     details: {
       async get(packageName, editId) {
-        const { data } = await http.get<AppDetails>(`/${p(packageName)}/edits/${p(editId)}/details`);
+        const { data } = await http.get<AppDetails>(
+          `/${p(packageName)}/edits/${p(editId)}/details`,
+        );
         return data;
       },
 
@@ -883,7 +885,9 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async get(packageName, editId, track) {
-        const { data } = await http.get<Track>(`/${p(packageName)}/edits/${p(editId)}/tracks/${p(track)}`);
+        const { data } = await http.get<Track>(
+          `/${p(packageName)}/edits/${p(editId)}/tracks/${p(track)}`,
+        );
         return data;
       },
 
@@ -895,10 +899,13 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async update(packageName, editId, track, release) {
-        const { data } = await http.put<Track>(`/${p(packageName)}/edits/${p(editId)}/tracks/${p(track)}`, {
-          track,
-          releases: [release],
-        });
+        const { data } = await http.put<Track>(
+          `/${p(packageName)}/edits/${p(editId)}/tracks/${p(track)}`,
+          {
+            track,
+            releases: [release],
+          },
+        );
         return data;
       },
 
@@ -925,7 +932,9 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
     apks: {
       async list(packageName, editId) {
-        const { data } = await http.get<ApksListResponse>(`/${p(packageName)}/edits/${p(editId)}/apks`);
+        const { data } = await http.get<ApksListResponse>(
+          `/${p(packageName)}/edits/${p(editId)}/apks`,
+        );
         return data.apks || [];
       },
 
@@ -1144,7 +1153,9 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async get(packageName, productId) {
-        const { data } = await http.get<Subscription>(`/${p(packageName)}/subscriptions/${p(productId)}`);
+        const { data } = await http.get<Subscription>(
+          `/${p(packageName)}/subscriptions/${p(productId)}`,
+        );
         return data;
       },
 
@@ -1202,7 +1213,9 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async deleteBasePlan(packageName, productId, basePlanId) {
-        await http.delete(`/${p(packageName)}/subscriptions/${p(productId)}/basePlans/${p(basePlanId)}`);
+        await http.delete(
+          `/${p(packageName)}/subscriptions/${p(productId)}/basePlans/${p(basePlanId)}`,
+        );
       },
 
       async migratePrices(packageName, productId, basePlanId, body) {
@@ -1417,7 +1430,9 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async consumeProduct(packageName, productId, token) {
-        await http.post(`/${p(packageName)}/purchases/products/${p(productId)}/tokens/${p(token)}:consume`);
+        await http.post(
+          `/${p(packageName)}/purchases/products/${p(productId)}/tokens/${p(token)}:consume`,
+        );
       },
 
       async getSubscriptionV2(packageName, token) {
@@ -1479,7 +1494,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async cancelSubscriptionV2(packageName, token, body?) {
-        await http.post(`/${p(packageName)}/purchases/subscriptionsv2/tokens/${p(token)}:cancel`, body);
+        await http.post(
+          `/${p(packageName)}/purchases/subscriptionsv2/tokens/${p(token)}:cancel`,
+          body,
+        );
       },
 
       async deferSubscriptionV2(packageName, token, body) {
@@ -1908,7 +1926,9 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async download(packageName, versionCode, id) {
-        return http.download(`/${p(packageName)}/generatedApks/${p(String(versionCode))}/download/${p(id)}`);
+        return http.download(
+          `/${p(packageName)}/generatedApks/${p(String(versionCode))}/download/${p(id)}`,
+        );
       },
     },
 

@@ -104,18 +104,18 @@ The full GPC skill index:
 
 Google maintains an official skill repository at [github.com/android/skills](https://github.com/android/skills) (Apache 2.0). It contains skills for the app-development side of the Android lifecycle:
 
-| Skill                                  | Domain          | What it covers                                        |
-| -------------------------------------- | --------------- | ----------------------------------------------------- |
-| `android-cli`                          | Dev tools       | Android CLI usage, journeys, interactive workflows     |
-| `agp-9-upgrade`                        | Build           | Android Gradle Plugin 9 migration                     |
-| `camera1-to-camerax`                   | Camera          | Camera1 API to CameraX migration                      |
-| `migrate-xml-views-to-jetpack-compose` | UI              | XML layout to Jetpack Compose migration                |
-| `navigation-3`                         | Navigation      | Navigation 3 library patterns and recipes              |
-| `r8-analyzer`                          | Performance     | R8/ProGuard keep rules analysis                        |
-| `perfetto-sql`                         | Profilers       | Perfetto trace analysis with PerfettoSQL               |
-| `play-billing-library-version-upgrade` | Play (app-side) | Play Billing Library version migration                 |
-| `edge-to-edge`                         | System          | Edge-to-edge display implementation                    |
-| `display-ai-glasses-with-compose-glimmer` | XR           | Jetpack Compose Glimmer UI for AI glasses              |
+| Skill                                     | Domain          | What it covers                                     |
+| ----------------------------------------- | --------------- | -------------------------------------------------- |
+| `android-cli`                             | Dev tools       | Android CLI usage, journeys, interactive workflows |
+| `agp-9-upgrade`                           | Build           | Android Gradle Plugin 9 migration                  |
+| `camera1-to-camerax`                      | Camera          | Camera1 API to CameraX migration                   |
+| `migrate-xml-views-to-jetpack-compose`    | UI              | XML layout to Jetpack Compose migration            |
+| `navigation-3`                            | Navigation      | Navigation 3 library patterns and recipes          |
+| `r8-analyzer`                             | Performance     | R8/ProGuard keep rules analysis                    |
+| `perfetto-sql`                            | Profilers       | Perfetto trace analysis with PerfettoSQL           |
+| `play-billing-library-version-upgrade`    | Play (app-side) | Play Billing Library version migration             |
+| `edge-to-edge`                            | System          | Edge-to-edge display implementation                |
+| `display-ai-glasses-with-compose-glimmer` | XR              | Jetpack Compose Glimmer UI for AI glasses          |
 
 These skills cover **app code**: Gradle config, Kotlin/Compose UI, SDK integration, device profiling, and on-device APIs. They stop at the boundary of the built artifact.
 

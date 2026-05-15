@@ -103,15 +103,11 @@ export function registerSkillsCommand(program: Command): void {
 
       if (installed.length === 0) {
         console.log("No GPC skills found.");
-        console.log(
-          `\nInstall with: npx skills add ${opts.repo ?? GPC_SKILLS_REPO}`,
-        );
+        console.log(`\nInstall with: npx skills add ${opts.repo ?? GPC_SKILLS_REPO}`);
         return;
       }
 
-      console.log(
-        `GPC Skills${latest ? `  (pack ${latest} on GitHub)` : ""}\n`,
-      );
+      console.log(`GPC Skills${latest ? `  (pack ${latest} on GitHub)` : ""}\n`);
 
       const nameWidth = Math.max(...installed.map((s) => s.name.length), 4);
       const header = `${"SKILL".padEnd(nameWidth)}  VERSION     PATH`;
@@ -124,12 +120,12 @@ export function registerSkillsCommand(program: Command): void {
         console.log(`${name}  ${version} ${dim(skill.path)}`);
       }
 
-      console.log(`\n  ${green("✓")} ${installed.length} skill${installed.length !== 1 ? "s" : ""} installed`);
+      console.log(
+        `\n  ${green("✓")} ${installed.length} skill${installed.length !== 1 ? "s" : ""} installed`,
+      );
 
       if (latest) {
-        console.log(
-          `\n  Update all: npx skills add ${opts.repo ?? GPC_SKILLS_REPO}`,
-        );
+        console.log(`\n  Update all: npx skills add ${opts.repo ?? GPC_SKILLS_REPO}`);
       }
     });
 }

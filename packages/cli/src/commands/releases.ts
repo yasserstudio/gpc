@@ -79,13 +79,13 @@ export function registerReleasesCommands(program: Command): void {
     .option("--notes-from-git", "Generate release notes from git commit history")
     .option("--copy-notes-from <track>", "Copy release notes from another track")
     .option("--changelog-ai", "Generate AI-translated release notes from git history")
-    .option(
-      "--locales <csv|auto>",
-      "Locales for --changelog-ai (comma-separated BCP 47 or 'auto')",
-    )
+    .option("--locales <csv|auto>", "Locales for --changelog-ai (comma-separated BCP 47 or 'auto')")
     .option("--provider <name>", "AI provider for --changelog-ai (anthropic|openai|google)")
     .option("--model <id>", "Override AI model for --changelog-ai")
-    .option("--since <ref>", "Git ref to start from (tag, SHA) — used with --notes-from-git or --changelog-ai")
+    .option(
+      "--since <ref>",
+      "Git ref to start from (tag, SHA) — used with --notes-from-git or --changelog-ai",
+    )
     .option("--retry-log <path>", "Write retry log entries to file (JSONL)")
     .option(
       "--timeout <ms>",

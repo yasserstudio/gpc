@@ -53,11 +53,13 @@ export function registerRtdnCommands(program: Command): void {
       const notification = decodeNotification(payload);
       const formatted = formatNotification(notification);
 
-      const redacted = JSON.parse(JSON.stringify(notification, (key, value) =>
-        key === "purchaseToken" && typeof value === "string"
-          ? `${value.slice(0, 8)}...REDACTED`
-          : value,
-      ));
+      const redacted = JSON.parse(
+        JSON.stringify(notification, (key, value) =>
+          key === "purchaseToken" && typeof value === "string"
+            ? `${value.slice(0, 8)}...REDACTED`
+            : value,
+        ),
+      );
 
       if (format === "json") {
         console.log(formatOutput(redacted, format));

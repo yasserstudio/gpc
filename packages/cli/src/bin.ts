@@ -98,7 +98,13 @@ if (notifyOpt !== undefined && notifyOpt !== false) {
   try {
     const config = await loadConfig();
     if (config.webhooks) {
-      const sensitiveFlags = ["--notify", "--store-pass", "--key-pass", "--token", "--service-account"];
+      const sensitiveFlags = [
+        "--notify",
+        "--store-pass",
+        "--key-pass",
+        "--token",
+        "--service-account",
+      ];
       const filtered = process.argv.slice(2).filter((a) => {
         return !sensitiveFlags.some((f) => a.startsWith(f));
       });

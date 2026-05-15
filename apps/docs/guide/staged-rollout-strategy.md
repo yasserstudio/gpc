@@ -16,23 +16,23 @@ Two common patterns:
 
 ### Conservative (recommended for most apps)
 
-| Stage | Percentage | Wait    |
-|-------|-----------|---------|
-| 1     | 1%        | 24 hours |
-| 2     | 5%        | 24 hours |
-| 3     | 10%       | 48 hours |
-| 4     | 25%       | 48 hours |
-| 5     | 50%       | 48 hours |
-| 6     | 100%      | Done     |
+| Stage | Percentage | Wait     |
+| ----- | ---------- | -------- |
+| 1     | 1%         | 24 hours |
+| 2     | 5%         | 24 hours |
+| 3     | 10%        | 48 hours |
+| 4     | 25%        | 48 hours |
+| 5     | 50%        | 48 hours |
+| 6     | 100%       | Done     |
 
 ### Aggressive (hotfixes, low-risk changes)
 
-| Stage | Percentage | Wait    |
-|-------|-----------|---------|
-| 1     | 5%        | 12 hours |
-| 2     | 20%       | 24 hours |
-| 3     | 50%       | 24 hours |
-| 4     | 100%      | Done     |
+| Stage | Percentage | Wait     |
+| ----- | ---------- | -------- |
+| 1     | 5%         | 12 hours |
+| 2     | 20%        | 24 hours |
+| 3     | 50%        | 24 hours |
+| 4     | 100%       | Done     |
 
 ### Automated rollout with `gpc train`
 
@@ -185,15 +185,15 @@ jobs:
 
 GPC uses semantic exit codes so CI pipelines can branch on failure reason:
 
-| Code | Meaning              |
-|------|----------------------|
-| 0    | Success              |
-| 1    | General error        |
-| 2    | Usage error          |
-| 3    | Auth failure         |
-| 4    | API error            |
-| 5    | Network error        |
-| 6    | Threshold breach     |
+| Code | Meaning          |
+| ---- | ---------------- |
+| 0    | Success          |
+| 1    | General error    |
+| 2    | Usage error      |
+| 3    | Auth failure     |
+| 4    | API error        |
+| 5    | Network error    |
+| 6    | Threshold breach |
 
 Exit code 6 is the one that matters for rollout gating. When `gpc watch` or `gpc train` exits with code 6, the rollout has been halted because a vitals threshold was exceeded. Your CI workflow can use this to trigger alerts, open an incident, or block promotion to the next stage.
 

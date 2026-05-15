@@ -41,10 +41,25 @@ export function registerInstallSkillsCommand(program: Command): void {
       }
 
       const allowedEnvKeys = new Set([
-        "PATH", "HOME", "USER", "SHELL", "TMPDIR", "LANG", "LC_ALL",
-        "NODE_ENV", "NODE_PATH", "NODE_OPTIONS", "NODE_EXTRA_CA_CERTS",
-        "npm_config_registry", "npm_config_cache",
-        "HTTPS_PROXY", "HTTP_PROXY", "NO_PROXY", "https_proxy", "http_proxy", "no_proxy",
+        "PATH",
+        "HOME",
+        "USER",
+        "SHELL",
+        "TMPDIR",
+        "LANG",
+        "LC_ALL",
+        "NODE_ENV",
+        "NODE_PATH",
+        "NODE_OPTIONS",
+        "NODE_EXTRA_CA_CERTS",
+        "npm_config_registry",
+        "npm_config_cache",
+        "HTTPS_PROXY",
+        "HTTP_PROXY",
+        "NO_PROXY",
+        "https_proxy",
+        "http_proxy",
+        "no_proxy",
       ]);
       const safeEnv: Record<string, string> = {};
       for (const [k, v] of Object.entries(process.env)) {

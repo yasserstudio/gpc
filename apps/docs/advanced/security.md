@@ -354,21 +354,21 @@ GPC does **not** depend on `axios`, `node-fetch`, `got`, or any HTTP client libr
 
 ### Protections in place
 
-| Layer                           | What it does                                                                                |
-| ------------------------------- | ------------------------------------------------------------------------------------------- |
-| `min-release-age=7` in `.npmrc`     | Blocks packages published less than 7 days ago. Would have prevented the axios attack.                |
-| `pnpm-lock.yaml`                    | Exact version pinning. No unexpected upgrades on install.                                             |
-| `pnpm.onlyBuiltDependencies`        | Allowlists which packages may run install scripts. Prevents malicious `postinstall` code from running. |
-| Socket.dev CI scan                  | Runs `socket ci` on every PR. Blocks merges when critical supply chain alerts are detected.           |
-| Socket.dev GitHub App               | Inline PR comments when risky dependencies are added. Configured via `socket.yml`.                    |
-| `pnpm audit` in CI                  | Checks for known CVEs (moderate+) on every pull request.                                              |
-| GitHub Actions SHA pins             | All action references pinned to commit hashes, not mutable version tags.                              |
-| SBOM (CycloneDX)                    | Software bill of materials generated and archived on every npm release.                               |
-| CODEOWNERS                          | Security-sensitive paths (workflows, auth, .npmrc) require explicit review.                           |
-| Dependabot                          | Weekly security update PRs (direct dependencies only, actions grouped).                               |
-| Socket CLI wrapper                  | Scans every local `npm install` and `npx` for malware, typosquats, and suspicious behavior.           |
-| CodeQL                              | Static analysis on every push for JS/TS vulnerabilities.                                              |
-| GitHub secret scanning              | Blocks pushes containing 200+ secret patterns.                                                        |
+| Layer                           | What it does                                                                                           |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `min-release-age=7` in `.npmrc` | Blocks packages published less than 7 days ago. Would have prevented the axios attack.                 |
+| `pnpm-lock.yaml`                | Exact version pinning. No unexpected upgrades on install.                                              |
+| `pnpm.onlyBuiltDependencies`    | Allowlists which packages may run install scripts. Prevents malicious `postinstall` code from running. |
+| Socket.dev CI scan              | Runs `socket ci` on every PR. Blocks merges when critical supply chain alerts are detected.            |
+| Socket.dev GitHub App           | Inline PR comments when risky dependencies are added. Configured via `socket.yml`.                     |
+| `pnpm audit` in CI              | Checks for known CVEs (moderate+) on every pull request.                                               |
+| GitHub Actions SHA pins         | All action references pinned to commit hashes, not mutable version tags.                               |
+| SBOM (CycloneDX)                | Software bill of materials generated and archived on every npm release.                                |
+| CODEOWNERS                      | Security-sensitive paths (workflows, auth, .npmrc) require explicit review.                            |
+| Dependabot                      | Weekly security update PRs (direct dependencies only, actions grouped).                                |
+| Socket CLI wrapper              | Scans every local `npm install` and `npx` for malware, typosquats, and suspicious behavior.            |
+| CodeQL                          | Static analysis on every push for JS/TS vulnerabilities.                                               |
+| GitHub secret scanning          | Blocks pushes containing 200+ secret patterns.                                                         |
 
 ### Socket.dev security score
 
@@ -401,24 +401,24 @@ All other findings (8 total) are in dev-only tooling (`eslint`, `tsup`, `vitepre
 
 GPC v0.9.74 was audited with [deepsec](https://deepsec.vercel.app/) (Vercel Labs AI security scanner). The audit produced 16 findings, all resolved in this release.
 
-| # | Category             | Finding                                                     | Fix                                                     |
-| - | -------------------- | ----------------------------------------------------------- | ------------------------------------------------------- |
-| 1 | Plugin RCE           | `import()` executed module code before user approval        | Approval gate checks before dynamic import              |
-| 2 | SSRF                 | Resumable upload accepted arbitrary session URIs            | Session URI origin validated against upload host        |
-| 3 | Path traversal       | Symlinks in `--notes-dir` could escape the intended tree    | `lstat()` rejects symlinks before file reads            |
-| 4 | Info disclosure      | `gpc config set` echoed sensitive values                    | Values suppressed from output after write               |
-| 5 | Info disclosure      | `gpc doctor` included proxy credentials in diagnostics      | Proxy userinfo stripped before display                  |
-| 6 | Supply chain         | `install-skills` passed full environment to child process   | Allowlisted env vars for child process execution        |
-| 7 | Logic flaw           | Vitals gate checked thresholds after rollout increase       | Threshold check enforced before rollout increase        |
-| 8 | `--dry-run` bypass   | Image upload and delete ignored `--dry-run`                 | `--dry-run` respected for all image operations          |
-| 9 | Injection            | API path parameters not encoded                             | `encodeURIComponent` applied to all path parameters     |
-| 10 | Info disclosure      | Purchase tokens visible in RTDN notification output         | Tokens redacted in all notification output              |
-| 11 | Info disclosure      | Sensitive path segments leaked in HTTP error messages       | Path segments sanitized before error message emission   |
-| 12 | Info disclosure      | Full `argv` included in webhook payloads                    | Sensitive flags filtered from argv before webhook send  |
-| 13 | Formula injection    | Review CSV export vulnerable to spreadsheet formula attacks | Leading `=`, `+`, `-`, `@` characters sanitized         |
-| 14 | Prompt injection     | AI changelog prompt injectable via commit messages          | Commit messages isolated from prompt instructions       |
-| 15 | Race condition       | Rate limiter lacked per-bucket mutex for concurrent waiters | Per-bucket mutex added to fix concurrent waiter race    |
-| 16 | Least privilege      | CI template scoped secrets at job level                     | Secrets scoped to upload step only                      |
+| #   | Category           | Finding                                                     | Fix                                                    |
+| --- | ------------------ | ----------------------------------------------------------- | ------------------------------------------------------ |
+| 1   | Plugin RCE         | `import()` executed module code before user approval        | Approval gate checks before dynamic import             |
+| 2   | SSRF               | Resumable upload accepted arbitrary session URIs            | Session URI origin validated against upload host       |
+| 3   | Path traversal     | Symlinks in `--notes-dir` could escape the intended tree    | `lstat()` rejects symlinks before file reads           |
+| 4   | Info disclosure    | `gpc config set` echoed sensitive values                    | Values suppressed from output after write              |
+| 5   | Info disclosure    | `gpc doctor` included proxy credentials in diagnostics      | Proxy userinfo stripped before display                 |
+| 6   | Supply chain       | `install-skills` passed full environment to child process   | Allowlisted env vars for child process execution       |
+| 7   | Logic flaw         | Vitals gate checked thresholds after rollout increase       | Threshold check enforced before rollout increase       |
+| 8   | `--dry-run` bypass | Image upload and delete ignored `--dry-run`                 | `--dry-run` respected for all image operations         |
+| 9   | Injection          | API path parameters not encoded                             | `encodeURIComponent` applied to all path parameters    |
+| 10  | Info disclosure    | Purchase tokens visible in RTDN notification output         | Tokens redacted in all notification output             |
+| 11  | Info disclosure    | Sensitive path segments leaked in HTTP error messages       | Path segments sanitized before error message emission  |
+| 12  | Info disclosure    | Full `argv` included in webhook payloads                    | Sensitive flags filtered from argv before webhook send |
+| 13  | Formula injection  | Review CSV export vulnerable to spreadsheet formula attacks | Leading `=`, `+`, `-`, `@` characters sanitized        |
+| 14  | Prompt injection   | AI changelog prompt injectable via commit messages          | Commit messages isolated from prompt instructions      |
+| 15  | Race condition     | Rate limiter lacked per-bucket mutex for concurrent waiters | Per-bucket mutex added to fix concurrent waiter race   |
+| 16  | Least privilege    | CI template scoped secrets at job level                     | Secrets scoped to upload step only                     |
 
 deepsec is run on every PR as of v0.9.74. See the [Automated Security](#automated-security) table above.
 

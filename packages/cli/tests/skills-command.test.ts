@@ -22,9 +22,7 @@ describe("discoverInstalledSkills", () => {
       .mockResolvedValueOnce(
         "---\nname: gpc-release-flow\nmetadata:\n  version: 1.5.0\n---\nContent",
       )
-      .mockResolvedValueOnce(
-        "---\nname: gpc-setup\nmetadata:\n  version: 1.4.0\n---\nContent",
-      );
+      .mockResolvedValueOnce("---\nname: gpc-setup\nmetadata:\n  version: 1.4.0\n---\nContent");
 
     const skills = await discoverInstalledSkills("/fake/skills");
     expect(skills).toHaveLength(2);
@@ -50,15 +48,12 @@ describe("discoverInstalledSkills", () => {
   });
 
   it("skips skills with unreadable SKILL.md", async () => {
-    vi.spyOn(fsp, "readdir").mockResolvedValueOnce([
-      "gpc-broken",
-      "gpc-good",
-    ] as unknown as Awaited<ReturnType<typeof fsp.readdir>>);
+    vi.spyOn(fsp, "readdir").mockResolvedValueOnce(["gpc-broken", "gpc-good"] as unknown as Awaited<
+      ReturnType<typeof fsp.readdir>
+    >);
     vi.spyOn(fsp, "readFile")
       .mockRejectedValueOnce(new Error("ENOENT"))
-      .mockResolvedValueOnce(
-        "---\nname: gpc-good\nmetadata:\n  version: 1.0.0\n---\n",
-      );
+      .mockResolvedValueOnce("---\nname: gpc-good\nmetadata:\n  version: 1.0.0\n---\n");
 
     const skills = await discoverInstalledSkills("/fake/skills");
     expect(skills).toHaveLength(1);
@@ -66,12 +61,10 @@ describe("discoverInstalledSkills", () => {
   });
 
   it("handles missing version in frontmatter", async () => {
-    vi.spyOn(fsp, "readdir").mockResolvedValueOnce([
-      "gpc-no-version",
-    ] as unknown as Awaited<ReturnType<typeof fsp.readdir>>);
-    vi.spyOn(fsp, "readFile").mockResolvedValueOnce(
-      "---\nname: gpc-no-version\n---\nContent",
-    );
+    vi.spyOn(fsp, "readdir").mockResolvedValueOnce(["gpc-no-version"] as unknown as Awaited<
+      ReturnType<typeof fsp.readdir>
+    >);
+    vi.spyOn(fsp, "readFile").mockResolvedValueOnce("---\nname: gpc-no-version\n---\nContent");
 
     const skills = await discoverInstalledSkills("/fake/skills");
     expect(skills).toHaveLength(1);
@@ -115,9 +108,7 @@ describe("fetchLatestPackVersion", () => {
   });
 
   it("returns null on network error", async () => {
-    globalThis.fetch = vi.fn().mockRejectedValue(
-      new Error("network"),
-    ) as unknown as typeof fetch;
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error("network")) as unknown as typeof fetch;
     const version = await fetchLatestPackVersion();
     expect(version).toBeNull();
   });
