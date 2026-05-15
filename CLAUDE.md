@@ -60,7 +60,7 @@ e2e/               → End-to-end tests
 
 ## Testing
 
-- Vitest for all tests (2,269 total across 7 packages + e2e)
+- Vitest for all tests (2,281 total across 7 packages + e2e)
 - Tests in `tests/` directory per package
 - Mock external APIs — never call real Google APIs in tests
 - Mock fetch with `vi.stubGlobal("fetch", mockFn)` for API tests
