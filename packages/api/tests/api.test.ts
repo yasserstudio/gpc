@@ -1474,15 +1474,18 @@ describe("dataSafety API endpoints", () => {
     return createApiClient({ auth: mockAuth(), maxRetries: 0 });
   }
 
-  it("dataSafety.update calls POST /{pkg}/dataSafety", async () => {
-    const safety = { dataTypes: ["location"], purposes: ["app_functionality"] };
-    mockFetch.mockResolvedValueOnce(mockResponse(safety));
+  it("dataSafety.update calls POST /{pkg}/dataSafety with safetyLabels CSV", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
     const client = makeClient();
-    const result = await client.dataSafety.update(PKG, safety as any);
-    expect(result).toEqual(safety);
+    const result = await client.dataSafety.update(PKG, {
+      safetyLabels: "Question ID,Response,Response value\nPSL_DATA_TYPES_PERSONAL,PSL_NAME,TRUE",
+    });
+    expect(result).toEqual({});
     const [url, init] = mockFetch.mock.calls[0];
     expect(url).toBe(`${BASE_URL}/${PKG}/dataSafety`);
     expect(init.method).toBe("POST");
+    const body = JSON.parse(init.body);
+    expect(body.safetyLabels).toContain("PSL_DATA_TYPES_PERSONAL");
   });
 });
 

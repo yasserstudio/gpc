@@ -916,29 +916,11 @@ export interface ExternalTransactionRefund {
 
 // --- Data Safety ---
 
-export interface DataSafety {
-  dataTypes?: DataSafetyDataType[];
-  purposes?: DataSafetyPurpose[];
-  securityPractices?: {
-    dataEncryptedInTransit?: boolean;
-    dataDeleteable?: boolean;
-    independentSecurityReview?: boolean;
-  };
+export interface DataSafetyRequest {
+  safetyLabels: string;
 }
 
-export interface DataSafetyDataType {
-  dataType?: string;
-  dataCategory?: string;
-  collected?: boolean;
-  shared?: boolean;
-  ephemeral?: boolean;
-  required?: boolean;
-  purposes?: string[];
-}
-
-export interface DataSafetyPurpose {
-  purpose?: string;
-}
+export type DataSafetyResponse = Record<string, never>;
 
 // --- Testers ---
 

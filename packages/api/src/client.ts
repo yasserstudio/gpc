@@ -31,7 +31,8 @@ import type {
   ConvertRegionPricesRequest,
   ConvertRegionPricesResponse,
   CountryAvailability,
-  DataSafety,
+  DataSafetyRequest,
+  DataSafetyResponse,
   DeobfuscationFile,
   DeobfuscationFileType,
   DeobfuscationUploadResponse,
@@ -237,7 +238,7 @@ export interface PlayApiClient {
   };
 
   dataSafety: {
-    update(packageName: string, data: DataSafety): Promise<DataSafety>;
+    update(packageName: string, data: DataSafetyRequest): Promise<DataSafetyResponse>;
   };
 
   reviews: {
@@ -1097,7 +1098,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
     dataSafety: {
       async update(packageName, body) {
-        const { data } = await http.post<DataSafety>(`/${p(packageName)}/dataSafety`, body);
+        const { data } = await http.post<DataSafetyResponse>(
+          `/${p(packageName)}/dataSafety`,
+          body,
+        );
         return data;
       },
     },

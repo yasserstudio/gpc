@@ -4694,52 +4694,38 @@ describe("diffListings – edge cases", () => {
 import { updateDataSafety, importDataSafety } from "../src/commands/data-safety.js";
 
 describe("data-safety commands", () => {
-  const sampleDataSafety = {
-    dataTypes: [
-      {
-        dataType: "location",
-        dataCategory: "Location",
-        collected: true,
-        shared: false,
-        ephemeral: false,
-        required: true,
-        purposes: ["App functionality"],
-      },
-    ],
-    purposes: [{ purpose: "App functionality" }],
-    securityPractices: {
-      dataEncryptedInTransit: true,
-      dataDeleteable: true,
-      independentSecurityReview: false,
-    },
-  };
+  const sampleCsv =
+    "Question ID,Response,Response value\nPSL_DATA_TYPES_PERSONAL,PSL_NAME,TRUE\n";
+  const sampleRequest = { safetyLabels: sampleCsv };
 
   function mockClient(): any {
     return {
       dataSafety: {
-        update: vi.fn().mockResolvedValue(sampleDataSafety),
+        update: vi.fn().mockResolvedValue({}),
       },
     };
   }
 
   it("updateDataSafety calls dataSafety.update directly without edits", async () => {
     const client = mockClient();
-    const result = await updateDataSafety(client, "com.example", sampleDataSafety);
-    expect(client.dataSafety.update).toHaveBeenCalledWith("com.example", sampleDataSafety);
-    expect(result).toEqual(sampleDataSafety);
+    const result = await updateDataSafety(client, "com.example", sampleRequest);
+    expect(client.dataSafety.update).toHaveBeenCalledWith("com.example", sampleRequest);
+    expect(result).toEqual({});
   });
 
-  it("importDataSafety reads JSON from file and updates", async () => {
+  it("importDataSafety reads CSV from file and wraps in safetyLabels", async () => {
     const client = mockClient();
     const tmpDir = await mkdtemp(join(tmpdir(), "gpc-ds-"));
-    const filePath = join(tmpDir, "data-safety.json");
+    const filePath = join(tmpDir, "data-safety.csv");
 
     const { writeFile } = await import("node:fs/promises");
-    await writeFile(filePath, JSON.stringify(sampleDataSafety), "utf-8");
+    await writeFile(filePath, sampleCsv, "utf-8");
 
     const result = await importDataSafety(client, "com.example", filePath);
-    expect(client.dataSafety.update).toHaveBeenCalledWith("com.example", sampleDataSafety);
-    expect(result).toEqual(sampleDataSafety);
+    expect(client.dataSafety.update).toHaveBeenCalledWith("com.example", {
+      safetyLabels: sampleCsv,
+    });
+    expect(result).toEqual({});
 
     await rm(tmpDir, { recursive: true });
   });
@@ -4747,24 +4733,9 @@ describe("data-safety commands", () => {
   it("updateDataSafety propagates errors", async () => {
     const client = mockClient();
     client.dataSafety.update.mockRejectedValue(new Error("API error"));
-    await expect(updateDataSafety(client, "com.example", sampleDataSafety)).rejects.toThrow(
+    await expect(updateDataSafety(client, "com.example", sampleRequest)).rejects.toThrow(
       "API error",
     );
-  });
-
-  it("importDataSafety throws on invalid JSON", async () => {
-    const client = mockClient();
-    const tmpDir = await mkdtemp(join(tmpdir(), "gpc-ds-"));
-    const filePath = join(tmpDir, "bad.json");
-
-    const { writeFile } = await import("node:fs/promises");
-    await writeFile(filePath, "not valid json{{{", "utf-8");
-
-    await expect(importDataSafety(client, "com.example", filePath)).rejects.toThrow(
-      "Failed to parse data safety JSON",
-    );
-
-    await rm(tmpDir, { recursive: true });
   });
 });
 

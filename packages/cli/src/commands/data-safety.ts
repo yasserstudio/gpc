@@ -9,7 +9,6 @@ import { getOutputFormat } from "../format.js";
 export function registerDataSafetyCommands(program: Command): void {
   const dataSafety = program.command("data-safety").description("Manage data safety declarations");
 
-  // Get — not supported by Google Play API (no GET endpoint for data safety)
   dataSafety
     .command("get")
     .description("Get the current data safety declaration")
@@ -29,11 +28,10 @@ export function registerDataSafetyCommands(program: Command): void {
       throw err;
     });
 
-  // Update
   dataSafety
     .command("update")
-    .description("Update data safety declaration from a JSON file")
-    .requiredOption("--file <path>", "Path to data safety JSON file")
+    .description("Update data safety declaration from a CSV file")
+    .requiredOption("--file <path>", "Path to data safety CSV file (Play Console export format)")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -58,11 +56,10 @@ export function registerDataSafetyCommands(program: Command): void {
       console.log(formatOutput(result, format));
     });
 
-  // Export — not supported (no GET endpoint)
   dataSafety
     .command("export")
-    .description("Export data safety declaration to a JSON file")
-    .option("--output <path>", "Output file path", "data-safety.json")
+    .description("Export data safety declaration to a file")
+    .option("--output <path>", "Output file path", "data-safety.csv")
     .action(async () => {
       const err = new Error(
         "The Google Play Developer API does not provide a GET endpoint for data safety declarations.\n" +
