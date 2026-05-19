@@ -51,7 +51,7 @@ features:
     <span class="stat-label">API Endpoints</span>
   </div>
   <div class="stat-item">
-    <span class="stat-number">2,281</span>
+    <span class="stat-number">2,310</span>
     <span class="stat-label">Tests</span>
   </div>
   <div class="stat-item">
@@ -130,28 +130,24 @@ gpc changelog generate --target play-store --locales auto --ai
 
 <div class="release-card release-latest">
 <div class="release-badge">Latest</div>
-<h3 class="release-version">v0.9.74 — Security Hardening</h3>
-<p>16 security findings from a deepsec audit resolved: plugin RCE prevention, SSRF protection on resumable uploads, symlink traversal fix, proxy credential redaction, formula injection sanitization, and more. <code>--dry-run</code> now applies to image operations.</p>
+<h3 class="release-version">v0.9.75 — Data Safety Fix</h3>
+<p><code>gpc data-safety update</code> now sends the correct CSV format to the Google Play API. Added input validation for missing, empty, or oversized files. Docs rewritten to match real API contract.</p>
 
 ```bash
-# dry-run now covers image upload and delete
-gpc listings images upload ./screenshot.png \
-  --lang en-US --type phoneScreenshots --dry-run
-
-# proxy credentials are stripped from diagnostic output
-gpc doctor
+# Export CSV from Play Console, then push via CLI
+gpc data-safety update --file data-safety.csv
 ```
 
 <div class="release-links">
-<a href="/advanced/security">Security docs →</a>
+<a href="/commands/data-safety">Data safety docs →</a>
 <a href="/reference/changelog">Full changelog →</a>
 </div>
 </div>
 
 <div class="releases-prev">
+<div class="release-mini"><strong>v0.9.74</strong> Security hardening: 16 deepsec findings resolved (plugin RCE, SSRF, path traversal, token redaction, and more).</div>
 <div class="release-mini"><strong>v0.9.73</strong> <code>gpc skills check</code>, <code>gpc doctor</code> Android CLI detection, <code>--changelog-ai</code> on upload.</div>
 <div class="release-mini"><strong>v0.9.72</strong> API compliance patch: errorReports endpoint fix, subscription deprecation notices, RTDN types.</div>
-<div class="release-mini"><strong>v0.9.71</strong> <code>gpc doctor</code> quota proximity check and plugin health validation.</div>
 </div>
 
 <p class="release-all-link"><a href="/reference/changelog">View all releases →</a></p>

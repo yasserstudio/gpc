@@ -7,6 +7,16 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.75
+
+Data safety API fix and input validation.
+
+- fix(api): `gpc data-safety update` now sends the correct CSV format (`safetyLabels` field) instead of structured JSON
+- fix(core): reject missing, empty, or oversized (>1 MB) data safety CSV files with actionable error messages
+- docs: data-safety command page rewritten to match real API contract and limitations
+
+---
+
 ## v0.9.74
 
 Security hardening release. 16 findings from a deepsec audit addressed across plugin loading, upload, config, CI, and API path handling.

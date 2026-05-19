@@ -11,7 +11,21 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.74 <Badge type="tip" text="latest" />
+## v0.9.75 <Badge type="tip" text="latest" />
+
+Data safety API fix and input validation.
+
+- fix(api): `gpc data-safety update` now sends the correct CSV format (`safetyLabels` field) instead of structured JSON that the API silently rejected
+- fix(core): reject missing, empty, or oversized (>1 MB) data safety CSV files with clear error messages
+- docs: data-safety command page rewritten to reflect real API contract and limitations
+
+**Tests:** 2,310 (+1 net).
+
+**Endpoint count:** unchanged at 217.
+
+---
+
+## v0.9.74
 
 Security hardening release based on a deepsec audit (16 findings resolved).
 

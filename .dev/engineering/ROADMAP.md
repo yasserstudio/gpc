@@ -59,6 +59,7 @@ The remaining items before the stable `1.0.0` release:
 - [x] **v0.9.72 — API Compliance Patch** (shipped 2026-05-08). errorReports:search endpoint path fix, v1 subscription deprecation notices, missing RTDN notification types, API coverage map update, homepage redesign. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.72
 - [x] **v0.9.73 — Skills check, Android CLI detection, upload --changelog-ai** (shipped 2026-05-11). `gpc skills check` scans installed agent skills and checks for updates. `gpc doctor` detects Google's Android CLI (check #24). `--changelog-ai --locales <csv|auto>` on `gpc releases upload` generates AI-translated release notes inline during upload. Docs: sidebar restructured (Guide 4 groups, Commands System 3 subgroups), 3 new pages (recipes, staged rollout strategy, rate limits reference), FAQPage schema on troubleshooting, clickable coverage grid, glossary cross-links. SEO: all 7 package.json files with homepage + keywords, WebSite JSON-LD, og/twitter meta. 2,281 tests.
 - [x] **v0.9.74 — Security Hardening** (shipped 2026-05-15). Full deepsec (Vercel Labs AI security scanner) audit of 74 files. 54 findings triaged: 16 real issues fixed, remainder false positives or by-design behaviors. Fixes: plugin RCE (approve before import), resumable upload SSRF, symlink traversal via --notes-dir, config set secret echo, proxy credential leakage in doctor output, skills installer env scrubbing, vitals gate ordering (check before rollout increase), image upload/delete dry-run bypass, central API path encoding (encodeURIComponent on all path params), RTDN purchase token redaction, HTTP error path sanitization, webhook argv filtering, CSV formula injection in review export, AI changelog prompt injection hardening, rate limiter per-bucket mutex. CI: deepsec scanning added to ci.yml (PR-only), `pnpm.onlyBuiltDependencies: []` supply chain lockdown, `ignore-scripts=true` in .npmrc and all 6 CI workflows, Socket CLI pinned (was @latest), lockfile integrity hash in CI, provenance verification post-publish. CVEs patched: protobufjs HIGH (code injection), vite HIGH x2 (server.fs.deny bypass, WebSocket arbitrary file read). 2,309 tests. Audit document: `.dev/engineering/SECURITY_AUDIT_2026-05-15.md`.
+- [x] **v0.9.75 — Data safety CSV fix + input validation + docs rewrite** (shipped 2026-05-19). fix(api): data safety update sends correct CSV format (was broken JSON), input validation (empty/oversized file guards), docs rewrite. 2,310 tests.
 - [ ] Wall of Apps community showcase
 - [ ] Public marketing push (Dev.to retrospective, Android Weekly)
 - [ ] Stability soak period -- no critical bugs for 2+ weeks in production usage (soak started 2026-04-22, earliest 1.0: 2026-05-06)
@@ -2357,10 +2358,10 @@ Entirely separate APIs beyond the Publisher suite:
 
 ---
 
-## Current Status (v0.9.74)
+## Current Status (v0.9.75)
 
-- **Version:** `v0.9.74` (latest, shipped 2026-05-15)
-- **Tests:** 2,309 across 7 packages + e2e
+- **Version:** `v0.9.75` (latest, shipped 2026-05-19)
+- **Tests:** 2,310 across 7 packages + e2e
 - **Coverage:** 90%+ line coverage on all core packages
 - **API endpoints:** 217 (Publisher v3 + Reporting v1beta1 + Custom App Publishing v1)
 - **Packages:** 7 published under `@gpc-cli` scope on npm
