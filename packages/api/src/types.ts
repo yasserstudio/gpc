@@ -1208,7 +1208,6 @@ export interface ReleaseSummary {
 
 export interface ReleasesListResponse {
   releases: ReleaseSummary[];
-  nextPageToken?: string;
 }
 
 // --- Subscription Batch Operations ---
