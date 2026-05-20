@@ -353,8 +353,8 @@ export function registerSubscriptionsCommands(program: Command): void {
         const client = await getClient(config);
 
         const data = await readJsonFile(options.file);
-        const result = await migratePrices(client, packageName, productId, basePlanId, data as any);
-        console.log(formatOutput(result, format));
+        await migratePrices(client, packageName, productId, basePlanId, data as any);
+        console.log(formatOutput({ success: true }, format));
       },
     );
 

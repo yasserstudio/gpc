@@ -30,6 +30,12 @@ Google I/O 2026 response: API parity, docs alignment, blog launch.
 - fix(api): align v2 cancel with real contract (`cancellationContext` wrapper with `CancellationType` enum)
 - fix(api): align v2 revoke with real contract (`revocationContext` required, supports full/prorated/item-based refund)
 - feat(cli): `gpc purchases subscription revoke` now supports `--refund-type` (full, prorated, item) and `--product-id`
+- fix(api): full API contract audit -- 50+ type/client fixes against Google's official reference docs:
+  - Critical: `orders.batchGet` (GET not POST), `orders.refund` (empty body, revoke query param), `generatedapks.download` (correct URL), `InAppProduct.defaultPrice` (Price type), `apprecovery.addTargeting` (targetingUpdate wrapper)
+  - High: Subscription/OneTimeProduct listings (array not Record), Order/OrderLineItem rewrite, BasePlan fields, DeviceTierConfig shape, ExternalTransaction fields, UserComment.deviceMetadata
+  - Medium: ProductPurchase/SubscriptionPurchase v1 missing fields, pagination support, latencyTolerance on activate/deactivate, externaltransactions.create query param
+- fix(cli): `gpc purchases orders refund` now uses `--revoke` flag (removed non-existent `--full-refund`/`--prorated-refund`)
+- fix(cli): `gpc external-transactions create` now requires `--transaction-id`
 
 **Tests:** 2,313 (+3 net).
 

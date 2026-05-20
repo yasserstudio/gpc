@@ -81,8 +81,8 @@ import type {
   OneTimeOffer,
   OneTimeOffersListResponse,
   InternalAppSharingArtifact,
-  GeneratedApk,
-  GeneratedApksPerVersion,
+  GeneratedApksPerSigningKey,
+  GeneratedApksListResponse,
   SystemApkVariant,
   InAppProductsBatchUpdateRequest,
   InAppProductsBatchUpdateResponse,
@@ -100,6 +100,7 @@ import type {
   SubscriptionsBatchGetResponse,
   SubscriptionsBatchUpdateRequest,
   SubscriptionsBatchUpdateResponse,
+  ProductUpdateLatencyTolerance,
 } from "./types.js";
 
 export interface PlayApiClient {
@@ -131,7 +132,12 @@ export interface PlayApiClient {
   tracks: {
     list(packageName: string, editId: string): Promise<Track[]>;
     get(packageName: string, editId: string, track: string): Promise<Track>;
-    create(packageName: string, editId: string, trackName: string): Promise<Track>;
+    create(
+      packageName: string,
+      editId: string,
+      trackName: string,
+      options?: { type?: string; formFactor?: string },
+    ): Promise<Track>;
     update(packageName: string, editId: string, track: string, release: Release): Promise<Track>;
     patch(packageName: string, editId: string, track: string, release: Release): Promise<Track>;
   };
@@ -277,11 +283,13 @@ export interface PlayApiClient {
       packageName: string,
       productId: string,
       basePlanId: string,
+      options?: { latencyTolerance?: ProductUpdateLatencyTolerance },
     ): Promise<Subscription>;
     deactivateBasePlan(
       packageName: string,
       productId: string,
       basePlanId: string,
+      options?: { latencyTolerance?: ProductUpdateLatencyTolerance },
     ): Promise<Subscription>;
     deleteBasePlan(packageName: string, productId: string, basePlanId: string): Promise<void>;
     migratePrices(
@@ -289,7 +297,7 @@ export interface PlayApiClient {
       productId: string,
       basePlanId: string,
       body: BasePlanMigratePricesRequest,
-    ): Promise<Subscription>;
+    ): Promise<void>;
     batchMigratePrices(
       packageName: string,
       productId: string,
@@ -299,6 +307,7 @@ export interface PlayApiClient {
       packageName: string,
       productId: string,
       basePlanId: string,
+      options?: { pageSize?: number; pageToken?: string },
     ): Promise<OffersListResponse>;
     getOffer(
       packageName: string,
@@ -335,12 +344,14 @@ export interface PlayApiClient {
       productId: string,
       basePlanId: string,
       offerId: string,
+      options?: { latencyTolerance?: ProductUpdateLatencyTolerance },
     ): Promise<SubscriptionOffer>;
     deactivateOffer(
       packageName: string,
       productId: string,
       basePlanId: string,
       offerId: string,
+      options?: { latencyTolerance?: ProductUpdateLatencyTolerance },
     ): Promise<SubscriptionOffer>;
     batchUpdateBasePlanStates(
       packageName: string,
@@ -482,7 +493,7 @@ export interface PlayApiClient {
     refund(
       packageName: string,
       orderId: string,
-      body?: { fullRefund?: boolean; proratedRefund?: boolean; revoke?: boolean },
+      options?: { revoke?: boolean },
     ): Promise<void>;
   };
 
@@ -539,7 +550,7 @@ export interface PlayApiClient {
   };
 
   externalTransactions: {
-    create(packageName: string, data: ExternalTransaction): Promise<ExternalTransaction>;
+    create(packageName: string, data: ExternalTransaction, externalTransactionId: string): Promise<ExternalTransaction>;
     get(packageName: string, transactionId: string): Promise<ExternalTransaction>;
     refund(
       packageName: string,
@@ -726,8 +737,8 @@ export interface PlayApiClient {
   };
 
   generatedApks: {
-    list(packageName: string, versionCode: number): Promise<GeneratedApk[]>;
-    download(packageName: string, versionCode: number, id: string): Promise<ArrayBuffer>;
+    list(packageName: string, versionCode: number): Promise<GeneratedApksPerSigningKey[]>;
+    download(packageName: string, versionCode: number, downloadId: string): Promise<ArrayBuffer>;
   };
 
   systemApks: {
@@ -891,9 +902,11 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async create(packageName, editId, trackName) {
+      async create(packageName, editId, trackName, options?) {
         const { data } = await http.post<Track>(`/${p(packageName)}/edits/${p(editId)}/tracks`, {
           track: trackName,
+          ...(options?.type && { type: options.type }),
+          ...(options?.formFactor && { formFactor: options.formFactor }),
         });
         return data;
       },
@@ -1198,16 +1211,18 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async activateBasePlan(packageName, productId, basePlanId) {
+      async activateBasePlan(packageName, productId, basePlanId, options?) {
         const { data } = await http.post<Subscription>(
           `/${p(packageName)}/subscriptions/${p(productId)}/basePlans/${p(basePlanId)}:activate`,
+          options?.latencyTolerance ? { latencyTolerance: options.latencyTolerance } : undefined,
         );
         return data;
       },
 
-      async deactivateBasePlan(packageName, productId, basePlanId) {
+      async deactivateBasePlan(packageName, productId, basePlanId, options?) {
         const { data } = await http.post<Subscription>(
           `/${p(packageName)}/subscriptions/${p(productId)}/basePlans/${p(basePlanId)}:deactivate`,
+          options?.latencyTolerance ? { latencyTolerance: options.latencyTolerance } : undefined,
         );
         return data;
       },
@@ -1219,11 +1234,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async migratePrices(packageName, productId, basePlanId, body) {
-        const { data } = await http.post<Subscription>(
+        await http.post(
           `/${p(packageName)}/subscriptions/${p(productId)}/basePlans/${p(basePlanId)}:migratePrices`,
           body,
         );
-        return data;
       },
 
       async batchMigratePrices(packageName, productId, body) {
@@ -1234,9 +1248,13 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async listOffers(packageName, productId, basePlanId) {
+      async listOffers(packageName, productId, basePlanId, options?) {
+        const params: Record<string, string> = {};
+        if (options?.pageSize) params["pageSize"] = String(options.pageSize);
+        if (options?.pageToken) params["pageToken"] = options.pageToken;
         const { data } = await http.get<OffersListResponse>(
           `/${p(packageName)}/subscriptions/${p(productId)}/basePlans/${p(basePlanId)}/offers`,
+          Object.keys(params).length > 0 ? params : undefined,
         );
         return data;
       },
@@ -1282,16 +1300,18 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         );
       },
 
-      async activateOffer(packageName, productId, basePlanId, offerId) {
+      async activateOffer(packageName, productId, basePlanId, offerId, options?) {
         const { data } = await http.post<SubscriptionOffer>(
           `/${p(packageName)}/subscriptions/${p(productId)}/basePlans/${p(basePlanId)}/offers/${p(offerId)}:activate`,
+          options?.latencyTolerance ? { latencyTolerance: options.latencyTolerance } : undefined,
         );
         return data;
       },
 
-      async deactivateOffer(packageName, productId, basePlanId, offerId) {
+      async deactivateOffer(packageName, productId, basePlanId, offerId, options?) {
         const { data } = await http.post<SubscriptionOffer>(
           `/${p(packageName)}/subscriptions/${p(productId)}/basePlans/${p(basePlanId)}/offers/${p(offerId)}:deactivate`,
+          options?.latencyTolerance ? { latencyTolerance: options.latencyTolerance } : undefined,
         );
         return data;
       },
@@ -1396,13 +1416,11 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async batchGet(packageName, skus) {
-        const params: Record<string, string> = {};
-        if (skus.length > 0) {
-          params["sku"] = skus.join(",");
-        }
+        const params = new URLSearchParams();
+        for (const sku of skus) params.append("packageName.sku", sku);
+        const qs = params.toString();
         const { data } = await http.get<{ inappproduct: InAppProduct[] }>(
-          `/${p(packageName)}/inappproducts:batchGet`,
-          Object.keys(params).length > 0 ? params : undefined,
+          `/${p(packageName)}/inappproducts:batchGet${qs ? `?${qs}` : ""}`,
         );
         return data.inappproduct || [];
       },
@@ -1536,15 +1554,20 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async batchGet(packageName, orderIds) {
-        const { data } = await http.post<BatchGetOrdersResponse>(
-          `/${p(packageName)}/orders:batchGet`,
-          { orderIds },
+        const params = new URLSearchParams();
+        for (const id of orderIds) params.append("orderIds", id);
+        const { data } = await http.get<BatchGetOrdersResponse>(
+          `/${p(packageName)}/orders:batchGet?${params}`,
         );
         return data.orders || [];
       },
 
-      async refund(packageName, orderId, body?) {
-        await http.post(`/${p(packageName)}/orders/${p(orderId)}:refund`, body);
+      async refund(packageName, orderId, options?) {
+        const params: Record<string, string> = {};
+        if (options?.revoke) params["revoke"] = "true";
+        await http.post(
+          `/${p(packageName)}/orders/${p(orderId)}:refund${Object.keys(params).length ? "?" + new URLSearchParams(params) : ""}`,
+        );
       },
     },
 
@@ -1597,7 +1620,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async upload(packageName, editId, versionCode, filePath, fileType?) {
         const deobType = fileType || "proguard";
         const { data } = await http.upload<DeobfuscationUploadResponse>(
-          `/${p(packageName)}/edits/${p(editId)}/apks/${p(String(versionCode))}/deobfuscationFiles/${deobType}`,
+          `/${p(packageName)}/edits/${p(editId)}/apks/${p(String(versionCode))}/deobfuscationFiles/${p(deobType)}`,
           filePath,
           "application/octet-stream",
         );
@@ -1644,16 +1667,16 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async addTargeting(packageName, appRecoveryId, targeting) {
         const { data } = await http.post<AppRecoveryAction>(
           `/${p(packageName)}/appRecoveries/${p(appRecoveryId)}:addTargeting`,
-          targeting,
+          { targetingUpdate: targeting },
         );
         return data;
       },
     },
 
     externalTransactions: {
-      async create(packageName, body) {
+      async create(packageName, body, externalTransactionId) {
         const { data } = await http.post<ExternalTransaction>(
-          `/${p(packageName)}/externalTransactions`,
+          `/${p(packageName)}/externalTransactions?externalTransactionId=${encodeURIComponent(externalTransactionId)}`,
           body,
         );
         return data;
@@ -1915,15 +1938,15 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
     generatedApks: {
       async list(packageName, versionCode) {
-        const { data } = await http.get<GeneratedApksPerVersion>(
+        const { data } = await http.get<GeneratedApksListResponse>(
           `/${p(packageName)}/generatedApks/${p(String(versionCode))}`,
         );
         return data.generatedApks || [];
       },
 
-      async download(packageName, versionCode, id) {
+      async download(packageName, versionCode, downloadId) {
         return http.download(
-          `/${p(packageName)}/generatedApks/${p(String(versionCode))}/download/${p(id)}`,
+          `/${p(packageName)}/generatedApks/${p(String(versionCode))}/downloads/${p(downloadId)}:download`,
         );
       },
     },

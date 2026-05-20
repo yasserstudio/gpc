@@ -1206,16 +1206,15 @@ describe("monetization API endpoints", () => {
       expect(order.state).toBe("PROCESSED");
     });
 
-    it("batchGet calls POST /{pkg}/orders:batchGet", async () => {
+    it("batchGet calls GET /{pkg}/orders:batchGet with repeated orderIds params", async () => {
       mockFetch.mockResolvedValueOnce(
         mockResponse({ orders: [{ orderId: "GPA.1" }, { orderId: "GPA.2" }] }),
       );
       const client = makeClient();
       const orders = await client.orders.batchGet(PKG, ["GPA.1", "GPA.2"]);
       const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toBe(`${BASE_URL}/${PKG}/orders:batchGet`);
-      expect(init.method).toBe("POST");
-      expect(JSON.parse(init.body)).toEqual({ orderIds: ["GPA.1", "GPA.2"] });
+      expect(url).toBe(`${BASE_URL}/${PKG}/orders:batchGet?orderIds=GPA.1&orderIds=GPA.2`);
+      expect(init.method).toBe("GET");
       expect(orders).toHaveLength(2);
     });
 
@@ -1554,14 +1553,14 @@ describe("externalTransactions API endpoints", () => {
     return createApiClient({ auth: mockAuth(), maxRetries: 0 });
   }
 
-  it("externalTransactions.create calls POST /{pkg}/externalTransactions", async () => {
+  it("externalTransactions.create calls POST /{pkg}/externalTransactions with externalTransactionId query param", async () => {
     const txn = { externalTransactionId: "txn1", originalPreTaxAmount: {} };
     mockFetch.mockResolvedValueOnce(mockResponse(txn));
     const client = makeClient();
-    const result = await client.externalTransactions.create(PKG, txn as any);
+    const result = await client.externalTransactions.create(PKG, txn as any, "txn1");
     expect(result).toEqual(txn);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/externalTransactions`);
+    expect(url).toBe(`${BASE_URL}/${PKG}/externalTransactions?externalTransactionId=txn1`);
     expect(init.method).toBe("POST");
   });
 
@@ -2024,7 +2023,7 @@ describe("client coverage gaps", () => {
     const [url, init] = mockFetch.mock.calls[0];
     expect(url).toBe(`${BASE_URL}/${PKG}/appRecoveries/rec1:addTargeting`);
     expect(init.method).toBe("POST");
-    expect(JSON.parse(init.body)).toEqual(targeting);
+    expect(JSON.parse(init.body)).toEqual({ targetingUpdate: targeting });
   });
 });
 
@@ -2656,7 +2655,7 @@ describe("generatedApks", () => {
     expect(result).toEqual([]);
   });
 
-  it("download calls GET /{pkg}/generatedApks/{versionCode}/download/{id}", async () => {
+  it("download calls GET /{pkg}/generatedApks/{versionCode}/downloads/{downloadId}:download", async () => {
     const buffer = new ArrayBuffer(512);
     mockFetch.mockResolvedValueOnce(
       new Response(buffer, {
@@ -2668,7 +2667,7 @@ describe("generatedApks", () => {
     const result = await client.generatedApks.download(PKG, 42, "apk-1");
     expect(result).toBeInstanceOf(ArrayBuffer);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/generatedApks/42/download/apk-1`);
+    expect(url).toBe(`${BASE_URL}/${PKG}/generatedApks/42/downloads/apk-1:download`);
     expect(init.method).toBe("GET");
   });
 });

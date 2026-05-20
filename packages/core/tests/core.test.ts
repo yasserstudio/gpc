@@ -3771,14 +3771,13 @@ describe("subscriptions commands – additional coverage", () => {
   it("migratePrices calls client.subscriptions.migratePrices", async () => {
     const client = subMockClient();
     const data = { regionalPriceMigrations: [] } as any;
-    const result = await migratePrices(client, "com.example", "sub1", "bp1", data);
+    await migratePrices(client, "com.example", "sub1", "bp1", data);
     expect(client.subscriptions.migratePrices).toHaveBeenCalledWith(
       "com.example",
       "sub1",
       "bp1",
       data,
     );
-    expect(result.productId).toBe("sub1");
   });
 });
 
@@ -4818,8 +4817,8 @@ describe("external transactions commands", () => {
       originalTaxAmount: { priceMicros: "0", currency: "USD" },
       oneTimeTransaction: { externalTransactionToken: "tok-abc" },
     };
-    const result = await createExternalTransaction(client, "com.example", txnData);
-    expect(client.externalTransactions.create).toHaveBeenCalledWith("com.example", txnData);
+    const result = await createExternalTransaction(client, "com.example", txnData, "ext-txn-1");
+    expect(client.externalTransactions.create).toHaveBeenCalledWith("com.example", txnData, "ext-txn-1");
     expect(result.externalTransactionId).toBe("ext-txn-1");
     expect(result.transactionState).toBe("TRANSACTION_STATE_COMPLETED");
   });

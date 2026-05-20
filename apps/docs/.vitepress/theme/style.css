@@ -571,7 +571,7 @@ html {
   font-size: 1.05em;
 }
 
-.VPHero .actions a[href="/guide/"]::before {
+.VPHero .actions a[href="/guide/quick-start"]::before {
   content: "→";
 }
 
@@ -580,47 +580,6 @@ html {
   font-size: 0.9em;
 }
 
-.VPHero .actions a[href*="github.com"]::before {
-  content: "";
-  width: 16px;
-  height: 16px;
-  background: currentColor;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z'/%3E%3C/svg%3E")
-    no-repeat center;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836a9.59 9.59 0 012.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z'/%3E%3C/svg%3E")
-    no-repeat center;
-}
-
-/* GitHub button — always black with white icon */
-.VPHero .actions a[href*="github.com"] {
-  background: #24292f !important;
-  border-color: #24292f !important;
-  color: #fff !important;
-}
-
-.VPHero .actions a[href*="github.com"]:hover {
-  background: #1b1f23 !important;
-  border-color: #1b1f23 !important;
-}
-
-.VPHero .actions a[href*="github.com"]::before {
-  background: #fff;
-}
-
-.dark .VPHero .actions a[href*="github.com"] {
-  background: #f0f0f0 !important;
-  border-color: #f0f0f0 !important;
-  color: #24292f !important;
-}
-
-.dark .VPHero .actions a[href*="github.com"]:hover {
-  background: #fff !important;
-  border-color: #fff !important;
-}
-
-.dark .VPHero .actions a[href*="github.com"]::before {
-  background: #24292f;
-}
 
 /* Primary brand button */
 .VPButton.medium.brand {
@@ -1418,171 +1377,14 @@ html {
 
 /* ── Alternating section backgrounds ─────────────────────────────── */
 
-.section-why,
-.section-quickstart,
 .section-coverage,
 .section-cta {
   background: var(--vp-c-bg-alt);
 }
 
-.dark .section-why,
-.dark .section-quickstart,
 .dark .section-coverage,
 .dark .section-cta {
   background: var(--vp-c-bg-alt);
-}
-
-/* ── Why GPC ─────────────────────────────────────────────────────── */
-
-.section-why {
-  padding: 80px 0;
-}
-
-.why-content p {
-  font-size: 1.02rem;
-  line-height: 1.82;
-  color: var(--vp-c-text-2);
-  max-width: 680px;
-}
-
-.why-content p + p {
-  margin-top: 16px;
-}
-
-.why-tagline {
-  font-family: var(--gpc-font-display) !important;
-  font-weight: 700 !important;
-  font-size: 1.1rem !important;
-  color: var(--vp-c-brand-1) !important;
-  margin-top: 24px !important;
-  letter-spacing: -0.01em;
-}
-
-/* ── Install ─────────────────────────────────────────────────────── */
-
-.section-install {
-  padding: 56px 0;
-  text-align: center;
-}
-
-.section-install .section-title {
-  text-align: center;
-  padding-left: 0 !important;
-}
-
-.section-install .section-title::before {
-  display: none;
-}
-
-.section-install .vp-doc div[class*="language-"] {
-  max-width: 480px;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-.install-alt {
-  margin-top: 12px !important;
-  font-size: 0.88rem;
-}
-
-/* ── Quick Start ─────────────────────────────────────────────────── */
-
-.section-quickstart {
-  padding: 72px 0;
-}
-
-/* ── What's New ──────────────────────────────────────────────────── */
-
-.section-whats-new {
-  padding: 72px 0;
-}
-
-.release-card {
-  border: 1px solid var(--vp-c-border);
-  border-radius: var(--gpc-radius-lg);
-  padding: 28px 28px 20px;
-  background: var(--vp-c-bg-elv);
-  position: relative;
-  box-shadow: var(--vp-shadow-1);
-}
-
-.dark .release-card {
-  background: var(--vp-c-bg-elv);
-  border-color: rgba(77, 149, 241, 0.12);
-  box-shadow: none;
-}
-
-.release-badge {
-  display: inline-block;
-  font-family: var(--gpc-font-display);
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: var(--vp-c-brand-1);
-  color: #fff;
-  margin-bottom: 14px;
-}
-
-.release-version {
-  font-family: var(--gpc-font-display) !important;
-  font-size: 1.15rem !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.015em;
-  margin-bottom: 10px !important;
-  border: none !important;
-  padding: 0 !important;
-}
-
-.release-links {
-  display: flex;
-  gap: 20px;
-  margin-top: 12px;
-  font-size: 0.88rem;
-}
-
-.release-links a {
-  color: var(--vp-c-brand-1);
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.release-links a:hover {
-  text-decoration: underline;
-}
-
-.releases-prev {
-  display: grid;
-  gap: 10px;
-  margin-top: 24px;
-}
-
-.release-mini {
-  font-size: 0.875rem;
-  line-height: 1.6;
-  color: var(--vp-c-text-2);
-  padding: 12px 16px;
-  border-radius: var(--gpc-radius);
-  background: var(--vp-c-bg-soft);
-  border: 1px solid var(--vp-c-divider);
-}
-
-.dark .release-mini {
-  background: rgba(17, 21, 32, 0.5);
-  border-color: rgba(77, 149, 241, 0.08);
-}
-
-.release-mini strong {
-  color: var(--vp-c-text-1);
-  font-weight: 600;
-  margin-right: 6px;
-}
-
-.release-all-link {
-  margin-top: 16px !important;
-  font-size: 0.88rem;
 }
 
 /* ── Coverage Grid ───────────────────────────────────────────────── */
@@ -1593,7 +1395,7 @@ html {
 
 .coverage-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 14px;
   margin-top: 8px;
 }
@@ -1710,12 +1512,6 @@ html {
   line-height: 1.7;
   color: var(--vp-c-text-2);
   margin-bottom: 28px !important;
-}
-
-.section-cta .vp-doc div[class*="language-"] {
-  max-width: 420px;
-  margin-left: auto !important;
-  margin-right: auto !important;
 }
 
 .cta-links {
@@ -1999,33 +1795,9 @@ html {
     border-radius: 999px !important;
   }
 
-  /* Button icons — hide on small screens (except GitHub) */
-  .VPHero .actions a[href="/guide/installation"]::before,
+  /* Button icons — hide on small screens */
   .VPHero .actions a[href="/guide/quick-start"]::before {
     display: none !important;
-  }
-
-  /* GitHub button — icon only, black circle */
-  .VPHero .actions a[href*="github.com"] {
-    font-size: 0 !important;
-    width: 44px !important;
-    height: 44px !important;
-    padding: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 50% !important;
-    background: #24292f !important;
-    border-color: #24292f !important;
-    color: #fff !important;
-  }
-
-  .VPHero .actions a[href*="github.com"]::before {
-    font-size: 16px;
-    margin-right: 0;
-    width: 20px;
-    height: 20px;
-    background: #fff;
   }
 
   /* Feature blob — even smaller */
@@ -2118,7 +1890,7 @@ html {
 
 @media (max-width: 960px) {
   .coverage-grid {
-    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
 
@@ -2129,11 +1901,6 @@ html {
 
   .section-title {
     font-size: 1.3rem !important;
-  }
-
-  .coverage-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px;
   }
 
   .stats-bar {

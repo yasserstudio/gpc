@@ -39,7 +39,6 @@ export interface PagedResponse<T> {
 
 export interface AppDetails {
   defaultLanguage: string;
-  title: string;
   contactEmail?: string;
   contactPhone?: string;
   contactWebsite?: string;
@@ -126,9 +125,28 @@ export interface ReviewComment {
   developerComment?: DeveloperComment;
 }
 
+export interface Timestamp {
+  seconds: string;
+  nanos?: number;
+}
+
+export interface DeviceMetadata {
+  productName?: string;
+  manufacturer?: string;
+  deviceClass?: string;
+  screenWidthPx?: number;
+  screenHeightPx?: number;
+  nativePlatform?: string;
+  screenDensityDpi?: number;
+  glEsVersion?: number;
+  cpuModel?: string;
+  cpuMake?: string;
+  ramMb?: number;
+}
+
 export interface UserComment {
   text: string;
-  lastModified: { seconds: string };
+  lastModified: Timestamp;
   starRating: number;
   device?: string;
   androidOsVersion?: number;
@@ -137,11 +155,13 @@ export interface UserComment {
   thumbsUpCount?: number;
   thumbsDownCount?: number;
   reviewerLanguage?: string;
+  originalText?: string;
+  deviceMetadata?: DeviceMetadata;
 }
 
 export interface DeveloperComment {
   text: string;
-  lastModified: { seconds: string };
+  lastModified: Timestamp;
 }
 
 export interface TrackListResponse {
@@ -168,7 +188,7 @@ export interface ApksListResponse {
 }
 
 export interface DeobfuscationFile {
-  symbolType: string;
+  symbolType: DeobfuscationFileType;
 }
 
 export interface DeobfuscationUploadResponse {
@@ -377,39 +397,67 @@ export interface Money {
   nanos?: number;
 }
 
+export interface Price {
+  priceMicros: string;
+  currency: string;
+}
+
 export interface RegionalBasePlanConfig {
   regionCode: string;
   price: Money;
+  newSubscriberAvailability?: boolean;
 }
+
+export type BasePlanState = "STATE_UNSPECIFIED" | "ACTIVE" | "INACTIVE" | "DRAFT";
 
 export interface BasePlan {
   basePlanId: string;
-  state?: "ACTIVE" | "INACTIVE" | "DRAFT";
-  archived?: boolean;
+  state?: BasePlanState;
   autoRenewingBasePlanType?: {
     billingPeriodDuration?: string;
     gracePeriodDuration?: string;
     accountHoldDuration?: string;
     prorationMode?: string;
+    resubscribeState?: string;
+    legacyCompatible?: boolean;
+    legacyCompatibleSubscriptionOfferId?: string;
   };
-  prepaidBasePlanType?: { billingPeriodDuration?: string };
-  regionalConfigs: RegionalBasePlanConfig[];
+  prepaidBasePlanType?: {
+    billingPeriodDuration?: string;
+    timeExtension?: string;
+  };
+  installmentsBasePlanType?: {
+    billingPeriodDuration?: string;
+    committedPaymentsCount?: number;
+    renewalType?: string;
+    gracePeriodDuration?: string;
+    accountHoldDuration?: string;
+    resubscribeState?: string;
+    prorationMode?: string;
+  };
+  regionalConfigs?: RegionalBasePlanConfig[];
+  otherRegionsConfig?: {
+    usdPrice?: Money;
+    eurPrice?: Money;
+    newSubscriberAvailability?: boolean;
+  };
   offerTags?: { tag: string }[];
 }
 
 export interface SubscriptionListing {
+  languageCode: string;
   title: string;
   description?: string;
   benefits?: string[];
-  languageCode?: string;
 }
 
 export interface Subscription {
   productId: string;
-  packageName?: string;
-  listings?: Record<string, SubscriptionListing>;
+  packageName: string;
+  listings?: SubscriptionListing[];
   basePlans?: BasePlan[];
   taxAndComplianceSettings?: Record<string, unknown>;
+  restrictedPaymentCountries?: { countryCodes?: string[] };
 }
 
 export interface SubscriptionsListResponse {
@@ -456,21 +504,43 @@ export interface SubscriptionOfferPhase {
     price?: Money;
     absoluteDiscount?: Money;
     relativeDiscount?: number;
+    free?: Record<string, never>;
   }[];
+  otherRegionsConfig?: {
+    otherRegionsPrices?: Money;
+    relativeDiscount?: number;
+    absoluteDiscounts?: Money;
+    free?: Record<string, never>;
+  };
+}
+
+export interface SubscriptionOfferTargeting {
+  acquisitionRule?: {
+    scope?: { specificSubscriptionInApp?: boolean; anySubscriptionInApp?: boolean };
+  };
+  upgradeRule?: {
+    oncePerUser?: boolean;
+    scope?: { specificSubscriptionInApp?: boolean; anySubscriptionInApp?: boolean };
+    billingPeriodDuration?: string;
+  };
 }
 
 export interface SubscriptionOffer {
+  packageName?: string;
   productId: string;
   basePlanId: string;
   offerId: string;
-  state: "ACTIVE" | "INACTIVE" | "DRAFT";
+  state?: BasePlanState;
   offerTags?: { tag: string }[];
   phases: SubscriptionOfferPhase[];
-  targeting?: Record<string, unknown>;
+  targeting?: SubscriptionOfferTargeting;
   regionalConfigs?: {
     regionCode: string;
     newSubscriberAvailability?: boolean;
   }[];
+  otherRegionsConfig?: {
+    otherRegionsNewSubscriberAvailability?: boolean;
+  };
 }
 
 export interface OffersListResponse {
@@ -484,14 +554,32 @@ export interface InAppProductListing {
   benefits?: string[];
 }
 
+export type InAppProductStatus = "statusUnspecified" | "active" | "inactive";
+export type InAppProductPurchaseType = "purchaseTypeUnspecified" | "managedUser" | "subscription";
+
 export interface InAppProduct {
   sku: string;
-  status: string;
-  purchaseType: string;
-  defaultPrice: Money;
+  status?: InAppProductStatus;
+  purchaseType?: InAppProductPurchaseType;
+  defaultPrice?: Price;
+  prices?: Record<string, Price>;
   listings?: Record<string, InAppProductListing>;
   defaultLanguage?: string;
   packageName?: string;
+  subscriptionPeriod?: string;
+  trialPeriod?: string;
+  gracePeriod?: string;
+  managedProductTaxesAndComplianceSettings?: {
+    eeaWithdrawalRightType?: string;
+    taxRateInfoByRegionCode?: Record<string, unknown>;
+    isTokenizedDigitalAsset?: boolean;
+    productTaxCategoryCode?: string;
+  };
+  subscriptionTaxesAndComplianceSettings?: {
+    eeaWithdrawalRightType?: string;
+    taxRateInfoByRegionCode?: Record<string, unknown>;
+    isTokenizedDigitalAsset?: boolean;
+  };
 }
 
 export interface InAppProductsListResponse {
@@ -500,12 +588,21 @@ export interface InAppProductsListResponse {
 }
 
 export interface ProductPurchase {
+  kind?: string;
   purchaseState: number;
   consumptionState: number;
   purchaseTimeMillis: string;
   orderId: string;
   acknowledgementState: number;
   regionCode?: string;
+  developerPayload?: string;
+  purchaseType?: number;
+  purchaseToken?: string;
+  productId?: string;
+  quantity?: number;
+  obfuscatedExternalAccountId?: string;
+  obfuscatedExternalProfileId?: string;
+  refundableQuantity?: number;
 }
 
 export type SubscriptionState =
@@ -601,12 +698,46 @@ export interface SubscriptionPurchaseLineItem {
 }
 
 export interface SubscriptionPurchase {
+  kind?: string;
   startTimeMillis: string;
   expiryTimeMillis: string;
   autoRenewing: boolean;
   orderId: string;
   paymentState?: number;
   cancelReason?: number;
+  autoResumeTimeMillis?: string;
+  priceCurrencyCode?: string;
+  priceAmountMicros?: string;
+  introductoryPriceInfo?: {
+    introductoryPriceCurrencyCode?: string;
+    introductoryPriceAmountMicros?: string;
+    introductoryPricePeriod?: string;
+    introductoryPriceCycles?: number;
+  };
+  countryCode?: string;
+  developerPayload?: string;
+  userCancellationTimeMillis?: string;
+  cancelSurveyResult?: {
+    cancelSurveyReason?: number;
+    userInputCancelReason?: string;
+  };
+  linkedPurchaseToken?: string;
+  purchaseType?: number;
+  priceChange?: {
+    newPrice?: Price;
+    state?: number;
+  };
+  profileName?: string;
+  emailAddress?: string;
+  givenName?: string;
+  familyName?: string;
+  profileId?: string;
+  acknowledgementState?: number;
+  externalAccountId?: string;
+  promotionType?: number;
+  promotionCode?: string;
+  obfuscatedExternalAccountId?: string;
+  obfuscatedExternalProfileId?: string;
 }
 
 export interface SubscriptionDeferRequest {
@@ -638,41 +769,88 @@ export interface VoidedPurchasesListResponse {
 
 // --- Orders API (May 2025) ---
 
+export type OrderState =
+  | "STATE_UNSPECIFIED"
+  | "PENDING"
+  | "PROCESSED"
+  | "CANCELED"
+  | "PENDING_REFUND"
+  | "PARTIALLY_REFUNDED"
+  | "REFUNDED";
+
+export type SalesChannel =
+  | "SALES_CHANNEL_UNSPECIFIED"
+  | "IN_APP"
+  | "PC_EMULATOR"
+  | "NATIVE_PC"
+  | "PLAY_STORE"
+  | "OUTSIDE_PLAY_STORE";
+
+export type OfferPhase =
+  | "OFFER_PHASE_UNSPECIFIED"
+  | "BASE"
+  | "INTRODUCTORY"
+  | "FREE_TRIAL";
+
 export interface Order {
   orderId: string;
-  state: string;
+  state?: OrderState;
+  salesChannel?: SalesChannel;
   purchaseToken?: string;
   createTime?: string;
   lastEventTime?: string;
   total?: Money;
   tax?: Money;
   lineItems?: OrderLineItem[];
-  buyerAddress?: { regionCode?: string; postalCode?: string };
+  buyerAddress?: {
+    buyerState?: string;
+    buyerCountry?: string;
+    buyerPostcode?: string;
+  };
+  orderDetails?: { taxInclusive?: boolean };
   developerRevenueInBuyerCurrency?: Money;
   orderHistory?: {
     processedEvent?: { eventTime?: string };
     cancellationEvent?: { eventTime?: string };
     refundEvent?: {
       eventTime?: string;
-      refundDetails?: { tax?: Money; refund?: Money };
+      refundDetails?: { total?: Money; tax?: Money };
       refundReason?: string;
     };
     partialRefundEvents?: Array<{
       createTime?: string;
       processTime?: string;
       state?: string;
-      refundDetails?: { tax?: Money; refund?: Money };
+      refundDetails?: { total?: Money; tax?: Money };
     }>;
   };
-  /** Offer phase details for prorated periods. (Nov 2025) */
-  offerPhaseDetails?: { offerPhase?: string };
+  pointsDetails?: {
+    pointsOfferId?: string;
+    pointsCouponValue?: Money;
+    pointsDiscountRateMicros?: string;
+    pointsSpent?: string;
+  };
 }
 
 export interface OrderLineItem {
+  productTitle?: string;
   productId?: string;
-  productType?: string;
-  quantity?: number;
-  price?: Money;
+  listingPrice?: Money;
+  total?: Money;
+  tax?: Money;
+  oneTimePurchaseDetails?: {
+    quantity?: number;
+    offerId?: string;
+    purchaseOptionId?: string;
+  };
+  subscriptionDetails?: {
+    basePlanId?: string;
+    offerId?: string;
+    offerPhase?: OfferPhase;
+    servicePeriodStartTime?: string;
+    servicePeriodEndTime?: string;
+  };
+  paidAppDetails?: Record<string, unknown>;
 }
 
 export interface BatchGetOrdersResponse {
@@ -738,7 +916,10 @@ export interface ProductOfferDetails {
  */
 export interface AcknowledgeSubscriptionRequest {
   developerPayload?: string;
-  externalAccountId?: string;
+  externalAccountIds?: {
+    obfuscatedAccountId?: string;
+    obfuscatedProfileId?: string;
+  };
 }
 
 export type CancellationType =
@@ -780,6 +961,7 @@ export interface SubscriptionsV2DeferResponse {
 
 export interface ConvertRegionPricesRequest {
   price: Money;
+  productTaxCategoryCode?: string;
 }
 
 export interface ConvertedRegionPrice {
@@ -790,6 +972,8 @@ export interface ConvertedRegionPrice {
 
 export interface ConvertRegionPricesResponse {
   convertedRegionPrices: Record<string, ConvertedRegionPrice>;
+  convertedOtherRegionsPrice?: { usdPrice?: Money; eurPrice?: Money };
+  regionVersion?: { version?: string };
 }
 
 // --- Reports ---
@@ -939,22 +1123,32 @@ export interface ExternalTransaction {
   transactionTime?: string;
   createTime?: string;
   transactionState?: string;
-  userTaxAddress?: { regionCode?: string };
-  externalTransactionToken?: string;
+  transactionProgramCode?: number;
+  userTaxAddress?: { regionCode?: string; administrativeArea?: string };
   packageName?: string;
   oneTimeTransaction?: { externalTransactionToken?: string };
   recurringTransaction?: {
-    externalTransactionId?: string;
+    initialExternalTransactionId?: string;
+    externalTransactionToken?: string;
+    migratedTransactionProgram?: string;
     externalSubscription?: { subscriptionType?: string };
+    otherRecurringProduct?: Record<string, never>;
+  };
+  externalOfferDetails?: {
+    linkType?: string;
+    installedAppPackage?: string;
+    installedAppCategory?: string;
+    appDownloadEventExternalTransactionId?: string;
   };
 }
 
 export interface ExternalTransactionRefund {
   refundTime?: string;
   partialRefund?: {
+    refundId?: string;
     refundPreTaxAmount?: ExternalTransactionAmount;
   };
-  fullRefund?: Record<string, unknown>;
+  fullRefund?: Record<string, never>;
 }
 
 // --- Data Safety ---
@@ -974,11 +1168,6 @@ export interface Testers {
 
 // --- Device Tiers ---
 
-export interface DeviceTier {
-  deviceTierConfigId: string;
-  deviceGroups: DeviceGroup[];
-}
-
 export interface DeviceGroup {
   name: string;
   deviceSelectors: DeviceSelector[];
@@ -990,12 +1179,16 @@ export interface DeviceSelector {
   excludedDeviceIds?: { buildBrand: string; buildDevice: string }[];
   requiredSystemFeatures?: { name: string }[];
   forbiddenSystemFeatures?: { name: string }[];
+  systemOnChips?: { manufacturer?: string; model?: string }[];
 }
 
 export interface DeviceTierConfig {
   deviceTierConfigId: string;
   deviceGroups: DeviceGroup[];
-  userCountryTargeting?: { countryCodes: string[]; exclude?: boolean };
+  deviceTierSet?: {
+    deviceTiers?: { deviceGroupNames?: string[]; level?: number }[];
+  };
+  userCountrySets?: { name?: string; countryCodes?: string[] }[];
 }
 
 export interface DeviceTierConfigsListResponse {
@@ -1012,16 +1205,18 @@ export interface InternalAppSharingArtifact {
 
 // --- Generated APKs ---
 
-export interface GeneratedApk {
-  generatedApkId: string;
-  variantId: number;
-  moduleName: string;
-  apkDescription?: string;
-  certificateSha256Fingerprint: string;
+export interface GeneratedApksPerSigningKey {
+  certificateSha256Hash?: string;
+  generatedSplitApks?: { downloadId?: string; variantId?: number; moduleName?: string; splitId?: string }[];
+  generatedStandaloneApks?: { downloadId?: string; variantId?: number }[];
+  generatedUniversalApk?: { downloadId?: string };
+  generatedAssetPackSlices?: { downloadId?: string; moduleName?: string; sliceId?: string; version?: string }[];
+  generatedRecoveryModules?: { downloadId?: string; recoveryId?: string; recoveryStatus?: string }[];
+  targetingInfo?: Record<string, unknown>;
 }
 
-export interface GeneratedApksPerVersion {
-  generatedApks: GeneratedApk[];
+export interface GeneratedApksListResponse {
+  generatedApks?: GeneratedApksPerSigningKey[];
 }
 
 // --- Externally Hosted APKs ---
@@ -1029,6 +1224,7 @@ export interface GeneratedApksPerVersion {
 export interface ExternallyHostedApk {
   applicationLabel: string;
   externallyHostedUrl: string;
+  fileSha1Base64?: string;
   fileSha256Base64: string;
   fileSize: string;
   iconBase64?: string;
@@ -1052,15 +1248,32 @@ export interface ExternallyHostedApkResponse {
 export interface OneTimeProduct {
   packageName: string;
   productId: string;
-  purchaseType: "managedUser" | "subscription";
-  listings: Record<string, OneTimeProductListing>;
+  listings?: OneTimeProductListing[];
+  purchaseOptions?: OneTimeProductPurchaseOption[];
   taxAndComplianceSettings?: TaxAndComplianceSettings;
+  restrictedPaymentCountries?: { countryCodes?: string[] };
+  offerTags?: { tag: string }[];
+  regionsVersion?: { version?: string };
 }
 
 export interface OneTimeProductListing {
+  languageCode: string;
   title: string;
-  description?: string;
+  description: string;
   benefits?: string[];
+}
+
+export interface OneTimeProductPurchaseOption {
+  purchaseOptionId?: string;
+  state?: BasePlanState;
+  buyOption?: Record<string, never>;
+  rentOption?: {
+    rentalPeriod?: string;
+  };
+  regionalPricingAndAvailabilityConfigs?: Record<string, unknown>;
+  newRegionsConfig?: Record<string, unknown>;
+  offerTags?: { tag: string }[];
+  taxAndComplianceSettings?: TaxAndComplianceSettings;
 }
 
 export interface TaxAndComplianceSettings {

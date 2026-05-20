@@ -1,12 +1,12 @@
 import { writeFile } from "node:fs/promises";
-import type { PlayApiClient, GeneratedApk } from "@gpc-cli/api";
+import type { PlayApiClient, GeneratedApksPerSigningKey } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
 
 export async function listGeneratedApks(
   client: PlayApiClient,
   packageName: string,
   versionCode: number,
-): Promise<GeneratedApk[]> {
+): Promise<GeneratedApksPerSigningKey[]> {
   if (!Number.isInteger(versionCode) || versionCode <= 0) {
     throw new GpcError(
       `Invalid version code: ${versionCode}`,

@@ -34,9 +34,8 @@ function sanitizeSubscription(data: Subscription): Subscription {
 
   if (cleaned.basePlans) {
     cleaned.basePlans = cleaned.basePlans.map((bp) => {
-      const { state: _state, archived: _archived, ...cleanBp } = bp;
+      const { state: _state, ...cleanBp } = bp;
       void _state;
-      void _archived;
       // Coerce Money.units to string in regional configs
       if (cleanBp.regionalConfigs) {
         cleanBp.regionalConfigs = cleanBp.regionalConfigs.map((rc) => ({
@@ -257,10 +256,10 @@ export async function migratePrices(
   productId: string,
   basePlanId: string,
   data: BasePlanMigratePricesRequest,
-): Promise<Subscription> {
+): Promise<void> {
   validatePackageName(packageName);
   validateSku(productId);
-  return client.subscriptions.migratePrices(packageName, productId, basePlanId, data);
+  await client.subscriptions.migratePrices(packageName, productId, basePlanId, data);
 }
 
 export async function listOffers(

@@ -23,6 +23,7 @@ export function registerExternalTransactionsCommands(program: Command): void {
     .command("create")
     .description("Create a new external transaction")
     .requiredOption("--file <path>", "Path to JSON file with transaction data")
+    .requiredOption("--transaction-id <id>", "External transaction ID")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -59,7 +60,7 @@ export function registerExternalTransactionsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      const result = await createExternalTransaction(client, packageName, data);
+      const result = await createExternalTransaction(client, packageName, data as any, options.transactionId);
       console.log(formatOutput(result, format));
     });
 

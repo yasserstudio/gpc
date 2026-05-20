@@ -333,8 +333,7 @@ export function registerPurchasesCommands(program: Command): void {
   orders
     .command("refund <order-id>")
     .description("Refund an order")
-    .option("--full-refund", "Full refund")
-    .option("--prorated-refund", "Prorated refund")
+    .option("--revoke", "Revoke the order (remove entitlement)")
     .action(async (orderId: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -348,7 +347,7 @@ export function registerPurchasesCommands(program: Command): void {
             command: "purchases orders refund",
             action: "refund",
             target: orderId,
-            details: { fullRefund: options.fullRefund, proratedRefund: options.proratedRefund },
+            details: { revoke: options.revoke },
           },
           format,
           formatOutput,
@@ -359,8 +358,7 @@ export function registerPurchasesCommands(program: Command): void {
       const client = await getClient(config);
 
       await refundOrder(client, packageName, orderId, {
-        fullRefund: options.fullRefund,
-        proratedRefund: options.proratedRefund,
+        revoke: options.revoke,
       });
       console.log(`Order ${orderId} refunded.`);
     });

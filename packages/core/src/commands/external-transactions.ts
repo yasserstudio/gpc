@@ -4,8 +4,9 @@ export async function createExternalTransaction(
   client: PlayApiClient,
   packageName: string,
   data: ExternalTransaction,
+  externalTransactionId: string,
 ): Promise<ExternalTransaction> {
-  return client.externalTransactions.create(packageName, data);
+  return client.externalTransactions.create(packageName, data, externalTransactionId);
 }
 
 export async function getExternalTransaction(

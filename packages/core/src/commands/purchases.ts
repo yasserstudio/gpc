@@ -158,7 +158,7 @@ export async function refundOrder(
   client: PlayApiClient,
   packageName: string,
   orderId: string,
-  options?: { fullRefund?: boolean; proratedRefund?: boolean },
+  options?: { revoke?: boolean },
 ): Promise<void> {
   validatePackageName(packageName);
   return client.orders.refund(packageName, orderId, options);

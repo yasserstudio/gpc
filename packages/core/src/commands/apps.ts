@@ -2,7 +2,6 @@ import type { PlayApiClient } from "@gpc-cli/api";
 
 export interface AppInfo {
   packageName: string;
-  title?: string;
   defaultLanguage?: string;
   contactEmail?: string;
 }
@@ -16,7 +15,6 @@ export async function getAppInfo(client: PlayApiClient, packageName: string): Pr
     await client.edits.delete(packageName, edit.id);
     return {
       packageName,
-      title: details.title,
       defaultLanguage: details.defaultLanguage,
       contactEmail: details.contactEmail,
     };

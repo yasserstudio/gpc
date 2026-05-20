@@ -981,40 +981,21 @@ export default defineConfig({
       { text: "Guide", link: "/guide/" },
       { text: "Commands", link: "/commands/" },
       { text: "CI/CD", link: "/ci-cd/" },
-      { text: "Blog", link: "/blog/" },
-      {
-        text: "Changelogs",
-        items: [
-          { text: "Generate from git", link: "/guide/changelog-generation" },
-          { text: "Multilingual + AI", link: "/guide/multilingual-release-notes" },
-        ],
-      },
-      {
-        text: "Migration",
-        items: [
-          { text: "From Fastlane", link: "/migration/from-fastlane" },
-          { text: "From Console UI", link: "/migration/from-console-ui" },
-          { text: "GPC vs Fastlane", link: "/alternatives/fastlane" },
-          { text: "Compare All Tools", link: "/alternatives/" },
-          { text: "Release Automation", link: "/alternatives/android-release-automation" },
-        ],
-      },
-      { text: "Advanced", link: "/advanced/architecture" },
       {
         text: "Reference",
         items: [
-          {
-            text: "Environment Variables",
-            link: "/reference/environment-variables",
-          },
+          { text: "Environment Variables", link: "/reference/environment-variables" },
           { text: "Exit Codes", link: "/reference/exit-codes" },
           { text: "JSON Output Contract", link: "/reference/json-contract" },
           { text: "API Coverage Map", link: "/reference/api-coverage" },
-          { text: "API Deprecations", link: "/reference/deprecations" },
           { text: "Rate Limits", link: "/reference/rate-limits" },
           { text: "Changelog", link: "/reference/changelog" },
+          { text: "Deprecations", link: "/reference/deprecations" },
+          { text: "Error Codes", link: "/advanced/error-codes" },
+          { text: "Troubleshooting", link: "/advanced/troubleshooting" },
         ],
       },
+      { text: "Blog", link: "/blog/" },
     ],
 
     sidebar: {
@@ -1052,6 +1033,14 @@ export default defineConfig({
             { text: "Developer Verification", link: "/guide/developer-verification" },
             { text: "Multiple Developer Accounts", link: "/guide/multi-account" },
             { text: "Android CLI Interop", link: "/guide/android-cli-interop" },
+          ],
+        },
+        {
+          text: si(ICONS.arrowRight, "Switching to GPC"),
+          collapsed: false,
+          items: [
+            { text: "From Fastlane", link: "/migration/from-fastlane" },
+            { text: "From Console UI", link: "/migration/from-console-ui" },
           ],
         },
         {
@@ -1205,9 +1194,9 @@ export default defineConfig({
 
       "/advanced/": [
         {
-          text: si(ICONS.layout, "Architecture"),
+          text: si(ICONS.layout, "Internals"),
           items: [
-            { text: "System Design", link: "/advanced/architecture" },
+            { text: "Architecture", link: "/advanced/architecture" },
             { text: "Conventions", link: "/advanced/conventions" },
           ],
         },
@@ -1231,21 +1220,51 @@ export default defineConfig({
 
       "/reference/": [
         {
-          text: si(ICONS.book, "Reference"),
+          text: si(ICONS.book, "Specifications"),
           items: [
-            {
-              text: "Environment Variables",
-              link: "/reference/environment-variables",
-            },
+            { text: "Environment Variables", link: "/reference/environment-variables" },
             { text: "Exit Codes", link: "/reference/exit-codes" },
-            {
-              text: "JSON Output Contract",
-              link: "/reference/json-contract",
-            },
+            { text: "JSON Output Contract", link: "/reference/json-contract" },
             { text: "API Coverage Map", link: "/reference/api-coverage" },
             { text: "API Deprecations", link: "/reference/deprecations" },
             { text: "Rate Limits", link: "/reference/rate-limits" },
             { text: "Changelog", link: "/reference/changelog" },
+          ],
+        },
+        {
+          text: si(ICONS.wrench, "Operations"),
+          collapsed: false,
+          items: [
+            { text: "Error Codes", link: "/advanced/error-codes" },
+            { text: "Troubleshooting", link: "/advanced/troubleshooting" },
+            { text: "Security", link: "/advanced/security" },
+          ],
+        },
+        {
+          text: si(ICONS.layout, "Internals"),
+          collapsed: false,
+          items: [
+            { text: "Architecture", link: "/advanced/architecture" },
+            { text: "Conventions", link: "/advanced/conventions" },
+          ],
+        },
+        {
+          text: si(ICONS.plug, "Extend"),
+          collapsed: false,
+          items: [
+            { text: "Plugin Development", link: "/advanced/plugins" },
+            { text: "SDK Usage", link: "/advanced/sdk-usage" },
+            { text: "Agent Skills", link: "/advanced/skills" },
+          ],
+        },
+        {
+          text: si(ICONS.activity, "Comparisons"),
+          collapsed: false,
+          items: [
+            { text: "Compare All Tools", link: "/alternatives/" },
+            { text: "GPC vs Fastlane", link: "/alternatives/fastlane" },
+            { text: "GPC vs gradle-play-publisher", link: "/alternatives/gradle-play-publisher" },
+            { text: "Release Automation", link: "/alternatives/android-release-automation" },
           ],
         },
       ],
@@ -1262,10 +1281,86 @@ export default defineConfig({
 
       "/migration/": [
         {
-          text: si(ICONS.arrowRight, "Migration"),
+          text: si(ICONS.arrowRight, "Switching to GPC"),
           items: [
             { text: "From Fastlane", link: "/migration/from-fastlane" },
             { text: "From Console UI", link: "/migration/from-console-ui" },
+          ],
+        },
+        {
+          text: si(ICONS.book, "Related"),
+          items: [
+            { text: "GPC vs Fastlane", link: "/alternatives/fastlane" },
+            { text: "Compare All Tools", link: "/alternatives/" },
+            { text: "Guide", link: "/guide/" },
+          ],
+        },
+      ],
+
+      "/alternatives/": [
+        {
+          text: si(ICONS.activity, "Comparisons"),
+          items: [
+            { text: "Compare All Tools", link: "/alternatives/" },
+            { text: "GPC vs Fastlane", link: "/alternatives/fastlane" },
+            {
+              text: "GPC vs gradle-play-publisher",
+              link: "/alternatives/gradle-play-publisher",
+            },
+            {
+              text: "Release Automation",
+              link: "/alternatives/android-release-automation",
+            },
+          ],
+        },
+        {
+          text: si(ICONS.arrowRight, "Migration Guides"),
+          items: [
+            { text: "From Fastlane", link: "/migration/from-fastlane" },
+            { text: "From Console UI", link: "/migration/from-console-ui" },
+          ],
+        },
+      ],
+
+      "/glossary/": [
+        {
+          text: si(ICONS.book, "Glossary"),
+          items: [
+            { text: "Overview", link: "/glossary/" },
+            { text: "AAB", link: "/glossary/aab" },
+            { text: "APK", link: "/glossary/apk" },
+            { text: "ANR", link: "/glossary/anr" },
+            { text: "Google Play Vitals", link: "/glossary/google-play-vitals" },
+            { text: "Staged Rollout", link: "/glossary/staged-rollout" },
+            { text: "Service Account", link: "/glossary/play-service-account" },
+            {
+              text: "Managed Google Play",
+              link: "/glossary/managed-google-play",
+            },
+            {
+              text: "Custom App Publishing",
+              link: "/glossary/play-custom-app-publishing",
+            },
+            { text: "Edit Lifecycle", link: "/glossary/play-edit-lifecycle" },
+            {
+              text: "Fastlane Metadata Format",
+              link: "/glossary/fastlane-metadata-format",
+            },
+          ],
+        },
+      ],
+
+      "/users/": [
+        {
+          text: si(ICONS.users, "Community"),
+          items: [{ text: "Teams Using GPC", link: "/users/" }],
+        },
+        {
+          text: si(ICONS.book, "Resources"),
+          items: [
+            { text: "Free to Use", link: "/guide/free-to-use" },
+            { text: "FAQ", link: "/guide/faq" },
+            { text: "Guide", link: "/guide/" },
           ],
         },
       ],

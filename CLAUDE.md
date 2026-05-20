@@ -44,7 +44,8 @@ e2e/               → End-to-end tests
 - Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, Homebrew tap, npm publish, README/CHANGELOG
 - Phase 10 ✓ — `gpc preflight` pre-submission compliance scanner (9 scanners, offline AAB policy checks)
 - Published to npm: `npm install -g @gpc-cli/cli`
-- Current version: v0.9.75 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- Current version: v0.9.76 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- v0.9.76: Google I/O 2026 response -- full API contract audit (50+ fixes against official reference docs), SubscriptionPurchaseV2 new fields, blog launch, docs alignment.
 - v0.9.75: data safety API fix (CSV format, input validation), docs rewrite.
 - v0.9.74: security hardening release -- deepsec audit, 16 fixes (plugin RCE, SSRF, path traversal, token redaction, API path encoding, CSV injection, prompt injection, rate limiter race, vitals gate ordering, env scrubbing, dry-run enforcement). CI hardened with deepsec scanning and supply chain protections. Run `pnpm security:deep` for full deepsec pipeline.
 - v0.9.73: `gpc skills check`, `gpc doctor` Android CLI detection, `--changelog-ai` on upload, SEO/docs overhaul (JSON-LD, recipes, staged rollout guide, rate limits reference).

@@ -6,17 +6,14 @@ description: "The complete Google Play CLI. 217 API endpoints including Managed 
 hero:
   name: "GPC"
   text: "Google Play Console CLI"
-  tagline: "The entire Google Play API in one CLI. No Ruby. No browser. No ceremony."
+  tagline: "217 API endpoints. Releases, vitals, reviews, subscriptions, preflight scanning, Managed Google Play. One CLI, no browser."
   actions:
     - theme: brand
-      text: Install in 30 seconds
-      link: /guide/installation
+      text: Get Started
+      link: /guide/quick-start
     - theme: alt
-      text: Translate release notes
-      link: /guide/multilingual-release-notes
-    - theme: alt
-      text: GitHub
-      link: https://github.com/yasserstudio/gpc
+      text: View Commands
+      link: /commands/
 
 features:
   - icon:
@@ -64,93 +61,6 @@ features:
   </div>
 </div>
 
-<section class="home-section section-why">
-<div class="section-inner">
-
-<h2 class="section-title">Why GPC</h2>
-
-<div class="why-content">
-<p>Every Android release is the same ritual: open the Play Console, upload your AAB, copy-paste release notes, pick a track, set the rollout percentage, click through confirmation screens. <strong>Fifteen minutes of clicking, every single time.</strong> Ship to 16 locales and the ritual runs 16 times.</p>
-<p>GPC covers the entire Google Play Developer API in one CLI. 217 endpoints. Plus a preflight compliance scanner that catches policy violations before you upload, and AI translation that turns your git log into localized "What's new" text in one command.</p>
-<p class="why-tagline">No Ruby. No browser. No ceremony.</p>
-</div>
-
-</div>
-</section>
-
-<section class="home-section section-install">
-<div class="section-inner">
-
-<h2 class="section-title">Install</h2>
-
-```bash
-npm install -g @gpc-cli/cli
-```
-
-<p class="install-alt"><a href="/guide/installation">Homebrew, standalone binaries, Windows →</a></p>
-
-</div>
-</section>
-
-<section class="home-section section-quickstart">
-<div class="section-inner">
-
-<h2 class="section-title">Quick Start</h2>
-
-```bash
-# Authenticate
-gpc auth login --service-account path/to/key.json
-
-# Verify your setup
-gpc doctor
-
-# App health at a glance
-gpc status
-
-# Upload and release
-gpc releases upload app.aab --track internal
-
-# Promote to production with staged rollout
-gpc releases promote --from internal --to production --rollout 10
-
-# Watch your rollout, auto-halt on threshold breach
-gpc watch --on-breach halt
-
-# AI-translate release notes into every locale
-gpc changelog generate --target play-store --locales auto --ai
-```
-
-</div>
-</section>
-
-<section class="home-section section-whats-new">
-<div class="section-inner">
-
-<h2 class="section-title">What's New</h2>
-
-<div class="release-card release-latest">
-<div class="release-badge">Latest</div>
-<h3 class="release-version">v0.9.76 — Google I/O 2026 Response</h3>
-<p>New <code>onHoldStateContext</code> and <code>inGracePeriodStateContext</code> fields on <code>SubscriptionPurchaseV2</code>. May 2026 deprecation wave documented. Blog section launched with SEO-optimized structured data. All JSON-LD blocks hardened.</p>
-
-<div class="release-links">
-<a href="/blog/">Blog →</a>
-<a href="/reference/deprecations">Deprecations →</a>
-<a href="/reference/changelog">Full changelog →</a>
-</div>
-</div>
-
-<div class="releases-prev">
-<div class="release-mini"><strong>v0.9.75</strong> Data safety API fix: correct CSV format, input validation, docs rewrite.</div>
-<div class="release-mini"><strong>v0.9.74</strong> Security hardening: 16 deepsec findings resolved (plugin RCE, SSRF, path traversal, token redaction, and more).</div>
-<div class="release-mini"><strong>v0.9.73</strong> <code>gpc skills check</code>, <code>gpc doctor</code> Android CLI detection, <code>--changelog-ai</code> on upload.</div>
-</div>
-
-<p class="release-all-link"><a href="/reference/changelog">View all releases →</a></p>
-
-</div>
-</section>
-
 <section class="home-section section-coverage">
 <div class="section-inner">
 
@@ -160,7 +70,7 @@ gpc changelog generate --target play-store --locales auto --ai
 <a href="/commands/releases" class="coverage-card">
 <div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
 <h3>Releases</h3>
-<p>Upload, promote, staged rollouts, halt, resume, release notes, rejected app handling</p>
+<p>Upload, promote, staged rollouts, halt, resume, release notes with AI translation</p>
 </a>
 <a href="/commands/listings" class="coverage-card">
 <div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
@@ -185,22 +95,12 @@ gpc changelog generate --target play-store --locales auto --ai
 <a href="/commands/subscriptions" class="coverage-card">
 <div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
 <h3>Monetization</h3>
-<p>Subscriptions, base plans, offers, in-app products, pricing conversion</p>
-</a>
-<a href="/commands/purchases" class="coverage-card">
-<div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
-<h3>Purchases</h3>
-<p>Verification, acknowledgment, refunds, voided purchases</p>
-</a>
-<a href="/commands/reports" class="coverage-card">
-<div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-<h3>Reports</h3>
-<p>Financial and stats CSV downloads</p>
+<p>Subscriptions, base plans, offers, in-app products, purchase verification, refunds, pricing</p>
 </a>
 <a href="/commands/testers" class="coverage-card">
 <div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
 <h3>Team</h3>
-<p>Testers, users, permissions, CSV bulk import</p>
+<p>Testers, users, permissions, financial and stats reports, CSV bulk import</p>
 </a>
 <a href="/commands/preflight" class="coverage-card">
 <div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
@@ -212,14 +112,9 @@ gpc changelog generate --target play-store --locales auto --ai
 <h3>Analysis</h3>
 <p>Bundle size breakdown, cross-build comparison, size CI gates</p>
 </a>
-<a href="/commands/changelog" class="coverage-card">
-<div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-<h3>Release Notes</h3>
-<p>Git-to-markdown, per-locale Play Store text (500-char), AI translation</p>
-</a>
 </div>
 
-<p class="coverage-link"><a href="/commands/">View the full command reference →</a></p>
+<p class="coverage-link"><a href="/commands/">View the full command reference</a></p>
 
 </div>
 </section>
@@ -236,13 +131,13 @@ gpc changelog generate --target play-store --locales auto --ai
 | API coverage        | **217 endpoints**            | ~20             | ~15                   | All (manual) |
 | Runtime             | Node.js or standalone binary | Ruby + Bundler  | JVM                   | Browser      |
 | Cold start          | **<500ms**                   | 2-3s            | 3-5s                  | 5-10s        |
-| Reviews & Vitals    | ✓                            | ✗               | ✗                     | Manual       |
-| Subscriptions & IAP | ✓                            | ✗               | ✗                     | Manual       |
-| Managed Google Play | **✓ First CLI**              | ✗               | ✗                     | Manual       |
-| AI translation      | **✓ BYO key**                | ✗               | ✗                     | ✗            |
-| CI/CD native        | JSON + exit codes + env vars | Partial         | Gradle tasks          | ✗            |
-| Preflight scanner   | **9 offline checks**         | ✗               | ✗                     | ✗            |
-| Plugin system       | ✓                            | ✗               | ✗                     | ✗            |
+| Reviews & Vitals    | Yes                          | No              | No                    | Manual       |
+| Subscriptions & IAP | Yes                          | No              | No                    | Manual       |
+| Managed Google Play | **Yes (first CLI)**          | No              | No                    | Manual       |
+| AI translation      | **Yes (BYO key)**            | No              | No                    | No           |
+| CI/CD native        | JSON + exit codes + env vars | Partial         | Gradle tasks          | No           |
+| Preflight scanner   | **9 offline checks**         | No              | No                    | No           |
+| Plugin system       | Yes                          | No              | No                    | No           |
 
 </div>
 
@@ -257,15 +152,9 @@ gpc changelog generate --target play-store --locales auto --ai
 <h2 class="cta-title">Ready to stop clicking?</h2>
 <p class="cta-subtitle">Free to use. Works with your existing Google Play service account. Every write operation supports <code>--dry-run</code>.</p>
 
-```bash
-npm install -g @gpc-cli/cli
-gpc doctor
-```
-
 <div class="cta-links">
 <a href="/guide/quick-start" class="cta-btn cta-primary">Get started</a>
-<a href="/guide/installation" class="cta-btn cta-secondary">Installation options</a>
-<a href="https://github.com/yasserstudio/gpc" class="cta-btn cta-secondary">Star on GitHub</a>
+<a href="/commands/" class="cta-btn cta-secondary">View commands</a>
 </div>
 </div>
 </div>
