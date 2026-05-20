@@ -67,7 +67,7 @@ export function registerSubscriptionsCommands(program: Command): void {
         const summary = subs.map((s: Subscription) => ({
           productId: s.productId,
           basePlans: s.basePlans?.length || 0,
-          listings: s.listings ? Object.keys(s.listings).length : 0,
+          listings: s.listings ? s.listings.length : 0,
           firstBasePlanState: s.basePlans?.[0]?.state || "-",
         }));
         await maybePaginate(formatOutput(summary, format));

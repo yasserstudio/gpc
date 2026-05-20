@@ -255,8 +255,10 @@ export function registerPurchasesCommands(program: Command): void {
             command: "purchases subscription revoke",
             action: "revoke subscription",
             target: token,
-            refundType,
-            ...(opts.productId && { productId: opts.productId }),
+            details: {
+              refundType,
+              ...(opts.productId && { productId: opts.productId }),
+            },
           },
           format,
           formatOutput,
@@ -441,7 +443,7 @@ export function registerPurchasesCommands(program: Command): void {
       if (format !== "json") {
         const row = {
           orderId: result.orderId || "-",
-          state: result.purchaseStateContext?.state || "-",
+          state: result.purchaseStateContext?.purchaseState || "-",
           regionCode: result.regionCode || "-",
           completionTime: result.purchaseCompletionTime || "-",
           acknowledgement: result.acknowledgementState || "-",

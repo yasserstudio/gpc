@@ -97,7 +97,8 @@ function validateSubscriptionData(data: Subscription): void {
 
   // Validate listings
   if (data.listings) {
-    for (const [lang, listing] of Object.entries(data.listings)) {
+    for (const listing of data.listings) {
+      const lang = listing.languageCode || "?";
       if (listing.benefits && listing.benefits.length > 4) {
         throw new GpcError(
           `Listing "${lang}" has ${listing.benefits.length} benefits (max 4)`,

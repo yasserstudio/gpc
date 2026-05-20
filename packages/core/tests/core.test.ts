@@ -2871,9 +2871,9 @@ describe("purchases commands", () => {
 
   it("refundOrder calls client.orders.refund", async () => {
     const client = mockClient();
-    await refundOrder(client, "com.example", "GPA.1234", { fullRefund: true });
+    await refundOrder(client, "com.example", "GPA.1234", { revoke: true });
     expect(client.orders.refund).toHaveBeenCalledWith("com.example", "GPA.1234", {
-      fullRefund: true,
+      revoke: true,
     });
   });
 
