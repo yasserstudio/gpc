@@ -764,7 +764,8 @@ export default defineConfig({
     // BlogPosting schema on blog posts
     if (pageData.relativePath.startsWith("blog/") && pageData.relativePath !== "blog/index.md") {
       const fm = pageData.frontmatter;
-      const dateStr = fm.date ? new Date(fm.date).toISOString().slice(0, 10) : "";
+      let dateStr = "";
+      try { if (fm.date) dateStr = new Date(fm.date).toISOString().slice(0, 10); } catch {}
       const modifiedStr = pageData.lastUpdated
         ? new Date(pageData.lastUpdated).toISOString().slice(0, 10)
         : dateStr;
@@ -788,7 +789,7 @@ export default defineConfig({
           "@type": "WebPage",
           "@id": canonicalUrl,
         },
-        ...(fm.tags ? { keywords: (fm.tags as string[]).join(", ") } : {}),
+        ...(Array.isArray(fm.tags) ? { keywords: (fm.tags as string[]).join(", ") } : {}),
       };
       pageData.frontmatter.head.push(
         ["script", { type: "application/ld+json" }, safeJsonLd(blogSchema)],
@@ -798,7 +799,7 @@ export default defineConfig({
           "meta",
           { property: "article:author", content: fm.author ?? "Yasser Berrehail" },
         ],
-        ...(fm.tags
+        ...(Array.isArray(fm.tags)
           ? (fm.tags as string[]).map(
               (tag: string) =>
                 ["meta", { property: "article:tag", content: tag }] as [
