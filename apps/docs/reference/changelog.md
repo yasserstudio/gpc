@@ -11,7 +11,26 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.75 <Badge type="tip" text="latest" />
+## v0.9.76 <Badge type="tip" text="latest" />
+
+Google I/O 2026 response: API parity, docs alignment, blog launch.
+
+- feat(api): add `onHoldStateContext` and `inGracePeriodStateContext` to `SubscriptionPurchaseV2` (May 2026 Play Developer API fields)
+- docs: May 2026 deprecation wave (cancel, defer, acknowledge now deprecated)
+- docs: alternatives page updated for Android CLI 1.0 stable and AI Studio
+- docs: Android 17 (API 37) awareness notes on preflight pages
+- docs: subscription recovery tip (30 to 60 day window)
+- feat(docs): blog section with BlogPosting JSON-LD and article OG tags
+- fix(docs): harden all 11 JSON-LD blocks with `safeJsonLd` helper
+- fix(docs): URL origin guard, defensive frontmatter parsing
+
+**Tests:** 2,312 (+2 net).
+
+**Endpoint count:** unchanged at 217.
+
+---
+
+## v0.9.75
 
 Data safety API fix and input validation.
 

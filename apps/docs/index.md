@@ -130,24 +130,20 @@ gpc changelog generate --target play-store --locales auto --ai
 
 <div class="release-card release-latest">
 <div class="release-badge">Latest</div>
-<h3 class="release-version">v0.9.75 — Data Safety Fix</h3>
-<p><code>gpc data-safety update</code> now sends the correct CSV format to the Google Play API. Added input validation for missing, empty, or oversized files. Docs rewritten to match real API contract.</p>
-
-```bash
-# Export CSV from Play Console, then push via CLI
-gpc data-safety update --file data-safety.csv
-```
+<h3 class="release-version">v0.9.76 — Google I/O 2026 Response</h3>
+<p>New <code>onHoldStateContext</code> and <code>inGracePeriodStateContext</code> fields on <code>SubscriptionPurchaseV2</code>. May 2026 deprecation wave documented. Blog section launched with SEO-optimized structured data. All JSON-LD blocks hardened.</p>
 
 <div class="release-links">
-<a href="/commands/data-safety">Data safety docs →</a>
+<a href="/blog/">Blog →</a>
+<a href="/reference/deprecations">Deprecations →</a>
 <a href="/reference/changelog">Full changelog →</a>
 </div>
 </div>
 
 <div class="releases-prev">
+<div class="release-mini"><strong>v0.9.75</strong> Data safety API fix: correct CSV format, input validation, docs rewrite.</div>
 <div class="release-mini"><strong>v0.9.74</strong> Security hardening: 16 deepsec findings resolved (plugin RCE, SSRF, path traversal, token redaction, and more).</div>
 <div class="release-mini"><strong>v0.9.73</strong> <code>gpc skills check</code>, <code>gpc doctor</code> Android CLI detection, <code>--changelog-ai</code> on upload.</div>
-<div class="release-mini"><strong>v0.9.72</strong> API compliance patch: errorReports endpoint fix, subscription deprecation notices, RTDN types.</div>
 </div>
 
 <p class="release-all-link"><a href="/reference/changelog">View all releases →</a></p>
