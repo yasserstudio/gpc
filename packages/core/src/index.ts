@@ -199,6 +199,7 @@ export {
   cancelSubscriptionPurchase,
   deferSubscriptionPurchase,
   revokeSubscriptionPurchase,
+  type RevocationRefundType,
   listVoidedPurchases,
   refundOrder,
   getOrderDetails,

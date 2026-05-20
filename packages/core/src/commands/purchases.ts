@@ -5,6 +5,7 @@ import type {
   SubscriptionPurchaseV2,
   SubscriptionDeferResponse,
   SubscriptionsV2DeferResponse,
+  RevokeSubscriptionV2Request,
   CancellationType,
   Order,
 } from "@gpc-cli/api";
@@ -79,13 +80,33 @@ export async function deferSubscriptionPurchase(
   });
 }
 
+export type RevocationRefundType = "full" | "prorated" | "item";
+
 export async function revokeSubscriptionPurchase(
   client: PlayApiClient,
   packageName: string,
   token: string,
+  refundType: RevocationRefundType = "prorated",
+  productId?: string,
 ): Promise<void> {
   validatePackageName(packageName);
-  return client.purchases.revokeSubscriptionV2(packageName, token);
+  let body: RevokeSubscriptionV2Request;
+  if (refundType === "item") {
+    if (!productId) {
+      throw new GpcError(
+        "productId is required for item-based refund",
+        "REVOKE_MISSING_PRODUCT_ID",
+        2,
+        "Pass --product-id when using --refund-type item",
+      );
+    }
+    body = { revocationContext: { itemBasedRefund: { productId } } };
+  } else if (refundType === "full") {
+    body = { revocationContext: { fullRefund: {} } };
+  } else {
+    body = { revocationContext: { proratedRefund: {} } };
+  }
+  return client.purchases.revokeSubscriptionV2(packageName, token, body);
 }
 
 // refundSubscriptionV2 removed: endpoint does not exist in official API.

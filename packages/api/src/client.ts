@@ -446,7 +446,7 @@ export interface PlayApiClient {
     revokeSubscriptionV2(
       packageName: string,
       token: string,
-      body?: RevokeSubscriptionV2Request,
+      body: RevokeSubscriptionV2Request,
     ): Promise<void>;
     // refundSubscriptionV2 removed: endpoint does not exist in official API.
     // Use orders.refund or revokeSubscriptionV2 with revocationContext instead.
@@ -1482,10 +1482,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         );
       },
 
-      async revokeSubscriptionV2(packageName, token, body?) {
+      async revokeSubscriptionV2(packageName, token, body) {
         await http.post(
           `/${p(packageName)}/purchases/subscriptionsv2/tokens/${p(token)}:revoke`,
-          body ?? {},
+          body,
         );
       },
 

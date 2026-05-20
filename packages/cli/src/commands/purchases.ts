@@ -233,9 +233,20 @@ export function registerPurchasesCommands(program: Command): void {
   sub
     .command("revoke <token>")
     .description("Revoke a subscription (v2)")
-    .action(async (token: string) => {
+    .option(
+      "--refund-type <type>",
+      "Refund type: full, prorated, or item (default: prorated)",
+    )
+    .option("--product-id <id>", "Product ID for item-based refund (required with --refund-type item)")
+    .action(async (token: string, opts: { refundType?: string; productId?: string }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
+      const refundType = (opts.refundType ?? "prorated") as "full" | "prorated" | "item";
+
+      if (!["full", "prorated", "item"].includes(refundType)) {
+        console.error(`Invalid --refund-type "${refundType}". Use: full, prorated, or item`);
+        process.exit(2);
+      }
 
       if (isDryRun(program)) {
         const format = getOutputFormat(program, config);
@@ -244,6 +255,8 @@ export function registerPurchasesCommands(program: Command): void {
             command: "purchases subscription revoke",
             action: "revoke subscription",
             target: token,
+            refundType,
+            ...(opts.productId && { productId: opts.productId }),
           },
           format,
           formatOutput,
@@ -251,12 +264,12 @@ export function registerPurchasesCommands(program: Command): void {
         return;
       }
 
-      await requireConfirm(`Revoke subscription and refund? This cannot be undone.`, program);
+      await requireConfirm(`Revoke subscription (${refundType} refund)? This cannot be undone.`, program);
 
       const client = await getClient(config);
 
-      await revokeSubscriptionPurchase(client, packageName, token);
-      console.log(`Subscription revoked.`);
+      await revokeSubscriptionPurchase(client, packageName, token, refundType, opts.productId);
+      console.log(`Subscription revoked (${refundType} refund).`);
     });
 
   // --- Voided purchases ---

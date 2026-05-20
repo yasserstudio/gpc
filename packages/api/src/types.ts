@@ -730,7 +730,7 @@ export interface SubscriptionsV2CancelRequest {
  * product by productId. (May 2025)
  */
 export interface RevokeSubscriptionV2Request {
-  revocationContext?: {
+  revocationContext: {
     fullRefund?: Record<string, never>;
     proratedRefund?: Record<string, never>;
     itemBasedRefund?: { productId: string };

@@ -2838,10 +2838,28 @@ describe("purchases commands", () => {
     expect(result.newExpiryTimeMillis).toBe("200000");
   });
 
-  it("revokeSubscriptionPurchase calls v2 revoke", async () => {
+  it("revokeSubscriptionPurchase defaults to proratedRefund", async () => {
     const client = mockClient();
     await revokeSubscriptionPurchase(client, "com.example", "tok");
-    expect(client.purchases.revokeSubscriptionV2).toHaveBeenCalledWith("com.example", "tok");
+    expect(client.purchases.revokeSubscriptionV2).toHaveBeenCalledWith("com.example", "tok", {
+      revocationContext: { proratedRefund: {} },
+    });
+  });
+
+  it("revokeSubscriptionPurchase passes fullRefund when specified", async () => {
+    const client = mockClient();
+    await revokeSubscriptionPurchase(client, "com.example", "tok", "full");
+    expect(client.purchases.revokeSubscriptionV2).toHaveBeenCalledWith("com.example", "tok", {
+      revocationContext: { fullRefund: {} },
+    });
+  });
+
+  it("revokeSubscriptionPurchase passes itemBasedRefund with productId", async () => {
+    const client = mockClient();
+    await revokeSubscriptionPurchase(client, "com.example", "tok", "item", "addon_premium");
+    expect(client.purchases.revokeSubscriptionV2).toHaveBeenCalledWith("com.example", "tok", {
+      revocationContext: { itemBasedRefund: { productId: "addon_premium" } },
+    });
   });
 
   it("listVoidedPurchases calls client.purchases.listVoided", async () => {

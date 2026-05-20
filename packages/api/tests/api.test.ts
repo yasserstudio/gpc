@@ -1139,13 +1139,16 @@ describe("monetization API endpoints", () => {
       expect(JSON.parse(init.body)).toEqual(body);
     });
 
-    it("revokeSubscriptionV2 calls POST .../:revoke", async () => {
+    it("revokeSubscriptionV2 calls POST .../:revoke with proratedRefund", async () => {
       mockFetch.mockResolvedValueOnce(mockResponse({}));
       const client = makeClient();
-      await client.purchases.revokeSubscriptionV2(PKG, "tok456");
+      await client.purchases.revokeSubscriptionV2(PKG, "tok456", {
+        revocationContext: { proratedRefund: {} },
+      });
       const [url, init] = mockFetch.mock.calls[0];
       expect(url).toBe(`${BASE_URL}/${PKG}/purchases/subscriptionsv2/tokens/tok456:revoke`);
       expect(init.method).toBe("POST");
+      expect(JSON.parse(init.body)).toEqual({ revocationContext: { proratedRefund: {} } });
     });
 
     it("revokeSubscriptionV2 sends itemBasedRefund body when provided", async () => {
