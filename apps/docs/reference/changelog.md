@@ -25,8 +25,13 @@ Google I/O 2026 response: API parity, docs alignment, blog launch.
 - feat(docs): blog section with BlogPosting JSON-LD and article OG tags
 - fix(docs): harden all 11 JSON-LD blocks with `safeJsonLd` helper
 - fix(docs): URL origin guard, defensive frontmatter parsing
+- fix(api): align `SubscriptionPurchaseV2` fields with Google API reference (add `etag`, `latestOrderId`, nested state contexts, line item sub-fields)
+- fix(api): align v2 defer with real contract (`deferralContext` with etag + deferDuration, not v1 expiry pattern)
+- fix(api): align v2 cancel with real contract (`cancellationContext` wrapper with `CancellationType` enum)
+- fix(api): align v2 revoke with real contract (`revocationContext` required, supports full/prorated/item-based refund)
+- feat(cli): `gpc purchases subscription revoke` now supports `--refund-type` (full, prorated, item) and `--product-id`
 
-**Tests:** 2,312 (+2 net).
+**Tests:** 2,313 (+3 net).
 
 **Endpoint count:** unchanged at 217.
 

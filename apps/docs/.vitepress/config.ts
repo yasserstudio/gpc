@@ -473,7 +473,7 @@ export default defineConfig({
             name: "Is it stable enough for production CI/CD?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "2,312 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
+              text: "2,313 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
             },
           },
           {
