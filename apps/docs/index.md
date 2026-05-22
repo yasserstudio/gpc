@@ -48,7 +48,7 @@ features:
     <span class="stat-label">API Endpoints</span>
   </div>
   <div class="stat-item">
-    <span class="stat-number">2,313</span>
+    <span class="stat-number">2,319</span>
     <span class="stat-label">Tests</span>
   </div>
   <div class="stat-item">

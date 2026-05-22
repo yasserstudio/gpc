@@ -7,6 +7,30 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.77
+
+Fix large AAB upload timeout; supply chain hardening.
+
+- fix: large AAB uploads (65MB+) no longer fail with `BUNDLE_PROCESSING_TIMEOUT` -- extended server-side processing poll from ~31s to ~86s (Fibonacci backoff) and added multi-retry guard on validate/commit
+- feat: npm publish pipeline now uses Trusted Publisher (OIDC, no long-lived tokens) and Staged Publishing (human 2FA approval)
+
+---
+
+## v0.9.76
+
+Google I/O 2026 response: API parity, docs alignment, blog launch.
+
+- feat(api): add `onHoldStateContext` and `inGracePeriodStateContext` to `SubscriptionPurchaseV2` with `renewalDeclined.pendingOrderId` structure (May 2026 Play Developer API)
+- fix(api): remove premature DEP004 warning on `acknowledgeSubscription` (not deprecated per Google)
+- fix(api): correct cancel/defer deprecation shutdown date (Aug 2028, not 2027)
+- fix(api): full API contract audit -- 50+ type/client fixes against Google's official reference docs
+- feat(cli): `gpc purchases subscription revoke` now supports `--refund-type` (full, prorated, item) and `--product-id`
+- fix(cli): `gpc purchases orders refund` now uses `--revoke` flag
+- feat(docs): blog section with BlogPosting JSON-LD and article OG tags
+- docs: May 2026 deprecation wave, alternatives page updated, navigation streamlined
+
+---
+
 ## v0.9.75
 
 Data safety API fix and input validation.

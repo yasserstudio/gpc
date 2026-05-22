@@ -18,7 +18,7 @@ import { GpcError } from "../errors.js";
 import { validateUploadFile } from "../utils/file-validation.js";
 import { validateAndCommit, commitWithRescue } from "../utils/edit-helpers.js";
 
-const BUNDLE_POLL_BACKOFF = [2_000, 3_000, 5_000, 8_000, 13_000];
+const BUNDLE_POLL_BACKOFF = [2_000, 3_000, 5_000, 8_000, 13_000, 21_000, 34_000];
 
 export async function waitForBundleProcessing(
   client: PlayApiClient,
@@ -38,6 +38,23 @@ export async function waitForBundleProcessing(
     4,
     "The AAB is still being processed by Google. Retry the upload, or use --status draft and commit later.",
   );
+}
+
+const UPLOAD_NOT_COMPLETE_RE = /uploads? (?:is|are) not completed/i;
+const UPLOAD_RETRY_BACKOFF = [15_000, 30_000, 45_000];
+
+export async function retryOnUploadNotComplete<T>(fn: () => Promise<T>): Promise<T> {
+  for (let i = 0; i < UPLOAD_RETRY_BACKOFF.length; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      const isUploadNotComplete =
+        error instanceof PlayApiError && UPLOAD_NOT_COMPLETE_RE.test(error.message);
+      if (!isUploadNotComplete || i === UPLOAD_RETRY_BACKOFF.length - 1) throw error;
+      await new Promise((r) => setTimeout(r, UPLOAD_RETRY_BACKOFF[i]));
+    }
+  }
+  return fn();
 }
 
 /**
@@ -306,7 +323,7 @@ export async function uploadRelease(
     await client.tracks.update(packageName, edit.id, options.track, release);
 
     if (!options.commitOptions?.changesNotSentForReview) {
-      await client.edits.validate(packageName, edit.id);
+      await retryOnUploadNotComplete(() => client.edits.validate(packageName, edit.id));
     }
 
     if (options.validateOnly) {
@@ -319,7 +336,9 @@ export async function uploadRelease(
       };
     }
 
-    await commitWithRescue(client, packageName, edit.id, options.commitOptions);
+    await retryOnUploadNotComplete(() =>
+      commitWithRescue(client, packageName, edit.id, options.commitOptions),
+    );
 
     return {
       versionCode: bundle.versionCode,

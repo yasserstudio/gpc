@@ -15,6 +15,7 @@ export type { AppInfo } from "./commands/apps.js";
 export {
   uploadRelease,
   waitForBundleProcessing,
+  retryOnUploadNotComplete,
   getReleasesStatus,
   promoteRelease,
   updateRollout,

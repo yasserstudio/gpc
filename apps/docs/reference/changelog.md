@@ -11,7 +11,20 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.76 <Badge type="tip" text="latest" />
+## v0.9.77 <Badge type="tip" text="latest" />
+
+Fix large AAB upload timeout; supply chain hardening.
+
+- fix: large AAB uploads (65MB+) no longer fail with `BUNDLE_PROCESSING_TIMEOUT` -- extended server-side processing poll from ~31s to ~86s (Fibonacci backoff) and added multi-retry guard on validate/commit (15s, 30s, 45s delays)
+- feat: npm publish pipeline now uses Trusted Publisher (OIDC authentication, no long-lived tokens) and Staged Publishing (human 2FA approval before packages go live)
+
+**Tests:** 2,319 (+6 net).
+
+**Endpoint count:** unchanged at 217.
+
+---
+
+## v0.9.76
 
 Google I/O 2026 response: API parity, docs alignment, blog launch.
 

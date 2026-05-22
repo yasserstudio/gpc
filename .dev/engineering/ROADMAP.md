@@ -2449,10 +2449,10 @@ One-liner: *"Google handles the build side. GPC handles the publish side. That s
 
 ---
 
-## Current Status (v0.9.76-dev)
+## Current Status (v0.9.77)
 
-- **Version:** `v0.9.75` (latest shipped 2026-05-19), v0.9.76 in progress
-- **Tests:** 2,310 across 7 packages + e2e
+- **Version:** `v0.9.77` (latest shipped 2026-05-21)
+- **Tests:** 2,319 across 7 packages + e2e
 - **Coverage:** 90%+ line coverage on all core packages
 - **API endpoints:** 217 (Publisher v3 + Reporting v1beta1 + Custom App Publishing v1)
 - **Packages:** 7 published under `@gpc-cli` scope on npm
@@ -2470,6 +2470,7 @@ One-liner: *"Google handles the build side. GPC handles the publish side. That s
 
 | Version | Date | Headline |
 |---------|------|----------|
+| v0.9.77 | 2026-05-21 | Fix large AAB upload timeout, supply chain hardening (Trusted Publisher + Staged Publishing) |
 | v0.9.76 | 2026-05-20 | Google I/O 2026 response: API parity, deprecation warnings, positioning update |
 | v0.9.75 | 2026-05-19 | Data safety CSV fix, input validation, docs rewrite |
 | v0.9.74 | 2026-05-15 | Security hardening: deepsec audit, 16 fixes, CI supply chain lockdown |

@@ -18,6 +18,7 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "turbo run build && changeset publish",
+    "release-staged": "turbo run build && node scripts/stage-publish.js",
     "build:binary": "tsx scripts/build-binary.ts",
     "bench": "tsx scripts/benchmarks/startup.bench.ts && tsx scripts/benchmarks/command-latency.bench.ts",
     "license:check": "tsx scripts/check-licenses.ts",
