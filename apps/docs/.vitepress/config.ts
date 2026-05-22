@@ -765,7 +765,9 @@ export default defineConfig({
     if (pageData.relativePath.startsWith("blog/") && pageData.relativePath !== "blog/index.md") {
       const fm = pageData.frontmatter;
       let dateStr = "";
-      try { if (fm.date) dateStr = new Date(fm.date).toISOString().slice(0, 10); } catch {}
+      try {
+        if (fm.date) dateStr = new Date(fm.date).toISOString().slice(0, 10);
+      } catch {}
       const modifiedStr = pageData.lastUpdated
         ? new Date(pageData.lastUpdated).toISOString().slice(0, 10)
         : dateStr;
@@ -795,10 +797,7 @@ export default defineConfig({
         ["script", { type: "application/ld+json" }, safeJsonLd(blogSchema)],
         ["meta", { property: "og:type", content: "article" }],
         ["meta", { property: "article:published_time", content: dateStr }],
-        [
-          "meta",
-          { property: "article:author", content: fm.author ?? "Yasser Berrehail" },
-        ],
+        ["meta", { property: "article:author", content: fm.author ?? "Yasser Berrehail" }],
         ...(Array.isArray(fm.tags)
           ? (fm.tags as string[]).map(
               (tag: string) =>

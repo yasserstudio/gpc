@@ -16,20 +16,20 @@ Google I/O 2026 (May 19-20) was the most agent-forward I/O to date. Google stabi
 
 Google's developer ecosystem now includes three tools with distinct scopes. None of them covers production publishing from the command line.
 
-| Capability | Android CLI 1.0 | Google AI Studio | GPC |
-|---|:---:|:---:|:---:|
-| Project scaffolding | Yes | Yes (from prompts) | No |
-| Build and run | Yes | No | No |
-| Emulator management | Yes | In-browser only | No |
-| Internal test track publish | No | Yes (single-click) | Yes |
-| **Production releases** | No | No | **Yes** |
-| **Staged rollouts** | No | No | **Yes** |
-| **Track promotion** | No | No | **Yes** |
-| **Metadata and listings** | No | No | **Yes** |
-| **Vitals monitoring** | No | No | **Yes** |
-| **Subscriptions and IAP** | No | No | **Yes** |
-| **Preflight scanning** | No | No | **Yes** |
-| **CI/CD integration** | No | No | **Yes** |
+| Capability                  | Android CLI 1.0 |  Google AI Studio  |   GPC   |
+| --------------------------- | :-------------: | :----------------: | :-----: |
+| Project scaffolding         |       Yes       | Yes (from prompts) |   No    |
+| Build and run               |       Yes       |         No         |   No    |
+| Emulator management         |       Yes       |  In-browser only   |   No    |
+| Internal test track publish |       No        | Yes (single-click) |   Yes   |
+| **Production releases**     |       No        |         No         | **Yes** |
+| **Staged rollouts**         |       No        |         No         | **Yes** |
+| **Track promotion**         |       No        |         No         | **Yes** |
+| **Metadata and listings**   |       No        |         No         | **Yes** |
+| **Vitals monitoring**       |       No        |         No         | **Yes** |
+| **Subscriptions and IAP**   |       No        |         No         | **Yes** |
+| **Preflight scanning**      |       No        |         No         | **Yes** |
+| **CI/CD integration**       |       No        |         No         | **Yes** |
 
 Google handles the build side. GPC handles the publish side. That split held at I/O 2026.
 
@@ -94,15 +94,15 @@ The target SDK deadline for API 37 has not been announced yet. Historically it a
 
 ## Key Numbers from I/O 2026
 
-| Metric | Value | Source |
-|---|---|---|
-| Spam reviews blocked in 2025 | 160 million | [What's new in Google Play](https://android-developers.googleblog.com/2026/05/io-2026-whats-new-in-google-play.html) |
-| Fraud prevented in 2025 | $3.2 billion | [What's new in Google Play](https://android-developers.googleblog.com/2026/05/io-2026-whats-new-in-google-play.html) |
-| Large-screen Android devices | 580+ million | [17 things for Android developers](https://android-developers.googleblog.com/2026/05/17-things-android-developers-google-io.html) |
-| Multi-device user spend multiplier | 14x | [17 things for Android developers](https://android-developers.googleblog.com/2026/05/17-things-android-developers-google-io.html) |
-| Account recovery extension | 30 to 60 days | [What's new in Google Play](https://android-developers.googleblog.com/2026/05/io-2026-whats-new-in-google-play.html) |
-| Involuntary churn reduction (top devs) | up to 18% | [What's new in Google Play](https://android-developers.googleblog.com/2026/05/io-2026-whats-new-in-google-play.html) |
-| Engage SDK monthly active users | 30 million | [What's new in Google Play](https://android-developers.googleblog.com/2026/05/io-2026-whats-new-in-google-play.html) |
+| Metric                                 | Value         | Source                                                                                                                            |
+| -------------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Spam reviews blocked in 2025           | 160 million   | [What's new in Google Play](https://android-developers.googleblog.com/2026/05/io-2026-whats-new-in-google-play.html)              |
+| Fraud prevented in 2025                | $3.2 billion  | [What's new in Google Play](https://android-developers.googleblog.com/2026/05/io-2026-whats-new-in-google-play.html)              |
+| Large-screen Android devices           | 580+ million  | [17 things for Android developers](https://android-developers.googleblog.com/2026/05/17-things-android-developers-google-io.html) |
+| Multi-device user spend multiplier     | 14x           | [17 things for Android developers](https://android-developers.googleblog.com/2026/05/17-things-android-developers-google-io.html) |
+| Account recovery extension             | 30 to 60 days | [What's new in Google Play](https://android-developers.googleblog.com/2026/05/io-2026-whats-new-in-google-play.html)              |
+| Involuntary churn reduction (top devs) | up to 18%     | [What's new in Google Play](https://android-developers.googleblog.com/2026/05/io-2026-whats-new-in-google-play.html)              |
+| Engage SDK monthly active users        | 30 million    | [What's new in Google Play](https://android-developers.googleblog.com/2026/05/io-2026-whats-new-in-google-play.html)              |
 
 ## What This Means for GPC
 

@@ -490,11 +490,7 @@ export interface PlayApiClient {
   orders: {
     get(packageName: string, orderId: string): Promise<Order>;
     batchGet(packageName: string, orderIds: string[]): Promise<Order[]>;
-    refund(
-      packageName: string,
-      orderId: string,
-      options?: { revoke?: boolean },
-    ): Promise<void>;
+    refund(packageName: string, orderId: string, options?: { revoke?: boolean }): Promise<void>;
   };
 
   monetization: {
@@ -550,7 +546,11 @@ export interface PlayApiClient {
   };
 
   externalTransactions: {
-    create(packageName: string, data: ExternalTransaction, externalTransactionId: string): Promise<ExternalTransaction>;
+    create(
+      packageName: string,
+      data: ExternalTransaction,
+      externalTransactionId: string,
+    ): Promise<ExternalTransaction>;
     get(packageName: string, transactionId: string): Promise<ExternalTransaction>;
     refund(
       packageName: string,

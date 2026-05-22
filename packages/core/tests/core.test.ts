@@ -2772,9 +2772,10 @@ describe("purchases commands", () => {
         deferSubscriptionV2: vi.fn().mockResolvedValue({
           itemExpiryTimeDetails: [{ productId: "premium", expiryTime: "2026-07-01T00:00:00Z" }],
         }),
-        getProductV2: vi
-          .fn()
-          .mockResolvedValue({ orderId: "o2", purchaseStateContext: { purchaseState: "PURCHASED" } }),
+        getProductV2: vi.fn().mockResolvedValue({
+          orderId: "o2",
+          purchaseStateContext: { purchaseState: "PURCHASED" },
+        }),
         listVoided: vi.fn().mockResolvedValue({ voidedPurchases: [] }),
       },
       orders: {
@@ -2901,7 +2902,12 @@ describe("purchases commands", () => {
 
   it("cancelSubscriptionV2 calls client.purchases.cancelSubscriptionV2", async () => {
     const client = mockClient();
-    await cancelSubscriptionV2(client, "com.example", "tok123", "DEVELOPER_REQUESTED_STOP_PAYMENTS");
+    await cancelSubscriptionV2(
+      client,
+      "com.example",
+      "tok123",
+      "DEVELOPER_REQUESTED_STOP_PAYMENTS",
+    );
     expect(client.purchases.cancelSubscriptionV2).toHaveBeenCalledWith("com.example", "tok123", {
       cancellationContext: { cancellationType: "DEVELOPER_REQUESTED_STOP_PAYMENTS" },
     });
@@ -2917,12 +2923,7 @@ describe("purchases commands", () => {
 
   it("deferSubscriptionV2 calls client.purchases.deferSubscriptionV2", async () => {
     const client = mockClient();
-    const result = await deferSubscriptionV2(
-      client,
-      "com.example",
-      "tok123",
-      "2592000s",
-    );
+    const result = await deferSubscriptionV2(client, "com.example", "tok123", "2592000s");
     expect(client.purchases.getSubscriptionV2).toHaveBeenCalledWith("com.example", "tok123");
     expect(client.purchases.deferSubscriptionV2).toHaveBeenCalledWith("com.example", "tok123", {
       deferralContext: { etag: "test-etag", deferDuration: "2592000s" },
@@ -4818,7 +4819,11 @@ describe("external transactions commands", () => {
       oneTimeTransaction: { externalTransactionToken: "tok-abc" },
     };
     const result = await createExternalTransaction(client, "com.example", txnData, "ext-txn-1");
-    expect(client.externalTransactions.create).toHaveBeenCalledWith("com.example", txnData, "ext-txn-1");
+    expect(client.externalTransactions.create).toHaveBeenCalledWith(
+      "com.example",
+      txnData,
+      "ext-txn-1",
+    );
     expect(result.externalTransactionId).toBe("ext-txn-1");
     expect(result.transactionState).toBe("TRANSACTION_STATE_COMPLETED");
   });

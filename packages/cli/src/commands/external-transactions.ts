@@ -60,7 +60,12 @@ export function registerExternalTransactionsCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      const result = await createExternalTransaction(client, packageName, data as any, options.transactionId);
+      const result = await createExternalTransaction(
+        client,
+        packageName,
+        data as any,
+        options.transactionId,
+      );
       console.log(formatOutput(result, format));
     });
 

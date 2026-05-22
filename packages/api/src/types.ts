@@ -786,11 +786,7 @@ export type SalesChannel =
   | "PLAY_STORE"
   | "OUTSIDE_PLAY_STORE";
 
-export type OfferPhase =
-  | "OFFER_PHASE_UNSPECIFIED"
-  | "BASE"
-  | "INTRODUCTORY"
-  | "FREE_TRIAL";
+export type OfferPhase = "OFFER_PHASE_UNSPECIFIED" | "BASE" | "INTRODUCTORY" | "FREE_TRIAL";
 
 export interface Order {
   orderId: string;
@@ -1207,11 +1203,25 @@ export interface InternalAppSharingArtifact {
 
 export interface GeneratedApksPerSigningKey {
   certificateSha256Hash?: string;
-  generatedSplitApks?: { downloadId?: string; variantId?: number; moduleName?: string; splitId?: string }[];
+  generatedSplitApks?: {
+    downloadId?: string;
+    variantId?: number;
+    moduleName?: string;
+    splitId?: string;
+  }[];
   generatedStandaloneApks?: { downloadId?: string; variantId?: number }[];
   generatedUniversalApk?: { downloadId?: string };
-  generatedAssetPackSlices?: { downloadId?: string; moduleName?: string; sliceId?: string; version?: string }[];
-  generatedRecoveryModules?: { downloadId?: string; recoveryId?: string; recoveryStatus?: string }[];
+  generatedAssetPackSlices?: {
+    downloadId?: string;
+    moduleName?: string;
+    sliceId?: string;
+    version?: string;
+  }[];
+  generatedRecoveryModules?: {
+    downloadId?: string;
+    recoveryId?: string;
+    recoveryStatus?: string;
+  }[];
   targetingInfo?: Record<string, unknown>;
 }
 

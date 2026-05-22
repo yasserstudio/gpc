@@ -49,10 +49,10 @@ That entire surface is what GPC handles. 217 typed endpoints across the Android 
 
 The standard Android workflow is: build your app, then publish it. GPC handles the second half.
 
-| Stage | Tool | What happens |
-|-------|------|-------------|
-| **Build** | Android CLI, Android Studio, Gradle | Scaffold, build, test, debug |
-| **Publish** | GPC | Production releases, staged rollouts, metadata, vitals, monetization, CI/CD |
+| Stage       | Tool                                | What happens                                                                |
+| ----------- | ----------------------------------- | --------------------------------------------------------------------------- |
+| **Build**   | Android CLI, Android Studio, Gradle | Scaffold, build, test, debug                                                |
+| **Publish** | GPC                                 | Production releases, staged rollouts, metadata, vitals, monetization, CI/CD |
 
 Google AI Studio adds an alternative on-ramp for prototyping: generate an app from a prompt and deploy it to the Internal Testing Track with a single click. But it stops there -- no production releases, no rollouts, no metadata management. Apps built in AI Studio still need GPC (or the Console UI) to reach production.
 

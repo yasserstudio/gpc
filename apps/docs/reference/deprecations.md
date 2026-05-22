@@ -15,25 +15,26 @@ This page tracks Google Play Developer API deprecations that affect GPC commands
 Deprecated as of **May 19, 2026**. Shutdown on **August 31, 2028** (extension available to November 1, 2028).
 
 ::: warning Timeline
+
 - **May 19, 2026** -- Deprecation begins
 - **July 1, 2027** -- New client libraries no longer include these APIs
 - **August 31, 2028** -- Shutdown (APIs stop working)
 - **November 1, 2028** -- Extension deadline (if requested)
-:::
+  :::
 
 ### Deprecated subscription APIs
 
-| API | GPC Warning Code | Replacement |
-| --- | ---------------- | ----------- |
-| `purchases.subscriptions:cancel` | `GPC_DEP002` | `subscriptionsv2.cancel` |
-| `purchases.subscriptions:defer` | `GPC_DEP003` | `subscriptionsv2.defer` |
+| API                              | GPC Warning Code | Replacement              |
+| -------------------------------- | ---------------- | ------------------------ |
+| `purchases.subscriptions:cancel` | `GPC_DEP002`     | `subscriptionsv2.cancel` |
+| `purchases.subscriptions:defer`  | `GPC_DEP003`     | `subscriptionsv2.defer`  |
 
 GPC emits deprecation warnings on both methods. `cancelSubscriptionV2` and `deferSubscriptionV2` are the v2 replacements.
 
 ### Deprecated Order field
 
-| Field | Replacement |
-| ----- | ----------- |
+| Field                                             | Replacement                                               |
+| ------------------------------------------------- | --------------------------------------------------------- |
 | `Order.lineItems.subscriptionDetails.offer_phase` | `Order.lineItems.subscriptionDetails.offer_phase_details` |
 
 ### NOT deprecated in this wave
@@ -47,11 +48,12 @@ GPC emits deprecation warnings on both methods. `cancelSubscriptionV2` and `defe
 Deprecated as of **May 21, 2025**. Shutdown on **August 31, 2027** (extension available to November 1, 2027).
 
 ::: warning Timeline
+
 - **May 21, 2025** -- Deprecation begins
 - **July 1, 2026** -- New client libraries no longer include these APIs
 - **August 31, 2027** -- Shutdown (APIs stop working)
 - **November 1, 2027** -- Extension deadline (if requested)
-:::
+  :::
 
 ### `purchases.subscriptions.get` (v1)
 
@@ -98,54 +100,54 @@ GPC's `SubscriptionPurchaseV2` type already includes `latestSuccessfulOrderId` o
 
 How fields from the legacy `SubscriptionPurchase` (v1) map to `SubscriptionPurchaseV2` (v2):
 
-| V1 Field | V2 Field |
-| --- | --- |
-| `countryCode` | `regionCode` |
-| `orderId` | `lineItems[].latestSuccessfulOrderId`. Pending order ID available via `inGracePeriodStateContext.renewalDeclined.pendingOrderId` or `onHoldStateContext.renewalDeclined.pendingOrderId` |
-| `startTimeMillis` | `startTime` |
-| `expiryTimeMillis` | `lineItems[].expiryTime` (each subscription in the purchase has its own `expiryTime`) |
-| `autoResumeTimeMillis` | `pausedStateContext.autoResumeTime` |
-| `autoRenewing` | `lineItems[].autoRenewingPlan.autoRenewEnabled` |
-| `priceCurrencyCode` / `priceAmountMicros` | `lineItems[].autoRenewingPlan.recurringPrice` |
-| `introductoryPriceInfo` | `lineItems[].offerPhase.introductoryPrice` |
-| `priceChange` | `lineItems[].autoRenewingPlan.priceChangeDetails` |
-| `paymentState` | Inferred from `subscriptionState` (see below) |
-| `cancelReason` / `userCancellationTimeMillis` / `cancelSurveyResult` | `canceledStateContext` |
-| `linkedPurchaseToken` | `linkedPurchaseToken` (no change) |
-| `acknowledgementState` | `acknowledgementState` (no change) |
-| `profileName` / `emailAddress` / etc. | `subscribeWithGoogleInfo` |
-| `promotionType` / `promotionCode` | `signupPromotion` |
-| `externalAccountId` / `obfuscatedExternalAccountId` | `externalAccountIdentifiers` |
-| `purchaseType` (test) | `testPurchase` |
-| `purchaseType` (promo) | `signupPromotion` |
-| `developerPayload` | No replacement (deprecated) |
+| V1 Field                                                             | V2 Field                                                                                                                                                                                |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `countryCode`                                                        | `regionCode`                                                                                                                                                                            |
+| `orderId`                                                            | `lineItems[].latestSuccessfulOrderId`. Pending order ID available via `inGracePeriodStateContext.renewalDeclined.pendingOrderId` or `onHoldStateContext.renewalDeclined.pendingOrderId` |
+| `startTimeMillis`                                                    | `startTime`                                                                                                                                                                             |
+| `expiryTimeMillis`                                                   | `lineItems[].expiryTime` (each subscription in the purchase has its own `expiryTime`)                                                                                                   |
+| `autoResumeTimeMillis`                                               | `pausedStateContext.autoResumeTime`                                                                                                                                                     |
+| `autoRenewing`                                                       | `lineItems[].autoRenewingPlan.autoRenewEnabled`                                                                                                                                         |
+| `priceCurrencyCode` / `priceAmountMicros`                            | `lineItems[].autoRenewingPlan.recurringPrice`                                                                                                                                           |
+| `introductoryPriceInfo`                                              | `lineItems[].offerPhase.introductoryPrice`                                                                                                                                              |
+| `priceChange`                                                        | `lineItems[].autoRenewingPlan.priceChangeDetails`                                                                                                                                       |
+| `paymentState`                                                       | Inferred from `subscriptionState` (see below)                                                                                                                                           |
+| `cancelReason` / `userCancellationTimeMillis` / `cancelSurveyResult` | `canceledStateContext`                                                                                                                                                                  |
+| `linkedPurchaseToken`                                                | `linkedPurchaseToken` (no change)                                                                                                                                                       |
+| `acknowledgementState`                                               | `acknowledgementState` (no change)                                                                                                                                                      |
+| `profileName` / `emailAddress` / etc.                                | `subscribeWithGoogleInfo`                                                                                                                                                               |
+| `promotionType` / `promotionCode`                                    | `signupPromotion`                                                                                                                                                                       |
+| `externalAccountId` / `obfuscatedExternalAccountId`                  | `externalAccountIdentifiers`                                                                                                                                                            |
+| `purchaseType` (test)                                                | `testPurchase`                                                                                                                                                                          |
+| `purchaseType` (promo)                                               | `signupPromotion`                                                                                                                                                                       |
+| `developerPayload`                                                   | No replacement (deprecated)                                                                                                                                                             |
 
 ### Inferring `paymentState` from V2
 
-| Condition | V2 equivalent |
-| --- | --- |
-| Payment pending (new purchase) | `subscriptionState` = `SUBSCRIPTION_STATE_PENDING` |
-| Payment pending (renewal) | `subscriptionState` = `SUBSCRIPTION_STATE_IN_GRACE_PERIOD` or `SUBSCRIPTION_STATE_ON_HOLD` |
-| Payment received | `subscriptionState` = `SUBSCRIPTION_STATE_ACTIVE` |
-| Free trial | `lineItems[].offerPhase.freeTrial` |
-| Deferred upgrade/downgrade | `lineItems[].deferredItemReplacement` |
+| Condition                      | V2 equivalent                                                                              |
+| ------------------------------ | ------------------------------------------------------------------------------------------ |
+| Payment pending (new purchase) | `subscriptionState` = `SUBSCRIPTION_STATE_PENDING`                                         |
+| Payment pending (renewal)      | `subscriptionState` = `SUBSCRIPTION_STATE_IN_GRACE_PERIOD` or `SUBSCRIPTION_STATE_ON_HOLD` |
+| Payment received               | `subscriptionState` = `SUBSCRIPTION_STATE_ACTIVE`                                          |
+| Free trial                     | `lineItems[].offerPhase.freeTrial`                                                         |
+| Deferred upgrade/downgrade     | `lineItems[].deferredItemReplacement`                                                      |
 
 ### New V2-only fields (no v1 equivalent)
 
-| Field | Description |
-| ----- | ----------- |
-| `subscriptionState` | Current subscription state enum |
-| `lineItems` | List of products acquired in the purchase |
-| `lineItems[].offerPhase` | Current phase: free trial, intro price, proration, base price |
-| `lineItems[].offerDetails.basePlanId` | Base plan identifier |
-| `lineItems[].offerDetails.offerId` | Offer identifier |
-| `lineItems[].offerDetails.offerTags` | Tags attached to the offer |
-| `lineItems[].deferredItemReplacement` | Present during deferred upgrade/downgrade |
-| `pausedStateContext` | Present when `SUBSCRIPTION_STATE_PAUSED` |
-| `canceledStateContext` | Present when `SUBSCRIPTION_STATE_CANCELED` |
-| `onHoldStateContext` | Present when `SUBSCRIPTION_STATE_ON_HOLD` (May 2026). Contains `renewalDeclined.pendingOrderId` |
-| `inGracePeriodStateContext` | Present when `SUBSCRIPTION_STATE_IN_GRACE_PERIOD` (May 2026). Contains `renewalDeclined.pendingOrderId` |
-| `testPurchase` | Present for licensed tester purchases |
+| Field                                 | Description                                                                                             |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `subscriptionState`                   | Current subscription state enum                                                                         |
+| `lineItems`                           | List of products acquired in the purchase                                                               |
+| `lineItems[].offerPhase`              | Current phase: free trial, intro price, proration, base price                                           |
+| `lineItems[].offerDetails.basePlanId` | Base plan identifier                                                                                    |
+| `lineItems[].offerDetails.offerId`    | Offer identifier                                                                                        |
+| `lineItems[].offerDetails.offerTags`  | Tags attached to the offer                                                                              |
+| `lineItems[].deferredItemReplacement` | Present during deferred upgrade/downgrade                                                               |
+| `pausedStateContext`                  | Present when `SUBSCRIPTION_STATE_PAUSED`                                                                |
+| `canceledStateContext`                | Present when `SUBSCRIPTION_STATE_CANCELED`                                                              |
+| `onHoldStateContext`                  | Present when `SUBSCRIPTION_STATE_ON_HOLD` (May 2026). Contains `renewalDeclined.pendingOrderId`         |
+| `inGracePeriodStateContext`           | Present when `SUBSCRIPTION_STATE_IN_GRACE_PERIOD` (May 2026). Contains `renewalDeclined.pendingOrderId` |
+| `testPurchase`                        | Present for licensed tester purchases                                                                   |
 
 ## What GPC Users Should Do
 

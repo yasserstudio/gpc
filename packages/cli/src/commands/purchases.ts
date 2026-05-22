@@ -233,11 +233,11 @@ export function registerPurchasesCommands(program: Command): void {
   sub
     .command("revoke <token>")
     .description("Revoke a subscription (v2)")
+    .option("--refund-type <type>", "Refund type: full, prorated, or item (default: prorated)")
     .option(
-      "--refund-type <type>",
-      "Refund type: full, prorated, or item (default: prorated)",
+      "--product-id <id>",
+      "Product ID for item-based refund (required with --refund-type item)",
     )
-    .option("--product-id <id>", "Product ID for item-based refund (required with --refund-type item)")
     .action(async (token: string, opts: { refundType?: string; productId?: string }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -266,7 +266,10 @@ export function registerPurchasesCommands(program: Command): void {
         return;
       }
 
-      await requireConfirm(`Revoke subscription (${refundType} refund)? This cannot be undone.`, program);
+      await requireConfirm(
+        `Revoke subscription (${refundType} refund)? This cannot be undone.`,
+        program,
+      );
 
       const client = await getClient(config);
 
@@ -524,7 +527,11 @@ export function registerPurchasesCommands(program: Command): void {
       const client = await getClient(config);
 
       const result = await deferSubscriptionV2(
-        client, packageName, token, options.duration, options.etag,
+        client,
+        packageName,
+        token,
+        options.duration,
+        options.etag,
       );
       for (const item of result.itemExpiryTimeDetails) {
         console.log(`${item.productId}: new expiry ${item.expiryTime}`);

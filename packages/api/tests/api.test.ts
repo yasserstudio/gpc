@@ -1100,7 +1100,9 @@ describe("monetization API endpoints", () => {
       mockFetch.mockResolvedValueOnce(mockResponse(sub));
       const client = makeClient();
       const result = await client.purchases.getSubscriptionV2(PKG, "tok-hold");
-      expect(result.onHoldStateContext).toEqual({ renewalDeclined: { pendingOrderId: "GPA.1234-5678" } });
+      expect(result.onHoldStateContext).toEqual({
+        renewalDeclined: { pendingOrderId: "GPA.1234-5678" },
+      });
     });
 
     it("getSubscriptionV2 returns inGracePeriodStateContext when subscription is IN_GRACE_PERIOD", async () => {
@@ -1113,7 +1115,9 @@ describe("monetization API endpoints", () => {
       mockFetch.mockResolvedValueOnce(mockResponse(sub));
       const client = makeClient();
       const result = await client.purchases.getSubscriptionV2(PKG, "tok-grace");
-      expect(result.inGracePeriodStateContext).toEqual({ renewalDeclined: { pendingOrderId: "GPA.9876-5432" } });
+      expect(result.inGracePeriodStateContext).toEqual({
+        renewalDeclined: { pendingOrderId: "GPA.9876-5432" },
+      });
     });
 
     it("cancelSubscription calls POST .../:cancel", async () => {
@@ -1276,7 +1280,9 @@ describe("monetization API endpoints", () => {
 
     it("deferSubscriptionV2 calls POST /{pkg}/purchases/subscriptionsv2/tokens/{token}:defer", async () => {
       const resp = {
-        itemExpiryTimeDetails: [{ productId: "premium_monthly", expiryTime: "2026-07-01T00:00:00Z" }],
+        itemExpiryTimeDetails: [
+          { productId: "premium_monthly", expiryTime: "2026-07-01T00:00:00Z" },
+        ],
       };
       mockFetch.mockResolvedValueOnce(mockResponse(resp));
       const client = makeClient();

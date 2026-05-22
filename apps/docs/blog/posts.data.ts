@@ -17,7 +17,15 @@ export default createContentLoader("blog/*.md", {
       .map((page) => ({
         title: page.frontmatter.title ?? "Untitled",
         url: /^\/[^/]/.test(page.url) ? page.url : "/",
-        date: (() => { try { return page.frontmatter.date ? new Date(page.frontmatter.date).toISOString().slice(0, 10) : ""; } catch { return ""; } })(),
+        date: (() => {
+          try {
+            return page.frontmatter.date
+              ? new Date(page.frontmatter.date).toISOString().slice(0, 10)
+              : "";
+          } catch {
+            return "";
+          }
+        })(),
         description: page.frontmatter.description ?? "",
         author: page.frontmatter.author ?? "Yasser Berrehail",
         tags: page.frontmatter.tags ?? [],

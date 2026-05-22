@@ -389,10 +389,10 @@ Zero critical or high alerts. The transitive overall score is pulled down by `no
 
 GPC's npm publish pipeline uses two layers of protection:
 
-| Layer | What it does |
-| --- | --- |
-| **Trusted Publisher (OIDC)** | No long-lived npm tokens. GitHub Actions authenticates to npm via short-lived OIDC tokens that cannot be extracted or reused. Provenance attestation is automatic. |
-| **Staged Publishing** | CI submits packages to npm's staging area (`npm stage publish`). A maintainer must review and approve each staged package with 2FA before it goes live on the registry. |
+| Layer                        | What it does                                                                                                                                                            |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Trusted Publisher (OIDC)** | No long-lived npm tokens. GitHub Actions authenticates to npm via short-lived OIDC tokens that cannot be extracted or reused. Provenance attestation is automatic.      |
+| **Staged Publishing**        | CI submits packages to npm's staging area (`npm stage publish`). A maintainer must review and approve each staged package with 2FA before it goes live on the registry. |
 
 This means even if CI is compromised, an attacker cannot push malicious packages directly to npm. A human with 2FA must approve every release.
 

@@ -14,7 +14,10 @@ function formatDate(dateStr: string): string {
   <div class="blog-post-header">
     <a href="/gpc/blog/" class="blog-back">&larr; All posts</a>
     <div class="blog-post-meta">
-      <time v-if="frontmatter.date" :datetime="new Date(frontmatter.date).toISOString().slice(0, 10)">
+      <time
+        v-if="frontmatter.date"
+        :datetime="new Date(frontmatter.date).toISOString().slice(0, 10)"
+      >
         {{ formatDate(new Date(frontmatter.date).toISOString().slice(0, 10)) }}
       </time>
       <span v-if="frontmatter.author" class="blog-post-author">{{ frontmatter.author }}</span>

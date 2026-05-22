@@ -77,8 +77,12 @@ describe("waitForBundleProcessing", () => {
 });
 
 describe("retryOnUploadNotComplete", () => {
-  beforeEach(() => { vi.useFakeTimers(); });
-  afterEach(() => { vi.useRealTimers(); });
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it("returns immediately when fn succeeds", async () => {
     const fn = vi.fn().mockResolvedValue("ok");
@@ -105,7 +109,8 @@ describe("retryOnUploadNotComplete", () => {
       "INVALID_ARGUMENT",
       400,
     );
-    const fn = vi.fn()
+    const fn = vi
+      .fn()
       .mockRejectedValueOnce(err)
       .mockRejectedValueOnce(err)
       .mockResolvedValue("ok");

@@ -41,7 +41,14 @@ jobs:
       - name: Dry-run publish
         run: |
           for pkg in packages/auth packages/config packages/plugin-sdk packages/api packages/core packages/cli plugins/plugin-ci; do
-            echo "--- dry-run: $pkg ---"
+            PKG_NAME=$(node -p "require('./$pkg/package.json').name")
+            PKG_VER=$(node -p "require('./$pkg/package.json').version")
+            REGISTRY_VER=$(npm view "$PKG_NAME" version 2>/dev/null || echo "")
+            if [ "$PKG_VER" = "$REGISTRY_VER" ]; then
+              echo "--- skip: $pkg ($PKG_NAME@$PKG_VER already published) ---"
+              continue
+            fi
+            echo "--- dry-run: $pkg ($PKG_NAME@$PKG_VER) ---"
             (cd "$pkg" && npm publish --dry-run 2>&1) || exit 1
           done
 
