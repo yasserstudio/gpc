@@ -5438,11 +5438,9 @@ describe("assignRelease", () => {
         }),
       },
       bundles: {
-        list: vi.fn().mockResolvedValue(
-          bundleExists
-            ? [{ versionCode: 42, sha1: "abc", sha256: "def" }]
-            : [],
-        ),
+        list: vi
+          .fn()
+          .mockResolvedValue(bundleExists ? [{ versionCode: 42, sha1: "abc", sha256: "def" }] : []),
       },
     };
   }
@@ -5465,9 +5463,9 @@ describe("assignRelease", () => {
 
   it("throws BUNDLE_NOT_FOUND when versionCode does not exist", async () => {
     const client = mockClient(false);
-    await expect(
-      assignRelease(client, "com.example", 999, { track: "beta" }),
-    ).rejects.toThrow("Version code 999 not found");
+    await expect(assignRelease(client, "com.example", 999, { track: "beta" })).rejects.toThrow(
+      "Version code 999 not found",
+    );
   });
 
   it("coerces numeric versionCode to string in the release", async () => {

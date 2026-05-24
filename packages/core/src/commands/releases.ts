@@ -483,10 +483,7 @@ export async function assignRelease(
 
   const code = String(versionCode);
   const release: Release = {
-    versionCodes: [
-      ...(options.retainVersionCodes || []).filter((vc) => vc !== code),
-      code,
-    ],
+    versionCodes: [...(options.retainVersionCodes || []).filter((vc) => vc !== code), code],
     status: (options.status ||
       (options.userFraction ? "inProgress" : "completed")) as Release["status"],
     ...(options.userFraction && { userFraction: options.userFraction }),
@@ -682,7 +679,7 @@ export async function updateTrackConfig(
 
     const release: Release = {
       versionCodes,
-      status: (((pick("status") as string) || "completed") as Release["status"]),
+      status: ((pick("status") as string) || "completed") as Release["status"],
     };
     if (pick("userFraction") !== undefined) {
       release.userFraction = pick("userFraction") as number;

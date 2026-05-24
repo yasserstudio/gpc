@@ -40,10 +40,7 @@ export async function validateAndCommit(
     try {
       await client.edits.validate(packageName, editId);
     } catch (error) {
-      if (
-        error instanceof PlayApiError &&
-        error.code === "API_CHANGES_NOT_SENT_FOR_REVIEW"
-      ) {
+      if (error instanceof PlayApiError && error.code === "API_CHANGES_NOT_SENT_FOR_REVIEW") {
         process.emitWarning(
           "App has a rejected update — auto-setting changesNotSentForReview=true",
           "AutoRescueWarning",

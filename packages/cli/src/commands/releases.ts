@@ -662,9 +662,7 @@ export function registerReleasesCommands(program: Command): void {
         track: options.track,
         status: options.status,
         userFraction: options.rollout ? Number(options.rollout) / 100 : undefined,
-        releaseNotes: options.notes
-          ? [{ language: "en-US", text: options.notes }]
-          : undefined,
+        releaseNotes: options.notes ? [{ language: "en-US", text: options.notes }] : undefined,
         releaseName: options.name,
         inAppUpdatePriority: options.inAppUpdatePriority,
         retainVersionCodes: options.retainVersionCodes,
