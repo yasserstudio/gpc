@@ -130,10 +130,10 @@ export function registerPurchasesCommands(program: Command): void {
         const inGrace = r["inGracePeriodStateContext"] as Record<string, unknown> | undefined;
         const onHoldPending = (
           onHold?.["renewalDeclined"] as Record<string, unknown> | undefined
-        )?.["pendingOrderId"];
+        )?.["pendingOrderId"] as string | undefined;
         const inGracePending = (
           inGrace?.["renewalDeclined"] as Record<string, unknown> | undefined
-        )?.["pendingOrderId"];
+        )?.["pendingOrderId"] as string | undefined;
         const row: Record<string, unknown> = {
           subscriptionState: r["subscriptionState"] || "-",
           startTime: r["startTime"] || "-",
