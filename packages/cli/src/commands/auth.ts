@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import { createInterface } from "node:readline";
 import { access } from "node:fs/promises";
+import { homedir } from "node:os";
 import { resolve } from "node:path";
 import { resolveAuth, loadServiceAccountKey, clearTokenCache, AuthError } from "@gpc-cli/auth";
 import { loadConfig, getCacheDir, deleteConfigValue, setConfigValue } from "@gpc-cli/config";
@@ -372,7 +373,7 @@ export function registerAuthCommands(program: Command): void {
           "./service-account.json",
           "./gpc-service-account.json",
           "~/.config/gpc/service-account.json",
-        ].map((p) => resolve(p.replace("~", process.env["HOME"] || "")));
+        ].map((p) => resolve(p.replace("~", homedir())));
 
         for (const p of commonPaths) {
           if (existsSync(p)) {
@@ -393,7 +394,7 @@ export function registerAuthCommands(program: Command): void {
       }
 
       // Validate the key file
-      const absPath = resolve(keyPath.replace("~", process.env["HOME"] || ""));
+      const absPath = resolve(keyPath.replace("~", homedir()));
       if (!existsSync(absPath)) {
         console.error(`\n\u2717 File not found: ${absPath}`);
         return;

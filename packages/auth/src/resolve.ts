@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { GoogleAuth } from "google-auth-library";
 import { AuthError } from "./errors.js";
 import { createServiceAccountAuth, loadServiceAccountKey } from "./service-account.js";
@@ -15,7 +16,13 @@ async function tryApplicationDefaultCredentials(cachePath?: string): Promise<Aut
 
     const client = await auth.getClient();
     const projectId = await auth.getProjectId().catch(() => undefined);
-    const email = (client as { email?: string }).email ?? "adc-default";
+    const clientEmail = (client as { email?: string }).email;
+    const email =
+      clientEmail ??
+      `adc-${createHash("sha256")
+        .update(projectId ?? process.env["GOOGLE_APPLICATION_CREDENTIALS"] ?? "default")
+        .digest("hex")
+        .slice(0, 12)}`;
 
     return {
       async getAccessToken(): Promise<string> {

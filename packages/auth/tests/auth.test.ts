@@ -311,8 +311,33 @@ describe("resolveAuth", () => {
     });
 
     const client = await resolveAuth();
-    expect(client.getClientEmail()).toBe("adc-default");
+    // When email is unavailable, cache key is a hash-based fallback (not a constant)
+    expect(client.getClientEmail()).toMatch(/^adc-[a-f0-9]{12}$/);
     expect(client.getProjectId()).toBeUndefined();
+  });
+
+  it("ADC uses distinct cache keys for different projects when email is missing", async () => {
+    delete process.env["GPC_SERVICE_ACCOUNT"];
+
+    // First client with project A
+    adcOverride.fn = () => ({
+      getClient: vi.fn().mockResolvedValue({
+        getAccessToken: vi.fn().mockResolvedValue({ token: "token-a" }),
+      }),
+      getProjectId: vi.fn().mockResolvedValue("project-a"),
+    });
+    const clientA = await resolveAuth();
+
+    // Second client with project B
+    adcOverride.fn = () => ({
+      getClient: vi.fn().mockResolvedValue({
+        getAccessToken: vi.fn().mockResolvedValue({ token: "token-b" }),
+      }),
+      getProjectId: vi.fn().mockResolvedValue("project-b"),
+    });
+    const clientB = await resolveAuth();
+
+    expect(clientA.getClientEmail()).not.toBe(clientB.getClientEmail());
   });
 });
 

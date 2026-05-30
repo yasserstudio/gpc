@@ -63,10 +63,11 @@ The remaining items before the stable `1.0.0` release:
 - [x] **v0.9.76 — Google I/O 2026 response** (shipped 2026-05-20). Play Developer API parity (new SubscriptionPurchaseV2 fields, May 2026 deprecation warnings), Android CLI interop docs refresh (Android CLI 1.0 stable + AI Studio internal-track publishing), monetization docs update (60-day account recovery), full API contract audit (50+ fixes). 2,313 tests. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.76
 - [x] **v0.9.77 — Fix large AAB upload timeout, supply chain hardening** (shipped 2026-05-22). Fibonacci backoff polling (~86s), multi-retry guard on validate/commit. Trusted Publisher (OIDC), Staged Publishing (2FA gate), NPM_TOKEN deleted. 2,319 tests. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.77
 - [x] **v0.9.78 -- Track management, edit commit, and version assignment fixes** (shipped 2026-05-24). fix: `tracks update` versionCode coercion + nested JSON support. fix: `validateAndCommit` auto-rescue for changesNotSentForReview on validate (15+ commands). feat: `gpc releases assign <versionCode> --track <track>`. 2,332 tests. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.78
-- [x] **v0.9.79 -- Developer clarity, API contract refresh, Android 16 preflight** (planned). Two tracks: (A) Developer/AI-agent clarity: visible auto-rescue output + JSON `reviewPending` flag after rejection commit, bundle processing progress logging, edit expiry error improvement, internal track "no review" note, staged rollout decrease actionable error, `--dry-run` boundary logging. (B) API contract: `offerPhaseDetails` on Orders (deprecates `offerPhase`), OTP purchase option offers audit (7 methods + batch), `edits.tracks.create` for custom closed testing, surface `onHoldStateContext`/`inGracePeriodStateContext` in subscription output. Plus: `target-sdk-version` preflight scanner (API 36, Aug 31 2026 deadline), Node.js 24 CI compat (June 16 default). 2,332 tests.
+- [x] **v0.9.79 -- Developer clarity, API contract refresh, Android 16 preflight** (shipped 2026-05-25). Two tracks: (A) Developer/AI-agent clarity: visible auto-rescue output + JSON `reviewPending` flag after rejection commit, bundle processing progress logging, edit expiry error improvement, internal track "no review" note, staged rollout decrease actionable error, `--dry-run` boundary logging. (B) API contract: `offerPhaseDetails` on Orders (deprecates `offerPhase`), OTP purchase option offers audit (7 methods + batch), `edits.tracks.create` for custom closed testing, surface `onHoldStateContext`/`inGracePeriodStateContext` in subscription output. Plus: `target-sdk-version` preflight scanner (API 36, Aug 31 2026 deadline), Node.js 24 CI compat (June 16 default). 2,332 tests.
+- [ ] **v0.9.80 -- Security audit, API alignment, code quality, docs refresh** (planned). Full-codebase deepsec v2.0.9 audit (94 findings), Google API discovery doc alignment (rev 20260520), code quality review, full docs/SEO/AI/LLM optimization. 5 tracks, ~55 items. Plan: `.dev/engineering/V0980_AUDIT_PLAN.md`.
 - [ ] Wall of Apps community showcase
 - [ ] Public marketing push (Dev.to retrospective, Android Weekly)
-- [ ] Stability soak period -- no critical bugs for 2+ weeks in production usage (soak restarts after v0.9.79, earliest 1.0: 2 weeks after v0.9.79 ships)
+- [ ] Stability soak period -- no critical bugs for 2+ weeks in production usage (soak starts after v0.9.90, earliest 1.0: 2 weeks after v0.9.90 ships)
 - [x] GitHub Actions Node.js 22 migration (done in v0.9.70)
 - [ ] Dependency audit cleanup (see [Supply Chain Status](#supply-chain-status) below)
 
@@ -2865,11 +2866,12 @@ Audit against [Google Play Developer APIs overview](https://developer.android.co
 6. ~~Missing batch endpoints for OTP and subscriptions~~ **Done (v0.9.47)** -- 10 batch endpoints
 
 **Remaining for v1.0.0:**
-- v0.9.79: API contract refresh (offerPhaseDetails, OTP offers audit, tracks.create, target SDK 36 preflight, Node 24 CI)
+- ~~v0.9.79: API contract refresh~~ **Done (shipped 2026-05-25)**
+- v0.9.80: Security audit, API alignment, code quality, docs refresh (plan: `.dev/engineering/V0980_AUDIT_PLAN.md`)
 - Hall of Fame community showcase (plan: `.dev/engineering/WALL_OF_APPS_PLAN.md`)
 - Website launch: gpccli.com (plan: `.dev/engineering/WEBSITE_PLAN.md`)
 - Public marketing push (blog posts, X threads, Reddit, Android Weekly)
-- Stability soak period (2+ weeks, zero critical bugs)
+- Stability soak period (2+ weeks, zero critical bugs, starts after v0.9.90)
 - Simple upload `?uploadType=media` spec compliance (#1)
 - Parameter sprawl cleanup on subscription/OTP update methods (technical debt)
 
@@ -2879,6 +2881,104 @@ Audit against [Google Play Developer APIs overview](https://developer.android.co
 - **August 31, 2026** -- Target SDK level 36 (Android 16) required for all new apps/updates
 - **August 31, 2026** -- Play Billing Library v7 sunset (client-side, docs-only)
 - **September 30, 2026** -- Developer Verification enforcement (BR, ID, SG, TH first)
+
+---
+
+## v0.9.80 -- Security Audit, API Alignment, Code Quality (planned)
+
+Audit date: 2026-05-26. Full plan: `.dev/engineering/V0980_AUDIT_PLAN.md`.
+
+Driven by: deepsec v2.0.9 (94 findings after triage), Google Play Developer API v3 discovery doc (rev 20260520), manual code quality review across all 7 packages. Includes full docs alignment pass and SEO/AI/LLM optimization.
+
+### Track A: Security (15 items)
+
+| # | Finding | File(s) | Severity |
+|---|---------|---------|----------|
+| A1 | Project config can self-approve plugins (bypass user trust gate) | `config/src/loader.ts` | HIGH |
+| A2 | Shell injection in stage-publish npm version check | `scripts/stage-publish.js` | HIGH |
+| A3 | Release tag interpolation in binary.yml (shell injection) | `.github/workflows/binary.yml` | HIGH |
+| A4 | OIDC release job runs unpinned npm/cdxgen code | `.github/workflows/release.yml` | HIGH |
+| A5 | CI PR jobs expose secrets to checked-out code | `.github/workflows/ci.yml` | HIGH |
+| A6 | Webhook payload leaks secrets (purchase tokens, passwords) | `core/src/utils/webhooks.ts`, `cli/src/bin.ts` | HIGH |
+| A7 | Service account secret echoed in auth error messages | `auth/src/service-account.ts` | HIGH |
+| A8 | ADC tokens share constant cache key (multi-account confusion) | `auth/src/token-cache.ts` | HIGH_BUG |
+| A9 | Preflight manifest parse failures pass by default | `core/src/preflight/` | HIGH_BUG |
+| A10 | Watch suppresses halt/webhook after prior breach action | `core/src/commands/watch.ts` | HIGH_BUG |
+| A11 | Preflight: `android:testOnly` read from wrong manifest element | `core/src/preflight/` | HIGH_BUG |
+| A12 | Preflight: APK native libraries never checked for 16KB alignment | `core/src/preflight/` | HIGH_BUG |
+| A13 | Preflight: only 256 bytes of ELF read, misses late PT_LOAD headers | `core/src/preflight/` | HIGH_BUG |
+| A14 | Status fetch suppresses section failures, reports false healthy | `core/src/commands/status.ts` | HIGH_BUG |
+| A15 | Generated CI template: unpinned `npm install -g @gpc-cli/cli` | `core/src/commands/init.ts` | HIGH |
+
+### Track B: Google API Alignment (13 items)
+
+| # | Issue | Severity |
+|---|-------|----------|
+| B1 | `canceledStateContext` flattened vs Google's nested `userInitiatedCancellation` | HIGH |
+| B2 | `outOfAppPurchaseContext.externalTransactionToken` does not exist in Google schema | HIGH |
+| B3 | `signupPromotion` shape `{promotionType, promotionCode}` vs Google's `{oneTimeCode, vanityCode}` | HIGH |
+| B4 | `inappproducts.batchGet` sends `packageName.sku` param key, should be `sku` | HIGH |
+| B5 | `User.developerAccountPermission` singular vs Google's plural `developerAccountPermissions` | HIGH |
+| B6 | Missing `latencyTolerance` on inappproducts update/delete | MEDIUM |
+| B7 | Missing `Grant.name` field | MEDIUM |
+| B8 | `acknowledgeSubscription` v1 missing deprecation warning | MEDIUM |
+| B9 | `buyOption` missing `legacyCompatible` + `multiQuantityEnabled` | MEDIUM |
+| B10 | `rentOption` missing `expirationPeriod` | MEDIUM |
+| B11 | `ItemReplacement` missing `replacementMode` | MEDIUM |
+| B12 | `oneTimeProducts.listOffers` missing pagination params | MEDIUM |
+| B13 | Tax compliance types missing `regionalProductAgeRatingInfos` + `productTaxCategoryCode` | MEDIUM |
+
+### Track C: Code Quality P1 (10 items)
+
+| # | Issue | File |
+|---|-------|------|
+| C1 | `bundles.list` missing `?? []` null fallback (crash risk) | `api/src/client.ts:864` |
+| C2 | `tracks.list` missing `?? []` null fallback (crash risk) | `api/src/client.ts:895` |
+| C3 | `download()` has no retry logic unlike all other HTTP methods | `api/src/http.ts:859-893` |
+| C4 | Plugin permissions validated but never enforced | `core/src/plugins.ts:36-58` |
+| C5 | Raw `throw new Error()` in API client (bypasses PlayApiError) | `api/src/client.ts:1748` |
+| C6 | Raw `throw new Error()` in watch + changelog commands | `core/src/commands/watch.ts:189`, `changelog.ts:42,49,51` |
+| C7 | Hard `process.exit()` bypasses error handler | `cli/src/commands/bundles.ts:58`, `enterprise.ts:312`, `purchases.ts:240,258` |
+| C8 | Unguarded `JSON.parse` in config writer | `config/src/writer.ts:74` |
+| C9 | Profile name prototype pollution (`__proto__` as profile name) | `config/src/writer.ts:90-108` |
+| C10 | Plugin `register()` can crash entire CLI | `core/src/plugins.ts:52` |
+
+### Track D: Code Quality P2 (10 items, ship if time allows)
+
+| # | Issue |
+|---|-------|
+| D1 | Standardize `?? []` over `\|\| []` in client.ts (10 sites) |
+| D2 | `reports.list` path: use `p()` encoding for consistency |
+| D3 | Standardize batchGet on `URLSearchParams` (2 sites) |
+| D4 | Watch metrics: parallelize with `Promise.all` (~500ms saved/round) |
+| D5 | `signing-consistency.ts`: use PlayApiClient instead of raw fetch |
+| D6 | Tilde expansion: use `os.homedir()` instead of naive `.replace("~", ...)` |
+| D7 | `readConfigFile`: wrap JSON.parse, throw ConfigError not SyntaxError |
+| D8 | `writer.ts`: sanitize parsed JSON from disk (share sanitizeObject from loader) |
+| D9 | Duplicated `formatSize()` utility in two files |
+| D10 | 18 `as any` casts in CLI monetization commands |
+
+### Track E: Docs Alignment + SEO/AI/LLM Optimization
+
+Full docs refresh: align all surfaces with v0.9.80 state, optimize for search engines and AI/LLM crawlers. Uses marketing skills from `coreyhaines31/marketingskills`.
+
+- E1: Version stamps and stats alignment (README, llms.txt, FAQ, badges, api-coverage grid)
+- E2: Docs content alignment (command references, security.md, architecture.md, changelog, api-coverage, troubleshooting, preflight)
+- E3: SEO optimization (titles, meta descriptions, JSON-LD, OG/Twitter cards, sitemap, internal links, heading hierarchy)
+- E4: AI/LLM optimization (llms.txt, llms-full.txt, CLAUDE.md, agent skills refresh, robots.txt, ai-plugin.json, AI-parseable patterns)
+- E5: Announcement and branding (VitePress banner, homepage features, npm descriptions)
+
+### Estimated effort
+
+~850 LOC code + docs refresh, ~55 items, target ~2,380 tests (from 2,332).
+
+### Implementation order
+
+1. A1-A2 (plugin trust + shell injection), B1-B5 (breaking type mismatches), C1-C2 (null fallback crashes)
+2. A3-A5 (CI hardening), A6-A7 (secret redaction), B6-B13 (API field completeness)
+3. C3-C10 (P1 quality), A8-A15 (preflight + status bugs)
+4. D1-D10 (P2 quality)
+5. E1-E5 (docs alignment, SEO, AI/LLM optimization -- runs parallel with code tracks)
 
 ---
 
@@ -2962,7 +3062,7 @@ Audit against [Google Play Developer APIs overview](https://developer.android.co
 **One-Time Product Offers nested CRUD** (confirmed in discovery doc revision 20260520)
 - Full lifecycle for OTP purchase option offers (7 methods): activate, batchDelete, batchGet, batchUpdate, batchUpdateStates, cancel, deactivate, list
 - Parent-level batch ops: `purchaseOptions.batchDelete`, `purchaseOptions.batchUpdateStates`
-- v0.9.79 will audit current coverage and wire any missing methods
+- v0.9.79 audited coverage: all 7 methods + 2 batch parent ops confirmed implemented (client.ts:1776-1911)
 
 **`reviews.list` sortOrder parameter**
 - Add `reviewsSortOrder` query param (newest, rating)

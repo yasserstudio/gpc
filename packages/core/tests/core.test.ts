@@ -3182,7 +3182,7 @@ describe("user commands", () => {
     const call = client.create.mock.calls[0];
     expect(call[0]).toBe("12345");
     expect(call[1].email).toBe("new@b.com");
-    expect(call[1].developerAccountPermission).toEqual(["ADMIN"]);
+    expect(call[1].developerAccountPermissions).toEqual(["ADMIN"]);
   });
 
   it("inviteUser passes grants when provided", async () => {
@@ -3201,8 +3201,8 @@ describe("user commands", () => {
     expect(client.update).toHaveBeenCalledWith(
       "12345",
       "a@b.com",
-      { developerAccountPermission: ["CAN_VIEW_FINANCIAL_DATA"] },
-      "developerAccountPermission",
+      { developerAccountPermissions: ["CAN_VIEW_FINANCIAL_DATA"] },
+      "developerAccountPermissions",
     );
   });
 
@@ -3213,8 +3213,8 @@ describe("user commands", () => {
     expect(client.update).toHaveBeenCalledWith(
       "12345",
       "a@b.com",
-      { developerAccountPermission: ["ADMIN"], grants },
-      "developerAccountPermission,grants",
+      { developerAccountPermissions: ["ADMIN"], grants },
+      "developerAccountPermissions,grants",
     );
   });
 
@@ -4562,7 +4562,7 @@ describe("user commands – edge cases", () => {
     await inviteUser(client, "12345", "new@b.com");
     const call = client.create.mock.calls[0];
     expect(call[1]).toEqual({ email: "new@b.com" });
-    expect(call[1].developerAccountPermission).toBeUndefined();
+    expect(call[1].developerAccountPermissions).toBeUndefined();
     expect(call[1].grants).toBeUndefined();
   });
 

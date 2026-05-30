@@ -90,8 +90,12 @@ jobs:
       - name: Attach to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name || github.event.inputs.tag }}
         run: |
-          TAG="${{ github.event.release.tag_name || github.event.inputs.tag }}"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "::error::Invalid tag format: $TAG"
+            exit 1
+          fi
           gh release upload "$TAG" binaries/* --repo ${{ github.repository }} --clobber
 
       - name: Update Homebrew tap
@@ -99,8 +103,12 @@ jobs:
         continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN || secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name }}
         run: |
-          TAG="${{ github.event.release.tag_name }}"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+            echo "::error::Invalid tag format: $TAG"
+            exit 1
+          fi
           gh api repos/yasserstudio/homebrew-tap/dispatches \
             -f event_type=release-published \
             -f "client_payload[version]=$TAG"

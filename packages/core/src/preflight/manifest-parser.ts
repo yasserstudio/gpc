@@ -280,7 +280,7 @@ function extractManifestData(manifest: XmlElem): ParsedManifest {
   const app = appElements[0];
 
   const debuggable = app ? getBoolByName(app.attribute || [], "debuggable", false) : false;
-  const testOnly = getBoolByName(attrs, "testOnly", false);
+  const testOnly = app ? getBoolByName(app.attribute || [], "testOnly", false) : false;
   const usesCleartextTraffic = app
     ? getBoolByName(app.attribute || [], "usesCleartextTraffic", true)
     : true;

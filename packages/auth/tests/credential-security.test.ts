@@ -168,5 +168,29 @@ describe("credential security", () => {
         expect((err as AuthError).code).toBe("AUTH_TOKEN_EXPIRED");
       }
     });
+
+    it("redacts long inputs that look like pasted credentials in file path errors", async () => {
+      const longInput = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9." + "A".repeat(300);
+
+      try {
+        await loadServiceAccountKey(longInput);
+        expect.fail("Should have thrown");
+      } catch (err) {
+        const authErr = err as AuthError;
+        expect(authErr.message).not.toContain(longInput);
+        expect(authErr.message).toContain("<credential-input>");
+      }
+    });
+
+    it("shows file path in error for normal-length paths", async () => {
+      try {
+        await loadServiceAccountKey("/tmp/nonexistent-key.json");
+        expect.fail("Should have thrown");
+      } catch (err) {
+        const authErr = err as AuthError;
+        expect(authErr.message).toContain("nonexistent-key.json");
+        expect(authErr.message).not.toContain("<credential-input>");
+      }
+    });
   });
 });

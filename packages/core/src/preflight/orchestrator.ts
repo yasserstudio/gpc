@@ -84,20 +84,26 @@ export async function runPreflight(options: PreflightOptions): Promise<Preflight
     ? new Set(options.scanners.map((s) => s.toLowerCase()))
     : null;
 
-  const applicableScanners = ALL_SCANNERS.filter((scanner) => {
-    // Filter by name if specified
-    if (requestedNames && !requestedNames.has(scanner.name)) return false;
+  const applicableScanners: typeof ALL_SCANNERS = [];
+  const skippedScanners: string[] = [];
 
-    // Filter by context availability
+  for (const scanner of ALL_SCANNERS) {
+    if (requestedNames && !requestedNames.has(scanner.name)) continue;
+
+    let skip = false;
     for (const req of scanner.requires) {
-      if (req === "manifest" && !ctx.manifest) return false;
-      if (req === "zipEntries" && !ctx.zipEntries) return false;
-      if (req === "metadataDir" && !ctx.metadataDir) return false;
-      if (req === "sourceDir" && !ctx.sourceDir) return false;
+      if (req === "manifest" && !ctx.manifest) { skip = true; break; }
+      if (req === "zipEntries" && !ctx.zipEntries) { skip = true; break; }
+      if (req === "metadataDir" && !ctx.metadataDir) { skip = true; break; }
+      if (req === "sourceDir" && !ctx.sourceDir) { skip = true; break; }
     }
 
-    return true;
-  });
+    if (skip) {
+      skippedScanners.push(scanner.name);
+    } else {
+      applicableScanners.push(scanner);
+    }
+  }
 
   // Run all applicable scanners in parallel — use allSettled so one failure doesn't stop others
   const settled = await Promise.allSettled(applicableScanners.map((scanner) => scanner.scan(ctx)));
@@ -148,6 +154,7 @@ export async function runPreflight(options: PreflightOptions): Promise<Preflight
 
   return {
     scanners: applicableScanners.map((s) => s.name),
+    ...(skippedScanners.length > 0 ? { skippedScanners } : {}),
     findings,
     summary,
     passed,

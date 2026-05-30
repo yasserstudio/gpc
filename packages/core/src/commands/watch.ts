@@ -186,7 +186,12 @@ export async function dispatchWebhook(url: string, event: WatchEvent): Promise<v
     signal: AbortSignal.timeout(10_000),
   });
   if (!response.ok) {
-    throw new Error(`Webhook returned ${response.status}`);
+    throw new GpcError(
+      `Webhook returned ${response.status}`,
+      "WATCH_WEBHOOK_FAILED",
+      5,
+      `The webhook endpoint returned HTTP ${response.status}. Check the URL and server status.`,
+    );
   }
 }
 
@@ -277,8 +282,13 @@ export async function runWatch(
       const rollout = await fetchRollout(client, config.packageName, config.track);
 
       const vitals: Partial<Record<WatchMetric, WatchVitalReading>> = {};
-      for (const metric of config.metrics) {
-        const value = await queryWatchMetric(reporting, config.packageName, metric);
+      const metricResults = await Promise.all(
+        config.metrics.map(async (metric) => {
+          const value = await queryWatchMetric(reporting, config.packageName, metric);
+          return { metric, value };
+        }),
+      );
+      for (const { metric, value } of metricResults) {
         const threshold = config.thresholds[metric];
         const result =
           threshold !== undefined ? checkThreshold(value, threshold) : { breached: false };
@@ -305,14 +315,14 @@ export async function runWatch(
       if (breaches.length > 0) {
         breachCount++;
         const stateChanged = await trackBreachState(config.packageName, true);
-        if (stateChanged) {
-          const didHalt = await handleBreach(event, config, client);
-          if (didHalt) {
-            event.halted = true;
-            halted = true;
-          }
-          await callbacks.onBreach(event);
+        // Always invoke breach handler and callback -- not just on state transition.
+        // stateChanged gates halt action only (halt once, not repeatedly).
+        const didHalt = stateChanged ? await handleBreach(event, config, client) : false;
+        if (didHalt) {
+          event.halted = true;
+          halted = true;
         }
+        await callbacks.onBreach(event);
         callbacks.onEvent(event);
       } else {
         await trackBreachState(config.packageName, false);

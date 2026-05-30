@@ -8,7 +8,7 @@
  * Requires npm >= 11.15.0 and Trusted Publisher configured on npmjs.com.
  */
 
-import { execSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -31,8 +31,9 @@ for (const pkg of PACKAGES) {
 
   let registryVersion;
   try {
-    registryVersion = execSync(`npm view ${name} version 2>/dev/null`, {
+    registryVersion = execFileSync("npm", ["view", name, "version"], {
       encoding: "utf8",
+      stdio: ["pipe", "pipe", "ignore"],
     }).trim();
   } catch {
     registryVersion = null;

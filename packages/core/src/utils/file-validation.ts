@@ -1,6 +1,8 @@
 import { open, stat } from "node:fs/promises";
 import { extname } from "node:path";
 
+import { formatSize } from "./format.js";
+
 export interface FileValidationResult {
   valid: boolean;
   fileType: "aab" | "apk" | "unknown";
@@ -92,15 +94,3 @@ export async function validateUploadFile(filePath: string): Promise<FileValidati
   };
 }
 
-function formatSize(bytes: number): string {
-  if (bytes >= 1024 * 1024 * 1024) {
-    return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
-  }
-  if (bytes >= 1024 * 1024) {
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  }
-  if (bytes >= 1024) {
-    return `${(bytes / 1024).toFixed(1)} KB`;
-  }
-  return `${bytes} B`;
-}

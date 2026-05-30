@@ -73,9 +73,11 @@ export function registerUsersCommands(program: Command): void {
             name: u["name"] || "-",
             accessState: u["accessState"] || "-",
             grants: Array.isArray(u["grants"]) ? (u["grants"] as unknown[]).length : 0,
-            permissions: Array.isArray(u["developerAccountPermission"])
-              ? (u["developerAccountPermission"] as unknown[]).length
-              : 0,
+            permissions: Array.isArray(u["developerAccountPermissions"])
+              ? (u["developerAccountPermissions"] as unknown[]).length
+              : Array.isArray(u["developerAccountPermission"])
+                ? (u["developerAccountPermission"] as unknown[]).length
+                : 0,
           }));
           console.log(formatOutput(rows, format));
         }

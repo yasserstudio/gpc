@@ -12,6 +12,7 @@ import {
   getDataDir,
   getCacheDir,
   setConfigValue,
+  deleteConfigValue,
   initConfig,
   setProfileConfig,
   deleteProfile,
@@ -20,7 +21,7 @@ import {
   revokePluginApproval,
   DEFAULT_CONFIG,
 } from "../src/index";
-import { readConfigFile, findConfigFile } from "../src/loader";
+import { readConfigFile } from "../src/loader";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -670,5 +671,143 @@ describe("prototype pollution protection", () => {
     const config = await readConfigFile(configPath);
     expect((config.auth as any)?.__proto__?.admin).toBeUndefined();
     expect(config.auth?.serviceAccount).toBe("/safe.json");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// A1: Project config must not self-approve plugins
+// ---------------------------------------------------------------------------
+describe("project config plugin trust gate", () => {
+  let tmpDir: string;
+  let envBackup: ReturnType<typeof saveEnv>;
+  let originalCwd: typeof process.cwd;
+
+  beforeEach(async () => {
+    tmpDir = await mkdtemp(join(tmpdir(), "gpc-trust-"));
+    envBackup = saveEnv("GPC_APP", "GPC_OUTPUT", "GPC_PROFILE", "GPC_SERVICE_ACCOUNT", "XDG_CONFIG_HOME");
+    for (const k of ["GPC_APP", "GPC_OUTPUT", "GPC_PROFILE", "GPC_SERVICE_ACCOUNT"]) {
+      delete process.env[k];
+    }
+    process.env["XDG_CONFIG_HOME"] = join(tmpDir, "xdg-config");
+    originalCwd = process.cwd;
+    process.cwd = () => tmpDir;
+  });
+
+  afterEach(async () => {
+    envBackup.restore();
+    process.cwd = originalCwd;
+    await rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it("strips approvedPlugins from project .gpcrc.json", async () => {
+    await writeFile(
+      join(tmpDir, ".gpcrc.json"),
+      JSON.stringify({ app: "com.test", approvedPlugins: ["evil-plugin"] }),
+    );
+
+    const config = await loadConfig();
+    expect(config.app).toBe("com.test");
+    expect((config as any).approvedPlugins).toBeUndefined();
+  });
+
+  it("preserves approvedPlugins from user config", async () => {
+    const userConfigDir = join(tmpDir, "xdg-config", "gpc");
+    await mkdir(userConfigDir, { recursive: true });
+    await writeFile(
+      join(userConfigDir, "config.json"),
+      JSON.stringify({ approvedPlugins: ["trusted-plugin"] }),
+    );
+
+    const config = await loadConfig();
+    expect((config as any).approvedPlugins).toEqual(["trusted-plugin"]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// D7/C8: Invalid JSON throws ConfigError
+// ---------------------------------------------------------------------------
+describe("invalid JSON error handling", () => {
+  let tmpDir: string;
+
+  beforeEach(async () => {
+    tmpDir = await mkdtemp(join(tmpdir(), "gpc-json-"));
+  });
+
+  afterEach(async () => {
+    await rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it("readConfigFile throws ConfigError with CONFIG_INVALID_JSON on bad JSON", async () => {
+    const filePath = join(tmpDir, "bad.json");
+    await writeFile(filePath, "not json at all");
+
+    try {
+      await readConfigFile(filePath);
+      expect.unreachable("should have thrown");
+    } catch (err: any) {
+      expect(err.code).toBe("CONFIG_INVALID_JSON");
+      expect(err.message).toContain("Invalid JSON");
+    }
+  });
+
+  it("deleteConfigValue throws ConfigError on corrupt config file", async () => {
+    const envBackup = saveEnv("XDG_CONFIG_HOME");
+    process.env["XDG_CONFIG_HOME"] = tmpDir;
+
+    const configDir = join(tmpDir, "gpc");
+    await mkdir(configDir, { recursive: true });
+    await writeFile(join(configDir, "config.json"), "{corrupt json}}");
+
+    try {
+      await deleteConfigValue("app");
+      expect.unreachable("should have thrown");
+    } catch (err: any) {
+      expect(err.code).toBe("CONFIG_INVALID_JSON");
+    } finally {
+      envBackup.restore();
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// C9: Profile name validation
+// ---------------------------------------------------------------------------
+describe("profile name validation", () => {
+  let tmpDir: string;
+  let envBackup: ReturnType<typeof saveEnv>;
+
+  beforeEach(async () => {
+    tmpDir = await mkdtemp(join(tmpdir(), "gpc-profile-"));
+    envBackup = saveEnv("XDG_CONFIG_HOME");
+    process.env["XDG_CONFIG_HOME"] = tmpDir;
+  });
+
+  afterEach(async () => {
+    envBackup.restore();
+    await rm(tmpDir, { recursive: true, force: true });
+  });
+
+  it("rejects __proto__ as profile name", async () => {
+    await expect(
+      setProfileConfig("__proto__", { app: "com.evil" }),
+    ).rejects.toThrow(/Invalid profile name/);
+  });
+
+  it("rejects constructor as profile name", async () => {
+    await expect(
+      setProfileConfig("constructor", { app: "com.evil" }),
+    ).rejects.toThrow(/Invalid profile name/);
+  });
+
+  it("rejects empty string as profile name", async () => {
+    await expect(
+      setProfileConfig("", { app: "com.evil" }),
+    ).rejects.toThrow(/Invalid profile name/);
+  });
+
+  it("accepts valid profile names", async () => {
+    await setProfileConfig("production", { app: "com.prod" });
+    const profiles = await listProfiles();
+    expect(profiles).toContain("production");
   });
 });

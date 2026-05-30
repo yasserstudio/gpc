@@ -309,6 +309,6 @@ export function registerEnterpriseCommands(program: Command): void {
           "public apps. Use `gpc apps list` to see them.",
         ].join("\n"),
       );
-      process.exit(2);
+      throw new Error("enterprise list is not supported by the Play Custom App Publishing API");
     });
 }

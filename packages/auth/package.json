@@ -1,6 +1,6 @@
 {
   "name": "@gpc-cli/auth",
-  "version": "0.9.14",
+  "version": "0.9.15",
   "description": "Google Play API authentication for Node.js. Service account, OAuth 2.0, and Application Default Credentials.",
   "type": "module",
   "main": "./dist/index.js",

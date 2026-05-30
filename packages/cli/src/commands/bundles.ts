@@ -55,7 +55,7 @@ export function registerBundlesCommands(program: Command): void {
         } else {
           console.error(`Bundle with version code ${options.versionCode} not found.`);
         }
-        process.exit(1);
+        throw new Error(`Bundle with version code ${options.versionCode} not found.`);
       }
 
       console.log(formatOutput(result, format));

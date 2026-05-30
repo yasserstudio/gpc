@@ -30,7 +30,7 @@ jobs:
           echo "Current npm: $NPM_VER"
           if [ "$(printf '%s\n' "11.15.0" "$NPM_VER" | sort -V | head -1)" != "11.15.0" ]; then
             echo "Upgrading npm to latest for staged publishing support..."
-            npm install -g npm@latest
+            npm install -g npm@11.15.0
             echo "Upgraded to: $(npm --version)"
           fi
 
@@ -66,7 +66,7 @@ jobs:
       - name: Generate SBOM
         if: steps.changesets.outputs.published == 'true'
         run: |
-          npx @cyclonedx/cdxgen -o sbom.json -t javascript
+          npx @cyclonedx/cdxgen@12.3.1 -o sbom.json -t javascript
           echo "SBOM generated: $(jq '.components | length' sbom.json) components"
 
       - name: Upload SBOM artifact

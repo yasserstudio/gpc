@@ -1,6 +1,8 @@
 import { stat } from "node:fs/promises";
 import { extname } from "node:path";
 
+import { formatSize } from "./format.js";
+
 export interface ImageValidationResult {
   valid: boolean;
   warnings: string[];
@@ -74,8 +76,3 @@ export async function validateImage(
   return { valid: errors.length === 0, errors, warnings };
 }
 
-function formatSize(bytes: number): string {
-  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  if (bytes >= 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${bytes} B`;
-}

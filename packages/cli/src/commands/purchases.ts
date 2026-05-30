@@ -237,7 +237,7 @@ export function registerPurchasesCommands(program: Command): void {
           `  gpc purchases orders refund <order-id>          Refund via orders API\n` +
           `  gpc purchases subscription revoke <token>       Revoke + refund via v2 API\n`,
       );
-      process.exit(2);
+      throw new Error("subscriptionsv2 refund is not a valid API endpoint");
     });
 
   sub
@@ -254,8 +254,7 @@ export function registerPurchasesCommands(program: Command): void {
       const refundType = (opts.refundType ?? "prorated") as "full" | "prorated" | "item";
 
       if (!["full", "prorated", "item"].includes(refundType)) {
-        console.error(`Invalid --refund-type "${refundType}". Use: full, prorated, or item`);
-        process.exit(2);
+        throw new Error(`Invalid --refund-type "${refundType}". Use: full, prorated, or item`);
       }
 
       if (isDryRun(program)) {

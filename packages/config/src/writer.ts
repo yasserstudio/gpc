@@ -71,7 +71,16 @@ export async function deleteConfigValue(key: string): Promise<void> {
   } catch {
     return; // Nothing to delete
   }
-  const existing = JSON.parse(content) as Record<string, unknown>;
+  let existing: Record<string, unknown>;
+  try {
+    existing = JSON.parse(content) as Record<string, unknown>;
+  } catch {
+    throw new ConfigError(
+      `Invalid JSON in config file: ${configPath}`,
+      "CONFIG_INVALID_JSON",
+      `Check ${configPath} for syntax errors.`,
+    );
+  }
 
   const keys = key.split(".");
   let target = existing;
@@ -88,6 +97,13 @@ export async function deleteConfigValue(key: string): Promise<void> {
 }
 
 export async function setProfileConfig(profileName: string, config: ProfileConfig): Promise<void> {
+  if (!profileName || DANGEROUS_KEYS.has(profileName)) {
+    throw new ConfigError(
+      `Invalid profile name: "${profileName}"`,
+      "CONFIG_INVALID_KEY",
+      `Profile names must be non-empty and cannot be "${profileName}".`,
+    );
+  }
   const configPath = join(getConfigDir(), "config.json");
 
   let existing: Record<string, unknown> = {};

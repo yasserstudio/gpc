@@ -72,7 +72,16 @@ export async function findConfigFile(startDir?: string): Promise<string | undefi
 
 export async function readConfigFile(filePath: string): Promise<GpcConfig> {
   const content = await readFile(filePath, "utf-8");
-  const parsed = JSON.parse(content) as GpcConfig;
+  let parsed: GpcConfig;
+  try {
+    parsed = JSON.parse(content) as GpcConfig;
+  } catch {
+    throw new ConfigError(
+      `Invalid JSON in config file: ${filePath}`,
+      "CONFIG_INVALID_JSON",
+      `Check ${filePath} for syntax errors. Use a JSON validator or run: cat ${filePath} | python3 -m json.tool`,
+    );
+  }
 
   // Guard against prototype pollution
   sanitizeObject(parsed);
@@ -126,6 +135,8 @@ export async function loadConfig(overrides?: Partial<GpcConfig>): Promise<Resolv
   if (projectConfigPath) {
     try {
       const projectConfig = await readConfigFile(projectConfigPath);
+      // Security: project config must not self-approve plugins
+      delete (projectConfig as Record<string, unknown>)["approvedPlugins"];
       Object.assign(result, stripUndefined(projectConfig));
       result.configPath = projectConfigPath;
     } catch {

@@ -40,7 +40,7 @@ export class PluginManager {
       validatePermissions(manifest.permissions);
     }
 
-    const hooks = createHooks(
+    const allHooks = createHooks(
       this.beforeHandlers,
       this.afterHandlers,
       this.errorHandlers,
@@ -49,7 +49,18 @@ export class PluginManager {
       this.registeredCommands,
     );
 
-    await plugin.register(hooks);
+    const hooks =
+      isTrusted || !manifest?.permissions
+        ? allHooks
+        : createRestrictedHooks(allHooks, new Set(manifest.permissions));
+
+    try {
+      await plugin.register(hooks);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(`[gpc] Plugin "${plugin.name}" failed to register: ${msg}`);
+      return;
+    }
 
     this.plugins.push({
       name: plugin.name,
@@ -174,6 +185,43 @@ function createHooks(
       };
       registrar(registry);
     },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Restricted hooks — gate access based on declared permissions
+// ---------------------------------------------------------------------------
+
+const HOOK_PERMISSIONS: Record<keyof PluginHooks, PluginPermission> = {
+  beforeCommand: "hooks:beforeCommand",
+  afterCommand: "hooks:afterCommand",
+  onError: "hooks:onError",
+  beforeRequest: "hooks:beforeRequest",
+  afterResponse: "hooks:afterResponse",
+  registerCommands: "commands:register",
+};
+
+function createRestrictedHooks(
+  inner: PluginHooks,
+  permissions: ReadonlySet<PluginPermission>,
+): PluginHooks {
+  function gate<K extends keyof PluginHooks>(key: K): PluginHooks[K] {
+    const requiredPerm = HOOK_PERMISSIONS[key];
+    if (permissions.has(requiredPerm)) {
+      return inner[key];
+    }
+    return (() => {
+      console.warn(`[gpc] Plugin lacks permission "${requiredPerm}" for hook "${key}"`);
+    }) as PluginHooks[K];
+  }
+
+  return {
+    beforeCommand: gate("beforeCommand"),
+    afterCommand: gate("afterCommand"),
+    onError: gate("onError"),
+    beforeRequest: gate("beforeRequest"),
+    afterResponse: gate("afterResponse"),
+    registerCommands: gate("registerCommands"),
   };
 }
 

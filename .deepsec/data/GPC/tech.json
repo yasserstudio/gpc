@@ -1,6 +1,11 @@
 {
-  "tags": ["github-actions", "node"],
-  "sentinels": ["package.json"],
-  "detectedAt": "2026-05-15T15:17:54.984Z",
+  "tags": [
+    "github-actions",
+    "node"
+  ],
+  "sentinels": [
+    "package.json"
+  ],
+  "detectedAt": "2026-05-30T09:38:50.964Z",
   "rootPath": "/Volumes/Work/GPC"
 }

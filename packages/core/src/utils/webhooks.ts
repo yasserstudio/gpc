@@ -1,4 +1,5 @@
 import type { WebhookConfig } from "@gpc-cli/config";
+import { redactSensitive } from "../output.js";
 
 export interface WebhookPayload {
   command: string;
@@ -126,6 +127,14 @@ export async function sendWebhook(
 
     const promises: Promise<void>[] = [];
 
+    const safePayload: WebhookPayload = {
+      ...payload,
+      error: payload.error ? String(redactSensitive(payload.error)) : undefined,
+      details: payload.details
+        ? (redactSensitive(payload.details) as Record<string, unknown>)
+        : undefined,
+    };
+
     for (const t of targets) {
       const url = config[t];
       if (!url) continue;
@@ -133,7 +142,7 @@ export async function sendWebhook(
       const formatter = FORMATTERS[t];
       if (!formatter) continue;
 
-      const body = formatter(payload);
+      const body = formatter(safePayload);
       promises.push(sendSingle(url, body).catch(() => {}));
     }
 

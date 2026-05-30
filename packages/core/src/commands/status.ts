@@ -50,6 +50,7 @@ export interface AppStatus {
     slowRender: StatusVitalMetric;
   };
   reviews: StatusReviews;
+  errors?: string[];
 }
 
 export interface StatusDiff {
@@ -338,7 +339,11 @@ export async function getAppStatus(
       : Promise.resolve([]),
   ]);
 
+  const sectionErrors: string[] = [];
+
   const rawReleases = releasesResult.status === "fulfilled" ? releasesResult.value : [];
+  if (releasesResult.status === "rejected")
+    sectionErrors.push(`releases: ${String(releasesResult.reason)}`);
   const releases: StatusRelease[] = rawReleases.map((r) => ({
     track: r.track,
     versionCode: r.versionCodes[r.versionCodes.length - 1] ?? "—",
@@ -347,12 +352,22 @@ export async function getAppStatus(
   }));
 
   const crashes = crashesResult.status === "fulfilled" ? crashesResult.value : SKIPPED_VITAL;
+  if (crashesResult.status === "rejected")
+    sectionErrors.push(`vitals/crashes: ${String(crashesResult.reason)}`);
   const anr = anrResult.status === "fulfilled" ? anrResult.value : SKIPPED_VITAL;
+  if (anrResult.status === "rejected")
+    sectionErrors.push(`vitals/anr: ${String(anrResult.reason)}`);
   const slowStart = slowStartResult.status === "fulfilled" ? slowStartResult.value : SKIPPED_VITAL;
+  if (slowStartResult.status === "rejected")
+    sectionErrors.push(`vitals/slowStarts: ${String(slowStartResult.reason)}`);
   const slowRender =
     slowRenderResult.status === "fulfilled" ? slowRenderResult.value : SKIPPED_VITAL;
+  if (slowRenderResult.status === "rejected")
+    sectionErrors.push(`vitals/slowRender: ${String(slowRenderResult.reason)}`);
 
   const rawReviews = reviewsResult.status === "fulfilled" ? reviewsResult.value : [];
+  if (reviewsResult.status === "rejected")
+    sectionErrors.push(`reviews: ${String(reviewsResult.reason)}`);
   const reviews = computeReviewSentiment(rawReviews, reviewDays);
 
   return {
@@ -384,6 +399,7 @@ export async function getAppStatus(
       ),
     },
     reviews,
+    ...(sectionErrors.length > 0 ? { errors: sectionErrors } : {}),
   };
 }
 

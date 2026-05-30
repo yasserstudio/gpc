@@ -6,8 +6,8 @@ import { decodeManifest } from "./manifest-parser.js";
 
 const AAB_MANIFEST_PATH = "base/manifest/AndroidManifest.xml";
 const APK_MANIFEST_PATH = "AndroidManifest.xml";
-const SO_HEADER_BYTES = 256;
-const SO_PATH_RE = /\/lib\/[^/]+\/[^/]+\.so$/;
+const SO_HEADER_BYTES = 4096;
+const SO_PATH_RE = /(?:^|\/)lib\/[^/]+\/[^/]+\.so$/;
 
 interface AabContents {
   manifest: ParsedManifest;

@@ -129,7 +129,7 @@ jobs:
         run: ./gradlew bundleRelease
 
       - name: Install GPC
-        run: npm install -g @gpc-cli/cli
+        run: npm install -g @gpc-cli/cli --ignore-scripts
 
       - name: Preflight compliance check
         run: gpc preflight app/build/outputs/bundle/release/app-release.aab --fail-on error
@@ -169,14 +169,14 @@ preflight:
   stage: preflight
   image: node:20
   script:
-    - npm install -g @gpc-cli/cli
+    - npm install -g @gpc-cli/cli --ignore-scripts
     - gpc preflight app/build/outputs/bundle/release/app-release.aab --fail-on error --json
 
 release:
   stage: release
   image: node:20
   script:
-    - npm install -g @gpc-cli/cli
+    - npm install -g @gpc-cli/cli --ignore-scripts
     - gpc releases upload app/build/outputs/bundle/release/app-release.aab --track internal
   only:
     - tags

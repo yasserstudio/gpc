@@ -1,5 +1,6 @@
 import type { Command } from "commander";
 import { existsSync } from "node:fs";
+import { homedir } from "node:os";
 import { resolve } from "node:path";
 
 const ANDROID_PACKAGE_RE = /^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$/;
@@ -104,7 +105,7 @@ export function registerSetupCommand(program: Command): void {
               "./service-account.json",
               "./gpc-service-account.json",
               "~/.config/gpc/service-account.json",
-            ].map((p) => resolve(p.replace("~", process.env["HOME"] || "")));
+            ].map((p) => resolve(p.replace("~", homedir())));
 
             const autoDetected = commonPaths.find((p) => existsSync(p));
             const defaultHint = autoDetected ? ` (found: ${autoDetected})` : "";
@@ -120,7 +121,7 @@ export function registerSetupCommand(program: Command): void {
                 break;
               }
 
-              const absPath = resolve(input.replace("~", process.env["HOME"] || ""));
+              const absPath = resolve(input.replace("~", homedir()));
               if (!existsSync(absPath)) {
                 console.log(`  File not found: ${absPath}`);
                 attempts++;

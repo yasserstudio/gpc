@@ -616,6 +616,12 @@ export type SubscriptionState =
   | "SUBSCRIPTION_STATE_EXPIRED"
   | "SUBSCRIPTION_STATE_PENDING_PURCHASE_CANCELED";
 
+export interface ExternalAccountIdentifiers {
+  externalAccountId?: string;
+  obfuscatedExternalAccountId?: string;
+  obfuscatedExternalProfileId?: string;
+}
+
 export interface SubscriptionPurchaseV2 {
   kind: string;
   regionCode?: string;
@@ -627,24 +633,27 @@ export interface SubscriptionPurchaseV2 {
   acknowledgementState?: string;
   linkedPurchaseToken?: string;
   etag?: string;
-  /** Resubscription context when purchase originates from Play Store. (Nov 2025) */
-  outOfAppPurchaseContext?: { externalTransactionToken?: string };
+  /** Out-of-app purchase context (e.g. expired purchase re-signup). */
+  outOfAppPurchaseContext?: {
+    expiredPurchaseToken?: string;
+    expiredExternalAccountIdentifiers?: ExternalAccountIdentifiers;
+  };
   /** Cancellation details: reason, survey result, time. */
   canceledStateContext?: {
-    cancelTime?: string;
-    cancelSurveyResult?: { reason?: number; reasonUserInput?: string };
-    userInitiatedCancellation?: Record<string, unknown>;
+    userInitiatedCancellation?: {
+      cancelTime?: string;
+      cancelSurveyResult?: { reason?: number; reasonUserInput?: string };
+    };
     systemInitiatedCancellation?: Record<string, unknown>;
     developerInitiatedCancellation?: Record<string, unknown>;
     replacementCancellation?: Record<string, unknown>;
   };
   testPurchase?: Record<string, unknown>;
-  signupPromotion?: { promotionType?: string; promotionCode?: string };
-  externalAccountIdentifiers?: {
-    externalAccountId?: string;
-    obfuscatedExternalAccountId?: string;
-    obfuscatedExternalProfileId?: string;
+  signupPromotion?: {
+    oneTimeCode?: { amount?: Money };
+    vanityCode?: { promotionCode?: string };
   };
+  externalAccountIdentifiers?: ExternalAccountIdentifiers;
   pausedStateContext?: { autoResumeTime?: string };
   /** On-hold details when payment declines at renewal. (May 2026) */
   onHoldStateContext?: {
@@ -686,9 +695,13 @@ export interface SubscriptionPurchaseLineItem {
   itemReplacement?: {
     productId?: string;
     offerDetails?: { basePlanId?: string; offerId?: string };
+    replacementMode?: string;
   };
-  deferredItemReplacement?: { productId?: string };
-  signupPromotion?: { promotionType?: string; promotionCode?: string };
+  deferredItemReplacement?: { productId?: string; replacementMode?: string };
+  signupPromotion?: {
+    oneTimeCode?: { amount?: Money };
+    vanityCode?: { promotionCode?: string };
+  };
   offerPhase?: {
     basePrice?: Record<string, unknown>;
     freeTrial?: Record<string, unknown>;
@@ -1058,6 +1071,7 @@ export type AppLevelPermission =
 export type DeveloperPermission = DeveloperLevelPermission;
 
 export interface Grant {
+  name?: string;
   packageName: string;
   appLevelPermissions: AppLevelPermission[];
 }
@@ -1065,9 +1079,13 @@ export interface Grant {
 export interface User {
   email: string;
   name?: string;
+  developerAccountPermissions?: DeveloperLevelPermission[];
+  /** @deprecated Use developerAccountPermissions (plural) instead. */
   developerAccountPermission?: DeveloperLevelPermission[];
   grants?: Grant[];
   expirationTime?: string;
+  accessState?: string;
+  partial?: boolean;
 }
 
 export interface UsersListResponse {
@@ -1286,9 +1304,13 @@ export interface OneTimeProductListing {
 export interface OneTimeProductPurchaseOption {
   purchaseOptionId?: string;
   state?: BasePlanState;
-  buyOption?: Record<string, never>;
+  buyOption?: {
+    legacyCompatible?: boolean;
+    multiQuantityEnabled?: boolean;
+  };
   rentOption?: {
     rentalPeriod?: string;
+    expirationPeriod?: string;
   };
   regionalPricingAndAvailabilityConfigs?: Record<string, unknown>;
   newRegionsConfig?: Record<string, unknown>;
@@ -1300,6 +1322,8 @@ export interface TaxAndComplianceSettings {
   eeaWithdrawalRightType?: "WITHDRAWAL_RIGHT_DIGITAL_CONTENT" | "WITHDRAWAL_RIGHT_SERVICE";
   taxRateInfoByRegionCode?: Record<string, { streamingTaxType?: string; taxTier?: string }>;
   isTokenizedDigitalAsset?: boolean;
+  regionalProductAgeRatingInfos?: Record<string, unknown>;
+  productTaxCategoryCode?: string;
 }
 
 export type OneTimeOfferState =

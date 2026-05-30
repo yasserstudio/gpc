@@ -409,7 +409,11 @@ export interface PlayApiClient {
       packageName: string,
       sku: string,
       data: InAppProduct,
-      options?: { autoConvertMissingPrices?: boolean; allowMissing?: boolean },
+      options?: {
+        autoConvertMissingPrices?: boolean;
+        allowMissing?: boolean;
+        latencyTolerance?: string;
+      },
     ): Promise<InAppProduct>;
     patch(
       packageName: string,
@@ -417,7 +421,11 @@ export interface PlayApiClient {
       data: Partial<InAppProduct>,
       options?: { autoConvertMissingPrices?: boolean; latencyTolerance?: string },
     ): Promise<InAppProduct>;
-    delete(packageName: string, sku: string): Promise<void>;
+    delete(
+      packageName: string,
+      sku: string,
+      options?: { latencyTolerance?: string },
+    ): Promise<void>;
     batchUpdate(
       packageName: string,
       requests: InAppProductsBatchUpdateRequest,
@@ -589,6 +597,7 @@ export interface PlayApiClient {
       packageName: string,
       productId: string,
       purchaseOptionId?: string,
+      options?: { pageSize?: number; pageToken?: string },
     ): Promise<OneTimeOffersListResponse>;
     getOffer(
       packageName: string,
@@ -861,7 +870,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const { data } = await http.get<BundleListResponse>(
           `/${p(packageName)}/edits/${p(editId)}/bundles`,
         );
-        return data.bundles;
+        return data.bundles ?? [];
       },
 
       async upload(packageName, editId, filePath, uploadOptions?, deviceTierConfigId?) {
@@ -892,7 +901,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const { data } = await http.get<TrackListResponse>(
           `/${p(packageName)}/edits/${p(editId)}/tracks`,
         );
-        return data.tracks;
+        return data.tracks ?? [];
       },
 
       async get(packageName, editId, track) {
@@ -948,7 +957,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const { data } = await http.get<ApksListResponse>(
           `/${p(packageName)}/edits/${p(editId)}/apks`,
         );
-        return data.apks || [];
+        return data.apks ?? [];
       },
 
       async upload(packageName, editId, filePath, uploadOptions) {
@@ -983,7 +992,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const { data } = await http.get<ListingsListResponse>(
           `/${p(packageName)}/edits/${p(editId)}/listings`,
         );
-        return data.listings || [];
+        return data.listings ?? [];
       },
 
       async get(packageName, editId, language) {
@@ -1023,7 +1032,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const { data } = await http.get<ImagesListResponse>(
           `/${p(packageName)}/edits/${p(editId)}/listings/${p(language)}/${p(imageType)}`,
         );
-        return data.images || [];
+        return data.images ?? [];
       },
 
       async upload(packageName, editId, language, imageType, filePath) {
@@ -1053,7 +1062,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const { data } = await http.delete<ImagesDeleteAllResponse>(
           `/${p(packageName)}/edits/${p(editId)}/listings/${p(language)}/${p(imageType)}`,
         );
-        return data.deleted || [];
+        return data.deleted ?? [];
       },
     },
 
@@ -1196,9 +1205,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async batchGet(packageName, productIds) {
-        const params = productIds.map((id) => `productIds=${encodeURIComponent(id)}`).join("&");
+        const params = new URLSearchParams();
+        for (const id of productIds) params.append("productIds", id);
         const { data } = await http.get<SubscriptionsBatchGetResponse>(
-          `/${p(packageName)}/subscriptions:batchGet?${params}`,
+          `/${p(packageName)}/subscriptions:batchGet?${params.toString()}`,
         );
         return data.subscriptions ?? [];
       },
@@ -1383,6 +1393,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const params: Record<string, string> = {};
         if (options?.autoConvertMissingPrices) params["autoConvertMissingPrices"] = "true";
         if (options?.allowMissing) params["allowMissing"] = "true";
+        if (options?.latencyTolerance) params["latencyTolerance"] = options.latencyTolerance;
         const hasParams = Object.keys(params).length > 0;
         const path = hasParams
           ? `/${p(packageName)}/inappproducts/${p(sku)}?${new URLSearchParams(params).toString()}`
@@ -1403,8 +1414,14 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         return data;
       },
 
-      async delete(packageName, sku) {
-        await http.delete(`/${p(packageName)}/inappproducts/${p(sku)}`);
+      async delete(packageName, sku, options?) {
+        const params: Record<string, string> = {};
+        if (options?.latencyTolerance) params["latencyTolerance"] = options.latencyTolerance;
+        const hasParams = Object.keys(params).length > 0;
+        const path = hasParams
+          ? `/${p(packageName)}/inappproducts/${p(sku)}?${new URLSearchParams(params).toString()}`
+          : `/${p(packageName)}/inappproducts/${p(sku)}`;
+        await http.delete(path);
       },
 
       async batchUpdate(packageName, requests) {
@@ -1417,12 +1434,12 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
 
       async batchGet(packageName, skus) {
         const params = new URLSearchParams();
-        for (const sku of skus) params.append("packageName.sku", sku);
+        for (const sku of skus) params.append("sku", sku);
         const qs = params.toString();
         const { data } = await http.get<{ inappproduct: InAppProduct[] }>(
           `/${p(packageName)}/inappproducts:batchGet${qs ? `?${qs}` : ""}`,
         );
-        return data.inappproduct || [];
+        return data.inappproduct ?? [];
       },
 
       async batchDelete(packageName, skus) {
@@ -1494,6 +1511,10 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async acknowledgeSubscription(packageName, subscriptionId, token, body?) {
+        warnOnce(
+          "GPC_DEP004",
+          "purchases.subscriptions.acknowledge (v1) is deprecated. Use purchases.subscriptionsv2.get to check acknowledgement state instead.",
+        );
         await http.post(
           `/${p(packageName)}/purchases/subscriptions/${p(subscriptionId)}/tokens/${p(token)}:acknowledge`,
           body ?? {},
@@ -1559,7 +1580,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const { data } = await http.get<BatchGetOrdersResponse>(
           `/${p(packageName)}/orders:batchGet?${params}`,
         );
-        return data.orders || [];
+        return data.orders ?? [];
       },
 
       async refund(packageName, orderId, options?) {
@@ -1645,7 +1666,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           `/${p(packageName)}/appRecoveries`,
           hasParams ? params : undefined,
         );
-        return data.recoveryActions || [];
+        return data.recoveryActions ?? [];
       },
 
       async cancel(packageName, appRecoveryId) {
@@ -1703,7 +1724,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const { data } = await http.get<DeviceTierConfigsListResponse>(
           `/${p(packageName)}/deviceTierConfigs`,
         );
-        return data.deviceTierConfigs || [];
+        return data.deviceTierConfigs ?? [];
       },
 
       async get(packageName, configId) {
@@ -1745,7 +1766,13 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async create(packageName, body, regionsVersion?) {
         // Official API has no POST create -- use PATCH with allowMissing=true
         const productId = body.productId;
-        if (!productId) throw new Error("productId is required to create a one-time product");
+        if (!productId)
+          throw new PlayApiError(
+            "productId is required to create a one-time product",
+            "API_INVALID_INPUT",
+            0,
+            "Provide a productId when creating a one-time product.",
+          );
         const params = new URLSearchParams({
           "regionsVersion.version": regionsVersion || DEFAULT_REGIONS_VERSION,
           allowMissing: "true",
@@ -1771,9 +1798,13 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         await http.delete(`/${p(packageName)}/oneTimeProducts/${p(productId)}`);
       },
 
-      async listOffers(packageName, productId, purchaseOptionId = "-") {
+      async listOffers(packageName, productId, purchaseOptionId = "-", options?) {
+        const params = new URLSearchParams();
+        if (options?.pageSize) params.set("pageSize", String(options.pageSize));
+        if (options?.pageToken) params.set("pageToken", options.pageToken);
+        const qs = params.toString();
         const { data } = await http.get<OneTimeOffersListResponse>(
-          `/${p(packageName)}/oneTimeProducts/${p(productId)}/purchaseOptions/${p(purchaseOptionId)}/offers`,
+          `/${p(packageName)}/oneTimeProducts/${p(productId)}/purchaseOptions/${p(purchaseOptionId)}/offers${qs ? `?${qs}` : ""}`,
         );
         return data;
       },
@@ -1822,11 +1853,12 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async batchGet(packageName, productIds) {
-        const params = productIds.map((id) => `productIds=${encodeURIComponent(id)}`).join("&");
+        const params = new URLSearchParams();
+        for (const id of productIds) params.append("productIds", id);
         const { data } = await http.get<{ oneTimeProducts: OneTimeProduct[] }>(
-          `/${p(packageName)}/oneTimeProducts:batchGet?${params}`,
+          `/${p(packageName)}/oneTimeProducts:batchGet?${params.toString()}`,
         );
-        return data.oneTimeProducts || [];
+        return data.oneTimeProducts ?? [];
       },
 
       async batchUpdate(packageName, requests) {
@@ -1941,7 +1973,7 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const { data } = await http.get<GeneratedApksListResponse>(
           `/${p(packageName)}/generatedApks/${p(String(versionCode))}`,
         );
-        return data.generatedApks || [];
+        return data.generatedApks ?? [];
       },
 
       async download(packageName, versionCode, downloadId) {

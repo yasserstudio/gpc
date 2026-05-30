@@ -69,7 +69,7 @@ export async function inviteUser(
   grants?: Grant[],
 ): Promise<User> {
   const user: Partial<User> = { email };
-  if (permissions) user.developerAccountPermission = permissions;
+  if (permissions) user.developerAccountPermissions = permissions;
   if (grants) user.grants = grants;
   return client.create(developerId, user);
 }
@@ -85,8 +85,8 @@ export async function updateUser(
   const masks: string[] = [];
 
   if (permissions) {
-    updates.developerAccountPermission = permissions;
-    masks.push("developerAccountPermission");
+    updates.developerAccountPermissions = permissions;
+    masks.push("developerAccountPermissions");
   }
   if (grants) {
     updates.grants = grants;

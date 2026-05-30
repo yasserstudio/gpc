@@ -53,6 +53,10 @@ export async function loadServiceAccountKey(pathOrJson: string): Promise<Service
     raw = trimmed;
   } else {
     const absolutePath = resolve(trimmed);
+    // Only show the path in errors if it looks like an actual file path.
+    // If the input is long or contains newlines, it may be a pasted credential.
+    const safePath =
+      trimmed.length > 260 || trimmed.includes("\n") ? "<credential-input>" : absolutePath;
     try {
       raw = await readFile(absolutePath, "utf-8");
     } catch (err) {
@@ -62,10 +66,10 @@ export async function loadServiceAccountKey(pathOrJson: string): Promise<Service
           : "AUTH_INVALID_KEY";
 
       throw new AuthError(
-        `Failed to read service account key file: ${absolutePath}`,
+        `Failed to read service account key file: ${safePath}`,
         code,
         code === "AUTH_FILE_NOT_FOUND"
-          ? `File not found. Check that the path is correct: ${absolutePath}`
+          ? `File not found. Check that the path is correct.`
           : "Ensure the file is readable and contains valid JSON.",
       );
     }

@@ -282,7 +282,7 @@ function buildTestManifest(
   ];
 
   if (opts.testOnly) {
-    manifestAttrs.push(attr("testOnly", 0x01010272, "true", boolPrim(true)));
+    appAttrs.push(attr("testOnly", 0x01010272, "true", boolPrim(true)));
   }
 
   // Add a color attribute to <application> when requested (tests color Primitive decoding)

@@ -27,7 +27,7 @@ export interface PreflightContext {
   aabPath?: string;
   manifest?: ParsedManifest;
   zipEntries?: ZipEntryInfo[];
-  /** First 256 bytes of each .so file, keyed by ZIP entry path. */
+  /** First 4096 bytes of each .so file, keyed by ZIP entry path. */
   nativeLibHeaders?: EntryHeaderMap;
   metadataDir?: string;
   sourceDir?: string;
@@ -36,6 +36,7 @@ export interface PreflightContext {
 
 export interface PreflightResult {
   scanners: string[];
+  skippedScanners?: string[];
   findings: PreflightFinding[];
   summary: Record<FindingSeverity, number>;
   passed: boolean;

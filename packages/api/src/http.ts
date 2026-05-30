@@ -858,38 +858,84 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     },
     async download(path: string): Promise<ArrayBuffer> {
       const url = `${options.baseUrl ?? BASE_URL}${path}`;
-      const token = await options.auth.getAccessToken();
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeout);
 
-      try {
-        const response = await fetch(url, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Accept-Encoding": "gzip, deflate",
-            Connection: "keep-alive",
-          },
-          signal: controller.signal,
-          keepalive: true,
-        });
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        const token = await options.auth.getAccessToken();
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeout);
 
-        if (!response.ok) {
-          const errorBody = await response.text();
-          const mapped = mapStatusToError(response.status, errorBody);
+        try {
+          const response = await fetch(url, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Accept-Encoding": "gzip, deflate",
+              Connection: "keep-alive",
+            },
+            signal: controller.signal,
+            keepalive: true,
+          });
+
+          if (!response.ok) {
+            const errorBody = await response.text();
+            if (isRetryable(response.status) && attempt < maxRetries) {
+              const delay = jitteredDelay(baseDelay, attempt, maxDelay);
+              onRetry?.({
+                attempt: attempt + 1,
+                method: "GET",
+                path: redactPath(path),
+                status: response.status,
+                error: errorBody,
+                delayMs: delay,
+                timestamp: new Date().toISOString(),
+              });
+              await new Promise((r) => setTimeout(r, delay));
+              continue;
+            }
+            const mapped = mapStatusToError(response.status, errorBody);
+            throw new PlayApiError(
+              mapped.message ??
+                `GET ${redactPath(path)} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
+              mapped.code,
+              response.status,
+              mapped.suggestion,
+            );
+          }
+
+          return await response.arrayBuffer();
+        } catch (err) {
+          if (err instanceof PlayApiError) throw err;
+          if (attempt < maxRetries) {
+            const delay = jitteredDelay(baseDelay, attempt, maxDelay);
+            onRetry?.({
+              attempt: attempt + 1,
+              method: "GET",
+              path: redactPath(path),
+              status: 0,
+              error: err instanceof Error ? err.message : String(err),
+              delayMs: delay,
+              timestamp: new Date().toISOString(),
+            });
+            await new Promise((r) => setTimeout(r, delay));
+            continue;
+          }
           throw new PlayApiError(
-            mapped.message ??
-              `GET ${redactPath(path)} failed with status ${response.status}: ${sanitizeErrorBody(errorBody)}`,
-            mapped.code,
-            response.status,
-            mapped.suggestion,
+            `Download failed after ${maxRetries + 1} attempts: ${err instanceof Error ? err.message : String(err)}`,
+            "API_NETWORK_ERROR",
+            0,
+            "Check your network connection and try again.",
           );
+        } finally {
+          clearTimeout(timer);
         }
-
-        return await response.arrayBuffer();
-      } finally {
-        clearTimeout(timer);
       }
+
+      throw new PlayApiError(
+        "Download failed: exhausted retries",
+        "API_NETWORK_ERROR",
+        0,
+        "Check your network connection and try again.",
+      );
     },
   };
 }
