@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { withBase } from "vitepress";
 import { data as posts } from "../../blog/posts.data";
 
 function formatDate(dateStr: string): string {
@@ -11,7 +12,7 @@ function formatDate(dateStr: string): string {
 <template>
   <div class="blog-index">
     <div v-for="post in posts" :key="post.url" class="blog-card">
-      <a :href="post.url" class="blog-card-link">
+      <a :href="withBase(post.url)" class="blog-card-link">
         <h2 class="blog-card-title">{{ post.title }}</h2>
       </a>
       <div class="blog-card-meta">
