@@ -25,7 +25,7 @@ This article covers every concrete protection we shipped across v0.9.50 through 
 - `min-release-age=7` in `.npmrc` blocks freshly-published malicious packages from entering your dependency tree.
 - Isolate secret-dependent CI jobs from PR workflows. A fork PR should never see your credentials.
 
-## The Attack That Changed Our Approach
+## The npm Supply Chain Attack That Changed Our Approach
 
 The TanStack attack (May 12, 2026, campaign name "Mini Shai-Hulud") worked like this:
 
@@ -35,7 +35,7 @@ The TanStack attack (May 12, 2026, campaign name "Mini Shai-Hulud") worked like 
 4. Attacker used that token to plant poisoned files in the shared build cache
 5. The official release workflow later pulled from the poisoned cache, signed the malicious build, and published 84 compromised versions to npm
 
-The payload was delivered via a git-resolved `optionalDependency` whose `prepare` script ran a 2.3 MB credential exfiltrator. The PR could be closed after stealing the cache token. The poisoned cache persisted.
+A git-resolved `optionalDependency` delivered the payload: its `prepare` script ran a 2.3 MB credential exfiltrator. Once the cache token was stolen, the PR could be closed. The poisoned cache persisted.
 
 This attack vector is relevant to any project that:
 - Runs CI on pull requests from forks
@@ -48,7 +48,7 @@ GPC did all three before we hardened.
 
 **What we did:** Switched from a stored `NPM_TOKEN` secret to npm Trusted Publisher (OIDC). Then deleted the token from GitHub Secrets entirely.
 
-**How it works:** Instead of storing a long-lived npm authentication token in your CI, the GitHub Actions workflow requests a short-lived OIDC token from npm at publish time. npm verifies the token came from your specific repository, branch, and workflow. No secret to steal.
+**How it works:** Your GitHub Actions workflow requests a short-lived OIDC token from npm at publish time. npm verifies the token came from your specific repository, branch, and workflow. No stored secret. Nothing to steal.
 
 ```yaml
 # .github/workflows/release.yml
@@ -88,13 +88,13 @@ for (const pkg of PACKAGES) {
 
 After CI runs, nothing is live yet. The maintainer goes to `npmjs.com/settings/gpc-cli/staged-packages`, reviews the staged packages, and approves with 2FA. Only then do packages appear on the registry.
 
-This means a single compromised CI run cannot silently push malicious code to npm. Someone has to look at it and enter their 2FA code.
+A single compromised CI run cannot silently push malicious code to npm.
 
 ## Layer 3: Block Install Scripts
 
-**What we did:** Set `ignore-scripts=true` in every CI workflow and used `pnpm.onlyBuiltDependencies` to allowlist the two packages that legitimately need postinstall hooks.
+**What we did:** Blocked all install scripts in CI, then allowlisted the two packages that genuinely need postinstall hooks.
 
-Most npm supply chain attacks execute during `npm install` via postinstall scripts. Blocking scripts by default eliminates this vector.
+Most npm supply chain attacks run during `npm install` via postinstall scripts. Block them by default and the vector disappears.
 
 ```yaml
 # Every CI workflow (ci.yml, release.yml, binary.yml, docs.yml, codeql.yml, bundle-size.yml)
@@ -119,7 +119,7 @@ Starting with v0.9.80, the CI templates that `gpc init` generates for users also
 
 ## Layer 4: Pin Actions to Commit SHAs
 
-**What we did:** Replaced every `uses: actions/checkout@v4` tag reference with a full commit SHA.
+**What we did:** Pinned every GitHub Action to a full commit SHA instead of a mutable tag.
 
 Git tags are mutable. An attacker who gains write access to a popular GitHub Action can move the `v4` tag to point at malicious code. Every workflow that uses `@v4` would then run the attacker's code.
 
@@ -167,7 +167,7 @@ deepsec:
 min-release-age=7
 ```
 
-This tells pnpm to reject any package version published less than 7 days ago. If an attacker publishes a malicious version of a dependency, it will not enter our dependency tree for a week, giving the community time to detect and revert it.
+pnpm rejects any package version published less than 7 days ago. A malicious version of a dependency cannot enter your tree for a week, giving the community time to detect and revert it.
 
 This is a blunt instrument with a real tradeoff: you cannot adopt urgent security patches within the first week. For a CLI tool with 4 runtime dependencies, we decided the supply chain protection outweighs the patch delay.
 
@@ -235,4 +235,4 @@ The npm ecosystem has a supply chain problem. Waiting for npm to solve it is not
 
 ---
 
-*GPC is a TypeScript CLI for the Google Play Developer API. 217 endpoints, 2,343 tests, free to use. [github.com/yasserstudio/gpc](https://github.com/yasserstudio/gpc)*
+*GPC is a TypeScript CLI for the Google Play Developer API. 217 endpoints, 2,343 tests, free to use. [Getting started](/guide/getting-started) | [Security model](/advanced/security) | [GitHub](https://github.com/yasserstudio/gpc)*
