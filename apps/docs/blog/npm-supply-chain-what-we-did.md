@@ -236,4 +236,4 @@ The npm ecosystem has a supply chain problem. Waiting for npm to solve it is not
 
 ---
 
-*GPC is a TypeScript CLI for the Google Play Developer API. 217 endpoints, 2,343 tests, free to use. [Getting started](/guide/getting-started) | [Security model](/advanced/security) | [GitHub](https://github.com/yasserstudio/gpc)*
+*GPC is a TypeScript CLI for the Google Play Developer API. 217 endpoints, 2,343 tests, free to use. [Getting started](../guide/getting-started) | [Security model](../advanced/security) | [GitHub](https://github.com/yasserstudio/gpc)*
