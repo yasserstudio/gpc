@@ -44,7 +44,8 @@ e2e/               → End-to-end tests
 - Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, Homebrew tap, npm publish, README/CHANGELOG
 - Phase 10 ✓ — `gpc preflight` pre-submission compliance scanner (9 scanners, offline AAB policy checks)
 - Published to npm: `npm install -g @gpc-cli/cli`
-- Current version: v0.9.79 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- Current version: v0.9.80 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- v0.9.80: full-codebase security audit (15 fixes), Google API discovery doc alignment (13 type/param fixes), code quality pass (20 fixes). Plugin trust gate, webhook redaction, preflight false-negative fixes, download retry, null-safety, permission enforcement. Deepsec re-scan: 0 new findings. 
 - v0.9.79: developer clarity release -- structured reviewPending result + nextStep hint on commit rejection, bundle processing progress logs, improved API_EDIT_EXPIRED message, reviewSkipped on internal track, API_ROLLOUT_DECREASE_FORBIDDEN error, dry-run executed/skipped arrays, OfferPhaseDetails type, preflight targetSdkMinimum bumped to 36, Node 24 in CI matrix.
 - v0.9.78: fix `tracks update` versionCode coercion + nested JSON support, fix `validateAndCommit` auto-rescue for changesNotSentForReview on validate (15+ commands), new `gpc releases assign` command.
 - v0.9.77: fix large AAB upload timeout -- extended bundle processing poll from ~31s to ~86s (Fibonacci backoff), multi-retry guard on validate/commit (15s, 30s, 45s). Supply chain hardening -- Trusted Publisher (OIDC, no long-lived NPM_TOKEN), staged publishing (human 2FA approval before packages go live).
@@ -55,7 +56,7 @@ e2e/               → End-to-end tests
 - v0.9.72: API compliance patch (error reports endpoint, input validation).
 - v0.9.71: `gpc doctor` quota proximity check (warns at >80% daily/per-minute API usage) and plugin health check (discovers, loads, reports each plugin).
 - v0.9.70: `--in-app-update-priority <0-5>` and `--retain-version-codes <csv>` flags on upload, `default.txt` Fastlane-style changelog fallback via `--notes-dir`, promote preserves `inAppUpdatePriority` + `name`, GitHub Actions Node.js 22.
-- 2,332 total tests, 7 packages building, 90%+ line coverage on all core packages
+- 2,343 total tests, 7 packages building, 90%+ line coverage on all core packages
 - Changelog-generation series (v0.9.61 → v0.9.64): complete. `gpc changelog generate --target play-store --locales auto --ai --apply` does commit → translated Play Store notes → written into draft release, one command.
 - v0.9.63 highlight: AI-assisted Play Store translation. `gpc changelog generate --target play-store --locales auto --ai` translates non-source locales via the user's own LLM key. Auto-detects env priority `AI_GATEWAY_API_KEY` → `ANTHROPIC_API_KEY` → `OPENAI_API_KEY` → `GOOGLE_GENERATIVE_AI_API_KEY`. Non-reasoning model defaults. Gateway path unlocks cost-per-run in USD. All 4 AI SDK deps lazy-loaded (cold-start preserved).
 - v0.9.62 highlight: multilingual Play Store release notes. `gpc changelog generate --target play-store --locales <csv|auto>` emits per-locale "What's new" text with 500-char budget enforcement.
@@ -65,7 +66,7 @@ e2e/               → End-to-end tests
 
 ## Testing
 
-- Vitest for all tests (2,332 total across 7 packages + e2e)
+- Vitest for all tests (2,343 total across 7 packages + e2e)
 - Tests in `tests/` directory per package
 - Mock external APIs — never call real Google APIs in tests
 - Mock fetch with `vi.stubGlobal("fetch", mockFn)` for API tests
