@@ -187,6 +187,8 @@ Exit code: `2`
 | `CONFIG_VALIDATION_ERROR`     | Invalid config        | Config file has invalid fields          | Run `gpc config show` to inspect                |
 | `CONFIG_MISSING_APP`          | No app specified      | `--app` flag and `GPC_APP` both missing | Set `GPC_APP` or pass `--app`                   |
 | `CONFIG_MISSING_DEVELOPER_ID` | No developer ID       | Required for user/grant commands        | Set `GPC_DEVELOPER_ID` or pass `--developer-id` |
+| `CONFIG_INVALID_JSON`         | Malformed JSON        | Config file contains syntax errors      | Validate with: `cat <file> \| python3 -m json.tool` |
+| `CONFIG_INVALID_KEY`          | Invalid config key    | Key is empty, malformed, or a reserved prototype name | Use a valid alphanumeric profile/key name |
 
 ### UPLOAD\_\* -- Upload Errors
 
@@ -241,8 +243,20 @@ Emitted by `gpc changelog generate` (v0.9.61+).
 
 | Code                | Message                                   | Cause                                             | Fix                                                                         |
 | ------------------- | ----------------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------- |
-| `CHANGELOG_NO_TAG`  | No git tags found and --from not provided | Repo has no `v*` tag and no explicit `--from` ref | Pass `--from <ref>` explicitly, or create an initial tag (`git tag v0.0.1`) |
-| `CHANGELOG_BAD_REF` | Invalid `--from` or `--to` ref            | Ref does not resolve to a commit                  | Verify with `git rev-parse --verify <ref>`                                  |
+| `CHANGELOG_NO_TAG`            | No git tags found and --from not provided | Repo has no `v*` tag and no explicit `--from` ref | Pass `--from <ref>` explicitly, or create an initial tag (`git tag v0.0.1`) |
+| `CHANGELOG_BAD_REF`           | Invalid `--from` or `--to` ref            | Ref does not resolve to a commit                  | Verify with `git rev-parse --verify <ref>`                                  |
+| `CHANGELOG_FETCH_FAILED`      | Could not fetch changelog                 | GitHub API unreachable or returned an error        | Check network; view online at the docs site                                 |
+| `CHANGELOG_VERSION_NOT_FOUND` | Version not found                         | Requested version does not exist in releases       | Run `gpc changelog --limit 10` to see available versions                    |
+
+### WATCH\_\* -- Watch Errors
+
+Exit code: `5`
+
+Emitted by `gpc watch` (v0.9.67+).
+
+| Code                    | Message                  | Cause                              | Fix                                       |
+| ----------------------- | ------------------------ | ---------------------------------- | ----------------------------------------- |
+| `WATCH_WEBHOOK_FAILED`  | Webhook returned error   | Webhook endpoint returned non-2xx  | Check the webhook URL and server status   |
 
 ### GIT\_\* -- Git Subprocess Errors
 

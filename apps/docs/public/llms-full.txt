@@ -11,12 +11,12 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Pl
 
 - Install: `npm install -g @gpc-cli/cli`
 - Binary: `gpc`
-- Version: 0.9.79
+- Version: 0.9.80
 - API endpoints covered: 217 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1)
-- Tests: 2,332 (90%+ coverage)
+- Tests: 2,343 (90%+ coverage)
 - Licensing: Free to use. Source code is on GitHub.
 - Repo: https://github.com/yasserstudio/gpc
-- Notable v0.9.78 feature: `tracks update` no longer silently wipes tracks (versionCode coercion + nested JSON). `--changes-not-sent-for-review` now works on all 15+ commands. New `gpc releases assign` command assigns already-uploaded version codes to a track without re-uploading.
+- Notable v0.9.80: Full-codebase security audit (15 fixes), Google API discovery doc alignment (13 type/param fixes), code quality pass (20 fixes). Plugin trust gate, webhook redaction, preflight false-negative fixes, download retry, null-safety, permission enforcement.
 - Notable v0.9.77 feature: Fix large AAB upload timeout (Fibonacci backoff polling to ~86s, multi-retry guard on validate/commit). Supply chain hardening with npm Trusted Publisher (OIDC) and Staged Publishing (human 2FA approval).
 - Notable v0.9.74 feature: Security hardening release. 16 fixes across plugin RCE prevention, SSRF protection on resumable uploads, path traversal rejection, token redaction, API path encoding, CSV injection, prompt injection, rate limiter race condition, vitals gate ordering, and env scrubbing. CI hardened with deepsec scanning and supply chain protections.
 - Notable v0.9.73 feature: `gpc skills check` reports installed skill versions and checks for updates. `gpc doctor` detects Google's Android CLI. `--changelog-ai` flag on `gpc releases upload` generates AI-translated release notes inline during upload.

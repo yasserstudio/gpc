@@ -11,7 +11,57 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.79 <Badge type="tip" text="latest" />
+## v0.9.80 <Badge type="tip" text="latest" />
+
+Full-codebase security audit, Google API alignment, and code quality pass.
+
+**Security (15 fixes):**
+- fix: project `.gpcrc.json` can no longer self-approve plugins (bypass the user trust gate)
+- fix: shell injection in staged-publish npm version check
+- fix: CI hardening -- release tag validation, pinned npm/cdxgen versions, deepsec restricted to push events
+- fix: webhook payloads are now redacted before dispatch to Slack/Discord/custom endpoints
+- fix: auth error messages no longer leak credential content on long inputs
+- fix: ADC token cache uses hash-based keys to prevent multi-account confusion
+- fix: preflight `testOnly` attribute now read from `<application>` element (was incorrectly reading from `<manifest>` root)
+- fix: preflight 16KB alignment scanner now checks APK native libraries (was AAB-only)
+- fix: preflight ELF header read increased from 256 to 4096 bytes (catches late PT_LOAD entries)
+- fix: preflight result now reports `skippedScanners` when scanners are filtered out
+- fix: `gpc watch` breach handler fires on every breach cycle (halt is still gated to prevent repeated halts)
+- fix: `gpc status` now surfaces section API errors instead of silently reporting healthy
+- fix: generated CI templates now include `--ignore-scripts` for supply chain safety
+- fix: plugin `register()` crash no longer takes down the CLI
+- feat: plugin permissions are now enforced at hook registration time (not just validated)
+
+**API alignment (13 fixes, discovery doc rev 20260520):**
+- fix: `canceledStateContext` -- nest `cancelTime` inside `userInitiatedCancellation` to match Google's schema
+- fix: `outOfAppPurchaseContext` -- replace incorrect `externalTransactionToken` with `expiredPurchaseToken`
+- fix: `signupPromotion` -- replace flat `{promotionType, promotionCode}` with nested `{oneTimeCode, vanityCode}`
+- fix: `User.developerAccountPermission` renamed to plural `developerAccountPermissions`, added `accessState` and `partial`
+- fix: `inappproducts.batchGet` query parameter key corrected from `packageName.sku` to `sku`
+- feat: `latencyTolerance` param added to `inappproducts.update` and `delete`
+- feat: deprecation warning on `acknowledgeSubscription` v1 (GPC_DEP004)
+- feat: pagination support on `oneTimeProducts.listOffers` (`pageSize`/`pageToken`)
+- feat: `Grant.name`, `buyOption.legacyCompatible`/`multiQuantityEnabled`, `rentOption.expirationPeriod`, `replacementMode`, tax compliance fields
+
+**Code quality (20 fixes):**
+- fix: `bundles.list` and `tracks.list` null-safety (prevented crash on empty apps)
+- feat: `download()` now retries with exponential backoff (matches `request()` pattern)
+- fix: 10 sites of `|| []` standardized to `?? []` for correct null-coalescing
+- fix: batch methods now use `URLSearchParams` instead of manual string concatenation
+- fix: consistent error types -- `GpcError` replaces raw `Error` and `process.exit()` across CLI and core
+- fix: config JSON parse errors now throw `ConfigError` with actionable suggestions
+- fix: profile name validation rejects prototype pollution keys
+- feat: watch metrics queries now run in parallel (~500ms saved per polling round)
+- refactor: shared `formatSize()` utility (deduplicated from 2 files)
+- refactor: `os.homedir()` replaces `process.env.HOME` in CLI commands
+
+**Tests:** 2,343 (+11 net).
+
+**Endpoint count:** unchanged at 217.
+
+---
+
+## v0.9.79
 
 Upload and rollout visibility, edit session clarity, and API type improvements.
 
