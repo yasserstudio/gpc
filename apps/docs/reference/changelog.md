@@ -11,7 +11,16 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.80 <Badge type="tip" text="latest" />
+## v0.9.81 <Badge type="tip" text="latest" />
+
+The GPC GitHub Action, plus a credential-precedence fix.
+
+- feat: launched the [GPC GitHub Action](https://github.com/marketplace/actions/gpc-publish-to-google-play) on the Marketplace. Publish to Google Play from GitHub Actions in one step, with a built-in preflight compliance gate. Drop-in migration from `r0adkll/upload-google-play`: the same inputs work, so switching is a one-line `uses:` change.
+- fix: `GPC_SERVICE_ACCOUNT` / `GPC_APP` environment variables and the `--service-account` / `--app` flags now correctly override an active config profile. Previously the profile took precedence, which could target the wrong app or account on a machine that already had a profile configured.
+
+**Tests:** 2,345 (+2 net).
+
+## v0.9.80
 
 Full-codebase security audit, Google API alignment, and code quality pass.
 
