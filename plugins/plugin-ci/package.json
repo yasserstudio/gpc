@@ -27,7 +27,7 @@
     "@gpc-cli/plugin-sdk": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^25.6.0"
+    "@types/node": "^25.9.1"
   },
   "homepage": "https://yasserstudio.github.io/gpc/",
   "keywords": [
