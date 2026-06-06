@@ -144,32 +144,38 @@ export async function loadConfig(overrides?: Partial<GpcConfig>): Promise<Resolv
     }
   }
 
-  // Layer 2: environment variables
   const envConfig = loadEnvConfig();
-  Object.assign(result, stripUndefined(envConfig));
 
-  // Layer 1: CLI flag overrides
-  if (overrides) {
-    Object.assign(result, stripUndefined(overrides));
-  }
-
-  // Resolve profile overrides
-  if (result.profile) {
-    if (result.profiles && result.profile in result.profiles) {
-      const p = result.profiles[result.profile];
+  // Resolve the active profile (CLI > env > config) and apply its bundle as a
+  // config-tier layer — BELOW environment variables and CLI flags. A profile lives in
+  // the user config, so the documented precedence (env/CLI override user config) must
+  // hold: GPC_SERVICE_ACCOUNT / GPC_APP and --service-account / --app win over a profile.
+  const profileName = overrides?.profile ?? envConfig.profile ?? result.profile;
+  if (profileName) {
+    if (result.profiles && profileName in result.profiles) {
+      const p = result.profiles[profileName];
       if (p?.auth) result.auth = p.auth;
       if (p?.app) result.app = p.app;
       if (p?.developerId) result.developerId = p.developerId;
-    } else if (result.profiles && !(result.profile in result.profiles)) {
+    } else if (result.profiles) {
       // Profiles defined but requested profile missing — error
       const available = Object.keys(result.profiles).join(", ");
       throw new ConfigError(
-        `Profile "${result.profile}" not found. Available profiles: ${available || "(none)"}`,
+        `Profile "${profileName}" not found. Available profiles: ${available || "(none)"}`,
         "CONFIG_PROFILE_NOT_FOUND",
         `Check the profile name in your config or use one of: ${available || "none defined yet. Create one with: gpc config profile set <name>"}`,
       );
     }
-    // If profiles is undefined, profile name is kept but no overrides applied (no-op)
+    // If profiles is undefined, the profile name is kept but no overrides applied (no-op)
+    result.profile = profileName;
+  }
+
+  // Layer 2: environment variables (override the profile and config files)
+  Object.assign(result, stripUndefined(envConfig));
+
+  // Layer 1: CLI flag overrides (highest precedence)
+  if (overrides) {
+    Object.assign(result, stripUndefined(overrides));
   }
 
   // Validate final output format

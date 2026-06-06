@@ -552,6 +552,46 @@ describe("loadConfig with profiles", () => {
 
     expect(config.auth?.serviceAccount).toBe("/ci.json");
   });
+
+  it("env vars override an active profile (env > profile precedence)", async () => {
+    const configDir = join(tmpDir, "xdg-config", "gpc");
+    await mkdir(configDir, { recursive: true });
+    await writeFile(
+      join(configDir, "config.json"),
+      JSON.stringify({
+        profile: "staging",
+        profiles: {
+          staging: { auth: { serviceAccount: "/staging.json" }, app: "staging-app" },
+        },
+      }),
+    );
+
+    process.env["GPC_SERVICE_ACCOUNT"] = "/env.json";
+    process.env["GPC_APP"] = "env-app";
+    const config = await loadConfig();
+
+    expect(config.auth?.serviceAccount).toBe("/env.json");
+    expect(config.app).toBe("env-app");
+    expect(config.profile).toBe("staging");
+  });
+
+  it("CLI overrides win over an active profile, which still supplies the rest", async () => {
+    const configDir = join(tmpDir, "xdg-config", "gpc");
+    await mkdir(configDir, { recursive: true });
+    await writeFile(
+      join(configDir, "config.json"),
+      JSON.stringify({
+        profiles: {
+          staging: { auth: { serviceAccount: "/staging.json" }, app: "staging-app" },
+        },
+      }),
+    );
+
+    const config = await loadConfig({ profile: "staging", app: "cli-app" });
+
+    expect(config.app).toBe("cli-app");
+    expect(config.auth?.serviceAccount).toBe("/staging.json");
+  });
 });
 
 // ---------------------------------------------------------------------------
