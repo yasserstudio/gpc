@@ -17,6 +17,23 @@ Complete, copy-pasteable workflows for GitHub Actions. Each workflow is self-con
 gh secret set GPC_SERVICE_ACCOUNT < service-account.json
 ```
 
+## Quickest path: the GPC Action
+
+The simplest way to publish from CI is the official [GPC Action](https://github.com/marketplace/actions/gpc-publish-to-google-play) on the GitHub Marketplace: one step, with a built-in preflight compliance gate.
+
+```yaml
+- uses: yasserstudio/gpc-action@v1
+  with:
+    service-account-json: ${{ secrets.GPC_SERVICE_ACCOUNT }}
+    package-name: com.example.app
+    release-files: app/build/outputs/bundle/release/app-release.aab
+    track: internal
+```
+
+It runs `gpc preflight` before uploading (set `preflight: false` to skip) and accepts the same inputs as `r0adkll/upload-google-play`, so migrating is a one-line change. See the [action README](https://github.com/yasserstudio/gpc-action) for the full input list.
+
+Prefer to drive the CLI yourself? The workflows below install `gpc` and run it step by step. Those are equally supported.
+
 ## Basic: Upload on Tag Push
 
 Triggers on version tags. Builds the AAB and uploads to the internal testing track.
