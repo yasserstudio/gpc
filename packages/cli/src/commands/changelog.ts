@@ -103,7 +103,8 @@ export function registerChangelogCommand(program: Command): void {
       }
 
       if (opts.tag || entries.length === 1) {
-        console.log(formatChangelogEntry(entries[0]!));
+        const entry = entries[0];
+        if (entry) console.log(formatChangelogEntry(entry));
         return;
       }
 
@@ -266,7 +267,7 @@ export function registerChangelogCommand(program: Command): void {
             const client = await getClient(config);
             locales = await resolveLocales("auto", { client, packageName });
           } else {
-            locales = await resolveLocales(opts.locales!);
+            locales = await resolveLocales(opts.locales ?? "");
           }
         } catch (error) {
           if (error instanceof GpcError) {

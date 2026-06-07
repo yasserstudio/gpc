@@ -2,6 +2,7 @@ import { resolvePackageName, getClient } from "../resolve.js";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 
+import type { ExternalTransaction } from "@gpc-cli/api";
 import {
   createExternalTransaction,
   getExternalTransaction,
@@ -63,7 +64,7 @@ export function registerExternalTransactionsCommands(program: Command): void {
       const result = await createExternalTransaction(
         client,
         packageName,
-        data as any,
+        data as ExternalTransaction,
         options.transactionId,
       );
       console.log(formatOutput(result, format));

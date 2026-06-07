@@ -25,7 +25,7 @@ import {
   GpcError,
 } from "@gpc-cli/core";
 import { formatOutput, sortResults, createSpinner, maybePaginate } from "@gpc-cli/core";
-import type { UploadResult } from "@gpc-cli/core";
+import type { UploadResult, ReleaseStatusResult } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import {
@@ -423,7 +423,7 @@ export function registerReleasesCommands(program: Command): void {
       const rawStatuses = await getReleasesStatus(client, packageName, options.track);
       const statuses = options.track
         ? Array.isArray(rawStatuses)
-          ? rawStatuses.filter((s: any) => s.track === options.track)
+          ? rawStatuses.filter((s: ReleaseStatusResult) => s.track === options.track)
           : rawStatuses
         : rawStatuses;
       const sorted = Array.isArray(statuses)
@@ -765,7 +765,7 @@ export function registerReleasesCommands(program: Command): void {
 
       // Vitals gate: check crash rate BEFORE rollout increase
       if (action === "increase" && options.vitalsGate) {
-        const threshold = (config as any).vitals?.thresholds?.crashRate;
+        const threshold = config.vitals?.thresholds?.crashRate;
         if (!threshold) {
           console.error(
             "Warning: --vitals-gate requires vitals.thresholds.crashRate in config. Skipping gate.",
@@ -780,11 +780,18 @@ export function registerReleasesCommands(program: Command): void {
             const vitalsResult = await getVitalsCrashes(reportingClient, packageName, {
               days: 1,
             });
-            const latest = (vitalsResult as any).data?.[0]?.crashRate;
-            const check = checkThreshold(latest, threshold);
+            const latestRow = vitalsResult.rows?.[vitalsResult.rows.length - 1];
+            const firstMetric = latestRow?.metrics
+              ? Object.keys(latestRow.metrics)[0]
+              : undefined;
+            const latest = firstMetric
+              ? Number(latestRow?.metrics[firstMetric]?.decimalValue?.value)
+              : undefined;
+            const check = checkThreshold(latest, threshold / 100);
             if (check.breached) {
+              const pct = latest !== undefined ? (latest * 100).toFixed(3) : "unknown";
               console.error(
-                `Vitals gate: crash rate ${String(latest)}% > threshold ${String(threshold)}%. Rollout increase blocked.`,
+                `Vitals gate: crash rate ${pct}% > threshold ${String(threshold)}%. Rollout increase blocked.`,
               );
               process.exitCode = 6;
               return;
@@ -839,8 +846,8 @@ export function registerReleasesCommands(program: Command): void {
         // Try getReleasesStatus first (has all releases), then fallback to fetchReleaseNotes
         const statuses = await getReleasesStatus(client, packageName, track);
         let notes = Array.isArray(statuses)
-          ? statuses.flatMap((s: any) => s.releaseNotes ?? [])
-          : ((statuses as any).releaseNotes ?? []);
+          ? statuses.flatMap((s: ReleaseStatusResult) => s.releaseNotes ?? [])
+          : ((statuses as unknown as ReleaseStatusResult).releaseNotes ?? []);
 
         // Fallback: fetchReleaseNotes reads the raw track data which may have notes
         // even when getReleasesStatus doesn't (e.g. completed releases)

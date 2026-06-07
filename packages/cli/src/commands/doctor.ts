@@ -1226,7 +1226,7 @@ export function registerDoctorCommand(program: Command): void {
       const dnsPassedHosts: string[] = [];
 
       for (const host of dnsHosts) {
-        const label = host.split(".")[0]!;
+        const label = host.split(".")[0] ?? "";
         try {
           const start = performance.now();
           await lookup(host);
@@ -1251,7 +1251,7 @@ export function registerDoctorCommand(program: Command): void {
       // 15. HTTPS connectivity probe — only for hosts that passed DNS
       // -----------------------------------------------------------------------
       for (const host of dnsPassedHosts) {
-        const label = host.split(".")[0]!;
+        const label = host.split(".")[0] ?? "";
         const probe = await probeHttps(host);
         if (probe.ok) {
           results.push({

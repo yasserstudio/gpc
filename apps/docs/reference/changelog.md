@@ -11,7 +11,21 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.81 <Badge type="tip" text="latest" />
+## v0.9.82 <Badge type="tip" text="latest" />
+
+Dependency health, docs alignment, and lint cleanup.
+
+- chore: bump AI SDK to v6/v3 (`ai` 5 -> 6, `@ai-sdk/anthropic` 2 -> 3, `@ai-sdk/openai` 2 -> 3, `@ai-sdk/google` 2 -> 3). Zero code changes needed; all v6 breaking changes are N/A for GPC's usage.
+- fix: bump `google-auth-library` 10.6.2 -> 10.7.0 (clears the only tracked production audit finding -- `brace-expansion` transitive via `gaxios > rimraf > glob`)
+- chore: bump `turbo` 2.9.6 -> 2.9.16 (fixes CSRF + Yarn Berry code execution, dev-only)
+- chore: bump `eslint` 10.2.0 -> 10.4.1, `vitest` 4.1.4 -> 4.1.8, `typescript-eslint` 8.58.1 -> 8.60.1, `prettier` 3.8.2 -> 3.8.3, `protobufjs` 8.2.1 -> 8.6.0, `yauzl` 3.3.0 -> 3.3.2
+- fix: 30 lint warnings eliminated in `packages/cli/src/` -- replaced `as any` casts with proper types from `@gpc-cli/api` (18 `no-explicit-any`) and removed unnecessary `!` assertions (12 `no-non-null-assertion`)
+
+**Tests:** 2,345 (unchanged). **Endpoint count:** unchanged at 217.
+
+---
+
+## v0.9.81
 
 The GPC GitHub Action, plus a credential-precedence fix.
 

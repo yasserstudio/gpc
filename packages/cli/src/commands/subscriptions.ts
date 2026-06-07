@@ -3,7 +3,7 @@ import type { Command } from "commander";
 import { Option } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 
-import type { Subscription } from "@gpc-cli/api";
+import type { Subscription, BasePlanMigratePricesRequest, SubscriptionOffer } from "@gpc-cli/api";
 import {
   listSubscriptions,
   getSubscription,
@@ -150,7 +150,7 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
 
       const data = await readJsonFile(options.file);
-      const result = await createSubscription(client, packageName, data as any);
+      const result = await createSubscription(client, packageName, data as Subscription);
 
       if (options.activate && result.basePlans) {
         for (const bp of result.basePlans) {
@@ -198,7 +198,7 @@ export function registerSubscriptionsCommands(program: Command): void {
         client,
         packageName,
         productId,
-        data as any,
+        data as Subscription,
         options.updateMask,
       );
       console.log(formatOutput(result, format));
@@ -353,7 +353,7 @@ export function registerSubscriptionsCommands(program: Command): void {
         const client = await getClient(config);
 
         const data = await readJsonFile(options.file);
-        await migratePrices(client, packageName, productId, basePlanId, data as any);
+        await migratePrices(client, packageName, productId, basePlanId, data as BasePlanMigratePricesRequest);
         console.log(formatOutput({ success: true }, format));
       },
     );
@@ -436,7 +436,7 @@ export function registerSubscriptionsCommands(program: Command): void {
         const client = await getClient(config);
 
         const data = await readJsonFile(options.file);
-        const result = await createOffer(client, packageName, productId, basePlanId, data as any);
+        const result = await createOffer(client, packageName, productId, basePlanId, data as SubscriptionOffer);
         console.log(formatOutput(result, format));
       },
     );
@@ -480,7 +480,7 @@ export function registerSubscriptionsCommands(program: Command): void {
           productId,
           basePlanId,
           offerId,
-          data as any,
+          data as SubscriptionOffer,
           options.updateMask,
         );
         console.log(formatOutput(result, format));
@@ -619,7 +619,12 @@ export function registerSubscriptionsCommands(program: Command): void {
         packageName,
         productId,
         basePlanId,
-        requests as any,
+        requests as {
+          requests: Array<{
+            activateSubscriptionOfferRequest?: { offerId: string };
+            deactivateSubscriptionOfferRequest?: { offerId: string };
+          }>;
+        },
       );
       console.log(formatOutput(result, format));
     });

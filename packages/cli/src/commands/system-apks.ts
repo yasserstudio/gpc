@@ -1,6 +1,7 @@
 import { resolvePackageName, getClient } from "../resolve.js";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
+import type { SystemApkVariant } from "@gpc-cli/api";
 import { formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { readJsonFile } from "../json.js";
@@ -85,7 +86,7 @@ export function registerSystemApksCommands(program: Command): void {
 
       const client = await getClient(config);
       const spec = await readJsonFile(options.file);
-      const result = await client.systemApks.create(packageName, versionCode, spec as any);
+      const result = await client.systemApks.create(packageName, versionCode, spec as SystemApkVariant);
       console.log(formatOutput(result, format));
     });
 

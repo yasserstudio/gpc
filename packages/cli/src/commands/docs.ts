@@ -107,7 +107,7 @@ function searchPages(
 function extractSnippet(content: string, words: string[]): string {
   const lines = content.split("\n");
   for (let i = 0; i < lines.length; i++) {
-    const lower = lines[i]!.toLowerCase();
+    const lower = (lines[i] ?? "").toLowerCase();
     if (words.some((w) => lower.includes(w))) {
       const start = Math.max(0, i - 1);
       const end = Math.min(lines.length, i + 2);
@@ -159,8 +159,12 @@ export function registerDocsCommand(program: Command): void {
 
       const bySection = new Map<string, DocPage[]>();
       for (const page of bundle.pages) {
-        if (!bySection.has(page.section)) bySection.set(page.section, []);
-        bySection.get(page.section)!.push(page);
+        let section = bySection.get(page.section);
+        if (!section) {
+          section = [];
+          bySection.set(page.section, section);
+        }
+        section.push(page);
       }
 
       for (const [section, pages] of bySection) {

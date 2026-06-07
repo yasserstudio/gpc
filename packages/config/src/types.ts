@@ -4,6 +4,11 @@ export interface WebhookConfig {
   custom?: string;
 }
 
+export interface VitalsThresholds {
+  crashRate?: number;
+  anrRate?: number;
+}
+
 export interface GpcConfig {
   app?: string;
   output?: OutputFormat;
@@ -14,6 +19,7 @@ export interface GpcConfig {
   profiles?: Record<string, ProfileConfig>;
   approvedPlugins?: string[];
   webhooks?: WebhookConfig;
+  vitals?: { thresholds?: VitalsThresholds };
   debug?: boolean;
 }
 

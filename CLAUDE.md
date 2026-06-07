@@ -44,7 +44,8 @@ e2e/               → End-to-end tests
 - Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, Homebrew tap, npm publish, README/CHANGELOG
 - Phase 10 ✓ — `gpc preflight` pre-submission compliance scanner (9 scanners, offline AAB policy checks)
 - Published to npm: `npm install -g @gpc-cli/cli`
-- Current version: v0.9.81 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- Current version: v0.9.82 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- v0.9.82: dependency health + docs alignment + lint cleanup. AI SDK 5.x to 6.0 migration, google-auth-library bump (clears last production audit finding), turbo security fix, 30 lint warnings resolved in CLI (type-safe casts replacing `any`). Routine patch bumps (eslint, vitest, protobufjs, yauzl, prettier, typescript-eslint).
 - v0.9.81: GPC GitHub Action launched on the GitHub Marketplace (`yasserstudio/gpc-action`) -- one-step Play publishing from GitHub Actions with a built-in preflight compliance gate, full r0adkll-compatible inputs for one-line migration. fix(config): `GPC_SERVICE_ACCOUNT`/`GPC_APP` env vars and `--service-account`/`--app` flags now override an active profile (documented precedence; the profile previously won silently). Docs: CI/CD page features the action.
 - v0.9.80: full-codebase security audit (15 fixes), Google API discovery doc alignment (13 type/param fixes), code quality pass (20 fixes). Plugin trust gate, webhook redaction, preflight false-negative fixes, download retry, null-safety, permission enforcement. Deepsec re-scan: 0 new findings.
 - v0.9.79: developer clarity release -- structured reviewPending result + nextStep hint on commit rejection, bundle processing progress logs, improved API_EDIT_EXPIRED message, reviewSkipped on internal track, API_ROLLOUT_DECREASE_FORBIDDEN error, dry-run executed/skipped arrays, OfferPhaseDetails type, preflight targetSdkMinimum bumped to 36, Node 24 in CI matrix.

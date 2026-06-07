@@ -2,7 +2,7 @@ import { resolvePackageName, getClient } from "../resolve.js";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 
-import type { OneTimeProduct } from "@gpc-cli/api";
+import type { OneTimeProduct, OneTimeOffer } from "@gpc-cli/api";
 import {
   listOneTimeProducts,
   getOneTimeProduct,
@@ -23,7 +23,7 @@ import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
 import { readJsonFile } from "../json.js";
 
-async function readJsonArray<T = any>(filePath: string): Promise<T[]> {
+async function readJsonArray<T = unknown>(filePath: string): Promise<T[]> {
   const data = await readJsonFile(filePath);
   if (!Array.isArray(data)) {
     const err = new Error(`Expected a JSON array in ${filePath}, got ${typeof data}`);
@@ -109,7 +109,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const client = await getClient(config);
 
       const data = await readJsonFile(options.file);
-      const result = await createOneTimeProduct(client, packageName, data as any);
+      const result = await createOneTimeProduct(client, packageName, data as OneTimeProduct);
       console.log(formatOutput(result, format));
     });
 
@@ -144,7 +144,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
         client,
         packageName,
         productId,
-        data as any,
+        data as Partial<OneTimeProduct>,
         options.updateMask,
       );
       console.log(formatOutput(result, format));
@@ -260,7 +260,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
         client,
         packageName,
         productId,
-        data as any,
+        data as OneTimeOffer,
         options.purchaseOption,
       );
       console.log(formatOutput(result, format));
@@ -304,7 +304,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
           packageName,
           productId,
           offerId,
-          data as any,
+          data as Partial<OneTimeOffer>,
           options.updateMask,
           options.purchaseOption,
         );
@@ -399,7 +399,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
         packageName,
         productId,
         options.purchaseOption,
-        requests.map((r: any) => ({
+        requests.map((r: Record<string, unknown>) => ({
           packageName,
           productId: r.productId || productId,
           purchaseOptionId: r.purchaseOptionId || "-",

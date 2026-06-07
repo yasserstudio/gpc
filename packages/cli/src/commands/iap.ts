@@ -2,6 +2,7 @@ import { resolvePackageName, getClient } from "../resolve.js";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 
+import type { InAppProduct, InAppProductsBatchUpdateRequest } from "@gpc-cli/api";
 import {
   listOneTimeProducts,
   getOneTimeProduct,
@@ -90,7 +91,7 @@ export function registerIapCommands(program: Command): void {
       const client = await getClient(config);
 
       const data = await readJsonFile(options.file);
-      const result = await createInAppProduct(client, packageName, data as any);
+      const result = await createInAppProduct(client, packageName, data as InAppProduct);
       console.log(formatOutput(result, format));
     });
 
@@ -120,7 +121,7 @@ export function registerIapCommands(program: Command): void {
       const client = await getClient(config);
 
       const data = await readJsonFile(options.file);
-      const result = await updateInAppProduct(client, packageName, sku, data as any);
+      const result = await updateInAppProduct(client, packageName, sku, data as InAppProduct);
       console.log(formatOutput(result, format));
     });
 
@@ -243,7 +244,7 @@ export function registerIapCommands(program: Command): void {
             sku: p["sku"] as string,
           })),
         };
-        const result = await client.inappproducts.batchUpdate(packageName, request as any);
+        const result = await client.inappproducts.batchUpdate(packageName, request as InAppProductsBatchUpdateRequest);
         spinner.stop("Batch update complete");
         console.log(formatOutput(result, format));
       } catch (error) {
