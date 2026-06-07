@@ -781,9 +781,7 @@ export function registerReleasesCommands(program: Command): void {
               days: 1,
             });
             const latestRow = vitalsResult.rows?.[vitalsResult.rows.length - 1];
-            const firstMetric = latestRow?.metrics
-              ? Object.keys(latestRow.metrics)[0]
-              : undefined;
+            const firstMetric = latestRow?.metrics ? Object.keys(latestRow.metrics)[0] : undefined;
             const latest = firstMetric
               ? Number(latestRow?.metrics[firstMetric]?.decimalValue?.value)
               : undefined;

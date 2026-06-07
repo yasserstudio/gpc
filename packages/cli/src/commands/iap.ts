@@ -244,7 +244,10 @@ export function registerIapCommands(program: Command): void {
             sku: p["sku"] as string,
           })),
         };
-        const result = await client.inappproducts.batchUpdate(packageName, request as unknown as InAppProductsBatchUpdateRequest);
+        const result = await client.inappproducts.batchUpdate(
+          packageName,
+          request as unknown as InAppProductsBatchUpdateRequest,
+        );
         spinner.stop("Batch update complete");
         console.log(formatOutput(result, format));
       } catch (error) {

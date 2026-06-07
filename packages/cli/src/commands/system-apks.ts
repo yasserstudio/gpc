@@ -86,7 +86,11 @@ export function registerSystemApksCommands(program: Command): void {
 
       const client = await getClient(config);
       const spec = await readJsonFile(options.file);
-      const result = await client.systemApks.create(packageName, versionCode, spec as SystemApkVariant);
+      const result = await client.systemApks.create(
+        packageName,
+        versionCode,
+        spec as SystemApkVariant,
+      );
       console.log(formatOutput(result, format));
     });
 

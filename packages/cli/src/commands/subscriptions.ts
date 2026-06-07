@@ -353,7 +353,13 @@ export function registerSubscriptionsCommands(program: Command): void {
         const client = await getClient(config);
 
         const data = await readJsonFile(options.file);
-        await migratePrices(client, packageName, productId, basePlanId, data as BasePlanMigratePricesRequest);
+        await migratePrices(
+          client,
+          packageName,
+          productId,
+          basePlanId,
+          data as BasePlanMigratePricesRequest,
+        );
         console.log(formatOutput({ success: true }, format));
       },
     );
@@ -436,7 +442,13 @@ export function registerSubscriptionsCommands(program: Command): void {
         const client = await getClient(config);
 
         const data = await readJsonFile(options.file);
-        const result = await createOffer(client, packageName, productId, basePlanId, data as SubscriptionOffer);
+        const result = await createOffer(
+          client,
+          packageName,
+          productId,
+          basePlanId,
+          data as SubscriptionOffer,
+        );
         console.log(formatOutput(result, format));
       },
     );
