@@ -139,6 +139,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .description("Create a subscription from JSON file")
     .requiredOption("--file <path>", "JSON file with subscription data")
     .option("--activate", "Activate all base plans after creation")
+    .option("--regions-version <version>", "Regional pricing version (default 2022/02)")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -150,7 +151,10 @@ export function registerSubscriptionsCommands(program: Command): void {
             command: "subscriptions create",
             action: "create",
             target: `subscription from ${options.file}`,
-            details: options.activate ? { activate: true } : undefined,
+            details: {
+              ...(options.activate ? { activate: true } : {}),
+              ...(options.regionsVersion ? { regionsVersion: options.regionsVersion } : {}),
+            },
           },
           format,
           formatOutput,
@@ -161,7 +165,12 @@ export function registerSubscriptionsCommands(program: Command): void {
       const client = await getClient(config);
 
       const data = await readJsonFile(options.file);
-      const result = await createSubscription(client, packageName, data as Subscription);
+      const result = await createSubscription(
+        client,
+        packageName,
+        data as Subscription,
+        options.regionsVersion,
+      );
 
       if (options.activate && result.basePlans) {
         for (const bp of result.basePlans) {
@@ -183,6 +192,7 @@ export function registerSubscriptionsCommands(program: Command): void {
     .description("Update a subscription from JSON file")
     .requiredOption("--file <path>", "JSON file with subscription data")
     .option("--update-mask <fields>", "Comma-separated field mask")
+    .option("--regions-version <version>", "Regional pricing version (default 2022/02)")
     .action(async (productId: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -194,7 +204,11 @@ export function registerSubscriptionsCommands(program: Command): void {
             command: "subscriptions update",
             action: "update",
             target: productId,
-            details: { file: options.file, updateMask: options.updateMask },
+            details: {
+              file: options.file,
+              updateMask: options.updateMask,
+              regionsVersion: options.regionsVersion,
+            },
           },
           format,
           formatOutput,
@@ -211,6 +225,7 @@ export function registerSubscriptionsCommands(program: Command): void {
         productId,
         data as Subscription,
         options.updateMask,
+        options.regionsVersion,
       );
       console.log(formatOutput(result, format));
     });

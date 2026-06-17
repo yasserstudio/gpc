@@ -20,7 +20,7 @@
   "scripts": {
     "prebuild": "tsx ../../scripts/build-docs-bundle.ts",
     "build": "tsup",
-    "postbuild": "mkdir -p dist/generated && cp src/generated/docs-bundle.json dist/generated/",
+    "postbuild": "node -e \"const fs=require('node:fs');fs.mkdirSync('dist/generated',{recursive:true});fs.copyFileSync('src/generated/docs-bundle.json','dist/generated/docs-bundle.json')\"",
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -178,11 +178,12 @@ export async function createSubscription(
   client: PlayApiClient,
   packageName: string,
   data: Subscription,
+  regionsVersion?: string,
 ): Promise<Subscription> {
   validatePackageName(packageName);
   validateSubscriptionData(data);
   const sanitized = sanitizeSubscription(data);
-  return client.subscriptions.create(packageName, sanitized, data.productId);
+  return client.subscriptions.create(packageName, sanitized, data.productId, regionsVersion);
 }
 
 const SUBSCRIPTION_ID_FIELDS = new Set(["productId", "packageName"]);
@@ -199,13 +200,14 @@ export async function updateSubscription(
   productId: string,
   data: Subscription,
   updateMask?: string,
+  regionsVersion?: string,
 ): Promise<Subscription> {
   validatePackageName(packageName);
   validateSku(productId);
   validateSubscriptionData(data);
   const sanitized = sanitizeSubscription(data);
   const mask = updateMask || deriveSubscriptionUpdateMask(data);
-  return client.subscriptions.update(packageName, productId, sanitized, mask);
+  return client.subscriptions.update(packageName, productId, sanitized, mask, regionsVersion);
 }
 
 export async function deleteSubscription(
