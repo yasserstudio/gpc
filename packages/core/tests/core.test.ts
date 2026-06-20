@@ -2487,7 +2487,24 @@ describe("subscriptions commands", () => {
     const client = mockClient();
     const data = { productId: "sub1" } as any;
     await createSubscription(client, "com.example", data);
-    expect(client.subscriptions.create).toHaveBeenCalledWith("com.example", data, "sub1");
+    expect(client.subscriptions.create).toHaveBeenCalledWith(
+      "com.example",
+      data,
+      "sub1",
+      undefined,
+    );
+  });
+
+  it("createSubscription forwards regionsVersion to the client", async () => {
+    const client = mockClient();
+    const data = { productId: "sub1" } as any;
+    await createSubscription(client, "com.example", data, "2025/01");
+    expect(client.subscriptions.create).toHaveBeenCalledWith(
+      "com.example",
+      data,
+      "sub1",
+      "2025/01",
+    );
   });
 
   it("updateSubscription passes updateMask", async () => {
@@ -2499,6 +2516,20 @@ describe("subscriptions commands", () => {
       "sub1",
       data,
       "listings",
+      undefined,
+    );
+  });
+
+  it("updateSubscription forwards regionsVersion to the client", async () => {
+    const client = mockClient();
+    const data = { productId: "sub1" } as any;
+    await updateSubscription(client, "com.example", "sub1", data, "listings", "2025/01");
+    expect(client.subscriptions.update).toHaveBeenCalledWith(
+      "com.example",
+      "sub1",
+      data,
+      "listings",
+      "2025/01",
     );
   });
 
@@ -2551,6 +2582,21 @@ describe("subscriptions commands", () => {
       "bp1",
       data,
       "o1",
+      undefined,
+    );
+  });
+
+  it("createOffer forwards regionsVersion to the client", async () => {
+    const client = mockClient();
+    const data = { offerId: "o1" } as any;
+    await createOffer(client, "com.example", "sub1", "bp1", data, "2025/01");
+    expect(client.subscriptions.createOffer).toHaveBeenCalledWith(
+      "com.example",
+      "sub1",
+      "bp1",
+      data,
+      "o1",
+      "2025/01",
     );
   });
 
@@ -3763,6 +3809,22 @@ describe("subscriptions commands – additional coverage", () => {
       "o1",
       data,
       "phases",
+      undefined,
+    );
+  });
+
+  it("updateOffer forwards regionsVersion to the client", async () => {
+    const client = subMockClient();
+    const data = { offerId: "o1" } as any;
+    await updateOffer(client, "com.example", "sub1", "bp1", "o1", data, "phases", "2025/01");
+    expect(client.subscriptions.updateOffer).toHaveBeenCalledWith(
+      "com.example",
+      "sub1",
+      "bp1",
+      "o1",
+      data,
+      "phases",
+      "2025/01",
     );
   });
 
@@ -3777,6 +3839,7 @@ describe("subscriptions commands – additional coverage", () => {
       "o1",
       data,
       "phases,offerTags",
+      undefined,
     );
   });
 
@@ -5176,7 +5239,14 @@ describe("one-time products commands", () => {
     const client = mockClient();
     const data = { productId: "otp1" } as any;
     await createOneTimeProduct(client, "com.example", data);
-    expect(client.oneTimeProducts.create).toHaveBeenCalledWith("com.example", data);
+    expect(client.oneTimeProducts.create).toHaveBeenCalledWith("com.example", data, undefined);
+  });
+
+  it("createOneTimeProduct forwards regionsVersion to the client", async () => {
+    const client = mockClient();
+    const data = { productId: "otp1" } as any;
+    await createOneTimeProduct(client, "com.example", data, "2025/01");
+    expect(client.oneTimeProducts.create).toHaveBeenCalledWith("com.example", data, "2025/01");
   });
 
   it("updateOneTimeProduct auto-derives updateMask", async () => {
@@ -5188,6 +5258,20 @@ describe("one-time products commands", () => {
       "otp1",
       data,
       "listings",
+      undefined,
+    );
+  });
+
+  it("updateOneTimeProduct forwards regionsVersion to the client", async () => {
+    const client = mockClient();
+    const data = { productId: "otp1", listings: {} } as any;
+    await updateOneTimeProduct(client, "com.example", "otp1", data, "listings", "2025/01");
+    expect(client.oneTimeProducts.update).toHaveBeenCalledWith(
+      "com.example",
+      "otp1",
+      data,
+      "listings",
+      "2025/01",
     );
   });
 
@@ -5200,6 +5284,7 @@ describe("one-time products commands", () => {
       "otp1",
       data,
       "listings,purchaseType",
+      undefined,
     );
   });
 
@@ -5237,6 +5322,20 @@ describe("one-time products commands", () => {
       "otp1",
       "-",
       data,
+      undefined,
+    );
+  });
+
+  it("createOneTimeOffer forwards regionsVersion to the client", async () => {
+    const client = mockClient();
+    const data = { offerId: "offer1" } as any;
+    await createOneTimeOffer(client, "com.example", "otp1", data, "-", "2025/01");
+    expect(client.oneTimeProducts.createOffer).toHaveBeenCalledWith(
+      "com.example",
+      "otp1",
+      "-",
+      data,
+      "2025/01",
     );
   });
 
@@ -5251,6 +5350,31 @@ describe("one-time products commands", () => {
       "offer1",
       data,
       "pricing",
+      undefined,
+    );
+  });
+
+  it("updateOneTimeOffer forwards regionsVersion to the client", async () => {
+    const client = mockClient();
+    const data = { offerId: "offer1", pricing: {} } as any;
+    await updateOneTimeOffer(
+      client,
+      "com.example",
+      "otp1",
+      "offer1",
+      data,
+      "pricing",
+      "-",
+      "2025/01",
+    );
+    expect(client.oneTimeProducts.updateOffer).toHaveBeenCalledWith(
+      "com.example",
+      "otp1",
+      "-",
+      "offer1",
+      data,
+      "pricing",
+      "2025/01",
     );
   });
 

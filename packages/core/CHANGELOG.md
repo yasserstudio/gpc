@@ -1,5 +1,13 @@
 # @gpc-cli/core
 
+## 0.9.70
+
+### Patch Changes
+
+- Fix `npm install -g @gpc-cli/cli` failing with `EUNSUPPORTEDPROTOCOL` and honor `--regions-version`.
+  - **Install fix (#61):** published packages since 0.9.77 carried unresolved `workspace:*` dependency specifiers, so a fresh `npm install` failed. The staged-publish step now resolves workspace specifiers to concrete versions before publishing (and refuses to publish if any remain), restoring a clean install.
+  - **Regional pricing version (#78):** `--regions-version` is now sent to the Google Play API on `subscriptions create/update`, `subscriptions offers create/update`, `one-time-products create/update`, and `one-time-products offers create/update`. Previously the flag was accepted but ignored, so price/currency updates always used the default 2022/02 region list. Thanks to @softlion for the report and fix.
+
 ## 0.9.69
 
 ### Patch Changes

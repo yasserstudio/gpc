@@ -11,7 +11,18 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.83 <Badge type="tip" text="latest" />
+## v0.9.84 <Badge type="tip" text="latest" />
+
+Install fix and regional pricing control.
+
+- fix: `npm install -g @gpc-cli/cli` no longer fails with `EUNSUPPORTEDPROTOCOL`. Published packages from v0.9.77 to v0.9.83 carried internal `workspace:` dependency references that a fresh install could not resolve; publishing now writes concrete versions. If you hit this, upgrade with `npm install -g @gpc-cli/cli@latest`.
+- fix: `--regions-version` is now applied. On `subscriptions` and `one-time-products` create, update, and offer create/update, the flag is sent to Google Play to select the regional pricing version (for example, opt in to a newer region/currency list). It was previously accepted but ignored, so updates always used the default `2022/02`. Thanks to @softlion for the report and fix.
+
+**Tests:** 2,380 (+8).
+
+---
+
+## v0.9.83
 
 Response and usage quality: paginated lists resume correctly, and `list` output is more consistent and faithful than the raw Google Play API.
 

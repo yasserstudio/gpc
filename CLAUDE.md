@@ -44,7 +44,8 @@ e2e/               → End-to-end tests
 - Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, Homebrew tap, npm publish, README/CHANGELOG
 - Phase 10 ✓ — `gpc preflight` pre-submission compliance scanner (9 scanners, offline AAB policy checks)
 - Published to npm: `npm install -g @gpc-cli/cli`
-- Current version: v0.9.83 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- Current version: v0.9.84 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- v0.9.84: install fix + regional pricing flag. Fixes `npm install -g @gpc-cli/cli` failing with `EUNSUPPORTEDPROTOCOL` (pnpm `workspace:` specifiers leaked into published manifests from v0.9.77–v0.9.83; the staged-publish step now resolves them to concrete versions before publishing). `--regions-version` is now sent to the Google Play API on `subscriptions`/`one-time-products` create, update, and their offer commands (was an accepted-but-ignored facade; defaults to 2022/02). GH #61, #78. 2,380 tests.
 - v0.9.83: response & usage quality. `paginateAll` now returns a real continuation token (`--limit` + `--next-page` resumes correctly across reviews/users/purchases/iap/subscriptions; voided-purchases default-path token loss fixed). Consistent `list --json` envelope `{ <key>, nextPageToken, meta.count, message? }` + human resume footer (BREAKING: reviews/iap no longer return a bare array). Google's "package not found" 404 maps to API_APP_NOT_FOUND; unmapped statuses carry message+suggestion. `formatMoney` honors ISO 4217 minor units. `reviews list` gains hasReply/lang/[truncated]/`--full-text`. CSV/TSV formula-injection guard. 2,372 tests. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.83
 - v0.9.82: dependency health + docs alignment + lint cleanup. AI SDK 5.x to 6.0 migration, google-auth-library bump (clears last production audit finding), turbo security fix, 30 lint warnings resolved in CLI (type-safe casts replacing `any`). Routine patch bumps (eslint, vitest, protobufjs, yauzl, prettier, typescript-eslint).
 - v0.9.81: GPC GitHub Action launched on the GitHub Marketplace (`yasserstudio/gpc-action`) -- one-step Play publishing from GitHub Actions with a built-in preflight compliance gate, full r0adkll-compatible inputs for one-line migration. fix(config): `GPC_SERVICE_ACCOUNT`/`GPC_APP` env vars and `--service-account`/`--app` flags now override an active profile (documented precedence; the profile previously won silently). Docs: CI/CD page features the action.
@@ -59,7 +60,7 @@ e2e/               → End-to-end tests
 - v0.9.72: API compliance patch (error reports endpoint, input validation).
 - v0.9.71: `gpc doctor` quota proximity check (warns at >80% daily/per-minute API usage) and plugin health check (discovers, loads, reports each plugin).
 - v0.9.70: `--in-app-update-priority <0-5>` and `--retain-version-codes <csv>` flags on upload, `default.txt` Fastlane-style changelog fallback via `--notes-dir`, promote preserves `inAppUpdatePriority` + `name`, GitHub Actions Node.js 22.
-- 2,345 total tests, 7 packages building, 90%+ line coverage on all core packages
+- 2,380 total tests, 7 packages building, 90%+ line coverage on all core packages
 - Changelog-generation series (v0.9.61 → v0.9.64): complete. `gpc changelog generate --target play-store --locales auto --ai --apply` does commit → translated Play Store notes → written into draft release, one command.
 - v0.9.63 highlight: AI-assisted Play Store translation. `gpc changelog generate --target play-store --locales auto --ai` translates non-source locales via the user's own LLM key. Auto-detects env priority `AI_GATEWAY_API_KEY` → `ANTHROPIC_API_KEY` → `OPENAI_API_KEY` → `GOOGLE_GENERATIVE_AI_API_KEY`. Non-reasoning model defaults. Gateway path unlocks cost-per-run in USD. All 4 AI SDK deps lazy-loaded (cold-start preserved).
 - v0.9.62 highlight: multilingual Play Store release notes. `gpc changelog generate --target play-store --locales <csv|auto>` emits per-locale "What's new" text with 500-char budget enforcement.
@@ -69,7 +70,7 @@ e2e/               → End-to-end tests
 
 ## Testing
 
-- Vitest for all tests (2,345 total across 7 packages + e2e)
+- Vitest for all tests (2,380 total across 7 packages + e2e)
 - Tests in `tests/` directory per package
 - Mock external APIs — never call real Google APIs in tests
 - Mock fetch with `vi.stubGlobal("fetch", mockFn)` for API tests

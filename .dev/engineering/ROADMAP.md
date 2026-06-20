@@ -64,12 +64,16 @@ The remaining items before the stable `1.0.0` release:
 - [x] **v0.9.77 — Fix large AAB upload timeout, supply chain hardening** (shipped 2026-05-22). Fibonacci backoff polling (~86s), multi-retry guard on validate/commit. Trusted Publisher (OIDC), Staged Publishing (2FA gate), NPM_TOKEN deleted. 2,319 tests. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.77
 - [x] **v0.9.78 -- Track management, edit commit, and version assignment fixes** (shipped 2026-05-24). fix: `tracks update` versionCode coercion + nested JSON support. fix: `validateAndCommit` auto-rescue for changesNotSentForReview on validate (15+ commands). feat: `gpc releases assign <versionCode> --track <track>`. 2,332 tests. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.78
 - [x] **v0.9.79 -- Developer clarity, API contract refresh, Android 16 preflight** (shipped 2026-05-25). Two tracks: (A) Developer/AI-agent clarity: visible auto-rescue output + JSON `reviewPending` flag after rejection commit, bundle processing progress logging, edit expiry error improvement, internal track "no review" note, staged rollout decrease actionable error, `--dry-run` boundary logging. (B) API contract: `offerPhaseDetails` on Orders (deprecates `offerPhase`), OTP purchase option offers audit (7 methods + batch), `edits.tracks.create` for custom closed testing, surface `onHoldStateContext`/`inGracePeriodStateContext` in subscription output. Plus: `target-sdk-version` preflight scanner (API 36, Aug 31 2026 deadline), Node.js 24 CI compat (June 16 default). 2,332 tests.
-- [ ] **v0.9.80 -- Security audit, API alignment, code quality, docs refresh** (planned). Full-codebase deepsec v2.0.9 audit (94 findings), Google API discovery doc alignment (rev 20260520), code quality review, full docs/SEO/AI/LLM optimization. 5 tracks, ~55 items. Plan: `.dev/engineering/V0980_AUDIT_PLAN.md`.
+- [x] **v0.9.80 -- Security audit, API alignment, code quality** (shipped 2026-05-30). Full-codebase deepsec v2.0.9 audit: 15 security fixes (plugin trust gate, CI hardening, webhook redaction, preflight false negatives), 13 API alignment fixes (discovery doc rev 20260520), 20 code quality fixes (null safety, download retry, permission enforcement). Deepsec re-scan: 0 new findings, 24 marked Fixed. 2,343 tests. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.80
+- [x] **v0.9.81 -- GPC GitHub Action + config precedence fix** (shipped 2026-06-06). `yasserstudio/gpc-action` live on the GitHub Actions Marketplace. TypeScript action on Node 24, built-in preflight compliance gate, drop-in migration from `r0adkll/upload-google-play` (same inputs). fix(config): `GPC_SERVICE_ACCOUNT`/`GPC_APP` env vars and `--service-account`/`--app` flags now override an active profile. Docs: CI/CD page features the action as the quickest path. Supply chain article published. 2,345 tests. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.81
+- [x] **v0.9.82 -- Dependency health + docs alignment + lint cleanup** (shipped 2026-06-07). AI SDK v6/v3 upgrade (zero code changes). `google-auth-library` 10.7.0 clears the only production audit finding (`brace-expansion` transitive). `turbo` 2.9.16 (CSRF + Yarn Berry CVE, dev-only). 30 lint warnings fixed in CLI (proper API types replace `as any` casts, unnecessary `!` assertions removed). Routine patch bumps: eslint, vitest, typescript-eslint, prettier, protobufjs, yauzl. 2,345 tests.
+- [x] **v0.9.83 -- Response & usage quality** (shipped 2026-06-11). Real bug fix: `paginateAll` always returned an empty continuation token, so `--limit` + `--next-page` could not page past the first batch (reviews/users/purchases/iap/subscriptions); voided-purchases default path also dropped its token. Consistent `list --json` envelope `{ <key>, nextPageToken, meta.count, message? }` + human resume footer (**breaking:** reviews/iap no longer return a bare array). Error fidelity: Google's `"package not found"` 404 now maps to `API_APP_NOT_FOUND`; unmapped statuses carry message+suggestion. `formatMoney` honors ISO 4217 minor units. `reviews list` gains `hasReply`/`lang`/`[truncated]`/`--full-text`. CSV/TSV formula-injection guard. 4-agent review; deferred grants/testers/tracks envelope to a follow-up. 2,372 tests. Plan: `V0983_RESPONSE_QUALITY_PLAN.md`. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.83
+- [x] **v0.9.84 -- Install fix + regional pricing flag** (shipped 2026-06-20). P0 fix: `npm install -g @gpc-cli/cli` failed with `EUNSUPPORTEDPROTOCOL` because pnpm `workspace:` specifiers leaked into published manifests from v0.9.77-v0.9.83 (the staged-publish switch dropped the resolve step that `changeset publish` used to do). `scripts/stage-publish.js` now resolves `workspace:*` to concrete versions before publishing and refuses to publish if any remain. fix(#78): `--regions-version` is now sent to the Google Play API on all 8 subscriptions/one-time-products create/update/offer write commands (was an accepted-but-ignored facade; defaults to 2022/02). Extends GH PR #79 (softlion, credited). 2,380 tests. Plan: `V0984_PLAN.md`. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.84
 - [ ] Wall of Apps community showcase
 - [ ] Public marketing push (Dev.to retrospective, Android Weekly)
 - [ ] Stability soak period -- no critical bugs for 2+ weeks in production usage (soak starts after v0.9.90, earliest 1.0: 2 weeks after v0.9.90 ships)
 - [x] GitHub Actions Node.js 22 migration (done in v0.9.70)
-- [ ] Dependency audit cleanup (see [Supply Chain Status](#supply-chain-status) below)
+- [ ] Dependency audit cleanup (see [Supply Chain Status](#supply-chain-status) below) -- production findings cleared in v0.9.82, dev-only remain
 
 Once these items are addressed and the CLI has been validated in production workflows, the version will bump from `0.9.x` to `1.0.0`.
 
@@ -77,7 +81,7 @@ Once these items are addressed and the CLI has been validated in production work
 
 ## Supply Chain Status
 
-Last scanned: 2026-05-15 (deepsec v2.0.8 + Socket.dev CLI v1.1.76 + pnpm audit). Hardened in v0.9.74.
+Last scanned: 2026-06-07 (deepsec v2.0.12 + pnpm audit). Hardened in v0.9.74, production finding cleared in v0.9.82.
 
 ### Socket.dev: Clean
 
@@ -86,27 +90,27 @@ Last scanned: 2026-05-15 (deepsec v2.0.8 + Socket.dev CLI v1.1.76 + pnpm audit).
 - **Warnings:** 2 -- both `vite` (dev dependency) flagged for obfuscated dist bundles. Normal for bundled packages, not a security concern.
 - **Dashboard:** https://socket.dev/dashboard/org/yasser-s-studio
 
-### pnpm audit: 9 findings (1 production, 8 dev-only)
+### pnpm audit: 0 production findings, dev-only remain
+
+The `brace-expansion` production finding was cleared in v0.9.82 by bumping `google-auth-library` to 10.7.0. The `eslint` dev-only `brace-expansion` finding was cleared by bumping `eslint` to 10.4.1.
 
 | Package | Severity | Dependency chain | Production? | Exploitable? |
 |---------|----------|-----------------|-------------|--------------|
-| `brace-expansion` 2.0.x | Moderate | `google-auth-library > gaxios > rimraf > glob > minimatch` | Yes (transitive) | No -- GPC never passes user-controlled globs to this path |
 | `flatted` | High (2x) | `eslint > file-entry-cache > flat-cache` | No (devDep) | N/A |
 | `picomatch` | High + Moderate (4x) | `tsup > tinyglobby`, `@changesets/cli` | No (devDep) | N/A |
 | `esbuild` | Moderate | `vitepress > vite` | No (devDep) | N/A |
-| `brace-expansion` | Moderate | `eslint > minimatch` | No (devDep) | N/A |
 
 ### Action items for next version cut
 
 | Priority | Action | Trigger | Impact |
 |----------|--------|---------|--------|
-| Medium | Bump `google-auth-library` | When upstream releases fix for `brace-expansion` transitive | Clears the only production audit finding |
+| ~~Medium~~ | ~~Bump `google-auth-library`~~ | ~~Done in v0.9.82~~ | ~~Cleared production brace-expansion finding~~ |
 | Low | Bump `eslint` to v9.x+ | When `flat-cache` drops `flatted` or `flatted` patches | Clears 2 high-severity dev-only findings |
 | Low | Bump `tsup` | When `tinyglobby` updates `picomatch` to >= 4.0.4 | Clears 2 high + 2 moderate dev-only findings |
 | Low | Bump `vitepress` | When Vite updates bundled `esbuild` | Clears 1 moderate dev-only finding |
 | Info | Monitor `@changesets/cli` | When changesets bumps `picomatch` | Clears remaining picomatch finding |
 
-**None of these are blocking v1.0.0.** The single production finding (`brace-expansion`) is a moderate DoS via malicious glob patterns in an unreachable code path. All other findings are dev-only tooling.
+**None of these are blocking v1.0.0.** Zero production findings remain. All dev-only tooling.
 
 ---
 
@@ -2140,7 +2144,7 @@ Wraps `gcloud services enable androidpublisher.googleapis.com`, `iam service-acc
 
 ### Future — Ecosystem
 
-**GitHub Actions Marketplace Action** — primary organic distribution channel; Fastlane `supply` became the default via marketplace discoverability:
+**GitHub Actions Marketplace Action** -- PULLED FORWARD TO v0.9.81 (see Road to 1.0 and `V0981_GPC_ACTION_PLAN.md`). Primary organic distribution channel; Fastlane `supply` became the default via marketplace discoverability:
 ```yaml
 - uses: yasserstudio/gpc-action@v1
   with:
@@ -2453,38 +2457,36 @@ One-liner: *"Google handles the build side. GPC handles the publish side. That s
 
 ---
 
-## Current Status (v0.9.77)
+## Current Status (v0.9.83)
 
-- **Version:** `v0.9.77` (latest shipped 2026-05-21)
-- **Tests:** 2,319 across 7 packages + e2e
+- **Version:** `v0.9.83` (latest shipped 2026-06-11)
+- **Tests:** 2,372 across 7 packages + e2e
 - **Coverage:** 90%+ line coverage on all core packages
 - **API endpoints:** 217 (Publisher v3 + Reporting v1beta1 + Custom App Publishing v1)
 - **Packages:** 7 published under `@gpc-cli` scope on npm
-- **Agent skills:** 18 skills, v1.12.0 (`gpc install-skills`)
-- **Docs:** [yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/) (102 pages)
+- **Agent skills:** 18 skills (`gpc install-skills`)
+- **Docs:** [yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/) (108 pages)
 - **Install:** `npm install -g @gpc-cli/cli` or `brew install yasserstudio/tap/gpc`
 - **Open bugs:** zero
-- **Rate limiter:** rewritten to 6-bucket Google model, all API calls auto-rate-limited
-- **Security:** deepsec audit complete (2026-05-15), 16 findings resolved, CI supply chain hardened
-- **Live test coverage:** v0.9.71 live tested on visioo + sfn-emploi (2026-04-30)
+- **Audit:** zero production findings (cleared in v0.9.82)
+- **Security:** deepsec audit complete, CI supply chain hardened, Trusted Publisher + Staged Publishing
+- **GitHub Action:** `yasserstudio/gpc-action` on Marketplace (launched v0.9.81)
 - **Next milestone:** v1.0.0 (stability soak + marketing push)
-- **I/O 2026 research:** `.dev/engineering/GOOGLE_IO_2026.md` (2026-05-20)
 
 ### Recent release highlights
 
 | Version | Date | Headline |
 |---------|------|----------|
-| v0.9.77 | 2026-05-21 | Fix large AAB upload timeout, supply chain hardening (Trusted Publisher + Staged Publishing) |
+| v0.9.83 | 2026-06-11 | Response & usage quality: pagination resume fix, consistent list JSON, error fidelity |
+| v0.9.82 | 2026-06-07 | Dependency health, docs alignment, lint cleanup, vitals gate fix |
+| v0.9.81 | 2026-06-06 | GPC GitHub Action on Marketplace, config precedence fix |
+| v0.9.80 | 2026-05-30 | Full-codebase security audit (15 fixes), API alignment (13 fixes), code quality (20 fixes) |
+| v0.9.79 | 2026-05-25 | Developer clarity, API contract refresh, preflight targetSdk 36, Node 24 CI |
+| v0.9.78 | 2026-05-24 | Track management fixes, `gpc releases assign`, validateAndCommit auto-rescue |
+| v0.9.77 | 2026-05-22 | Fix large AAB upload timeout, supply chain hardening (Trusted Publisher + Staged Publishing) |
 | v0.9.76 | 2026-05-20 | Google I/O 2026 response: API parity, deprecation warnings, positioning update |
 | v0.9.75 | 2026-05-19 | Data safety CSV fix, input validation, docs rewrite |
 | v0.9.74 | 2026-05-15 | Security hardening: deepsec audit, 16 fixes, CI supply chain lockdown |
-| v0.9.73 | 2026-05-11 | Skills check, Android CLI detection, upload `--changelog-ai` |
-| v0.9.72 | 2026-05-08 | API compliance patch: errorReports endpoint, v1 deprecation notices |
-| v0.9.71 | 2026-04-30 | Smarter Doctor: quota proximity check, plugin health check |
-| v0.9.70 | 2026-04-29 | `--in-app-update-priority`, `--retain-version-codes`, `default.txt` changelog fallback, promote field preservation, vitals freshness fix, Node.js 22 CI |
-| v0.9.69 | 2026-04-27 | SHA-256 image sync for `gpc metadata push`; `gpc bundles list/find/wait`; `changesNotSentForReview` auto-rescue on commit failures |
-| v0.9.68 | 2026-04-26 | `gpc setup` guided onboarding wizard; CSV/TSV output (`--output csv/tsv`); `--validate-only` on `gpc releases commit` |
-| v0.9.67 | 2026-04-25 | `gpc watch` real-time rollout monitoring; dual-interval polling; multi-metric thresholds; auto-halt on breach |
 | v0.9.66 | 2026-04-24 | Developer verification: `gpc verify checklist`, `gpc doctor --verify`, `gpc preflight signing` |
 | v0.9.65 | 2026-04-23 | Preflight scanners for April 2026 Google Play policy enforcement dates |
 | v0.9.64 | 2026-04-22 | `--apply` writes translated notes to draft release; bundle race fix; embedded docs (99 pages); changelog series complete |
@@ -2986,12 +2988,7 @@ Full docs refresh: align all surfaces with v0.9.80 state, optimize for search en
 
 ### Tier 1 — High impact, ship within 4 weeks of 1.0
 
-**GitHub Action** (`yasserstudio/gpc-action`)
-- One-line CI integration via GitHub Actions Marketplace
-- Wraps `gpc preflight` + `gpc releases upload` + `gpc status`
-- Free distribution channel — every marketplace listing is discovery
-- Plan: separate repo, composite action, no Docker
-- See also: `.dev/engineering/WEBSITE_PLAN.md` (landing page section)
+**~~GitHub Action~~** -- **DONE.** Shipped in v0.9.81 (2026-06-06). `yasserstudio/gpc-action` live on the GitHub Actions Marketplace. TypeScript action on Node 24, built-in preflight gate, drop-in r0adkll migration. Plan: `.dev/engineering/V0981_GPC_ACTION_PLAN.md`.
 
 **~~`gpc changelog generate`~~** — **DONE.** Shipped as the v0.9.61-v0.9.64 changelog-generation series. v0.9.61: smart clustering + prompt mode. v0.9.62: Play Store per-locale target. v0.9.63: AI translation (BYO key). v0.9.64: `--apply` into draft releases + embedded docs. Tier 4 "AI-assisted release notes" folded in and complete.
 

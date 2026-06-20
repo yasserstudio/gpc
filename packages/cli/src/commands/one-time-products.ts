@@ -89,6 +89,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
     .command("create")
     .description("Create a one-time product from JSON file")
     .requiredOption("--file <path>", "JSON file with product data")
+    .option("--regions-version <version>", "Regional pricing version (default 2022/02)")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -100,6 +101,9 @@ export function registerOneTimeProductsCommands(program: Command): void {
             command: "one-time-products create",
             action: "create",
             target: `one-time product from ${options.file}`,
+            details: options.regionsVersion
+              ? { regionsVersion: options.regionsVersion }
+              : undefined,
           },
           format,
           formatOutput,
@@ -110,7 +114,12 @@ export function registerOneTimeProductsCommands(program: Command): void {
       const client = await getClient(config);
 
       const data = await readJsonFile(options.file);
-      const result = await createOneTimeProduct(client, packageName, data as OneTimeProduct);
+      const result = await createOneTimeProduct(
+        client,
+        packageName,
+        data as OneTimeProduct,
+        options.regionsVersion,
+      );
       console.log(formatOutput(result, format));
     });
 
@@ -119,6 +128,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
     .description("Update a one-time product from JSON file")
     .requiredOption("--file <path>", "JSON file with product data")
     .option("--update-mask <fields>", "Comma-separated field mask")
+    .option("--regions-version <version>", "Regional pricing version (default 2022/02)")
     .action(async (productId: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -130,7 +140,10 @@ export function registerOneTimeProductsCommands(program: Command): void {
             command: "one-time-products update",
             action: "update",
             target: productId,
-            details: { file: options.file },
+            details: {
+              file: options.file,
+              ...(options.regionsVersion ? { regionsVersion: options.regionsVersion } : {}),
+            },
           },
           format,
           formatOutput,
@@ -147,6 +160,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
         productId,
         data as Partial<OneTimeProduct>,
         options.updateMask,
+        options.regionsVersion,
       );
       console.log(formatOutput(result, format));
     });
@@ -235,37 +249,48 @@ export function registerOneTimeProductsCommands(program: Command): void {
     .description("Create an offer from JSON file")
     .requiredOption("--file <path>", "JSON file with offer data")
     .option("--purchase-option <id>", 'Purchase option ID (default: "-" for all)', "-")
-    .action(async (productId: string, options: { file: string; purchaseOption: string }) => {
-      const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()["app"], config);
-      const format = getOutputFormat(program, config);
+    .option("--regions-version <version>", "Regional pricing version (default 2022/02)")
+    .action(
+      async (
+        productId: string,
+        options: { file: string; purchaseOption: string; regionsVersion?: string },
+      ) => {
+        const config = await loadConfig();
+        const packageName = resolvePackageName(program.opts()["app"], config);
+        const format = getOutputFormat(program, config);
 
-      if (isDryRun(program)) {
-        printDryRun(
-          {
-            command: "one-time-products offers create",
-            action: "create offer for",
-            target: productId,
-            details: { file: options.file, purchaseOption: options.purchaseOption },
-          },
-          format,
-          formatOutput,
+        if (isDryRun(program)) {
+          printDryRun(
+            {
+              command: "one-time-products offers create",
+              action: "create offer for",
+              target: productId,
+              details: {
+                file: options.file,
+                purchaseOption: options.purchaseOption,
+                ...(options.regionsVersion ? { regionsVersion: options.regionsVersion } : {}),
+              },
+            },
+            format,
+            formatOutput,
+          );
+          return;
+        }
+
+        const client = await getClient(config);
+
+        const data = await readJsonFile(options.file);
+        const result = await createOneTimeOffer(
+          client,
+          packageName,
+          productId,
+          data as OneTimeOffer,
+          options.purchaseOption,
+          options.regionsVersion,
         );
-        return;
-      }
-
-      const client = await getClient(config);
-
-      const data = await readJsonFile(options.file);
-      const result = await createOneTimeOffer(
-        client,
-        packageName,
-        productId,
-        data as OneTimeOffer,
-        options.purchaseOption,
-      );
-      console.log(formatOutput(result, format));
-    });
+        console.log(formatOutput(result, format));
+      },
+    );
 
   offers
     .command("update <product-id> <offer-id>")
@@ -273,11 +298,17 @@ export function registerOneTimeProductsCommands(program: Command): void {
     .requiredOption("--file <path>", "JSON file with offer data")
     .option("--update-mask <fields>", "Comma-separated field mask")
     .option("--purchase-option <id>", 'Purchase option ID (default: "-" for all)', "-")
+    .option("--regions-version <version>", "Regional pricing version (default 2022/02)")
     .action(
       async (
         productId: string,
         offerId: string,
-        options: { file: string; updateMask?: string; purchaseOption: string },
+        options: {
+          file: string;
+          updateMask?: string;
+          purchaseOption: string;
+          regionsVersion?: string;
+        },
       ) => {
         const config = await loadConfig();
         const packageName = resolvePackageName(program.opts()["app"], config);
@@ -289,7 +320,11 @@ export function registerOneTimeProductsCommands(program: Command): void {
               command: "one-time-products offers update",
               action: "update offer",
               target: `${productId}/${offerId}`,
-              details: { file: options.file, purchaseOption: options.purchaseOption },
+              details: {
+                file: options.file,
+                purchaseOption: options.purchaseOption,
+                ...(options.regionsVersion ? { regionsVersion: options.regionsVersion } : {}),
+              },
             },
             format,
             formatOutput,
@@ -308,6 +343,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
           data as Partial<OneTimeOffer>,
           options.updateMask,
           options.purchaseOption,
+          options.regionsVersion,
         );
         console.log(formatOutput(result, format));
       },

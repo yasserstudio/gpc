@@ -11,12 +11,13 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Pl
 
 - Install: `npm install -g @gpc-cli/cli`
 - Binary: `gpc`
-- Version: 0.9.82
+- Version: 0.9.84
 - API endpoints covered: 217 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1)
 - Tests: 2,345 (90%+ coverage)
 - Licensing: Free to use. Source code is on GitHub.
 - Repo: https://github.com/yasserstudio/gpc
 - GitHub Action: yasserstudio/gpc-action on the GitHub Actions Marketplace (one-step Play publishing from CI with built-in preflight gate, drop-in r0adkll migration)
+- Notable v0.9.84: Install fix -- `npm install -g @gpc-cli/cli` no longer fails with EUNSUPPORTEDPROTOCOL (workspace: specifiers leaked into published manifests from v0.9.77-v0.9.83; publishing now resolves them to concrete versions). `--regions-version` is now sent to Google Play on subscriptions/one-time-products create, update, and offer commands (was accepted but ignored).
 - Notable v0.9.82: Dependency health release. AI SDK 5.x to 6.0 migration, google-auth-library bump (clears last production audit finding), turbo security fix, 30 lint warnings resolved (type-safe casts replacing `any`).
 - Notable v0.9.81: GPC GitHub Action launched on the GitHub Marketplace. Config precedence fix: env vars and CLI flags now override an active profile. Supply chain article published.
 - Notable v0.9.80: Full-codebase security audit (15 fixes), Google API discovery doc alignment (13 type/param fixes), code quality pass (20 fixes). Plugin trust gate, webhook redaction, preflight false-negative fixes, download retry, null-safety, permission enforcement.

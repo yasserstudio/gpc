@@ -44,9 +44,10 @@ export async function createOneTimeProduct(
   client: PlayApiClient,
   packageName: string,
   data: OneTimeProduct,
+  regionsVersion?: string,
 ): Promise<OneTimeProduct> {
   try {
-    return await client.oneTimeProducts.create(packageName, data);
+    return await client.oneTimeProducts.create(packageName, data, regionsVersion);
   } catch (error) {
     throw new GpcError(
       `Failed to create one-time product: ${error instanceof Error ? error.message : String(error)}`,
@@ -79,10 +80,11 @@ export async function updateOneTimeProduct(
   productId: string,
   data: Partial<OneTimeProduct>,
   updateMask?: string,
+  regionsVersion?: string,
 ): Promise<OneTimeProduct> {
   try {
     const mask = updateMask || deriveOtpUpdateMask(data);
-    return await client.oneTimeProducts.update(packageName, productId, data, mask);
+    return await client.oneTimeProducts.update(packageName, productId, data, mask, regionsVersion);
   } catch (error) {
     throw new GpcError(
       `Failed to update one-time product "${productId}": ${error instanceof Error ? error.message : String(error)}`,
@@ -153,9 +155,16 @@ export async function createOneTimeOffer(
   productId: string,
   data: OneTimeOffer,
   purchaseOptionId = "-",
+  regionsVersion?: string,
 ): Promise<OneTimeOffer> {
   try {
-    return await client.oneTimeProducts.createOffer(packageName, productId, purchaseOptionId, data);
+    return await client.oneTimeProducts.createOffer(
+      packageName,
+      productId,
+      purchaseOptionId,
+      data,
+      regionsVersion,
+    );
   } catch (error) {
     throw new GpcError(
       `Failed to create offer for product "${productId}": ${error instanceof Error ? error.message : String(error)}`,
@@ -174,6 +183,7 @@ export async function updateOneTimeOffer(
   data: Partial<OneTimeOffer>,
   updateMask?: string,
   purchaseOptionId = "-",
+  regionsVersion?: string,
 ): Promise<OneTimeOffer> {
   try {
     const mask = updateMask || deriveOtpOfferUpdateMask(data);
@@ -184,6 +194,7 @@ export async function updateOneTimeOffer(
       offerId,
       data,
       mask,
+      regionsVersion,
     );
   } catch (error) {
     throw new GpcError(

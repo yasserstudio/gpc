@@ -7,6 +7,17 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.84
+
+Install fix and regional pricing control.
+
+- fix: `npm install -g @gpc-cli/cli` no longer fails with `EUNSUPPORTEDPROTOCOL`. Packages published from v0.9.77 to v0.9.83 leaked internal `workspace:` dependency references that a fresh install could not resolve; publishing now writes concrete versions (and refuses to publish if any `workspace:` specifier remains).
+- fix: `--regions-version` is now sent to the Google Play API on `subscriptions` and `one-time-products` create, update, and offer create/update. It was previously accepted but ignored, so price/currency changes always used the default `2022/02` region list. Thanks to @softlion (#79) for the report and fix.
+
+**Tests:** 2,380 (+8).
+
+---
+
 ## v0.9.79
 
 Developer clarity, API contract refresh, Android 16 preflight.

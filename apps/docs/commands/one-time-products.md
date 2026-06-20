@@ -40,16 +40,17 @@ gpc otp create --file product.json
 
 ### `gpc otp update <product-id> --file <path>`
 
-Update an existing product. The `regionsVersion` query parameter and `updateMask` are automatically derived from the provided fields.
+Update an existing product. The `updateMask` is automatically derived from the provided fields, and `regionsVersion` defaults to `2022/02`.
 
 ```bash
 gpc otp update premium_upgrade --file updated.json
 ```
 
-Specify an explicit update mask to limit which fields are updated:
+Specify an explicit update mask to limit which fields are updated, or a newer regional pricing version:
 
 ```bash
 gpc otp update premium_upgrade --file updated.json --update-mask listings
+gpc otp update premium_upgrade --file updated.json --regions-version 2025/01
 ```
 
 ### `gpc otp delete <product-id>`
@@ -81,11 +82,12 @@ Create a new offer for a product.
 
 ### `gpc otp offers update <product-id> <offer-id> --file <path>`
 
-Update an existing offer. The `regionsVersion` and `updateMask` are automatically included.
+Update an existing offer. The `updateMask` is automatically derived, and `regionsVersion` defaults to `2022/02` (override with `--regions-version`).
 
 ```bash
 gpc otp offers update premium_upgrade launch_discount --file offer-update.json
 gpc otp offers update premium_upgrade launch_discount --file offer-update.json --update-mask pricingPhases
+gpc otp offers update premium_upgrade launch_discount --file offer-update.json --regions-version 2025/01
 ```
 
 ### `gpc otp offers delete <product-id> <offer-id>`
@@ -235,14 +237,15 @@ Output shows each field that differs between local and remote. Use `--output jso
 
 ## Options
 
-| Option              | Type     | Description                                                    |
-| ------------------- | -------- | -------------------------------------------------------------- |
-| `--file`            | `string` | Path to JSON file                                              |
-| `--update-mask`     | `string` | Comma-separated field mask (for update commands)               |
-| `--purchase-option` | `string` | Purchase option ID for offer commands (default: `"-"` for all) |
-| `--sort`            | `string` | Sort field for list output                                     |
-| `--output`          | `string` | Output format                                                  |
-| `--app`             | `string` | App package name                                               |
+| Option              | Type     | Description                                                          |
+| ------------------- | -------- | -------------------------------------------------------------------- |
+| `--file`            | `string` | Path to JSON file                                                    |
+| `--update-mask`     | `string` | Comma-separated field mask (for update commands)                     |
+| `--regions-version` | `string` | Regional pricing version (create/update commands, default `2022/02`) |
+| `--purchase-option` | `string` | Purchase option ID for offer commands (default: `"-"` for all)       |
+| `--sort`            | `string` | Sort field for list output                                           |
+| `--output`          | `string` | Output format                                                        |
+| `--app`             | `string` | App package name                                                     |
 
 ## Related
 

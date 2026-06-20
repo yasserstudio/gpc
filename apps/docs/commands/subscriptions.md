@@ -202,10 +202,11 @@ gpc subscriptions update <product-id> --file <path> [options]
 
 ### Options
 
-| Flag            | Short | Type     | Default        | Description                                             |
-| --------------- | ----- | -------- | -------------- | ------------------------------------------------------- |
-| `--file`        |       | `string` | **(required)** | Path to JSON file with subscription data                |
-| `--update-mask` |       | `string` |                | Comma-separated field mask (e.g., `listings,basePlans`) |
+| Flag                | Short | Type     | Default        | Description                                                                                                         |
+| ------------------- | ----- | -------- | -------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `--file`            |       | `string` | **(required)** | Path to JSON file with subscription data                                                                            |
+| `--update-mask`     |       | `string` |                | Comma-separated field mask (e.g., `listings,basePlans`)                                                             |
+| `--regions-version` |       | `string` | `2022/02`      | Regional pricing version. Pass a newer version (e.g. `2025/01`) to opt in to Google's updated region/currency list. |
 
 ### Example
 
@@ -213,7 +214,8 @@ gpc subscriptions update <product-id> --file <path> [options]
 gpc subscriptions update premium_monthly \
   --app com.example.myapp \
   --file subscription-update.json \
-  --update-mask listings
+  --update-mask listings \
+  --regions-version 2025/01
 ```
 
 ---
@@ -459,10 +461,11 @@ gpc subscriptions offers update <product-id> <base-plan-id> <offer-id> --file <p
 
 ### Options
 
-| Flag            | Short | Type     | Default        | Description                       |
-| --------------- | ----- | -------- | -------------- | --------------------------------- |
-| `--file`        |       | `string` | **(required)** | Path to JSON file with offer data |
-| `--update-mask` |       | `string` |                | Comma-separated field mask        |
+| Flag                | Short | Type     | Default        | Description                                             |
+| ------------------- | ----- | -------- | -------------- | ------------------------------------------------------- |
+| `--file`            |       | `string` | **(required)** | Path to JSON file with offer data                       |
+| `--update-mask`     |       | `string` |                | Comma-separated field mask                              |
+| `--regions-version` |       | `string` | `2022/02`      | Regional pricing version (e.g. `2025/01`) for the offer |
 
 ### Example
 
@@ -470,7 +473,8 @@ gpc subscriptions offers update <product-id> <base-plan-id> <offer-id> --file <p
 gpc subscriptions offers update premium_monthly p1m free-trial-7d \
   --app com.example.myapp \
   --file offer-update.json \
-  --update-mask phases
+  --update-mask phases \
+  --regions-version 2025/01
 ```
 
 ---

@@ -1,6 +1,6 @@
 {
   "name": "@gpc-cli/core",
-  "version": "0.9.69",
+  "version": "0.9.70",
   "description": "Core business logic for GPC. Releases, rollouts, vitals, preflight scanner, AI changelog, metadata sync for Google Play Developer API.",
   "type": "module",
   "main": "./dist/index.js",
