@@ -33,7 +33,7 @@ gpc doctor                                    # 22 setup checks
 
 |                                 | **GPC**                        | Fastlane supply |
 | ------------------------------- | ------------------------------ | --------------- |
-| API coverage                    | **217 endpoints**              | ~20             |
+| API coverage                    | **227 endpoints**              | ~20             |
 | Runtime                         | Node.js or binary              | Ruby + Bundler  |
 | Cold start                      | <500ms                         | 2-3s            |
 | Reviews & Vitals                | Yes                            | No              |
@@ -97,7 +97,7 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 - [Commands reference](https://yasserstudio.github.io/gpc/commands/)
 - [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/)
 
-Free to use. 2,380 tests. 90%+ coverage. Every write operation supports `--dry-run`.
+Free to use. 2,408 tests. 90%+ coverage. Every write operation supports `--dry-run`.
 
 ## Licensing
 
