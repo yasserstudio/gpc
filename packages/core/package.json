@@ -24,16 +24,16 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.0",
-    "@ai-sdk/google": "^3.0.0",
-    "@ai-sdk/openai": "^3.0.0",
+    "@ai-sdk/anthropic": "^3.0.84",
+    "@ai-sdk/google": "^3.0.82",
+    "@ai-sdk/openai": "^3.0.71",
     "@gpc-cli/api": "workspace:*",
     "@gpc-cli/auth": "workspace:*",
     "@gpc-cli/config": "workspace:*",
     "@gpc-cli/plugin-sdk": "workspace:*",
-    "ai": "^6.0.0",
-    "protobufjs": "^8.6.0",
-    "yauzl": "^3.3.2"
+    "ai": "^6.0.205",
+    "protobufjs": "^8.6.3",
+    "yauzl": "^3.4.0"
   },
   "homepage": "https://yasserstudio.github.io/gpc/",
   "keywords": [
@@ -59,7 +59,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
-    "@types/yauzl": "^2.10.3"
+    "@types/yauzl": "^3.4.0"
   },
   "repository": {
     "type": "git",
