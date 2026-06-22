@@ -29,13 +29,6 @@ export interface Achievement {
   formattedCurrentStepsString?: string;
 }
 
-export interface GameEvent {
-  definitionId: string;
-  numEvents: string;
-  formattedNumEvents: string;
-  kind?: string;
-}
-
 export interface GamesApiClient {
   leaderboards: {
     list(packageName: string): Promise<{ items?: Leaderboard[]; nextPageToken?: string }>;
@@ -50,9 +43,6 @@ export interface GamesApiClient {
   achievements: {
     list(packageName: string): Promise<{ items?: Achievement[]; nextPageToken?: string }>;
     reveal(packageName: string, achievementId: string): Promise<{ currentState: string }>;
-  };
-  events: {
-    list(packageName: string): Promise<{ items?: GameEvent[]; nextPageToken?: string }>;
   };
 }
 
@@ -95,14 +85,6 @@ export function createGamesClient(options: ApiClientOptions): GamesApiClient {
         const { data } = await http.post<{ currentState: string }>(
           `/achievements/${encodeURIComponent(achievementId)}/reveal?${qs({ applicationId: packageName })}`,
           {},
-        );
-        return data;
-      },
-    },
-    events: {
-      async list(packageName) {
-        const { data } = await http.get<{ items?: GameEvent[]; nextPageToken?: string }>(
-          `/events?${qs({ applicationId: packageName })}`,
         );
         return data;
       },

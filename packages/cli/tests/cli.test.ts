@@ -268,7 +268,18 @@ vi.mock("@gpc-cli/core", () => {
     diffSubscription: vi.fn().mockResolvedValue([]),
     listLeaderboards: vi.fn().mockResolvedValue([]),
     listAchievements: vi.fn().mockResolvedValue([]),
-    listEvents: vi.fn().mockResolvedValue([]),
+    listAchievementConfigs: vi.fn().mockResolvedValue({ items: [] }),
+    getAchievementConfig: vi.fn().mockResolvedValue({}),
+    createAchievementConfig: vi.fn().mockResolvedValue({}),
+    updateAchievementConfig: vi.fn().mockResolvedValue({}),
+    deleteAchievementConfig: vi.fn().mockResolvedValue(undefined),
+    diffAchievementConfig: vi.fn().mockResolvedValue([]),
+    listLeaderboardConfigs: vi.fn().mockResolvedValue({ items: [] }),
+    getLeaderboardConfig: vi.fn().mockResolvedValue({}),
+    createLeaderboardConfig: vi.fn().mockResolvedValue({}),
+    updateLeaderboardConfig: vi.fn().mockResolvedValue({}),
+    deleteLeaderboardConfig: vi.fn().mockResolvedValue(undefined),
+    diffLeaderboardConfig: vi.fn().mockResolvedValue([]),
     createEnterpriseApp: vi.fn().mockResolvedValue({
       packageName: "com.google.customapp.test",
       title: "Test Private App",
@@ -412,7 +423,22 @@ vi.mock("@gpc-cli/api", () => ({
   createGamesClient: vi.fn().mockReturnValue({
     leaderboards: { list: vi.fn().mockResolvedValue({}), get: vi.fn(), getScores: vi.fn() },
     achievements: { list: vi.fn().mockResolvedValue({}), reveal: vi.fn() },
-    events: { list: vi.fn().mockResolvedValue({}) },
+  }),
+  createGamesConfigClient: vi.fn().mockReturnValue({
+    achievements: {
+      list: vi.fn().mockResolvedValue({}),
+      get: vi.fn(),
+      insert: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
+    leaderboards: {
+      list: vi.fn().mockResolvedValue({}),
+      get: vi.fn(),
+      insert: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    },
   }),
   createEnterpriseClient: vi.fn().mockReturnValue({
     apps: { create: vi.fn(), list: vi.fn().mockResolvedValue({}) },

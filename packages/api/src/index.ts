@@ -10,8 +10,21 @@ export type {
   Leaderboard,
   LeaderboardScore,
   Achievement,
-  GameEvent,
 } from "./games-client.js";
+export { createGamesConfigClient } from "./games-config-client.js";
+export type {
+  GamesConfigClient,
+  AchievementConfiguration,
+  AchievementConfigurationDetail,
+  AchievementConfigurationListResponse,
+  LeaderboardConfiguration,
+  LeaderboardConfigurationDetail,
+  LeaderboardConfigurationListResponse,
+  LocalizedString,
+  LocalizedStringBundle,
+  GamesNumberFormatConfiguration,
+  GamesNumberAffixConfiguration,
+} from "./games-config-client.js";
 export { createEnterpriseClient } from "./enterprise-client.js";
 export type {
   EnterpriseApiClient,

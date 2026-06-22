@@ -278,7 +278,26 @@ export {
   abortTrain,
   advanceTrain,
 } from "./commands/train.js";
-export { listLeaderboards, listAchievements, listEvents } from "./commands/games.js";
+export {
+  listLeaderboards,
+  listAchievements,
+  listAchievementConfigs,
+  getAchievementConfig,
+  createAchievementConfig,
+  updateAchievementConfig,
+  deleteAchievementConfig,
+  diffAchievementConfig,
+  listLeaderboardConfigs,
+  getLeaderboardConfig,
+  createLeaderboardConfig,
+  updateLeaderboardConfig,
+  deleteLeaderboardConfig,
+  diffLeaderboardConfig,
+} from "./commands/games.js";
+export type {
+  ListGamesConfigOptions,
+  GameConfigDiff,
+} from "./commands/games.js";
 export { createEnterpriseApp, publishEnterpriseApp } from "./commands/enterprise.js";
 export type { CreateEnterpriseAppParams } from "./commands/enterprise.js";
 export type { TrainConfig, TrainState } from "./commands/train.js";

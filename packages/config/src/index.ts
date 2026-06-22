@@ -19,4 +19,5 @@ export type {
   ResolvedConfig,
   OutputFormat,
   WebhookConfig,
+  GamesConfig,
 } from "./types.js";

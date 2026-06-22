@@ -9,6 +9,10 @@ export interface VitalsThresholds {
   anrRate?: number;
 }
 
+export interface GamesConfig {
+  applicationId?: string;
+}
+
 export interface GpcConfig {
   app?: string;
   output?: OutputFormat;
@@ -20,6 +24,7 @@ export interface GpcConfig {
   approvedPlugins?: string[];
   webhooks?: WebhookConfig;
   vitals?: { thresholds?: VitalsThresholds };
+  games?: GamesConfig;
   debug?: boolean;
 }
 
@@ -46,5 +51,6 @@ export interface ResolvedConfig extends Required<Pick<GpcConfig, "output">> {
   approvedPlugins?: string[];
   webhooks?: WebhookConfig;
   vitals?: { thresholds?: VitalsThresholds };
+  games?: GamesConfig;
   debug?: boolean;
 }

@@ -2,7 +2,7 @@
 
 > Ship Android apps from your terminal. The complete CLI for Google Play Developer API v3.
 
-GPC is a TypeScript CLI that covers 217 Google Play Developer API endpoints. It handles releases, rollouts, metadata, vitals, reviews, subscriptions, in-app products, purchases, reports, users, testers, and more — from one tool.
+GPC is a TypeScript CLI that covers 227 Google Play Developer API endpoints. It handles releases, rollouts, metadata, vitals, reviews, subscriptions, in-app products, purchases, reports, users, testers, and more — from one tool.
 
 ## Key Facts
 
@@ -14,7 +14,7 @@ GPC is a TypeScript CLI that covers 217 Google Play Developer API endpoints. It 
 - Exit codes: 0 success, 1 error, 2 usage, 3 auth, 4 API, 5 network, 6 threshold breach, 10 plugin
 - Config: `.gpcrc.json` (project), `~/.config/gpc/config.json` (user), `GPC_*` env vars
 - Uploads: Resumable protocol (8 MB chunks, auto-resume on failure, real-time progress bar)
-- Tests: 2,345 total, 90%+ line coverage on all core packages
+- Tests: 2,408 total, 90%+ line coverage on all core packages
 - Version: 0.9.85 (pre-release series → 1.0.0 public launch)
 - GitHub Action: yasserstudio/gpc-action on the GitHub Actions Marketplace (one-step Play publishing from CI with built-in preflight gate)
 - Licensing: Free to use. Source code is on GitHub.
@@ -69,6 +69,8 @@ gpc anomalies list                                     # List Android vitals ano
 gpc migrate fastlane --dir fastlane/metadata           # Migrate Fastlane metadata
 gpc changelog                                          # Show release history from GitHub
 gpc changelog generate                                 # Generate notes from local commits (md/json/prompt)
+gpc games achievements list --game-id <id>             # List achievement configurations
+gpc games leaderboards create --file leaderboard.json  # Create leaderboard from JSON
 ```
 
 ## Environment Variables
@@ -79,6 +81,7 @@ gpc changelog generate                                 # Generate notes from loc
 | GPC_APP | Default package name | — |
 | GPC_PROFILE | Auth profile name | — |
 | GPC_DEVELOPER_ID | Developer account ID (user/tester management) | — |
+| GPC_GAME_ID | Games application ID (numeric, for games commands) | — |
 | GPC_OUTPUT | Output format (table, json, yaml, markdown) | auto |
 | GPC_NO_COLOR | Disable color output | — |
 | GPC_NO_INTERACTIVE | Disable prompts (auto in CI) | — |
@@ -107,7 +110,7 @@ gpc changelog generate                                 # Generate notes from loc
 |---------|---------|
 | @gpc-cli/cli | CLI entry point (bin: gpc) |
 | @gpc-cli/core | Business logic, command orchestration |
-| @gpc-cli/api | Typed Google Play API client (217 endpoints, including Play Custom App Publishing) |
+| @gpc-cli/api | Typed Google Play API client (227 endpoints, including Play Custom App Publishing) |
 | @gpc-cli/auth | Authentication: service account, OAuth, ADC |
 | @gpc-cli/config | Config loading, env vars, profiles |
 | @gpc-cli/plugin-sdk | Plugin interface and lifecycle hooks |

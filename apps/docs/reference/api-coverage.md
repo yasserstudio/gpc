@@ -366,7 +366,7 @@ Private app publishing for enterprise customers. Separate Google API (`playcusto
 | System APKs                         | 4         | Publisher  |
 | One-Time Products + Offers          | 19        | Publisher  |
 | Managed Google Play (Custom Apps)   | 1         | Custom App |
-| **Total**                           | **~217**  |            |
+| **Total**                           | **~227**  |            |
 
 Numbers are approximate: several endpoints overload a single Google URL (for example, `reports.download` serves both financial and stats buckets via query parameters).
 
@@ -417,26 +417,18 @@ GPC's RTDN decoder covers all documented event types: 18 subscription (1-13, 17-
 
 No spec-driven changes needed: `accounts.customApps.create` is the entire API surface (1 method). Google has not added methods since v0.9.56 shipped (2026-04-11).
 
-### Games APIs: strategic direction
+### Games APIs
 
-GPC's current `games` command wraps the runtime `games v1` API (leaderboards, achievements, events, player-facing). This is off-mission for a publisher CLI and requires player OAuth rather than publisher credentials.
+GPC v0.9.86 implements the full `gamesconfiguration v1configuration` API (10 endpoints) for publisher CRUD on achievement and leaderboard definitions:
 
-The publisher-facing surface is `gamesconfiguration v1configuration` (10 methods, CRUD on achievement and leaderboard **definitions** from CI/CD):
+| Resource                    | Methods (5 each)                            | Status |
+| --------------------------- | ------------------------------------------- | ------ |
+| `achievementConfigurations` | `list`, `get`, `insert`, `update`, `delete` | Done   |
+| `leaderboardConfigurations` | `list`, `get`, `insert`, `update`, `delete` | Done   |
 
-| Resource                    | Methods (5 each)                            |
-| --------------------------- | ------------------------------------------- |
-| `achievementConfigurations` | `list`, `get`, `insert`, `update`, `delete` |
-| `leaderboardConfigurations` | `list`, `get`, `insert`, `update`, `delete` |
+The runtime `games v1` API is preserved read-only under `gpc games runtime` for inspection. `gpc games events` was removed (runtime-only, no publisher equivalent).
 
-Planned replacement:
-
-| Current (runtime)        | Planned (publisher config)                               |
-| ------------------------ | -------------------------------------------------------- |
-| `gpc games leaderboards` | `gpc games leaderboards {list,get,create,update,delete}` |
-| `gpc games achievements` | `gpc games achievements {list,get,create,update,delete}` |
-| `gpc games events`       | _(removed, runtime-only, no publisher equivalent)_       |
-
-`games v1` and `gamesmanagement v1management` will not be expanded; they are runtime/QA-reset surfaces outside GPC's publisher-CLI mission.
+`gamesManagement v1management` will not be expanded; it is a QA-reset surface outside GPC's publisher-CLI mission.
 
 ### Deprecation watch
 

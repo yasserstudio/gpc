@@ -9,7 +9,7 @@
 
 # GPC - Google Play Console CLI
 
-**GPC** is a command-line interface for the Google Play Developer API that covers all 217 API endpoints from a single binary. It handles releases, rollouts, store listings, vitals monitoring, reviews, subscriptions, reports, and Managed Google Play publishing without requiring Ruby, a JVM, or a browser. Built for Android developers, release engineers, and DevOps teams who ship from the terminal.
+**GPC** is a command-line interface for the Google Play Developer API that covers all 227 API endpoints from a single binary. It handles releases, rollouts, store listings, vitals monitoring, reviews, subscriptions, reports, and Managed Google Play publishing without requiring Ruby, a JVM, or a browser. Built for Android developers, release engineers, and DevOps teams who ship from the terminal.
 
 GPC also includes an offline compliance scanner that catches Google Play policy violations before you upload, and a real-time rollout monitor that auto-halts on crash rate spikes.
 
@@ -21,7 +21,7 @@ GPC also includes an offline compliance scanner that catches Google Play policy 
   <img src="https://img.shields.io/badge/Free_to_use-Code_on_GitHub-yellow?style=for-the-badge" alt="Free to use">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-2345_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-2408_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
@@ -70,20 +70,21 @@ Free to use. No account required beyond your existing Google Play service accoun
 
 Every Android release is the same ritual: open the Play Console, upload your AAB, copy-paste release notes, pick a track, set the rollout percentage, click through confirmation screens. Fifteen minutes of clicking, every single time.
 
-GPC covers the **entire Google Play Developer API** in one CLI. 217 endpoints. No Ruby. No browser. No ceremony.
+GPC covers the **entire Google Play Developer API** in one CLI. 227 endpoints. No Ruby. No browser. No ceremony.
 
 |                         | **GPC**                        | Fastlane supply | gradle-play-publisher | Console UI   |
 | ----------------------- | ------------------------------ | --------------- | --------------------- | ------------ |
-| API coverage            | **217 endpoints**              | ~20             | ~15                   | All (manual) |
+| API coverage            | **227 endpoints**              | ~20             | ~15                   | All (manual) |
 | Runtime                 | Node.js or standalone binary   | Ruby + Bundler  | JVM                   | Browser      |
 | Cold start              | <500ms                         | 2-3s            | 3-5s                  | 5-10s        |
 | Reviews & Vitals        | Yes                            | No              | No                    | Yes (manual) |
 | Subscriptions & IAP     | Yes                            | No              | No                    | Yes (manual) |
 | **Managed Google Play** | **Yes (first CLI to support)** | No              | No                    | Yes (manual) |
+| Play Games config       | Yes (achievements + leaderboards CRUD) | No    | No                    | Yes (manual) |
 | CI/CD native            | JSON + exit codes + env vars   | Partial         | Gradle tasks          | No           |
 | Preflight scanner       | **9 offline policy checks**    | No              | No                    | No           |
 | Interactive mode        | Yes (guided prompts)           | No              | No                    | N/A          |
-| Test suite              | 2,380 tests, 90%+ coverage     |                 |                       |              |
+| Test suite              | 2,408 tests, 90%+ coverage     |                 |                       |              |
 
 Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
 
@@ -156,6 +157,14 @@ Handle monetization from the terminal.
 gpc subscriptions list
 gpc iap sync --dir products/
 gpc pricing convert --from USD --amount 9.99
+```
+
+Manage Play Games Services achievements and leaderboards.
+
+```bash
+gpc games achievements list --game-id 12345678901234
+gpc games achievements create --file achievement.json
+gpc games leaderboards diff <id> --file leaderboard.json
 ```
 
 ---
@@ -316,7 +325,7 @@ Full docs at **[yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)
 Yes. GPC is free to use. The code is on GitHub. No subscription, no usage limits, no account required beyond your existing Google Play developer account and service account key.
 
 **Does GPC replace Fastlane for Android?**
-For Google Play, yes. GPC covers 217 API endpoints compared to Fastlane supply's ~20. It handles vitals, reviews, subscriptions, Managed Google Play, and offline compliance scanning, none of which Fastlane supports. See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) for a command-by-command mapping.
+For Google Play, yes. GPC covers 227 API endpoints compared to Fastlane supply's ~20. It handles vitals, reviews, subscriptions, Managed Google Play, and offline compliance scanning, none of which Fastlane supports. See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) for a command-by-command mapping.
 
 **Can GPC create new apps on Google Play?**
 No. Google Play does not offer an API endpoint to create apps. You create the app once in the Play Console UI, then GPC handles the entire lifecycle after that: uploads, releases, rollouts, metadata, vitals, reviews, and more.

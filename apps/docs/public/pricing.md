@@ -17,7 +17,7 @@ GPC is free to use. There are no plans, tiers, or usage limits. The code is publ
 
 ## What's Included (at $0)
 
-- Full CLI covering 217 Google Play Developer API endpoints
+- Full CLI covering 227 Google Play Developer API endpoints
 - TypeScript SDK packages (@gpc-cli/api, @gpc-cli/auth, @gpc-cli/core) for programmatic use
 - Standalone binaries for macOS (arm64 + x64), Linux (arm64 + x64), Windows (x64)
 - Homebrew tap distribution

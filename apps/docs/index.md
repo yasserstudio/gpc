@@ -1,12 +1,12 @@
 ---
 layout: home
 title: "GPC -- Google Play Console CLI | Ship Android Releases from Your Terminal"
-description: "The complete Google Play CLI. 217 API endpoints including Managed Google Play. Upload AABs, manage releases, monitor vitals, sync metadata, publish private enterprise apps. No Ruby, no browser."
+description: "The complete Google Play CLI. 227 API endpoints including Managed Google Play. Upload AABs, manage releases, monitor vitals, sync metadata, publish private enterprise apps. No Ruby, no browser."
 
 hero:
   name: "GPC"
   text: "Google Play Console CLI"
-  tagline: "217 API endpoints. Releases, vitals, reviews, subscriptions, preflight scanning, Managed Google Play. One CLI, no browser."
+  tagline: "227 API endpoints. Releases, vitals, reviews, subscriptions, preflight scanning, Managed Google Play. One CLI, no browser."
   actions:
     - theme: brand
       text: Get Started
@@ -18,7 +18,7 @@ hero:
 features:
   - icon:
       src: /icons/goal.png
-    title: 217 API Endpoints
+    title: 227 API Endpoints
     details: "Releases, vitals, reviews, subscriptions, purchases, reports, Managed Google Play, and more. Fastlane covers ~20. GPC covers everything."
   - icon:
       src: /icons/plug.png
@@ -44,11 +44,11 @@ features:
 
 <div class="stats-bar">
   <div class="stat-item">
-    <span class="stat-number">217</span>
+    <span class="stat-number">227</span>
     <span class="stat-label">API Endpoints</span>
   </div>
   <div class="stat-item">
-    <span class="stat-number">2,345</span>
+    <span class="stat-number">2,408</span>
     <span class="stat-label">Tests</span>
   </div>
   <div class="stat-item">
@@ -128,12 +128,13 @@ features:
 
 |                     | **GPC**                      | Fastlane supply | gradle-play-publisher | Console UI   |
 | ------------------- | ---------------------------- | --------------- | --------------------- | ------------ |
-| API coverage        | **217 endpoints**            | ~20             | ~15                   | All (manual) |
+| API coverage        | **227 endpoints**            | ~20             | ~15                   | All (manual) |
 | Runtime             | Node.js or standalone binary | Ruby + Bundler  | JVM                   | Browser      |
 | Cold start          | **<500ms**                   | 2-3s            | 3-5s                  | 5-10s        |
 | Reviews & Vitals    | Yes                          | No              | No                    | Manual       |
 | Subscriptions & IAP | Yes                          | No              | No                    | Manual       |
 | Managed Google Play | **Yes (first CLI)**          | No              | No                    | Manual       |
+| Play Games config   | Yes                          | No              | No                    | Manual       |
 | AI translation      | **Yes (BYO key)**            | No              | No                    | No           |
 | CI/CD native        | JSON + exit codes + env vars | Partial         | Gradle tasks          | No           |
 | Preflight scanner   | **9 offline checks**         | No              | No                    | No           |

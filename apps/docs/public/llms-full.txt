@@ -12,8 +12,8 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Pl
 - Install: `npm install -g @gpc-cli/cli`
 - Binary: `gpc`
 - Version: 0.9.85
-- API endpoints covered: 217 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1)
-- Tests: 2,380 (90%+ coverage)
+- API endpoints covered: 227 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1 + Games Configuration v1configuration)
+- Tests: 2,408 (90%+ coverage)
 - Licensing: Free to use. Source code is on GitHub.
 - Repo: https://github.com/yasserstudio/gpc
 - GitHub Action: yasserstudio/gpc-action on the GitHub Actions Marketplace (one-step Play publishing from CI with built-in preflight gate, drop-in r0adkll migration)
@@ -120,7 +120,7 @@ gpc
   docs         [topic] [--list]
   plugins      list, install, remove
   enterprise   list, create
-  games        leaderboards, achievements, events
+  games        achievements {list,get,create,update,delete,diff}, leaderboards {list,get,create,update,delete,diff}, runtime
   completion   (bash/zsh/fish)
 ```
 
@@ -469,6 +469,27 @@ gpc recovery cancel <recovery-id>
 
 ---
 
+## Games (Play Games Services)
+```
+gpc games [--game-id <id>] achievements list [--limit <n>] [--next-page <token>]
+gpc games achievements get <achievement-id>
+gpc games achievements create --file <json>
+gpc games achievements update <achievement-id> --file <json>
+gpc games achievements delete <achievement-id>
+gpc games achievements diff <achievement-id> --file <json>
+gpc games leaderboards list [--limit <n>] [--next-page <token>]
+gpc games leaderboards get <leaderboard-id>
+gpc games leaderboards create --file <json>
+gpc games leaderboards update <leaderboard-id> --file <json>
+gpc games leaderboards delete <leaderboard-id>
+gpc games leaderboards diff <leaderboard-id> --file <json>
+gpc games runtime achievements       # read-only (Games v1 API)
+gpc games runtime leaderboards       # read-only (Games v1 API)
+```
+Uses the Games Configuration API (gamesconfiguration v1configuration). Requires a numeric application ID (--game-id, GPC_GAME_ID env, or games.applicationId in .gpcrc.json).
+
+---
+
 ## Auth
 ```
 gpc auth login
@@ -619,6 +640,7 @@ VERSION=$(echo $STATUS | jq -r '.releases[0].versionCode')
 | GPC_APP | Default package name | — |
 | GPC_PROFILE | Named auth profile | — |
 | GPC_DEVELOPER_ID | Developer account ID | — |
+| GPC_GAME_ID | Games application ID (numeric) | — |
 | GPC_OUTPUT | Output format | auto |
 | GPC_NO_COLOR | Disable color | — |
 | GPC_NO_INTERACTIVE | Disable prompts | auto in CI |

@@ -93,7 +93,7 @@ gpc bundle analyze app.aab --threshold 150
 | ------------------------------ | ------------------------------------------------------- |
 | [`system-apks`](./system-apks) | System APK variants for OEM/enterprise deployments      |
 | [`rtdn`](./rtdn)               | Real-Time Developer Notifications (Pub/Sub webhooks)    |
-| [`games`](./games)             | Play Games Services: leaderboards, achievements, events |
+| [`games`](./games)             | Play Games Services: achievement and leaderboard configuration CRUD |
 
 ### Release Automation
 
@@ -323,6 +323,7 @@ See [Exit Codes Reference](/reference/exit-codes) for the full error-code catalo
 | `GPC_BASE_DELAY`      | Base retry delay in milliseconds           | `1000`     |
 | `GPC_MAX_DELAY`       | Max retry delay in milliseconds            | `60000`    |
 | `GPC_DEVELOPER_ID`    | Developer account ID (for user management) |            |
+| `GPC_GAME_ID`         | Games application ID (numeric)             |            |
 | `GPC_CA_CERT`         | Custom CA certificate path                 |            |
 | `HTTPS_PROXY`         | HTTP proxy URL                             |            |
 

@@ -19,6 +19,7 @@ All `GPC_*` environment variables and external variables that GPC respects.
 | ------------------ | -------- | ----------------------------------------------------------------------------------------- | ------- |
 | `GPC_APP`          | `string` | Default package name (e.g., `com.example.myapp`). Used when `--app` flag is not provided. | —       |
 | `GPC_DEVELOPER_ID` | `string` | Developer account ID. Required for `gpc users` and `gpc testers` commands.                | —       |
+| `GPC_GAME_ID`      | `string` | Games application ID (numeric). Used by `gpc games` commands when `--game-id` is not set. | —       |
 
 ## Output
 
