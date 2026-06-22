@@ -11,7 +11,21 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.85 <Badge type="tip" text="latest" />
+## v0.9.86 <Badge type="tip" text="latest" />
+
+Complete Google Play Games API. Resolves [#80](https://github.com/yasserstudio/gpc/issues/80).
+
+- feat: full CRUD for achievement and leaderboard configurations via the Games Configuration API (`gamesconfiguration v1configuration`). 10 new endpoints: `list`, `get`, `create`, `update`, `delete` for both resource types.
+- feat: `gpc games achievements diff` and `gpc games leaderboards diff` compare local JSON against remote configuration for sync workflows.
+- feat: `--game-id` flag, `GPC_GAME_ID` env var, and `games.applicationId` in `.gpcrc.json` for the numeric application ID.
+- **breaking:** `gpc games events` removed. Events are configured through the Play Console UI. The previous command was read-only against the player-facing runtime API.
+- **breaking:** existing runtime list commands moved under `gpc games runtime`.
+
+**Endpoint count:** 217 to 227. **Tests:** 2,408 (+28).
+
+---
+
+## v0.9.85
 
 Completes the v0.9.84 install fix.
 

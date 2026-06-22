@@ -1,7 +1,7 @@
 {
   "name": "@gpc-cli/api",
-  "version": "1.0.44",
-  "description": "TypeScript client for all 217 Google Play Developer API v3 endpoints. Typed requests and responses, rate limiting, edit lifecycle management.",
+  "version": "1.0.45",
+  "description": "TypeScript client for all 227 Google Play Developer API v3 endpoints. Typed requests and responses, rate limiting, edit lifecycle management.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
