@@ -101,7 +101,7 @@ The `iap` commands use the legacy in-app purchases API. The `otp` (one-time prod
 
 ### Can AI assistants use GPC?
 
-Yes. GPC ships 18 agent skills that teach AI coding assistants (Claude Code, Cursor, etc.) how to use every GPC workflow:
+Yes. GPC ships 16 agent skills that teach AI coding assistants (Claude Code, Cursor, etc.) how to use every GPC workflow:
 
 ```bash
 gpc install-skills

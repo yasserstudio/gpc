@@ -11,7 +11,7 @@ If you are using [Triple-T's gradle-play-publisher](https://github.com/Triple-T/
 |                            | **GPC**                                          | **gradle-play-publisher** |
 | -------------------------- | ------------------------------------------------ | ------------------------- |
 | Form factor                | Standalone CLI + SDK                             | Gradle plugin             |
-| API coverage               | **217 endpoints**                                | ~15                       |
+| API coverage               | **227 endpoints**                                | ~15                       |
 | Runtime                    | Node.js or standalone binary                     | Gradle / JVM              |
 | Cold start                 | <500ms                                           | 5-10s (Gradle boot)       |
 | Works outside Gradle       | Yes                                              | No                        |

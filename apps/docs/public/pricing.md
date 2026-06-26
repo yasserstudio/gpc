@@ -21,7 +21,7 @@ GPC is free to use. There are no plans, tiers, or usage limits. The code is publ
 - TypeScript SDK packages (@gpc-cli/api, @gpc-cli/auth, @gpc-cli/core) for programmatic use
 - Standalone binaries for macOS (arm64 + x64), Linux (arm64 + x64), Windows (x64)
 - Homebrew tap distribution
-- 18 agent skills via `npx skills add yasserstudio/gpc-skills`
+- 16 agent skills via `npx skills add yasserstudio/gpc-skills`
 - Plugin SDK for custom commands
 
 ## What Is Not Offered

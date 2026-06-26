@@ -25,7 +25,7 @@ That distinction matters to two audiences: security reviewers at larger companie
 
 ### The honest reason
 
-GPC is a one-maintainer project covering 227 API endpoints across three Google APIs. Accepting random pull requests at this stage would multiply the surface area we can vouch for without adding headcount to vouch for it. Every commit in GPC has been written, reviewed, and tested by one person against real production apps. That is the quality bar the project ships at today.
+GPC is a one-maintainer project covering 227 API endpoints across four Google APIs. Accepting random pull requests at this stage would multiply the surface area we can vouch for without adding headcount to vouch for it. Every commit in GPC has been written, reviewed, and tested by one person against real production apps. That is the quality bar the project ships at today.
 
 We intend to reopen contributions after v1.0.0, once the API surface is locked and the contribution guide is written. Until then, the honest framing is: free to use, code is public for inspection, contributions deferred.
 

@@ -2,7 +2,7 @@
 
 **Ship Android apps from your terminal.** The complete CLI for the Google Play Developer API.
 
-217 API endpoints. No Ruby. No browser. No ceremony. First publishing CLI with Managed Google Play support and AI-assisted Play Store release notes in 80+ locales.
+227 API endpoints. No Ruby. No browser. No ceremony. First publishing CLI with Managed Google Play support and AI-assisted Play Store release notes in 80+ locales.
 
 ```bash
 npm install -g @gpc-cli/cli
