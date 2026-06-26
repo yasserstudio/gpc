@@ -353,7 +353,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
 
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.86",
+        softwareVersion: "0.9.87",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: {
@@ -475,7 +475,7 @@ export default defineConfig({
             name: "Is it stable enough for production CI/CD?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "2,380 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
+              text: "2,413 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
             },
           },
           {
@@ -500,6 +500,14 @@ export default defineConfig({
             acceptedAnswer: {
               "@type": "Answer",
               text: "Yes. GPC is the first Android publishing CLI to support the Play Custom App Publishing API. Publish private enterprise apps via gpc enterprise publish.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Will my app listing be shared with third-party US app stores?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Starting July 22, 2026, Google Play makes US app and game listings available to enrolled third-party US Android app stores to comply with a US court order, unless you opt out by July 22, 2026. This is a Play Console setting with no Play Developer API, so GPC cannot change it for you. Opt out in the Play Console.",
             },
           },
         ],

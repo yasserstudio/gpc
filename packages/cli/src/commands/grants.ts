@@ -9,6 +9,7 @@ import {
   updateGrant,
   deleteGrant,
   formatOutput,
+  annotateListResult,
   GpcError,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
@@ -49,15 +50,18 @@ export function registerGrantsCommands(program: Command): void {
       const format = getOutputFormat(program, config);
 
       const result = await listGrants(client, developerId, email);
-      if (result.length === 0) {
-        if (format === "json") {
-          console.log(formatOutput([], format));
-        } else {
-          console.log(`No grants found for ${email}.`);
-        }
-        return;
+      if (format === "json") {
+        console.log(
+          formatOutput(
+            annotateListResult({ grants: result }, "grants", `No grants found for ${email}.`),
+            format,
+          ),
+        );
+      } else if (result.length === 0) {
+        console.log(`No grants found for ${email}.`);
+      } else {
+        console.log(formatOutput(result, format));
       }
-      console.log(formatOutput(result, format));
     });
 
   grants

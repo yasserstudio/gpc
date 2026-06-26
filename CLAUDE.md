@@ -44,7 +44,8 @@ e2e/               → End-to-end tests
 - Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, Homebrew tap, npm publish, README/CHANGELOG
 - Phase 10 ✓ — `gpc preflight` pre-submission compliance scanner (9 scanners, offline AAB policy checks)
 - Published to npm: `npm install -g @gpc-cli/cli`
-- Current version: v0.9.86 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- Current version: v0.9.87 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- v0.9.87: consistent list output + compliance docs. `grants list`, `testers list`, `tracks list` now return the same `--json` envelope `{ <key>, nextPageToken, meta.count, message? }` as the other list commands (**breaking** for those three; table output unchanged). Docs: FAQ note on third-party US app-store listing syndication (opt-out by July 22 2026), Play Billing Library v8 deadline (Aug 31 2026) on subscriptions, Android 17/API 37 preflight refresh. 2,413 tests.
 - v0.9.86: complete Google Play Games API (GH #80). Full CRUD for achievement and leaderboard configurations via the Games Configuration API (gamesconfiguration v1configuration). 10 new endpoints (list/get/create/update/delete for both). Diff command for sync workflows. `--game-id` flag + `GPC_GAME_ID` env + `games.applicationId` config. Breaking: `gpc games events` removed, runtime commands moved to `gpc games runtime`. 2,408 tests.
 - v0.9.85: completes the install fix. v0.9.84 fixed cli+core but `@gpc-cli/api` was unchanged, so its already-published manifest still leaked `workspace:*` in `peerDependencies` (`@gpc-cli/auth`) and a fresh `npm install -g @gpc-cli/cli` still failed. api/core/cli republished with the specifier resolved; `stage-publish.js` now also warns when an unchanged-but-already-published package still leaks the protocol. 2,380 tests.
 - v0.9.84: install fix (completed in v0.9.85) + regional pricing flag. Resolves pnpm `workspace:` specifiers in published manifests (leaked from v0.9.77–v0.9.83; staged-publish now resolves them before publishing). `--regions-version` is now sent to the Google Play API on `subscriptions`/`one-time-products` create, update, and their offer commands (was an accepted-but-ignored facade; defaults to 2022/02). GH #61, #78. 2,380 tests.
@@ -62,7 +63,7 @@ e2e/               → End-to-end tests
 - v0.9.72: API compliance patch (error reports endpoint, input validation).
 - v0.9.71: `gpc doctor` quota proximity check (warns at >80% daily/per-minute API usage) and plugin health check (discovers, loads, reports each plugin).
 - v0.9.70: `--in-app-update-priority <0-5>` and `--retain-version-codes <csv>` flags on upload, `default.txt` Fastlane-style changelog fallback via `--notes-dir`, promote preserves `inAppUpdatePriority` + `name`, GitHub Actions Node.js 22.
-- 2,408 total tests, 7 packages building, 90%+ line coverage on all core packages
+- 2,413 total tests, 7 packages building, 90%+ line coverage on all core packages
 - Changelog-generation series (v0.9.61 → v0.9.64): complete. `gpc changelog generate --target play-store --locales auto --ai --apply` does commit → translated Play Store notes → written into draft release, one command.
 - v0.9.63 highlight: AI-assisted Play Store translation. `gpc changelog generate --target play-store --locales auto --ai` translates non-source locales via the user's own LLM key. Auto-detects env priority `AI_GATEWAY_API_KEY` → `ANTHROPIC_API_KEY` → `OPENAI_API_KEY` → `GOOGLE_GENERATIVE_AI_API_KEY`. Non-reasoning model defaults. Gateway path unlocks cost-per-run in USD. All 4 AI SDK deps lazy-loaded (cold-start preserved).
 - v0.9.62 highlight: multilingual Play Store release notes. `gpc changelog generate --target play-store --locales <csv|auto>` emits per-locale "What's new" text with 500-char budget enforcement.
@@ -72,7 +73,7 @@ e2e/               → End-to-end tests
 
 ## Testing
 
-- Vitest for all tests (2,408 total across 7 packages + e2e)
+- Vitest for all tests (2,413 total across 7 packages + e2e)
 - Tests in `tests/` directory per package
 - Mock external APIs — never call real Google APIs in tests
 - Mock fetch with `vi.stubGlobal("fetch", mockFn)` for API tests

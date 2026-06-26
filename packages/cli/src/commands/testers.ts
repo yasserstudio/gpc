@@ -7,6 +7,7 @@ import {
   removeTesters,
   importTestersFromCsv,
   formatOutput,
+  annotateListResult,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
@@ -54,10 +55,19 @@ export function registerTestersCommands(program: Command): void {
         if (rows.length > 0) {
           console.log(formatOutput(rows, format));
         } else {
-          console.log("No testers found.");
+          console.log(`No tester groups configured for ${options.track}.`);
         }
       } else {
-        console.log(formatOutput(result, format));
+        console.log(
+          formatOutput(
+            annotateListResult(
+              { ...result, googleGroups: result.googleGroups ?? [] },
+              "googleGroups",
+              `No tester groups configured for ${options.track}.`,
+            ),
+            format,
+          ),
+        );
       }
     });
 

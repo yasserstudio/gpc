@@ -11,7 +11,20 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.86 <Badge type="tip" text="latest" />
+## v0.9.87 <Badge type="tip" text="latest" />
+
+Consistent list output and compliance docs.
+
+- **breaking:** `gpc grants list`, `gpc testers list`, and `gpc tracks list` now return the same `--json` envelope as every other list command: `{ <key>, nextPageToken, meta.count, message? }`. Scripts that read these as a bare array (or, for `testers`, a raw object) must read the named key instead. Table output is unchanged.
+- docs: new FAQ entry on Google's third-party US app-store listing syndication and the July 22, 2026 opt-out.
+- docs: subscriptions page notes the Play Billing Library v8 requirement (August 31, 2026 deadline).
+- docs: preflight page refreshes the Android 17 (API 37) large-screen resizability note.
+
+**Tests:** 2,413 (+5).
+
+---
+
+## v0.9.86
 
 Complete Google Play Games API. Resolves [#80](https://github.com/yasserstudio/gpc/issues/80).
 

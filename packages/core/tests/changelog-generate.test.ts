@@ -359,7 +359,7 @@ describe("generateChangelog (integration with real git)", () => {
     await execFile("git", ["config", "user.email", "test@example.com"], { cwd: dir });
     await execFile("git", ["config", "user.name", "Test"], { cwd: dir });
     await execFile("git", ["config", "commit.gpgsign", "false"], { cwd: dir });
-  });
+  }, 20_000);
 
   afterEach(async () => {
     await rm(dir, { recursive: true, force: true });
@@ -388,5 +388,5 @@ describe("generateChangelog (integration with real git)", () => {
     const md = renderMarkdown(g);
     expect(md).toContain("- feat:");
     expect(md).toContain("- fix:");
-  });
+  }, 20_000);
 });

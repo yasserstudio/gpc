@@ -9,6 +9,10 @@ outline: deep
   :badges="['--json', '--dry-run']"
 />
 
+::: info Play Billing Library deadline (client-side)
+The Play Billing Library (PBL) lives in your **app's code**, not in GPC. GPC manages the server-side catalog (subscriptions, base plans, offers, prices) through the Play Developer API; the PBL is what your app links against to make purchases. As of **August 31, 2026**, new apps and app updates must use **PBL v8 or later** (v9.0 shipped May 19, 2026). That requirement applies to the AAB/APK you build and upload, not to anything GPC sends. See Google's [Play Billing Library deprecation FAQ](https://developer.android.com/google/play/billing/deprecation-faq).
+:::
+
 ## Commands
 
 | Command                                                                                 | Description                      |

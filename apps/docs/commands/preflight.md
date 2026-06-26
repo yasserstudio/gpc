@@ -31,11 +31,11 @@ See the [Preflight Deep-Dive](/guide/preflight-deep-dive) guide — how the 9 sc
 | **policy**      | Families/COPPA, financial apps, health apps, UGC, overlay permissions                                                                                                            |
 | **size**        | Download size warnings, large native libs, large assets                                                                                                                          |
 
-::: tip Android 17 (API 37) -- Coming June 2026
+::: tip Android 17 (API 37) -- Stable June 2026
 
 Android 17 reaches stable in June 2026 with a major behavior change: **mandatory large-screen resizability**. Apps targeting API 37 will have `screenOrientation`, `resizeableActivity`, `minAspectRatio`, and `maxAspectRatio` manifest attributes ignored on displays wider than 600dp. There is no opt-out.
 
-The target SDK deadline for API 37 has not been announced yet (historically 12-18 months after stable release). GPC will add a manifest scanner check when the deadline is announced. In the meantime, test your app on large-screen devices and remove hardcoded orientation locks.
+The target SDK deadline for API 37 has not been announced yet (historically 12-18 months after stable release; for reference, the API 36 deadline is August 31, 2026). GPC will add a manifest scanner check when the deadline is announced. In the meantime, test your app on large-screen devices and remove hardcoded orientation locks.
 :::
 
 ## Commands

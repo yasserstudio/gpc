@@ -77,7 +77,7 @@ See the [CI/CD guide](../ci-cd/) for copy-pasteable GitHub Actions, GitLab CI, B
 
 ### Is it stable enough for production CI/CD?
 
-2,408 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The CLI is in a pre-release stability soak before v1.0.
+2,413 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The CLI is in a pre-release stability soak before v1.0.
 
 ## Configuration
 
@@ -187,6 +187,14 @@ When GPC detects no configuration file exists and is not running in JSON, CI, or
 ```
 
 Run `gpc config init` to start the interactive setup wizard.
+
+## Policy & Compliance
+
+### Will my app listing be shared with third-party US app stores?
+
+Starting **July 22, 2026**, Google Play makes US app and game listings (name, icon, description, screenshots, and videos) available to enrolled third-party US Android app stores, to comply with a US court order. On June 22, 2026, Google notified developers that listings are included **unless you opt out by July 22, 2026**.
+
+Downloads still complete through Google Play on the same terms (Play's service fee still applies), but third-party stores are not governed by Play's content policies. This is a Play Console setting — there is no Play Developer API for it, so GPC cannot change it for you. Opt out (or confirm your choice) in the Play Console. See Google's [announcement](https://support.google.com/googleplay/android-developer/answer/17187609).
 
 ## Troubleshooting
 

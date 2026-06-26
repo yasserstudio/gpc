@@ -80,6 +80,69 @@ describe("formatMoney", () => {
   });
 });
 
+// v0.9.87: grants/testers/tracks list commands now route --json through the
+// same envelope. These cases pin the exact shapes those handlers produce so the
+// CLI wiring (itemsKey + empty message) has a contract to hold to.
+describe("v0.9.87 list-envelope shapes (grants/testers/tracks)", () => {
+  it("grants list: wraps a bare array under the `grants` key", () => {
+    const result = annotateListResult(
+      { grants: [{ packageName: "com.example.app" }] },
+      "grants",
+      "No grants found for a@b.com.",
+    );
+    expect(result["grants"]).toHaveLength(1);
+    expect(result["meta"]).toEqual({ count: 1 });
+    expect(result["nextPageToken"]).toBeNull();
+    expect(result["message"]).toBeUndefined();
+  });
+
+  it("grants list: empty result carries the message and count 0 (not a bare [])", () => {
+    const result = annotateListResult({ grants: [] }, "grants", "No grants found for a@b.com.");
+    expect(result["meta"]).toEqual({ count: 0 });
+    expect(result["message"]).toBe("No grants found for a@b.com.");
+  });
+
+  it("tracks list: wraps the summary array under the `tracks` key", () => {
+    const result = annotateListResult(
+      { tracks: [{ track: "production", releases: 1 }] },
+      "tracks",
+      "No tracks found.",
+    );
+    expect(result["tracks"]).toHaveLength(1);
+    expect(result["meta"]).toEqual({ count: 1 });
+    expect(result["nextPageToken"]).toBeNull();
+  });
+
+  it("testers list: uses googleGroups as the items key and preserves other Testers fields", () => {
+    const result = annotateListResult(
+      {
+        googleGroups: ["qa@example.com", "beta@example.com"],
+        autoEnrolledAndroidGroups: [{ androidGroupName: "g1" }],
+      },
+      "googleGroups",
+      "No tester groups configured for internal.",
+    );
+    expect(result["meta"]).toEqual({ count: 2 });
+    expect(result["googleGroups"]).toHaveLength(2);
+    // Non-items Testers fields survive the spread.
+    expect(result["autoEnrolledAndroidGroups"]).toEqual([{ androidGroupName: "g1" }]);
+    expect(result["message"]).toBeUndefined();
+  });
+
+  it("testers list: a track with no groups keeps googleGroups: [] and reports count 0 + message", () => {
+    // The CLI defaults googleGroups to [] before enveloping so the items key is
+    // always present (matching grants/tracks), even when the API omits it.
+    const result = annotateListResult(
+      { googleGroups: [] },
+      "googleGroups",
+      "No tester groups configured for internal.",
+    );
+    expect(result["googleGroups"]).toEqual([]);
+    expect(result["meta"]).toEqual({ count: 0 });
+    expect(result["message"]).toBe("No tester groups configured for internal.");
+  });
+});
+
 describe("CSV/TSV formula-injection guard", () => {
   it("prefixes formula-leading cells with a single quote in CSV", () => {
     expect(formatOutput([{ text: "=HYPERLINK(1)" }], "csv")).toContain("'=HYPERLINK(1)");

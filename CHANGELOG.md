@@ -7,6 +7,19 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.87
+
+Consistent list output and compliance docs.
+
+- breaking: `gpc grants list`, `gpc testers list`, and `gpc tracks list` now return the same `--json` envelope (`{ <key>, nextPageToken, meta.count, message? }`) as the other list commands. Table output is unchanged.
+- docs: FAQ entry on third-party US app-store listing syndication and the July 22, 2026 opt-out.
+- docs: Play Billing Library v8 requirement (August 31, 2026) noted on the subscriptions page.
+- docs: Android 17 (API 37) preflight note refreshed.
+
+**Tests:** 2,413 (+5).
+
+---
+
 ## v0.9.86
 
 Complete Google Play Games API. Resolves #80 (thanks @softlion).

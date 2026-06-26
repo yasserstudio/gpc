@@ -4,7 +4,7 @@ import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient } from "@gpc-cli/api";
 import { listTracks, createTrack, updateTrackConfig, GpcError } from "@gpc-cli/core";
-import { formatOutput, maybePaginate } from "@gpc-cli/core";
+import { formatOutput, maybePaginate, annotateListResult } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { buildCommitOptions } from "../commit-options.js";
@@ -15,8 +15,11 @@ export function registerTracksCommands(program: Command): void {
   tracks
     .command("list")
     .description("List all tracks")
-    .option("--limit <n>", "Maximum results to return")
-    .option("--next-page <token>", "Pagination token for next page")
+    .option("--limit <n>", "Accepted for consistency; tracks are returned in full (no pagination)")
+    .option(
+      "--next-page <token>",
+      "Accepted for consistency; tracks are returned in full (no pagination)",
+    )
     .action(async (_options) => {
       const config = await loadConfig();
       const packageName = program.opts()["app"] || config.app;
@@ -41,7 +44,16 @@ export function registerTracksCommands(program: Command): void {
         latestVersion: t.releases?.[0]?.versionCodes?.[0] || "-",
       }));
 
-      await maybePaginate(formatOutput(summary, format));
+      if (format === "json") {
+        console.log(
+          formatOutput(
+            annotateListResult({ tracks: summary }, "tracks", "No tracks found."),
+            format,
+          ),
+        );
+      } else {
+        await maybePaginate(formatOutput(summary, format));
+      }
     });
 
   tracks
