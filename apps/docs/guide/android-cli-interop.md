@@ -141,7 +141,7 @@ Google maintains an official skill repository at [github.com/android/skills](htt
 
 These skills cover **app code**: Gradle config, Kotlin/Compose UI, SDK integration, device profiling, and on-device APIs. They stop at the boundary of the built artifact.
 
-GPC's 16 skills pick up where Google's stop: everything after you have an AAB on disk. Publishing, rollouts, vitals, monetization, compliance, CI/CD.
+GPC's 19 skills pick up where Google's stop: everything after you have an AAB on disk. Publishing, rollouts, vitals, monetization, compliance, CI/CD.
 
 ### Installing both
 
@@ -153,7 +153,7 @@ android skills add --all
 npx skills add yasserstudio/gpc-skills
 ```
 
-Together, the two skill packs give an agent full coverage from project scaffold to staged rollout. There is no overlap: Google's `play-billing-library-version-upgrade` handles in-app billing Kotlin code, while GPC's `gpc-monetization` handles the publishing API for subscriptions and IAP products. Google's `android-cli` skill teaches agents the build/device commands, while GPC's 16 skills teach agents the publishing commands.
+Together, the two skill packs give an agent full coverage from project scaffold to staged rollout. There is no overlap: Google's `play-billing-library-version-upgrade` handles in-app billing Kotlin code, while GPC's `gpc-monetization` handles the publishing API for subscriptions and IAP products. Google's `android-cli` skill teaches agents the build/device commands, while GPC's 19 skills teach agents the publishing commands.
 
 ## How GPC talks to agents
 

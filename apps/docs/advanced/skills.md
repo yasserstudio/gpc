@@ -34,26 +34,29 @@ Skills are installed to `.agents/skills/` in your project root and automatically
 
 ## Available Skills
 
-GPC ships with 16 agent skills covering every workflow:
+GPC ships with 19 agent skills covering every workflow:
 
-| Skill                    | Description                                                                                                                                           |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `gpc-setup`              | Auth, config, profiles, `gpc doctor`                                                                                                                  |
-| `gpc-onboarding`         | First-run setup, `gpc quickstart`, `gpc init`, interactive wizard                                                                                     |
-| `gpc-release-flow`       | Upload AAB/APK, draft releases, rollouts, promote, rejected app handling, native debug symbols, `gpc diff`, `gpc changelog`, `gpc changelog generate` |
-| `gpc-train`              | Automated staged rollout pipeline with time gates and vitals gates                                                                                    |
-| `gpc-preflight`          | Offline AAB/APK compliance scanner (9 scanners), `.preflightrc.json`                                                                                  |
-| `gpc-metadata-sync`      | Store listings, images, Fastlane metadata compat                                                                                                      |
-| `gpc-vitals-monitoring`  | Crashes, ANR, LMK, vitals thresholds, reviews (auto-paginate), reports                                                                                |
-| `gpc-ci-integration`     | GitHub Actions, GitLab CI, env vars, JSON output, exit codes                                                                                          |
-| `gpc-monetization`       | Subscriptions, IAP, RTDN notifications, voided purchases, pricing, upsert, pagination                                                                 |
-| `gpc-user-management`    | Users, permissions, grants, testers, CSV import                                                                                                       |
-| `gpc-migrate-fastlane`   | Fastlane-to-GPC migration, command mapping, CI migration                                                                                              |
-| `gpc-plugin-development` | Plugin SDK, lifecycle hooks, permissions, custom commands                                                                                             |
-| `gpc-troubleshooting`    | Exit codes, error catalog (42+ codes), debug mode, common fixes                                                                                       |
-| `gpc-sdk-usage`          | `@gpc-cli/api` and `@gpc-cli/auth` as standalone TypeScript SDK (227 endpoints), 6-bucket rate limiter                                                |
-| `gpc-multi-app`          | Multiple apps, profiles, batch operations, monorepo patterns                                                                                          |
-| `gpc-security`           | Credential storage, key rotation, audit logging, incident response                                                                                    |
+| Skill                     | Description                                                                                                                                           |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `gpc-setup`               | Auth, config, profiles, `gpc doctor`                                                                                                                  |
+| `gpc-onboarding`          | First-run setup, `gpc quickstart`, `gpc init`, interactive wizard                                                                                     |
+| `gpc-release-flow`        | Upload AAB/APK, draft releases, rollouts, promote, rejected app handling, native debug symbols, `gpc diff`, `gpc changelog`, `gpc changelog generate` |
+| `gpc-train`               | Automated staged rollout pipeline with time gates and vitals gates                                                                                    |
+| `gpc-preflight`           | Offline AAB/APK compliance scanner (9 scanners), `.preflightrc.json`                                                                                  |
+| `gpc-metadata-sync`       | Store listings, images, Fastlane metadata compat                                                                                                      |
+| `gpc-vitals-monitoring`   | Crashes, ANR, LMK, vitals thresholds, reviews (auto-paginate), reports                                                                                |
+| `gpc-ci-integration`      | GitHub Actions, GitLab CI, env vars, JSON output, exit codes                                                                                          |
+| `gpc-monetization`        | Subscriptions, IAP, RTDN notifications, voided purchases, pricing, upsert, pagination                                                                 |
+| `gpc-user-management`     | Users, permissions, grants, testers, CSV import                                                                                                       |
+| `gpc-migrate-fastlane`    | Fastlane-to-GPC migration, command mapping, CI migration                                                                                              |
+| `gpc-plugin-development`  | Plugin SDK, lifecycle hooks, permissions, custom commands                                                                                             |
+| `gpc-troubleshooting`     | Exit codes, error catalog (42+ codes), debug mode, common fixes                                                                                       |
+| `gpc-sdk-usage`           | `@gpc-cli/api` and `@gpc-cli/auth` as standalone TypeScript SDK (227 endpoints), 6-bucket rate limiter                                                |
+| `gpc-multi-app`           | Multiple apps, profiles, batch operations, monorepo patterns                                                                                          |
+| `gpc-security`            | Credential storage, key rotation, audit logging, incident response                                                                                    |
+| `gpc-enterprise`          | Managed Google Play private app publishing via the Play Custom App Publishing API                                                                     |
+| `gpc-android-cli-interop` | Handoff router between Google's Android CLI (build/dev) and GPC (publishing)                                                                          |
+| `gpc-games`               | Play Games Services achievement and leaderboard configuration CRUD (`gpc games achievements/leaderboards`)                                            |
 
 ## Skill Selection Guide
 
