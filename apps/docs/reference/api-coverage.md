@@ -7,13 +7,14 @@ pageClass: wide-page
 
 Maps every Google Play Developer API endpoint that GPC implements to a CLI command.
 
-GPC interacts with three separate Google APIs:
+GPC interacts with four separate Google APIs:
 
-| API                                  | Base URL                                | Purpose                                             |
-| ------------------------------------ | --------------------------------------- | --------------------------------------------------- |
-| Android Publisher API v3             | `androidpublisher.googleapis.com`       | Publishing, monetization, reviews, purchases, users |
-| Play Developer Reporting API v1beta1 | `playdeveloperreporting.googleapis.com` | Vitals, crash rates, ANR, performance metrics       |
-| Play Custom App Publishing API v1    | `playcustomapp.googleapis.com`          | Managed Google Play private app publishing          |
+| API                                     | Base URL                                | Purpose                                              |
+| --------------------------------------- | --------------------------------------- | ---------------------------------------------------- |
+| Android Publisher API v3                | `androidpublisher.googleapis.com`       | Publishing, monetization, reviews, purchases, users  |
+| Play Developer Reporting API v1beta1    | `playdeveloperreporting.googleapis.com` | Vitals, crash rates, ANR, performance metrics        |
+| Play Custom App Publishing API v1       | `playcustomapp.googleapis.com`          | Managed Google Play private app publishing           |
+| Games Configuration API v1configuration | `gamesconfiguration.googleapis.com`     | Play Games achievement and leaderboard configuration |
 
 ## Edits
 
@@ -338,37 +339,38 @@ Private app publishing for enterprise customers. Separate Google API (`playcusto
 
 ## Coverage Summary
 
-| Domain                              | Endpoints | API        |
-| ----------------------------------- | --------- | ---------- |
-| Edits (internal transactional ops)  | 5         | Publisher  |
-| Edits: Bundles + APKs               | 5         | Publisher  |
-| Edits: Tracks + Release Lifecycle   | 6         | Publisher  |
-| Edits: Deobfuscation + Expansion    | 5         | Publisher  |
-| Edits: Listings + Images            | 10        | Publisher  |
-| Edits: Details                      | 3         | Publisher  |
-| Edits: Country Availability         | 1         | Publisher  |
-| Edits: Testers                      | 3         | Publisher  |
-| Reviews                             | 3         | Publisher  |
-| In-App Products                     | 9         | Publisher  |
-| Subscriptions + Base Plans + Offers | 19        | Publisher  |
-| Purchases                           | 13        | Publisher  |
-| Orders                              | 3         | Publisher  |
-| Monetization (pricing)              | 1         | Publisher  |
-| Users + Grants                      | 8         | Publisher  |
-| Reports                             | 3         | Publisher  |
-| Vitals (metric sets + metadata)     | 11        | Reporting  |
-| App Recovery                        | 5         | Publisher  |
-| Data Safety                         | 1         | Publisher  |
-| External Transactions               | 3         | Publisher  |
-| Device Tiers                        | 3         | Publisher  |
-| Internal App Sharing                | 2         | Publisher  |
-| Generated APKs                      | 2         | Publisher  |
-| System APKs                         | 4         | Publisher  |
-| One-Time Products + Offers          | 19        | Publisher  |
-| Managed Google Play (Custom Apps)   | 1         | Custom App |
-| **Total**                           | **~227**  |            |
+| Domain                                   | Endpoints | API          |
+| ---------------------------------------- | --------- | ------------ |
+| Edits (internal transactional ops)       | 5         | Publisher    |
+| Edits: Bundles + APKs                    | 5         | Publisher    |
+| Edits: Tracks + Release Lifecycle        | 6         | Publisher    |
+| Edits: Deobfuscation + Expansion         | 5         | Publisher    |
+| Edits: Listings + Images                 | 10        | Publisher    |
+| Edits: Details                           | 3         | Publisher    |
+| Edits: Country Availability              | 1         | Publisher    |
+| Edits: Testers                           | 3         | Publisher    |
+| Reviews                                  | 3         | Publisher    |
+| In-App Products                          | 9         | Publisher    |
+| Subscriptions + Base Plans + Offers      | 19        | Publisher    |
+| Purchases                                | 13        | Publisher    |
+| Orders                                   | 3         | Publisher    |
+| Monetization (pricing)                   | 1         | Publisher    |
+| Users + Grants                           | 8         | Publisher    |
+| Reports                                  | 3         | Publisher    |
+| Vitals (metric sets + metadata)          | 11        | Reporting    |
+| App Recovery                             | 5         | Publisher    |
+| Data Safety                              | 1         | Publisher    |
+| External Transactions                    | 3         | Publisher    |
+| Device Tiers                             | 3         | Publisher    |
+| Internal App Sharing                     | 2         | Publisher    |
+| Generated APKs                           | 2         | Publisher    |
+| System APKs                              | 4         | Publisher    |
+| One-Time Products + Offers               | 19        | Publisher    |
+| Managed Google Play (Custom Apps)        | 1         | Custom App   |
+| Play Games (Achievements + Leaderboards) | 10        | Games Config |
+| **Total API endpoints covered**          | **~227**  |              |
 
-Numbers are approximate: several endpoints overload a single Google URL (for example, `reports.download` serves both financial and stats buckets via query parameters).
+The domain rows above are a grouped view, not a one-to-one enumeration, so they do not sum exactly to the headline figure. The **~227** total is GPC's tracked count of the individual endpoints it covers across its four Google Play APIs (Android Publisher v3, Play Developer Reporting v1beta1, Play Custom App Publishing v1, and Games Configuration v1configuration); a single grouped row can map to several underlying endpoints. Counts are approximate: some endpoints overload one Google URL (for example, `reports.download` serves both financial and stats buckets via query parameters).
 
 ## Planned coverage
 

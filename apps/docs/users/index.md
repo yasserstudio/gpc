@@ -21,15 +21,7 @@ You choose the exact wording that appears on this page. You can ask to be remove
 
 ## The "Uses GPC" Badge
 
-Once you are listed, you can add a badge to your project's README or website showing that your release pipeline runs on GPC.
-
-```markdown
-[![Uses GPC](https://yasserstudio.github.io/gpc/badge/uses-gpc.svg)](https://yasserstudio.github.io/gpc)
-```
-
-The badge links back to the docs. You get a reciprocal link from this page. Nothing else is required.
-
-Badge design is in progress — this section will update with final SVG variants (light + dark, square + pill) once the badge assets ship.
+Once you are listed, you get a reciprocal link from this page back to your site or repo. A "Uses GPC" badge you can embed in your own README is planned; listed teams will get the embed snippet here once the badge assets are ready.
 
 ## Current Adopters
 
@@ -37,7 +29,7 @@ This list is new. The first batch of adopters is being assembled now. If you shi
 
 <!-- Adopter entries go below this line. Each entry: one-line description, optional logo, opt-in date. -->
 
-_Seed adopters being confirmed. Check back soon, or [put your team here](#how-to-be-listed)._
+_No teams are listed publicly yet. If you ship with GPC, [put your team here](#how-to-be-listed)._
 
 ## What Being Listed Means
 
