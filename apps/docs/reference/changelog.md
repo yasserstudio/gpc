@@ -11,7 +11,17 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.88 <Badge type="tip" text="latest" />
+## v0.9.89 <Badge type="tip" text="latest" />
+
+Preflight scanner reliability fix for the standalone (Homebrew) binary.
+
+- fix: `gpc preflight` (and `preflight manifest` / `preflight permissions`) no longer crashes and then hangs when scanning an AAB or APK on the standalone binary installed via Homebrew. The offline scanner now reads archives the same way on the standalone binary and the npm (Node) install, and can never hang on a corrupt or truncated file.
+
+**Tests:** 2,421 (+3).
+
+---
+
+## v0.9.88
 
 Preflight compliance refresh for Google Play's October 28, 2026 sensitive-permission deadlines (apps targeting Android 17 / API 37+).
 

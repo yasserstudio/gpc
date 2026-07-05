@@ -27,7 +27,7 @@ This page compares every actively maintained option as of May 2026.
 | CI/CD integration            | JSON + exit codes (0-6)                | Partial              | Gradle tasks              | Basic             |
 | Plugin system                | Yes (lifecycle hooks, SDK)             | Actions              | No                        | No                |
 | SDK / library use            | Yes (@gpc-cli/api)                     | No                   | No                        | No                |
-| Test suite                   | 2,418 tests, 90%+ coverage             | Community-maintained | Kotlin tests              | Minimal           |
+| Test suite                   | 2,421 tests, 90%+ coverage             | Community-maintained | Kotlin tests              | Minimal           |
 | Image sync (SHA-256 diffing) | Yes (shipped v0.9.69)                  | Yes                  | No                        | No                |
 | Upload progress reporting    | Yes (shipped v0.9.69)                  | No                   | Yes (progress callbacks)  | No                |
 

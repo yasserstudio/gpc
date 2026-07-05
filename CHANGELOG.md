@@ -7,6 +7,25 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.89
+
+Preflight scanner reliability fix for the standalone (Homebrew) binary.
+
+- fix: `gpc preflight` (and `preflight manifest` / `preflight permissions`) no longer crashes and then hangs when scanning an AAB or APK on the standalone binary installed via Homebrew. The offline scanner now reads archives the same way on the standalone binary and the npm (Node) install, and can never hang on a corrupt or truncated file.
+
+---
+
+## v0.9.88
+
+Preflight compliance refresh for Google Play's October 28, 2026 sensitive-permission deadlines (apps targeting Android 17 / API 37+).
+
+- preflight: contacts check now cites the October 28, 2026 enforcement date and the Android Contact Picker alternative.
+- preflight: new `location-minimal-scope` rule flags `ACCESS_FINE_LOCATION` (info; warning at API 37+).
+- preflight: geofencing check updated to the October 28, 2026 API 37+ enforcement window.
+- fix: `gpc init` scaffolds `.preflightrc.json` with `targetSdkMinimum: 36` (the current Play floor).
+
+---
+
 ## v0.9.87
 
 Consistent list output and compliance docs.
