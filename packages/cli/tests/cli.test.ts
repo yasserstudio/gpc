@@ -146,6 +146,8 @@ vi.mock("@gpc-cli/core", () => {
     diffListingsCommand: vi.fn().mockResolvedValue({ diffs: [] }),
     // v0.9.7 – sort utility
     sortResults: vi.fn().mockImplementation((data: unknown[]) => data),
+    sortReviews: vi.fn().mockImplementation((data: unknown[]) => data),
+    REVIEW_SORT_PRESETS: ["newest", "oldest", "rating"],
     // v0.9.29 – spinner
     createSpinner: vi
       .fn()

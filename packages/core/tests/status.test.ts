@@ -147,6 +147,98 @@ describe("getAppStatus", () => {
     expect(status.releases[0]?.status).toBe("completed");
   });
 
+  it("attaches a review analysis only when full is set (no extra API call)", async () => {
+    const plainClient = makePlayClient();
+    const plain = await getAppStatus(
+      plainClient,
+      makeReportingClient({ crashes: 0.005, anr: 0.002 }),
+      "com.example.app",
+    );
+    expect(plain.reviews.analysis).toBeUndefined();
+
+    const fullClient = makePlayClient();
+    const full = await getAppStatus(
+      fullClient,
+      makeReportingClient({ crashes: 0.005, anr: 0.002 }),
+      "com.example.app",
+      { full: true },
+    );
+    expect(full.reviews.analysis).toBeDefined();
+    expect(full.reviews.analysis?.totalReviews).toBe(2);
+    // reviews.list still called exactly once — analysis reuses the fetched reviews
+    expect((fullClient.reviews.list as ReturnType<typeof vi.fn>).mock.calls).toHaveLength(1);
+  });
+
+  it("does not attach analysis with full when reviews section is excluded", async () => {
+    const client = makePlayClient();
+    const status = await getAppStatus(
+      client,
+      makeReportingClient(),
+      "com.example.app",
+      { full: true, sections: ["releases"] },
+    );
+    expect(status.reviews.analysis).toBeUndefined();
+  });
+
+  it("scopes the --full analysis to the reviewDays window", async () => {
+    const DAY = 86400;
+    const nowSec = Math.floor(Date.now() / 1000);
+    const reviewsAt = (recent: number, old: number) => ({
+      list: vi.fn().mockResolvedValue({
+        reviews: [
+          {
+            reviewId: "recent",
+            authorName: "A",
+            comments: [
+              {
+                userComment: {
+                  starRating: 5,
+                  text: "love it fast and great",
+                  lastModified: { seconds: String(nowSec - recent * DAY) },
+                },
+              },
+            ],
+          },
+          {
+            reviewId: "old",
+            authorName: "B",
+            comments: [
+              {
+                userComment: {
+                  starRating: 1,
+                  text: "slow crash bad",
+                  lastModified: { seconds: String(nowSec - old * DAY) },
+                },
+              },
+            ],
+          },
+        ],
+      }),
+    });
+
+    // window 20 days: only the 10-day review qualifies, not the 40-day one
+    const inWindow = {
+      ...makePlayClient(),
+      reviews: reviewsAt(10, 40),
+    } as unknown as PlayApiClient;
+    const status = await getAppStatus(inWindow, makeReportingClient(), "com.example.app", {
+      full: true,
+      reviewDays: 20,
+    });
+    expect(status.reviews.analysis?.totalReviews).toBe(1);
+
+    // both reviews older than the window -> no analysis attached at all
+    const noneInWindow = {
+      ...makePlayClient(),
+      reviews: reviewsAt(30, 40),
+    } as unknown as PlayApiClient;
+    const empty = await getAppStatus(noneInWindow, makeReportingClient(), "com.example.app", {
+      full: true,
+      reviewDays: 20,
+    });
+    expect(empty.reviews.analysis).toBeUndefined();
+  });
+
   it("fires 8 vitals API calls (4 current + 4 previous for trend)", async () => {
     const client = makePlayClient();
     const reporting = makeReportingClient({ crashes: 0.005, anr: 0.002 });
@@ -418,6 +510,35 @@ describe("formatStatusTable", () => {
 
   it("shows rating trend when previous is available", () => {
     expect(formatStatusTable(baseStatus)).toContain("4.4");
+  });
+
+  it("omits REVIEW INSIGHTS when no --full analysis is attached", () => {
+    expect(formatStatusTable(baseStatus)).not.toContain("REVIEW INSIGHTS");
+  });
+
+  it("renders REVIEW INSIGHTS when --full analysis is attached", () => {
+    const withAnalysis: AppStatus = {
+      ...baseStatus,
+      reviews: {
+        ...baseStatus.reviews,
+        analysis: {
+          totalReviews: 10,
+          avgRating: 4.2,
+          sentiment: { positive: 6, negative: 2, neutral: 2, avgScore: 0.3 },
+          topics: [{ topic: "performance", count: 4, avgScore: 0.1 }],
+          keywords: [
+            { word: "slow", count: 5 },
+            { word: "love", count: 3 },
+          ],
+          ratingDistribution: { 5: 6, 4: 2, 1: 2 },
+        },
+      },
+    };
+    const out = formatStatusTable(withAnalysis);
+    expect(out).toContain("REVIEW INSIGHTS");
+    expect(out).toContain("60% positive");
+    expect(out).toContain("performance (4)");
+    expect(out).toContain("slow");
   });
 
   it("marks cached status in header", () => {

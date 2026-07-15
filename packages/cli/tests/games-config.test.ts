@@ -204,6 +204,8 @@ vi.mock("@gpc-cli/core", () => {
     convertRegionPrices: vi.fn().mockResolvedValue({ convertedRegionPrices: {} }),
     diffListingsCommand: vi.fn().mockResolvedValue({ diffs: [] }),
     sortResults: vi.fn().mockImplementation((data: unknown[]) => data),
+    sortReviews: vi.fn().mockImplementation((data: unknown[]) => data),
+    REVIEW_SORT_PRESETS: ["newest", "oldest", "rating"],
     createSpinner: vi
       .fn()
       .mockReturnValue({ start: vi.fn(), stop: vi.fn(), fail: vi.fn(), update: vi.fn() }),

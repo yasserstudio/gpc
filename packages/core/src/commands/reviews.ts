@@ -3,6 +3,42 @@ import { paginateAll } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
 import { analyzeReviews as analyzeReviewsSentiment } from "../utils/sentiment.js";
 import type { ReviewAnalysis } from "../utils/sentiment.js";
+import { sortResults } from "../utils/sort.js";
+
+/** Named sort presets for `reviews list --sort`. */
+export const REVIEW_SORT_PRESETS = ["newest", "oldest", "rating"] as const;
+export type ReviewSortPreset = (typeof REVIEW_SORT_PRESETS)[number];
+
+function reviewTimestamp(r: Review): number {
+  const secs = Number(r.comments?.[0]?.userComment?.lastModified?.seconds);
+  return Number.isFinite(secs) ? secs : 0;
+}
+
+function reviewRating(r: Review): number {
+  return r.comments?.[0]?.userComment?.starRating ?? 0;
+}
+
+/**
+ * Sort reviews by a named preset (`newest` | `oldest` | `rating`) or, for any
+ * other spec, fall back to the generic field-based `sortResults`. Presets are
+ * required because rating and date live under `comments[0].userComment.*`,
+ * which the generic dot-path sorter cannot index into. Does not mutate input.
+ *
+ * Note: this orders the fetched window only (the API returns recent reviews,
+ * bounded by `--max`), not all-time.
+ */
+export function sortReviews(reviews: Review[], spec?: string): Review[] {
+  switch (spec) {
+    case "newest":
+      return [...reviews].sort((a, b) => reviewTimestamp(b) - reviewTimestamp(a));
+    case "oldest":
+      return [...reviews].sort((a, b) => reviewTimestamp(a) - reviewTimestamp(b));
+    case "rating":
+      return [...reviews].sort((a, b) => reviewRating(b) - reviewRating(a));
+    default:
+      return sortResults(reviews, spec);
+  }
+}
 
 export interface ReviewsFilterOptions {
   stars?: number;

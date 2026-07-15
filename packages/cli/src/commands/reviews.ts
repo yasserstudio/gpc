@@ -10,7 +10,8 @@ import {
   analyzeReviews,
   formatOutput,
   maybePaginate,
-  sortResults,
+  sortReviews,
+  REVIEW_SORT_PRESETS,
   annotateListResult,
   moreResultsFooter,
   GpcError,
@@ -35,7 +36,10 @@ export function registerReviewsCommands(program: Command): void {
     .option("--limit <n>", "Maximum total results", parseInt)
     .option("--next-page <token>", "Resume from page token")
     .option("--all", "Auto-paginate to fetch all reviews (API returns last 7 days only)")
-    .option("--sort <field>", "Sort by field (prefix with - for descending)")
+    .option(
+      "--sort <spec>",
+      `Sort by: ${REVIEW_SORT_PRESETS.join(", ")}, or a field name (prefix with - for descending). Orders the fetched window only`,
+    )
     .option("--full-text", "Show full review text in table output (not truncated)")
     .action(async (options) => {
       const config = await loadConfig();
@@ -53,7 +57,7 @@ export function registerReviewsCommands(program: Command): void {
         nextPage: options.nextPage,
         all: options.all,
       });
-      const sorted = sortResults(result.reviews, options.sort);
+      const sorted = sortReviews(result.reviews, options.sort);
       if (format !== "json") {
         if (sorted.length === 0) {
           console.log("No reviews found.");

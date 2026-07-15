@@ -112,11 +112,14 @@ export {
   replyToReview,
   exportReviews,
   analyzeReviews,
+  sortReviews,
+  REVIEW_SORT_PRESETS,
 } from "./commands/reviews.js";
 export type {
   ReviewsFilterOptions,
   ReviewExportOptions,
   ReviewAnalysis,
+  ReviewSortPreset,
 } from "./commands/reviews.js";
 export type { ListSubscriptionsOptions, SubscriptionAnalytics } from "./commands/subscriptions.js";
 export { getSubscriptionAnalytics } from "./commands/subscriptions.js";
