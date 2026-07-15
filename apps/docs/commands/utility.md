@@ -31,7 +31,7 @@ Run diagnostic checks to verify your GPC setup end-to-end.
 ### Synopsis
 
 ```bash
-gpc doctor [--json] [--verify] [--keystore <path>] [--store-pass <password>] [--key-alias <alias>]
+gpc doctor [--json] [--score] [--badge] [--verify] [--keystore <path>] [--store-pass <password>] [--key-alias <alias>]
 ```
 
 ### Options
@@ -39,6 +39,8 @@ gpc doctor [--json] [--verify] [--keystore <path>] [--store-pass <password>] [--
 | Flag                      | Description                                                                |
 | ------------------------- | -------------------------------------------------------------------------- |
 | `--json`                  | Output results as machine-readable JSON                                    |
+| `--score`                 | Show an A–F release-readiness grade instead of the full check list         |
+| `--badge`                 | Include a shareable readiness badge (shields.io URL + markdown); implies `--score` |
 | `--verify`                | Run signing key verification checks (compares local keystore vs Play cert) |
 | `--keystore <path>`       | Path to Android keystore file (or set `GPC_KEYSTORE_PATH`)                 |
 | `--store-pass <password>` | Keystore password (or set `GPC_STORE_PASSWORD`)                            |
@@ -69,6 +71,18 @@ gpc doctor [--json] [--verify] [--keystore <path>] [--store-pass <password>] [--
 | `plugin-*`                    | Plugin health: verifies each configured plugin loads without errors                                       |
 | `signing-api` _(--verify)_    | Fetches Play signing certificate fingerprint from generatedApks                                           |
 | `signing-local` _(--verify)_  | Compares local keystore fingerprint against Play signing certificate                                      |
+
+### Release-readiness score
+
+`gpc doctor --score` condenses the checks into a single A–F grade for how ready the app is to publish. It scores a curated subset of ship-readiness signals (authentication, API connectivity, app access, config validity, credential hygiene, network, and — with `--verify` — signing-key consistency); environmental checks like Node version stay visible in a plain run but never move the grade. Hard failures outside the graded set (for example an unsupported Node version) are surfaced alongside the grade so an "A" never hides an exit-1 failure.
+
+```bash
+gpc doctor --score          # A–F grade + weighted breakdown + suggestions
+gpc doctor --score --json   # { grade, percent, breakdown, suggestions, unscoredFailures }
+gpc doctor --badge          # also prints a shields.io badge URL + markdown for your README
+```
+
+The badge is a static shields.io URL (no hosting required), so you can commit the markdown straight into a README.
 
 ### Example
 

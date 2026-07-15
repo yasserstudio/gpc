@@ -40,7 +40,7 @@ gpc reviews list [options]
 | `--limit`        |       | `number` |         | Maximum total results                                 |
 | `--next-page`    |       | `string` |         | Resume from pagination token                          |
 | `--all`          |       | flag     |         | Auto-paginate to fetch all reviews                    |
-| `--sort`         |       | `string` |         | Sort by field (prefix with `-` for descending)        |
+| `--sort`         |       | `string` |         | Sort by `newest`, `oldest`, `rating`, or a field name (prefix with `-` for descending). Orders the fetched window only |
 | `--full-text`    |       | flag     |         | Show full review text in table output (not truncated) |
 
 ::: info Production only

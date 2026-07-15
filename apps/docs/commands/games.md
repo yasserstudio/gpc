@@ -115,6 +115,35 @@ gpc games achievements diff CgkI1234567890 --file achievement.json
 
 Shows field-by-field differences between local and remote state.
 
+### `games achievements set-icon <achievement-id> <file>`
+
+Upload an achievement icon (PNG or JPG, 512x512). The content type is inferred from the file extension.
+
+```sh
+gpc games achievements set-icon CgkI1234567890 ./icons/first-win.png
+```
+
+Honors `--dry-run` (prints the intended upload without sending it).
+
+### `games achievements push <dir>`
+
+Create or update achievement configurations from a directory of JSON files. Each file with an `id` is updated; each file without one is created. Follows the same shape as `create`/`update`.
+
+```sh
+gpc games achievements push ./game-config/achievements
+gpc games achievements push ./game-config/achievements --dry-run
+```
+
+`--dry-run` reports what would be created or updated without making any API writes.
+
+### `games achievements pull <dir>`
+
+Write every achievement configuration to a directory as `<id>.json` files (creating the directory if needed). Follows pagination, so all configurations are written.
+
+```sh
+gpc games achievements pull ./game-config/achievements
+```
+
 ## Leaderboards
 
 ### `games leaderboards list`
@@ -187,6 +216,23 @@ Compare a local JSON file against the remote leaderboard configuration.
 
 ```sh
 gpc games leaderboards diff CgkI9876543210 --file leaderboard.json
+```
+
+### `games leaderboards set-icon <leaderboard-id> <file>`
+
+Upload a leaderboard icon (PNG or JPG, 512x512). Content type is inferred from the file extension. Honors `--dry-run`.
+
+```sh
+gpc games leaderboards set-icon CgkI9876543210 ./icons/high-scores.png
+```
+
+### `games leaderboards push <dir>` / `games leaderboards pull <dir>`
+
+Bulk sync leaderboard configurations to and from a directory of JSON files, the same as the achievement `push`/`pull` commands above. `push` creates configs without an `id` and updates those with one (`--dry-run` supported); `pull` writes every config (following pagination) to `<id>.json`.
+
+```sh
+gpc games leaderboards push ./game-config/leaderboards
+gpc games leaderboards pull ./game-config/leaderboards
 ```
 
 ## Runtime (Read-Only)

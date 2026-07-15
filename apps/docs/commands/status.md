@@ -41,6 +41,7 @@ gpc status [options]
 | -------------------- | -------- | ------------------------- | ----------------------------------------------------------- |
 | `--days <n>`         | `number` | `7`                       | Vitals window in days; must be ≥ 1, exits code 2 otherwise  |
 | `--review-days <n>`  | `number` | `30`                      | Reviews window in days                                      |
+| `--full`             | flag     | off                       | Add a topic/sentiment/keyword breakdown to the reviews section (local analysis, no extra API call) |
 | `--threshold <spec>` | `string` | config                    | Override thresholds: `crashes=1.5,anr=0.5` (percent values) |
 | `--cached`           | flag     | off                       | Read from cache, skip all API calls                         |
 | `--refresh`          | flag     | off                       | Force live fetch, ignore cache TTL                          |
