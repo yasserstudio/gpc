@@ -26,7 +26,10 @@ jobs:
   socket-security:
     name: Socket Security
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    # Skip on Dependabot PRs: they run under the Dependabot secret scope, so
+    # SOCKET_SECURITY_API_TOKEN is empty and `socket ci` fails with an auth
+    # error. Dependency Review + Socket's own PR alerts already cover dep PRs.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
     permissions:
       contents: read
     steps:
