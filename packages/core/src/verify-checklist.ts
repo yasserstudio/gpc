@@ -51,6 +51,16 @@ export function buildChecklist(input: ChecklistInput): ChecklistResult {
 
   items.push(
     resolveManualStep(
+      "enforcement-markets",
+      "Verification enforcement timeline reviewed",
+      "Enforcement begins September 30, 2026, first in Brazil, Indonesia, Singapore, and Thailand. Apps distributed there need a verified developer identity and a registered package name. Apps using Play App Signing are auto-registered.",
+      VERIFICATION_PAGE,
+      answers,
+    ),
+  );
+
+  items.push(
+    resolveManualStep(
       "auto-registration-reviewed",
       "Auto-registration results reviewed",
       "Check the registration status banner above your app list in Play Console",

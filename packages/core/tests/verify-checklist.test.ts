@@ -33,6 +33,16 @@ describe("buildChecklist", () => {
     expect(autoReg?.status).toBe("action-needed");
   });
 
+  it("includes a market-aware enforcement-timeline step (Sep 30 2026)", () => {
+    const result = buildChecklist({ authenticated: true });
+    const markets = result.items.find((i) => i.id === "enforcement-markets");
+    expect(markets).toBeDefined();
+    expect(markets?.status).toBe("cannot-detect");
+    expect(markets?.detail).toContain("September 30, 2026");
+    expect(markets?.detail).toContain("Brazil");
+    expect(markets?.detail).toContain("Play App Signing");
+  });
+
   it("includes app-accessible when provided", () => {
     const result = buildChecklist({ authenticated: true, appAccessible: true });
     const app = result.items.find((i) => i.id === "app-accessible");
@@ -73,7 +83,7 @@ describe("buildChecklist", () => {
       interactiveAnswers: { "identity-verified": true },
     });
     expect(result.completed).toBe(5);
-    expect(result.total).toBe(7);
+    expect(result.total).toBe(8);
   });
 
   it("uses singular for 1 bundle", () => {
@@ -113,7 +123,7 @@ describe("buildChecklist", () => {
     expect(result.items.find((i) => i.id === "app-accessible")).toBeUndefined();
     expect(result.items.find((i) => i.id === "bundle-uploaded")).toBeUndefined();
     expect(result.items.find((i) => i.id === "play-app-signing")).toBeUndefined();
-    expect(result.total).toBe(4);
+    expect(result.total).toBe(5);
   });
 });
 

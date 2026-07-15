@@ -29,9 +29,24 @@ function makeCtx(manifest: ParsedManifest): PreflightContext {
 }
 
 describe("policyScanner", () => {
-  it("returns no findings for clean manifest", async () => {
+  it("returns only the developer-verification advisory for a clean manifest", async () => {
     const findings = await policyScanner.scan(makeCtx(makeManifest()));
-    expect(findings).toEqual([]);
+    expect(findings).toHaveLength(1);
+    expect(findings[0]!.ruleId).toBe("policy-developer-verification");
+    expect(findings[0]!.severity).toBe("info");
+  });
+
+  it("always emits the developer-verification advisory (info, cites date + markets)", async () => {
+    // present even alongside other findings; never fails a run
+    const findings = await policyScanner.scan(
+      makeCtx(makeManifest({ permissions: ["android.permission.SYSTEM_ALERT_WINDOW"] })),
+    );
+    const v = findings.find((f) => f.ruleId === "policy-developer-verification");
+    expect(v).toBeDefined();
+    expect(v!.severity).toBe("info");
+    expect(v!.message).toContain("September 30, 2026");
+    expect(v!.message).toContain("Brazil");
+    expect(v!.message).toContain("Play App Signing");
   });
 
   it("flags families policy concern", async () => {
