@@ -72,6 +72,9 @@ const INTERNAL_SHARING_UPLOAD_BASE_URL =
 const CUSTOM_APP_UPLOAD_BASE_URL =
   "https://playcustomapp.googleapis.com/upload/playcustomapp/v1/accounts";
 
+const GAMES_CONFIG_UPLOAD_BASE_URL =
+  "https://gamesconfiguration.googleapis.com/upload/games/v1configuration";
+
 export interface HttpClient {
   get<T>(path: string, params?: Record<string, string>): Promise<ApiResponse<T>>;
   post<T>(path: string, body?: unknown): Promise<ApiResponse<T>>;
@@ -86,6 +89,8 @@ export interface HttpClient {
     options?: ResumableUploadOptions,
   ): Promise<ApiResponse<T>>;
   uploadInternal<T>(path: string, filePath: string, contentType: string): Promise<ApiResponse<T>>;
+  /** Media upload to the Games Configuration API (achievement/leaderboard icons). */
+  uploadGamesImage<T>(path: string, filePath: string, contentType: string): Promise<ApiResponse<T>>;
   /**
    * Play Custom App Publishing upload. Sends the media body AND a JSON metadata
    * object in a single resumable session — the initial session-initiation POST
@@ -840,6 +845,9 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
     },
     uploadInternal<T>(path: string, filePath: string, contentType: string) {
       return uploadRequest<T>(path, filePath, contentType, INTERNAL_SHARING_UPLOAD_BASE_URL);
+    },
+    uploadGamesImage<T>(path: string, filePath: string, contentType: string) {
+      return uploadRequest<T>(path, filePath, contentType, GAMES_CONFIG_UPLOAD_BASE_URL);
     },
     async uploadCustomApp<T>(
       path: string,

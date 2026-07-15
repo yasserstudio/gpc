@@ -23,6 +23,12 @@ import {
   updateLeaderboardConfig,
   deleteLeaderboardConfig,
   diffLeaderboardConfig,
+  setAchievementIcon,
+  setLeaderboardIcon,
+  pushAchievementConfigs,
+  pullAchievementConfigs,
+  pushLeaderboardConfigs,
+  pullLeaderboardConfigs,
   formatOutput,
   annotateListResult,
   moreResultsFooter,
@@ -59,6 +65,31 @@ async function getGamesConfigClientFromConfig(config: { auth?: { serviceAccount?
     serviceAccountPath: config.auth?.serviceAccount,
   });
   return createGamesConfigClient({ auth });
+}
+
+function printSyncResult(
+  kind: string,
+  result: { created: string[]; updated: string[] },
+  dryRun: boolean,
+  format: string,
+): void {
+  if (format === "json") {
+    console.log(
+      formatOutput({ created: result.created, updated: result.updated, dryRun }, format),
+    );
+  } else {
+    console.log(
+      `${dryRun ? "[dry-run] " : ""}${kind}s: created ${result.created.length}, updated ${result.updated.length}.`,
+    );
+  }
+}
+
+function printPullResult(kind: string, written: string[], dir: string, format: string): void {
+  if (format === "json") {
+    console.log(formatOutput({ written, count: written.length, dir }, format));
+  } else {
+    console.log(`Wrote ${written.length} ${kind} config(s) to ${dir}.`);
+  }
 }
 
 export function registerGamesCommands(program: Command): void {
@@ -241,6 +272,55 @@ export function registerGamesCommands(program: Command): void {
       }
     });
 
+  achievements
+    .command("set-icon <achievement-id> <file>")
+    .description("Upload an achievement icon (png/jpg, 512x512)")
+    .action(async (achievementId: string, file: string) => {
+      const config = await loadConfig();
+      const format = getOutputFormat(program, config);
+      if (isDryRun(program)) {
+        printDryRun(
+          {
+            command: "games achievements set-icon",
+            action: "upload",
+            target: achievementId,
+            details: { file },
+          },
+          format,
+          formatOutput,
+        );
+        return;
+      }
+      const client = await getGamesConfigClientFromConfig(config);
+      const result = await setAchievementIcon(client, achievementId, file);
+      console.log(formatOutput(result, format));
+    });
+
+  achievements
+    .command("push <dir>")
+    .description("Create or update achievement configs from a directory of JSON files")
+    .action(async (dir: string) => {
+      const config = await loadConfig();
+      const gameId = resolveGameId(games.opts()["gameId"], config);
+      const format = getOutputFormat(program, config);
+      const dryRun = isDryRun(program);
+      const client = await getGamesConfigClientFromConfig(config);
+      const result = await pushAchievementConfigs(client, gameId, dir, { dryRun });
+      printSyncResult("achievement", result, dryRun, format);
+    });
+
+  achievements
+    .command("pull <dir>")
+    .description("Write all achievement configs to a directory as JSON files")
+    .action(async (dir: string) => {
+      const config = await loadConfig();
+      const gameId = resolveGameId(games.opts()["gameId"], config);
+      const format = getOutputFormat(program, config);
+      const client = await getGamesConfigClientFromConfig(config);
+      const written = await pullAchievementConfigs(client, gameId, dir);
+      printPullResult("achievement", written, dir, format);
+    });
+
   /* ---------------------------------------------------------------- */
   /*  Leaderboards                                                     */
   /* ---------------------------------------------------------------- */
@@ -413,6 +493,55 @@ export function registerGamesCommands(program: Command): void {
       } else {
         console.log(formatOutput(diffs, format));
       }
+    });
+
+  leaderboards
+    .command("set-icon <leaderboard-id> <file>")
+    .description("Upload a leaderboard icon (png/jpg, 512x512)")
+    .action(async (leaderboardId: string, file: string) => {
+      const config = await loadConfig();
+      const format = getOutputFormat(program, config);
+      if (isDryRun(program)) {
+        printDryRun(
+          {
+            command: "games leaderboards set-icon",
+            action: "upload",
+            target: leaderboardId,
+            details: { file },
+          },
+          format,
+          formatOutput,
+        );
+        return;
+      }
+      const client = await getGamesConfigClientFromConfig(config);
+      const result = await setLeaderboardIcon(client, leaderboardId, file);
+      console.log(formatOutput(result, format));
+    });
+
+  leaderboards
+    .command("push <dir>")
+    .description("Create or update leaderboard configs from a directory of JSON files")
+    .action(async (dir: string) => {
+      const config = await loadConfig();
+      const gameId = resolveGameId(games.opts()["gameId"], config);
+      const format = getOutputFormat(program, config);
+      const dryRun = isDryRun(program);
+      const client = await getGamesConfigClientFromConfig(config);
+      const result = await pushLeaderboardConfigs(client, gameId, dir, { dryRun });
+      printSyncResult("leaderboard", result, dryRun, format);
+    });
+
+  leaderboards
+    .command("pull <dir>")
+    .description("Write all leaderboard configs to a directory as JSON files")
+    .action(async (dir: string) => {
+      const config = await loadConfig();
+      const gameId = resolveGameId(games.opts()["gameId"], config);
+      const format = getOutputFormat(program, config);
+      const client = await getGamesConfigClientFromConfig(config);
+      const written = await pullLeaderboardConfigs(client, gameId, dir);
+      printPullResult("leaderboard", written, dir, format);
     });
 
   /* ---------------------------------------------------------------- */

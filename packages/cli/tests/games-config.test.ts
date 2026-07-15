@@ -360,6 +360,12 @@ vi.mock("@gpc-cli/core", () => {
       .fn()
       .mockImplementation(async (client: any, id: string) => client.leaderboards.delete(id)),
     diffLeaderboardConfig: vi.fn().mockResolvedValue([]),
+    setAchievementIcon: vi.fn().mockResolvedValue({ resourceId: "ach-1", url: "https://x/i.png" }),
+    setLeaderboardIcon: vi.fn().mockResolvedValue({ resourceId: "lb-1", url: "https://x/i.png" }),
+    pushAchievementConfigs: vi.fn().mockResolvedValue({ created: ["ach-new"], updated: [] }),
+    pullAchievementConfigs: vi.fn().mockResolvedValue(["ach-1"]),
+    pushLeaderboardConfigs: vi.fn().mockResolvedValue({ created: [], updated: ["lb-1"] }),
+    pullLeaderboardConfigs: vi.fn().mockResolvedValue(["lb-1"]),
     createEnterpriseApp: vi
       .fn()
       .mockResolvedValue({ packageName: "com.google.customapp.test", title: "Test Private App" }),
@@ -489,6 +495,12 @@ vi.mock("../src/prompt.js", () => ({
 }));
 
 import { createProgram } from "../src/program.js";
+import {
+  setAchievementIcon,
+  setLeaderboardIcon,
+  pushAchievementConfigs,
+  pullLeaderboardConfigs,
+} from "@gpc-cli/core";
 
 describe("games config CLI commands", () => {
   let program: Command;
@@ -669,6 +681,58 @@ describe("games config CLI commands", () => {
       expect(subNames).not.toContain("events");
       expect(subNames).toContain("achievements");
       expect(subNames).toContain("leaderboards");
+    });
+  });
+
+  describe("icons and bulk sync (E1/E3)", () => {
+    it("achievements set-icon calls core with id and file", async () => {
+      await program.parseAsync([
+        "node",
+        "gpc",
+        "games",
+        "achievements",
+        "set-icon",
+        "ach-1",
+        "icon.png",
+      ]);
+      expect(vi.mocked(setAchievementIcon)).toHaveBeenCalledWith(
+        expect.anything(),
+        "ach-1",
+        "icon.png",
+      );
+    });
+
+    it("set-icon skips the upload in dry-run mode", async () => {
+      await program.parseAsync([
+        "node",
+        "gpc",
+        "--dry-run",
+        "games",
+        "leaderboards",
+        "set-icon",
+        "lb-1",
+        "icon.png",
+      ]);
+      expect(vi.mocked(setLeaderboardIcon)).not.toHaveBeenCalled();
+    });
+
+    it("achievements push passes game-id, dir, and dryRun flag to core", async () => {
+      await program.parseAsync(["node", "gpc", "games", "achievements", "push", "./cfgs"]);
+      expect(vi.mocked(pushAchievementConfigs)).toHaveBeenCalledWith(
+        expect.anything(),
+        "999888777",
+        "./cfgs",
+        { dryRun: false },
+      );
+    });
+
+    it("leaderboards pull passes game-id and dir to core", async () => {
+      await program.parseAsync(["node", "gpc", "games", "leaderboards", "pull", "./out"]);
+      expect(vi.mocked(pullLeaderboardConfigs)).toHaveBeenCalledWith(
+        expect.anything(),
+        "999888777",
+        "./out",
+      );
     });
   });
 });

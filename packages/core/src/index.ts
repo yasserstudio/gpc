@@ -296,8 +296,19 @@ export {
   updateLeaderboardConfig,
   deleteLeaderboardConfig,
   diffLeaderboardConfig,
+  setAchievementIcon,
+  setLeaderboardIcon,
+  pushAchievementConfigs,
+  pullAchievementConfigs,
+  pushLeaderboardConfigs,
+  pullLeaderboardConfigs,
 } from "./commands/games.js";
-export type { ListGamesConfigOptions, GameConfigDiff } from "./commands/games.js";
+export type {
+  ListGamesConfigOptions,
+  GameConfigDiff,
+  GamesSyncResult,
+  GamesPushOptions,
+} from "./commands/games.js";
 export { createEnterpriseApp, publishEnterpriseApp } from "./commands/enterprise.js";
 export type { CreateEnterpriseAppParams } from "./commands/enterprise.js";
 export type { TrainConfig, TrainState } from "./commands/train.js";

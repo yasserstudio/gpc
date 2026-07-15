@@ -83,6 +83,15 @@ export interface LeaderboardConfigurationListResponse {
   nextPageToken?: string;
 }
 
+export type GamesImageType = "ACHIEVEMENT_ICON" | "LEADERBOARD_ICON";
+
+export interface ImageConfiguration {
+  kind?: string;
+  resourceId?: string;
+  imageType?: string;
+  url?: string;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Client interface                                                   */
 /* ------------------------------------------------------------------ */
@@ -119,6 +128,15 @@ export interface GamesConfigClient {
       data: LeaderboardConfiguration,
     ): Promise<LeaderboardConfiguration>;
     delete(leaderboardId: string): Promise<void>;
+  };
+  images: {
+    /** Upload an achievement or leaderboard icon (media upload). */
+    upload(
+      resourceId: string,
+      imageType: GamesImageType,
+      filePath: string,
+      contentType: string,
+    ): Promise<ImageConfiguration>;
   };
 }
 
@@ -207,6 +225,17 @@ export function createGamesConfigClient(options: ApiClientOptions): GamesConfigC
 
       async delete(leaderboardId) {
         await http.delete(`/leaderboards/${p(leaderboardId)}`);
+      },
+    },
+
+    images: {
+      async upload(resourceId, imageType, filePath, contentType) {
+        const { data } = await http.uploadGamesImage<ImageConfiguration>(
+          `/images/${p(resourceId)}/imageType/${p(imageType)}`,
+          filePath,
+          contentType,
+        );
+        return data;
       },
     },
   };
