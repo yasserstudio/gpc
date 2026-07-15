@@ -13,7 +13,24 @@ import {
   checkQuotaProximity,
   checkPluginHealth,
   checkAndroidCli,
+  deriveReadinessSignals,
+  unscoredFailures,
 } from "../src/commands/doctor.js";
+
+interface Check {
+  name: string;
+  status: "pass" | "fail" | "warn" | "info";
+  message: string;
+  suggestion?: string;
+}
+const chk = (name: string, status: Check["status"], suggestion?: string): Check => ({
+  name,
+  status,
+  message: `${name} message`,
+  suggestion,
+});
+const signalOf = (name: string, results: Check[]) =>
+  deriveReadinessSignals(results).find((s) => s.key === name);
 
 // ---------------------------------------------------------------------------
 // checkNodeVersion
@@ -636,5 +653,97 @@ describe("checkAndroidCli", () => {
     const result = checkAndroidCli();
     expect(result.status).toBe("info");
     expect(result.name).toBe("android-cli");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// deriveReadinessSignals (--score)
+// ---------------------------------------------------------------------------
+
+describe("deriveReadinessSignals", () => {
+  it("maps a healthy setup to all-pass scored signals (signing na without --verify)", () => {
+    const results: Check[] = [
+      chk("auth", "pass"),
+      chk("api-connectivity", "pass"),
+      chk("app-access", "pass"),
+      chk("config", "pass"),
+      chk("service-account-file", "pass"),
+      chk("dns-androidpublisher", "pass"),
+      chk("https-androidpublisher", "pass"),
+    ];
+    const signals = deriveReadinessSignals(results);
+    expect(signalOf("auth", results)?.status).toBe("pass");
+    expect(signalOf("app-access", results)?.status).toBe("pass");
+    expect(signalOf("network", results)?.status).toBe("pass");
+    // signing not run -> na
+    expect(signalOf("signing", results)?.status).toBe("na");
+    // weights are assigned
+    expect(signals.find((s) => s.key === "auth")?.weight).toBe(3);
+  });
+
+  it("propagates auth failure to the auth signal with its suggestion", () => {
+    const results = [chk("auth", "fail", "Run gpc auth login")];
+    const auth = signalOf("auth", results);
+    expect(auth?.status).toBe("fail");
+    expect(auth?.suggestion).toBe("Run gpc auth login");
+  });
+
+  it("treats a missing default app as an app-access warning, not na", () => {
+    const results = [chk("auth", "pass"), chk("default-app", "info")];
+    const appAccess = signalOf("app-access", results);
+    expect(appAccess?.status).toBe("warn");
+    expect(appAccess?.suggestion).toContain("gpc config set app");
+  });
+
+  it("returns na for app-access when neither app-access nor default-app is present", () => {
+    const results = [chk("auth", "fail")];
+    expect(signalOf("app-access", results)?.status).toBe("na");
+  });
+
+  it("takes the worst status across the config signal's backing checks", () => {
+    const results = [chk("config", "pass"), chk("config-keys", "warn", "Remove unknown keys")];
+    const config = signalOf("config", results);
+    expect(config?.status).toBe("warn");
+    expect(config?.suggestion).toBe("Remove unknown keys");
+  });
+
+  it("includes signing when --verify produced a signing-local result", () => {
+    const results = [chk("signing-local", "fail", "Signing key mismatch")];
+    const signing = signalOf("signing", results);
+    expect(signing?.status).toBe("fail");
+    expect(signing?.weight).toBe(2);
+  });
+
+  it("returns na for app-access when auth failed but an app IS configured", () => {
+    // default-app pass (app configured) but no app-access result (auth failed
+    // before it ran) -> na, not the no-app warn branch.
+    const results = [chk("auth", "fail"), chk("default-app", "pass")];
+    expect(signalOf("app-access", results)?.status).toBe("na");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// unscoredFailures (--score surfaces hard fails the grade doesn't cover)
+// ---------------------------------------------------------------------------
+
+describe("unscoredFailures", () => {
+  it("lists hard-fail checks that are not scored signals", () => {
+    const results = [
+      chk("node", "fail"),
+      chk("profile", "fail"),
+      chk("auth", "pass"),
+      chk("config", "warn"),
+    ];
+    expect(unscoredFailures(results)).toEqual(["node", "profile"]);
+  });
+
+  it("excludes fails that ARE scored signals (e.g. auth, app-access)", () => {
+    const results = [chk("auth", "fail"), chk("app-access", "fail"), chk("node", "pass")];
+    expect(unscoredFailures(results)).toEqual([]);
+  });
+
+  it("ignores warn/info/pass on non-scored checks", () => {
+    const results = [chk("proxy", "warn"), chk("android-cli", "info"), chk("version", "pass")];
+    expect(unscoredFailures(results)).toEqual([]);
   });
 });

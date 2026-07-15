@@ -473,3 +473,17 @@ export { checkSigningConsistency } from "./signing-consistency.js";
 export type { SigningConsistencyResult } from "./signing-consistency.js";
 export { buildChecklist, renderChecklistMarkdown } from "./verify-checklist.js";
 export type { ChecklistItem, ChecklistResult, ChecklistInput } from "./verify-checklist.js";
+export {
+  scoreReadiness,
+  gradeFromPercent,
+  readinessBadgeColor,
+  readinessBadgeUrl,
+  readinessBadgeMarkdown,
+} from "./commands/readiness.js";
+export type {
+  ReadinessSignal,
+  ReadinessSignalStatus,
+  ReadinessGrade,
+  ReadinessBreakdownEntry,
+  ReadinessScore,
+} from "./commands/readiness.js";
