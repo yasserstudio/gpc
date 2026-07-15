@@ -70,6 +70,7 @@ The remaining items before the stable `1.0.0` release:
 - [x] **v0.9.83 -- Response & usage quality** (shipped 2026-06-11). Real bug fix: `paginateAll` always returned an empty continuation token, so `--limit` + `--next-page` could not page past the first batch (reviews/users/purchases/iap/subscriptions); voided-purchases default path also dropped its token. Consistent `list --json` envelope `{ <key>, nextPageToken, meta.count, message? }` + human resume footer (**breaking:** reviews/iap no longer return a bare array). Error fidelity: Google's `"package not found"` 404 now maps to `API_APP_NOT_FOUND`; unmapped statuses carry message+suggestion. `formatMoney` honors ISO 4217 minor units. `reviews list` gains `hasReply`/`lang`/`[truncated]`/`--full-text`. CSV/TSV formula-injection guard. 4-agent review; deferred grants/testers/tracks envelope to a follow-up. 2,372 tests. Plan: `V0983_RESPONSE_QUALITY_PLAN.md`. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.83
 - [x] **v0.9.84 -- Install fix + regional pricing flag** (shipped 2026-06-20). P0 fix: `npm install -g @gpc-cli/cli` failed with `EUNSUPPORTEDPROTOCOL` because pnpm `workspace:` specifiers leaked into published manifests from v0.9.77-v0.9.83 (the staged-publish switch dropped the resolve step that `changeset publish` used to do). `scripts/stage-publish.js` now resolves `workspace:*` to concrete versions before publishing and refuses to publish if any remain. fix(#78): `--regions-version` is now sent to the Google Play API on all 8 subscriptions/one-time-products create/update/offer write commands (was an accepted-but-ignored facade; defaults to 2022/02). Extends GH PR #79 (softlion, credited). 2,380 tests. Plan: `V0984_PLAN.md`. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.84
 - [x] **v0.9.85 -- Complete the install fix** (shipped 2026-06-20). v0.9.84 republished cli+core clean but `@gpc-cli/api` was unchanged, so it was skipped and its already-published manifest still leaked `workspace:*` in `peerDependencies` (`@gpc-cli/auth`) -- a fresh `npm install -g @gpc-cli/cli` still failed (caught by sandbox-verify post-approval). api/core/cli republished with the specifier resolved. `stage-publish.js` hardened to warn when an unchanged, already-published package still leaks the protocol (the gap that caused the miss). 2,380 tests. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.85
+- [x] **v0.9.86 -- Complete Google Play Games API** (shipped 2026-06-22). Full CRUD for achievement and leaderboard configurations via Games Configuration API (gamesconfiguration v1configuration). 10 new endpoints (list/get/create/update/delete for both). Diff command for sync workflows. `--game-id` flag + `GPC_GAME_ID` env + `games.applicationId` config. Breaking: `gpc games events` removed, runtime commands moved to `gpc games runtime`. Resolves #80 (softlion). 2,408 tests. Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.86
 - [ ] Wall of Apps community showcase
 - [ ] Public marketing push (Dev.to retrospective, Android Weekly)
 - [ ] Stability soak period -- no critical bugs for 2+ weeks in production usage (soak starts after v0.9.90, earliest 1.0: 2 weeks after v0.9.90 ships)
@@ -77,6 +78,60 @@ The remaining items before the stable `1.0.0` release:
 - [ ] Dependency audit cleanup (see [Supply Chain Status](#supply-chain-status) below) -- production findings cleared in v0.9.82, dev-only remain
 
 Once these items are addressed and the CLI has been validated in production workflows, the version will bump from `0.9.x` to `1.0.0`.
+
+---
+
+## Path to Soak — v0.9.87 → v0.9.90 (planned 2026-06-25)
+
+**One release remains** before the stability soak opens: v0.9.90 (v0.9.87–v0.9.89 shipped). Research basis (refreshed 2026-07-15):
+
+- The androidpublisher discovery doc advanced `20260520 → 20260706`, but with **no new resources or methods** — still **no new API surface to chase**. The May 19 2026 changes (`onHoldStateContext`, `inGracePeriodStateContext`, `OfferPhase`) already shipped (v0.9.76/v0.9.79). PBL v8 gate (Aug 31 2026) is client-side, out of GPC scope.
+- **Submission History API** and **parallel-track publishing** are confirmed "later in 2026" but have **no endpoints yet** — they stay on the [Watch List](#watch-list-may-2026), triggered when Google ships them.
+- **Developer-verification APIs** (ID Status API live July 2026; Console API GA Aug 2026) are a **separate surface with no public REST/discovery docs** — post-1.0; re-check at Console API GA.
+- Deep API features (System APKs, Play Integrity) are deliberately **deferred post-1.0** — niche and they add soak risk.
+
+The right move for the remaining release is **launch-grade polish, the two slipped flagships, and stabilization — not new API breadth.**
+
+### v0.9.87 — Contract consistency + compliance docs ✅ SHIPPED 2026-06-26
+
+Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.87. Plan: `V0987_PLAN.md`. 2,413 tests (+5).
+
+- [x] **Finished the `list --json` envelope** (deferred from v0.9.83). `grants`, `testers`, and `tracks list` now emit `{ <key>, nextPageToken, meta.count, message? }` via `annotateListResult` at the CLI boundary (core signatures untouched). **Breaking** for those three; table output unchanged. `testers` uses `googleGroups` as the items key, defaulted to `[]` so the key is always present (consistency fix caught in live smoke).
+- [x] **Compliance docs batch** (docs-only): third-party US app-store syndication opt-out (July 22 2026) added to FAQ + FAQPage JSON-LD; PBL v8 deadline (Aug 31 2026) on subscriptions page; Android 17 / API 37 preflight tip refreshed.
+- Note: release commit hit the recurring prettier-after-release CI failure (pre-existing v0.9.86 `games*` drift + new stamps); fixed with a `style: format` follow-up commit. Run `pnpm format` before the release commit next time.
+
+> **Plan drift note (2026-07-15):** v0.9.88 and v0.9.89 were both spent on **reactive** work, not the flagships originally slotted here. The two flagships (`gpc doctor --score`, review intelligence) slipped and are now **consolidated into a bigger v0.9.90** (maintainer decision 2026-07-15). Plan: `V0990_PLAN.md`.
+
+### v0.9.88 — Preflight compliance refresh ✅ SHIPPED 2026-07-01
+
+Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.88. 2,418 tests. Reactive (prompted by a Play newsletter), not the originally-planned `doctor --score`.
+
+- [x] Preflight refresh for Google's **Oct 28 2026** sensitive-permission deadlines (Android 17/API 37+): contacts check cites Android Contact Picker, new `location-minimal-scope` rule, geofencing date corrected to Oct 28 2026, `gpc init` scaffolds `targetSdkMinimum: 36`.
+
+### v0.9.89 — Preflight scanner crash/hang fix ✅ SHIPPED 2026-07-05
+
+Release: https://github.com/yasserstudio/gpc/releases/tag/v0.9.89. 2,421 tests. Reactive (GH #89), not the originally-planned review intelligence.
+
+- [x] `gpc preflight` crashed then hung on AAB/APK scan under the standalone (Homebrew) binary (yauzl fd-reader handed a null fd under Bun compile). Offline reader switched to `yauzl.fromBuffer` (no fd) + bounded timeout backstop.
+
+### v0.9.90 — Launch flagship + review intel + soak-prep (last release before soak)
+
+Consolidates both slipped flagships plus stabilization into the final pre-soak release (bigger than the original "minimal blast radius" scope, by decision). Mostly self-contained; the **one exception is the Games enhancements (Track E)**, folded in by decision, which add new Games Configuration/Management API surface and carry the most soak risk. No new *androidpublisher* surface (discovery `20260706`, no new methods). Plan: `V0990_PLAN.md`.
+
+- [ ] **`gpc doctor --score`** (flagship) — A–F release-readiness grade from a curated check subset (auth, config valid, preflight, signing-key, vitals thresholds, CI); score + breakdown + suggestions; `--json`; shareable README **badge** (static shields.io URL, zero infra; optional local SVG). Pure `scoreReadiness()` grading engine in core. The 1.0 launch hook.
+- [ ] **Review intelligence** — `reviews list --sort newest|rating|oldest` (named presets over the **existing client-side** `sortResults`; NOT a phantom `reviewsSortOrder` API param — the endpoint has no server sort). `gpc status --full` topic/sentiment breakdown (reuses the existing `sentiment.ts` util; no new NLP, no extra API call).
+- [ ] **Developer-verification advisory** (no new API) — extend the v0.9.66 `gpc verify` / preflight surface with a market-aware **info** advisory for the Sept 30 2026 enforcement markets (Brazil, Indonesia, Singapore, Thailand): verified developer + registered package needed; Play App Signing auto-registers. Advisory-only, never moves the `doctor --score` grade or fails preflight.
+- [ ] **Games API enhancements** (Track E, new API surface — highest soak risk) — E1 achievement/leaderboard **icon upload** (`imageConfigurations.upload`, reuses resumable media path; closes the create-config-but-not-icon gap); E2 **Games Management API** test-state reset (`achievements`/`scores` reset, `players` hide/unhide — destructive, `--yes` gate); E3 **bulk config sync** (`games ... push <dir>`/`pull`, reuses existing diff). Build/trim order E3 → E1 → E2; trim E2 first if the release runs hot. Deepsec gate (below) must cover this surface.
+- [ ] **Soak-prep** — dep audit cleanup incl. the open Dependabot batch (#87 + #91 clean → merge; #90 TS 6 / Vite 8 majors **deferred to a post-1.0 tooling PR**, patch bumps only); Socket-on-Dependabot CI fix (dependabot-actor exclusion on the `socket-security` job); **pre-soak deepsec security gate** (`pnpm security:deep`, Codex only, 0 unaddressed high/critical before tagging — last full audit was v0.9.80); final bug-hunt + live smoke across all profiles; version/stat stamps aligned.
+- [ ] **Launch-grade docs + SEO/AEO pass** (Track F, content-only, near-zero soak risk) — full command-reference accuracy audit + new-surface docs; README refresh (marketing skills, dogfood the readiness badge); stats/stamps/endpoint truth-up aligned everywhere; SEO (per-page title/meta, JSON-LD extend, sitemap/robots/canonical, keywords ×7); AEO/GEO (verify/create `llms.txt`+`llms-full.txt` — a likely gap; FAQ + `alternatives/` comparison expansion for AI-search queries); link/freshness audit. Indexed during the soak so 1.0 is a version flip.
+- [ ] `gpc compete` easter egg (Tier 2) — optional, drop to protect the soak.
+- **The soak window opens when this ships**; target 1.0.0 ≥ 2 weeks later, bug-free.
+
+### Explicitly deferred to post-1.0 (soak risk / niche / no API yet)
+
+- **System APKs** (`gpc system-apks`, 4 endpoints) and **Play Integrity** (`gpc integrity verify`) — real API but niche; defer.
+- **Submission History API** + **parallel-track publishing** — no endpoints yet; trigger when Google ships them (Watch List).
+- VS Code extension, terminal demo, newsletter, Discord bot — Post-1.0 Tier 1–2.
 
 ---
 
@@ -2458,12 +2513,12 @@ One-liner: *"Google handles the build side. GPC handles the publish side. That s
 
 ---
 
-## Current Status (v0.9.83)
+## Current Status (v0.9.86)
 
-- **Version:** `v0.9.83` (latest shipped 2026-06-11)
-- **Tests:** 2,372 across 7 packages + e2e
+- **Version:** `v0.9.86` (latest shipped 2026-06-22)
+- **Tests:** 2,408 across 7 packages + e2e
 - **Coverage:** 90%+ line coverage on all core packages
-- **API endpoints:** 217 (Publisher v3 + Reporting v1beta1 + Custom App Publishing v1)
+- **API endpoints:** 227 (Publisher v3 + Reporting v1beta1 + Custom App Publishing v1 + Games Configuration v1configuration)
 - **Packages:** 7 published under `@gpc-cli` scope on npm
 - **Agent skills:** 18 skills (`gpc install-skills`)
 - **Docs:** [yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/) (108 pages)
@@ -2478,6 +2533,9 @@ One-liner: *"Google handles the build side. GPC handles the publish side. That s
 
 | Version | Date | Headline |
 |---------|------|----------|
+| v0.9.86 | 2026-06-22 | Complete Google Play Games API: achievements + leaderboards CRUD (10 new endpoints) |
+| v0.9.85 | 2026-06-20 | Complete the install fix (api peerDependencies still leaked workspace:*) |
+| v0.9.84 | 2026-06-20 | Install fix (workspace: specifiers in published manifests) + --regions-version |
 | v0.9.83 | 2026-06-11 | Response & usage quality: pagination resume fix, consistent list JSON, error fidelity |
 | v0.9.82 | 2026-06-07 | Dependency health, docs alignment, lint cleanup, vitals gate fix |
 | v0.9.81 | 2026-06-06 | GPC GitHub Action on Marketplace, config precedence fix |
@@ -3112,4 +3170,4 @@ Items announced or hinted at by Google that have no API surface yet. Monitor mon
 | Play Age Signals API | US state laws (Utah May 2026, Louisiana July 2026) | Beta available | Client-side API. No publishing CLI impact unless server endpoints emerge. |
 | In-App Content Search / Deep Links | Play Store AI discovery | TBD | If Google exposes deep link registration via Developer API, add to `gpc listings`. |
 
-Last reviewed: 2026-05-25.
+Last reviewed: 2026-06-25 (re-checked for v0.9.87: discovery doc still `20260520`; Submission History API + parallel-track publishing confirmed "later in 2026" with no endpoints yet).
