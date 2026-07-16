@@ -4,7 +4,7 @@ outline: deep
 
 # Using GPC with Google's Android CLI
 
-Google [shipped the official Android CLI on 2026-04-16](https://android-developers.googleblog.com/2026/04/build-android-apps-3x-faster-using-any-agent.html) and promoted it to **stable (1.0) at Google I/O on 2026-05-19**. It covers the build-and-device half of Android development. GPC covers the Play Store half. This page documents how to use them together in an agent-driven workflow.
+Google's Android CLI builds, tests, and runs Android apps, but it does not publish to Google Play. GPC is the publishing half: build with the Android CLI, then upload, roll out, and monitor releases with GPC, all from the same terminal or CI pipeline. Google [shipped the Android CLI on 2026-04-16](https://android-developers.googleblog.com/2026/04/build-android-apps-3x-faster-using-any-agent.html) and promoted it to **stable (1.0) at Google I/O on 2026-05-19**. This page documents how to use them together in an agent-driven workflow.
 
 ## What each tool covers
 

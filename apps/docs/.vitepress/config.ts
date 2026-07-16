@@ -59,9 +59,9 @@ function getPageDescription(page: PageData): string {
   const path = page.relativePath;
   const map: Record<string, string> = {
     "index.md":
-      "The complete Google Play CLI. 227 API endpoints including Managed Google Play (first CLI to support it). Upload AABs, manage releases, monitor vitals, sync metadata, publish private enterprise apps. No Ruby, no browser.",
+      "Ship Android releases to Google Play from the terminal or CI. Upload AABs, stage rollouts, auto-halt on crash spikes, and monitor vitals. No browser, no Ruby.",
     "guide/index.md":
-      "Get started with GPC, the Play Console command line tool. Install, authenticate, and ship your first release in minutes. Fastlane supply alternative with 227 endpoints and Managed Google Play support.",
+      "Get started with GPC, the Google Play Console command line tool. Install, authenticate, and ship your first release in minutes. A Fastlane alternative with no Ruby and no browser.",
     "guide/installation.md":
       "Install GPC via npm, Homebrew, or standalone binary. No Ruby, no JVM. Works on macOS, Linux, and Windows.",
     "guide/authentication.md":
@@ -69,60 +69,60 @@ function getPageDescription(page: PageData): string {
     "guide/quick-start.md":
       "Five minutes to your first release. Authenticate, upload, promote, check vitals, and monitor reviews with GPC.",
     "commands/index.md":
-      "Complete command reference for GPC — the Google Play Console CLI. 30+ commands covering every Play Console operation.",
+      "Complete command reference for GPC: the Google Play Console CLI. 30+ commands covering every Play Console operation.",
     "commands/watch.md":
-      "gpc watch — Real-time rollout monitoring with multi-metric vitals, threshold alerts, and auto-halt. Ship your release, then watch it from your terminal.",
+      "gpc watch: Real-time rollout monitoring with multi-metric vitals, threshold alerts, and auto-halt. Ship your release, then watch it from your terminal.",
     "commands/status.md":
-      "gpc status — App health at a glance. Releases, vitals, and reviews in one command. Six parallel API calls in under 3 seconds.",
+      "gpc status: App health at a glance. Releases, vitals, and reviews in one command. Six parallel API calls in under 3 seconds.",
     "commands/releases.md":
-      "gpc releases — Upload AAB from the command line, promote releases, manage staged rollouts, and automate Play Store releases in CI/CD.",
+      "gpc releases: Upload AAB from the command line, promote releases, manage staged rollouts, and automate Play Store releases in CI/CD.",
     "commands/vitals.md":
-      "gpc vitals — Monitor Android crash rates, ANR, startup times, and rendering from the command line. Google Play vitals CLI with CI threshold gates.",
+      "gpc vitals: Monitor Android crash rates, ANR, startup times, and rendering from the command line. Google Play vitals CLI with CI threshold gates.",
     "commands/reviews.md":
-      "gpc reviews — List, filter, reply to, and export user reviews. Filter by stars, language, date.",
+      "gpc reviews: List, filter, reply to, and export user reviews. Filter by stars, language, date.",
     "commands/listings.md":
-      "gpc listings — Sync Play Store metadata, screenshots, and localizations from local files. Fastlane supply compatible metadata directory format.",
+      "gpc listings: Sync Play Store metadata, screenshots, and localizations from local files. Fastlane supply compatible metadata directory format.",
     "commands/publish.md":
-      "gpc publish — End-to-end release in one command. Upload, assign track, and commit. Use gpc validate for dry-run.",
+      "gpc publish: End-to-end release in one command. Upload, assign track, and commit. Use gpc validate for dry-run.",
     "commands/subscriptions.md":
-      "gpc subscriptions — Manage subscriptions, base plans, and offers using the modern Google Play monetization API.",
+      "gpc subscriptions: Manage subscriptions, base plans, and offers using the modern Google Play monetization API.",
     "ci-cd/index.md":
       "Integrate GPC into GitHub Actions, GitLab CI, Bitbucket Pipelines, and CircleCI. Semantic exit codes, JSON output, vitals gates.",
     "ci-cd/github-actions.md":
       "Android release automation with GitHub Actions and GPC. Upload AAB, promote releases, gate rollouts on crash rates. CI/CD for Google Play.",
     "migration/from-fastlane.md":
-      "Migrate from Fastlane supply to GPC — the modern Fastlane alternative for Android. Command mapping, metadata migration, and CI workflow examples.",
+      "Migrate from Fastlane supply to GPC: the modern Fastlane alternative for Android. Command mapping, metadata migration, and CI workflow examples.",
     "reference/environment-variables.md":
-      "All GPC_* environment variables — authentication, output, network, debugging, and proxy configuration.",
+      "All GPC_* environment variables: authentication, output, network, debugging, and proxy configuration.",
     "reference/exit-codes.md":
       "GPC semantic exit codes: 0 success, 2 usage, 3 auth, 4 API, 5 network, 6 vitals threshold breach. CI scripting patterns.",
-    "reference/changelog.md": "GPC changelog — all notable changes across every release.",
+    "reference/changelog.md": "GPC changelog: all notable changes across every release.",
     "advanced/architecture.md": "GPC system design, package architecture, and dependency graph.",
     "advanced/security.md":
-      "GPC security model — credential handling, secrets redaction, audit logging, and threat model.",
+      "GPC security model: credential handling, secrets redaction, audit logging, and threat model.",
     "advanced/plugins.md":
       "Build GPC plugins with lifecycle hooks and custom commands using the @gpc-cli/plugin-sdk.",
     "advanced/sdk-usage.md":
-      "Google Play API TypeScript SDK — use @gpc-cli/api and @gpc-cli/auth as standalone libraries in any Node.js project. Typed client for all 227 endpoints including Play Custom App Publishing.",
+      "Google Play API TypeScript SDK: use @gpc-cli/api and @gpc-cli/auth as standalone libraries in any Node.js project. Typed client for all 227 endpoints including Play Custom App Publishing.",
     "commands/preflight.md":
-      "gpc preflight — Scan your AAB against Google Play policies before submission. Offline, free, CI-ready. The missing compliance tool for Android.",
+      "gpc preflight: Scan your AAB against Google Play policies before submission. Offline, free, CI-ready. The missing compliance tool for Android.",
     "guide/preflight-deep-dive.md":
       "How the GPC preflight scanner works: 9 parallel scanners, offline AAB analysis, catches Google Play rejection reasons before submission. Real rejection examples, severity model, CI patterns, tuning guide.",
     "commands/init.md":
-      "gpc init — Scaffold project config, metadata directory, and CI templates for Google Play Console CLI.",
+      "gpc init: Scaffold project config, metadata directory, and CI templates for Google Play Console CLI.",
     "commands/diff.md":
-      "gpc diff — Preview release state and pending changes before publishing. Read-only, no mutations.",
+      "gpc diff: Preview release state and pending changes before publishing. Read-only, no mutations.",
     "commands/changelog.md":
-      "gpc changelog — View release history from GitHub and generate release notes from local git commits with smart clustering.",
+      "gpc changelog: View release history from GitHub and generate release notes from local git commits with smart clustering.",
     "commands/rtdn.md":
-      "gpc rtdn — Real-Time Developer Notifications. Decode Pub/Sub payloads, check configuration, debug subscription events.",
+      "gpc rtdn: Real-Time Developer Notifications. Decode Pub/Sub payloads, check configuration, debug subscription events.",
     // Guide
     "guide/configuration.md":
       "Configure GPC with .gpcrc.json, environment variables, and named profiles. XDG paths, precedence rules, and multi-app setup.",
     "guide/recipes.md":
       "Copy-pasteable GPC command snippets for common workflows. Upload, release, promote, rollouts, vitals, metadata sync, CI/CD patterns, monetization, and team management.",
     "guide/developer-verification.md":
-      "Android developer verification and app registration — what's changing, the timeline, and how GPC helps you stay compliant.",
+      "Android developer verification and app registration: what's changing, the timeline, and how GPC helps you stay compliant.",
     "guide/games-publishing.md":
       "Manage Play Games Services achievement and leaderboard configurations from the terminal or CI/CD. Setup, JSON format, diff workflow, and pipeline automation.",
     "guide/enterprise-publishing.md":
@@ -140,84 +140,84 @@ function getPageDescription(page: PageData): string {
     "guide/android-cli-interop.md":
       "Using GPC with Google's official Android CLI. Agent-first workflow: android create, android run, gpc preflight, gpc publish. SKILL.md skill packs, JSON output, semantic exit codes, LLM-ready prompts.",
     "commands/verify.md":
-      "gpc verify — Android developer verification status, signing key audit, and readiness checklist. Check your account, app signing, and enforcement deadlines.",
+      "gpc verify: Android developer verification status, signing key audit, and readiness checklist. Check your account, app signing, and enforcement deadlines.",
     "guide/faq.md":
-      "Frequently asked questions about GPC — authentication, CI/CD, Fastlane migration, troubleshooting, and production readiness.",
+      "Frequently asked questions about GPC: authentication, CI/CD, Fastlane migration, troubleshooting, and production readiness.",
     "guide/free-to-use.md":
       "Why GPC is free to use and how source-available differs from open source. What you can do with the code, what is not for sale, and what may change after v1.0.0.",
     "users/index.md":
       "Teams and apps using GPC to ship Android releases. Opt-in adopter list with reciprocal backlink, Uses GPC badge, and early-access perks for listed teams.",
-    // Commands — monetization
+    // Commands: monetization
     "commands/one-time-products.md":
-      "gpc one-time-products — Create, update, and manage one-time products and purchase options on Google Play.",
+      "gpc one-time-products: Create, update, and manage one-time products and purchase options on Google Play.",
     "commands/purchase-options.md":
-      "gpc purchase-options — Manage purchase options for one-time products on Google Play.",
+      "gpc purchase-options: Manage purchase options for one-time products on Google Play.",
     "commands/iap.md":
-      "gpc iap — Legacy in-app products API. Use one-time-products for the modern API.",
+      "gpc iap: Legacy in-app products API. Use one-time-products for the modern API.",
     "commands/purchases.md":
-      "gpc purchases — Verify purchases, manage subscriptions, process refunds, list voided purchases, and query orders.",
+      "gpc purchases: Verify purchases, manage subscriptions, process refunds, list voided purchases, and query orders.",
     "commands/pricing.md":
-      "gpc pricing — Convert regional pricing across currencies with purchasing power parity via the Google Play API.",
-    // Commands — distribution
+      "gpc pricing: Convert regional pricing across currencies with purchasing power parity via the Google Play API.",
+    // Commands: distribution
     "commands/tracks.md":
-      "gpc tracks — List, create, and manage release tracks (internal, alpha, beta, production, custom).",
+      "gpc tracks: List, create, and manage release tracks (internal, alpha, beta, production, custom).",
     "commands/bundle.md":
-      "gpc bundle — Analyze AAB/APK size per module and category. Compare builds. CI size gates with --threshold.",
+      "gpc bundle: Analyze AAB/APK size per module and category. Compare builds. CI size gates with --threshold.",
     "commands/bundles.md":
-      "gpc bundles — Query uploaded app bundles on Google Play. List, find by version code, and wait for processing in CI pipelines.",
+      "gpc bundles: Query uploaded app bundles on Google Play. List, find by version code, and wait for processing in CI pipelines.",
     "commands/internal-sharing.md":
-      "gpc internal-sharing — Upload AAB or APK for internal app sharing. Quick testing without creating a release.",
+      "gpc internal-sharing: Upload AAB or APK for internal app sharing. Quick testing without creating a release.",
     "commands/generated-apks.md":
-      "gpc generated-apks — List and download APKs generated by Google Play from your App Bundle.",
+      "gpc generated-apks: List and download APKs generated by Google Play from your App Bundle.",
     "commands/system-apks.md":
-      "gpc system-apks — Create, list, and download system APKs for OEM pre-installs from published App Bundles.",
+      "gpc system-apks: Create, list, and download system APKs for OEM pre-installs from published App Bundles.",
     "commands/device-tiers.md":
-      "gpc device-tiers — Manage device tier configurations for conditional delivery on Google Play.",
-    // Commands — compliance
+      "gpc device-tiers: Manage device tier configurations for conditional delivery on Google Play.",
+    // Commands: compliance
     "commands/data-safety.md":
-      "gpc data-safety — View and update your app's data safety declaration on Google Play.",
+      "gpc data-safety: View and update your app's data safety declaration on Google Play.",
     "commands/recovery.md":
-      "gpc recovery — Create, deploy, and manage app recovery actions for critical issues.",
+      "gpc recovery: Create, deploy, and manage app recovery actions for critical issues.",
     "commands/external-transactions.md":
-      "gpc external-transactions — Report and manage external transactions for alternative billing.",
-    // Commands — monitoring
+      "gpc external-transactions: Report and manage external transactions for alternative billing.",
+    // Commands: monitoring
     "commands/anomalies.md":
-      "gpc anomalies — Detect vitals quality spikes automatically via the Google Play Reporting API.",
+      "gpc anomalies: Detect vitals quality spikes automatically via the Google Play Reporting API.",
     "commands/quota.md":
-      "gpc quota — View Google Play API quota usage tracked from local audit log.",
-    // Commands — team
-    "commands/apps.md": "gpc apps — List accessible apps from your Google Play developer account.",
+      "gpc quota: View Google Play API quota usage tracked from local audit log.",
+    // Commands: team
+    "commands/apps.md": "gpc apps: List accessible apps from your Google Play developer account.",
     "commands/setup.md":
-      "gpc setup — Guided first-time setup for Google Play Console CLI. Auth, config, verification, and shell completion in one command.",
+      "gpc setup: Guided first-time setup for Google Play Console CLI. Auth, config, verification, and shell completion in one command.",
     "commands/auth.md":
-      "gpc auth — Authenticate with service accounts, OAuth, or ADC. Manage profiles and tokens.",
+      "gpc auth: Authenticate with service accounts, OAuth, or ADC. Manage profiles and tokens.",
     "commands/config.md":
-      "gpc config — View and manage GPC configuration. Set defaults, manage profiles, initialize config files.",
+      "gpc config: View and manage GPC configuration. Set defaults, manage profiles, initialize config files.",
     "commands/users.md":
-      "gpc users — Manage developer account users, invite team members, and control access permissions.",
+      "gpc users: Manage developer account users, invite team members, and control access permissions.",
     "commands/testers.md":
-      "gpc testers — Add, remove, import, and export testers for any track on Google Play.",
+      "gpc testers: Add, remove, import, and export testers for any track on Google Play.",
     "commands/grants.md":
-      "gpc grants — Manage per-app permission grants for developer account users.",
+      "gpc grants: Manage per-app permission grants for developer account users.",
     "commands/reports.md":
-      "gpc reports — Download financial and statistics reports from Google Play.",
-    // Commands — system
+      "gpc reports: Download financial and statistics reports from Google Play.",
+    // Commands: system
     "commands/plugins.md":
-      "gpc plugins — List, install, and manage GPC plugins for custom workflows.",
+      "gpc plugins: List, install, and manage GPC plugins for custom workflows.",
     "commands/install-skills.md":
-      "gpc install-skills — Install AI agent skills for Claude Code, Cursor, and other AI coding assistants.",
+      "gpc install-skills: Install AI agent skills for Claude Code, Cursor, and other AI coding assistants.",
     "commands/utility.md":
-      "GPC utility commands — version, update, cache, feedback, and completion.",
+      "GPC utility commands: version, update, cache, feedback, and completion.",
     "commands/docs.md":
-      "gpc docs — Access embedded documentation offline. List topics, show pages, search, generate AI agent reference, open in browser.",
+      "gpc docs: Access embedded documentation offline. List topics, show pages, search, generate AI agent reference, open in browser.",
     "commands/migrate.md":
-      "gpc migrate — Migrate from Fastlane supply to GPC. Converts metadata, config, and CI workflows.",
+      "gpc migrate: Migrate from Fastlane supply to GPC. Converts metadata, config, and CI workflows.",
     "commands/train.md":
-      "gpc train — Automated staged rollout pipeline with time gates and crash/ANR quality gates.",
+      "gpc train: Automated staged rollout pipeline with time gates and crash/ANR quality gates.",
     "commands/games.md":
-      "gpc games — Manage Play Games Services achievement and leaderboard configurations. CRUD operations via the Games Configuration API.",
+      "gpc games: Manage Play Games Services achievement and leaderboard configurations. CRUD operations via the Games Configuration API.",
     "commands/enterprise.md":
-      "gpc enterprise — Manage private enterprise app distribution via Managed Google Play.",
+      "gpc enterprise: Manage private enterprise app distribution via Managed Google Play.",
     // CI/CD
     "ci-cd/gitlab-ci.md":
       "Use GPC in GitLab CI to automate Google Play releases, vitals monitoring, and metadata sync.",
@@ -241,7 +241,7 @@ function getPageDescription(page: PageData): string {
       "GPC vs gradle-play-publisher: coexistence (GPP for build-time uploads + GPC for vitals, reviews, subscriptions, preflight, Managed Google Play) or full replacement.",
     // Reference
     "reference/json-contract.md":
-      "GPC JSON output contract — structured response format for CI/CD scripting and automation.",
+      "GPC JSON output contract: structured response format for CI/CD scripting and automation.",
     "reference/api-coverage.md":
       "Complete Google Play Developer API coverage map. 227 endpoints across Android Publisher v3, Play Developer Reporting, and Play Custom App Publishing.",
     "reference/deprecations.md":
@@ -250,13 +250,13 @@ function getPageDescription(page: PageData): string {
       "Google Play API rate limits, GPC's 6-bucket rate limiter, quota monitoring, and best practices for staying within limits.",
     // Advanced
     "advanced/conventions.md":
-      "GPC code conventions — TypeScript strict mode, ESM, named exports, testing patterns, git workflow.",
+      "GPC code conventions: TypeScript strict mode, ESM, named exports, testing patterns, git workflow.",
     "advanced/error-codes.md":
       "All GPC error codes with causes, exit codes, and suggested fixes. 40+ typed errors.",
     "advanced/troubleshooting.md":
-      "Troubleshoot GPC — common errors, auth failures, upload issues, network problems, and debug mode.",
+      "Troubleshoot GPC: common errors, auth failures, upload issues, network problems, and debug mode.",
     "advanced/skills.md":
-      "18 AI agent skills for GPC — teach Claude Code, Cursor, and other AI assistants to use Google Play CLI.",
+      "18 AI agent skills for GPC: teach Claude Code, Cursor, and other AI assistants to use Google Play CLI.",
     // Glossary
     "glossary/index.md":
       "Play Store glossary. Plain-English definitions for AAB, APK, ANR, vitals, service accounts, Managed Google Play, edit lifecycle, and more. Each entry links to the GPC command that operates on it.",
@@ -286,13 +286,13 @@ function getPageDescription(page: PageData): string {
     "blog/google-io-2026-what-changed.md":
       "Google I/O 2026 impact on Android developer tools. Android CLI 1.0 stable, AI Studio internal-track publishing, Play Developer API changes, and what it means for GPC.",
   };
-  return map[path] ?? `GPC documentation — ${page.title ?? "Google Play Console CLI"}`;
+  return map[path] ?? `GPC documentation: ${page.title ?? "Google Play Console CLI"}`;
 }
 
 export default defineConfig({
-  title: "GPC — Google Play Console CLI",
+  title: "GPC: Google Play Console CLI",
   description:
-    "The complete Google Play CLI. 227 API endpoints including Managed Google Play. Upload AABs, manage releases and rollouts, monitor vitals and crash rates, sync metadata, publish private enterprise apps. No Ruby, no browser.",
+    "Ship Android releases to Google Play from the terminal or CI. Upload AABs, stage rollouts, auto-halt on crash spikes, monitor vitals, and sync store metadata. No browser, no Ruby.",
 
   base: "/gpc/",
   lang: "en-US",
@@ -328,7 +328,7 @@ export default defineConfig({
     ["link", { rel: "dns-prefetch", href: "https://fonts.googleapis.com" }],
     ["link", { rel: "dns-prefetch", href: "https://fonts.gstatic.com" }],
     ["meta", { property: "og:type", content: "website" }],
-    ["meta", { property: "og:site_name", content: "GPC — Google Play Console CLI" }],
+    ["meta", { property: "og:site_name", content: "GPC: Google Play Console CLI" }],
     ["meta", { property: "og:locale", content: "en_US" }],
     [
       "script",
@@ -336,7 +336,7 @@ export default defineConfig({
       safeJsonLd({
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        name: "GPC — Google Play Console CLI",
+        name: "GPC: Google Play Console CLI",
         description:
           "The complete Google Play CLI. 227 API endpoints including Managed Google Play. Upload AABs, manage releases, monitor crash rates, sync metadata, publish private enterprise apps. Fastlane alternative for Android.",
         applicationCategory: "DeveloperApplication",
@@ -403,8 +403,8 @@ export default defineConfig({
   transformPageData(pageData) {
     const desc = getPageDescription(pageData);
     const title = pageData.title
-      ? `${pageData.title} | GPC — Google Play Console CLI`
-      : "GPC — Google Play Console CLI";
+      ? `${pageData.title} | GPC: Google Play Console CLI`
+      : "GPC: Google Play Console CLI";
     const canonicalPath = pageData.relativePath.replace(/index\.md$/, "").replace(/\.md$/, "");
     const canonicalUrl = `https://yasserstudio.github.io/gpc/${canonicalPath}`;
 
@@ -629,7 +629,7 @@ export default defineConfig({
       ]);
     }
 
-    // FAQPage schema on /alternatives/index — comparison hub page
+    // FAQPage schema on /alternatives/index: comparison hub page
     if (pageData.relativePath === "alternatives/index.md") {
       const altIndexFaqSchema = {
         "@context": "https://schema.org",
@@ -676,7 +676,7 @@ export default defineConfig({
       ]);
     }
 
-    // FAQPage schema on /guide/android-cli-interop — addresses the recurring
+    // FAQPage schema on /guide/android-cli-interop: addresses the recurring
     // "Does Google's CLI replace GPC?" misconception.
     if (pageData.relativePath === "guide/android-cli-interop.md") {
       const androidCliFaqSchema = {
@@ -842,7 +842,7 @@ export default defineConfig({
       { name: string; description: string; step: Array<{ name: string; text: string }> }
     > = {
       "guide/quick-start.md": {
-        name: "Get started with GPC — Google Play Console CLI",
+        name: "Get started with GPC: Google Play Console CLI",
         description:
           "Install GPC, authenticate, and run your first Google Play command in 5 minutes.",
         step: [

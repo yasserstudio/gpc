@@ -1,12 +1,12 @@
 ---
 layout: home
-title: "GPC -- Google Play Console CLI | Ship Android Releases from Your Terminal"
-description: "The complete Google Play CLI. 227 API endpoints including Managed Google Play. Upload AABs, manage releases, monitor vitals, sync metadata, publish private enterprise apps. No Ruby, no browser."
+title: "GPC: Google Play Console CLI | Ship Android Releases from Your Terminal"
+description: "Ship Android releases to Google Play from the terminal or CI. Upload AABs, stage rollouts, auto-halt on crash spikes, and monitor vitals. No browser, no Ruby."
 
 hero:
   name: "GPC"
   text: "Google Play Console CLI"
-  tagline: "227 API endpoints. Releases, vitals, reviews, subscriptions, preflight scanning, Managed Google Play. One CLI, no browser."
+  tagline: "Ship Android releases from the terminal. Upload, roll out, monitor, and halt on regressions, all scriptable, all in CI. No browser, no Ruby."
   actions:
     - theme: brand
       text: Get Started
@@ -17,13 +17,9 @@ hero:
 
 features:
   - icon:
-      src: /icons/goal.png
-    title: 227 API Endpoints
-    details: "Releases, vitals, reviews, subscriptions, purchases, reports, Managed Google Play, and more. Fastlane covers ~20. GPC covers everything."
-  - icon:
-      src: /icons/plug.png
-    title: Translated Release Notes
-    details: "Turn your git log into per-locale Play Store 'What's new' text in one command. Translate via your own LLM key. Supports Anthropic, OpenAI, Google, and Vercel AI Gateway."
+      src: /icons/analytics.png
+    title: Monitor Releases in Real Time
+    details: "gpc status for a snapshot. gpc watch for real-time rollout monitoring with auto-halt on threshold breach. Exit code 6 for CI."
   - icon:
       src: /icons/shield.png
     title: Preflight Scanner
@@ -33,13 +29,17 @@ features:
     title: CI/CD Native
     details: "JSON output when piped. Semantic exit codes. Env var config. --dry-run on every write. Drop into any pipeline."
   - icon:
+      src: /icons/plug.png
+    title: Translated Release Notes
+    details: "Turn your git log into per-locale Play Store 'What's new' text in one command. Translate via your own LLM key. Supports Anthropic, OpenAI, Google, and Vercel AI Gateway."
+  - icon:
       src: /icons/delivery-box.png
     title: Managed Google Play
     details: "First publishing CLI to support the Play Custom App API. Publish private enterprise apps in 5 minutes via CI/CD instead of 2 hours in Play Console."
   - icon:
-      src: /icons/analytics.png
-    title: Monitor Releases in Real Time
-    details: "gpc status for a snapshot. gpc watch for real-time rollout monitoring with auto-halt on threshold breach. Exit code 6 for CI."
+      src: /icons/goal.png
+    title: 227 API Endpoints
+    details: "Releases, vitals, reviews, subscriptions, purchases, reports, Managed Google Play, and more. Fastlane covers ~20. GPC covers everything."
 ---
 
 <div class="stats-bar">
@@ -126,19 +126,19 @@ features:
 
 <div class="compare-table-wrap">
 
-|                     | **GPC**                      | Fastlane supply | gradle-play-publisher | Console UI   |
-| ------------------- | ---------------------------- | --------------- | --------------------- | ------------ |
-| API coverage        | **227 endpoints**            | ~20             | ~15                   | All (manual) |
-| Runtime             | Node.js or standalone binary | Ruby + Bundler  | JVM                   | Browser      |
-| Cold start          | **<500ms**                   | 2-3s            | 3-5s                  | 5-10s        |
-| Reviews & Vitals    | Yes                          | No              | No                    | Manual       |
-| Subscriptions & IAP | Yes                          | No              | No                    | Manual       |
-| Managed Google Play | **Yes (first CLI)**          | No              | No                    | Manual       |
-| Play Games config   | Yes                          | No              | No                    | Manual       |
-| AI translation      | **Yes (BYO key)**            | No              | No                    | No           |
-| CI/CD native        | JSON + exit codes + env vars | Partial         | Gradle tasks          | No           |
-| Preflight scanner   | **9 offline checks**         | No              | No                    | No           |
-| Plugin system       | Yes                          | No              | No                    | No           |
+|                     | **GPC**                      | Fastlane supply | Console UI   |
+| ------------------- | ---------------------------- | --------------- | ------------ |
+| API coverage        | **227 endpoints**            | ~20             | All (manual) |
+| Runtime             | Node.js or standalone binary | Ruby + Bundler  | Browser      |
+| Cold start          | **<500ms**                   | 2-3s            | 5-10s        |
+| Reviews & Vitals    | Yes                          | No              | Manual       |
+| Subscriptions & IAP | Yes                          | No              | Manual       |
+| Managed Google Play | **Yes (first CLI)**          | No              | Manual       |
+| Play Games config   | Yes                          | No              | Manual       |
+| AI translation      | **Yes (BYO key)**            | No              | No           |
+| CI/CD native        | JSON + exit codes + env vars | Partial         | No           |
+| Preflight scanner   | **9 offline checks**         | No              | No           |
+| Plugin system       | Yes                          | No              | No           |
 
 </div>
 

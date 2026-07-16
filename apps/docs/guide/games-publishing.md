@@ -1,6 +1,8 @@
 # Games Publishing
 
-Manage Play Games Services achievement and leaderboard configurations from the terminal or CI/CD pipeline.
+GPC manages Play Games Services achievement and leaderboard configurations from the terminal or CI/CD pipeline. Define each config as JSON, version it alongside your app, diff your local files against what is live, and push updates in a pipeline instead of clicking through the Play Console.
+
+Every command takes `--json` for scripting. GPC covers full create, list, update, and delete for both achievements and leaderboards, plus achievement icon upload and directory-level push and pull for bulk sync.
 
 ## Prerequisites
 
