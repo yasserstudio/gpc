@@ -440,6 +440,22 @@ export default defineConfig({
         mainEntity: [
           {
             "@type": "Question",
+            name: "Can GPC tell me if my app is ready to release?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. gpc doctor --score gives an A–F release-readiness grade based on authentication, API access, configuration, credential hygiene, connectivity, and signing-key consistency. Add --badge for a shareable shields.io README badge and --json for a machine-readable breakdown in CI.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Can GPC analyze or summarize my Google Play reviews?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. gpc status --full adds a local topic, sentiment, and keyword breakdown of recent reviews, and gpc reviews list --sort newest|oldest|rating sorts them. The analysis runs locally with no external NLP service, so no review text leaves your machine.",
+            },
+          },
+          {
+            "@type": "Question",
             name: "How is GPC different from Fastlane supply?",
             acceptedAnswer: {
               "@type": "Answer",

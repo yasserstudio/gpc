@@ -85,7 +85,7 @@ gpc auth profiles   # List all named profiles
 gpc
   auth         login, logout, status, token, profiles, switch, whoami
   apps         list
-  status       [--sections] [--watch] [--since-last] [--all-apps] [--format summary]
+  status       [--sections] [--full] [--watch] [--since-last] [--all-apps] [--format summary]
   releases     upload, status, promote, rollout (increase/halt/resume/complete), notes (get/set), diff, count
   tracks       list, get, create, update
   listings     get, pull, push, diff, lint, analyze, images (list/upload/delete), availability
@@ -104,7 +104,7 @@ gpc
   bundle       analyze, compare
   validate     <file> [--track] [--notes]
   publish      <file> [--track] [--rollout]
-  doctor       [--fix] [--json]
+  doctor       [--fix] [--json] [--score] [--badge] [--verify]
   init         [--app] [--ci-template]
   diff         [--from] [--to] [--metadata]
   rtdn         status, decode, test
@@ -141,6 +141,7 @@ gpc status --watch 60          # Refresh every 60s
 gpc status --since-last        # Diff from last run
 gpc status --all-apps          # All configured apps
 gpc status --format summary    # One-liner output
+gpc status --full              # Add review topic/sentiment/keyword breakdown
 gpc status --json
 ```
 
@@ -159,6 +160,8 @@ gpc publish app.aab --track beta --dry-run
 gpc doctor                 # Run all checks
 gpc doctor --json          # Structured output for CI
 gpc doctor --fix           # Auto-fix what it can
+gpc doctor --score         # A–F release-readiness grade + weighted breakdown
+gpc doctor --badge         # Also print a shareable shields.io README badge (implies --score)
 ```
 Checks: Node.js version, GPC version, CI detection, config file, unknown config keys, service account path, key readability, key age (>90 days warning), token validity, DNS resolution, HTTPS connectivity with latency, API connectivity, app access verification, package name format, conflicting credentials, token cache health, disk space, developer ID format, API quota proximity (warns at >80% daily/per-minute usage), plugin health (verifies each configured plugin loads).
 
@@ -325,6 +328,7 @@ gpc anomalies list --json
 gpc reviews list
 gpc reviews list --stars 1-3 --since 7d
 gpc reviews list --lang en --translate-to en
+gpc reviews list --sort newest                 # Presets: newest, oldest, rating (or a raw field)
 gpc reviews list --all                         # Auto-paginate all pages
 gpc reviews get <review-id>
 gpc reviews reply <review-id> --text "Thanks!"  # Max 350 chars (validated)
@@ -480,12 +484,18 @@ gpc games achievements create --file <json>
 gpc games achievements update <achievement-id> --file <json>
 gpc games achievements delete <achievement-id>
 gpc games achievements diff <achievement-id> --file <json>
+gpc games achievements set-icon <achievement-id> <file>   # Upload icon (512x512 png/jpg)
+gpc games achievements push <dir>                         # Bulk create/update from a directory
+gpc games achievements pull <dir>                         # Write all configs to a directory
 gpc games leaderboards list [--limit <n>] [--next-page <token>]
 gpc games leaderboards get <leaderboard-id>
 gpc games leaderboards create --file <json>
 gpc games leaderboards update <leaderboard-id> --file <json>
 gpc games leaderboards delete <leaderboard-id>
 gpc games leaderboards diff <leaderboard-id> --file <json>
+gpc games leaderboards set-icon <leaderboard-id> <file>   # Upload icon (512x512 png/jpg)
+gpc games leaderboards push <dir>                         # Bulk create/update from a directory
+gpc games leaderboards pull <dir>                         # Write all configs to a directory
 gpc games runtime achievements       # read-only (Games v1 API)
 gpc games runtime leaderboards       # read-only (Games v1 API)
 ```

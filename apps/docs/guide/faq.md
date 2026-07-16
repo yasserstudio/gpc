@@ -99,6 +99,14 @@ Yes. GPC has a plugin system with lifecycle hooks (`beforeCommand`, `afterComman
 
 The `iap` commands use the legacy in-app purchases API. The `otp` (one-time products) commands use the modern monetization API with richer features like regional pricing, product tags, and offer management. New projects should use `otp`.
 
+### Can GPC tell me if my app is ready to release?
+
+Yes. `gpc doctor --score` gives an A–F release-readiness grade based on authentication, API access, configuration, credential hygiene, connectivity, and (with `--verify`) signing-key consistency. Add `--badge` to get a shareable shields.io badge you can commit into your README, and `--json` for a machine-readable breakdown in CI.
+
+### Can GPC summarize or analyze my reviews?
+
+Yes. `gpc status --full` adds a local topic, sentiment, and keyword breakdown of recent reviews to the health snapshot, and `gpc reviews list --sort newest|oldest|rating` sorts the fetched window. The analysis runs locally with no external NLP service, so no review text leaves your machine.
+
 ### Can AI assistants use GPC?
 
 Yes. GPC ships 19 agent skills that teach AI coding assistants (Claude Code, Cursor, etc.) how to use every GPC workflow:

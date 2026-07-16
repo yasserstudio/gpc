@@ -22,6 +22,9 @@ GPC is a TypeScript CLI that covers 227 Google Play Developer API endpoints. It 
 - Release notes generation: gpc changelog generate produces GitHub Release markdown from local commits, with smart clustering, jargon linting, and a paste-ready LLM prompt mode
 - One-command Play Store notes: gpc changelog generate --target play-store --locales auto --ai --apply translates and writes release notes into a draft release
 - Offline docs: gpc docs list/show/search/init — all 99 docs pages embedded in the CLI binary, no network needed
+- Release readiness: gpc doctor --score gives an A–F release-readiness grade with a shareable shields.io README badge (gpc doctor --badge)
+- Review intelligence: gpc reviews list --sort newest|oldest|rating and gpc status --full for a local topic/sentiment/keyword breakdown (no external NLP)
+- Play Games: full achievement/leaderboard configuration CRUD plus icon upload (gpc games ... set-icon) and directory-based bulk sync (gpc games ... push/pull)
 
 ## Documentation
 
@@ -48,7 +51,9 @@ GPC is a TypeScript CLI that covers 227 Google Play Developer API endpoints. It 
 ```
 gpc auth login --service-account key.json              # Authenticate
 gpc doctor                                             # Diagnose setup problems
+gpc doctor --score --badge                             # A–F release-readiness grade + shareable README badge
 gpc status                                             # App health: releases + vitals + reviews
+gpc status --full                                      # Health snapshot + review topic/sentiment breakdown
 gpc releases upload app.aab --track internal           # Upload AAB to internal track
 gpc releases promote --from internal --to production --rollout 10  # Promote with staged rollout
 gpc releases rollout increase --track production --rollout 50      # Increase rollout
@@ -57,6 +62,7 @@ gpc vitals anr --threshold 0.5                         # CI gate on ANR rate
 gpc listings pull --dir metadata/                      # Download store listings
 gpc listings push --dir metadata/                      # Upload store listings
 gpc reviews list --stars 1-3 --since 7d                # Recent low-rated reviews
+gpc reviews list --sort newest                         # Sort reviews (newest/oldest/rating)
 gpc reviews reply --review-id <id> --text "Thanks"     # Reply to a review
 gpc subscriptions list                                 # List subscriptions
 gpc purchases get <token>                              # Verify a purchase token
@@ -71,6 +77,8 @@ gpc changelog                                          # Show release history fr
 gpc changelog generate                                 # Generate notes from local commits (md/json/prompt)
 gpc games achievements list --game-id <id>             # List achievement configurations
 gpc games leaderboards create --file leaderboard.json  # Create leaderboard from JSON
+gpc games achievements set-icon <id> icon.png          # Upload an achievement icon (512x512 png/jpg)
+gpc games achievements push metadata/achievements/     # Bulk create/update configs from a directory
 ```
 
 ## Environment Variables
