@@ -40,7 +40,7 @@ describe.skipIf(!hasBundledCli)("bundled CLI", () => {
 
   it("prints help", () => {
     const output = run("--help");
-    expect(output).toContain("The complete Google Play CLI");
+    expect(output).toContain("GPC — Google Play Console CLI");
     expect(output).toContain("releases");
     expect(output).toContain("auth");
     expect(output).toContain("config");
