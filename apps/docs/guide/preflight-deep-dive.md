@@ -84,6 +84,8 @@ Two sensitive-permission policies become mandatory for apps targeting API 37+ on
 
 `READ_SMS`, `SEND_SMS`, `RECEIVE_SMS`, `READ_CALL_LOG`, `WRITE_CALL_LOG`, `PROCESS_OUTGOING_CALLS`, `ACCESS_BACKGROUND_LOCATION`, `MANAGE_EXTERNAL_STORAGE`, `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO`, `READ_MEDIA_AUDIO`, `REQUEST_INSTALL_PACKAGES`, `SYSTEM_ALERT_WINDOW`, `USE_FULL_SCREEN_INTENT`, `BIND_ACCESSIBILITY_SERVICE`, `PACKAGE_USAGE_STATS`, `BIND_DEVICE_ADMIN`, `BIND_NOTIFICATION_LISTENER_SERVICE`.
 
+As of **July 15, 2026**, account verification via phone call is no longer an accepted use case for the Call Log permissions, so the `READ_CALL_LOG` finding now points you to the Digital Credentials API for phone-number verification (or the SMS Retriever API for one-time codes) instead.
+
 **Sensitive-permissions policy rules** (announced April 15, 2026; mandatory for apps targeting Android 17 / API 37+ on October 28, 2026):
 
 - **Contacts broad access** — **warning**. Flags `READ_CONTACTS` / `WRITE_CONTACTS`. Google requires the Android Contact Picker (`Intent.ACTION_PICK_CONTACTS`) instead of broad contacts access unless it is core to your app.

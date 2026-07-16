@@ -52,6 +52,14 @@ describe("permissionsScanner", () => {
     expect(f!.severity).toBe("critical");
   });
 
+  it("notes the July 15 2026 removal of phone-call verification for READ_CALL_LOG", async () => {
+    const findings = await permissionsScanner.scan(makeCtx(["android.permission.READ_CALL_LOG"]));
+    const f = findings.find((f) => f.ruleId.includes("read_call_log"));
+    expect(f!.message).toContain("July 15, 2026");
+    expect(f!.suggestion).toContain("Digital Credentials API");
+    expect(f!.suggestion).toContain("SMS Retriever API");
+  });
+
   it("flags QUERY_ALL_PACKAGES as error", async () => {
     const findings = await permissionsScanner.scan(
       makeCtx(["android.permission.QUERY_ALL_PACKAGES"]),

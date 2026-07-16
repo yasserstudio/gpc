@@ -47,6 +47,9 @@ describe("policyScanner", () => {
     expect(v!.message).toContain("September 30, 2026");
     expect(v!.message).toContain("Brazil");
     expect(v!.message).toContain("Play App Signing");
+    // July 15, 2026 Play Console registration mandate (unregistered apps risk removal)
+    expect(v!.message).toContain("July 15, 2026");
+    expect(v!.message).toContain("registered in Play Console");
   });
 
   it("flags families policy concern", async () => {

@@ -69,6 +69,16 @@ export function buildChecklist(input: ChecklistInput): ChecklistResult {
     ),
   );
 
+  items.push(
+    resolveManualStep(
+      "all-apps-registered",
+      "All Play apps registered in Play Console",
+      "As of July 15, 2026, every app on your account must be registered in Play Console to meet Android developer verification requirements. Unregistered apps risk removal from Google Play. Apps using Play App Signing are auto-registered; register any others manually.",
+      PLAY_CONSOLE_SETTINGS,
+      answers,
+    ),
+  );
+
   if (input.appAccessible !== undefined) {
     items.push({
       id: "app-accessible",

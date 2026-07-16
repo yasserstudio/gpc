@@ -103,6 +103,7 @@ This is designed to break the cycle of scam-driven coercion while preserving cho
 | **March 2026**         | Registration opens to all developers                                                                            |
 | **April 2026**         | Android Developer Verifier rolls out to certified devices as a Google Play Services system component            |
 | **June 2026**          | Limited distribution accounts early access                                                                      |
+| **July 15, 2026**      | Play policy reiterates that all Play apps must be registered in Play Console; unregistered apps risk removal     |
 | **August 2026**        | Limited distribution and advanced flow launch globally                                                          |
 | **September 30, 2026** | Enforcement begins in Brazil, Indonesia, Singapore, Thailand                                                    |
 | **2027+**              | Global enforcement rollout                                                                                      |
@@ -155,7 +156,7 @@ Checks that the signing certificate is consistent across your two most recent re
 gpc verify checklist
 ```
 
-Interactive walkthrough of all verification steps. Auto-detects what it can (account active, app accessible, bundles uploaded, Play App Signing enrolled) and prompts for manual confirmations. Includes an enforcement-timeline step noting that enforcement begins September 30, 2026 in Brazil, Indonesia, Singapore, and Thailand, and that Play App Signing apps auto-register. Outputs a markdown report for CI artifacts.
+Interactive walkthrough of all verification steps. Auto-detects what it can (account active, app accessible, bundles uploaded, Play App Signing enrolled) and prompts for manual confirmations. Includes an enforcement-timeline step noting that enforcement begins September 30, 2026 in Brazil, Indonesia, Singapore, and Thailand, and that Play App Signing apps auto-register. A registration step reflects the July 15, 2026 mandate that every app on your account must be registered in Play Console or risk removal. Outputs a markdown report for CI artifacts.
 
 ### Verification status
 
@@ -171,7 +172,7 @@ Account-aware verification status: shows your app info, bundle count, Play App S
 gpc preflight app.aab
 ```
 
-Runs 9 offline policy scanners including targetSdk compliance, permissions, and signing checks. The policy scanner also emits an informational developer-verification advisory (rule `policy-developer-verification`) reminding you of the September 30, 2026 enforcement markets. It is `info` severity and never fails a run, since whether an app is affected depends on its distribution markets, not anything in the AAB.
+Runs 9 offline policy scanners including targetSdk compliance, permissions, and signing checks. The policy scanner also emits an informational developer-verification advisory (rule `policy-developer-verification`) reminding you of the September 30, 2026 enforcement markets and the July 15, 2026 mandate to register every app in Play Console. It is `info` severity and never fails a run, since whether an app is affected depends on its distribution markets and account registration, not anything in the AAB.
 
 ### Health checks
 

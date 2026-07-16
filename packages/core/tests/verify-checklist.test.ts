@@ -83,7 +83,7 @@ describe("buildChecklist", () => {
       interactiveAnswers: { "identity-verified": true },
     });
     expect(result.completed).toBe(5);
-    expect(result.total).toBe(8);
+    expect(result.total).toBe(9);
   });
 
   it("uses singular for 1 bundle", () => {
@@ -123,7 +123,26 @@ describe("buildChecklist", () => {
     expect(result.items.find((i) => i.id === "app-accessible")).toBeUndefined();
     expect(result.items.find((i) => i.id === "bundle-uploaded")).toBeUndefined();
     expect(result.items.find((i) => i.id === "play-app-signing")).toBeUndefined();
-    expect(result.total).toBe(5);
+    expect(result.total).toBe(6);
+  });
+
+  it("includes an all-apps-registered step citing the July 15 2026 registration mandate", () => {
+    const result = buildChecklist({ authenticated: true });
+    const reg = result.items.find((i) => i.id === "all-apps-registered");
+    expect(reg).toBeDefined();
+    expect(reg?.status).toBe("cannot-detect");
+    expect(reg?.detail).toContain("July 15, 2026");
+    expect(reg?.detail).toContain("registered in Play Console");
+    expect(reg?.actionUrl).toBeDefined();
+  });
+
+  it("resolves all-apps-registered from interactive answers", () => {
+    const result = buildChecklist({
+      authenticated: true,
+      interactiveAnswers: { "all-apps-registered": true },
+    });
+    const reg = result.items.find((i) => i.id === "all-apps-registered");
+    expect(reg?.status).toBe("done");
   });
 });
 

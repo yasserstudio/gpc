@@ -109,9 +109,9 @@ export const policyScanner: PreflightScanner = {
       severity: "info",
       title: "Developer verification enforcement (Sep 30, 2026)",
       message:
-        "Google begins enforcing developer verification on September 30, 2026, first in Brazil, Indonesia, Singapore, and Thailand. Apps distributed in those markets need a verified developer identity and a registered package name. Apps using Play App Signing are auto-registered.",
+        "Google begins enforcing developer verification on September 30, 2026, first in Brazil, Indonesia, Singapore, and Thailand. Apps distributed in those markets need a verified developer identity and a registered package name. Separately, as of July 15, 2026, all apps on Google Play must be registered in Play Console to meet these requirements, and unregistered apps risk removal from Google Play. Apps using Play App Signing are auto-registered.",
       suggestion:
-        "Run `gpc verify checklist` to review readiness. This is a distribution-market reminder, not an AAB/APK defect.",
+        "Run `gpc verify checklist` to review readiness, including registration of every app on your account. This is a distribution-market and account-registration reminder, not an AAB/APK defect.",
       policyUrl: "https://developer.android.com/developer-verification",
     });
 

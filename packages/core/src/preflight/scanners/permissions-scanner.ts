@@ -65,8 +65,10 @@ const RESTRICTED_PERMISSIONS: RestrictedPermission[] = [
     permission: "android.permission.READ_CALL_LOG",
     severity: "critical",
     title: "READ_CALL_LOG requires declaration form",
-    message: "READ_CALL_LOG is restricted to default phone/assistant handler apps.",
-    suggestion: "Remove READ_CALL_LOG unless your app is a default phone or assistant handler.",
+    message:
+      "READ_CALL_LOG is restricted to default phone/assistant handler apps. As of July 15, 2026, account verification via phone call is no longer an accepted use case for the Call Log permissions.",
+    suggestion:
+      "Remove READ_CALL_LOG unless your app is a default phone or assistant handler. For phone-number verification, use the Digital Credentials API; for one-time codes, use the SMS Retriever API instead of reading the call log.",
     policyUrl: "https://support.google.com/googleplay/android-developer/answer/10208820",
   },
   {
