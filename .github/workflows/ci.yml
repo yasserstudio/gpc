@@ -128,7 +128,22 @@ jobs:
 
       - name: Audit production dependencies
         if: matrix.node-version == 22
-        run: pnpm audit --prod --audit-level=high
+        # npm retired the legacy audit endpoints (HTTP 410) that `pnpm audit`
+        # still calls, so a failed run may be the endpoint outage rather than a
+        # real advisory. Fail on genuine high-severity findings; treat only the
+        # endpoint outage as a warning (Socket Security + Dependency Review gate
+        # dependency vulnerabilities on PRs).
+        run: |
+          if out=$(pnpm audit --prod --audit-level=high 2>&1); then
+            echo "$out"
+          else
+            echo "$out"
+            if echo "$out" | grep -q "ERR_PNPM_AUDIT_BAD_RESPONSE"; then
+              echo "::warning::pnpm audit endpoint returned an error (npm retired the legacy audit endpoints). Skipping; dependency vulnerabilities remain gated by Socket Security and Dependency Review."
+              exit 0
+            fi
+            exit 1
+          fi
 
       - name: Lint
         if: matrix.node-version == 22
