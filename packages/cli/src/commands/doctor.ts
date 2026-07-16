@@ -1,6 +1,6 @@
 import type { Command } from "commander";
 import { loadConfig, getCacheDir, getConfigDir } from "@gpc-cli/config";
-import { green, red, yellow } from "../colors.js";
+import { green, red, yellow, bold } from "../colors.js";
 import { resolveAuth, AuthError } from "@gpc-cli/auth";
 import { existsSync, accessSync, statSync, constants } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -8,6 +8,7 @@ import { readFile, readdir, stat, statfs } from "node:fs/promises";
 import { resolve, join } from "node:path";
 import { lookup } from "node:dns/promises";
 import { isNewerVersion } from "../update-check.js";
+import type { ReadinessSignal, ReadinessSignalStatus, ReadinessScore } from "@gpc-cli/core";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -945,6 +946,198 @@ async function applyFix(check: CheckResult): Promise<string | null> {
 }
 
 // ---------------------------------------------------------------------------
+// Release-readiness scoring (--score)
+//
+// Maps the raw doctor checks onto a curated set of weighted readiness signals.
+// Only signals that reflect *ship-readiness* are scored; environmental/info
+// checks (node, version, disk, proxy, CI, plugins, ...) are still shown by a
+// plain `gpc doctor` run but never move the grade. The scoring math itself
+// lives in @gpc-cli/core (`scoreReadiness`) so it is unit-testable in isolation.
+// ---------------------------------------------------------------------------
+
+/** doctor `CheckResult.status` -> readiness signal status. `info` never scores (`na`). */
+const CHECK_STATUS_TO_SIGNAL: Record<CheckResult["status"], ReadinessSignalStatus> = {
+  pass: "pass",
+  warn: "warn",
+  fail: "fail",
+  info: "na",
+};
+
+// Backing doctor-check names for each scored signal. Declared once so
+// SCORED_CHECK_NAMES stays in sync with what the score actually covers.
+const AUTH_CHECKS = ["auth"];
+const API_CHECKS = ["api-connectivity"];
+const APP_ACCESS_CHECKS = ["app-access", "default-app"];
+const CONFIG_CHECKS = ["config", "config-keys", "package-name"];
+const CREDENTIAL_CHECKS = [
+  "service-account-file",
+  "service-account-permissions",
+  "credentials-conflict",
+  "token-cache",
+];
+const NETWORK_CHECKS = [
+  "dns-androidpublisher",
+  "dns-playdeveloperreporting",
+  "https-androidpublisher",
+  "https-playdeveloperreporting",
+];
+const SIGNING_CHECKS = ["signing-local"];
+
+/** Every doctor-check name that feeds the readiness grade. */
+export const SCORED_CHECK_NAMES: ReadonlySet<string> = new Set([
+  ...AUTH_CHECKS,
+  ...API_CHECKS,
+  ...APP_ACCESS_CHECKS,
+  ...CONFIG_CHECKS,
+  ...CREDENTIAL_CHECKS,
+  ...NETWORK_CHECKS,
+  ...SIGNING_CHECKS,
+]);
+
+/** Worst-of the given check names; `na` when none are present. `info` -> `na`. */
+function pickSignalStatus(
+  results: CheckResult[],
+  names: string[],
+): { status: ReadinessSignalStatus; detail?: string; suggestion?: string } {
+  const present = results.filter((r) => names.includes(r.name));
+  const first = present[0];
+  if (!first) return { status: "na" };
+
+  const severity: Record<CheckResult["status"], number> = { fail: 3, warn: 2, pass: 1, info: 0 };
+  let worst = first;
+  for (const r of present) {
+    if (severity[r.status] > severity[worst.status]) worst = r;
+  }
+
+  const status = CHECK_STATUS_TO_SIGNAL[worst.status];
+  return {
+    status,
+    detail: worst.message,
+    suggestion: status !== "pass" ? worst.suggestion : undefined,
+  };
+}
+
+/**
+ * Derive the weighted readiness signals from a completed set of doctor checks.
+ * Exported for unit testing. Pure — no I/O.
+ */
+export function deriveReadinessSignals(results: CheckResult[]): ReadinessSignal[] {
+  const signals: ReadinessSignal[] = [];
+
+  const add = (key: string, label: string, weight: number, names: string[]): void => {
+    const { status, detail, suggestion } = pickSignalStatus(results, names);
+    signals.push({ key, label, weight, status, detail, suggestion });
+  };
+
+  add("auth", "Authentication", 3, AUTH_CHECKS);
+  add("api", "API connectivity", 2, API_CHECKS);
+
+  // App access: use the check when it ran; if auth is fine but no default app is
+  // configured, that is a real publish-readiness gap (warn), not "not evaluated".
+  const appAccess = results.find((r) => r.name === "app-access");
+  if (appAccess) {
+    signals.push({
+      key: "app-access",
+      label: "App access",
+      weight: 3,
+      status: CHECK_STATUS_TO_SIGNAL[appAccess.status],
+      detail: appAccess.message,
+      suggestion: appAccess.status !== "pass" ? appAccess.suggestion : undefined,
+    });
+  } else {
+    const defaultApp = results.find((r) => r.name === "default-app");
+    if (defaultApp && defaultApp.status === "info") {
+      signals.push({
+        key: "app-access",
+        label: "App access",
+        weight: 3,
+        status: "warn",
+        detail: "No default app configured",
+        suggestion: "Set a default app: gpc config set app <package>",
+      });
+    } else {
+      signals.push({ key: "app-access", label: "App access", weight: 3, status: "na" });
+    }
+  }
+
+  add("config", "Configuration valid", 2, CONFIG_CHECKS);
+  add("credentials", "Credential hygiene", 1, CREDENTIAL_CHECKS);
+  add("network", "Network connectivity", 1, NETWORK_CHECKS);
+  // Signing consistency only runs with --verify + a keystore; otherwise `na`
+  // (do not penalize a run that didn't opt into it).
+  add("signing", "Signing key consistency", 2, SIGNING_CHECKS);
+
+  return signals;
+}
+
+/**
+ * Hard-failing checks NOT reflected in the readiness grade (e.g. `node`,
+ * `profile`). Surfaced alongside `--score` so an "A" grade never hides an
+ * exit-code-1 failure. Exported for unit testing.
+ */
+export function unscoredFailures(results: CheckResult[]): string[] {
+  return results
+    .filter((r) => r.status === "fail" && !SCORED_CHECK_NAMES.has(r.name))
+    .map((r) => r.name);
+}
+
+function signalIcon(status: ReadinessSignalStatus): string {
+  switch (status) {
+    case "pass":
+      return green(PASS);
+    case "fail":
+      return red(FAIL);
+    case "warn":
+      return yellow(WARN);
+    case "na":
+      return INFO;
+  }
+}
+
+interface ReadinessBadge {
+  url: string;
+  markdown: string;
+}
+
+/** Render the human-readable `--score` view to stdout. */
+function renderReadinessScore(
+  score: ReadinessScore,
+  withBadge: boolean,
+  badge: ReadinessBadge,
+  unscored: string[],
+): void {
+  console.log("GPC Release Readiness\n");
+  if (score.evaluated) {
+    console.log(`  Grade: ${bold(score.grade)}  (${score.percent}%)\n`);
+  } else {
+    console.log(`  Grade: ${bold("not evaluated")} (no readiness signals could be checked)\n`);
+  }
+
+  for (const row of score.breakdown) {
+    const weight = row.status === "na" ? "not evaluated" : `${row.points}/${row.weight}`;
+    console.log(`  ${signalIcon(row.status)} ${row.label.padEnd(26)} ${weight}`);
+  }
+
+  if (score.suggestions.length > 0) {
+    console.log("\n  Suggestions:");
+    for (const s of score.suggestions) console.log(`    - ${s}`);
+  }
+
+  // Hard failures outside the grade must not be hidden by an otherwise-high score.
+  if (unscored.length > 0) {
+    console.log(
+      `\n  ${red(FAIL)} ${unscored.length} check${unscored.length !== 1 ? "s" : ""} failed outside the readiness score: ${unscored.join(", ")}`,
+    );
+    console.log("    Run `gpc doctor` for details.");
+  }
+
+  if (withBadge) {
+    console.log(`\n  Badge:  ${badge.url}`);
+    console.log(`          ${badge.markdown}`);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Command registration
 // ---------------------------------------------------------------------------
 
@@ -953,6 +1146,11 @@ export function registerDoctorCommand(program: Command): void {
     .command("doctor")
     .description("Verify setup and connectivity")
     .option("--fix", "Attempt to auto-fix failing checks")
+    .option("--score", "Show an A-F release-readiness grade instead of the full check list")
+    .option(
+      "--badge",
+      "Include a shareable readiness badge (shields.io URL + markdown); implies --score",
+    )
     .option("--verify", "Run signing key verification checks")
     .option("--keystore <path>", "Path to Android keystore (or set GPC_KEYSTORE_PATH)")
     .option("--store-pass <password>", "Keystore password (or set GPC_STORE_PASSWORD)")
@@ -1441,6 +1639,42 @@ export function registerDoctorCommand(program: Command): void {
       const errors = results.filter((r) => r.status === "fail").length;
       const warnings = results.filter((r) => r.status === "warn").length;
       const passed = results.filter((r) => r.status === "pass").length;
+
+      // -----------------------------------------------------------------------
+      // Release-readiness score (--score / --badge). Short-circuits the normal
+      // check-list output; exit code still reflects hard failures for CI gates.
+      // -----------------------------------------------------------------------
+      if (opts["score"] || opts["badge"]) {
+        const { scoreReadiness, readinessBadgeUrl, readinessBadgeMarkdown } =
+          await import("@gpc-cli/core");
+        const score = scoreReadiness(deriveReadinessSignals(results));
+        const wantBadge = !!opts["badge"];
+        const badge = { url: readinessBadgeUrl(score), markdown: readinessBadgeMarkdown(score) };
+        const unscored = unscoredFailures(results);
+
+        if (jsonMode) {
+          console.log(
+            JSON.stringify(
+              {
+                success: errors === 0,
+                grade: score.grade,
+                percent: score.percent,
+                evaluated: score.evaluated,
+                breakdown: score.breakdown,
+                suggestions: score.suggestions,
+                unscoredFailures: unscored,
+                ...(wantBadge ? { badge } : {}),
+              },
+              null,
+              2,
+            ),
+          );
+        } else {
+          renderReadinessScore(score, wantBadge, badge, unscored);
+        }
+        process.exitCode = errors > 0 ? 1 : 0;
+        return;
+      }
 
       if (jsonMode) {
         // Strip fixData from JSON output

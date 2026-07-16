@@ -204,6 +204,7 @@ export function registerStatusCommand(program: Command): void {
     .description("Unified app health snapshot: releases, vitals, and reviews")
     .option("--days <n>", "Vitals window in days", (v) => parseInt(v, 10), 7)
     .option("--review-days <n>", "Reviews window in days", (v) => parseInt(v, 10), 30)
+    .option("--full", "Add a topic/sentiment/keyword breakdown to the reviews section")
     .option("--cached", "Use last fetched data, skip API calls")
     .option("--refresh", "Force live fetch, ignore cache TTL")
     .option("--ttl <seconds>", "Cache TTL in seconds", (v) => parseInt(v, 10), 3600)
@@ -222,6 +223,7 @@ export function registerStatusCommand(program: Command): void {
       async (opts: {
         days: number;
         reviewDays: number;
+        full?: boolean;
         cached?: boolean;
         refresh?: boolean;
         ttl: number;
@@ -318,6 +320,7 @@ interface RunCtx {
   opts: {
     days: number;
     reviewDays: number;
+    full?: boolean;
     cached?: boolean;
     refresh?: boolean;
     ttl: number;
@@ -350,6 +353,33 @@ function applyDisplaySections(status: AppStatus, requestedSections: string[]): A
   return { ...status, sections: filtered };
 }
 
+/**
+ * Whether a cached status can serve the current `--full` request without a live
+ * fetch. False only when `--full` was asked for on the reviews section but the
+ * cache has no analysis (it must be recomputed live — raw review text is not
+ * cached). Exported for testing.
+ */
+export function cacheSatisfiesFull(
+  cached: AppStatus,
+  wantFull: boolean,
+  requestedSections: string[],
+): boolean {
+  if (!wantFull || !requestedSections.includes("reviews")) return true;
+  return cached.reviews.analysis !== undefined;
+}
+
+/**
+ * Drop stale `--full` insights from a cached status when the current run did not
+ * request them, so a plain `gpc status` after a `--full` run does not show
+ * insights the user did not ask for. Exported for testing.
+ */
+export function stripStaleAnalysis(status: AppStatus, wantFull: boolean): AppStatus {
+  if (wantFull || status.reviews.analysis === undefined) return status;
+  const reviews = { ...status.reviews };
+  delete reviews.analysis;
+  return { ...status, reviews };
+}
+
 /** Returns true if a breach was detected. */
 async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
   const { packageName, opts, sections, vitalThresholds, watchInterval } = ctx;
@@ -360,6 +390,7 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
       days: opts.days,
       reviewDays: opts.reviewDays,
       sections,
+      full: opts.full,
       vitalThresholds: vitalThresholds ?? undefined,
     });
   };
@@ -387,7 +418,7 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
     return false;
   }
 
-  // --cached: serve from cache only
+  // --cached: serve from cache only (never fetches — cannot recompute --full)
   if (opts.cached) {
     const cached = await loadStatusCache(packageName, opts.ttl);
     if (!cached) {
@@ -397,17 +428,23 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
         suggestion: "Run without --cached to fetch live data",
       });
     }
-    const display = applyDisplaySections(cached, sections);
+    if (!cacheSatisfiesFull(cached, !!opts.full, sections) && ctx.format !== "json") {
+      process.stderr.write(
+        "Tip: cached status has no --full insights. Run without --cached to compute them.\n",
+      );
+    }
+    const display = applyDisplaySections(stripStaleAnalysis(cached, !!opts.full), sections);
     printWithDiff(display, prevStatus, opts.sinceLast, render, ctx.format);
     await handleNotify(packageName, cached, opts.notify);
     return statusHasBreach(cached);
   }
 
-  // Try cache (unless --refresh)
+  // Try cache (unless --refresh). Skip the cache when --full needs an analysis
+  // the cache lacks, so --full never silently no-ops against a stale entry.
   if (!opts.refresh) {
     const cached = await loadStatusCache(packageName, opts.ttl);
-    if (cached) {
-      const display = applyDisplaySections(cached, sections);
+    if (cached && cacheSatisfiesFull(cached, !!opts.full, sections)) {
+      const display = applyDisplaySections(stripStaleAnalysis(cached, !!opts.full), sections);
       if (ctx.format !== "json" && display.sections.length < cached.sections.length) {
         process.stderr.write(
           `Tip: cache contains all sections. Add --refresh to fetch only the requested sections and reduce API calls.\n`,

@@ -77,7 +77,7 @@ See the [CI/CD guide](../ci-cd/) for copy-pasteable GitHub Actions, GitLab CI, B
 
 ### Is it stable enough for production CI/CD?
 
-2,418 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The CLI is in a pre-release stability soak before v1.0.
+2,495 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The CLI is in a pre-release stability soak before v1.0.
 
 ## Configuration
 
@@ -98,6 +98,14 @@ Yes. GPC has a plugin system with lifecycle hooks (`beforeCommand`, `afterComman
 ### What is the difference between `iap` and `otp` commands?
 
 The `iap` commands use the legacy in-app purchases API. The `otp` (one-time products) commands use the modern monetization API with richer features like regional pricing, product tags, and offer management. New projects should use `otp`.
+
+### Can GPC tell me if my app is ready to release?
+
+Yes. `gpc doctor --score` gives an A–F release-readiness grade based on authentication, API access, configuration, credential hygiene, connectivity, and (with `--verify`) signing-key consistency. Add `--badge` to get a shareable shields.io badge you can commit into your README, and `--json` for a machine-readable breakdown in CI.
+
+### Can GPC summarize or analyze my reviews?
+
+Yes. `gpc status --full` adds a local topic, sentiment, and keyword breakdown of recent reviews to the health snapshot, and `gpc reviews list --sort newest|oldest|rating` sorts the fetched window. The analysis runs locally with no external NLP service, so no review text leaves your machine.
 
 ### Can AI assistants use GPC?
 

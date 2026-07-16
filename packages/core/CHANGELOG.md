@@ -1,5 +1,23 @@
 # @gpc-cli/core
 
+## 0.9.74
+
+### Patch Changes
+
+- fix(preflight): read AAB/APK from an in-memory buffer instead of a file descriptor
+
+  The offline preflight scanner crashed and then hung on the standalone binary
+  (macOS arm64, Homebrew install). yauzl's file-descriptor reader was handed a
+  null descriptor under the Bun-compiled binary, producing
+  `TypeError: null is not an object (evaluating 'self2.context.fd')`, after which
+  the command hung instead of exiting because the ZIP promise never settled and
+  the open handle kept the process alive.
+
+  The reader now loads the archive into memory and parses it with
+  `yauzl.fromBuffer` (no descriptor), so the standalone binary behaves the same as
+  Node. Every error path is guaranteed to settle the promise, with a bounded,
+  unref'd timeout backstop so a wedged read can never hang the CLI again. (#89)
+
 ## 0.9.73
 
 ### Patch Changes

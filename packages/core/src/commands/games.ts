@@ -7,7 +7,10 @@ import type {
   AchievementConfigurationListResponse,
   LeaderboardConfiguration,
   LeaderboardConfigurationListResponse,
+  ImageConfiguration,
 } from "@gpc-cli/api";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { extname, join } from "node:path";
 import { GpcError } from "../errors.js";
 
 export type {
@@ -17,6 +20,7 @@ export type {
   AchievementConfigurationListResponse,
   LeaderboardConfiguration,
   LeaderboardConfigurationListResponse,
+  ImageConfiguration,
 };
 
 /* ------------------------------------------------------------------ */
@@ -206,4 +210,203 @@ export async function diffLeaderboardConfig(
     }
   }
   return diffs;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Icon upload (Games Configuration image upload)                     */
+/* ------------------------------------------------------------------ */
+
+const ICON_CONTENT_TYPES: Record<string, string> = {
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+};
+
+function iconContentType(filePath: string): string {
+  const ext = extname(filePath).toLowerCase();
+  const contentType = ICON_CONTENT_TYPES[ext];
+  if (!contentType) {
+    throw new GpcError(
+      `Unsupported icon format: ${ext || "(no extension)"}`,
+      "GAMES_INVALID_ICON_FORMAT",
+      2,
+      "Provide a .png, .jpg, or .jpeg image (Play Games icons are 512x512).",
+    );
+  }
+  return contentType;
+}
+
+export async function setAchievementIcon(
+  client: GamesConfigClient,
+  achievementId: string,
+  filePath: string,
+): Promise<ImageConfiguration> {
+  validateResourceId(achievementId, "achievement");
+  return client.images.upload(
+    achievementId,
+    "ACHIEVEMENT_ICON",
+    filePath,
+    iconContentType(filePath),
+  );
+}
+
+export async function setLeaderboardIcon(
+  client: GamesConfigClient,
+  leaderboardId: string,
+  filePath: string,
+): Promise<ImageConfiguration> {
+  validateResourceId(leaderboardId, "leaderboard");
+  return client.images.upload(
+    leaderboardId,
+    "LEADERBOARD_ICON",
+    filePath,
+    iconContentType(filePath),
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Bulk config sync (push / pull a directory of JSON configs)         */
+/* ------------------------------------------------------------------ */
+
+export interface GamesSyncResult {
+  created: string[];
+  updated: string[];
+}
+
+export interface GamesPushOptions {
+  dryRun?: boolean;
+}
+
+/** Filename-safe form of a Google resource id (ids are alphanumeric tokens). */
+function safeConfigFilename(id: string): string {
+  return `${id.replace(/[^a-zA-Z0-9_-]/g, "_")}.json`;
+}
+
+async function readConfigDir<T>(dir: string): Promise<{ file: string; config: T }[]> {
+  const entries = (await readdir(dir)).filter((f) => f.toLowerCase().endsWith(".json"));
+  const out: { file: string; config: T }[] = [];
+  for (const file of entries) {
+    const raw = await readFile(join(dir, file), "utf-8");
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (err) {
+      throw new GpcError(
+        `Invalid JSON in ${file}: ${err instanceof Error ? err.message : String(err)}`,
+        "GAMES_INVALID_CONFIG_JSON",
+        2,
+        "Each file in the sync directory must be a valid config JSON.",
+      );
+    }
+    if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+      throw new GpcError(
+        `${file} is not a config object.`,
+        "GAMES_INVALID_CONFIG_JSON",
+        2,
+        "Each file must contain a single achievement or leaderboard config object.",
+      );
+    }
+    out.push({ file, config: parsed as T });
+  }
+  return out;
+}
+
+export async function pushAchievementConfigs(
+  client: GamesConfigClient,
+  applicationId: string,
+  dir: string,
+  options?: GamesPushOptions,
+): Promise<GamesSyncResult> {
+  validateApplicationId(applicationId);
+  const created: string[] = [];
+  const updated: string[] = [];
+  for (const { file, config } of await readConfigDir<AchievementConfiguration>(dir)) {
+    if (config.id) {
+      if (!options?.dryRun) await client.achievements.update(config.id, config);
+      updated.push(config.id);
+    } else {
+      if (options?.dryRun) {
+        created.push(file);
+      } else {
+        const res = await client.achievements.insert(applicationId, config);
+        created.push(res.id ?? file);
+      }
+    }
+  }
+  return { created, updated };
+}
+
+export async function pullAchievementConfigs(
+  client: GamesConfigClient,
+  applicationId: string,
+  dir: string,
+): Promise<string[]> {
+  validateApplicationId(applicationId);
+  await mkdir(dir, { recursive: true });
+  const written: string[] = [];
+  let pageToken: string | undefined;
+  do {
+    const result = await client.achievements.list(applicationId, { maxResults: 200, pageToken });
+    for (const config of result.items ?? []) {
+      const id = config.id ?? "unknown";
+      await writeFile(
+        join(dir, safeConfigFilename(id)),
+        JSON.stringify(config, null, 2) + "\n",
+        "utf-8",
+      );
+      written.push(id);
+    }
+    pageToken = result.nextPageToken;
+  } while (pageToken);
+  return written;
+}
+
+export async function pushLeaderboardConfigs(
+  client: GamesConfigClient,
+  applicationId: string,
+  dir: string,
+  options?: GamesPushOptions,
+): Promise<GamesSyncResult> {
+  validateApplicationId(applicationId);
+  const created: string[] = [];
+  const updated: string[] = [];
+  for (const { file, config } of await readConfigDir<LeaderboardConfiguration>(dir)) {
+    if (config.id) {
+      if (!options?.dryRun) await client.leaderboards.update(config.id, config);
+      updated.push(config.id);
+    } else {
+      if (options?.dryRun) {
+        created.push(file);
+      } else {
+        const res = await client.leaderboards.insert(applicationId, config);
+        created.push(res.id ?? file);
+      }
+    }
+  }
+  return { created, updated };
+}
+
+export async function pullLeaderboardConfigs(
+  client: GamesConfigClient,
+  applicationId: string,
+  dir: string,
+): Promise<string[]> {
+  validateApplicationId(applicationId);
+  await mkdir(dir, { recursive: true });
+  const written: string[] = [];
+  let pageToken: string | undefined;
+  do {
+    const result = await client.leaderboards.list(applicationId, { maxResults: 200, pageToken });
+    for (const config of result.items ?? []) {
+      const id = config.id ?? "unknown";
+      await writeFile(
+        join(dir, safeConfigFilename(id)),
+        JSON.stringify(config, null, 2) + "\n",
+        "utf-8",
+      );
+      written.push(id);
+    }
+    pageToken = result.nextPageToken;
+  } while (pageToken);
+  return written;
 }

@@ -155,7 +155,7 @@ Checks that the signing certificate is consistent across your two most recent re
 gpc verify checklist
 ```
 
-Interactive walkthrough of all verification steps. Auto-detects what it can (account active, app accessible, bundles uploaded, Play App Signing enrolled) and prompts for manual confirmations. Outputs a markdown report for CI artifacts.
+Interactive walkthrough of all verification steps. Auto-detects what it can (account active, app accessible, bundles uploaded, Play App Signing enrolled) and prompts for manual confirmations. Includes an enforcement-timeline step noting that enforcement begins September 30, 2026 in Brazil, Indonesia, Singapore, and Thailand, and that Play App Signing apps auto-register. Outputs a markdown report for CI artifacts.
 
 ### Verification status
 
@@ -171,7 +171,7 @@ Account-aware verification status: shows your app info, bundle count, Play App S
 gpc preflight app.aab
 ```
 
-Runs 9 offline policy scanners including targetSdk compliance, permissions, and signing checks.
+Runs 9 offline policy scanners including targetSdk compliance, permissions, and signing checks. The policy scanner also emits an informational developer-verification advisory (rule `policy-developer-verification`) reminding you of the September 30, 2026 enforcement markets. It is `info` severity and never fails a run, since whether an app is affected depends on its distribution markets, not anything in the AAB.
 
 ### Health checks
 
@@ -183,7 +183,7 @@ Validates credentials, tests API connectivity, confirms app access, and shows ve
 
 ## What's next
 
-Google has not exposed public APIs for developer verification or app registration, and the Play Developer API v3 has no verification surface as of April 2026. Android Studio is expected to gain a registration-status indicator for signing bundles in the coming months.
+The Play Developer API v3 has no verification surface, and the verification/registration APIs are a separate system that GPC cannot wrap yet. As of July 2026, the **Android Developer ID Status API** (check whether a package is registered) is live globally and the **Android Developer Console API** (register and manage package names) is in early access with general availability expected in August 2026, but neither has a public REST reference or a Google API Discovery document, so there is nothing to build a typed client against. GPC will re-evaluate at the Console API GA. Android Studio is expected to gain a registration-status indicator for signing bundles in the coming months.
 
 **Deferred until Google ships endpoints:**
 

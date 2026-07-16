@@ -353,7 +353,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
 
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.88",
+        softwareVersion: "0.9.90",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: {
@@ -440,6 +440,22 @@ export default defineConfig({
         mainEntity: [
           {
             "@type": "Question",
+            name: "Can GPC tell me if my app is ready to release?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. gpc doctor --score gives an A–F release-readiness grade based on authentication, API access, configuration, credential hygiene, connectivity, and signing-key consistency. Add --badge for a shareable shields.io README badge and --json for a machine-readable breakdown in CI.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Can GPC analyze or summarize my Google Play reviews?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. gpc status --full adds a local topic, sentiment, and keyword breakdown of recent reviews, and gpc reviews list --sort newest|oldest|rating sorts them. The analysis runs locally with no external NLP service, so no review text leaves your machine.",
+            },
+          },
+          {
+            "@type": "Question",
             name: "How is GPC different from Fastlane supply?",
             acceptedAnswer: {
               "@type": "Answer",
@@ -475,7 +491,7 @@ export default defineConfig({
             name: "Is it stable enough for production CI/CD?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "2,418 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
+              text: "2,495 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
             },
           },
           {

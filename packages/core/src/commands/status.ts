@@ -7,6 +7,8 @@ import { getCacheDir } from "@gpc-cli/config";
 import { GpcError } from "../errors.js";
 import { getReleasesStatus } from "./releases.js";
 import { listReviews } from "./reviews.js";
+import { analyzeReviews } from "../utils/sentiment.js";
+import type { ReviewAnalysis } from "../utils/sentiment.js";
 import type { VitalsMetricSet, MetricSetQuery } from "@gpc-cli/api";
 
 // ---------------------------------------------------------------------------
@@ -34,6 +36,8 @@ export interface StatusReviews {
   previousAverageRating: number | undefined;
   totalNew: number;
   positivePercent: number | undefined;
+  /** Topic/sentiment/keyword breakdown; present only with `--full`. */
+  analysis?: ReviewAnalysis;
 }
 
 export interface AppStatus {
@@ -65,6 +69,8 @@ export interface GetAppStatusOptions {
   days?: number;
   reviewDays?: number;
   sections?: string[]; // "releases" | "vitals" | "reviews"
+  /** Attach a topic/sentiment breakdown to the reviews section (no extra API call). */
+  full?: boolean;
   vitalThresholds?: {
     crashRate?: number;
     anrRate?: number;
@@ -366,6 +372,26 @@ export async function getAppStatus(
   if (reviewsResult.status === "rejected")
     sectionErrors.push(`reviews: ${String(reviewsResult.reason)}`);
   const reviews = computeReviewSentiment(rawReviews, reviewDays);
+  // `--full`: attach a local topic/sentiment breakdown over the reviews already
+  // fetched for this section — no extra API call, no external NLP. Scoped to the
+  // same reviewDays window as the headline so the two never disagree, and only
+  // attached when there is text to analyze (so it never renders on an empty set).
+  if (options.full && sections.has("reviews")) {
+    const windowStartSec = (Date.now() - reviewDays * 24 * 60 * 60 * 1000) / 1000;
+    const items = rawReviews
+      .filter((r) => {
+        const secs = Number(r.comments?.[0]?.userComment?.lastModified?.seconds);
+        return Number.isFinite(secs) && secs >= windowStartSec;
+      })
+      .map((r) => {
+        const uc = r.comments?.[0]?.userComment;
+        return { text: uc?.text ?? "", rating: uc?.starRating };
+      })
+      .filter((r) => r.text.length > 0);
+    if (items.length > 0) {
+      reviews.analysis = analyzeReviews(items);
+    }
+  }
 
   return {
     packageName,
@@ -520,10 +546,45 @@ export function formatStatusTable(status: AppStatus): string {
       const trend = formatTrend(averageRating, previousAverageRating);
       const positiveStr = positivePercent !== undefined ? `  ${positivePercent}% positive` : "";
       lines.push(`  ${formatRating(averageRating)}   ${totalNew} new${positiveStr}${trend}`);
+      // Only render insights alongside real review data, never under "No reviews".
+      lines.push(...formatReviewInsights(status.reviews.analysis));
     }
   }
 
   return lines.join("\n");
+}
+
+/**
+ * Render the `--full` topic/sentiment breakdown as indented lines. Returns an
+ * empty array when no analysis is attached or no reviews were analyzed.
+ */
+function formatReviewInsights(analysis: ReviewAnalysis | undefined): string[] {
+  if (!analysis || analysis.totalReviews === 0) return [];
+  const total = analysis.totalReviews;
+  const pct = (n: number): number => Math.round((n / total) * 100);
+  const s = analysis.sentiment;
+  const lines = [
+    "",
+    "  REVIEW INSIGHTS",
+    `    text sentiment  ${pct(s.positive)}% positive  ${pct(s.negative)}% negative  ${pct(s.neutral)}% neutral`,
+  ];
+  if (analysis.topics.length > 0) {
+    lines.push(
+      `    top topics      ${analysis.topics
+        .slice(0, 5)
+        .map((t) => `${t.topic} (${t.count})`)
+        .join(", ")}`,
+    );
+  }
+  if (analysis.keywords.length > 0) {
+    lines.push(
+      `    keywords        ${analysis.keywords
+        .slice(0, 8)
+        .map((k) => k.word)
+        .join(", ")}`,
+    );
+  }
+  return lines;
 }
 
 // ---------------------------------------------------------------------------

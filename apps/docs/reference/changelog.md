@@ -11,7 +11,31 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.88 <Badge type="tip" text="latest" />
+## v0.9.90 <Badge type="tip" text="latest" />
+
+Release readiness, review insight, and Play Games sync.
+
+- feat: `gpc doctor --score` grades how ready your app is to publish on an A to F scale, with a weighted breakdown and fix suggestions. `gpc doctor --badge` prints a shareable readiness badge for your README.
+- feat: `gpc reviews list --sort newest|oldest|rating` sorts reviews, and `gpc status --full` adds a local topic, sentiment, and keyword breakdown of recent reviews (no review text leaves your machine).
+- feat: `gpc games achievements|leaderboards set-icon` uploads icons, and `push`/`pull` bulk-sync configurations to and from a directory of JSON files.
+- feat: `gpc preflight` and `gpc verify checklist` surface Google's September 30, 2026 developer-verification enforcement and its first markets.
+- ci: the Socket Security scan no longer reports a spurious failure on Dependabot pull requests.
+
+**Tests:** 2,495 (+74).
+
+---
+
+## v0.9.89
+
+Preflight scanner reliability fix for the standalone (Homebrew) binary.
+
+- fix: `gpc preflight` (and `preflight manifest` / `preflight permissions`) no longer crashes and then hangs when scanning an AAB or APK on the standalone binary installed via Homebrew. The offline scanner now reads archives the same way on the standalone binary and the npm (Node) install, and can never hang on a corrupt or truncated file.
+
+**Tests:** 2,421 (+3).
+
+---
+
+## v0.9.88
 
 Preflight compliance refresh for Google Play's October 28, 2026 sensitive-permission deadlines (apps targeting Android 17 / API 37+).
 

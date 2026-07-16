@@ -1,13 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// Mock yauzl to avoid needing real ZIP files
-vi.mock("yauzl", () => {
-  const EventEmitter = require("node:events").EventEmitter;
+// Mock yauzl to avoid needing real ZIP files. The reader uses fromBuffer
+// (no file descriptor) so the standalone binary and Node behave the same (#89).
+vi.mock("yauzl", () => ({
+  fromBuffer: vi.fn(),
+}));
 
-  return {
-    open: vi.fn(),
-  };
-});
+// Mock the file read so tests do not need a real file on disk.
+vi.mock("node:fs/promises", () => ({
+  readFile: vi.fn().mockResolvedValue(Buffer.from("fake-aab-bytes")),
+}));
 
 // Mock manifest parser
 vi.mock("../src/preflight/manifest-parser.js", () => ({
@@ -32,12 +34,14 @@ vi.mock("../src/preflight/manifest-parser.js", () => ({
 
 import { readAab } from "../src/preflight/aab-reader";
 import { decodeManifest } from "../src/preflight/manifest-parser";
-import { open as yauzlOpen } from "yauzl";
+import { fromBuffer as yauzlFromBuffer } from "yauzl";
+import { readFile } from "node:fs/promises";
 import { EventEmitter } from "node:events";
 import { Readable } from "node:stream";
 
-const mockedOpen = vi.mocked(yauzlOpen);
+const mockedFromBuffer = vi.mocked(yauzlFromBuffer);
 const mockedDecodeManifest = vi.mocked(decodeManifest);
+const mockedReadFile = vi.mocked(readFile);
 
 function createMockZipfile(entries: Array<{ fileName: string; data?: Buffer }>) {
   const emitter = new EventEmitter() as EventEmitter & {
@@ -87,6 +91,8 @@ function createMockZipfile(entries: Array<{ fileName: string; data?: Buffer }>) 
 describe("readAab", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Restore default: readFile resolves to a buffer unless a test overrides it.
+    mockedReadFile.mockResolvedValue(Buffer.from("fake-aab-bytes"));
   });
 
   it("returns manifest and entries for a valid AAB", async () => {
@@ -96,7 +102,7 @@ describe("readAab", () => {
       { fileName: "base/lib/arm64-v8a/libapp.so" },
     ]);
 
-    mockedOpen.mockImplementation((_path, _opts, cb: any) => {
+    mockedFromBuffer.mockImplementation((_buf: any, _opts: any, cb: any) => {
       cb(null, zipfile);
     });
 
@@ -106,10 +112,22 @@ describe("readAab", () => {
     expect(result.entries[0]!.path).toBe("base/manifest/AndroidManifest.xml");
   });
 
+  it("reads the archive into a buffer (no file-descriptor path, #89)", async () => {
+    const zipfile = createMockZipfile([
+      { fileName: "base/manifest/AndroidManifest.xml", data: Buffer.from("pb") },
+    ]);
+    mockedFromBuffer.mockImplementation((_buf: any, _opts: any, cb: any) => cb(null, zipfile));
+
+    await readAab("/fake/app.aab");
+    expect(mockedReadFile).toHaveBeenCalledWith("/fake/app.aab");
+    // The buffer from readFile is what gets parsed — not a path/fd.
+    expect(mockedFromBuffer.mock.calls[0]![0]).toBeInstanceOf(Buffer);
+  });
+
   it("throws when manifest is missing", async () => {
     const zipfile = createMockZipfile([{ fileName: "base/dex/classes.dex" }]);
 
-    mockedOpen.mockImplementation((_path, _opts, cb: any) => {
+    mockedFromBuffer.mockImplementation((_buf: any, _opts: any, cb: any) => {
       cb(null, zipfile);
     });
 
@@ -119,11 +137,39 @@ describe("readAab", () => {
   });
 
   it("throws when ZIP fails to open", async () => {
-    mockedOpen.mockImplementation((_path, _opts, cb: any) => {
+    mockedFromBuffer.mockImplementation((_buf: any, _opts: any, cb: any) => {
       cb(new Error("Not a valid ZIP"));
     });
 
     await expect(readAab("/fake/bad.aab")).rejects.toThrow("Not a valid ZIP");
+  });
+
+  it("rejects (does not hang) when the zipfile emits an error mid-scan (#89)", async () => {
+    const zipfile = createMockZipfile([
+      { fileName: "base/manifest/AndroidManifest.xml", data: Buffer.from("pb") },
+    ]);
+    // Instead of streaming entries, emit an error — the old code could leave the
+    // promise unsettled and the process hanging. It must now reject.
+    zipfile.readEntry = () => {
+      process.nextTick(() => zipfile.emit("error", new Error("corrupt central directory")));
+    };
+
+    mockedFromBuffer.mockImplementation((_buf: any, _opts: any, cb: any) => cb(null, zipfile));
+
+    await expect(readAab("/fake/corrupt.aab")).rejects.toThrow("corrupt central directory");
+    expect(zipfile.close).toHaveBeenCalled();
+  });
+
+  it("rejects with a clear message when the file cannot be read", async () => {
+    mockedReadFile.mockRejectedValue(
+      Object.assign(new Error("ENOENT: no such file or directory"), { code: "ENOENT" }),
+    );
+
+    await expect(readAab("/does/not/exist.aab")).rejects.toThrow(
+      "Could not read /does/not/exist.aab",
+    );
+    // Never even reached the ZIP layer.
+    expect(mockedFromBuffer).not.toHaveBeenCalled();
   });
 
   it("skips directory entries", async () => {
@@ -133,7 +179,7 @@ describe("readAab", () => {
       { fileName: "base/dex/classes.dex" },
     ]);
 
-    mockedOpen.mockImplementation((_path, _opts, cb: any) => {
+    mockedFromBuffer.mockImplementation((_buf: any, _opts: any, cb: any) => {
       cb(null, zipfile);
     });
 
@@ -154,7 +200,7 @@ describe("readAab", () => {
       { fileName: "base/dex/classes.dex" },
     ]);
 
-    mockedOpen.mockImplementation((_path, _opts, cb: any) => {
+    mockedFromBuffer.mockImplementation((_buf: any, _opts: any, cb: any) => {
       cb(null, zipfile);
     });
 
@@ -174,7 +220,7 @@ describe("readAab", () => {
       { fileName: "base/manifest/AndroidManifest.xml", data: Buffer.from("large-pb") },
     ]);
 
-    mockedOpen.mockImplementation((_path, _opts, cb: any) => {
+    mockedFromBuffer.mockImplementation((_buf: any, _opts: any, cb: any) => {
       cb(null, zipfile);
     });
 
@@ -187,7 +233,7 @@ describe("readAab", () => {
       { fileName: "base/manifest/AndroidManifest.xml", data: Buffer.from("pb") },
     ]);
 
-    mockedOpen.mockImplementation((_path, _opts, cb: any) => {
+    mockedFromBuffer.mockImplementation((_buf: any, _opts: any, cb: any) => {
       cb(null, zipfile);
     });
 

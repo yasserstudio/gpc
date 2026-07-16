@@ -71,6 +71,8 @@ vi.mock("@gpc-cli/core", () => {
     exportImages: vi.fn().mockResolvedValue({}),
     getCountryAvailability: vi.fn().mockResolvedValue({}),
     listReviews: vi.fn().mockResolvedValue({ reviews: [] }),
+    sortReviews: vi.fn().mockImplementation((data: unknown[]) => data),
+    REVIEW_SORT_PRESETS: ["newest", "oldest", "rating"],
     getReview: vi.fn().mockResolvedValue({}),
     replyToReview: vi.fn().mockResolvedValue({}),
     exportReviews: vi.fn().mockResolvedValue("[]"),

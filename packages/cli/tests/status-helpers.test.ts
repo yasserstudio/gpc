@@ -1,9 +1,68 @@
 import { describe, it, expect } from "vitest";
+import type { AppStatus } from "@gpc-cli/core";
 import {
   parseSections,
   parseThresholdOverrides,
   resolveWatchInterval,
+  cacheSatisfiesFull,
+  stripStaleAnalysis,
 } from "../src/commands/status.js";
+
+const baseReviews = {
+  windowDays: 30,
+  averageRating: 4.5,
+  previousAverageRating: 4.4,
+  totalNew: 10,
+  positivePercent: 80,
+};
+const analysis = {
+  totalReviews: 5,
+  avgRating: 4,
+  sentiment: { positive: 3, negative: 1, neutral: 1, avgScore: 0.2 },
+  topics: [],
+  keywords: [],
+  ratingDistribution: {},
+};
+const statusWith = (withAnalysis: boolean): AppStatus =>
+  ({
+    packageName: "com.example.app",
+    sections: ["releases", "vitals", "reviews"],
+    reviews: withAnalysis ? { ...baseReviews, analysis } : { ...baseReviews },
+  }) as unknown as AppStatus;
+
+describe("cacheSatisfiesFull", () => {
+  const secs = ["releases", "vitals", "reviews"];
+  it("is satisfied when --full was not requested", () => {
+    expect(cacheSatisfiesFull(statusWith(false), false, secs)).toBe(true);
+  });
+  it("is satisfied when reviews section is not requested", () => {
+    expect(cacheSatisfiesFull(statusWith(false), true, ["releases", "vitals"])).toBe(true);
+  });
+  it("is satisfied when --full requested and cache has analysis", () => {
+    expect(cacheSatisfiesFull(statusWith(true), true, secs)).toBe(true);
+  });
+  it("is NOT satisfied when --full requested on reviews but cache lacks analysis", () => {
+    expect(cacheSatisfiesFull(statusWith(false), true, secs)).toBe(false);
+  });
+});
+
+describe("stripStaleAnalysis", () => {
+  it("drops analysis when --full was not requested", () => {
+    expect(stripStaleAnalysis(statusWith(true), false).reviews.analysis).toBeUndefined();
+  });
+  it("keeps analysis when --full was requested", () => {
+    expect(stripStaleAnalysis(statusWith(true), true).reviews.analysis).toBeDefined();
+  });
+  it("is a no-op when there is no analysis", () => {
+    const s = statusWith(false);
+    expect(stripStaleAnalysis(s, false).reviews.analysis).toBeUndefined();
+  });
+  it("does not mutate the input status", () => {
+    const s = statusWith(true);
+    stripStaleAnalysis(s, false);
+    expect(s.reviews.analysis).toBeDefined();
+  });
+});
 
 // ---------------------------------------------------------------------------
 // parseSections

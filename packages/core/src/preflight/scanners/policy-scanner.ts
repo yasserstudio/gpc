@@ -99,6 +99,22 @@ export const policyScanner: PreflightScanner = {
       });
     }
 
+    // Developer verification enforcement awareness. Advisory only: nothing in the
+    // AAB determines whether an app is affected — it depends on the developer
+    // account and the markets the app is distributed in. Info severity so it never
+    // fails a preflight run; it is a time-relevant compliance reminder.
+    findings.push({
+      scanner: "policy",
+      ruleId: "policy-developer-verification",
+      severity: "info",
+      title: "Developer verification enforcement (Sep 30, 2026)",
+      message:
+        "Google begins enforcing developer verification on September 30, 2026, first in Brazil, Indonesia, Singapore, and Thailand. Apps distributed in those markets need a verified developer identity and a registered package name. Apps using Play App Signing are auto-registered.",
+      suggestion:
+        "Run `gpc verify checklist` to review readiness. This is a distribution-market reminder, not an AAB/APK defect.",
+      policyUrl: "https://developer.android.com/developer-verification",
+    });
+
     // System alert window / overlay
     if (perms.has("android.permission.SYSTEM_ALERT_WINDOW")) {
       findings.push({

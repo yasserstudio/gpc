@@ -19,6 +19,8 @@ export type {
   LocalizedStringBundle,
   GamesNumberFormatConfiguration,
   GamesNumberAffixConfiguration,
+  GamesImageType,
+  ImageConfiguration,
 } from "./games-config-client.js";
 export { createEnterpriseClient } from "./enterprise-client.js";
 export type {

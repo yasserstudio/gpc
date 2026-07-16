@@ -7,6 +7,37 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.90
+
+Release readiness, review insight, and Play Games sync.
+
+- feat: `gpc doctor --score` grades how ready your app is to publish on an A to F scale, with a weighted breakdown and fix suggestions. `gpc doctor --badge` prints a shareable readiness badge for your README.
+- feat: `gpc reviews list --sort newest|oldest|rating` sorts reviews, and `gpc status --full` adds a local topic, sentiment, and keyword breakdown of recent reviews (no review text leaves your machine).
+- feat: `gpc games achievements|leaderboards set-icon` uploads icons, and `push`/`pull` bulk-sync configurations to and from a directory of JSON files.
+- feat: `gpc preflight` and `gpc verify checklist` surface Google's September 30, 2026 developer-verification enforcement and its first markets.
+- ci: the Socket Security scan no longer reports a spurious failure on Dependabot pull requests.
+
+---
+
+## v0.9.89
+
+Preflight scanner reliability fix for the standalone (Homebrew) binary.
+
+- fix: `gpc preflight` (and `preflight manifest` / `preflight permissions`) no longer crashes and then hangs when scanning an AAB or APK on the standalone binary installed via Homebrew. The offline scanner now reads archives the same way on the standalone binary and the npm (Node) install, and can never hang on a corrupt or truncated file.
+
+---
+
+## v0.9.88
+
+Preflight compliance refresh for Google Play's October 28, 2026 sensitive-permission deadlines (apps targeting Android 17 / API 37+).
+
+- preflight: contacts check now cites the October 28, 2026 enforcement date and the Android Contact Picker alternative.
+- preflight: new `location-minimal-scope` rule flags `ACCESS_FINE_LOCATION` (info; warning at API 37+).
+- preflight: geofencing check updated to the October 28, 2026 API 37+ enforcement window.
+- fix: `gpc init` scaffolds `.preflightrc.json` with `targetSdkMinimum: 36` (the current Play floor).
+
+---
+
 ## v0.9.87
 
 Consistent list output and compliance docs.
