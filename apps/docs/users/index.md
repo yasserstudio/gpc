@@ -14,7 +14,7 @@ Four paths, pick whichever you prefer:
 
 1. **LinkedIn**: message [Yasser Berrehail](https://www.linkedin.com/in/yasserberrehail/) with a one-line description and a link (app, company, or both).
 2. **DM on X**: [@yassersstudio](https://x.com/yassersstudio) with the same information.
-3. **Email**: [hello@yasser.studio](mailto:hello@yasser.studio).
+3. **Email**: [support@yasser.studio](mailto:support@yasser.studio).
 4. **GitHub Discussion**: open a thread in the [Show & Tell category](https://github.com/yasserstudio/gpc/discussions) titled "Using GPC at [company/app]". Include what you use it for and whether you want to be listed here.
 
 You choose the exact wording that appears on this page. You can ask to be removed at any time, no questions.
