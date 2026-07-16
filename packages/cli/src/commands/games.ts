@@ -74,9 +74,7 @@ function printSyncResult(
   format: string,
 ): void {
   if (format === "json") {
-    console.log(
-      formatOutput({ created: result.created, updated: result.updated, dryRun }, format),
-    );
+    console.log(formatOutput({ created: result.created, updated: result.updated, dryRun }, format));
   } else {
     console.log(
       `${dryRun ? "[dry-run] " : ""}${kind}s: created ${result.created.length}, updated ${result.updated.length}.`,

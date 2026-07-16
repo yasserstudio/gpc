@@ -577,7 +577,12 @@ function formatReviewInsights(analysis: ReviewAnalysis | undefined): string[] {
     );
   }
   if (analysis.keywords.length > 0) {
-    lines.push(`    keywords        ${analysis.keywords.slice(0, 8).map((k) => k.word).join(", ")}`);
+    lines.push(
+      `    keywords        ${analysis.keywords
+        .slice(0, 8)
+        .map((k) => k.word)
+        .join(", ")}`,
+    );
   }
   return lines;
 }

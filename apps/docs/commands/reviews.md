@@ -30,18 +30,18 @@ gpc reviews list [options]
 
 ### Options
 
-| Flag             | Short | Type     | Default | Description                                           |
-| ---------------- | ----- | -------- | ------- | ----------------------------------------------------- |
-| `--stars`        |       | `number` |         | Filter by star rating (1-5)                           |
-| `--lang`         |       | `string` |         | Filter by reviewer language code                      |
-| `--since`        |       | `string` |         | Filter reviews after date (ISO 8601)                  |
-| `--translate-to` |       | `string` |         | Translate reviews to this language                    |
-| `--max`          |       | `number` |         | Maximum results per page                              |
-| `--limit`        |       | `number` |         | Maximum total results                                 |
-| `--next-page`    |       | `string` |         | Resume from pagination token                          |
-| `--all`          |       | flag     |         | Auto-paginate to fetch all reviews                    |
+| Flag             | Short | Type     | Default | Description                                                                                                            |
+| ---------------- | ----- | -------- | ------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `--stars`        |       | `number` |         | Filter by star rating (1-5)                                                                                            |
+| `--lang`         |       | `string` |         | Filter by reviewer language code                                                                                       |
+| `--since`        |       | `string` |         | Filter reviews after date (ISO 8601)                                                                                   |
+| `--translate-to` |       | `string` |         | Translate reviews to this language                                                                                     |
+| `--max`          |       | `number` |         | Maximum results per page                                                                                               |
+| `--limit`        |       | `number` |         | Maximum total results                                                                                                  |
+| `--next-page`    |       | `string` |         | Resume from pagination token                                                                                           |
+| `--all`          |       | flag     |         | Auto-paginate to fetch all reviews                                                                                     |
 | `--sort`         |       | `string` |         | Sort by `newest`, `oldest`, `rating`, or a field name (prefix with `-` for descending). Orders the fetched window only |
-| `--full-text`    |       | flag     |         | Show full review text in table output (not truncated) |
+| `--full-text`    |       | flag     |         | Show full review text in table output (not truncated)                                                                  |
 
 ::: info Production only
 The Google Play API only returns reviews for production releases, and only reviews from the last 7 days.

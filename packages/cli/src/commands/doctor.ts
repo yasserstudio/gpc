@@ -1147,7 +1147,10 @@ export function registerDoctorCommand(program: Command): void {
     .description("Verify setup and connectivity")
     .option("--fix", "Attempt to auto-fix failing checks")
     .option("--score", "Show an A-F release-readiness grade instead of the full check list")
-    .option("--badge", "Include a shareable readiness badge (shields.io URL + markdown); implies --score")
+    .option(
+      "--badge",
+      "Include a shareable readiness badge (shields.io URL + markdown); implies --score",
+    )
     .option("--verify", "Run signing key verification checks")
     .option("--keystore <path>", "Path to Android keystore (or set GPC_KEYSTORE_PATH)")
     .option("--store-pass <password>", "Keystore password (or set GPC_STORE_PASSWORD)")
@@ -1642,9 +1645,8 @@ export function registerDoctorCommand(program: Command): void {
       // check-list output; exit code still reflects hard failures for CI gates.
       // -----------------------------------------------------------------------
       if (opts["score"] || opts["badge"]) {
-        const { scoreReadiness, readinessBadgeUrl, readinessBadgeMarkdown } = await import(
-          "@gpc-cli/core"
-        );
+        const { scoreReadiness, readinessBadgeUrl, readinessBadgeMarkdown } =
+          await import("@gpc-cli/core");
         const score = scoreReadiness(deriveReadinessSignals(results));
         const wantBadge = !!opts["badge"];
         const badge = { url: readinessBadgeUrl(score), markdown: readinessBadgeMarkdown(score) };

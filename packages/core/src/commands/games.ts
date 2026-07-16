@@ -242,7 +242,12 @@ export async function setAchievementIcon(
   filePath: string,
 ): Promise<ImageConfiguration> {
   validateResourceId(achievementId, "achievement");
-  return client.images.upload(achievementId, "ACHIEVEMENT_ICON", filePath, iconContentType(filePath));
+  return client.images.upload(
+    achievementId,
+    "ACHIEVEMENT_ICON",
+    filePath,
+    iconContentType(filePath),
+  );
 }
 
 export async function setLeaderboardIcon(
@@ -251,7 +256,12 @@ export async function setLeaderboardIcon(
   filePath: string,
 ): Promise<ImageConfiguration> {
   validateResourceId(leaderboardId, "leaderboard");
-  return client.images.upload(leaderboardId, "LEADERBOARD_ICON", filePath, iconContentType(filePath));
+  return client.images.upload(
+    leaderboardId,
+    "LEADERBOARD_ICON",
+    filePath,
+    iconContentType(filePath),
+  );
 }
 
 /* ------------------------------------------------------------------ */

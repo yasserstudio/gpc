@@ -171,12 +171,10 @@ describe("getAppStatus", () => {
 
   it("does not attach analysis with full when reviews section is excluded", async () => {
     const client = makePlayClient();
-    const status = await getAppStatus(
-      client,
-      makeReportingClient(),
-      "com.example.app",
-      { full: true, sections: ["releases"] },
-    );
+    const status = await getAppStatus(client, makeReportingClient(), "com.example.app", {
+      full: true,
+      sections: ["releases"],
+    });
     expect(status.reviews.analysis).toBeUndefined();
   });
 

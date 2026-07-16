@@ -36,15 +36,15 @@ gpc doctor [--json] [--score] [--badge] [--verify] [--keystore <path>] [--store-
 
 ### Options
 
-| Flag                      | Description                                                                |
-| ------------------------- | -------------------------------------------------------------------------- |
-| `--json`                  | Output results as machine-readable JSON                                    |
-| `--score`                 | Show an A–F release-readiness grade instead of the full check list         |
+| Flag                      | Description                                                                        |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| `--json`                  | Output results as machine-readable JSON                                            |
+| `--score`                 | Show an A–F release-readiness grade instead of the full check list                 |
 | `--badge`                 | Include a shareable readiness badge (shields.io URL + markdown); implies `--score` |
-| `--verify`                | Run signing key verification checks (compares local keystore vs Play cert) |
-| `--keystore <path>`       | Path to Android keystore file (or set `GPC_KEYSTORE_PATH`)                 |
-| `--store-pass <password>` | Keystore password (or set `GPC_STORE_PASSWORD`)                            |
-| `--key-alias <alias>`     | Key alias in keystore (defaults to first entry)                            |
+| `--verify`                | Run signing key verification checks (compares local keystore vs Play cert)         |
+| `--keystore <path>`       | Path to Android keystore file (or set `GPC_KEYSTORE_PATH`)                         |
+| `--store-pass <password>` | Keystore password (or set `GPC_STORE_PASSWORD`)                                    |
+| `--key-alias <alias>`     | Key alias in keystore (defaults to first entry)                                    |
 
 ### Checks performed
 

@@ -33,10 +33,7 @@ describe("gradeFromPercent", () => {
 
 describe("scoreReadiness", () => {
   it("all pass -> 100% grade A", () => {
-    const score = scoreReadiness([
-      sig({ key: "a", weight: 3 }),
-      sig({ key: "b", weight: 2 }),
-    ]);
+    const score = scoreReadiness([sig({ key: "a", weight: 3 }), sig({ key: "b", weight: 2 })]);
     expect(score.percent).toBe(100);
     expect(score.grade).toBe("A");
     expect(score.evaluated).toBe(true);

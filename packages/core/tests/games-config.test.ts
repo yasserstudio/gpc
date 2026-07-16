@@ -57,9 +57,11 @@ function mockConfigClient(): GamesConfigClient {
       delete: vi.fn().mockResolvedValue(undefined),
     },
     images: {
-      upload: vi
-        .fn()
-        .mockResolvedValue({ resourceId: "ach-1", imageType: "ACHIEVEMENT_ICON", url: "https://x/i.png" }),
+      upload: vi.fn().mockResolvedValue({
+        resourceId: "ach-1",
+        imageType: "ACHIEVEMENT_ICON",
+        url: "https://x/i.png",
+      }),
     },
   };
 }
@@ -375,7 +377,10 @@ describe("push/pull hardening (review fixes)", () => {
   it("leaderboard push updates by id and inserts without id", async () => {
     const dir = await mkdtemp(join(tmpdir(), "gpc-games-lb-"));
     try {
-      await writeFile(join(dir, "existing.json"), JSON.stringify({ id: "lb-1", ...SAMPLE_LEADERBOARD }));
+      await writeFile(
+        join(dir, "existing.json"),
+        JSON.stringify({ id: "lb-1", ...SAMPLE_LEADERBOARD }),
+      );
       await writeFile(join(dir, "new.json"), JSON.stringify(SAMPLE_LEADERBOARD));
       const client = mockConfigClient();
       const result = await pushLeaderboardConfigs(client, "12345", dir);
