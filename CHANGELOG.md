@@ -7,6 +7,18 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.90
+
+Release readiness, review insight, and Play Games sync.
+
+- feat: `gpc doctor --score` grades how ready your app is to publish on an A to F scale, with a weighted breakdown and fix suggestions. `gpc doctor --badge` prints a shareable readiness badge for your README.
+- feat: `gpc reviews list --sort newest|oldest|rating` sorts reviews, and `gpc status --full` adds a local topic, sentiment, and keyword breakdown of recent reviews (no review text leaves your machine).
+- feat: `gpc games achievements|leaderboards set-icon` uploads icons, and `push`/`pull` bulk-sync configurations to and from a directory of JSON files.
+- feat: `gpc preflight` and `gpc verify checklist` surface Google's September 30, 2026 developer-verification enforcement and its first markets.
+- ci: the Socket Security scan no longer reports a spurious failure on Dependabot pull requests.
+
+---
+
 ## v0.9.89
 
 Preflight scanner reliability fix for the standalone (Homebrew) binary.

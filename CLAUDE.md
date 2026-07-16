@@ -44,7 +44,8 @@ e2e/               → End-to-end tests
 - Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, Homebrew tap, npm publish, README/CHANGELOG
 - Phase 10 ✓ — `gpc preflight` pre-submission compliance scanner (9 scanners, offline AAB policy checks)
 - Published to npm: `npm install -g @gpc-cli/cli`
-- Current version: v0.9.89 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- Current version: v0.9.90 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- v0.9.90: release readiness, review insight, and Play Games sync. `gpc doctor --score` (A–F release-readiness grade) + `--badge` (shareable shields.io README badge). `gpc reviews list --sort newest|oldest|rating` presets + `gpc status --full` local review topic/sentiment breakdown. Games icon upload (`gpc games … set-icon`) and directory bulk sync (`gpc games … push/pull`); Games Management reset deferred (needs player-consent OAuth). Developer-verification advisory in preflight + `gpc verify checklist` (Sept 30 2026 enforcement). CI: Socket scan skips Dependabot PRs. Pre-soak security audit passed (Claude senior-security skill, this cycle). Last release before the stability soak. 2,495 tests.
 - v0.9.89: preflight scanner reliability fix (GH #89). `gpc preflight` (and `preflight manifest` / `preflight permissions`) crashed with a `TypeError` and then hung when scanning an AAB/APK on the standalone (Homebrew) binary — yauzl's file-descriptor reader was handed a null fd under the Bun-compiled binary. The offline reader now loads the archive with `yauzl.fromBuffer` (no fd), so the standalone binary behaves the same as the npm (Node) install, and the ZIP read is guaranteed to settle with a bounded timeout backstop so it can never hang. 2,421 tests.
 - v0.9.88: preflight compliance refresh for Google Play's October 28 2026 sensitive-permission deadlines (apps targeting Android 17/API 37+). Contacts check now cites the Oct 28 2026 date + Android Contact Picker (`Intent.ACTION_PICK_CONTACTS`); new `location-minimal-scope` rule flags `ACCESS_FINE_LOCATION` (info; warning at API 37+); geofencing date corrected from the stale May 15 2026 to Oct 28 2026; `gpc init` scaffolds `targetSdkMinimum: 36` (was 35, below the current Play floor). 2,418 tests.
 - v0.9.87: consistent list output + compliance docs. `grants list`, `testers list`, `tracks list` now return the same `--json` envelope `{ <key>, nextPageToken, meta.count, message? }` as the other list commands (**breaking** for those three; table output unchanged). Docs: FAQ note on third-party US app-store listing syndication (opt-out by July 22 2026), Play Billing Library v8 deadline (Aug 31 2026) on subscriptions, Android 17/API 37 preflight refresh. 2,413 tests.
@@ -65,7 +66,7 @@ e2e/               → End-to-end tests
 - v0.9.72: API compliance patch (error reports endpoint, input validation).
 - v0.9.71: `gpc doctor` quota proximity check (warns at >80% daily/per-minute API usage) and plugin health check (discovers, loads, reports each plugin).
 - v0.9.70: `--in-app-update-priority <0-5>` and `--retain-version-codes <csv>` flags on upload, `default.txt` Fastlane-style changelog fallback via `--notes-dir`, promote preserves `inAppUpdatePriority` + `name`, GitHub Actions Node.js 22.
-- 2,421 total tests, 7 packages building, 90%+ line coverage on all core packages
+- 2,495 total tests, 7 packages building, 90%+ line coverage on all core packages
 - Changelog-generation series (v0.9.61 → v0.9.64): complete. `gpc changelog generate --target play-store --locales auto --ai --apply` does commit → translated Play Store notes → written into draft release, one command.
 - v0.9.63 highlight: AI-assisted Play Store translation. `gpc changelog generate --target play-store --locales auto --ai` translates non-source locales via the user's own LLM key. Auto-detects env priority `AI_GATEWAY_API_KEY` → `ANTHROPIC_API_KEY` → `OPENAI_API_KEY` → `GOOGLE_GENERATIVE_AI_API_KEY`. Non-reasoning model defaults. Gateway path unlocks cost-per-run in USD. All 4 AI SDK deps lazy-loaded (cold-start preserved).
 - v0.9.62 highlight: multilingual Play Store release notes. `gpc changelog generate --target play-store --locales <csv|auto>` emits per-locale "What's new" text with 500-char budget enforcement.
@@ -75,7 +76,7 @@ e2e/               → End-to-end tests
 
 ## Testing
 
-- Vitest for all tests (2,421 total across 7 packages + e2e)
+- Vitest for all tests (2,495 total across 7 packages + e2e)
 - Tests in `tests/` directory per package
 - Mock external APIs — never call real Google APIs in tests
 - Mock fetch with `vi.stubGlobal("fetch", mockFn)` for API tests

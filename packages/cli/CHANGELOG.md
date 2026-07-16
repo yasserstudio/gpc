@@ -1,5 +1,14 @@
 # @gpc-cli/cli
 
+## 0.9.90
+
+### Patch Changes
+
+- feat: `gpc doctor --score` / `--badge` release-readiness grade; `gpc reviews list --sort` presets + `gpc status --full` review insights; `gpc games … set-icon` and `push`/`pull` bulk sync; developer-verification advisory in preflight and verify checklist.
+- Updated dependencies
+  - @gpc-cli/core@0.9.75
+  - @gpc-cli/api@1.0.46
+
 ## 0.9.89
 
 ### Patch Changes
