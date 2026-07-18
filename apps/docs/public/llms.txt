@@ -21,7 +21,7 @@ GPC is a TypeScript CLI that covers 227 Google Play Developer API endpoints. It 
 - Managed Google Play: GPC is the first Android publishing CLI to support the Play Custom App Publishing API (gpc enterprise publish)
 - Release notes generation: gpc changelog generate produces GitHub Release markdown from local commits, with smart clustering, jargon linting, and a paste-ready LLM prompt mode
 - One-command Play Store notes: gpc changelog generate --target play-store --locales auto --ai --apply translates and writes release notes into a draft release
-- Offline docs: gpc docs list/show/search/init — all 99 docs pages embedded in the CLI binary, no network needed
+- Offline docs: gpc docs list/show/search/init — all 109 docs pages embedded in the CLI binary, no network needed
 - Release readiness: gpc doctor --score gives an A–F release-readiness grade with a shareable shields.io README badge (gpc doctor --badge)
 - Review intelligence: gpc reviews list --sort newest|oldest|rating and gpc status --full for a local topic/sentiment/keyword breakdown (no external NLP)
 - Play Games: full achievement/leaderboard configuration CRUD plus icon upload (gpc games ... set-icon) and directory-based bulk sync (gpc games ... push/pull)
