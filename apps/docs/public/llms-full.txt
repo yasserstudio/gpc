@@ -11,12 +11,13 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Pl
 
 - Install: `npm install -g @gpc-cli/cli`
 - Binary: `gpc`
-- Version: 0.9.90
+- Version: 0.9.91
 - API endpoints covered: 227 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1 + Games Configuration v1configuration)
-- Tests: 2,495 (90%+ coverage)
+- Tests: 2,498 (90%+ coverage)
 - Licensing: Free to use. Source code is on GitHub.
 - Repo: https://github.com/yasserstudio/gpc
 - GitHub Action: yasserstudio/gpc-action on the GitHub Actions Marketplace (one-step Play publishing from CI with built-in preflight gate, drop-in r0adkll migration)
+- Notable v0.9.91: Google Play's July 15, 2026 policy update, plus dependency health and a docs refresh. The preflight `READ_CALL_LOG` finding now notes that account verification via phone call is no longer an accepted use case and points to the Digital Credentials API or SMS Retriever API instead. The developer-verification advisory (`policy-developer-verification`) and `gpc verify checklist` add the mandate that every app on your account must be registered in Play Console, since unregistered apps risk removal. Safe dependency minor bumps and an outcome-led docs homepage with answer-first intros.
 - Notable v0.9.90: Release readiness, review insight, and Play Games sync. `gpc doctor --score` grades release-readiness A–F with a shareable shields.io README badge (`--badge`). `gpc reviews list --sort newest|oldest|rating` and `gpc status --full` (local topic/sentiment/keyword breakdown, no external NLP). `gpc games … set-icon` icon upload and `push`/`pull` directory bulk sync for achievement/leaderboard configs. Developer-verification advisory (Sept 30 2026 enforcement) in preflight and `gpc verify checklist`. Last release before the stability soak.
 - Notable v0.9.89: Preflight scanner reliability fix. `gpc preflight` (and `preflight manifest` / `preflight permissions`) no longer crashes and then hangs when scanning an AAB or APK on the standalone binary installed via Homebrew; the offline scanner now reads archives the same way on the standalone binary and the npm (Node) install, and can never hang on a corrupt or truncated file.
 - Notable v0.9.87: Consistent list output. `grants`, `testers`, and `tracks` list commands now return the same `--json` envelope as the other list commands (breaking for those three; table output unchanged). Docs: third-party US app-store opt-out (July 22 2026), Play Billing Library v8 deadline, Android 17/API 37 preflight note.

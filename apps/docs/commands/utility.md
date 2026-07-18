@@ -255,7 +255,7 @@ Run: gpc update
 **Already on latest:**
 
 ```
-Already on latest version: v0.9.90
+Already on latest version: v0.9.91
 ```
 
 **`--output json` (update available):**

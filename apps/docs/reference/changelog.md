@@ -11,7 +11,19 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.90 <Badge type="tip" text="latest" />
+## v0.9.91 <Badge type="tip" text="latest" />
+
+Google Play July 15, 2026 policy update, dependency health, and a docs refresh.
+
+- feat: `gpc preflight` and `gpc verify checklist` track Google's July 15, 2026 policy update. The `READ_CALL_LOG` finding notes that account verification via phone call is no longer an accepted use case and points to the Digital Credentials API (or SMS Retriever API). A new advisory and checklist step cover the mandate that every app on your account be registered in Play Console, since unregistered apps risk removal.
+- chore: safe dependency updates (google-auth-library, protobufjs, yauzl, and dev tooling).
+- docs: outcome-led homepage, answer-first intros on the Games and Android CLI pages, and benefit-led page metadata.
+
+**Tests:** 2,498 (+3).
+
+---
+
+## v0.9.90
 
 Release readiness, review insight, and Play Games sync.
 

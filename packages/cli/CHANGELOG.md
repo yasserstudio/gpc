@@ -1,5 +1,13 @@
 # @gpc-cli/cli
 
+## 0.9.91
+
+### Patch Changes
+
+- feat: `gpc preflight` and `gpc verify checklist` track Google Play's July 15, 2026 policy update. The `READ_CALL_LOG` finding points account-verification use cases to the Digital Credentials and SMS Retriever APIs, and a new advisory plus checklist step cover registering every app on your account in Play Console. Safe dependency updates and a docs/SEO refresh.
+- Updated dependencies [13b3736]
+  - @gpc-cli/core@0.9.76
+
 ## 0.9.90
 
 ### Patch Changes
