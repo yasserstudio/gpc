@@ -118,49 +118,72 @@ export async function syncImages(
           localHashes.set(file, hash);
         }
 
-        const localSha256Set = new Set(localHashes.values());
-
-        // Delete first when --delete is active (avoids hitting per-type image count limits)
-        if (options?.delete) {
-          for (const img of remoteImages) {
-            if (!localSha256Set.has(img.sha256.toLowerCase())) {
-              if (!options?.dryRun) {
-                await client.images.delete(packageName, edit.id, language, imageType, img.id);
-              }
-              deleted++;
-              details.push({
-                language,
-                imageType,
-                file: img.id,
-                action: "delete",
-                reason: "not in local",
-              });
+        // Validate + upload a single local file. Shared by both the additive and the
+        // order-preserving (--delete) paths. All uploads happen inside the single edit opened
+        // above, so only the final committed state is validated.
+        const uploadLocal = async (file: string, reason: string) => {
+          if (!options?.dryRun) {
+            const filePath = join(localDir, file);
+            const check = await validateImage(filePath, imageType);
+            if (!check.valid) {
+              throw new GpcError(
+                `Image validation failed for ${language}/${imageType}/${file}: ${check.errors.join("; ")}`,
+                "IMAGE_INVALID",
+                2,
+                "Check image dimensions, file size, and format.",
+              );
             }
+            await client.images.upload(packageName, edit.id, language, imageType, filePath);
           }
+          uploaded++;
+          details.push({ language, imageType, file, action: "upload", reason });
+        };
+
+        if (options?.delete) {
+          // Order-preserving replace. The Play Developer API has no reorder endpoint and
+          // images.list returns images in display order, so reconciling by hash *set* alone
+          // would keep unchanged images in their existing positions and append changed ones at
+          // the end -- producing the wrong display order on partial updates. Instead compare the
+          // full sorted local sequence against the remote sequence by hash AND position: if they
+          // already match, this combo is a no-op; otherwise delete every remote image and
+          // re-upload every local file in sorted order. This all happens inside the single edit,
+          // so the transient (possibly sub-minimum) screenshot count is never committed on its
+          // own -- only the final, complete state is validated at commit.
+          const localSeq = localFiles.map((file) => localHashes.get(file)!);
+          const remoteSeq = remoteImages.map((img) => img.sha256.toLowerCase());
+          const inOrder =
+            localSeq.length === remoteSeq.length && localSeq.every((hash, i) => hash === remoteSeq[i]);
+
+          if (inOrder) {
+            for (const file of localFiles) {
+              skipped++;
+              details.push({ language, imageType, file, action: "skip", reason: "already in order" });
+            }
+            continue;
+          }
+
+          for (const img of remoteImages) {
+            if (!options?.dryRun) {
+              await client.images.delete(packageName, edit.id, language, imageType, img.id);
+            }
+            deleted++;
+            details.push({ language, imageType, file: img.id, action: "delete", reason: "reordering" });
+          }
+          for (const file of localFiles) {
+            await uploadLocal(file, "reordering");
+          }
+          continue;
         }
 
-        // Upload local files whose hash is not in remote
+        // Additive mode (no --delete): upload local files whose hash is not already present
+        // remotely, leaving everything else untouched.
         for (const file of localFiles) {
           const hash = localHashes.get(file)!;
           if (remoteSha256Set.has(hash)) {
             skipped++;
             details.push({ language, imageType, file, action: "skip", reason: "sha256 match" });
           } else {
-            if (!options?.dryRun) {
-              const filePath = join(localDir, file);
-              const check = await validateImage(filePath, imageType);
-              if (!check.valid) {
-                throw new GpcError(
-                  `Image validation failed for ${language}/${imageType}/${file}: ${check.errors.join("; ")}`,
-                  "IMAGE_INVALID",
-                  2,
-                  "Check image dimensions, file size, and format.",
-                );
-              }
-              await client.images.upload(packageName, edit.id, language, imageType, filePath);
-            }
-            uploaded++;
-            details.push({ language, imageType, file, action: "upload", reason: "new or changed" });
+            await uploadLocal(file, "new or changed");
           }
         }
       }

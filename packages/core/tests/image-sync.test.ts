@@ -237,4 +237,46 @@ describe("syncImages", () => {
 
     await expect(syncImages(client, PKG, tmp)).rejects.toThrow("unauthorized");
   });
+
+  it("--delete skips when local matches remote in the same order", async () => {
+    const a = "slide-a";
+    const b = "slide-b";
+    const hashA = await sha256(a);
+    const hashB = await sha256(b);
+    await writeImage(tmp, "en-US", "phoneScreenshots", "1.png", a);
+    await writeImage(tmp, "en-US", "phoneScreenshots", "2.png", b);
+
+    const client = mockClient({
+      "en-US/phoneScreenshots": [makeImage("img1", hashA), makeImage("img2", hashB)],
+    });
+
+    const result = await syncImages(client, PKG, tmp, { delete: true });
+    expect(result.skipped).toBe(2);
+    expect(result.uploaded).toBe(0);
+    expect(result.deleted).toBe(0);
+    expect(client.images.upload).not.toHaveBeenCalled();
+    expect(client.images.delete).not.toHaveBeenCalled();
+    expect(client.edits.commit).not.toHaveBeenCalled();
+  });
+
+  it("--delete fully replaces when the same images are in a different order", async () => {
+    const a = "slide-a";
+    const b = "slide-b";
+    const hashA = await sha256(a);
+    const hashB = await sha256(b);
+    await writeImage(tmp, "en-US", "phoneScreenshots", "1.png", a);
+    await writeImage(tmp, "en-US", "phoneScreenshots", "2.png", b);
+
+    // Remote holds the same two images but in reversed display order.
+    const client = mockClient({
+      "en-US/phoneScreenshots": [makeImage("img1", hashB), makeImage("img2", hashA)],
+    });
+
+    const result = await syncImages(client, PKG, tmp, { delete: true });
+    expect(result.deleted).toBe(2);
+    expect(result.uploaded).toBe(2);
+    expect(result.skipped).toBe(0);
+    expect(client.images.delete).toHaveBeenCalledTimes(2);
+    expect(client.images.upload).toHaveBeenCalledTimes(2);
+  });
 });
