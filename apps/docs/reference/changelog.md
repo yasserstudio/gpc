@@ -11,7 +11,19 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.91 <Badge type="tip" text="latest" />
+## v0.9.92 <Badge type="tip" text="latest" />
+
+Screenshot ordering fix for store-listing image sync.
+
+- fix: `gpc listings images sync --delete` now preserves screenshot display order. Google Play has no reorder endpoint, so a partial update that reconciled by content alone left screenshots out of order; the command now replaces a language and image type in filename order when the order or content differs, and skips a set that is already correct.
+- fix: `--delete` no longer removes image types you do not keep locally. A missing local folder for a type (for example your app icon) is left untouched, while a present-but-empty folder still clears that type on purpose.
+- perf: a language and image type is cleared in a single API call instead of one delete per image, which helps stay within the daily save quota on large multi-language syncs.
+
+**Tests:** 2,503 (+5).
+
+---
+
+## v0.9.91
 
 Google Play July 15, 2026 policy update, dependency health, and a docs refresh.
 
