@@ -44,7 +44,8 @@ e2e/               → End-to-end tests
 - Phase 9 ✓ — Security audit, interactive mode, VitePress docs, standalone binary, Homebrew tap, npm publish, README/CHANGELOG
 - Phase 10 ✓ — `gpc preflight` pre-submission compliance scanner (9 scanners, offline AAB policy checks)
 - Published to npm: `npm install -g @gpc-cli/cli`
-- Current version: v0.9.91 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- Current version: v0.9.92 — pre-release series (`0.9.x` → `1.0.0` public launch)
+- v0.9.92: screenshot display-order fix for `listings images sync --delete`. When a language/type differs from local in content or order, the whole combo is cleared with a single `images.deleteAll` (fewer Play API write calls) and re-uploaded in filename order; a set already in order is skipped. Safety: an absent local directory is no longer read as "delete everything", so syncing a subset of image types never wipes a remote icon/feature graphic (a present-but-empty directory still clears explicitly). Contributor fix by softlion (PR #97) + maintainer hardening. Dependabot now holds deferred majors (commander 15, @ai-sdk 4, typescript 6, vite 8, ai 7) until post-1.0.0. 2,503 tests.
 - v0.9.91: Google Play July 15, 2026 policy update + dependency health + docs/SEO refresh. Preflight's `READ_CALL_LOG` finding now notes that account verification via phone call is no longer an accepted use case (points to the Digital Credentials API + SMS Retriever API); the `policy-developer-verification` advisory and `gpc verify checklist` add the mandate that every app on your account be registered in Play Console (unregistered apps risk removal). Safe dev/prod dependency minor bumps (google-auth-library 10.9, protobufjs 8.6.5, yauzl 3.4.0, eslint/vitest/turbo/tsx/prettier). Docs: outcome-led homepage, answer-first AEO intros, benefit-led meta. Dep majors (typescript 6, commander 15, ai 7) held to post-1.0.0. 2,498 tests.
 - v0.9.90: release readiness, review insight, and Play Games sync. `gpc doctor --score` (A–F release-readiness grade) + `--badge` (shareable shields.io README badge). `gpc reviews list --sort newest|oldest|rating` presets + `gpc status --full` local review topic/sentiment breakdown. Games icon upload (`gpc games … set-icon`) and directory bulk sync (`gpc games … push/pull`); Games Management reset deferred (needs player-consent OAuth). Developer-verification advisory in preflight + `gpc verify checklist` (Sept 30 2026 enforcement). CI: Socket scan skips Dependabot PRs. Pre-soak security audit passed (Claude senior-security skill, this cycle). Last release before the stability soak. 2,495 tests.
 - v0.9.89: preflight scanner reliability fix (GH #89). `gpc preflight` (and `preflight manifest` / `preflight permissions`) crashed with a `TypeError` and then hung when scanning an AAB/APK on the standalone (Homebrew) binary — yauzl's file-descriptor reader was handed a null fd under the Bun-compiled binary. The offline reader now loads the archive with `yauzl.fromBuffer` (no fd), so the standalone binary behaves the same as the npm (Node) install, and the ZIP read is guaranteed to settle with a bounded timeout backstop so it can never hang. 2,421 tests.
@@ -67,7 +68,7 @@ e2e/               → End-to-end tests
 - v0.9.72: API compliance patch (error reports endpoint, input validation).
 - v0.9.71: `gpc doctor` quota proximity check (warns at >80% daily/per-minute API usage) and plugin health check (discovers, loads, reports each plugin).
 - v0.9.70: `--in-app-update-priority <0-5>` and `--retain-version-codes <csv>` flags on upload, `default.txt` Fastlane-style changelog fallback via `--notes-dir`, promote preserves `inAppUpdatePriority` + `name`, GitHub Actions Node.js 22.
-- 2,498 total tests, 7 packages building, 90%+ line coverage on all core packages
+- 2,503 total tests, 7 packages building, 90%+ line coverage on all core packages
 - Changelog-generation series (v0.9.61 → v0.9.64): complete. `gpc changelog generate --target play-store --locales auto --ai --apply` does commit → translated Play Store notes → written into draft release, one command.
 - v0.9.63 highlight: AI-assisted Play Store translation. `gpc changelog generate --target play-store --locales auto --ai` translates non-source locales via the user's own LLM key. Auto-detects env priority `AI_GATEWAY_API_KEY` → `ANTHROPIC_API_KEY` → `OPENAI_API_KEY` → `GOOGLE_GENERATIVE_AI_API_KEY`. Non-reasoning model defaults. Gateway path unlocks cost-per-run in USD. All 4 AI SDK deps lazy-loaded (cold-start preserved).
 - v0.9.62 highlight: multilingual Play Store release notes. `gpc changelog generate --target play-store --locales <csv|auto>` emits per-locale "What's new" text with 500-char budget enforcement.
@@ -77,7 +78,7 @@ e2e/               → End-to-end tests
 
 ## Testing
 
-- Vitest for all tests (2,498 total across 7 packages + e2e)
+- Vitest for all tests (2,503 total across 7 packages + e2e)
 - Tests in `tests/` directory per package
 - Mock external APIs — never call real Google APIs in tests
 - Mock fetch with `vi.stubGlobal("fetch", mockFn)` for API tests
