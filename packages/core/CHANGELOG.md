@@ -1,5 +1,11 @@
 # @gpc-cli/core
 
+## 0.9.77
+
+### Patch Changes
+
+- 9ea66be: fix: `listings images sync --delete` now preserves screenshot display order. Previously it reconciled images by SHA-256 set only, so on a partial update the unchanged images kept their existing positions while changed ones were appended at the end, producing the wrong order (the Play Developer API has no reorder endpoint). It now compares the sorted local sequence against the remote sequence by hash _and_ position: a combo already in order is a no-op, otherwise the whole combo is cleared with a single `deleteAll` request and every local file re-uploaded in sorted order. This all happens inside the single edit `syncImages` already opens, so only the final state is validated at commit — the transient sub-minimum screenshot count that a per-edit delete/upload loop would commit (and that Google rejects for the default language with "too few screenshots for language …") never occurs. Additive sync (without `--delete`) is unchanged. `--delete` also no longer treats an absent local directory as an instruction to wipe that type: syncing a subset of image types leaves the remote images for types you keep only in the Console untouched, while a present-but-empty directory still clears its type explicitly.
+
 ## 0.9.76
 
 ### Patch Changes
