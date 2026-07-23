@@ -11,6 +11,20 @@ updates:
         dependency-type: "production"
     allow:
       - dependency-type: "direct"
+    ignore:
+      # Majors held until after 1.0.0 -- each needs a deliberate migration PR, not an
+      # auto-grouped bump (grouping a held major with safe minors blocks the whole PR).
+      # Minors and patches still flow. Remove these entries once 1.0.0 ships.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "commander"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vite"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "ai"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@ai-sdk/*"
+        update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 10
 
   - package-ecosystem: "github-actions"
