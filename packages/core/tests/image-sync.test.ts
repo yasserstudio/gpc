@@ -28,6 +28,7 @@ function mockClient(remoteImages: Record<string, Image[]> = {}) {
         ),
       upload: vi.fn().mockResolvedValue(makeImage("new", "newsha")),
       delete: vi.fn().mockResolvedValue(undefined),
+      deleteAll: vi.fn().mockResolvedValue([]),
     },
   } as unknown as PlayApiClient;
 }
@@ -123,7 +124,9 @@ describe("syncImages", () => {
 
     const result = await syncImages(client, PKG, tmp, { delete: true });
     expect(result.deleted).toBe(1);
-    expect(client.images.delete).toHaveBeenCalledWith(PKG, "edit1", "en-US", "icon", "orphan");
+    // Orphan removal now clears the combo with one deleteAll, not a per-image delete.
+    expect(client.images.deleteAll).toHaveBeenCalledWith(PKG, "edit1", "en-US", "icon");
+    expect(client.images.delete).not.toHaveBeenCalled();
   });
 
   it("does not delete remote-only images by default", async () => {
@@ -144,8 +147,9 @@ describe("syncImages", () => {
     });
 
     const callOrder: string[] = [];
-    vi.mocked(client.images.delete).mockImplementation(async () => {
-      callOrder.push("delete");
+    vi.mocked(client.images.deleteAll).mockImplementation(async () => {
+      callOrder.push("deleteAll");
+      return [];
     });
     vi.mocked(client.images.upload).mockImplementation(async () => {
       callOrder.push("upload");
@@ -153,7 +157,7 @@ describe("syncImages", () => {
     });
 
     await syncImages(client, PKG, tmp, { delete: true });
-    expect(callOrder).toEqual(["delete", "upload"]);
+    expect(callOrder).toEqual(["deleteAll", "upload"]);
   });
 
   it("dry run produces correct result without API mutations", async () => {
@@ -236,5 +240,126 @@ describe("syncImages", () => {
     vi.mocked(client.images.list).mockRejectedValueOnce(authError);
 
     await expect(syncImages(client, PKG, tmp)).rejects.toThrow("unauthorized");
+  });
+
+  it("--delete skips when local matches remote in the same order", async () => {
+    const a = "slide-a";
+    const b = "slide-b";
+    const hashA = await sha256(a);
+    const hashB = await sha256(b);
+    await writeImage(tmp, "en-US", "phoneScreenshots", "1.png", a);
+    await writeImage(tmp, "en-US", "phoneScreenshots", "2.png", b);
+
+    const client = mockClient({
+      "en-US/phoneScreenshots": [makeImage("img1", hashA), makeImage("img2", hashB)],
+    });
+
+    const result = await syncImages(client, PKG, tmp, { delete: true });
+    expect(result.skipped).toBe(2);
+    expect(result.uploaded).toBe(0);
+    expect(result.deleted).toBe(0);
+    expect(client.images.upload).not.toHaveBeenCalled();
+    expect(client.images.delete).not.toHaveBeenCalled();
+    expect(client.edits.commit).not.toHaveBeenCalled();
+  });
+
+  it("--delete fully replaces when the same images are in a different order", async () => {
+    const a = "slide-a";
+    const b = "slide-b";
+    const hashA = await sha256(a);
+    const hashB = await sha256(b);
+    await writeImage(tmp, "en-US", "phoneScreenshots", "1.png", a);
+    await writeImage(tmp, "en-US", "phoneScreenshots", "2.png", b);
+
+    // Remote holds the same two images but in reversed display order.
+    const client = mockClient({
+      "en-US/phoneScreenshots": [makeImage("img1", hashB), makeImage("img2", hashA)],
+    });
+
+    const result = await syncImages(client, PKG, tmp, { delete: true });
+    expect(result.deleted).toBe(2);
+    expect(result.uploaded).toBe(2);
+    expect(result.skipped).toBe(0);
+    // One deleteAll for the whole combo, not a per-image delete loop.
+    expect(client.images.deleteAll).toHaveBeenCalledTimes(1);
+    expect(client.images.delete).not.toHaveBeenCalled();
+    // Re-uploaded in sorted filename order: 1.png then 2.png.
+    const uploadedOrder = vi
+      .mocked(client.images.upload)
+      .mock.calls.map((c) => (c[4] as string).split(/[\\/]/).pop());
+    expect(uploadedOrder).toEqual(["1.png", "2.png"]);
+  });
+
+  it("--delete preserves display order on a partial change ([A,B,C,D,E], only B changes)", async () => {
+    const a = "slide-a";
+    const b = "slide-b";
+    const c = "slide-c";
+    const d = "slide-d";
+    const e = "slide-e";
+    const bPrime = "slide-b-prime";
+    // Local set in sorted filename order 1..5 is A, B', C, D, E.
+    await writeImage(tmp, "en-US", "phoneScreenshots", "1.png", a);
+    await writeImage(tmp, "en-US", "phoneScreenshots", "2.png", bPrime);
+    await writeImage(tmp, "en-US", "phoneScreenshots", "3.png", c);
+    await writeImage(tmp, "en-US", "phoneScreenshots", "4.png", d);
+    await writeImage(tmp, "en-US", "phoneScreenshots", "5.png", e);
+
+    // Remote holds the OLD set A, B, C, D, E in order -- only position 2 differs.
+    const client = mockClient({
+      "en-US/phoneScreenshots": [
+        makeImage("img1", await sha256(a)),
+        makeImage("img2", await sha256(b)),
+        makeImage("img3", await sha256(c)),
+        makeImage("img4", await sha256(d)),
+        makeImage("img5", await sha256(e)),
+      ],
+    });
+
+    const result = await syncImages(client, PKG, tmp, { delete: true });
+    // Hash sequence differs at position 2, so the combo is replaced in full and in order.
+    expect(result.deleted).toBe(5);
+    expect(result.uploaded).toBe(5);
+    expect(client.images.deleteAll).toHaveBeenCalledTimes(1);
+    const order = vi
+      .mocked(client.images.upload)
+      .mock.calls.map((call) => (call[4] as string).split(/[\\/]/).pop());
+    // Final display order is A, B', C, D, E -- not A, C, D, E, B' (the old set-diff bug).
+    expect(order).toEqual(["1.png", "2.png", "3.png", "4.png", "5.png"]);
+  });
+
+  it("--delete leaves remote types with no local directory untouched (no accidental icon wipe)", async () => {
+    // Local has only phoneScreenshots; there is no local icon/ directory at all.
+    await writeImage(tmp, "en-US", "phoneScreenshots", "1.png", "shot");
+    const client = mockClient({
+      "en-US/icon": [makeImage("icon1", "iconhash")],
+      "en-US/phoneScreenshots": [makeImage("ps1", await sha256("shot"))],
+    });
+
+    const result = await syncImages(client, PKG, tmp, { delete: true });
+
+    // The absent icon/ directory must NOT trigger a wipe of the remote icon.
+    expect(client.images.deleteAll).not.toHaveBeenCalled();
+    expect(client.images.delete).not.toHaveBeenCalled();
+    expect(result.deleted).toBe(0);
+    expect(
+      result.details.some(
+        (d) =>
+          d.imageType === "icon" && d.action === "skip" && /no local directory/.test(d.reason ?? ""),
+      ),
+    ).toBe(true);
+  });
+
+  it("--delete clears a remote combo when the local directory is present but empty", async () => {
+    // Explicit intent: the icon/ directory exists locally but is empty.
+    await mkdir(join(tmp, "en-US", "icon"), { recursive: true });
+    const client = mockClient({
+      "en-US/icon": [makeImage("icon1", "iconhash")],
+    });
+
+    const result = await syncImages(client, PKG, tmp, { delete: true });
+
+    expect(client.images.deleteAll).toHaveBeenCalledWith(PKG, "edit1", "en-US", "icon");
+    expect(result.deleted).toBe(1);
+    expect(result.uploaded).toBe(0);
   });
 });
