@@ -3120,6 +3120,12 @@ Full docs refresh: align all surfaces with v0.9.80 state, optimize for search en
 - Parent-level batch ops: `purchaseOptions.batchDelete`, `purchaseOptions.batchUpdateStates`
 - v0.9.79 audited coverage: all 7 methods + 2 batch parent ops confirmed implemented (client.ts:1776-1911)
 
+**Chargeback dispute API** (`gpc orders review-refund`) — NEW, announced ~July 6 2026
+- Collaborative chargeback-dispute flow: new `orders.reviewrefund` method (developer responds APPROVE / DECLINE / NEUTRAL within 24h, can attach usage evidence) + new RTDN type `PendingRefundReviewNotification`.
+- Lands on the existing monetization/RTDN surface (`purchases`, voided-purchases, orders). Natural `gpc orders review-refund` command + a new RTDN handler entry.
+- **Verify before building:** confirm the exact method path/request shape against the live `androidpublisher` v3 discovery doc — as of rev `20260706` no new methods were exposed, so this may still be RTDN/webhook-only rather than a typed endpoint. Surfaced by the 2026-07-23 monthly scan; not urgent.
+- Source: [Play Developer APIs release notes](https://developer.android.com/google/play/billing/play-developer-apis-release-notes)
+
 **`reviews.list` sortOrder parameter**
 - Add `reviewsSortOrder` query param (newest, rating)
 - Trivial addition to types + client
@@ -3170,4 +3176,4 @@ Items announced or hinted at by Google that have no API surface yet. Monitor mon
 | Play Age Signals API | US state laws (Utah May 2026, Louisiana July 2026) | Beta available | Client-side API. No publishing CLI impact unless server endpoints emerge. |
 | In-App Content Search / Deep Links | Play Store AI discovery | TBD | If Google exposes deep link registration via Developer API, add to `gpc listings`. |
 
-Last reviewed: 2026-06-25 (re-checked for v0.9.87: discovery doc still `20260520`; Submission History API + parallel-track publishing confirmed "later in 2026" with no endpoints yet).
+Last reviewed: 2026-07-23 (30-day scan: **chargeback dispute API shipped** — `orders.reviewrefund` + `PendingRefundReviewNotification`, moved to Post-1.0 Tier 3 as a real endpoint, not a watch item; developer-verification APIs unchanged — ID Status GA, Console API still early-access, ~Aug 2026 GA; no new *androidpublisher* methods). Prior review 2026-06-25 (v0.9.87: discovery doc `20260520`; Submission History API + parallel-track publishing confirmed "later in 2026" with no endpoints yet).

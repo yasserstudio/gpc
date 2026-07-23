@@ -11,6 +11,8 @@ outline: deep
 
 ::: info Play Billing Library deadline (client-side)
 The Play Billing Library (PBL) lives in your **app's code**, not in GPC. GPC manages the server-side catalog (subscriptions, base plans, offers, prices) through the Play Developer API; the PBL is what your app links against to make purchases. As of **August 31, 2026**, new apps and app updates must use **PBL v8 or later** (v9.0 shipped May 19, 2026). That requirement applies to the AAB/APK you build and upload, not to anything GPC sends. See Google's [Play Billing Library deprecation FAQ](https://developer.android.com/google/play/billing/deprecation-faq).
+
+Do not conflate this with the *other* August 31, 2026 deadline: the annual **target API level** requirement (new apps and updates must target API 36 / Android 16). The two share a date but are independent -- this one is your billing library version (client-side, invisible to GPC); the other is your app's `targetSdkVersion`, which GPC's [`preflight`](/commands/preflight) scanner does check.
 :::
 
 ## Commands
