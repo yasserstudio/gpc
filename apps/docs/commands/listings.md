@@ -412,6 +412,8 @@ gpc listings images export \
 
 Sync a local image directory to Google Play. Compares local file SHA-256 against Google's `Image.sha256` field and uploads only changed files. Operates inside a single edit for efficiency. Deletes are applied before uploads to avoid per-type image count limits.
 
+With `--delete`, sync also **guarantees display order**. The Play Developer API has no reorder endpoint and images keep their upload order, so a partial update that reconciled by hash alone would leave screenshots out of order (an unchanged image keeps its slot while a changed one is appended last). When a language/type's images differ from local in content *or* order, `--delete` clears that combo in a single request and re-uploads every local file in sorted filename order (`1.png`, `2.png`, ...); a combo already in order is skipped. Because this happens inside the one edit, the intermediate state is never committed on its own, so the default language never trips the "too few screenshots" validation.
+
 ### Synopsis
 
 ```bash
@@ -425,7 +427,7 @@ gpc listings images sync [options]
 | `--dir`                         |       | `string`  | `images` | Local image directory path                                                                       |
 | `--lang`                        |       | `string`  |          | Filter to a single language code (BCP 47). If omitted, syncs all languages found in `--dir`.     |
 | `--type`                        |       | `string`  |          | Filter to a single image type. If omitted, syncs all types. See valid types below.               |
-| `--delete`                      |       | flag      |          | Remove remote images that are not present locally. Opt-in; no deletions occur without this flag. |
+| `--delete`                      |       | flag      |          | Remove remote images missing locally and guarantee display order (full-replaces a language/type when it differs in content or order). Opt-in; no deletions without this flag. |
 | `--dry-run`                     |       | `boolean` | `false`  | Preview uploads and deletes without executing any changes.                                       |
 | `--changes-not-sent-for-review` |       | flag      |          | Commit without sending for review                                                                |
 | `--error-if-in-review`          |       | flag      |          | Fail if changes are already in review                                                            |
@@ -433,6 +435,10 @@ gpc listings images sync [options]
 Valid image types: `icon`, `featureGraphic`, `tvBanner`, `phoneScreenshots`, `sevenInchScreenshots`, `tenInchScreenshots`, `tvScreenshots`, `wearScreenshots`.
 
 The command expects the same `<dir>/<lang>/<type>/` layout produced by `gpc listings images export`.
+
+::: warning `--delete` only manages the types you keep locally
+A type directory that is **absent** is left untouched, so syncing only your screenshots never removes a remote icon or feature graphic. A type directory that is **present but empty** is an explicit "clear this type" and its remote images are deleted. Scope a run with `--type` when you want to touch a single image type. Name files so they sort in display order (`1.png`, `2.png`, ...); zero-pad (`01.png`) if a type ever approaches Google's per-type cap.
+:::
 
 ### Example — sync all images
 

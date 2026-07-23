@@ -596,7 +596,10 @@ export function registerListingsCommands(program: Command): void {
     .option("--dir <path>", "Local images directory", "images")
     .option("--lang <language>", "Sync only this language")
     .option("--type <type>", "Sync only this image type", undefined)
-    .option("--delete", "Delete remote images not present locally")
+    .option(
+      "--delete",
+      "Remove remote images missing locally and guarantee display order (full-replaces a language/type when it differs)",
+    )
     .option("--changes-not-sent-for-review", "Commit changes without sending for review")
     .option("--error-if-in-review", "Fail if changes are already in review")
     .action(async (options: Record<string, unknown>) => {

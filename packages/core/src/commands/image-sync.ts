@@ -1,4 +1,4 @@
-import { readdir } from "node:fs/promises";
+import { readdir, stat } from "node:fs/promises";
 import { join, extname } from "node:path";
 import type { PlayApiClient, ImageType, EditCommitOptions, Image } from "@gpc-cli/api";
 import { PlayApiError } from "@gpc-cli/api";
@@ -65,6 +65,14 @@ async function scanLanguages(dir: string): Promise<string[]> {
       .sort();
   } catch {
     return [];
+  }
+}
+
+async function dirExists(path: string): Promise<boolean> {
+  try {
+    return (await stat(path)).isDirectory();
+  } catch {
+    return false;
   }
 }
 
@@ -140,6 +148,24 @@ export async function syncImages(
         };
 
         if (options?.delete) {
+          // Safety guard: an ABSENT local directory means "this combo is not managed here."
+          // Never read a missing directory as an instruction to wipe the remote images -- that
+          // would silently delete e.g. the app icon or feature graphic when someone runs
+          // `sync --delete` while keeping only screenshots locally. A directory that is present
+          // but empty is still treated as an explicit "clear this combo".
+          if (localFiles.length === 0 && remoteImages.length > 0 && !(await dirExists(localDir))) {
+            for (const img of remoteImages) {
+              details.push({
+                language,
+                imageType,
+                file: img.id,
+                action: "skip",
+                reason: "no local directory; remote left untouched",
+              });
+            }
+            continue;
+          }
+
           // Order-preserving replace. The Play Developer API has no reorder endpoint and
           // images.list returns images in display order, so reconciling by hash *set* alone
           // would keep unchanged images in their existing positions and append changed ones at
@@ -162,12 +188,17 @@ export async function syncImages(
             continue;
           }
 
-          for (const img of remoteImages) {
+          // Clear the whole combo in a single request (deleteAll) rather than a per-image delete
+          // loop -- one DELETE instead of up to eight, which matters for the Play API write
+          // budget on a large multi-locale sync. Then re-upload every local file in sorted order.
+          if (remoteImages.length > 0) {
             if (!options?.dryRun) {
-              await client.images.delete(packageName, edit.id, language, imageType, img.id);
+              await client.images.deleteAll(packageName, edit.id, language, imageType);
             }
-            deleted++;
-            details.push({ language, imageType, file: img.id, action: "delete", reason: "reordering" });
+            for (const img of remoteImages) {
+              deleted++;
+              details.push({ language, imageType, file: img.id, action: "delete", reason: "reordering" });
+            }
           }
           for (const file of localFiles) {
             await uploadLocal(file, "reordering");
