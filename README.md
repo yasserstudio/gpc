@@ -9,6 +9,8 @@
 
 # GPC - Google Play Console CLI
 
+**Ship Android apps from your terminal.** No Ruby. No browser. No ceremony.
+
 **GPC** is a command-line interface for the Google Play Developer API that covers all 227 API endpoints from a single binary. It handles releases, rollouts, store listings, vitals monitoring, reviews, subscriptions, reports, and Managed Google Play publishing without requiring Ruby, a JVM, or a browser. Built for Android developers, release engineers, and DevOps teams who ship from the terminal.
 
 GPC also includes an offline compliance scanner that catches Google Play policy violations before you upload, and a real-time rollout monitor that auto-halts on crash rate spikes.
@@ -38,10 +40,10 @@ npm install -g @gpc-cli/cli
 # Homebrew (macOS/Linux)
 brew install yasserstudio/tap/gpc
 
-# Standalone binary — macOS/Linux (no Node.js required)
+# Standalone binary (macOS/Linux, no Node.js required)
 curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.sh | sh
 
-# Standalone binary — Windows (PowerShell)
+# Standalone binary (Windows, PowerShell)
 iwr -useb https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/install.ps1 | iex
 ```
 
@@ -61,7 +63,7 @@ Free to use. No account required beyond your existing Google Play service accoun
 8. **Check reviews** - `gpc reviews list --stars 1-3 --since 7d`
 
 <p align="center">
-  <img src="./assets/demo.svg" alt="gpc status — releases, vitals, reviews at a glance" width="680">
+  <img src="./assets/demo.svg" alt="gpc status: releases, vitals, reviews at a glance" width="680">
 </p>
 
 ---
@@ -86,7 +88,7 @@ GPC covers the **entire Google Play Developer API** in one CLI. 227 endpoints. N
 | Interactive mode        | Yes (guided prompts)                   | No              | No                    | N/A          |
 | Test suite              | 2,503 tests, 90%+ coverage             |                 |                       |              |
 
-Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) — most commands map one-to-one.
+Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane). Most commands map one-to-one.
 
 ---
 
@@ -109,7 +111,7 @@ Manage store listings, screenshots, and localization. Works with Fastlane metada
 ```bash
 gpc listings pull --dir metadata/          # Download all listings
 gpc listings push --dir metadata/          # Upload local changes
-gpc listings images upload --lang en-US --type phoneScreenshots ./screens/*.png
+gpc listings images sync --lang en-US --type phoneScreenshots --dir ./screens
 ```
 
 ---
@@ -119,14 +121,14 @@ gpc listings images upload --lang en-US --type phoneScreenshots ./screens/*.png
 From git log to translated Play Store release notes, in one command.
 
 ```bash
-# GitHub Release markdown from your commits — clusters, lints, LLM prompt
+# GitHub Release markdown from your commits (clusters, lints, LLM prompt)
 gpc changelog generate                                     # paste into the GH Release body
 gpc changelog generate | gh release create v1.2.3 -F -    # one-command release
 
 # Per-locale Play Store "What's new" text (500-char budget enforced per locale)
 gpc changelog generate --target play-store --locales auto
 
-# Translate non-source locales via your own LLM key (BYO — no vendor lock-in)
+# Translate non-source locales via your own LLM key (BYO, no vendor lock-in)
 gpc changelog generate --target play-store --locales auto --ai
 ```
 
@@ -146,7 +148,7 @@ gpc status --watch 60                      # Live polling every 60 seconds
 gpc status --all-apps                      # Check all your apps at once
 gpc watch --track production               # Real-time rollout monitoring with alerts
 gpc watch --on-breach halt                 # Auto-halt rollout on threshold breach
-gpc vitals crashes --threshold 2.0         # Exit code 6 if breached — CI gate
+gpc vitals crashes --threshold 2.0         # Exit code 6 if breached (CI gate)
 gpc reviews list --stars 1-2 --since 7d    # Filter reviews by stars and date
 gpc reviews reply <id> --text "Thanks!"    # Reply without opening a browser
 ```
@@ -171,7 +173,7 @@ gpc games leaderboards diff <id> --file leaderboard.json
 
 ## Protect
 
-Catch problems before Google does. No other tool does this. v0.9.74 adds a full security hardening pass: plugin RCE prevention, SSRF protection on resumable uploads, symlink traversal rejection, credential redaction across doctor and config output, and 10 additional hardening fixes. See the [changelog](./CHANGELOG.md) for the full list.
+Catch problems before Google does. No other tool does this. GPC ships a hardened security posture: plugin RCE prevention, SSRF protection on resumable uploads, symlink traversal rejection, and credential redaction across doctor and config output. See the [changelog](./CHANGELOG.md) for the full history.
 
 ```bash
 gpc preflight app.aab                        # Run all 9 scanners
@@ -183,7 +185,7 @@ gpc preflight --source app/src               # Secrets, billing SDKs, tracking
 9 scanners run in parallel: **manifest** (target SDK, debuggable, exported, foreground service types), **permissions** (18 restricted permissions), **native-libs** (64-bit compliance), **metadata** (listing limits, screenshots), **secrets** (AWS, Google, Stripe keys), **billing** (non-Play SDKs), **privacy** (tracking SDKs), **policy** (Families/COPPA), **size** (download warnings).
 
 <p align="center">
-  <img src="./assets/preflight.svg" alt="gpc preflight — 9 offline compliance scanners" width="680">
+  <img src="./assets/preflight.svg" alt="gpc preflight: 9 offline compliance scanners" width="680">
 </p>
 
 Check your [developer verification](https://developer.android.com/developer-verification) readiness before enforcement begins (September 30, 2026).
@@ -284,7 +286,7 @@ GPC is a TypeScript monorepo. Use the CLI from your terminal, or import the pack
 
 | Package                                                                    | Description                                  |
 | -------------------------------------------------------------------------- | -------------------------------------------- |
-| [`@gpc-cli/cli`](https://www.npmjs.com/package/@gpc-cli/cli)               | CLI entry point — the `gpc` command          |
+| [`@gpc-cli/cli`](https://www.npmjs.com/package/@gpc-cli/cli)               | CLI entry point (the `gpc` command)          |
 | [`@gpc-cli/core`](https://www.npmjs.com/package/@gpc-cli/core)             | Business logic and command orchestration     |
 | [`@gpc-cli/api`](https://www.npmjs.com/package/@gpc-cli/api)               | Typed Google Play Developer API v3 client    |
 | [`@gpc-cli/auth`](https://www.npmjs.com/package/@gpc-cli/auth)             | Authentication (service account, OAuth, ADC) |
@@ -313,9 +315,9 @@ Full docs at **[yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)
 
 ## Get Help
 
-- [GitHub Discussions](https://github.com/yasserstudio/gpc/discussions) — questions, ideas, show what you built
-- [Issues](https://github.com/yasserstudio/gpc/issues) — bug reports and feature requests
-- `gpc doctor` — diagnose setup problems locally
+- [GitHub Discussions](https://github.com/yasserstudio/gpc/discussions): questions, ideas, show what you built
+- [Issues](https://github.com/yasserstudio/gpc/issues): bug reports and feature requests
+- `gpc doctor`: diagnose setup problems locally
 
 ---
 
