@@ -134,54 +134,34 @@ images/
 
 Files are numbered sequentially (`1.png`, `2.png`, ...). The original filenames from your build are not preserved because Google Play doesn't store them.
 
-## Bulk workflow (the honest version)
+## Bulk workflow
 
-::: warning Current limitation
-GPC does **not** currently have a single "sync all images from a directory" command. `gpc listings push` handles text metadata only. For bulk image upload, you need to loop over your files and call `gpc listings images upload` per file. The pattern below works and is what users should run today. A future `gpc listings images push --dir <path>` is an open feature request — if you want it, open an issue on [github.com/yasserstudio/gpc](https://github.com/yasserstudio/gpc/issues).
-:::
-
-### The shell loop
-
-For each locale and each image type, loop over the local files and upload them one by one. Here's a portable shell script:
+Use `gpc listings images sync --dir` (v0.9.69+). Point it at your image tree and it walks every locale and image type in a single Play edit, uploading only what changed. It compares each local file by SHA-256 against the remote image, skips anything already matching, and commits once for the whole run.
 
 ```bash
-#!/bin/bash
-# sync-images.sh — upload every image in ./images/<lang>/<type>/*.png to Google Play
-set -euo pipefail
+# Sync every locale and image type under ./images, and mirror deletions
+gpc listings images sync --app com.example.myapp --dir ./images --delete
 
-APP="com.example.myapp"
-SOURCE_DIR="./images"
-
-for lang_dir in "$SOURCE_DIR"/*/; do
-  lang=$(basename "$lang_dir")
-  for type_dir in "$lang_dir"*/; do
-    type=$(basename "$type_dir")
-    for file in "$type_dir"*.png "$type_dir"*.jpg; do
-      [ -e "$file" ] || continue
-      echo "Uploading $file → $lang / $type"
-      gpc listings images upload "$file" \
-        --app "$APP" \
-        --lang "$lang" \
-        --type "$type"
-    done
-  done
-done
+# Preview first — no API calls, no save spent
+gpc listings images sync --app com.example.myapp --dir ./images --delete --dry-run
 ```
 
-Save this as `scripts/sync-images.sh` in your repo, make it executable (`chmod +x`), and run it as part of your release flow.
+`--delete` also **guarantees display order**: when a locale/type differs from local in content or order, that combo is cleared in one call and re-uploaded in sorted filename order (`1.png`, `2.png`, ...); a combo already in order is skipped. Absent type directories are left untouched, so syncing only screenshots never wipes a remote icon or feature graphic. See the [`listings images sync` reference](../commands/listings.md#listings-images-sync) for the full flag table.
 
-**Before running:** if the Play Store already has images for any of these slots, you may want to delete them first (to avoid ending up with 10 phone screenshots where you wanted 5). The API **replaces** an image if you upload one with the same filename, but **adds** a new one if the filename is different. For clean replacement, list + delete the existing images for each locale + type first, then upload.
+::: tip Watch the save quota, not the request quota
+Google enforces a per-app **publish (save) limit** that is much lower than the general API request quota — every committed edit counts as one save. The old pattern of looping `gpc listings images upload` (and `delete`) once per file opens and commits one edit per call, so five images across 27 locales and two form factors is hundreds of saves per run and exhausts the daily limit in a few runs. `gpc listings images sync --dir` does the whole job inside **one** edit and one commit, and a no-op re-run (nothing changed) is discarded without committing, so it costs zero saves. Always prefer `sync` over per-image `upload`/`delete` for anything beyond a one-off fix.
+:::
 
 ### Pairing text and image sync in one flow
 
-Your realistic release flow looks like this:
+Your realistic release flow is two commands, one save each:
 
 ```bash
 # 1. Sync text metadata (title, descriptions, video URLs) from ./metadata
 gpc listings push --dir ./metadata
 
-# 2. Sync all images from ./images
-./scripts/sync-images.sh
+# 2. Sync all images from ./images, in order, mirroring deletions
+gpc listings images sync --dir ./images --delete
 ```
 
 Your repo layout:
@@ -208,11 +188,9 @@ repo/
         3.png
     ja-JP/
       ...
-  scripts/
-    sync-images.sh
 ```
 
-Note the two separate top-level directories: `metadata/` (Fastlane format for text) and `images/` (GPC format for binaries). You can combine them under a single parent if you prefer, but keep the internal layouts as shown above — `gpc listings push` expects text files directly under `<lang>/`, while `gpc listings images upload` / `export` expect binaries under `<lang>/<type>/`.
+Note the two separate top-level directories: `metadata/` (Fastlane format for text) and `images/` (GPC format for binaries). You can combine them under a single parent if you prefer, but keep the internal layouts as shown above — `gpc listings push` expects text files directly under `<lang>/`, while `gpc listings images sync` / `export` expect binaries under `<lang>/<type>/`.
 
 ## Localization strategy
 
@@ -223,10 +201,10 @@ Note the two separate top-level directories: `metadata/` (Fastlane format for te
 for lang in fr-FR de-DE ja-JP es-ES; do
   cp -r images/en-US images/$lang
 done
-./scripts/sync-images.sh
+gpc listings images sync --dir ./images --delete
 ```
 
-**Option 2: localized screenshots.** Generate separate screenshots per locale using Fastlane's [`screengrab`](https://docs.fastlane.tools/actions/screengrab/) or a custom tool. Commit the localized versions to `images/<lang>/` and let the sync loop handle them. More work, but higher conversion rates in non-English markets.
+**Option 2: localized screenshots.** Generate separate screenshots per locale using Fastlane's [`screengrab`](https://docs.fastlane.tools/actions/screengrab/) or a custom tool. Commit the localized versions to `images/<lang>/` and let `gpc listings images sync --dir ./images --delete` handle every locale in one edit. More work, but higher conversion rates in non-English markets.
 
 **Option 3: localized UI captures only.** Same image in every locale for icon + feature graphic (universal branding), but localized phone screenshots per language. Most common pragmatic choice.
 
@@ -265,9 +243,7 @@ jobs:
         run: gpc listings push --app ${{ secrets.PACKAGE_NAME }} --dir ./metadata
 
       - name: Sync images
-        run: ./scripts/sync-images.sh
-        env:
-          APP: ${{ secrets.PACKAGE_NAME }}
+        run: gpc listings images sync --app ${{ secrets.PACKAGE_NAME }} --dir ./images --delete
 ```
 
 The `paths:` filter means this workflow only runs when something in `metadata/` or `images/` changes, not on every code commit. Designers and marketers can push screenshot updates and they land on the Play Store without a full app release.
@@ -293,11 +269,10 @@ If you get in the habit of running `identify` or similar on every new screenshot
 
 Being explicit about the edges so you know where to reach for other tools:
 
-- **Screenshot generation.** GPC does not drive an emulator, run UI tests, or take screenshots of your app. If you need automated screenshot capture, use [Fastlane `screengrab`](https://docs.fastlane.tools/getting-started/android/screenshots/) or a custom Espresso test suite. Pipe the resulting PNGs into `gpc listings images upload` or the shell loop above.
+- **Screenshot generation.** GPC does not drive an emulator, run UI tests, or take screenshots of your app. If you need automated screenshot capture, use [Fastlane `screengrab`](https://docs.fastlane.tools/getting-started/android/screenshots/) or a custom Espresso test suite. Pipe the resulting PNGs into `gpc listings images sync --dir`.
 - **Image optimization.** GPC does not compress, resize, or convert images. Your source files need to meet Google's specs already. Tools like `pngquant`, `jpegoptim`, or `squoosh` work well in a pre-upload step.
 - **A/B testing store listings.** Google Play has a Store Listing Experiments feature for this. It's a separate API surface that GPC does not currently wrap. Open an issue if you want it.
 - **Automatic translation of listing text or screenshot overlays.** GPC copies what's in your local directory. Translation is a separate concern.
-- **Bulk image push from a directory.** As noted in the honest-version callout above. Use the shell loop today; file a feature request if you want a first-class command.
 - **Old `promoGraphic` image type.** Google Play deprecated this years ago; GPC does not support it.
 
 ## Troubleshooting
@@ -317,8 +292,8 @@ The image passed local validation but Google rejected it. Check the response bod
 **"No images found for language X type Y" when exporting**
 Normal if you haven't uploaded any images for that slot. `listings images export` skips empty slots.
 
-**"Shell loop is slow for N locales × 8 screenshots"**
-Each upload is a separate API call. Google's rate limit is generous (several per second), but a 20-locale release is ~160 sequential API calls, ~2-3 minutes. If this is painful, parallelize the loop with `xargs -P` or GNU parallel. Stay under ~10 parallel uploads to avoid rate-limit errors.
+**"Uploading N locales × 8 screenshots is slow, or burns my daily save quota"**
+Do not loop `gpc listings images upload` (or `delete`) per file — each call is its own committed edit and one save, so a 20-locale release is hundreds of saves and hits the per-app publish limit fast. Run `gpc listings images sync --dir ./images --delete` instead: it does every locale and type inside one edit, uploads only files whose SHA-256 changed, and commits once. That is one save for the whole release, and a no-op re-run costs zero.
 
 ## Related
 
@@ -331,8 +306,7 @@ Each upload is a separate API call. Google's rate limit is generous (several per
 
 These are tracked for future GPC versions. Your feedback on which matter most drives prioritization:
 
-- **`gpc listings images push --dir <path>`** — a first-class bulk upload command that walks a directory and replaces Play Store images atomically. Would eliminate the shell loop.
-- **`gpc listings images delete --all`** — bulk-delete all images for a locale + type. The underlying API supports it (`deleteAll` method in the api-client); CLI exposure is missing.
+- **`gpc listings images delete --all`** — bulk-delete all images for a locale + type from the CLI directly. The underlying API supports it (`deleteAll`), and `gpc listings images sync --delete` already uses it internally, but a standalone bulk-delete command is not exposed.
 - **Fastlane-layout compat for images.** GPC writes `<dir>/<lang>/<type>/` while Fastlane uses `<dir>/<lang>/images/<type>/`. Adding a `--fastlane-layout` flag to `export`/`upload` would enable direct round-trips with existing Fastlane repos.
 - **Pre-upload image validation surfaced in preflight.** Currently only checked at upload time; could be moved to `gpc preflight` for earlier feedback.
 - **Store Listing Experiments API** — A/B testing of icons, graphics, and descriptions. Google has the API; GPC doesn't wrap it yet.
