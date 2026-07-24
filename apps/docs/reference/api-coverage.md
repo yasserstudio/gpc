@@ -78,7 +78,7 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 | API Endpoint               | Method | GPC Command                                 |
 | -------------------------- | ------ | ------------------------------------------- |
-| `edits.listings.list`      | GET    | `gpc listings get --all-languages`          |
+| `edits.listings.list`      | GET    | `gpc listings get` (all languages)          |
 | `edits.listings.get`       | GET    | `gpc listings get --lang <lang>`            |
 | `edits.listings.update`    | PUT    | `gpc listings update --lang <lang>`         |
 | `edits.listings.delete`    | DELETE | `gpc listings delete --lang <lang>`         |

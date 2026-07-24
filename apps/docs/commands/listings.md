@@ -198,7 +198,7 @@ metadata/
 
 ## `listings push`
 
-Upload store listings from a local Fastlane-compatible directory structure. **Text metadata only** (titles, descriptions, video URLs). Does NOT upload images — for screenshots and graphics, use `gpc listings images upload` per-file. See the [Store Listings & Screenshots guide](../guide/screenshots.md) for a shell-loop pattern that uploads an entire image tree.
+Upload store listings from a local Fastlane-compatible directory structure. **Text metadata only** (titles, descriptions, video URLs). Does NOT upload images — for screenshots and graphics, use `gpc listings images sync --dir` (one committed edit for the whole image tree). See the [Store Listings & Screenshots guide](../guide/screenshots.md) for the full round-trip pattern.
 
 ### Synopsis
 
@@ -393,7 +393,7 @@ images/
 ```
 
 ::: warning Layout note
-This is **not** the same layout as Fastlane's `metadata/android/<lang>/images/<type>/` format. GPC's image export uses `<dir>/<lang>/<type>/` without the nested `images/` subdirectory. The exported files are suitable for re-upload via `gpc listings images upload` per-file, but cannot be round-tripped via `gpc listings push` (which only handles text metadata). See the [Store Listings & Screenshots guide](../guide/screenshots.md) for the round-trip pattern and limitations.
+This is **not** the same layout as Fastlane's `metadata/android/<lang>/images/<type>/` format. GPC's image export uses `<dir>/<lang>/<type>/` without the nested `images/` subdirectory. The exported files are suitable for re-upload via `gpc listings images sync --dir` (which walks the whole tree in one edit), but cannot be round-tripped via `gpc listings push` (which only handles text metadata). See the [Store Listings & Screenshots guide](../guide/screenshots.md) for the round-trip pattern and limitations.
 :::
 
 ### Example — export only phone screenshots for one locale

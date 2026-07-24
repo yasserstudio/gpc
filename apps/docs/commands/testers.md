@@ -30,9 +30,12 @@ gpc testers list --track <track>
 
 ### Options
 
-| Flag      | Short | Type     | Default        | Description                                         |
-| --------- | ----- | -------- | -------------- | --------------------------------------------------- |
-| `--track` |       | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom) |
+| Flag          | Short | Type     | Default        | Description                                                            |
+| ------------- | ----- | -------- | -------------- | --------------------------------------------------------------------- |
+| `--track`     |       | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom)                   |
+| `--sort`      |       | `string` |                | Sort by field; prefix with `-` for descending (e.g. `email`, `-email`) |
+| `--limit`     |       | `number` |                | Maximum results to return                                             |
+| `--next-page` |       | `string` |                | Pagination token for the next page                                    |
 
 ### Example
 
@@ -42,9 +45,15 @@ gpc testers list --app com.example.myapp --track internal
 
 ```json
 {
-  "testers": ["tester1@example.com", "tester2@example.com", "qa-team@googlegroups.com"]
+  "googleGroups": ["qa-team@googlegroups.com", "beta-testers@googlegroups.com"],
+  "nextPageToken": null,
+  "meta": { "count": 2 }
 }
 ```
+
+::: tip List output shape (v0.9.87+)
+`testers list --json` returns the unified list envelope with the results under **`googleGroups`** (the tester groups configured on the track), plus `nextPageToken` and `meta.count`. Play tracks hold tester **groups** (Google Groups), not individual email addresses.
+:::
 
 List beta testers:
 

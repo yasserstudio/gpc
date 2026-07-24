@@ -134,15 +134,7 @@ jobs:
       - uses: yasserstudio/gpc-action@v1
         with:
           service-account-json: ${{ secrets.GPC_SERVICE_ACCOUNT }}
-      - run: |
-          for f in games/achievements/*.json; do
-            id=$(jq -r '.id // empty' "$f")
-            if [ -n "$id" ]; then
-              gpc games achievements update "$id" --file "$f"
-            else
-              gpc games achievements create --file "$f"
-            fi
-          done
+      - run: gpc games achievements push games/achievements
         env:
           GPC_GAME_ID: ${{ vars.GAME_ID }}
 ```

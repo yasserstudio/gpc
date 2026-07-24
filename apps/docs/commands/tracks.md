@@ -37,16 +37,19 @@ gpc tracks list --app com.example.myapp
 ```json
 {
   "tracks": [
-    { "track": "internal", "releases": [{ "versionCodes": ["42"], "status": "completed" }] },
-    { "track": "alpha", "releases": [] },
-    { "track": "beta", "releases": [{ "versionCodes": ["41"], "status": "completed" }] },
-    {
-      "track": "production",
-      "releases": [{ "versionCodes": ["40"], "status": "completed", "userFraction": 1.0 }]
-    }
-  ]
+    { "track": "internal", "releases": 1, "latestStatus": "completed", "latestVersion": "42" },
+    { "track": "alpha", "releases": 0, "latestStatus": "none", "latestVersion": "-" },
+    { "track": "beta", "releases": 1, "latestStatus": "completed", "latestVersion": "41" },
+    { "track": "production", "releases": 1, "latestStatus": "completed", "latestVersion": "40" }
+  ],
+  "nextPageToken": null,
+  "meta": { "count": 4 }
 }
 ```
+
+::: tip List output shape (v0.9.87+)
+`tracks list --json` returns the unified list envelope `{ tracks, nextPageToken, meta.count }`. Each row is a summary: `releases` is the release **count** (a number), and `latestStatus` / `latestVersion` describe the most recent release. Use `gpc tracks get <track>` for the full release objects (`versionCodes`, `userFraction`, etc.).
+:::
 
 ---
 

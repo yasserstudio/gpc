@@ -46,7 +46,7 @@ GPC replaces `fastlane supply` (and parts of `fastlane deliver`) for Google Play
 
 | Fastlane                                                   | GPC                                                                               | Notes                 |
 | ---------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------------- |
-| `fastlane supply --skip_upload_aab --skip_upload_metadata` | `gpc listings images upload --lang en-US --type phoneScreenshots ./screens/*.png` | Upload screenshots    |
+| `fastlane supply --skip_upload_aab --skip_upload_metadata` | `gpc listings images sync --lang en-US --type phoneScreenshots --dir ./screens`    | Upload screenshots    |
 | N/A                                                        | `gpc listings images list --lang en-US --type phoneScreenshots`                   | List existing images  |
 | N/A                                                        | `gpc listings images delete --lang en-US --type phoneScreenshots --id <id>`       | Delete specific image |
 

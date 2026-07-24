@@ -46,7 +46,7 @@ gpc listings push --dir metadata/
 Sync images:
 
 ```bash
-gpc listings images upload --lang en-US --type phoneScreenshots ./screens/*.png
+gpc listings images sync --lang en-US --type phoneScreenshots --dir ./screens
 ```
 
 If you have an existing Fastlane metadata directory from `fastlane supply init`, GPC works with it unchanged. The directory layout, filename conventions, and field names are all identical.
