@@ -2,9 +2,9 @@
 outline: deep
 ---
 
-# GitHub Actions
+# Publish to Google Play from GitHub Actions
 
-Complete, copy-pasteable workflows for GitHub Actions. Each workflow is self-contained -- copy it into `.github/workflows/` and configure secrets.
+Publish Android apps to Google Play directly from GitHub Actions: use the official GPC Action for a one-step job with a built-in preflight compliance gate, or call the `gpc` CLI for full control. This page has complete, copy-pasteable workflows -- each is self-contained, so copy it into `.github/workflows/` and configure your service-account secret.
 
 ## Prerequisites
 

@@ -2,9 +2,9 @@
 outline: deep
 ---
 
-# Android Release Automation with GPC
+# How to Automate Google Play Releases from the Command Line
 
-Automate your entire Google Play release pipeline from the command line or CI/CD. Upload, promote, monitor, and gate releases without opening a browser.
+Automate your entire Google Play release pipeline with GPC, a free command-line tool: `gpc upload` sends the AAB, `gpc promote` moves it between tracks, and `gpc train` gates the staged rollout on crash and ANR vitals. The whole flow runs from your terminal or CI/CD with no browser and no Play Console clicks.
 
 ## The problem
 

@@ -21,7 +21,7 @@ GPC also includes an offline compliance scanner that catches Google Play policy 
   <img src="https://img.shields.io/badge/Free_to_use-Code_on_GitHub-yellow?style=for-the-badge" alt="Free to use">
   <a href="https://www.npmjs.com/package/@gpc-cli/cli"><img src="https://img.shields.io/npm/dm/@gpc-cli/cli?style=for-the-badge&color=00BFA5" alt="npm downloads"></a>
   <a href="https://yasserstudio.github.io/gpc/"><img src="https://img.shields.io/badge/Docs-yasserstudio.github.io%2Fgpc-00D26A?style=for-the-badge" alt="Documentation"></a>
-  <img src="https://img.shields.io/badge/Tests-2413_passing-00D26A?style=for-the-badge" alt="Tests">
+  <img src="https://img.shields.io/badge/Tests-2503_passing-00D26A?style=for-the-badge" alt="Tests">
   <img src="https://img.shields.io/badge/Coverage-90%25+-00BFA5?style=for-the-badge" alt="Coverage">
 </p>
 
