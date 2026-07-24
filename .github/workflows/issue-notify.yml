@@ -1,0 +1,54 @@
+name: Issue Notify
+
+# Pushes a phone notification the instant an issue is opened or a comment is
+# posted. Event-driven, so nothing runs on quiet days. Delivery is ntfy.sh
+# (free, no account); the topic lives in the NTFY_TOPIC repo secret so it is
+# not exposed in this public repo.
+
+on:
+  issues:
+    types: [opened, reopened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    # Skip the maintainer's own activity so you never ping yourself.
+    if: ${{ github.actor != 'yasserstudio' }}
+    steps:
+      - name: Push to ntfy
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          EVENT: ${{ github.event_name }}
+          ACTOR: ${{ github.event.sender.login }}
+          ISSUE_NUM: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          COMMENT_URL: ${{ github.event.comment.html_url }}
+          IS_PR: ${{ github.event.issue.pull_request != null }}
+        run: |
+          if [ -z "$NTFY_TOPIC" ]; then
+            echo "NTFY_TOPIC secret not set; skipping." && exit 0
+          fi
+
+          KIND="issue"
+          [ "$IS_PR" = "true" ] && KIND="PR"
+
+          if [ "$EVENT" = "issues" ]; then
+            TITLE="New $KIND #$ISSUE_NUM by $ACTOR"
+            LINK="$ISSUE_URL"
+          else
+            TITLE="Reply on $KIND #$ISSUE_NUM by $ACTOR"
+            LINK="$COMMENT_URL"
+          fi
+
+          curl -fsS \
+            -H "Title: $TITLE" \
+            -H "Tags: speech_balloon" \
+            -H "Click: $LINK" \
+            -d "$ISSUE_TITLE" \
+            "https://ntfy.sh/$NTFY_TOPIC"
