@@ -88,6 +88,8 @@ Example `achievement.json`:
 
 For incremental achievements, set `"achievementType": "INCREMENTAL"` and add `"stepsToUnlock": 100`.
 
+To ship more than one language, add locales to the `translations` arrays. See [Localization](/guide/games-publishing#localization) in the games guide.
+
 ### `games achievements update <achievement-id> --file <path>`
 
 Update an existing achievement.

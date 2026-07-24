@@ -100,6 +100,40 @@ Score format types:
 - `TIME_DURATION` -- milliseconds displayed as time
 - `CURRENCY` -- monetary value (requires `currencyCode`)
 
+## Localization
+
+Every achievement and leaderboard `name` and `description` is a localized string bundle, not a plain string. You add a language by including another entry in its `translations` array. There is no separate translations command: the locales you ship are the ones present in the config JSON you `create`, `update`, or `push`.
+
+```json
+{
+  "draft": {
+    "name": {
+      "translations": [
+        { "locale": "en-US", "value": "First Victory" },
+        { "locale": "fr-FR", "value": "Premiere victoire" },
+        { "locale": "de-DE", "value": "Erster Sieg" },
+        { "locale": "ja-JP", "value": "初勝利" }
+      ]
+    },
+    "description": {
+      "translations": [
+        { "locale": "en-US", "value": "Win your first match" },
+        { "locale": "fr-FR", "value": "Gagnez votre premier match" },
+        { "locale": "de-DE", "value": "Gewinne dein erstes Spiel" },
+        { "locale": "ja-JP", "value": "初めての試合に勝利する" }
+      ]
+    }
+  }
+}
+```
+
+Notes:
+
+- `locale` uses BCP 47 codes (`en-US`, `fr-FR`, `pt-BR`). Use the same set Play Games Services supports in the Console.
+- One locale should match your game's default language; players in an unlisted locale fall back to it.
+- `update` and `push` replace the whole bundle, so include every locale you want to keep on each write. Run `pull` first to fetch the current translations, then edit and push back to avoid dropping a language.
+- `diff` compares the full localized bundle, so a changed or added translation shows up before you push.
+
 ## Syncing with Diff
 
 Before updating, compare your local definition against the remote:
