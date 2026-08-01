@@ -226,11 +226,13 @@ Developer-account user management lives at a separate base URL (`androidpublishe
 
 ## Reports
 
-| API Endpoint                   | Method | GPC Command                      |
-| ------------------------------ | ------ | -------------------------------- |
-| `reports.list`                 | GET    | `gpc reports list`               |
-| `reports.download` (financial) | GET    | `gpc reports download financial` |
-| `reports.download` (stats)     | GET    | `gpc reports download stats`     |
+Bulk reports are served from the Play-linked Cloud Storage bucket (`pubsite_prod_<developerId>`) via the GCS JSON API, not the Publisher API (v0.9.93+).
+
+| API Endpoint                     | Method | GPC Command                      |
+| -------------------------------- | ------ | -------------------------------- |
+| `storage.objects.list`           | GET    | `gpc reports list`               |
+| `storage.objects.get` (financial) | GET    | `gpc reports download financial` |
+| `storage.objects.get` (stats)    | GET    | `gpc reports download stats`     |
 
 ## Play Developer Reporting API: Vitals
 
