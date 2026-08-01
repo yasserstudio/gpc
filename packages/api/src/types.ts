@@ -879,10 +879,7 @@ export interface BatchGetOrdersResponse {
 // --- ProductPurchaseV2 (Jun 2025) ---
 
 export type ProductPurchaseState =
-  | "PURCHASE_STATE_UNSPECIFIED"
-  | "PURCHASED"
-  | "CANCELLED"
-  | "PENDING";
+  "PURCHASE_STATE_UNSPECIFIED" | "PURCHASED" | "CANCELLED" | "PENDING";
 
 export type ProductAcknowledgementState =
   | "ACKNOWLEDGEMENT_STATE_UNSPECIFIED"
@@ -1319,12 +1316,7 @@ export interface TaxAndComplianceSettings {
 }
 
 export type OneTimeOfferState =
-  | "STATE_UNSPECIFIED"
-  | "DRAFT"
-  | "ACTIVE"
-  | "INACTIVE"
-  | "INACTIVE_PUBLISHED"
-  | "CANCELLED";
+  "STATE_UNSPECIFIED" | "DRAFT" | "ACTIVE" | "INACTIVE" | "INACTIVE_PUBLISHED" | "CANCELLED";
 
 export type OneTimeProductAvailability =
   | "AVAILABILITY_UNSPECIFIED"

@@ -31,11 +31,11 @@ gpc testers list --track <track>
 ### Options
 
 | Flag          | Short | Type     | Default        | Description                                                            |
-| ------------- | ----- | -------- | -------------- | --------------------------------------------------------------------- |
-| `--track`     |       | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom)                   |
+| ------------- | ----- | -------- | -------------- | ---------------------------------------------------------------------- |
+| `--track`     |       | `string` | **(required)** | Track name (`internal`, `alpha`, `beta`, or custom)                    |
 | `--sort`      |       | `string` |                | Sort by field; prefix with `-` for descending (e.g. `email`, `-email`) |
-| `--limit`     |       | `number` |                | Maximum results to return                                             |
-| `--next-page` |       | `string` |                | Pagination token for the next page                                    |
+| `--limit`     |       | `number` |                | Maximum results to return                                              |
+| `--next-page` |       | `string` |                | Pagination token for the next page                                     |
 
 ### Example
 

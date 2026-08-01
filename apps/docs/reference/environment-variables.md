@@ -15,12 +15,12 @@ All `GPC_*` environment variables and external variables that GPC respects.
 
 ## App & Project
 
-| Variable           | Type     | Description                                                                               | Default |
-| ------------------ | -------- | ----------------------------------------------------------------------------------------- | ------- |
-| `GPC_APP`          | `string` | Default package name (e.g., `com.example.myapp`). Used when `--app` flag is not provided. | —       |
-| `GPC_DEVELOPER_ID` | `string` | Developer account ID. Required for `gpc users` and `gpc testers` commands; also derives the default `gpc reports` bucket (`pubsite_prod_<id>`). | —       |
-| `GPC_REPORTS_BUCKET` | `string` | Cloud Storage bucket for `gpc reports` when it differs from `pubsite_prod_<developerId>`. | —       |
-| `GPC_GAME_ID`      | `string` | Games application ID (numeric). Used by `gpc games` commands when `--game-id` is not set. | —       |
+| Variable             | Type     | Description                                                                                                                                     | Default |
+| -------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `GPC_APP`            | `string` | Default package name (e.g., `com.example.myapp`). Used when `--app` flag is not provided.                                                       | —       |
+| `GPC_DEVELOPER_ID`   | `string` | Developer account ID. Required for `gpc users` and `gpc testers` commands; also derives the default `gpc reports` bucket (`pubsite_prod_<id>`). | —       |
+| `GPC_REPORTS_BUCKET` | `string` | Cloud Storage bucket for `gpc reports` when it differs from `pubsite_prod_<developerId>`.                                                       | —       |
+| `GPC_GAME_ID`        | `string` | Games application ID (numeric). Used by `gpc games` commands when `--game-id` is not set.                                                       | —       |
 
 ## Output
 

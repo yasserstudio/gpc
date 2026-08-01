@@ -11,11 +11,11 @@ outline: deep
 
 ## Commands
 
-| Command                                                     | Description                               |
-| ----------------------------------------------------------- | ----------------------------------------- |
-| [`reports list`](#reports-list)                             | List available report files               |
-| [`reports download financial`](#reports-download-financial) | Download a financial report               |
-| [`reports download stats`](#reports-download-stats)         | Download a statistics report              |
+| Command                                                     | Description                  |
+| ----------------------------------------------------------- | ---------------------------- |
+| [`reports list`](#reports-list)                             | List available report files  |
+| [`reports download financial`](#reports-download-financial) | Download a financial report  |
+| [`reports download stats`](#reports-download-stats)         | Download a statistics report |
 
 ## Access and configuration
 
@@ -36,12 +36,12 @@ Two prerequisites:
    set it with `--bucket`, the `reports.bucket` config key, or the `GPC_REPORTS_BUCKET`
    environment variable.
 
-| Setting            | How to set it                                  |
-| ------------------ | ---------------------------------------------- |
-| Bucket (flag)      | `--bucket pubsite_prod_1234567890`             |
-| Bucket (env)       | `GPC_REPORTS_BUCKET=pubsite_prod_1234567890`   |
-| Bucket (config)    | `"reports": { "bucket": "pubsite_prod_1234567890" }` |
-| Developer id       | `developerId` config / `GPC_DEVELOPER_ID` (derives the default bucket) |
+| Setting         | How to set it                                                          |
+| --------------- | ---------------------------------------------------------------------- |
+| Bucket (flag)   | `--bucket pubsite_prod_1234567890`                                     |
+| Bucket (env)    | `GPC_REPORTS_BUCKET=pubsite_prod_1234567890`                           |
+| Bucket (config) | `"reports": { "bucket": "pubsite_prod_1234567890" }`                   |
+| Developer id    | `developerId` config / `GPC_DEVELOPER_ID` (derives the default bucket) |
 
 ## `reports list`
 
@@ -118,7 +118,7 @@ gpc reports download financial --month <YYYY-MM> [options]
 | --------------- | ----- | -------- | -------------- | ----------------------------------------------------------------------------- |
 | `--month`       |       | `string` | **(required)** | Report month (format: `YYYY-MM`)                                              |
 | `--type`        |       | `string` | `earnings`     | Financial report type: `earnings`, `sales`, `estimated_sales`, `play_balance` |
-| `--bucket`      |       | `string` |                | GCS bucket name (default: `pubsite_prod_<developerId>`)                        |
+| `--bucket`      |       | `string` |                | GCS bucket name (default: `pubsite_prod_<developerId>`)                       |
 | `--output-file` |       | `string` |                | Save to file instead of stdout (a `.zip` path saves the raw archive)          |
 
 Financial reports are account-level (no `--app` needed). Play delivers most of them as ZIP
@@ -182,13 +182,13 @@ gpc reports download stats --month <YYYY-MM> --type <report-type> [options]
 
 ### Options
 
-| Flag            | Short | Type     | Default        | Description                                                                                          |
-| --------------- | ----- | -------- | -------------- | ---------------------------------------------------------------------------------------------------- |
-| `--month`       |       | `string` | **(required)** | Report month (format: `YYYY-MM`)                                                                     |
-| `--type`        |       | `string` | **(required)** | Stats report type: `installs`, `crashes`, `ratings`, `reviews`, `store_performance`, `subscriptions` |
+| Flag            | Short | Type     | Default        | Description                                                                                                             |
+| --------------- | ----- | -------- | -------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `--month`       |       | `string` | **(required)** | Report month (format: `YYYY-MM`)                                                                                        |
+| `--type`        |       | `string` | **(required)** | Stats report type: `installs`, `crashes`, `ratings`, `reviews`, `store_performance`, `subscriptions`                    |
 | `--dimension`   |       | `string` | `overview`     | Report dimension: `overview`, `country`, `language`, `os_version`, `device`, `app_version`, `carrier`, `traffic_source` |
-| `--bucket`      |       | `string` |                | GCS bucket name (default: `pubsite_prod_<developerId>`)                                               |
-| `--output-file` |       | `string` |                | Save to file instead of stdout                                                                       |
+| `--bucket`      |       | `string` |                | GCS bucket name (default: `pubsite_prod_<developerId>`)                                                                 |
+| `--output-file` |       | `string` |                | Save to file instead of stdout                                                                                          |
 
 Play publishes one CSV per dimension per month (reviews reports have no dimension). If the
 requested dimension does not exist for that month, the error lists the dimensions that do.

@@ -103,7 +103,7 @@ This is designed to break the cycle of scam-driven coercion while preserving cho
 | **March 2026**         | Registration opens to all developers                                                                            |
 | **April 2026**         | Android Developer Verifier rolls out to certified devices as a Google Play Services system component            |
 | **June 2026**          | Limited distribution accounts early access                                                                      |
-| **July 15, 2026**      | Play policy reiterates that all Play apps must be registered in Play Console; unregistered apps risk removal     |
+| **July 15, 2026**      | Play policy reiterates that all Play apps must be registered in Play Console; unregistered apps risk removal    |
 | **August 2026**        | Limited distribution and advanced flow launch globally                                                          |
 | **September 30, 2026** | Enforcement begins in Brazil, Indonesia, Singapore, Thailand                                                    |
 | **2027+**              | Global enforcement rollout                                                                                      |

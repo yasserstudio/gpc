@@ -344,7 +344,9 @@ describe("syncImages", () => {
     expect(
       result.details.some(
         (d) =>
-          d.imageType === "icon" && d.action === "skip" && /no local directory/.test(d.reason ?? ""),
+          d.imageType === "icon" &&
+          d.action === "skip" &&
+          /no local directory/.test(d.reason ?? ""),
       ),
     ).toBe(true);
   });

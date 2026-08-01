@@ -323,8 +323,7 @@ export function registerPurchasesCommands(program: Command): void {
       });
       if (format !== "json") {
         const purchases = (result as Record<string, unknown>)["voidedPurchases"] as
-          | Record<string, unknown>[]
-          | undefined;
+          Record<string, unknown>[] | undefined;
         if (purchases && purchases.length > 0) {
           const rows = purchases.map((p) => ({
             orderId: p["orderId"] || "-",

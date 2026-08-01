@@ -50,8 +50,7 @@ export function registerAnomaliesCommands(program: Command): void {
         throw err;
       }
       const items = (result as unknown as Record<string, unknown>)["anomalies"] as
-        | unknown[]
-        | undefined;
+        unknown[] | undefined;
 
       if (format !== "json") {
         if (!items || items.length === 0) {

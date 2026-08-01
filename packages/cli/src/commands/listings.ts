@@ -661,8 +661,7 @@ export function registerListingsCommands(program: Command): void {
 
       const result = await getCountryAvailability(client, packageName, options.track);
       const countries = (result as unknown as Record<string, unknown>)["countryTargeting"] as
-        | unknown[]
-        | undefined;
+        unknown[] | undefined;
       if (
         format !== "json" &&
         (!countries || (Array.isArray(countries) && countries.length === 0)) &&

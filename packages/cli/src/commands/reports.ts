@@ -172,9 +172,15 @@ export function registerReportsCommands(program: Command): void {
       // Raw-archive saves don't need the entries extracted (and must not fail on an
       // archive GPC cannot read — the bytes are still worth writing to disk).
       const rawZipSave = Boolean(options.outputFile && /\.zip$/i.test(options.outputFile));
-      const result = await downloadFinancialReport(auth, bucket, options.type as ReportType, month, {
-        extractEntries: !rawZipSave,
-      });
+      const result = await downloadFinancialReport(
+        auth,
+        bucket,
+        options.type as ReportType,
+        month,
+        {
+          extractEntries: !rawZipSave,
+        },
+      );
 
       if (result.kind === "csv") {
         await saveOrPrint(result.text, options.outputFile, result.objectName, format);

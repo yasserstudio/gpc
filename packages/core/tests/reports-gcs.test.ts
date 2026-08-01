@@ -136,9 +136,7 @@ describe("GCS reports layer", () => {
 
   it("maps 403 to REPORT_ACCESS_DENIED with the Play Console grant suggestion", async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse(403, { error: { code: 403 } }));
-    await expect(
-      listReportObjects(auth, BUCKET, { prefix: "stats/" }),
-    ).rejects.toMatchObject({
+    await expect(listReportObjects(auth, BUCKET, { prefix: "stats/" })).rejects.toMatchObject({
       code: "REPORT_ACCESS_DENIED",
       exitCode: 4,
       suggestion: expect.stringContaining("download bulk reports"),
@@ -222,9 +220,7 @@ describe("listReports", () => {
     // Server-side narrowing keeps pagination consistent: a month-filtered page can never
     // be empty while more pages exist.
     const url = fetchMock.mock.calls[0]?.[0] as string;
-    expect(decodeURIComponent(url)).toContain(
-      "prefix=stats/installs/installs_com.example_202606",
-    );
+    expect(decodeURIComponent(url)).toContain("prefix=stats/installs/installs_com.example_202606");
     expect(result.reports.map((r) => r.name)).toEqual([
       "stats/installs/installs_com.example_202606_overview.csv",
       "stats/installs/installs_com.example_202606_country.csv",
@@ -298,7 +294,14 @@ describe("downloadStatsReport", () => {
     );
 
     await expect(
-      downloadStatsReport(auth, BUCKET, "com.example", "installs", { year: 2026, month: 6 }, "device"),
+      downloadStatsReport(
+        auth,
+        BUCKET,
+        "com.example",
+        "installs",
+        { year: 2026, month: 6 },
+        "device",
+      ),
     ).rejects.toMatchObject({
       code: "REPORT_OBJECT_NOT_FOUND",
       suggestion: expect.stringContaining("overview, country"),
@@ -330,9 +333,7 @@ describe("downloadStatsReport", () => {
 
 describe("downloadFinancialReport", () => {
   it("downloads a monthly earnings zip and extracts its CSV entries", async () => {
-    const zip = makeZip([
-      { name: "earnings_202606.csv", content: Buffer.from("a,b\n1,2\n") },
-    ]);
+    const zip = makeZip([{ name: "earnings_202606.csv", content: Buffer.from("a,b\n1,2\n") }]);
     fetchMock
       .mockResolvedValueOnce(
         jsonResponse(200, {

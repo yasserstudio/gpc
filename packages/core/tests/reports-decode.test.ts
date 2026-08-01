@@ -128,7 +128,9 @@ describe("report decode helpers", () => {
   });
 
   it("extractCsvEntriesFromZip rejects a corrupt archive", async () => {
-    await expect(extractCsvEntriesFromZip(deflateRawSync(Buffer.from("not a zip")))).rejects.toThrow();
+    await expect(
+      extractCsvEntriesFromZip(deflateRawSync(Buffer.from("not a zip"))),
+    ).rejects.toThrow();
   });
 });
 

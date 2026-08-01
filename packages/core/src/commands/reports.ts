@@ -6,7 +6,12 @@ import {
   type ReportsAuth,
   type ReportObject,
 } from "../reports/gcs.js";
-import { decodeStatsCsv, extractCsvEntriesFromZip, isZip, type ZipCsvEntry } from "../reports/decode.js";
+import {
+  decodeStatsCsv,
+  extractCsvEntriesFromZip,
+  isZip,
+  type ZipCsvEntry,
+} from "../reports/decode.js";
 import { reportObjectNotFoundError } from "../reports/errors.js";
 
 const FINANCIAL_REPORT_TYPES: ReadonlySet<string> = new Set([

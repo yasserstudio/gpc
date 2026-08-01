@@ -130,9 +130,7 @@ function registerMetricCommand(
           const rowR = row as Record<string, unknown>;
           const startTime = rowR["startTime"] as Record<string, unknown> | undefined;
           const metrics = rowR["metrics"] as
-            | Record<string, Record<string, unknown>>
-            | unknown[]
-            | undefined;
+            Record<string, Record<string, unknown>> | unknown[] | undefined;
           const flat: Record<string, unknown> = {
             date: startTime
               ? `${startTime["year"]}-${String(startTime["month"]).padStart(2, "0")}-${String(startTime["day"]).padStart(2, "0")}`
@@ -246,8 +244,7 @@ export function registerVitalsCommands(program: Command): void {
           const metricRows = data as Record<string, unknown>[] | undefined;
           const latest = metricRows?.[metricRows.length - 1];
           const metrics = latest?.["metrics"] as
-            | Record<string, Record<string, unknown>>
-            | undefined;
+            Record<string, Record<string, unknown>> | undefined;
           const firstKey = metrics ? Object.keys(metrics)[0] : undefined;
           const value = firstKey
             ? (metrics?.[firstKey]?.["decimalValue"] as Record<string, unknown> | undefined)?.[
@@ -360,8 +357,7 @@ export function registerVitalsCommands(program: Command): void {
         maxResults: options.max,
       });
       const issues = (result as unknown as Record<string, unknown>)["errorIssues"] as
-        | unknown[]
-        | undefined;
+        unknown[] | undefined;
       if (format !== "json" && (!issues || issues.length === 0)) {
         console.log("No error issues found.");
         return;

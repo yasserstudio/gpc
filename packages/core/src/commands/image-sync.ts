@@ -178,12 +178,19 @@ export async function syncImages(
           const localSeq = localFiles.map((file) => localHashes.get(file)!);
           const remoteSeq = remoteImages.map((img) => img.sha256.toLowerCase());
           const inOrder =
-            localSeq.length === remoteSeq.length && localSeq.every((hash, i) => hash === remoteSeq[i]);
+            localSeq.length === remoteSeq.length &&
+            localSeq.every((hash, i) => hash === remoteSeq[i]);
 
           if (inOrder) {
             for (const file of localFiles) {
               skipped++;
-              details.push({ language, imageType, file, action: "skip", reason: "already in order" });
+              details.push({
+                language,
+                imageType,
+                file,
+                action: "skip",
+                reason: "already in order",
+              });
             }
             continue;
           }
@@ -197,7 +204,13 @@ export async function syncImages(
             }
             for (const img of remoteImages) {
               deleted++;
-              details.push({ language, imageType, file: img.id, action: "delete", reason: "reordering" });
+              details.push({
+                language,
+                imageType,
+                file: img.id,
+                action: "delete",
+                reason: "reordering",
+              });
             }
           }
           for (const file of localFiles) {

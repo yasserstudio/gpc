@@ -39,18 +39,18 @@ Map common Google Play Console browser tasks to GPC CLI commands. Every operatio
 
 ### Store Listing and Metadata
 
-| Play Console UI                         | GPC Command                                                                       | Notes                      |
-| --------------------------------------- | --------------------------------------------------------------------------------- | -------------------------- |
-| Edit store listing (title, description) | `gpc listings update --lang en-US --title "My App" --short "..."`                 | Also `--full`, `--video`   |
-| Edit full description from a file       | `gpc listings update --lang en-US --full-file metadata/en-US/full_description.txt`| Or push a whole dir (below) |
-| View current listing                    | `gpc listings get --lang en-US`                                                   | One language               |
-| View all language listings              | `gpc listings get`                                                                | Omit `--lang` for all      |
-| Download all listings to files          | `gpc listings pull --dir metadata/`                                               | Fastlane-compatible format |
-| Upload listings from files              | `gpc listings push --dir metadata/`                                               |                            |
-| Preview listing changes                 | `gpc listings push --dir metadata/ --dry-run`                                     | Diff without applying      |
-| Upload screenshots                      | `gpc listings images sync --lang en-US --type phoneScreenshots --dir ./screens`   | One edit for the whole set |
-| View screenshots                        | `gpc listings images list --lang en-US --type phoneScreenshots`                   |                            |
-| Delete screenshot                       | `gpc listings images delete --lang en-US --type phoneScreenshots --id <id>`       |                            |
+| Play Console UI                         | GPC Command                                                                        | Notes                       |
+| --------------------------------------- | ---------------------------------------------------------------------------------- | --------------------------- |
+| Edit store listing (title, description) | `gpc listings update --lang en-US --title "My App" --short "..."`                  | Also `--full`, `--video`    |
+| Edit full description from a file       | `gpc listings update --lang en-US --full-file metadata/en-US/full_description.txt` | Or push a whole dir (below) |
+| View current listing                    | `gpc listings get --lang en-US`                                                    | One language                |
+| View all language listings              | `gpc listings get`                                                                 | Omit `--lang` for all       |
+| Download all listings to files          | `gpc listings pull --dir metadata/`                                                | Fastlane-compatible format  |
+| Upload listings from files              | `gpc listings push --dir metadata/`                                                |                             |
+| Preview listing changes                 | `gpc listings push --dir metadata/ --dry-run`                                      | Diff without applying       |
+| Upload screenshots                      | `gpc listings images sync --lang en-US --type phoneScreenshots --dir ./screens`    | One edit for the whole set  |
+| View screenshots                        | `gpc listings images list --lang en-US --type phoneScreenshots`                    |                             |
+| Delete screenshot                       | `gpc listings images delete --lang en-US --type phoneScreenshots --id <id>`        |                             |
 
 ### Reviews
 

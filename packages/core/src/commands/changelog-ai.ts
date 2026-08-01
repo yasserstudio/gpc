@@ -5,13 +5,7 @@ export type Provider = "anthropic" | "openai" | "google";
 export type TranslationPath = "gateway" | "direct";
 
 export type ErrorReason =
-  | "rate_limited"
-  | "auth"
-  | "safety_blocked"
-  | "timeout"
-  | "network"
-  | "no_source"
-  | "unknown";
+  "rate_limited" | "auth" | "safety_blocked" | "timeout" | "network" | "no_source" | "unknown";
 
 export interface TranslationResult {
   text: string;
