@@ -500,6 +500,62 @@ async function checkEnterpriseAccess(accessToken: string): Promise<CheckResult> 
 }
 
 // ---------------------------------------------------------------------------
+// Play reports bucket (GCS) probe
+// ---------------------------------------------------------------------------
+
+async function checkReportsBucketAccess(bucket: string, accessToken: string): Promise<CheckResult> {
+  try {
+    const response = await fetch(
+      `https://storage.googleapis.com/storage/v1/b/${encodeURIComponent(bucket)}/o?maxResults=1`,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        signal: AbortSignal.timeout(10_000),
+      },
+    );
+
+    if (response.ok) {
+      return {
+        name: "reports-bucket",
+        status: "pass",
+        message: `Play reports bucket readable: ${bucket}`,
+      };
+    }
+    if (response.status === 403 || response.status === 401) {
+      return {
+        name: "reports-bucket",
+        status: "warn",
+        message: `No access to the Play reports bucket ${bucket} (gpc reports will fail)`,
+        suggestion:
+          "In Play Console → Users and permissions, enable 'View app information and download " +
+          "bulk reports (read-only)' for this service account, then allow a few minutes to " +
+          "propagate.",
+      };
+    }
+    if (response.status === 404) {
+      return {
+        name: "reports-bucket",
+        status: "warn",
+        message: `Play reports bucket not found: ${bucket}`,
+        suggestion:
+          "Copy the exact Cloud Storage URI from Play Console → Download reports and set it " +
+          "with the reports.bucket config key or GPC_REPORTS_BUCKET.",
+      };
+    }
+    return {
+      name: "reports-bucket",
+      status: "info",
+      message: `Reports bucket probe inconclusive (HTTP ${response.status})`,
+    };
+  } catch (err) {
+    return {
+      name: "reports-bucket",
+      status: "info",
+      message: `Reports bucket probe skipped: ${err instanceof Error ? err.message : String(err)}`,
+    };
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Verification deadline check
 // ---------------------------------------------------------------------------
 
@@ -1522,6 +1578,28 @@ export function registerDoctorCommand(program: Command): void {
       // -----------------------------------------------------------------------
       if (accessToken) {
         results.push(await checkEnterpriseAccess(accessToken));
+      }
+
+      // -----------------------------------------------------------------------
+      // 17c. Play reports bucket probe (only when a bucket is derivable). Uses the
+      // same bucket resolution as `gpc reports` and a storage-scoped token — the
+      // default-scope token minted above deliberately lacks devstorage.read_only.
+      // -----------------------------------------------------------------------
+      if (accessToken) {
+        try {
+          const { resolveReportsBucket } = await import("@gpc-cli/core");
+          const reportsBucket = resolveReportsBucket(config ?? {});
+          const { DEFAULT_SCOPES, STORAGE_READ_ONLY_SCOPE } = await import("@gpc-cli/auth");
+          const storageAuth = await resolveAuth({
+            serviceAccountPath: config?.auth?.serviceAccount,
+            scopes: [...DEFAULT_SCOPES, STORAGE_READ_ONLY_SCOPE],
+          });
+          results.push(
+            await checkReportsBucketAccess(reportsBucket, await storageAuth.getAccessToken()),
+          );
+        } catch {
+          // No bucket derivable (or storage auth failed) — reports are optional; skip.
+        }
       }
 
       // -----------------------------------------------------------------------

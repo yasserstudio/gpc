@@ -160,10 +160,6 @@ describe("API Coverage Audit — PlayApiClient", () => {
     assertMethods(client.monetization, ["convertRegionPrices"], "monetization");
   });
 
-  describe("reports namespace", () => {
-    assertMethods(client.reports, ["list"], "reports");
-  });
-
   describe("testers namespace", () => {
     assertMethods(client.testers, ["get", "update", "patch"], "testers");
   });
@@ -269,7 +265,6 @@ describe("API Coverage Audit — Namespace completeness", () => {
     "purchases",
     "orders",
     "monetization",
-    "reports",
     "testers",
     "deobfuscation",
     "appRecovery",

@@ -28,3 +28,17 @@ export async function getReportingClient(config: GpcConfig) {
   const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
   return createReportingClient({ auth });
 }
+
+/**
+ * Raw auth client for endpoints outside the Play API clients. `storage: true` adds the
+ * read-only GCS scope needed for the Play bulk-reports bucket; ordinary tokens never
+ * carry it (least privilege), and the token cache keys default- and storage-scoped
+ * tokens separately so they cannot serve each other.
+ */
+export async function getAuthClient(config: GpcConfig, opts?: { storage?: boolean }) {
+  const { DEFAULT_SCOPES, STORAGE_READ_ONLY_SCOPE } = await import("@gpc-cli/auth");
+  return resolveAuth({
+    serviceAccountPath: config.auth?.serviceAccount,
+    scopes: opts?.storage ? [...DEFAULT_SCOPES, STORAGE_READ_ONLY_SCOPE] : undefined,
+  });
+}

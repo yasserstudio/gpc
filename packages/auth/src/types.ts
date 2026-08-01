@@ -2,6 +2,12 @@ export interface AuthOptions {
   serviceAccountPath?: string;
   serviceAccountJson?: string;
   cachePath?: string;
+  /**
+   * OAuth scopes to request. Defaults to the Play publisher + reporting scopes; pass
+   * REPORTS_SCOPES (adds devstorage.read_only) only for the GCS bulk-reports path so
+   * ordinary tokens never carry storage access.
+   */
+  scopes?: readonly string[];
 }
 
 export interface AuthClient {

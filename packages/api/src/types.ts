@@ -1016,16 +1016,8 @@ export type StatsDimension =
   | "device"
   | "app_version"
   | "carrier"
+  | "traffic_source"
   | "overview";
-
-export interface ReportBucket {
-  bucketId: string;
-  uri: string;
-}
-
-export interface ReportsListResponse {
-  reports: ReportBucket[];
-}
 
 // --- Users ---
 

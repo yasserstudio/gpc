@@ -1366,34 +1366,6 @@ describe("monetization API endpoints", () => {
     expect(url).toContain("pageToken=abc");
   });
 
-  // --- Phase 7: reports ---
-
-  describe("reports", () => {
-    it("reports.list calls GET /{pkg}/reports/{type}/{year}/{month}", async () => {
-      mockFetch.mockResolvedValueOnce(
-        mockResponse({
-          reports: [{ bucketId: "b1", uri: "https://storage.googleapis.com/report.csv" }],
-        }),
-      );
-      const client = makeClient();
-      const result = await client.reports.list(PKG, "earnings", 2026, 3);
-      expect(result).toEqual({
-        reports: [{ bucketId: "b1", uri: "https://storage.googleapis.com/report.csv" }],
-      });
-      const [url, init] = mockFetch.mock.calls[0];
-      expect(url).toBe(`${BASE_URL}/${PKG}/reports/earnings/2026/03`);
-      expect(init.method).toBe("GET");
-    });
-
-    it("reports.list pads single-digit month", async () => {
-      mockFetch.mockResolvedValueOnce(mockResponse({ reports: [] }));
-      const client = makeClient();
-      await client.reports.list(PKG, "installs", 2025, 1);
-      const [url] = mockFetch.mock.calls[0];
-      expect(url).toContain("/2025/01");
-    });
-  });
-
   // --- Phase 7: testers ---
 
   describe("testers", () => {

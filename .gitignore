@@ -54,3 +54,10 @@ pnpm-lock.yaml
 Thumbs.db
 .claude/scheduled_tasks.lock
 .claude/settings.local.json
+
+# Local-only artifacts (machine-specific, never published)
+deepsec-findings-v2/
+/metadata/
+/.claude/pruned-skills-*.txt
+/.claude/restore-pruned-skills.sh
+/.claude/worktrees/

@@ -50,7 +50,13 @@ function saveEnv(...keys: string[]) {
 // loadEnvConfig
 // ---------------------------------------------------------------------------
 describe("loadEnvConfig", () => {
-  const ENV_KEYS = ["GPC_APP", "GPC_OUTPUT", "GPC_PROFILE", "GPC_SERVICE_ACCOUNT"] as const;
+  const ENV_KEYS = [
+    "GPC_APP",
+    "GPC_OUTPUT",
+    "GPC_PROFILE",
+    "GPC_SERVICE_ACCOUNT",
+    "GPC_REPORTS_BUCKET",
+  ] as const;
 
   let envBackup: ReturnType<typeof saveEnv>;
 
@@ -103,6 +109,12 @@ describe("loadEnvConfig", () => {
     process.env["GPC_SERVICE_ACCOUNT"] = "/path/to/sa.json";
     const config = loadEnvConfig();
     expect(config.auth).toEqual({ serviceAccount: "/path/to/sa.json" });
+  });
+
+  it("reads GPC_REPORTS_BUCKET into reports.bucket", () => {
+    process.env["GPC_REPORTS_BUCKET"] = "pubsite_prod_123456";
+    const config = loadEnvConfig();
+    expect(config.reports).toEqual({ bucket: "pubsite_prod_123456" });
   });
 
   it("returns empty object when no env vars set", () => {
@@ -201,6 +213,7 @@ describe("loadConfig", () => {
     "GPC_OUTPUT",
     "GPC_PROFILE",
     "GPC_SERVICE_ACCOUNT",
+    "GPC_REPORTS_BUCKET",
     "XDG_CONFIG_HOME",
   ] as const;
 
@@ -271,6 +284,27 @@ describe("loadConfig", () => {
     expect(config.output).toBe("markdown");
     // profile: no override, no env, no project -> user wins
     expect(config.profile).toBe("user-profile");
+  });
+
+  it("applies a profile's reports.bucket, and GPC_REPORTS_BUCKET overrides it", async () => {
+    const userConfigDir = join(tmpDir, "xdg-config", "gpc");
+    await mkdir(userConfigDir, { recursive: true });
+    await writeFile(
+      join(userConfigDir, "config.json"),
+      JSON.stringify({
+        profile: "sfn",
+        profiles: { sfn: { reports: { bucket: "pubsite_prod_fromprofile" } } },
+      }),
+    );
+
+    // Profile value applies when no env override
+    const fromProfile = await loadConfig();
+    expect(fromProfile.reports).toEqual({ bucket: "pubsite_prod_fromprofile" });
+
+    // Env var wins over the profile (documented precedence: env > profile)
+    process.env["GPC_REPORTS_BUCKET"] = "pubsite_prod_fromenv";
+    const fromEnv = await loadConfig();
+    expect(fromEnv.reports).toEqual({ bucket: "pubsite_prod_fromenv" });
   });
 });
 

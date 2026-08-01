@@ -20,4 +20,5 @@ export type {
   OutputFormat,
   WebhookConfig,
   GamesConfig,
+  ReportsConfig,
 } from "./types.js";

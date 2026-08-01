@@ -3,15 +3,16 @@ import { GoogleAuth } from "google-auth-library";
 import { AuthError } from "./errors.js";
 import { createServiceAccountAuth, loadServiceAccountKey } from "./service-account.js";
 import { acquireToken } from "./token-cache.js";
+import { DEFAULT_SCOPES, scopedCacheKey } from "./scopes.js";
 import type { AuthClient, AuthOptions } from "./types.js";
 
-const ANDROID_PUBLISHER_SCOPE = "https://www.googleapis.com/auth/androidpublisher";
-const REPORTING_SCOPE = "https://www.googleapis.com/auth/playdeveloperreporting";
-
-async function tryApplicationDefaultCredentials(cachePath?: string): Promise<AuthClient | null> {
+async function tryApplicationDefaultCredentials(
+  cachePath?: string,
+  scopes: readonly string[] = DEFAULT_SCOPES,
+): Promise<AuthClient | null> {
   try {
     const auth = new GoogleAuth({
-      scopes: [ANDROID_PUBLISHER_SCOPE, REPORTING_SCOPE],
+      scopes: [...scopes],
     });
 
     const client = await auth.getClient();
@@ -24,9 +25,11 @@ async function tryApplicationDefaultCredentials(cachePath?: string): Promise<Aut
         .digest("hex")
         .slice(0, 12)}`;
 
+    const cacheKey = scopedCacheKey(email, scopes);
+
     return {
       async getAccessToken(): Promise<string> {
-        return acquireToken(email, cachePath, async () => {
+        return acquireToken(cacheKey, cachePath, async () => {
           const { token } = await client.getAccessToken();
           if (!token) {
             throw new AuthError(
@@ -53,22 +56,23 @@ async function tryApplicationDefaultCredentials(cachePath?: string): Promise<Aut
 }
 
 export async function resolveAuth(options?: AuthOptions): Promise<AuthClient> {
+  const scopes = options?.scopes ?? DEFAULT_SCOPES;
   // 1. Explicit options
   if (options?.serviceAccountJson) {
     const key = await loadServiceAccountKey(options.serviceAccountJson);
-    return createServiceAccountAuth(key, options?.cachePath);
+    return createServiceAccountAuth(key, options?.cachePath, scopes);
   }
 
   if (options?.serviceAccountPath) {
     const key = await loadServiceAccountKey(options.serviceAccountPath);
-    return createServiceAccountAuth(key, options?.cachePath);
+    return createServiceAccountAuth(key, options?.cachePath, scopes);
   }
 
   // 2. GPC_SERVICE_ACCOUNT environment variable
   const envValue = process.env["GPC_SERVICE_ACCOUNT"];
   if (envValue) {
     const key = await loadServiceAccountKey(envValue);
-    return createServiceAccountAuth(key, options?.cachePath);
+    return createServiceAccountAuth(key, options?.cachePath, scopes);
   }
 
   // 3. GOOGLE_APPLICATION_CREDENTIALS environment variable
@@ -76,14 +80,14 @@ export async function resolveAuth(options?: AuthOptions): Promise<AuthClient> {
   if (gacPath) {
     try {
       const key = await loadServiceAccountKey(gacPath);
-      return createServiceAccountAuth(key, options?.cachePath);
+      return createServiceAccountAuth(key, options?.cachePath, scopes);
     } catch {
       // Fall through to ADC which also reads GOOGLE_APPLICATION_CREDENTIALS
     }
   }
 
   // 4. Application Default Credentials
-  const adcClient = await tryApplicationDefaultCredentials(options?.cachePath);
+  const adcClient = await tryApplicationDefaultCredentials(options?.cachePath, scopes);
   if (adcClient) {
     return adcClient;
   }

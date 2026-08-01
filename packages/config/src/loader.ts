@@ -44,6 +44,9 @@ export function loadEnvConfig(): Partial<GpcConfig> {
   const developerId = process.env["GPC_DEVELOPER_ID"];
   if (developerId) config.developerId = developerId;
 
+  const reportsBucket = process.env["GPC_REPORTS_BUCKET"];
+  if (reportsBucket) config.reports = { bucket: reportsBucket };
+
   const debug = process.env["GPC_DEBUG"] === "1";
   if (debug) config.debug = true;
 
@@ -157,6 +160,7 @@ export async function loadConfig(overrides?: Partial<GpcConfig>): Promise<Resolv
       if (p?.auth) result.auth = p.auth;
       if (p?.app) result.app = p.app;
       if (p?.developerId) result.developerId = p.developerId;
+      if (p?.reports) result.reports = p.reports;
     } else if (result.profiles) {
       // Profiles defined but requested profile missing — error
       const available = Object.keys(result.profiles).join(", ");

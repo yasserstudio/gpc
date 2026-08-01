@@ -248,6 +248,30 @@ Emitted by `gpc changelog generate` (v0.9.61+).
 | `CHANGELOG_FETCH_FAILED`      | Could not fetch changelog                 | GitHub API unreachable or returned an error       | Check network; view online at the docs site                                 |
 | `CHANGELOG_VERSION_NOT_FOUND` | Version not found                         | Requested version does not exist in releases      | Run `gpc changelog --limit 10` to see available versions                    |
 
+### REPORT\_\* -- Bulk Report Errors
+
+Emitted by `gpc reports` (v0.9.93+), which reads Play's bulk-report CSVs from the linked
+Google Cloud Storage bucket.
+
+| Code                       | Exit | Message                        | Cause                                                                | Fix                                                                                                        |
+| -------------------------- | ---- | ------------------------------ | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `REPORT_INVALID_MONTH`     | 2    | Invalid month format           | `--month` is not `YYYY-MM`                                           | Use e.g. `--month 2026-03`                                                                                 |
+| `MISSING_REQUIRED_OPTION`  | 2    | Missing required option        | A required flag (`--month`, `--type`) was not provided               | Pass the flag named in the message                                                                         |
+| `INVALID_REPORT_TYPE`      | 2    | Invalid report type            | Unknown `--type` / report type argument                              | Use one of the documented report types                                                                     |
+| `INVALID_REPORT_DIMENSION` | 2    | Invalid dimension              | Unknown `--dimension` value                                          | Use one of: overview, country, language, os_version, device, app_version, carrier, traffic_source          |
+| `INVALID_LIMIT`            | 2    | Invalid --limit value          | `--limit` is not a positive integer                                  | Pass a whole number, e.g. `--limit 50`                                                                     |
+| `REPORT_BUCKET_UNKNOWN`    | 2    | Cannot determine bucket        | No `reports.bucket` and no `developerId` configured                  | Set `developerId` (derives `pubsite_prod_<developerId>`) or pass `--bucket` / `GPC_REPORTS_BUCKET`         |
+| `REPORT_BUCKET_INVALID`    | 2    | Malformed bucket name          | The bucket value is not a valid GCS bucket name                      | Copy the exact URI from Play Console → Download reports                                                    |
+| `REPORT_AUTH_REJECTED`     | 3    | Token rejected by GCS          | Credential itself was rejected (HTTP 401)                            | Check `gpc auth status` and the system clock, then retry                                                   |
+| `REPORT_ACCESS_DENIED`     | 4    | Access denied reading bucket   | Service account lacks the Play "download bulk reports" grant         | Enable "View app information and download bulk reports (read-only)" in Play Console → Users and permissions |
+| `REPORT_BUCKET_NOT_FOUND`  | 4    | Reports bucket not found       | Bucket name wrong for this account                                   | Copy the exact URI from Play Console → Download reports                                                    |
+| `REPORT_OBJECT_NOT_FOUND`  | 4    | No report for that month       | Report type/month/dimension combination not published (yet)          | List available files with `gpc reports list`; current-month reports publish after month end                |
+| `REPORT_LIST_FAILED`       | 4    | GCS list request failed        | Unexpected HTTP status from Cloud Storage                            | Retry; verify bucket and access if it persists                                                             |
+| `REPORT_DOWNLOAD_FAILED`   | 4    | GCS download failed            | Unexpected HTTP status from Cloud Storage                            | Retry; re-list to confirm the object still exists                                                          |
+| `REPORT_DECODE_FAILED`     | 4    | Report could not be decoded    | Corrupt transfer or malformed object                                 | Re-download; compare with the Play Console download if it persists                                         |
+| `REPORT_ARCHIVE_UNREADABLE`| 4    | Report archive unreadable      | Corrupt or unsupported ZIP archive                                   | Save the raw archive (`--output-file report.zip`) and open it locally                                      |
+| `REPORT_MULTIPLE_ENTRIES`  | 2    | Archive holds multiple CSVs    | Financial ZIP contains more than one CSV (stdout, non-JSON)          | Save the whole archive with `--output-file report.zip`, or use `--json`                                    |
+
 ### WATCH\_\* -- Watch Errors
 
 Exit code: `5`

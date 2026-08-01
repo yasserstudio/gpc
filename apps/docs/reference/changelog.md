@@ -11,7 +11,23 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.92 <Badge type="tip" text="latest" />
+## v0.9.93 <Badge type="tip" text="latest" />
+
+Report downloads are now real: stats and financial CSVs straight from Google Play's report bucket.
+
+- feat: `gpc reports list`, `gpc reports download stats`, and `gpc reports download financial` now fetch Play bulk reports directly from your account's Cloud Storage bucket. They previously only explained where to find the files; now they list, download, decompress, and decode them to clean UTF-8 CSV, ready to pipe into any tool.
+- feat: `--dimension` on stats downloads (overview, country, device, app_version, and more), `--bucket` to override the derived `pubsite_prod_<developerId>` bucket, plus `reports.bucket` config and `GPC_REPORTS_BUCKET` environment variable.
+- feat: financial ZIP archives are unwrapped automatically when they hold a single CSV; save the whole archive with `--output-file report.zip` or get every entry inline with `--json`.
+- feat: `gpc doctor` now probes report-bucket access and tells you when the service account is missing the Play Console "download bulk reports" grant. New `gpc auth clear-cache` clears cached tokens without touching credentials.
+- security: the read-only storage scope is requested only by the reports commands, never by anything else, and cached tokens are keyed by scope so they cannot cross over.
+
+One-time setup: enable "View app information and download bulk reports (read-only)" for your service account under Play Console -> Users and permissions, and set your `developerId` (or `reports.bucket`) so GPC can find the bucket.
+
+**Tests:** 2,540 (+37).
+
+---
+
+## v0.9.92
 
 Screenshot ordering fix for store-listing image sync.
 

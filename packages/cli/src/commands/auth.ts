@@ -296,6 +296,14 @@ export function registerAuthCommands(program: Command): void {
     });
 
   auth
+    .command("clear-cache")
+    .description("Clear cached access tokens (keeps configured credentials)")
+    .action(async () => {
+      await clearTokenCache(getCacheDir());
+      console.log("Token cache cleared. The next command will mint a fresh token.");
+    });
+
+  auth
     .command("whoami")
     .description("Show current authenticated identity")
     .action(async () => {

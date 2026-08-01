@@ -1,5 +1,23 @@
 # @gpc-cli/cli
 
+## 0.9.93
+
+### Patch Changes
+
+- Live Google Cloud Storage report download. `gpc reports list`, `gpc reports download stats`, and `gpc reports download financial` now fetch Play bulk-report CSVs directly from the account's GCS bucket (`pubsite_prod_<developerId>`) instead of erroring as unavailable. Discovery-first design: list a prefix, filter by month with digit-boundary matching, download, then gunzip and decode UTF-16 to clean UTF-8 CSV. Financial ZIP archives are unwrapped automatically (single CSV) or saved whole / inlined via `--json`. New flags: `--bucket`, `--dimension`, plus `reports.bucket` config and `GPC_REPORTS_BUCKET` env. `gpc doctor` gains a reports-bucket access probe and `gpc auth clear-cache` clears cached tokens without touching credentials.
+
+  Least-privilege auth: the `devstorage.read_only` scope is requested only by the reports path (and the doctor probe), never by other commands; the token cache now keys tokens by scope so differently-scoped tokens cannot serve each other.
+
+  Breaking (SDK surface only, CLI unaffected): `@gpc-cli/api` removes the non-functional `client.reports.list` endpoint and the `ReportBucket`/`ReportsListResponse` types (the Publisher API never served bulk reports); `@gpc-cli/core` replaces `downloadReport` with `downloadStatsReport`/`downloadFinancialReport` and changes the `listReports` signature to the GCS-backed form.
+
+  Setup note: Play does not grant a service account access to the reports bucket automatically. Enable "View app information and download bulk reports (read-only)" for the service account in Play Console -> Users and permissions, and set `developerId` (or `reports.bucket`) so the bucket can be derived.
+
+- Updated dependencies
+  - @gpc-cli/core@0.9.78
+  - @gpc-cli/auth@0.9.17
+  - @gpc-cli/config@0.9.20
+  - @gpc-cli/api@1.0.47
+
 ## 0.9.92
 
 ### Patch Changes

@@ -58,8 +58,6 @@ import type {
   OffersListResponse,
   ProductPurchase,
   Release,
-  ReportsListResponse,
-  ReportType,
   Review,
   ReviewReplyRequest,
   ReviewReplyResponse,
@@ -506,15 +504,6 @@ export interface PlayApiClient {
       packageName: string,
       price: ConvertRegionPricesRequest,
     ): Promise<ConvertRegionPricesResponse>;
-  };
-
-  reports: {
-    list(
-      packageName: string,
-      reportType: ReportType,
-      year: number,
-      month: number,
-    ): Promise<ReportsListResponse>;
   };
 
   testers: {
@@ -1597,16 +1586,6 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
         const { data } = await http.post<ConvertRegionPricesResponse>(
           `/${p(packageName)}/pricing:convertRegionPrices`,
           price,
-        );
-        return data;
-      },
-    },
-
-    reports: {
-      async list(packageName, reportType, year, month) {
-        const monthStr = String(month).padStart(2, "0");
-        const { data } = await http.get<ReportsListResponse>(
-          `/${p(packageName)}/reports/${reportType}/${year}/${monthStr}`,
         );
         return data;
       },

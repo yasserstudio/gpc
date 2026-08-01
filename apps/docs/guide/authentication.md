@@ -64,7 +64,7 @@ The service account is active immediately after invitation. No acceptance step i
 
 ### Required API Scopes
 
-GPC requests two OAuth scopes:
+GPC requests two OAuth scopes for every command:
 
 ```
 https://www.googleapis.com/auth/androidpublisher
@@ -72,6 +72,12 @@ https://www.googleapis.com/auth/playdeveloperreporting
 ```
 
 The `androidpublisher` scope covers the Publisher API (app management, releases, listings, monetization). The `playdeveloperreporting` scope is required for the Reporting API (vitals, crash rates, error issues, anomalies).
+
+The `gpc reports` commands additionally request a third, read-only scope — `https://www.googleapis.com/auth/devstorage.read_only` — to read the bulk-report CSVs that Play delivers to a Google Cloud Storage bucket. Only the reports path (and the matching `gpc doctor` probe) ever mints a token with this scope, and storage-scoped tokens are cached separately from regular ones, so tokens used by every other command never carry storage access.
+
+::: warning Reports need an explicit bucket grant
+The `devstorage.read_only` scope only lets the account request a storage token. Play does **not** automatically give a *service account* access to your reports bucket (it grants that bucket to your own user login only). To use `gpc reports download`, enable **"View app information and download bulk reports (read-only)"** for the service account under **Users and permissions -> the service account -> Account permissions**, then wait a few minutes for it to propagate. Without this, report downloads fail with `REPORT_ACCESS_DENIED`.
+:::
 
 ::: tip Enable the Reporting API
 If you use `gpc vitals` commands, ensure the **Google Play Developer Reporting API** is enabled in your Google Cloud project:

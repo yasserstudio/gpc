@@ -7,6 +7,29 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.93
+
+Report downloads are now real: stats and financial CSVs straight from Google Play's report bucket.
+
+- feat: `gpc reports list`, `gpc reports download stats`, and `gpc reports download financial` now fetch Play bulk reports directly from your account's Cloud Storage bucket, decompressed and decoded to clean UTF-8 CSV. They previously only explained where to find the files.
+- feat: `--dimension` on stats downloads, `--bucket` override, `reports.bucket` config, and `GPC_REPORTS_BUCKET` environment variable. Financial ZIP archives unwrap automatically (single CSV), save whole with `--output-file report.zip`, or inline every entry with `--json`.
+- feat: `gpc doctor` probes report-bucket access and flags a missing Play Console "download bulk reports" grant. New `gpc auth clear-cache` clears cached tokens without touching credentials.
+- security: the read-only storage scope is requested only by the reports commands, and cached tokens are keyed by scope so they cannot cross over.
+
+One-time setup: enable "View app information and download bulk reports (read-only)" for your service account in Play Console -> Users and permissions, and set `developerId` (or `reports.bucket`).
+
+---
+
+## v0.9.92
+
+Screenshot ordering fix for store-listing image sync.
+
+- fix: `gpc listings images sync --delete` now preserves screenshot display order, replacing a language and image type in filename order when the order or content differs and skipping sets that are already correct.
+- fix: `--delete` no longer removes image types you do not keep locally; a present-but-empty folder still clears that type on purpose.
+- perf: a language and image type is cleared in a single API call instead of one delete per image.
+
+---
+
 ## v0.9.91
 
 Google Play July 15, 2026 policy update, dependency health, and a docs refresh.

@@ -3120,9 +3120,10 @@ describe("pricing commands", () => {
 // ---------------------------------------------------------------------------
 
 import {
-  listReports,
-  downloadReport,
   parseMonth,
+  monthToken,
+  reportPrefix,
+  resolveReportsBucket,
   isValidReportType,
   isFinancialReportType,
   isStatsReportType,
@@ -3169,25 +3170,52 @@ describe("report commands", () => {
     expect(isValidStatsDimension("bogus")).toBe(false);
   });
 
-  it("listReports throws GCS not-supported error for financial reports", async () => {
-    const client: any = {};
-    await expect(listReports(client, "com.example", "earnings", 2026, 3)).rejects.toThrow(
-      "not available through the Google Play Developer API",
+  it("monthToken formats YYYYMM with zero padding", () => {
+    expect(monthToken({ year: 2026, month: 6 })).toBe("202606");
+    expect(monthToken({ year: 2026, month: 12 })).toBe("202612");
+  });
+
+  it("reportPrefix maps types to Play bucket layout", () => {
+    expect(reportPrefix("earnings")).toBe("earnings/");
+    expect(reportPrefix("sales")).toBe("sales/");
+    expect(reportPrefix("estimated_sales")).toBe("sales/");
+    expect(reportPrefix("play_balance")).toBe("play_balance/");
+    expect(reportPrefix("installs", "com.example")).toBe("stats/installs/installs_com.example_");
+    expect(reportPrefix("installs")).toBe("stats/installs/");
+    expect(reportPrefix("reviews", "com.example")).toBe("reviews/reviews_com.example_");
+    expect(reportPrefix("subscriptions", "com.example")).toBe(
+      "financial-stats/subscriptions/subscriptions_com.example_",
+    );
+    // Financial prefixes ignore the package name: those reports are account-level.
+    expect(reportPrefix("earnings", "com.example")).toBe("earnings/");
+  });
+
+  it("resolveReportsBucket prefers explicit bucket over developerId", () => {
+    expect(resolveReportsBucket({ reports: { bucket: "pubsite_prod_42" } })).toBe(
+      "pubsite_prod_42",
+    );
+    expect(
+      resolveReportsBucket({ reports: { bucket: "pubsite_prod_42" }, developerId: "99" }),
+    ).toBe("pubsite_prod_42");
+    expect(resolveReportsBucket({ developerId: "99" })).toBe("pubsite_prod_99");
+  });
+
+  it("resolveReportsBucket reduces a pasted gs:// URI to the bucket name", () => {
+    expect(resolveReportsBucket({ reports: { bucket: "gs://pubsite_prod_42/earnings" } })).toBe(
+      "pubsite_prod_42",
     );
   });
 
-  it("listReports throws GCS not-supported error for stats reports", async () => {
-    const client: any = {};
-    await expect(listReports(client, "com.example", "installs", 2026, 3)).rejects.toThrow(
-      "not available through the Google Play Developer API",
-    );
+  it("resolveReportsBucket throws a usage error when nothing is configured", () => {
+    expect(() => resolveReportsBucket({})).toThrow("Cannot determine the Play reports bucket");
   });
 
-  it("downloadReport throws GCS not-supported error", async () => {
-    const client: any = {};
-    await expect(downloadReport(client, "com.example", "earnings", 2026, 3)).rejects.toThrow(
-      "not available through the Google Play Developer API",
-    );
+  it("resolveReportsBucket rejects malformed bucket names with a usage error", () => {
+    for (const bad of ["gs://", "/foo", "UPPER_CASE", "has space"]) {
+      expect(() => resolveReportsBucket({ reports: { bucket: bad } })).toThrow(
+        /Invalid reports bucket name/,
+      );
+    }
   });
 });
 
@@ -4599,16 +4627,6 @@ describe("report commands – edge cases", () => {
     expect(() => parseMonth("")).toThrow("Invalid month format");
   });
 
-  it("downloadReport throws GCS not-supported error with suggestion", async () => {
-    const client: any = {};
-    try {
-      await downloadReport(client, "com.example", "earnings", 2026, 3);
-    } catch (err: any) {
-      expect(err.message).toContain("not available through the Google Play Developer API");
-      expect(err.suggestion).toContain("Google Cloud Storage");
-    }
-  });
-
   it("isValidReportType rejects empty string", () => {
     expect(isValidReportType("")).toBe(false);
   });
@@ -4621,6 +4639,7 @@ describe("report commands – edge cases", () => {
       "device",
       "app_version",
       "carrier",
+      "traffic_source",
       "overview",
     ]) {
       expect(isValidStatsDimension(dim)).toBe(true);

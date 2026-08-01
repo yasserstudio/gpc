@@ -3,10 +3,8 @@ import { resolve } from "node:path";
 import { JWT } from "google-auth-library";
 import { AuthError } from "./errors.js";
 import { acquireToken } from "./token-cache.js";
+import { DEFAULT_SCOPES, scopedCacheKey } from "./scopes.js";
 import type { AuthClient, ServiceAccountKey } from "./types.js";
-
-const ANDROID_PUBLISHER_SCOPE = "https://www.googleapis.com/auth/androidpublisher";
-const REPORTING_SCOPE = "https://www.googleapis.com/auth/playdeveloperreporting";
 
 const REQUIRED_FIELDS: readonly (keyof ServiceAccountKey)[] = [
   "type",
@@ -92,17 +90,22 @@ export async function loadServiceAccountKey(pathOrJson: string): Promise<Service
 
 const TOKEN_EXPIRY_SECONDS = 3600; // Google OAuth2 tokens expire in 1 hour
 
-export function createServiceAccountAuth(key: ServiceAccountKey, cachePath?: string): AuthClient {
+export function createServiceAccountAuth(
+  key: ServiceAccountKey,
+  cachePath?: string,
+  scopes: readonly string[] = DEFAULT_SCOPES,
+): AuthClient {
   const jwtClient = new JWT({
     email: key.client_email,
     key: key.private_key,
-    scopes: [ANDROID_PUBLISHER_SCOPE, REPORTING_SCOPE],
+    scopes: [...scopes],
   });
+  const cacheKey = scopedCacheKey(key.client_email, scopes);
 
   return {
     async getAccessToken(): Promise<string> {
       try {
-        return await acquireToken(key.client_email, cachePath, async () => {
+        return await acquireToken(cacheKey, cachePath, async () => {
           const { token } = await jwtClient.getAccessToken();
           if (!token) {
             throw new AuthError(

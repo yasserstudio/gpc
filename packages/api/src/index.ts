@@ -155,8 +155,6 @@ export type {
   ConvertRegionPricesResponse,
   ReportType,
   StatsDimension,
-  ReportBucket,
-  ReportsListResponse,
   DeveloperPermission,
   DeveloperLevelPermission,
   AppLevelPermission,

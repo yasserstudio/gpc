@@ -58,6 +58,7 @@ import { AuthError } from "../src/errors";
 import { loadServiceAccountKey, createServiceAccountAuth } from "../src/service-account";
 import { resolveAuth } from "../src/resolve";
 import { _resetMemoryCache } from "../src/token-cache";
+import { DEFAULT_SCOPES, STORAGE_READ_ONLY_SCOPE, scopedCacheKey } from "../src/scopes";
 
 let tempDir: string;
 const tempFiles: string[] = [];
@@ -193,6 +194,40 @@ describe("createServiceAccountAuth", () => {
   it("returns an AuthClient with getProjectId() returning the project_id", () => {
     const client = createServiceAccountAuth(MOCK_SERVICE_ACCOUNT);
     expect(client.getProjectId()).toBe("test-project");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Scope handling (least privilege: storage scope only on the reports path)
+// ---------------------------------------------------------------------------
+describe("scopes", () => {
+  it("DEFAULT_SCOPES contains publisher + reporting and NOT devstorage", () => {
+    expect(DEFAULT_SCOPES).toContain("https://www.googleapis.com/auth/androidpublisher");
+    expect(DEFAULT_SCOPES).toContain("https://www.googleapis.com/auth/playdeveloperreporting");
+    expect(DEFAULT_SCOPES).not.toContain(STORAGE_READ_ONLY_SCOPE);
+  });
+
+  it("scopedCacheKey keeps the bare email for default scopes", () => {
+    expect(scopedCacheKey("sa@p.iam.gserviceaccount.com", DEFAULT_SCOPES)).toBe(
+      "sa@p.iam.gserviceaccount.com",
+    );
+    // Order-insensitive
+    expect(scopedCacheKey("sa@p.iam.gserviceaccount.com", [...DEFAULT_SCOPES].reverse())).toBe(
+      "sa@p.iam.gserviceaccount.com",
+    );
+  });
+
+  it("scopedCacheKey appends a digest for non-default scopes so tokens cannot cross scopes", () => {
+    const storageKey = scopedCacheKey("sa@p.iam.gserviceaccount.com", [
+      ...DEFAULT_SCOPES,
+      STORAGE_READ_ONLY_SCOPE,
+    ]);
+    expect(storageKey).not.toBe("sa@p.iam.gserviceaccount.com");
+    expect(storageKey.startsWith("sa@p.iam.gserviceaccount.com+")).toBe(true);
+    // Deterministic
+    expect(
+      scopedCacheKey("sa@p.iam.gserviceaccount.com", [STORAGE_READ_ONLY_SCOPE, ...DEFAULT_SCOPES]),
+    ).toBe(storageKey);
   });
 });
 

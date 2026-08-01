@@ -219,14 +219,39 @@ export {
 export { convertRegionPrices } from "./commands/pricing.js";
 export {
   listReports,
-  downloadReport,
+  downloadStatsReport,
+  downloadFinancialReport,
+  resolveReportsBucket,
+  reportPrefix,
+  monthToken,
   parseMonth,
   isValidReportType,
   isFinancialReportType,
   isStatsReportType,
   isValidStatsDimension,
 } from "./commands/reports.js";
-export type { ParsedMonth } from "./commands/reports.js";
+export type {
+  ParsedMonth,
+  ListReportsResult,
+  StatsReportDownload,
+  FinancialReportDownload,
+} from "./commands/reports.js";
+export { listReportObjects, downloadReportObject } from "./reports/gcs.js";
+export type { ReportsAuth, ReportObject } from "./reports/gcs.js";
+export {
+  isGzip,
+  isZip,
+  gunzipIfNeeded,
+  decodeCsvText,
+  decodeStatsCsv,
+  extractCsvEntriesFromZip,
+} from "./reports/decode.js";
+export type { ZipCsvEntry } from "./reports/decode.js";
+export {
+  reportAccessDeniedError,
+  reportBucketNotFoundError,
+  reportObjectNotFoundError,
+} from "./reports/errors.js";
 export {
   listUsers,
   getUser,

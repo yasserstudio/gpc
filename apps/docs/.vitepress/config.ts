@@ -353,7 +353,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
 
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.91",
+        softwareVersion: "0.9.93",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: {

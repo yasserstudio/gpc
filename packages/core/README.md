@@ -56,7 +56,7 @@ const analysis = await analyzeBundle("./app.aab");
 | **Subscriptions** | `listSubscriptions`, `createSubscription`, `updateSubscription`, `deleteSubscription`, `listOffers`, `createOffer`                                                                         |
 | **IAP**           | `listInAppProducts`, `createInAppProduct`, `syncInAppProducts`                                                                                                                             |
 | **Purchases**     | `getProductPurchase`, `acknowledgeProductPurchase`, `refundOrder`                                                                                                                          |
-| **Reports**       | `listReports`, `downloadReport`                                                                                                                                                            |
+| **Reports**       | `listReports`, `downloadStatsReport`, `downloadFinancialReport` (Play bulk reports via GCS)                                                                                                |
 | **Users**         | `listUsers`, `inviteUser`, `updateUser`, `removeUser`                                                                                                                                      |
 | **Testers**       | `listTesters`, `addTesters`, `removeTesters`, `importTestersFromCsv`                                                                                                                       |
 | **Bundle**        | `analyzeBundle`, `compareBundles` (zero-dependency AAB/APK size analysis)                                                                                                                  |

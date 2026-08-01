@@ -148,7 +148,9 @@ describe("Core Command Coverage — Reports", () => {
   assertExports(
     [
       "listReports",
-      "downloadReport",
+      "downloadStatsReport",
+      "downloadFinancialReport",
+      "resolveReportsBucket",
       "parseMonth",
       "isValidReportType",
       "isFinancialReportType",
