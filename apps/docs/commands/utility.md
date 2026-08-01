@@ -68,6 +68,7 @@ gpc doctor [--json] [--score] [--badge] [--verify] [--keystore <path>] [--store-
 | `stale-cache`                 | Warns if cached `gpc status` data is older than 7 days                                                    |
 | `shell-completion`            | Detects whether shell completions are installed for your shell (bash/zsh)                                 |
 | `quota`                       | API quota proximity: warns if daily or per-minute usage exceeds 80%                                       |
+| `reports-bucket`              | Play reports bucket is readable (warns when the "download bulk reports" grant is missing)                 |
 | `plugin-*`                    | Plugin health: verifies each configured plugin loads without errors                                       |
 | `signing-api` _(--verify)_    | Fetches Play signing certificate fingerprint from generatedApks                                           |
 | `signing-local` _(--verify)_  | Compares local keystore fingerprint against Play signing certificate                                      |
