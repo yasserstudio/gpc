@@ -7,6 +7,21 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.94
+
+Upload errors now name the real problem, and plugins are trusted on evidence rather than on their name.
+
+- fix: upload failures caused by an incomplete Play Console "App content" declaration are no longer reported as service account permission errors. They return `API_DECLARATION_REQUIRED`, quote Google's own explanation, and point at Policy -> App content.
+- fix: requests rejected for insufficient OAuth scopes are no longer reported as missing Play Console permissions.
+- feat: `gpc preflight` flags apps requesting foreground service permissions with an informational `policy-app-content-declaration` finding, so the declaration can be completed before uploading rather than after a rejection.
+- security: plugins are no longer trusted because of their package name. Trust is read from the installed package itself.
+- feat: plugin request, response, and command-error hooks now run, with credentials redacted from everything a plugin can observe. Plugin authors can mark their own command options as sensitive.
+- breaking: third-party plugins must declare which hooks they use before they can load. Existing approvals keep working with a warning; approvals stored as relative paths need approving again.
+
+**Tests:** 2,612 (+72).
+
+---
+
 ## v0.9.93
 
 Report downloads are now real: stats and financial CSVs straight from Google Play's report bucket.

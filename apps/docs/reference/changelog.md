@@ -11,7 +11,22 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.93 <Badge type="tip" text="latest" />
+## v0.9.94 <Badge type="tip" text="latest" />
+
+Upload errors now name the real problem, and plugins are trusted on evidence rather than on their name.
+
+- fix: upload failures caused by an incomplete Play Console "App content" declaration are no longer reported as service account permission errors. They return `API_DECLARATION_REQUIRED`, quote Google's own explanation verbatim, and point at Policy -> App content. Google's 403 for these cases often contains the word "permissions", which is what previously misrouted the diagnosis.
+- fix: requests rejected for insufficient OAuth scopes are no longer reported as missing Play Console permissions. The two arrive as the same error but are fixed in different places.
+- feat: `gpc preflight` flags apps that request foreground service permissions with an informational `policy-app-content-declaration` finding, so the declaration can be completed before an upload rather than after it is rejected. The declaration lives in Play Console and cannot be read from the AAB, so this advises rather than fails.
+- security: plugins are no longer trusted because of their package name. Trust is read from the installed package itself, so a package that merely resolves under the first-party namespace no longer inherits unrestricted access.
+- feat: plugin request, response, and command-error hooks now run. They existed but were never connected, so a plugin that registered them received nothing. Credentials are redacted from everything a plugin can observe, and plugin authors can mark their own command options as sensitive.
+- breaking: third-party plugins must declare which hooks they use before they can load. Existing approvals keep working with a warning; approvals stored as relative paths need approving again, because the old format did not record which project they belonged to.
+
+**Tests:** 2,612 (+72).
+
+---
+
+## v0.9.93
 
 Report downloads are now real: stats and financial CSVs straight from Google Play's report bucket.
 
