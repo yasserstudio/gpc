@@ -1,6 +1,21 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Command } from "commander";
-import { createProgram } from "../src/program";
+
+import type { LoadedPlugin, PluginManager as PluginManagerType } from "@gpc-cli/core";
+import type { PluginCommand } from "@gpc-cli/plugin-sdk";
+
+import { createProgram, runProgram } from "../src/program";
+
+interface TestPluginManagerControls {
+  _addPlugin(plugin: LoadedPlugin): void;
+  _addCommand(command: PluginCommand): void;
+}
+
+function withTestControls(
+  manager: PluginManagerType,
+): PluginManagerType & TestPluginManagerControls {
+  return manager as PluginManagerType & TestPluginManagerControls;
+}
 
 // Mock external dependencies to avoid real file/API operations
 vi.mock("@gpc-cli/auth", () => ({
@@ -14,6 +29,10 @@ vi.mock("@gpc-cli/auth", () => ({
 vi.mock("@gpc-cli/config", () => ({
   loadConfig: vi.fn().mockResolvedValue({}),
   setConfigValue: vi.fn().mockResolvedValue(undefined),
+  approvePlugin: vi.fn().mockResolvedValue(undefined),
+  revokePluginApproval: vi.fn().mockResolvedValue(true),
+  ensurePluginApprovalPolicy: vi.fn().mockResolvedValue(undefined),
+  resolvePluginApprovalId: vi.fn((name: string) => name),
   getUserConfigPath: vi.fn().mockReturnValue("/home/user/.config/gpc/config.toml"),
   initConfig: vi.fn().mockResolvedValue("/home/user/.config/gpc/config.toml"),
   getConfigDir: vi.fn().mockReturnValue("/home/user/.config/gpc"),
@@ -69,6 +88,15 @@ vi.mock("@gpc-cli/core", () => {
     GpcError,
     PluginManager: MockPluginManager,
     discoverPlugins: vi.fn().mockResolvedValue([]),
+    validatePluginForApproval: vi.fn().mockResolvedValue({
+      specifier: "gpc-plugin-test",
+      manifest: {
+        name: "gpc-plugin-test",
+        version: "1.0.0",
+        permissions: [],
+        trusted: false,
+      },
+    }),
     detectOutputFormat: vi.fn().mockReturnValue("table"),
     formatOutput: vi.fn().mockImplementation((data: unknown) => JSON.stringify(data)),
     uploadRelease: vi.fn().mockResolvedValue({}),
@@ -1210,7 +1238,7 @@ describe("plugins command", () => {
 
   it("plugins list shows loaded plugins", async () => {
     const { PluginManager } = await import("@gpc-cli/core");
-    const manager = new PluginManager() as any;
+    const manager = withTestControls(new PluginManager());
     manager._addPlugin({ name: "@gpc-cli/plugin-ci", version: "0.8.0", trusted: true });
     manager._addPlugin({ name: "gpc-plugin-slack", version: "1.0.0", trusted: false });
 
@@ -1236,7 +1264,7 @@ describe("plugins command", () => {
 
   it("plugins list outputs JSON when --output json", async () => {
     const { PluginManager } = await import("@gpc-cli/core");
-    const manager = new PluginManager() as any;
+    const manager = withTestControls(new PluginManager());
     manager._addPlugin({ name: "@gpc-cli/plugin-ci", version: "0.8.0", trusted: true });
 
     program = await createProgram(manager);
@@ -1262,7 +1290,7 @@ describe("plugin commands registration", () => {
 
   it("registers plugin-defined commands on the program", async () => {
     const { PluginManager } = await import("@gpc-cli/core");
-    const manager = new PluginManager() as any;
+    const manager = withTestControls(new PluginManager());
     manager._addCommand({
       name: "deploy",
       description: "Deploy to Play Store",
@@ -1276,7 +1304,7 @@ describe("plugin commands registration", () => {
 
   it("plugin commands show in plugins list", async () => {
     const { PluginManager } = await import("@gpc-cli/core");
-    const manager = new PluginManager() as any;
+    const manager = withTestControls(new PluginManager());
     manager._addPlugin({ name: "gpc-plugin-deploy", version: "1.0.0", trusted: false });
     manager._addCommand({
       name: "deploy",
@@ -1294,6 +1322,171 @@ describe("plugin commands registration", () => {
     const output = logSpy.mock.calls.map((call) => String(call[0])).join("\n");
     expect(output).toContain("deploy");
     expect(output).toContain("Deploy to Play Store");
+  });
+});
+
+describe("plugin command lifecycle", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("includes resolved positional arguments without exposing credential values", async () => {
+    const { PluginManager } = await import("@gpc-cli/core");
+    const manager = withTestControls(new PluginManager());
+    manager._addCommand({
+      name: "inspect",
+      description: "Inspect lifecycle metadata",
+      arguments: [
+        { name: "file", description: "Artifact path", required: true },
+        { name: "apiKey", description: "Private API key", required: true, sensitive: true },
+      ],
+      options: [{ flags: "--password <value>", description: "Private password", sensitive: true }],
+      action: vi.fn(),
+    });
+    const beforeSpy = vi.spyOn(manager, "runBeforeCommand");
+    const afterSpy = vi.spyOn(manager, "runAfterCommand");
+    const program = await createProgram(manager);
+
+    await runProgram(
+      program,
+      ["node", "gpc", "inspect", "app.aab", "api-secret", "--password", "password-secret"],
+      manager,
+    );
+
+    const expectedArgs = expect.objectContaining({
+      file: "app.aab",
+      apiKey: "***REDACTED***",
+      password: "***REDACTED***",
+    });
+    expect(beforeSpy).toHaveBeenCalledWith(expect.objectContaining({ args: expectedArgs }));
+    expect(afterSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ args: expectedArgs }),
+      expect.objectContaining({ success: true }),
+    );
+  });
+
+  it("reports failed actions to onError with the action command context", async () => {
+    const { PluginManager } = await import("@gpc-cli/core");
+    const manager = withTestControls(new PluginManager());
+    const failure = Object.assign(new Error("plugin action failed"), {
+      code: "PLUGIN_ACTION_FAILED",
+      exitCode: 7,
+    });
+    manager._addCommand({
+      name: "explode",
+      description: "Fail for lifecycle testing",
+      action: async () => {
+        throw failure;
+      },
+    });
+    const beforeSpy = vi.spyOn(manager, "runBeforeCommand");
+    const errorSpy = vi.spyOn(manager, "runOnError");
+    const program = await createProgram(manager);
+
+    await expect(runProgram(program, ["node", "gpc", "explode"], manager)).rejects.toBe(failure);
+
+    expect(beforeSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ command: "explode", startedAt: expect.any(Date) }),
+    );
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ command: "explode" }),
+      expect.objectContaining({
+        code: "PLUGIN_ACTION_FAILED",
+        message: "plugin action failed",
+        exitCode: 7,
+        cause: failure,
+      }),
+    );
+  });
+
+  it("keeps plugin-declared credentials redacted in onError events", async () => {
+    const { PluginManager } = await import("@gpc-cli/core");
+    const manager = withTestControls(new PluginManager());
+    const failure = new Error("login failed");
+    manager._addCommand({
+      name: "login",
+      description: "Fail after parsing a private password",
+      options: [{ flags: "--password <value>", description: "Password", sensitive: true }],
+      action: async () => {
+        throw failure;
+      },
+    });
+    const errorSpy = vi.spyOn(manager, "runOnError");
+    const program = await createProgram(manager);
+
+    await expect(
+      runProgram(program, ["node", "gpc", "login", "--password", "private-value"], manager),
+    ).rejects.toBe(failure);
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        args: expect.objectContaining({ password: "***REDACTED***" }),
+      }),
+      expect.objectContaining({ message: "login failed" }),
+    );
+  });
+
+  it("reports unknown commands to onError without terminating inside Commander", async () => {
+    const { PluginManager } = await import("@gpc-cli/core");
+    const manager = withTestControls(new PluginManager());
+    const errorSpy = vi.spyOn(manager, "runOnError");
+    const program = await createProgram(manager);
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await expect(
+      runProgram(program, ["node", "gpc", "does-not-exist"], manager),
+    ).rejects.toMatchObject({ code: "UNKNOWN_COMMAND", exitCode: 2, silent: true });
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ command: "does-not-exist" }),
+      expect.objectContaining({ code: "UNKNOWN_COMMAND", exitCode: 2 }),
+    );
+  });
+
+  it("reports Commander validation failures to onError", async () => {
+    const { PluginManager } = await import("@gpc-cli/core");
+    const manager = withTestControls(new PluginManager());
+    const errorSpy = vi.spyOn(manager, "runOnError");
+    const program = await createProgram(manager);
+    vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await expect(
+      runProgram(program, ["node", "gpc", "plugins", "approve"], manager),
+    ).rejects.toMatchObject({ code: "commander.missingArgument", exitCode: 1, silent: true });
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ command: "plugins approve" }),
+      expect.objectContaining({ code: "commander.missingArgument", exitCode: 1 }),
+    );
+  });
+
+  it("reports commands that fail through process.exitCode to onError", async () => {
+    const { PluginManager } = await import("@gpc-cli/core");
+    const manager = withTestControls(new PluginManager());
+    manager._addCommand({
+      name: "soft-fail",
+      description: "Set a non-zero exit code without throwing",
+      action: async () => {
+        process.exitCode = 6;
+      },
+    });
+    const afterSpy = vi.spyOn(manager, "runAfterCommand");
+    const errorSpy = vi.spyOn(manager, "runOnError");
+    const program = await createProgram(manager);
+
+    try {
+      await expect(
+        runProgram(program, ["node", "gpc", "soft-fail"], manager),
+      ).rejects.toMatchObject({ code: "COMMAND_EXIT_CODE", exitCode: 6, silent: true });
+
+      expect(afterSpy).not.toHaveBeenCalled();
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ command: "soft-fail" }),
+        expect.objectContaining({ code: "COMMAND_EXIT_CODE", exitCode: 6 }),
+      );
+    } finally {
+      process.exitCode = undefined;
+    }
   });
 });
 

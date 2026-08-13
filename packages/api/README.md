@@ -42,7 +42,35 @@ const options: ApiClientOptions = {
   maxRetries: 3, // Default retry count
   timeout: 30_000, // Request timeout in ms
   onRetry: (entry) => console.warn(`Retry #${entry.attempt}`),
+  lifecycleHooks: {
+    beforeRequest: (event) => console.log(event.method, event.path),
+    afterResponse: (_event, response) => console.log(response.status, response.durationMs),
+  },
 };
+```
+
+### Request lifecycle observers
+
+`ApiClientOptions.lifecycleHooks` observes every transport attempt, including retries, uploads, and
+downloads. Events contain the HTTP method, a query-free path with purchase credentials redacted, and
+timing/status metadata. Observer errors are isolated and never change the API operation result.
+When transport fails before any HTTP response, `afterResponse` receives `status: 0` and `ok: false`.
+
+Use `fetchWithApiLifecycle()` for standalone requests that should share the same observer contract.
+`setDefaultApiLifecycleHooks()` sets process-wide defaults used only when a client has no explicit
+hooks; it is primarily intended for CLI composition roots.
+
+```typescript
+import { fetchWithApiLifecycle, setDefaultApiLifecycleHooks } from "@gpc-cli/api";
+
+setDefaultApiLifecycleHooks({
+  beforeRequest: (event) => console.log(event.method, event.path),
+});
+const response = await fetchWithApiLifecycle(
+  "https://example.test/status",
+  { method: "GET" },
+  "/status",
+);
 ```
 
 ## Common Workflows
@@ -145,15 +173,15 @@ const allReviews = await paginateAll(async (pageToken) => {
 
 ## Error Handling
 
-API errors throw `ApiError` with a code, HTTP status, and actionable suggestion. Retries are automatic for 429 and 5xx with exponential backoff and jitter.
+API errors throw `PlayApiError` with a code, HTTP status, and actionable suggestion. Retries are automatic for 429 and 5xx with exponential backoff and jitter.
 
 ```typescript
-import { ApiError } from "@gpc-cli/api";
+import { PlayApiError } from "@gpc-cli/api";
 
 try {
   await client.tracks.get("com.example.app", editId, "production");
 } catch (error) {
-  if (error instanceof ApiError) {
+  if (error instanceof PlayApiError) {
     console.error(error.code); // "API_NOT_FOUND"
     console.error(error.statusCode); // 404
     console.error(error.suggestion); // actionable fix
@@ -171,6 +199,9 @@ import type {
   ReportingApiClient,
   UsersApiClient,
   ApiClientOptions,
+  ApiLifecycleHooks,
+  ApiRequestEvent,
+  ApiResponseEvent,
   Track,
   Release,
   ReleaseStatus,

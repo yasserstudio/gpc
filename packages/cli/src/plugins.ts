@@ -1,5 +1,9 @@
-import { PluginManager, discoverPlugins } from "@gpc-cli/core";
 import type { Command } from "commander";
+
+import { setDefaultApiLifecycleHooks } from "@gpc-cli/api";
+import { PluginManager, discoverPlugins } from "@gpc-cli/core";
+
+import { registerSensitivePluginCommand } from "./webhook-args.js";
 
 /**
  * Load and initialize all plugins.
@@ -12,6 +16,7 @@ export async function loadPlugins(): Promise<PluginManager> {
 
   // Standalone binary cannot resolve external npm packages at runtime
   if (process.env["__GPC_BINARY"] === "1") {
+    setDefaultApiLifecycleHooks(undefined);
     return manager;
   }
 
@@ -32,6 +37,15 @@ export async function loadPlugins(): Promise<PluginManager> {
     }
   } catch {
     // Config loading failure shouldn't block plugin-free commands
+  }
+
+  if (manager.hasRequestHooks()) {
+    setDefaultApiLifecycleHooks({
+      beforeRequest: (event) => manager.runBeforeRequest(event),
+      afterResponse: (event, response) => manager.runAfterResponse(event, response),
+    });
+  } else {
+    setDefaultApiLifecycleHooks(undefined);
   }
 
   return manager;
@@ -60,6 +74,8 @@ export function registerPluginCommands(program: Command, manager: PluginManager)
         );
       }
     }
+
+    registerSensitivePluginCommand(cmd, def);
 
     cmd.action(async (...rawArgs: unknown[]) => {
       const opts = rawArgs[rawArgs.length - 2] as Record<string, unknown>;

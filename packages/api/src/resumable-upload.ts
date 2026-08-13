@@ -1,7 +1,9 @@
 import { open, stat } from "node:fs/promises";
 import type { FileHandle } from "node:fs/promises";
+
 import { PlayApiError } from "./errors.js";
-import type { ApiResponse, ResumableUploadOptions } from "./types.js";
+import type { ApiLifecycleHooks, ApiResponse, ResumableUploadOptions } from "./types.js";
+import { fetchWithLifecycle, redactRequestPath } from "./lifecycle.js";
 
 /** 256 KB — Google requires chunk sizes to be multiples of this. */
 const CHUNK_ALIGNMENT = 256 * 1024;
@@ -94,6 +96,7 @@ interface ResumableUploadContext {
   maxRetries: number;
   baseDelay: number;
   maxDelay: number;
+  lifecycleHooks?: ApiLifecycleHooks;
   onRetry?: (info: {
     attempt: number;
     method: string;
@@ -146,7 +149,7 @@ export async function resumableUpload<T>(
 
   // If resuming, query the server for where we left off
   if (options?.resumeSessionUri) {
-    offset = await queryProgress(sessionUri, totalBytes, ctx);
+    offset = await queryProgress(sessionUri, totalBytes, ctx, uploadUrl);
   }
 
   let fh: FileHandle | undefined;
@@ -175,7 +178,7 @@ export async function resumableUpload<T>(
 
           // Query server for actual progress before retrying
           try {
-            const serverOffset = await queryProgress(sessionUri, totalBytes, ctx);
+            const serverOffset = await queryProgress(sessionUri, totalBytes, ctx, uploadUrl);
             if (serverOffset >= totalBytes) {
               // Upload is fully complete — server has all bytes
               // Fetch the completion response via one more query
@@ -183,6 +186,7 @@ export async function resumableUpload<T>(
                 sessionUri,
                 totalBytes,
                 ctx,
+                uploadUrl,
               );
               if (completionResult) {
                 result = completionResult;
@@ -208,14 +212,14 @@ export async function resumableUpload<T>(
           ctx.onRetry?.({
             attempt,
             method: "PUT",
-            path: sessionUri,
+            path: redactRequestPath(uploadUrl),
             error: `Chunk upload failed at offset ${offset}, retrying`,
             delayMs: Math.round(delay),
             timestamp: new Date().toISOString(),
           });
         }
 
-        result = await sendChunk<T>(sessionUri, chunk, contentRange, ctx);
+        result = await sendChunk<T>(sessionUri, chunk, contentRange, ctx, uploadUrl);
         if (result) break;
       }
 
@@ -224,7 +228,7 @@ export async function resumableUpload<T>(
           `Upload failed: chunk at offset ${offset} could not be sent after ${maxResumeAttempts + 1} attempts`,
           "UPLOAD_CHUNK_FAILED",
           undefined,
-          `The upload session is still valid for up to 1 week. Resume with: --resume-uri "${sessionUri}"`,
+          "Retry the upload. If you supplied --resume-uri, reuse it from your secure input; GPC does not print session credentials.",
         );
       }
 
@@ -254,10 +258,15 @@ export async function resumableUpload<T>(
 
     // All bytes sent but no completion response captured — verify with server
     try {
-      const serverOffset = await queryProgress(sessionUri, totalBytes, ctx);
+      const serverOffset = await queryProgress(sessionUri, totalBytes, ctx, uploadUrl);
       if (serverOffset >= totalBytes) {
         // Upload IS complete — server confirmed. Fetch the resource.
-        const completionResult = await fetchCompletionResponse<T>(sessionUri, totalBytes, ctx);
+        const completionResult = await fetchCompletionResponse<T>(
+          sessionUri,
+          totalBytes,
+          ctx,
+          uploadUrl,
+        );
         if (completionResult?.response) {
           return completionResult.response;
         }
@@ -272,7 +281,7 @@ export async function resumableUpload<T>(
       "Upload finished sending all bytes but did not receive a completion response",
       "UPLOAD_NO_COMPLETION",
       undefined,
-      `The upload session may still be valid. Resume with: --resume-uri "${sessionUri}"`,
+      "Retry the upload. If you supplied --resume-uri, reuse it from your secure input; GPC does not print session credentials.",
     );
   } finally {
     await fh?.close();
@@ -318,12 +327,17 @@ async function initiateSession(
   const timer = setTimeout(() => controller.abort(), 60_000); // 60s timeout for session initiation
   let response: Response;
   try {
-    response = await fetch(url, {
-      method: "POST",
-      headers,
-      body: hasMetadata ? metadataBody : undefined,
-      signal: controller.signal,
-    });
+    response = await fetchWithLifecycle(
+      url,
+      {
+        method: "POST",
+        headers,
+        body: hasMetadata ? metadataBody : undefined,
+        signal: controller.signal,
+      },
+      ctx.lifecycleHooks,
+      uploadUrl,
+    );
   } finally {
     clearTimeout(timer);
   }
@@ -357,6 +371,7 @@ async function sendChunk<T>(
   chunk: Buffer,
   contentRange: string,
   ctx: ResumableUploadContext,
+  lifecyclePath: string,
 ): Promise<ChunkResult<T> | undefined> {
   const token = await ctx.getAccessToken();
 
@@ -366,18 +381,23 @@ async function sendChunk<T>(
   const timer = setTimeout(() => controller.abort(), chunkTimeoutMs);
   let response: Response;
   try {
-    response = await fetch(sessionUri, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Length": String(chunk.byteLength),
-        "Content-Range": contentRange,
-        [GUPLOADER_NO_308_HEADER]: "yes",
+    response = await fetchWithLifecycle(
+      sessionUri,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Length": String(chunk.byteLength),
+          "Content-Range": contentRange,
+          [GUPLOADER_NO_308_HEADER]: "yes",
+        },
+        body: chunk,
+        signal: controller.signal,
+        redirect: "manual", // Belt-and-suspenders: don't follow redirects even without the header
       },
-      body: chunk,
-      signal: controller.signal,
-      redirect: "manual", // Belt-and-suspenders: don't follow redirects even without the header
-    });
+      ctx.lifecycleHooks,
+      lifecyclePath,
+    );
   } catch {
     // Network error or timeout — caller will retry
     return undefined;
@@ -461,22 +481,28 @@ async function fetchCompletionResponse<T>(
   sessionUri: string,
   totalBytes: number,
   ctx: ResumableUploadContext,
+  lifecyclePath: string,
 ): Promise<ChunkResult<T> | undefined> {
   const token = await ctx.getAccessToken();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 30_000);
   try {
-    const response = await fetch(sessionUri, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Length": "0",
-        "Content-Range": `bytes */${totalBytes}`,
-        [GUPLOADER_NO_308_HEADER]: "yes",
+    const response = await fetchWithLifecycle(
+      sessionUri,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Length": "0",
+          "Content-Range": `bytes */${totalBytes}`,
+          [GUPLOADER_NO_308_HEADER]: "yes",
+        },
+        signal: controller.signal,
+        redirect: "manual",
       },
-      signal: controller.signal,
-      redirect: "manual",
-    });
+      ctx.lifecycleHooks,
+      lifecyclePath,
+    );
 
     // Genuine 200/201 (not a disguised 308) — upload complete with resource body
     if ((response.status === 200 || response.status === 201) && !isResumeIncomplete(response)) {
@@ -503,23 +529,29 @@ async function queryProgress(
   sessionUri: string,
   totalBytes: number,
   ctx: ResumableUploadContext,
+  lifecyclePath: string,
 ): Promise<number> {
   const token = await ctx.getAccessToken();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 30_000);
   let response: Response;
   try {
-    response = await fetch(sessionUri, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Length": "0",
-        "Content-Range": `bytes */${totalBytes}`,
-        [GUPLOADER_NO_308_HEADER]: "yes",
+    response = await fetchWithLifecycle(
+      sessionUri,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Length": "0",
+          "Content-Range": `bytes */${totalBytes}`,
+          [GUPLOADER_NO_308_HEADER]: "yes",
+        },
+        signal: controller.signal,
+        redirect: "manual",
       },
-      signal: controller.signal,
-      redirect: "manual",
-    });
+      ctx.lifecycleHooks,
+      lifecyclePath,
+    );
   } finally {
     clearTimeout(timer);
   }

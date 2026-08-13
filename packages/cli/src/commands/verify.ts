@@ -1,7 +1,10 @@
 import type { Command } from "commander";
+
 import { resolveAuth } from "@gpc-cli/auth";
+import { fetchWithApiLifecycle } from "@gpc-cli/api";
 import { loadConfig } from "@gpc-cli/config";
 import { buildChecklist, renderChecklistMarkdown } from "@gpc-cli/core";
+
 import { green, yellow, red, dim, bold } from "../colors.js";
 import { isInteractive, promptConfirm } from "../prompt.js";
 
@@ -61,22 +64,32 @@ async function probeApp(accessToken: string, packageName: string): Promise<AppPr
     hasGeneratedApks: false,
   };
 
-  const editResp = await fetch(`${baseUrl}/edits`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
-    body: JSON.stringify({}),
-    signal: AbortSignal.timeout(10_000),
-  });
+  const editUrl = `${baseUrl}/edits`;
+  const editResp = await fetchWithApiLifecycle(
+    editUrl,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+      signal: AbortSignal.timeout(10_000),
+    },
+    editUrl,
+  );
   if (!editResp.ok) return result;
 
   const edit = (await editResp.json()) as { id: string };
   result.accessible = true;
 
   try {
-    const bundlesResp = await fetch(`${baseUrl}/edits/${edit.id}/bundles`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-      signal: AbortSignal.timeout(10_000),
-    });
+    const bundlesUrl = `${baseUrl}/edits/${edit.id}/bundles`;
+    const bundlesResp = await fetchWithApiLifecycle(
+      bundlesUrl,
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        signal: AbortSignal.timeout(10_000),
+      },
+      bundlesUrl,
+    );
     if (bundlesResp.ok) {
       const data = (await bundlesResp.json()) as { bundles?: { versionCode: number }[] };
       const bundles = data.bundles ?? [];
@@ -86,10 +99,15 @@ async function probeApp(accessToken: string, packageName: string): Promise<AppPr
           b.versionCode > max.versionCode ? b : max,
         ).versionCode;
 
-        const apksResp = await fetch(`${baseUrl}/generatedApks/${result.latestVersionCode}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-          signal: AbortSignal.timeout(10_000),
-        });
+        const apksUrl = `${baseUrl}/generatedApks/${result.latestVersionCode}`;
+        const apksResp = await fetchWithApiLifecycle(
+          apksUrl,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+            signal: AbortSignal.timeout(10_000),
+          },
+          apksUrl,
+        );
         if (apksResp.ok) {
           const apksData = (await apksResp.json()) as {
             generatedApks?: { certificateSha256Fingerprint?: string }[];
@@ -99,11 +117,16 @@ async function probeApp(accessToken: string, packageName: string): Promise<AppPr
       }
     }
   } finally {
-    await fetch(`${baseUrl}/edits/${edit.id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${accessToken}` },
-      signal: AbortSignal.timeout(5_000),
-    }).catch(() => {});
+    const deleteUrl = `${baseUrl}/edits/${edit.id}`;
+    await fetchWithApiLifecycle(
+      deleteUrl,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${accessToken}` },
+        signal: AbortSignal.timeout(5_000),
+      },
+      deleteUrl,
+    ).catch(() => {});
   }
 
   return result;

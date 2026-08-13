@@ -1,16 +1,20 @@
+import { existsSync } from "node:fs";
+
+import { initAudit, sendWebhook } from "@gpc-cli/core";
+import type { WebhookPayload } from "@gpc-cli/core";
+import { getConfigDir, loadConfig, getUserConfigPath } from "@gpc-cli/config";
+
+import { handleCliError } from "./error-handler.js";
+import { setupNetworking } from "./networking.js";
+import { loadPlugins } from "./plugins.js";
+import { createProgram, runProgram } from "./program.js";
+import { checkForUpdate, formatUpdateNotification } from "./update-check.js";
+import { sanitizeWebhookCommandArgs } from "./webhook-args.js";
+
 if (process.env["GPC_NO_COLOR"] === "1") process.env["NO_COLOR"] = "1";
 if (process.argv.includes("--no-color")) {
   process.env["NO_COLOR"] = "1";
 }
-import { existsSync } from "node:fs";
-import { setupNetworking } from "./networking.js";
-import { createProgram } from "./program.js";
-import { loadPlugins } from "./plugins.js";
-import { handleCliError } from "./error-handler.js";
-import { initAudit, sendWebhook } from "@gpc-cli/core";
-import type { WebhookPayload } from "@gpc-cli/core";
-import { getConfigDir, loadConfig, getUserConfigPath } from "@gpc-cli/config";
-import { checkForUpdate, formatUpdateNotification } from "./update-check.js";
 
 // First-run banner
 const _isJsonMode =
@@ -33,17 +37,6 @@ await setupNetworking();
 initAudit(getConfigDir());
 
 const currentVersion = process.env["__GPC_VERSION"] || "0.0.0";
-
-// Skip passive update check when the user is explicitly running `gpc update` —
-// that command does its own check against the GitHub Releases API. Also skip
-// for `__complete` (shell-completion hot path — must stay under the latency
-// budget; users see TAB lag otherwise).
-const isUpdateCommand = process.argv[2] === "update";
-const isCompletionProvider = process.argv[2] === "__complete";
-
-// Start update check before command execution (non-blocking)
-const updateCheckPromise =
-  isUpdateCommand || isCompletionProvider ? Promise.resolve(null) : checkForUpdate(currentVersion);
 
 // Handle --ci and --json flags early (before command parsing)
 if (process.argv.includes("--ci")) {
@@ -83,31 +76,46 @@ if (process.env["GPC_DEBUG"] === "1") {
 
 const startTime = Date.now();
 let commandSuccess = true;
+let commandParsed = false;
+let informationalExit = false;
+let isUpdateCommand = false;
+let isCompletionProvider = false;
 let commandError: string | undefined;
+let updateCheckPromise = Promise.resolve<Awaited<ReturnType<typeof checkForUpdate>>>(null);
 
-await program.parseAsync(process.argv).catch((error: unknown) => {
-  commandSuccess = false;
-  commandError = error instanceof Error ? error.message : String(error);
+program.hook("preAction", (_thisCommand, actionCommand) => {
+  commandParsed = true;
+  let topLevel = actionCommand;
+  while (topLevel.parent && topLevel.parent !== program) topLevel = topLevel.parent;
+  isUpdateCommand = topLevel.name() === "update";
+  isCompletionProvider = topLevel.name() === "__complete";
+  if (!isUpdateCommand && !isCompletionProvider) {
+    // Start the passive check only after Commander confirms this is a real
+    // action. Help/version exits therefore never start or await network work.
+    updateCheckPromise = checkForUpdate(currentVersion);
+  }
+});
+
+await runProgram(program, process.argv, pluginManager).catch((error: unknown) => {
+  const code = error && typeof error === "object" ? (error as { code?: unknown }).code : undefined;
+  informationalExit = code === "commander.helpDisplayed" || code === "commander.version";
   const exitCode = handleCliError(error);
-  process.exit(exitCode);
+  commandSuccess = exitCode === 0;
+  commandError = commandSuccess
+    ? undefined
+    : error instanceof Error
+      ? error.message
+      : String(error);
+  process.exitCode = exitCode;
 });
 
 // Send webhook notification if --notify was set
 const notifyOpt = program.opts()["notify"] as string | boolean | undefined;
-if (notifyOpt !== undefined && notifyOpt !== false) {
+if (!informationalExit && notifyOpt !== undefined && notifyOpt !== false) {
   try {
     const config = await loadConfig();
     if (config.webhooks) {
-      const sensitiveFlags = [
-        "--notify",
-        "--store-pass",
-        "--key-pass",
-        "--token",
-        "--service-account",
-      ];
-      const filtered = process.argv.slice(2).filter((a) => {
-        return !sensitiveFlags.some((f) => a.startsWith(f));
-      });
+      const filtered = sanitizeWebhookCommandArgs(process.argv.slice(2), program, commandParsed);
       const commandName = filtered.join(" ");
       const payload: WebhookPayload = {
         command: commandName || "unknown",
@@ -130,7 +138,7 @@ if (notifyOpt !== undefined && notifyOpt !== false) {
 // isUpdateCommand is declared above — update check was skipped for this command.
 // Skip entirely for __complete: the setTimeout below would keep the event loop
 // alive for 3s, blowing the completion latency budget.
-if (!isCompletionProvider) {
+if (!isCompletionProvider && !informationalExit && commandSuccess) {
   try {
     const result = await Promise.race([
       updateCheckPromise,

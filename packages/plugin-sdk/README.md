@@ -16,79 +16,82 @@ npm install @gpc-cli/plugin-sdk
 import { definePlugin } from "@gpc-cli/plugin-sdk";
 import type { GpcPlugin } from "@gpc-cli/plugin-sdk";
 
-export const myPlugin: GpcPlugin = definePlugin({
+export const plugin: GpcPlugin = definePlugin({
   name: "gpc-plugin-slack",
   version: "1.0.0",
 
-  hooks: {
-    afterCommand({ command, result }) {
+  register(hooks) {
+    hooks.afterCommand((event, result) => {
       // Notify Slack after every command
       if (result.success) {
-        postToSlack(`${command} completed successfully`);
+        postToSlack(`${event.command} completed successfully`);
       }
-    },
+    });
 
-    onError({ error }) {
+    hooks.onError((_event, error) => {
       postToSlack(`GPC error: ${error.message}`);
-    },
+    });
 
-    registerCommands(registry) {
-      registry.addCommand({
+    hooks.registerCommands((registry) => {
+      registry.add({
         name: "slack:notify",
         description: "Send a Slack notification",
         options: [{ flags: "--channel <channel>", description: "Slack channel" }],
-        action: async (opts) => {
-          await postToSlack(opts.channel, "Manual notification from GPC");
+        action: async (_args, options) => {
+          await postToSlack(options.channel, "Manual notification from GPC");
         },
       });
-    },
+    });
   },
 });
 ```
 
 ## Lifecycle Hooks
 
-| Hook               | When                    | Use Case                           |
-| ------------------ | ----------------------- | ---------------------------------- |
-| `beforeCommand`    | Before any CLI command  | Logging, validation, feature flags |
-| `afterCommand`     | After command completes | Notifications, metrics, summaries  |
-| `onError`          | When a command fails    | Error reporting, alerting          |
-| `beforeRequest`    | Before each API call    | Request logging, headers           |
-| `afterResponse`    | After each API response | Response logging, metrics          |
-| `registerCommands` | Plugin initialization   | Add custom commands to the CLI     |
+| Hook               | When                        | Use Case                           |
+| ------------------ | --------------------------- | ---------------------------------- |
+| `beforeCommand`    | Before any CLI command      | Logging, validation, feature flags |
+| `afterCommand`     | After a command succeeds    | Notifications, metrics, summaries  |
+| `onError`          | When a command fails        | Error reporting, alerting          |
+| `beforeRequest`    | Before each GPC API attempt | Request logging, timing            |
+| `afterResponse`    | After each GPC API attempt  | Response logging, metrics          |
+| `registerCommands` | Plugin initialization       | Add custom commands to the CLI     |
 
 ## Permissions
 
-Plugins declare required permissions in their manifest:
+Third-party plugins declare required permissions in `package.json`:
 
-```typescript
-const plugin: GpcPlugin = {
-  name: "my-plugin",
-  version: "1.0.0",
-  manifest: {
-    permissions: ["api:read", "hooks:afterCommand"],
-  },
-  hooks: { ... },
-};
+```json
+{
+  "name": "gpc-plugin-slack",
+  "gpc": {
+    "permissions": ["hooks:afterCommand", "hooks:onError", "commands:register"]
+  }
+}
 ```
 
-| Permission            | Grants                      |
-| --------------------- | --------------------------- |
-| `read:config`         | Read GPC configuration      |
-| `write:config`        | Modify GPC configuration    |
-| `read:auth`           | Access auth credentials     |
-| `api:read`            | Read-only API access        |
-| `api:write`           | Write API access            |
-| `commands:register`   | Register custom commands    |
-| `hooks:beforeCommand` | Run before any CLI command  |
-| `hooks:afterCommand`  | Run after any CLI command   |
-| `hooks:onError`       | Run when a command fails    |
-| `hooks:beforeRequest` | Run before each API call    |
-| `hooks:afterResponse` | Run after each API response |
+| Permission            | Grants                                    |
+| --------------------- | ----------------------------------------- |
+| `read:config`         | Reserved; no SDK capability yet           |
+| `write:config`        | Reserved; no SDK capability yet           |
+| `read:auth`           | Reserved; no SDK capability yet           |
+| `api:read`            | Reserved; no SDK capability yet           |
+| `api:write`           | Reserved; no SDK capability yet           |
+| `commands:register`   | Register custom commands                  |
+| `hooks:beforeCommand` | Run before any CLI command                |
+| `hooks:afterCommand`  | Run after any CLI command                 |
+| `hooks:onError`       | Run when a command fails                  |
+| `hooks:beforeRequest` | Run before each GPC API transport attempt |
+| `hooks:afterResponse` | Run after each GPC API transport attempt  |
 
 Hook permissions are explicit — there is no wildcard. Declare only the hooks your plugin actually uses.
 
-Third-party plugins require user approval before loading:
+For plugin-defined commands, set `sensitive: true` on every credential-bearing option or positional
+argument. GPC will redact those values from lifecycle events and webhook command metadata.
+
+Permissions control registration of GPC-managed hooks and commands; they are not a JavaScript sandbox. Request hooks observe attempts made through `@gpc-cli/api` and do not intercept a plugin's own network calls. Because plugin modules run in the GPC process, only approve packages whose source and publisher you trust.
+
+Third-party plugins require user approval before loading. New approvals require an explicit `gpc.permissions` list; already-approved legacy package names and stable file identities retain compatibility permissions with a deprecation warning. Historical relative paths must be reapproved once because the old approval format did not record their project.
 
 ```bash
 gpc plugins approve gpc-plugin-slack

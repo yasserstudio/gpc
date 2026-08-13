@@ -1,9 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
 import { PlayApiError } from "../src/errors";
 import { createHttpClient } from "../src/http";
 import { createApiClient } from "../src/client";
 import { createReportingClient } from "../src/reporting-client";
 import { createUsersClient } from "../src/users-client";
+import type { ApiClientOptions } from "../src/types";
+import {
+  fetchWithApiLifecycle,
+  redactRequestPath,
+  setDefaultApiLifecycleHooks,
+} from "../src/lifecycle";
 
 vi.mock("node:fs/promises", () => ({
   readFile: vi.fn().mockResolvedValue(Buffer.from("fake-aab-content")),
@@ -77,6 +84,7 @@ describe("createHttpClient", () => {
   });
 
   afterEach(() => {
+    setDefaultApiLifecycleHooks(undefined);
     vi.restoreAllMocks();
   });
 
@@ -115,6 +123,126 @@ describe("createHttpClient", () => {
     const result = await client.get("/com.example.app/edits/edit-123");
 
     expect(result).toEqual({ data: payload, status: 200 });
+  });
+
+  it("emits redacted lifecycle events for each HTTP request", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ ok: true }));
+    const beforeRequest = vi.fn();
+    const afterResponse = vi.fn();
+
+    const options: ApiClientOptions = {
+      auth: mockAuth(),
+      maxRetries: 0,
+      lifecycleHooks: { beforeRequest, afterResponse },
+    };
+    const client = createHttpClient(options);
+    await client.get("/com.example.app/purchases/products/sku/tokens/secret-token", {
+      pageToken: "secret-page-token",
+    });
+
+    expect(beforeRequest).toHaveBeenCalledOnce();
+    expect(beforeRequest).toHaveBeenCalledWith({
+      method: "GET",
+      path: "/com.example.app/purchases/products/sku/tokens/***REDACTED***",
+      startedAt: expect.any(Date),
+    });
+    expect(afterResponse).toHaveBeenCalledOnce();
+    expect(afterResponse).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: "GET",
+        path: "/com.example.app/purchases/products/sku/tokens/***REDACTED***",
+      }),
+      expect.objectContaining({ status: 200, ok: true, durationMs: expect.any(Number) }),
+    );
+  });
+
+  it("redacts a token segment without consuming the preceding purchases segment", () => {
+    expect(redactRequestPath("/purchases/tokens/abc123?access_token=secret")).toBe(
+      "/purchases/tokens/***REDACTED***",
+    );
+    expect(redactRequestPath("/purchases/products/sku/tokens/abc123:acknowledge")).toBe(
+      "/purchases/products/sku/tokens/***REDACTED***:acknowledge",
+    );
+    expect(redactRequestPath("/purchases/products/sku/tokens/abc123:consume")).toBe(
+      "/purchases/products/sku/tokens/***REDACTED***:consume",
+    );
+  });
+
+  it("emits lifecycle events for every retry attempt", async () => {
+    mockFetch
+      .mockResolvedValueOnce(mockResponse({ error: "server error" }, 500))
+      .mockResolvedValueOnce(mockResponse({ ok: true }));
+    const beforeRequest = vi.fn();
+    const afterResponse = vi.fn();
+
+    const options: ApiClientOptions = {
+      auth: mockAuth(),
+      maxRetries: 1,
+      baseDelay: 0,
+      lifecycleHooks: { beforeRequest, afterResponse },
+    };
+    const client = createHttpClient(options);
+    await client.get("/com.example.app/edits");
+
+    expect(beforeRequest).toHaveBeenCalledTimes(2);
+    expect(afterResponse).toHaveBeenCalledTimes(2);
+    expect(afterResponse.mock.calls.map((call) => call[1].status)).toEqual([500, 200]);
+  });
+
+  it("uses default lifecycle hooks without allowing hook failures to change the response", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ ok: true }));
+    const beforeRequest = vi.fn().mockRejectedValue(new Error("observer failed"));
+    const afterResponse = vi.fn().mockRejectedValue(new Error("observer failed"));
+    const client = createHttpClient({ auth: mockAuth(), maxRetries: 0 });
+    setDefaultApiLifecycleHooks({ beforeRequest, afterResponse });
+    await expect(client.get("/com.example.app/edits")).resolves.toEqual({
+      data: { ok: true },
+      status: 200,
+    });
+
+    expect(beforeRequest).toHaveBeenCalledOnce();
+    expect(afterResponse).toHaveBeenCalledOnce();
+  });
+
+  it("observes standalone API transport requests", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ ok: true }));
+    const beforeRequest = vi.fn();
+    const afterResponse = vi.fn();
+    setDefaultApiLifecycleHooks({ beforeRequest, afterResponse });
+
+    await fetchWithApiLifecycle(
+      "https://androidpublisher.googleapis.com/example?access_token=secret",
+      { method: "DELETE" },
+      "https://androidpublisher.googleapis.com/example?access_token=secret",
+    );
+
+    expect(beforeRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ method: "DELETE", path: "/example" }),
+    );
+    expect(afterResponse).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({ status: 200, ok: true }),
+    );
+  });
+
+  it("reports status zero when standalone transport fails before a response", async () => {
+    const failure = new TypeError("network unavailable");
+    mockFetch.mockRejectedValueOnce(failure);
+    const afterResponse = vi.fn();
+    setDefaultApiLifecycleHooks({ afterResponse });
+
+    await expect(
+      fetchWithApiLifecycle(
+        "https://androidpublisher.googleapis.com/example",
+        { method: "GET" },
+        "/example",
+      ),
+    ).rejects.toBe(failure);
+
+    expect(afterResponse).toHaveBeenCalledWith(
+      expect.objectContaining({ method: "GET", path: "/example" }),
+      expect.objectContaining({ status: 0, ok: false }),
+    );
   });
 
   it("retries on 429 with backoff then succeeds", async () => {
@@ -1771,6 +1899,51 @@ describe("HTTP error paths and methods", () => {
     );
     expect(result.data).toEqual({ bundle: { versionCode: 42 } });
     expect(mockFetch).toHaveBeenCalledTimes(3);
+  });
+
+  it("emits lifecycle events for simple uploads", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ bundle: { versionCode: 42 } }));
+    const beforeRequest = vi.fn();
+    const afterResponse = vi.fn();
+    const http = createHttpClient({
+      auth: mockAuth(),
+      maxRetries: 0,
+      lifecycleHooks: { beforeRequest, afterResponse },
+    });
+
+    await http.upload("/com.example/edits/1/bundles", "/fake/path.aab", "application/octet-stream");
+
+    expect(beforeRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ method: "POST", path: "/com.example/edits/1/bundles" }),
+    );
+    expect(afterResponse).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({ status: 200, ok: true }),
+    );
+  });
+
+  it("emits lifecycle events for downloads", async () => {
+    mockFetch.mockResolvedValueOnce(new Response(new Uint8Array([1, 2, 3]), { status: 200 }));
+    const beforeRequest = vi.fn();
+    const afterResponse = vi.fn();
+    const http = createHttpClient({
+      auth: mockAuth(),
+      maxRetries: 0,
+      lifecycleHooks: { beforeRequest, afterResponse },
+    });
+
+    await http.download("/com.example/generatedApks/42/download");
+
+    expect(beforeRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: "GET",
+        path: "/com.example/generatedApks/42/download",
+      }),
+    );
+    expect(afterResponse).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({ status: 200, ok: true }),
+    );
   });
 
   // 5. Upload timeout (AbortError)

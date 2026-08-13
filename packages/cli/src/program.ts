@@ -1,7 +1,12 @@
 import { Command } from "commander";
+
 import type { PluginManager } from "@gpc-cli/core";
-import type { CommandEvent, CommandResult } from "@gpc-cli/plugin-sdk";
+import type { CommandEvent, CommandResult, PluginError } from "@gpc-cli/plugin-sdk";
+
 import { registerPluginCommands } from "./plugins.js";
+import { buildSafeCommandArguments } from "./webhook-args.js";
+
+const pluginEvents = new WeakMap<Command, CommandEvent>();
 
 export async function createProgram(pluginManager?: PluginManager): Promise<Command> {
   const program = new Command();
@@ -237,7 +242,12 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     console.error(`Error: Unknown command "${cmd}".`);
     if (best && best.d <= 3) console.error(`Did you mean: gpc ${best.name}?`);
     console.error(`Run "gpc --help" to see all commands.`);
-    process.exit(2);
+    pluginEvents.set(program, {
+      command: cmd || "unknown",
+      args: {},
+      startedAt: new Date(),
+    });
+    throw createSilentCliError(new Error(`Unknown command "${cmd}"`), "UNKNOWN_COMMAND", 2);
   });
 
   // Resolve command aliases for lazy loading
@@ -267,6 +277,36 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
   }
 
   return program;
+}
+
+/** Parse a command and notify plugins if its action fails. */
+export async function runProgram(
+  program: Command,
+  argv: readonly string[],
+  pluginManager?: PluginManager,
+): Promise<void> {
+  overrideCommanderExits(program);
+  try {
+    await program.parseAsync([...argv]);
+  } catch (error) {
+    const pluginError = toPluginError(error);
+    const event = takePluginEvent(program) ?? createCommandEventFromArgv(program, argv);
+    if (pluginError.exitCode !== 0 && pluginManager) {
+      try {
+        await pluginManager.runOnError(event, pluginError);
+      } catch {
+        // Error hooks must never replace the original command failure.
+      }
+    }
+    throw error;
+  }
+}
+
+function overrideCommanderExits(command: Command): void {
+  command.exitOverride((error) => {
+    throw createSilentCliError(error, error.code, error.exitCode);
+  });
+  for (const child of command.commands) overrideCommanderExits(child);
 }
 
 /**
@@ -393,7 +433,7 @@ function registerPluginsCommand(program: Command, manager?: PluginManager): void
         console.log(`\nInstall: gpc plugins install <name>`);
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        throw createSilentCliError(error, "PLUGIN_REGISTRY_ERROR", 4);
       }
     });
 
@@ -415,7 +455,7 @@ function registerPluginsCommand(program: Command, manager?: PluginManager): void
         console.log(`Configure it in .gpcrc.json: { "plugins": ["${name}"] }`);
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        throw createSilentCliError(error, "PLUGIN_INSTALL_ERROR", 4);
       }
     });
 
@@ -436,7 +476,7 @@ function registerPluginsCommand(program: Command, manager?: PluginManager): void
         console.log(`\nPlugin "${name}" uninstalled and approval revoked.`);
       } catch (error) {
         console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(4);
+        throw createSilentCliError(error, "PLUGIN_UNINSTALL_ERROR", 4);
       }
     });
 }
@@ -445,34 +485,119 @@ function registerPluginsCommand(program: Command, manager?: PluginManager): void
  * Wrap all registered commands so plugin hooks fire before/after each command.
  */
 function wrapCommandHooks(program: Command, manager: PluginManager): void {
-  program.hook("preAction", async (thisCommand) => {
+  program.hook("preAction", async (_thisCommand, actionCommand) => {
     const event: CommandEvent = {
-      command: getFullCommandName(thisCommand),
-      args: thisCommand.opts(),
+      command: getFullCommandName(actionCommand),
+      args: buildSafeCommandArguments(actionCommand),
       app: program.opts()["app"] as string | undefined,
       startedAt: new Date(),
     };
 
     // Store on the command for afterCommand/onError
-    (thisCommand as unknown as Record<string, unknown>)["__pluginEvent"] = event;
+    pluginEvents.set(actionCommand, event);
 
     await manager.runBeforeCommand(event);
   });
 
-  program.hook("postAction", async (thisCommand) => {
-    const event: CommandEvent = (thisCommand as unknown as Record<string, unknown>)[
-      "__pluginEvent"
-    ] as CommandEvent;
+  program.hook("postAction", async (_thisCommand, actionCommand) => {
+    const event = pluginEvents.get(actionCommand);
     if (!event) return;
+
+    const rawExitCode = Number(process.exitCode ?? 0);
+    const exitCode = Number.isFinite(rawExitCode) ? rawExitCode : 1;
+    if (exitCode !== 0) {
+      // Preserve the event for runProgram(), which reports the synthetic
+      // failure to onError without printing a second user-facing error.
+      throw createSilentCliError(
+        new Error(`Command completed with exit code ${exitCode}`),
+        "COMMAND_EXIT_CODE",
+        exitCode,
+      );
+    }
 
     const result: CommandResult = {
       success: true,
       durationMs: Date.now() - event.startedAt.getTime(),
-      exitCode: 0,
+      exitCode,
     };
 
-    await manager.runAfterCommand(event, result);
+    try {
+      await manager.runAfterCommand(event, result);
+    } finally {
+      pluginEvents.delete(actionCommand);
+    }
   });
+}
+
+function takePluginEvent(command: Command): CommandEvent | undefined {
+  const event = pluginEvents.get(command);
+  if (event) {
+    pluginEvents.delete(command);
+    return event;
+  }
+  for (const child of command.commands) {
+    const childEvent = takePluginEvent(child);
+    if (childEvent) return childEvent;
+  }
+  return undefined;
+}
+
+function toPluginError(error: unknown): PluginError {
+  const details =
+    error && typeof error === "object" ? (error as Record<string, unknown>) : undefined;
+  const cause = error instanceof Error ? error : undefined;
+  return {
+    code: typeof details?.["code"] === "string" ? details["code"] : "COMMAND_FAILED",
+    message: cause?.message ?? String(error),
+    exitCode: typeof details?.["exitCode"] === "number" ? details["exitCode"] : 1,
+    ...(cause ? { cause } : {}),
+  };
+}
+
+function createSilentCliError(error: unknown, code: string, exitCode: number): Error {
+  const failure = error instanceof Error ? error : new Error(String(error));
+  return Object.assign(failure, { code, exitCode, silent: true });
+}
+
+function createCommandEventFromArgv(program: Command, argv: readonly string[]): CommandEvent {
+  let current = program;
+  const matched: string[] = [];
+
+  for (let index = 2; index < argv.length; index++) {
+    const token = argv[index] ?? "";
+    if (token === "--") break;
+    if (token.startsWith("-")) {
+      const flag = token.split("=", 1)[0];
+      let option = current.options.find(
+        (candidate) => candidate.short === flag || candidate.long === flag,
+      );
+      let parent = current.parent;
+      while (!option && parent) {
+        option = parent.options.find(
+          (candidate) => candidate.short === flag || candidate.long === flag,
+        );
+        parent = parent.parent;
+      }
+      if (!token.includes("=") && option && (option.required || option.optional)) index++;
+      continue;
+    }
+
+    const child = current.commands.find(
+      (candidate) => candidate.name() === token || candidate.aliases().includes(token),
+    );
+    if (!child) {
+      if (matched.length === 0) matched.push(token);
+      break;
+    }
+    matched.push(child.name());
+    current = child;
+  }
+
+  return {
+    command: matched.join(" ") || program.name(),
+    args: {},
+    startedAt: new Date(),
+  };
 }
 
 function getFullCommandName(cmd: Command): string {

@@ -29,10 +29,10 @@ export interface PluginHooks {
   /** Run when a command fails with an error. */
   onError(handler: ErrorHandler): void;
 
-  /** Run before each API request. Can inspect/modify request metadata. */
+  /** Run before each request attempt sent through GPC's API transport. */
   beforeRequest(handler: BeforeRequestHandler): void;
 
-  /** Run after each API response. Can inspect response metadata. */
+  /** Run after each request attempt sent through GPC's API transport. */
   afterResponse(handler: AfterResponseHandler): void;
 
   /** Register additional CLI commands from the plugin. */
@@ -57,7 +57,7 @@ export interface CommandEvent {
   /** The command name (e.g., "releases upload", "vitals crashes") */
   command: string;
 
-  /** Resolved arguments passed to the command */
+  /** Resolved options and positional arguments; credential values are redacted. */
   args: Record<string, unknown>;
 
   /** App package name (if available) */
@@ -97,7 +97,7 @@ export interface RequestEvent {
 }
 
 export interface ResponseEvent {
-  /** HTTP status code */
+  /** HTTP status code, or 0 when the transport failed before receiving a response. */
   status: number;
 
   /** Duration in milliseconds */
@@ -155,12 +155,16 @@ export interface PluginCommandOption {
   flags: string;
   description: string;
   defaultValue?: unknown;
+  /** Redact this option's value from lifecycle and webhook command metadata. */
+  sensitive?: boolean;
 }
 
 export interface PluginCommandArgument {
   name: string;
   description: string;
   required?: boolean;
+  /** Redact this positional value from lifecycle and webhook command metadata. */
+  sensitive?: boolean;
 }
 
 // ---------------------------------------------------------------------------

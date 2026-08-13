@@ -10,6 +10,23 @@ export interface RetryLogEntry {
   timestamp: string;
 }
 
+export interface ApiRequestEvent {
+  method: string;
+  path: string;
+  startedAt: Date;
+}
+
+export interface ApiResponseEvent {
+  status: number;
+  durationMs: number;
+  ok: boolean;
+}
+
+export interface ApiLifecycleHooks {
+  beforeRequest?(event: ApiRequestEvent): void | Promise<void>;
+  afterResponse?(event: ApiRequestEvent, response: ApiResponseEvent): void | Promise<void>;
+}
+
 export interface ApiClientOptions {
   auth: {
     getAccessToken(): Promise<string>;
@@ -23,6 +40,7 @@ export interface ApiClientOptions {
   baseUrl?: string;
   rateLimiter?: RateLimiter;
   onRetry?: (entry: RetryLogEntry) => void;
+  lifecycleHooks?: ApiLifecycleHooks;
 }
 
 export interface ApiResponse<T> {

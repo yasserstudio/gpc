@@ -79,7 +79,9 @@ describe("resumableUpload", () => {
     const bundle = { versionCode: 42, sha256: "abc" };
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(bundle), { status: 200 }));
 
-    const ctx = mockCtx();
+    const beforeRequest = vi.fn();
+    const afterResponse = vi.fn();
+    const ctx = { ...mockCtx(), lifecycleHooks: { beforeRequest, afterResponse } };
     const result = await resumableUpload(
       "https://upload.example.com/bundles",
       "/tmp/app.aab",
@@ -103,6 +105,9 @@ describe("resumableUpload", () => {
     expect(chunkUrl).toBe(sessionUri);
     expect(chunkOpts.method).toBe("PUT");
     expect(chunkOpts.headers["Content-Range"]).toBe(`bytes 0-${fileSize - 1}/${fileSize}`);
+    expect(beforeRequest.mock.calls.map((call) => call[0].method)).toEqual(["POST", "PUT"]);
+    expect(beforeRequest.mock.calls.map((call) => call[0].path)).toEqual(["/bundles", "/bundles"]);
+    expect(afterResponse).toHaveBeenCalledTimes(2);
   });
 
   it("streams file in multiple chunks with correct Content-Range headers", async () => {
@@ -252,6 +257,34 @@ describe("resumableUpload", () => {
 
     expect(result.data).toEqual(bundle);
     expect(ctx.onRetry).toHaveBeenCalled();
+    expect(ctx.onRetry).toHaveBeenCalledWith(expect.objectContaining({ path: "/bundles" }));
+  });
+
+  it("never exposes a resumable session credential in user-facing errors", async () => {
+    const fileSize = 256 * 1024;
+    const sessionUri = "https://upload.example.com/session/capability?upload_id=secret";
+    mockStat.mockResolvedValue({ size: fileSize });
+    mockOpen.mockResolvedValue(createMockFileHandle(fileSize));
+    mockFetch
+      .mockResolvedValueOnce(new Response("", { status: 200, headers: { Location: sessionUri } }))
+      .mockRejectedValueOnce(new Error("network timeout"));
+
+    let failure: unknown;
+    try {
+      await resumableUpload(
+        "https://upload.example.com/bundles",
+        "/tmp/app.aab",
+        "application/octet-stream",
+        mockCtx(),
+        { chunkSize: fileSize, maxResumeAttempts: 0 },
+      );
+    } catch (error) {
+      failure = error;
+    }
+
+    expect(failure).toMatchObject({ code: "UPLOAD_CHUNK_FAILED" });
+    expect(JSON.stringify(failure)).not.toContain("upload_id=secret");
+    expect(JSON.stringify(failure)).not.toContain(sessionUri);
   });
 
   it("throws UPLOAD_INITIATE_FAILED when session initiation fails", async () => {
@@ -452,7 +485,9 @@ describe("resumableUpload", () => {
     // Post-loop: fetchCompletionResponse → 200 with bundle
     mockFetch.mockResolvedValueOnce(new Response(JSON.stringify(bundle), { status: 200 }));
 
-    const ctx = mockCtx();
+    const beforeRequest = vi.fn();
+    const afterResponse = vi.fn();
+    const ctx = { ...mockCtx(), lifecycleHooks: { beforeRequest, afterResponse } };
     const result = await resumableUpload(
       "https://upload.example.com/bundles",
       "/tmp/app.aab",
@@ -463,6 +498,14 @@ describe("resumableUpload", () => {
 
     expect(result.data).toEqual(bundle);
     expect(result.status).toBe(200);
+    expect(beforeRequest).toHaveBeenCalledTimes(4);
+    expect(beforeRequest.mock.calls.map((call) => call[0].method)).toEqual([
+      "POST",
+      "PUT",
+      "PUT",
+      "PUT",
+    ]);
+    expect(afterResponse).toHaveBeenCalledTimes(4);
   });
 
   it("sends initialMetadata as JSON in the session-initiation POST", async () => {

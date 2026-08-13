@@ -1,8 +1,14 @@
 import { readFile, stat } from "node:fs/promises";
 import { resolve, isAbsolute } from "node:path";
+
 import { PlayApiError } from "./errors.js";
 import { resumableUpload, RESUMABLE_THRESHOLD } from "./resumable-upload.js";
 import type { ApiClientOptions, ApiResponse, ResumableUploadOptions } from "./types.js";
+import {
+  fetchWithLifecycle,
+  getDefaultApiLifecycleHooks,
+  redactRequestPath as redactPath,
+} from "./lifecycle.js";
 
 /** Strip HTML tags and collapse whitespace from a string. */
 function stripHtml(text: string): string {
@@ -28,14 +34,6 @@ function sanitizeErrorBody(body: string): string {
   // Strip HTML tags before truncating
   const cleaned = body.startsWith("<") ? stripHtml(body) : body;
   return cleaned.length > 200 ? cleaned.slice(0, 200) + "..." : cleaned;
-}
-
-const SENSITIVE_PATH_SEGMENTS = /\/(tokens|purchases|purchaseToken)\/([^/?#]*)/gi;
-
-function redactPath(path: string): string {
-  return path.replace(SENSITIVE_PATH_SEGMENTS, (_match, segment: string) => {
-    return `/${segment}/***REDACTED***`;
-  });
 }
 
 /** Validate upload file path to prevent path traversal. */
@@ -476,6 +474,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
   const baseDelay = resolveOption(options.baseDelay, "GPC_BASE_DELAY", 1_000);
   const maxDelay = resolveOption(options.maxDelay, "GPC_MAX_DELAY", 60_000);
   const onRetry = options.onRetry;
+  const lifecycleHooks = () => options.lifecycleHooks ?? getDefaultApiLifecycleHooks();
 
   async function request<T>(
     method: string,
@@ -521,7 +520,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
           init.body = JSON.stringify(body);
         }
 
-        const response = await fetch(url, init);
+        const response = await fetchWithLifecycle(url, init, lifecycleHooks(), path);
 
         if (response.ok) {
           const text = await response.text();
@@ -667,13 +666,18 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
           Connection: "keep-alive",
         };
 
-        const response = await fetch(url, {
-          method: "POST",
-          headers,
-          body: fileBuffer,
-          signal: controller.signal,
-          keepalive: true,
-        });
+        const response = await fetchWithLifecycle(
+          url,
+          {
+            method: "POST",
+            headers,
+            body: fileBuffer,
+            signal: controller.signal,
+            keepalive: true,
+          },
+          lifecycleHooks(),
+          path,
+        );
 
         if (response.ok) {
           const text = await response.text();
@@ -839,6 +843,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
           baseDelay,
           maxDelay,
           onRetry,
+          lifecycleHooks: lifecycleHooks(),
         },
         uploadOptions,
       );
@@ -867,6 +872,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
           baseDelay,
           maxDelay,
           onRetry,
+          lifecycleHooks: lifecycleHooks(),
         },
         { initialMetadata: metadata },
       );
@@ -880,16 +886,21 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
         const timer = setTimeout(() => controller.abort(), timeout);
 
         try {
-          const response = await fetch(url, {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Accept-Encoding": "gzip, deflate",
-              Connection: "keep-alive",
+          const response = await fetchWithLifecycle(
+            url,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Accept-Encoding": "gzip, deflate",
+                Connection: "keep-alive",
+              },
+              signal: controller.signal,
+              keepalive: true,
             },
-            signal: controller.signal,
-            keepalive: true,
-          });
+            lifecycleHooks(),
+            path,
+          );
 
           if (!response.ok) {
             const errorBody = await response.text();

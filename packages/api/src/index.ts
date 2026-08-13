@@ -30,6 +30,7 @@ export type {
 } from "./enterprise-client.js";
 export { createHttpClient } from "./http.js";
 export type { HttpClient } from "./http.js";
+export { fetchWithApiLifecycle, setDefaultApiLifecycleHooks } from "./lifecycle.js";
 export { createRateLimiter, RATE_LIMIT_BUCKETS, resolveBucket } from "./rate-limiter.js";
 export type { RateLimitBucket, RateLimiter } from "./rate-limiter.js";
 export { paginate, paginateAll, paginateParallel } from "./paginate.js";
@@ -38,7 +39,10 @@ export { PlayApiError } from "./errors.js";
 export { RESUMABLE_THRESHOLD } from "./resumable-upload.js";
 export type {
   ApiClientOptions,
+  ApiLifecycleHooks,
+  ApiRequestEvent,
   ApiResponse,
+  ApiResponseEvent,
   PagedResponse,
   AppDetails,
   AppEdit,
