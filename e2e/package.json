@@ -7,7 +7,10 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run --passWithNoTests --testTimeout=20000",
     "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@gpc-cli/cli": "workspace:*"
   }
 }

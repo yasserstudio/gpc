@@ -5,6 +5,10 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
+    "@gpc-cli/docs#build": {
+      "dependsOn": ["^build"],
+      "outputs": [".vitepress/dist/**"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
