@@ -2446,6 +2446,101 @@ describe("HTTP error response edge cases", () => {
 });
 
 // ---------------------------------------------------------------------------
+// 403 classification — GH #101
+// ---------------------------------------------------------------------------
+describe("403 classification", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  async function classify(message: string): Promise<PlayApiError> {
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: { code: 403, message, status: "PERMISSION_DENIED" } }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const client = createHttpClient({ auth: mockAuth(), maxRetries: 0 });
+    try {
+      await client.get("/com.example/edits");
+      expect.unreachable("should have thrown");
+    } catch (err) {
+      return err as PlayApiError;
+    }
+    throw new Error("unreachable");
+  }
+
+  // The report: Play's foreground-service gate contains the word "permissions",
+  // which the old bare-substring test read as a credentials failure. The
+  // reporter had correct permissions the whole time and lost ~5 hours to it.
+  it("does not blame credentials for the foreground service declaration gate", async () => {
+    const err = await classify(
+      "You must let us know whether your app uses any Foreground Service permissions.",
+    );
+
+    expect(err.code).not.toBe("API_INSUFFICIENT_PERMISSIONS");
+    expect(err.code).toBe("API_DECLARATION_REQUIRED");
+    expect(err.suggestion).toContain("App content");
+    expect(err.suggestion).not.toContain("Users and permissions");
+  });
+
+  it("preserves Google's own wording so the real cause is visible", async () => {
+    const err = await classify(
+      "You must let us know whether your app uses any Foreground Service permissions.",
+    );
+
+    expect(err.message).toContain("Foreground Service permissions");
+  });
+
+  it("still reports a genuine permission denial as a credentials problem", async () => {
+    const err = await classify("The caller does not have permission");
+
+    expect(err.code).toBe("API_INSUFFICIENT_PERMISSIONS");
+    expect(err.suggestion).toContain("Users and permissions");
+  });
+
+  it("still reports Google's insufficient-permissions phrasing", async () => {
+    const err = await classify(
+      "The current user has insufficient permissions to perform the requested operation.",
+    );
+
+    expect(err.code).toBe("API_INSUFFICIENT_PERMISSIONS");
+  });
+
+  it("routes other App content gates to the declaration code, not credentials", async () => {
+    const err = await classify(
+      "You must complete the Data safety form before you can release this app.",
+    );
+
+    expect(err.code).toBe("API_DECLARATION_REQUIRED");
+    expect(err.message).toContain("Data safety");
+  });
+
+  // Distinct from a Play Console permission grant: the fix is an OAuth scope,
+  // so the old "insufficient" catch-all sent people to the wrong console page.
+  it("does not blame Play Console permissions for an OAuth scope failure", async () => {
+    const err = await classify("Request had insufficient authentication scopes.");
+
+    expect(err.code).not.toBe("API_INSUFFICIENT_PERMISSIONS");
+    expect(err.message).toContain("insufficient authentication scopes");
+  });
+
+  it("passes through an unrecognised 403 with Google's message intact", async () => {
+    const err = await classify("Your app currently targets API level 33.");
+
+    expect(err.code).toBe("API_FORBIDDEN");
+    expect(err.message).toContain("API level 33");
+  });
+});
+
+// ---------------------------------------------------------------------------
 // One-Time Products (OTP)
 // ---------------------------------------------------------------------------
 describe("oneTimeProducts", () => {

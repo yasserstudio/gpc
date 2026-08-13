@@ -113,6 +113,7 @@ When an error occurs with `--output json`, the response follows this structure:
 | `API_UNAUTHORIZED`                | 401 error: invalid or expired token                        | Re-authenticate                                                                                    |
 | `API_FORBIDDEN`                   | 403 error: insufficient permissions                        | Check service account permissions in Play Console                                                  |
 | `API_INSUFFICIENT_PERMISSIONS`    | 403 error: specific permission missing for this action     | Grant the required permission in Play Console                                                      |
+| `API_DECLARATION_REQUIRED`        | 403 error: an App content declaration is incomplete        | Play Console → Policy → App content. Not fixable by changing permissions                           |
 | `API_NOT_FOUND`                   | 404 error: resource does not exist                         | Verify package name and resource IDs                                                               |
 | `API_APP_NOT_FOUND`               | The configured app has no Play Console listing             | Create a draft listing or check the package name                                                   |
 | `API_TRACK_NOT_FOUND`             | Named track does not exist on this app                     | Run `gpc tracks list` to see valid tracks                                                          |

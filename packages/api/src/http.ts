@@ -122,17 +122,42 @@ interface ErrorMapping {
 }
 
 /**
+ * Play Console "App content" declaration gates. These 403s are not credential
+ * failures, and their text may contain the word "permissions" (GH #101).
+ */
+const DECLARATION_REQUIRED_PATTERNS = [
+  "must let us know",
+  "you must complete",
+  "declaration",
+  "app content",
+];
+
+/**
+ * Explicit permission-denial phrasing. Deliberately narrow: a bare "permission"
+ * or "insufficient" substring also matches declaration gates and OAuth scope
+ * errors, which are different problems with different fixes.
+ */
+const PERMISSION_DENIED_PATTERNS = [
+  "caller does not have",
+  "does not have permission",
+  "insufficient permission",
+  "permission denied",
+  "permissiondenied",
+];
+
+/**
  * Pattern-match Google Play API error responses to return specific,
  * actionable error messages. Returns undefined if no pattern matches.
  */
 function enhanceApiError(status: number, body: string): ErrorMapping | undefined {
-  let errorMsg: string;
+  let rawMsg: string;
   try {
     const parsed = JSON.parse(body) as { error?: { message?: string; status?: string } };
-    errorMsg = parsed?.error?.message?.toLowerCase() ?? "";
+    rawMsg = parsed?.error?.message ?? "";
   } catch {
-    errorMsg = body.toLowerCase();
+    rawMsg = body;
   }
+  const errorMsg = rawMsg.toLowerCase();
 
   // — Duplicate version code (400/403)
   if (
@@ -208,13 +233,34 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
     };
   }
 
+  // — App content declaration required (403)
+  //
+  // Play returns a plain 403 when a Play Console "App content" declaration is
+  // incomplete. Its text frequently contains the word "permissions" — the
+  // Foreground Service declaration reads "...uses any Foreground Service
+  // permissions" — so this MUST stay ordered before the insufficient-permissions
+  // branch below, which would otherwise claim the credentials are at fault and
+  // discard Google's actual explanation (GH #101).
+  if (status === 403 && DECLARATION_REQUIRED_PATTERNS.some((p) => errorMsg.includes(p))) {
+    return {
+      code: "API_DECLARATION_REQUIRED",
+      message: rawMsg
+        ? `Google Play rejected this request pending an App content declaration: ${rawMsg}`
+        : "Google Play requires an App content declaration before this request can succeed.",
+      suggestion: [
+        "This is not a service account permission problem — changing permissions will not fix it.",
+        "Open Play Console → your app → Policy → App content and complete the declaration named above.",
+        "Foreground service permissions, data safety, and similar declarations each gate releases independently.",
+      ].join("\n"),
+    };
+  }
+
   // — Insufficient permissions (403)
-  if (
-    status === 403 &&
-    (errorMsg.includes("permission") ||
-      errorMsg.includes("insufficient") ||
-      errorMsg.includes("caller does not have"))
-  ) {
+  //
+  // Matched on explicit denial phrasing only. A bare "permission" substring test
+  // also swallowed declaration errors and insufficient-OAuth-scope errors, both
+  // of which are better served by Google's own message via the generic fallback.
+  if (status === 403 && PERMISSION_DENIED_PATTERNS.some((p) => errorMsg.includes(p))) {
     return {
       code: "API_INSUFFICIENT_PERMISSIONS",
       message: "The service account does not have permission for this operation.",

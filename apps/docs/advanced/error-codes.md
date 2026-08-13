@@ -151,13 +151,14 @@ GPC pattern-matches Google Play API error responses to provide specific, actiona
 
 #### Access & Session Errors
 
-| Code                           | HTTP | What happened                       | What to do                                                                      |
-| ------------------------------ | ---- | ----------------------------------- | ------------------------------------------------------------------------------- |
-| `API_APP_NOT_FOUND`            | 404  | App not in developer account        | Verify package name. List apps: `gpc apps list`                                 |
-| `API_TRACK_NOT_FOUND`          | 404  | Track doesn't exist                 | Built-in: internal, alpha, beta, production. List custom: `gpc tracks list`     |
-| `API_INSUFFICIENT_PERMISSIONS` | 403  | Service account missing permissions | Grant permissions in Play Console → Users and permissions. Verify: `gpc doctor` |
-| `API_EDIT_CONFLICT`            | 409  | Another edit session open           | Wait and retry. GPC auto-retries once. Or discard stale edit in Play Console    |
-| `API_EDIT_EXPIRED`             | 400  | Edit session expired (~1 hour TTL)  | Safe to retry -- no data was lost. GPC opens a fresh edit automatically         |
+| Code                           | HTTP | What happened                            | What to do                                                                      |
+| ------------------------------ | ---- | ---------------------------------------- | ------------------------------------------------------------------------------- |
+| `API_APP_NOT_FOUND`            | 404  | App not in developer account             | Verify package name. List apps: `gpc apps list`                                 |
+| `API_TRACK_NOT_FOUND`          | 404  | Track doesn't exist                      | Built-in: internal, alpha, beta, production. List custom: `gpc tracks list`     |
+| `API_INSUFFICIENT_PERMISSIONS` | 403  | Service account missing permissions      | Grant permissions in Play Console → Users and permissions. Verify: `gpc doctor` |
+| `API_DECLARATION_REQUIRED`     | 403  | An App content declaration is incomplete | Play Console → your app → Policy → App content. **Not** a permissions problem   |
+| `API_EDIT_CONFLICT`            | 409  | Another edit session open                | Wait and retry. GPC auto-retries once. Or discard stale edit in Play Console    |
+| `API_EDIT_EXPIRED`             | 400  | Edit session expired (~1 hour TTL)       | Safe to retry -- no data was lost. GPC opens a fresh edit automatically         |
 
 #### Review State Errors
 
@@ -350,6 +351,25 @@ Error [API_INSUFFICIENT_PERMISSIONS]: The service account does not have permissi
 ```
 
 **Fix:** Go to Play Console → Users and permissions → find the service account email → grant "Release to production" or "Release to testing tracks".
+
+### Upload blocked by a missing App content declaration
+
+```
+Error [API_DECLARATION_REQUIRED]: Google Play rejected this request pending an App content
+declaration: You must let us know whether your app uses any Foreground Service permissions.
+
+  This is not a service account permission problem — changing permissions will not fix it.
+  Open Play Console → your app → Policy → App content and complete the declaration named above.
+  Foreground service permissions, data safety, and similar declarations each gate releases independently.
+```
+
+Play returns a plain `403` when one of these declarations is incomplete, which looks identical
+to a credentials failure at the HTTP level. Google's message names the specific declaration, and
+GPC passes it through verbatim.
+
+**Fix:** Open Play Console → your app → Policy → App content and complete the declaration Google
+named. Granting the service account more permissions will not help. Common gates: foreground
+service permissions, data safety, ads, target audience, and government apps.
 
 ### "No credentials found" in CI
 
