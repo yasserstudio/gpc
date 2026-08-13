@@ -1,6 +1,6 @@
 {
   "name": "@gpc-cli/plugin-ci",
-  "version": "0.9.10",
+  "version": "0.9.11",
   "description": "CI/CD plugin for GPC Google Play Console CLI. GitHub Actions, GitLab CI, JSON output, exit codes, environment variable config.",
   "type": "module",
   "main": "./dist/index.js",

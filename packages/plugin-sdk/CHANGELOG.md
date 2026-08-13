@@ -1,5 +1,11 @@
 # @gpc-cli/plugin-sdk
 
+## 0.9.11
+
+### Patch Changes
+
+- bdd3a15: Wire plugin command-error and HTTP lifecycle hooks into the production CLI, include resolved non-secret options and positional arguments in command events, let plugin authors mark custom command fields as sensitive, and redact credential-bearing request, command, and webhook metadata before observers receive it.
+
 ## 0.9.10
 
 ### Patch Changes

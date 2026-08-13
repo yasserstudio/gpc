@@ -1,5 +1,23 @@
 # @gpc-cli/cli
 
+## 0.9.94
+
+### Patch Changes
+
+- bdd3a15: Wire plugin command-error and HTTP lifecycle hooks into the production CLI, include resolved non-secret options and positional arguments in command events, let plugin authors mark custom command fields as sensitive, and redact credential-bearing request, command, and webhook metadata before observers receive it.
+- bdd3a15: Enforce third-party permissions from package manifests without allowing exported-name or npm-alias trust spoofing. Already-approved legacy package and stable file identities keep working with a deprecation warning and compatibility permissions, while ambiguous historical relative paths require reapproval and new approvals require explicit metadata. Export the first-party CI plugin through the conventional discovery entry.
+
+  A plugin loaded from a loose file is now identified by its path rather than by whichever project encloses it, so `gpc plugins list` no longer attributes it to an unrelated package name. A package that sits beside the module, or that opts in by declaring `gpc.permissions`, still reports its own identity as before.
+
+- Updated dependencies [5baf180]
+- Updated dependencies [6d9fe13]
+- Updated dependencies [bdd3a15]
+- Updated dependencies [bdd3a15]
+  - @gpc-cli/api@1.1.0
+  - @gpc-cli/core@0.10.0
+  - @gpc-cli/plugin-sdk@0.9.11
+  - @gpc-cli/config@0.9.21
+
 ## 0.9.93
 
 ### Patch Changes

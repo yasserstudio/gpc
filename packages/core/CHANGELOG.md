@@ -1,5 +1,26 @@
 # @gpc-cli/core
 
+## 0.10.0
+
+### Minor Changes
+
+- bdd3a15: Enforce third-party permissions from package manifests without allowing exported-name or npm-alias trust spoofing. Already-approved legacy package and stable file identities keep working with a deprecation warning and compatibility permissions, while ambiguous historical relative paths require reapproval and new approvals require explicit metadata. Export the first-party CI plugin through the conventional discovery entry.
+
+  A plugin loaded from a loose file is now identified by its path rather than by whichever project encloses it, so `gpc plugins list` no longer attributes it to an unrelated package name. A package that sits beside the module, or that opts in by declaring `gpc.permissions`, still reports its own identity as before.
+
+### Patch Changes
+
+- 6d9fe13: Warn before uploading when an App content declaration is likely required. `gpc preflight` now emits an informational `policy-app-content-declaration` finding whenever the AAB requests a `FOREGROUND_SERVICE*` permission, reminding you to complete the "Foreground service permissions" declaration in Play Console before releasing.
+
+  This is the preventive half of the GH #101 fix. The declaration is stored in Play Console and cannot be read from the AAB, so the rule advises rather than fails, and it is distinct from the existing `foreground-service-type-missing` manifest rule: an app can declare `android:foregroundServiceType` perfectly and still be blocked by the missing Console declaration, which only surfaces as a 403 after the upload completes.
+
+- Updated dependencies [5baf180]
+- Updated dependencies [bdd3a15]
+- Updated dependencies [bdd3a15]
+  - @gpc-cli/api@1.1.0
+  - @gpc-cli/plugin-sdk@0.9.11
+  - @gpc-cli/config@0.9.21
+
 ## 0.9.78
 
 ### Patch Changes
