@@ -11,6 +11,12 @@ image: ./npm-supply-chain-cover.png
 
 # What We Actually Did About npm Supply Chain Attacks
 
+::: info Update, August 2026
+One layer described below has since been removed. The AI-backed `deepsec` scan billed per token per file, and at roughly 205 scannable source files a full pass cost tens of dollars — charged on every push, including documentation-only commits. It was retired in August 2026. Every other control on this page still runs, and GitHub secret scanning with push protection has been added since. Deeper review now happens deliberately against the release diff instead of continuously against unchanged code. See the [security page](/advanced/security#current-audit-process) for the current setup.
+
+The honest lesson: a control you cannot afford to keep running is not a control. Prefer the free layers first, and spend deliberately on depth where it actually pays.
+:::
+
 In May 2026, attackers compromised 42 TanStack packages by poisoning a GitHub Actions build cache through a pull request. The malicious code exfiltrated AWS credentials, GCP tokens, Kubernetes secrets, and SSH keys from every developer who installed the affected versions. This was not an isolated incident. Hundreds of npm packages were compromised through similar vectors throughout 2025 and 2026.
 
 GPC is a TypeScript CLI for the Google Play Developer API. It handles service account credentials, access tokens, and publish workflows for Android apps. If an attacker compromised our npm packages, they could steal every credential that passes through the tool.
@@ -179,8 +185,10 @@ This is a blunt instrument with a real tradeoff: you cannot adopt urgent securit
 | Socket.dev        | Every PR           | Malicious packages, typosquatting, obfuscated code    |
 | `pnpm audit`      | Every PR           | Known CVEs in production dependencies                 |
 | CodeQL            | Every push         | Static analysis (injection, auth bypass)              |
-| deepsec           | Every push to main | AI-powered security audit (RCE, SSRF, path traversal) |
+| deepsec\*         | Every push to main | AI-powered security audit (RCE, SSRF, path traversal) |
 | Dependency Review | Every PR           | License issues, new dependency risks                  |
+
+\* Retired in August 2026 on cost — see the update note at the top of this post.
 
 Socket.dev is particularly effective against the TanStack-style attack because it detects git-resolved dependencies and obfuscated install scripts, which are the two primary delivery mechanisms.
 
