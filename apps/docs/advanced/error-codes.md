@@ -371,6 +371,12 @@ GPC passes it through verbatim.
 named. Granting the service account more permissions will not help. Common gates: foreground
 service permissions, data safety, ads, target audience, and government apps.
 
+**Catch it before uploading:** `gpc preflight <file>` emits an informational
+`policy-app-content-declaration` finding when the AAB requests foreground service permissions,
+so you can confirm the declaration is complete before spending an upload on it. The declaration
+lives in Play Console and cannot be read from the AAB, so this is an advisory rather than a
+pass/fail check.
+
 ### "No credentials found" in CI
 
 ```

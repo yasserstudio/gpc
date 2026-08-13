@@ -36,6 +36,68 @@ describe("policyScanner", () => {
     expect(findings[0]!.severity).toBe("info");
   });
 
+  // GH #101: the reporter's app declared foregroundServiceType correctly, so the
+  // manifest scanner passed. What was missing was the Play Console App content
+  // declaration, which only surfaced as a 403 after a 130 MB upload.
+  describe("App content declaration advisory", () => {
+    it("flags foreground service permissions", async () => {
+      const findings = await policyScanner.scan(
+        makeCtx(
+          makeManifest({
+            permissions: [
+              "android.permission.FOREGROUND_SERVICE",
+              "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+              "android.permission.FOREGROUND_SERVICE_DATA_SYNC",
+            ],
+          }),
+        ),
+      );
+
+      const f = findings.find((x) => x.ruleId === "policy-app-content-declaration");
+      expect(f).toBeDefined();
+      expect(f!.severity).toBe("info");
+      expect(f!.message).toContain("FOREGROUND_SERVICE_MEDIA_PLAYBACK");
+      expect(f!.message).toContain("FOREGROUND_SERVICE_DATA_SYNC");
+      expect(f!.suggestion).toContain("App content");
+    });
+
+    it("emits one aggregated finding rather than one per permission", async () => {
+      const findings = await policyScanner.scan(
+        makeCtx(
+          makeManifest({
+            permissions: [
+              "android.permission.FOREGROUND_SERVICE",
+              "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+              "android.permission.FOREGROUND_SERVICE_DATA_SYNC",
+              "android.permission.FOREGROUND_SERVICE_LOCATION",
+            ],
+          }),
+        ),
+      );
+
+      expect(findings.filter((f) => f.ruleId === "policy-app-content-declaration")).toHaveLength(1);
+    });
+
+    it("stays silent when no foreground service permission is requested", async () => {
+      const findings = await policyScanner.scan(
+        makeCtx(makeManifest({ permissions: ["android.permission.INTERNET"] })),
+      );
+
+      expect(findings.find((f) => f.ruleId === "policy-app-content-declaration")).toBeUndefined();
+    });
+
+    it("never fails a preflight run on its own", async () => {
+      const findings = await policyScanner.scan(
+        makeCtx(makeManifest({ permissions: ["android.permission.FOREGROUND_SERVICE"] })),
+      );
+
+      // info severity sits below the default failOn threshold
+      for (const f of findings) {
+        expect(f.severity).toBe("info");
+      }
+    });
+  });
+
   it("always emits the developer-verification advisory (info, cites date + markets)", async () => {
     // present even alongside other findings; never fails a run
     const findings = await policyScanner.scan(

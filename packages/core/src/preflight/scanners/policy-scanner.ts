@@ -115,6 +115,29 @@ export const policyScanner: PreflightScanner = {
       policyUrl: "https://developer.android.com/developer-verification",
     });
 
+    // Play Console "App content" declaration gate for foreground services.
+    // Nothing in the AAB can confirm whether the declaration is complete — it
+    // lives in the Console, and the API only surfaces it at upload time as a
+    // bare 403 whose text reads like a credentials failure (GH #101). Advisory
+    // at info severity so it never fails a scan; the point is to surface the
+    // requirement before a large upload rather than after it is rejected.
+    const foregroundServicePerms = manifest.permissions
+      .filter((p) => p.startsWith("android.permission.FOREGROUND_SERVICE"))
+      .sort();
+    if (foregroundServicePerms.length > 0) {
+      const shortNames = foregroundServicePerms.map((p) => p.replace("android.permission.", ""));
+      findings.push({
+        scanner: "policy",
+        ruleId: "policy-app-content-declaration",
+        severity: "info",
+        title: "Foreground service permissions require an App content declaration",
+        message: `This app requests ${shortNames.join(", ")}. Google Play requires a completed "Foreground service permissions" declaration under App content before it will accept a release. The declaration is stored in Play Console, so it cannot be verified from the AAB.`,
+        suggestion:
+          "Complete Play Console → your app → Policy → App content → Foreground service permissions before releasing. If it is incomplete, the Play API rejects the upload with a 403 whose wording resembles a service account permission error; GPC reports that as API_DECLARATION_REQUIRED.",
+        policyUrl: "https://support.google.com/googleplay/android-developer/answer/13392821",
+      });
+    }
+
     // System alert window / overlay
     if (perms.has("android.permission.SYSTEM_ALERT_WINDOW")) {
       findings.push({

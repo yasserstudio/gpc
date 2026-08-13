@@ -152,6 +152,7 @@ Umbrella for the Play policies that apply to specific app categories:
 - **Health apps**: flagged for medical device disclosure
 - **UGC**: content-moderation reminder
 - **Overlay permissions**: `SYSTEM_ALERT_WINDOW` triggers UGC-adjacent rules
+- **App content declaration** (`policy-app-content-declaration`) — **info**. Fires when the AAB requests any `FOREGROUND_SERVICE*` permission, as a reminder that Play Console requires a completed "Foreground service permissions" declaration under App content. This is distinct from the manifest scanner's `foreground-service-type-missing` rule: that one checks the `android:foregroundServiceType` attribute in your manifest, which you can get entirely right and still be blocked by the missing Console declaration. Because the declaration lives in the Console and cannot be read from the AAB, the rule can only advise. If it is incomplete, the Play API rejects the upload with a 403 that reads like a credentials error; GPC surfaces that as `API_DECLARATION_REQUIRED`.
 
 These are **reminders**, not automatic rejections. But missing declarations in review delays your release.
 

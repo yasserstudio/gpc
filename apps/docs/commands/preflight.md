@@ -28,7 +28,7 @@ See the [Preflight Deep-Dive](/guide/preflight-deep-dive) guide — how the 9 sc
 | **secrets**     | Hardcoded API keys (AWS, Google, Stripe, private keys)                                                                                                                           |
 | **billing**     | Non-Play billing SDKs (Stripe, Braintree, PayPal)                                                                                                                                |
 | **privacy**     | Tracking SDKs (Facebook, Adjust, AppsFlyer), Advertising ID, data collection                                                                                                     |
-| **policy**      | Families/COPPA, financial apps, health apps, UGC, overlay permissions                                                                                                            |
+| **policy**      | Families/COPPA, financial apps, health apps, UGC, overlay permissions, App content declaration advisory (foreground service), developer verification advisory                    |
 | **size**        | Download size warnings, large native libs, large assets                                                                                                                          |
 
 ::: tip Android 17 (API 37) -- Stable June 2026
