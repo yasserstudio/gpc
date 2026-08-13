@@ -491,6 +491,26 @@ Post-fix deepsec re-scan: 0 new findings, 24 previously-open findings marked Fix
 
 New dependencies are reviewed for: maintenance status, download count, transitive dependency count, license compatibility (MIT, Apache-2.0, BSD preferred), and [Socket.dev security score](https://socket.dev).
 
+### Known advisory: `undici` via the AI SDK
+
+Running `npm audit` after installing GPC reports advisories against `undici`, including one rated high. This is expected and tracked. Here is the full picture so you can make your own call.
+
+**Where it comes from.** The AI SDK powers the optional `gpc changelog generate --ai` translation feature:
+
+```
+@gpc-cli/cli -> @gpc-cli/core -> @ai-sdk/anthropic -> @ai-sdk/provider-utils -> undici
+```
+
+**Why it is not fixed yet.** Only `@ai-sdk/provider-utils` v5 moves to a patched `undici`, and reaching it requires a major upgrade of the `@ai-sdk/*` packages. GPC holds all dependency majors until after the 1.0.0 release so that migrations get a deliberate, tested pass rather than riding along with a patch. This hold is recorded in `.github/dependabot.yml`.
+
+**Why the practical risk is low:**
+
+- The AI SDK is **lazy-loaded**. Nothing imports it unless you actually run `gpc changelog generate --ai`. If you never use that flag, the vulnerable code never loads.
+- GPC's own Google Play API calls use the Node.js built-in `fetch`, not `undici`.
+- When the AI path does run, it talks to the LLM endpoint you configured with your own key.
+
+**If you want it gone now:** GPC works fully without the AI translation feature. `pnpm audit --omit=dev`, `npm audit fix --force`, or your own `overrides` entry pinning `undici` will resolve it in your project, since dependency overrides apply from the installing project rather than from a published package.
+
 ## Security Checklist
 
 ### Before Release
