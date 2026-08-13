@@ -91,18 +91,20 @@ All output layers (human, JSON, YAML, debug logs) pass through a redaction filte
 
 ### Redacted Patterns
 
-| Pattern                | Example Input                      | Redacted Output                  |
-| ---------------------- | ---------------------------------- | -------------------------------- |
-| Service account key ID | `"private_key_id": "abc123..."`    | `"private_key_id": "[REDACTED]"` |
-| Private key content    | `-----BEGIN PRIVATE KEY-----`      | `[REDACTED_KEY]`                 |
-| OAuth access tokens    | `ya29.a0AfH6SM...`                 | `ya29.[REDACTED]`                |
-| Refresh tokens         | `1//0eXy...`                       | `1//[REDACTED]`                  |
-| Client secret          | `"client_secret": "GOCSPX-..."`    | `"client_secret": "[REDACTED]"`  |
-| Client email           | `"client_email": "sa@proj.iam..."` | Shown (needed for debugging)     |
-| Proxy credentials      | `https://user:pass@proxy:8080`     | `https://[REDACTED]@proxy:8080`  |
-| API path segments      | `/purchases/tokens/abc123`         | `/purchases/tokens/[REDACTED]`   |
-| Purchase tokens (RTDN) | `purchaseToken: "xyz..."`          | `purchaseToken: "[REDACTED]"`    |
-| CI argv payload        | `--service-account <path>`         | Sensitive flags removed          |
+| Pattern                | Example Input                      | Redacted Output                    |
+| ---------------------- | ---------------------------------- | ---------------------------------- |
+| Service account key ID | `"private_key_id": "abc123..."`    | `"private_key_id": "[REDACTED]"`   |
+| Private key content    | `-----BEGIN PRIVATE KEY-----`      | `[REDACTED_KEY]`                   |
+| OAuth access tokens    | `ya29.a0AfH6SM...`                 | `ya29.[REDACTED]`                  |
+| Refresh tokens         | `1//0eXy...`                       | `1//[REDACTED]`                    |
+| Client secret          | `"client_secret": "GOCSPX-..."`    | `"client_secret": "[REDACTED]"`    |
+| Client email           | `"client_email": "sa@proj.iam..."` | Shown (needed for debugging)       |
+| Proxy credentials      | `https://user:pass@proxy:8080`     | `https://[REDACTED]@proxy:8080`    |
+| API path segments      | `/purchases/tokens/abc123`         | `/purchases/tokens/***REDACTED***` |
+| Purchase tokens (RTDN) | `purchaseToken: "xyz..."`          | `purchaseToken: "[REDACTED]"`      |
+| Webhook command        | `--service-account <path>`         | Flag and value removed             |
+| Webhook URL            | `--webhook-url https://...`        | Flag and credential removed        |
+| Webhook purchase argv  | `purchases get sku <token>`        | Positional token replaced          |
 
 ### Redaction Architecture
 
@@ -216,12 +218,12 @@ Redaction is applied before formatting and cannot be disabled.
 
 | Plugin Type | Pattern                       | Trust Level                        |
 | ----------- | ----------------------------- | ---------------------------------- |
-| First-party | `@gpc-cli/plugin-*`           | Auto-trusted, no permission checks |
+| First-party | Explicit built-in allowlist   | Auto-trusted, no permission checks |
 | Third-party | `gpc-plugin-*` or config path | Untrusted, permissions validated   |
 
 ### Permission Enforcement
 
-Third-party plugins declare required permissions in `PluginManifest`:
+Third-party plugins declare required permissions in `package.json` under `gpc.permissions`:
 
 ```typescript
 type PluginPermission =
@@ -240,13 +242,18 @@ type PluginPermission =
 
 **Rules:**
 
-1. Plugins cannot access credentials directly
-2. Third-party plugins require explicit user approval before `import()` executes any module code
-3. Unknown permissions throw `PLUGIN_INVALID_PERMISSION` (exit code 10)
-4. Permissions are enforced at hook registration time -- a plugin without `hooks:beforeRequest` permission cannot register a `beforeRequest` handler (v0.9.80+)
-5. Error handlers in plugins are wrapped -- a failing `register()` or hook cannot crash GPC
-6. Plugin approval can be revoked: `gpc plugins revoke <name>`
-7. Project `.gpcrc.json` cannot self-approve plugins -- `approvedPlugins` is only read from user config (v0.9.80+)
+1. Plugins run in the GPC process and are not a Node.js sandbox. Approval is the trust boundary for module-level code, so only approve packages whose source and publisher you trust.
+2. Third-party plugins require explicit user approval before `import()` executes any module code.
+3. First-party trust is limited to GPC's explicit package allowlist (currently `@gpc-cli/plugin-ci`) and requires an exact package-manifest name match; namespace lookalikes, exported names, and npm aliases cannot confer trust.
+4. Permission metadata controls registration of GPC-managed hooks and commands; it does not restrict ordinary Node.js APIs or grant direct credential access.
+5. Plugins already approved before permission metadata was introduced retain broad hook and command permissions with a deprecation warning. New approvals and explicit untrusted manifests passed to `PluginManager` require a permission list (`PLUGIN_PERMISSIONS_REQUIRED`).
+6. Unknown permissions produce `PLUGIN_INVALID_PERMISSION` (exit code 10), and declarations discovered from a package are validated before its module is imported.
+7. Permissions are enforced at hook registration time -- a plugin without `hooks:beforeRequest` permission cannot register a `beforeRequest` handler (v0.9.80+).
+8. Completion, error, and request hooks are wrapped so a failing observer cannot crash GPC or change an API result.
+9. Request hooks observe attempts made through the lifecycle-aware `@gpc-cli/api` transport; they do not intercept a plugin's own network calls or unrelated external HTTP requests.
+10. Plugin approval can be revoked: `gpc plugins revoke <name>`.
+11. Project `.gpcrc.json` cannot self-approve plugins -- `approvedPlugins` is only read from user config (v0.9.80+).
+12. Historical relative-path approvals are not grandfathered because the old format did not record their project. They must be reapproved from the intended project and are then stored as absolute file identities.
 
 ## Repository Security
 

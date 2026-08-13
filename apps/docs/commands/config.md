@@ -4,7 +4,7 @@ outline: deep
 
 <CommandHeader
   name="gpc config"
-  description="Manage CLI configuration: app defaults, auth profiles, output format, and project settings."
+  description="Manage user-level CLI defaults: app, auth profiles, output format, and integrations."
   usage="gpc config <subcommand> [options]"
   :badges="['--profile', '--json']"
 />
@@ -20,7 +20,8 @@ outline: deep
 
 ## `config init`
 
-Create a new `.gpcrc.json` configuration file. In interactive mode, prompts for common settings.
+Create the user configuration file at `~/.config/gpc/config.json` (or the XDG-equivalent path).
+In interactive mode, prompts for common settings. To scaffold a project `.gpcrc.json`, use `gpc init`.
 
 ### Synopsis
 
@@ -30,9 +31,7 @@ gpc config init [options]
 
 ### Options
 
-| Flag       | Short | Type      | Default | Description                                        |
-| ---------- | ----- | --------- | ------- | -------------------------------------------------- |
-| `--global` |       | `boolean` | `false` | Create in user config directory (`~/.config/gpc/`) |
+`--global` is accepted as a compatibility no-op; user config is always global to the current user.
 
 ### Example
 
@@ -46,7 +45,7 @@ gpc config init
 ? Default package name (e.g. com.example.app, blank to skip): com.example.myapp
 ? Default output format: table
 ? Service account JSON path (blank to skip): ./service-account-key.json
-Configuration file created at: .gpcrc.json
+Configuration file created at: /Users/you/.config/gpc/config.json
 ```
 
 Non-interactive init:
@@ -55,7 +54,7 @@ Non-interactive init:
 gpc config init --no-interactive
 ```
 
-Creates a minimal `.gpcrc.json`:
+Creates a minimal user configuration:
 
 ```json
 {}
@@ -115,7 +114,8 @@ plugins:
 
 ## `config set`
 
-Set a configuration value in the `.gpcrc.json` file.
+Set a value in the user configuration. Project `.gpcrc.json` files remain explicit, reviewable files;
+edit them directly or scaffold one with `gpc init`.
 
 ### Synopsis
 
@@ -165,7 +165,7 @@ gpc config set developerId 1234567890
 
 ## `config path`
 
-Show the path to the active configuration file.
+Show the user configuration path written by `config init` and `config set`.
 
 ### Synopsis
 
@@ -184,12 +184,12 @@ gpc config path
 ```
 
 ```
-/Users/you/projects/my-app/.gpcrc.json
+/Users/you/.config/gpc/config.json
 ```
 
-## Configuration File Format
+## User Configuration File Format
 
-The `.gpcrc.json` file supports these fields:
+The user `config.json` file supports these fields:
 
 ```json
 {
@@ -201,7 +201,6 @@ The `.gpcrc.json` file supports these fields:
     "serviceAccount": "./service-account-key.json"
   },
   "plugins": ["@gpc-cli/plugin-ci"],
-  "approvedPlugins": ["gpc-plugin-slack"],
   "profiles": {
     "production": {
       "auth": {
@@ -216,6 +215,10 @@ The `.gpcrc.json` file supports these fields:
   }
 }
 ```
+
+Plugin approvals also live only in this user config and cannot be set by a project `.gpcrc.json`. Use
+`gpc plugins approve <name>` to add one safely. See the [Configuration Guide](/guide/configuration)
+for project `.gpcrc.json` fields and precedence.
 
 ## Related
 

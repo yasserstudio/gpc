@@ -4,7 +4,7 @@ outline: deep
 
 # Architecture
 
-GPC is a TypeScript monorepo with a layered architecture. Each package has a single responsibility, and dependencies flow in one direction: CLI -> Core -> API/Auth/Config.
+GPC is a TypeScript monorepo with a layered architecture. Each package has a focused responsibility. The CLI composes Core with the API, Auth, Config, and Plugin SDK packages; Core also uses those lower-level packages for reusable workflows.
 
 ## Tech Stack
 
@@ -52,33 +52,25 @@ gpc/
 
 ```
                     ┌──────────────┐
-                    │     cli      │  <- Entry point (bin: gpc)
+                    │     cli      │  <- Entry point and composition root
                     └──────┬───────┘
                            │
-                    ┌──────▼───────┐
-                    │     core     │  <- Orchestration & business logic
-                    └──┬───┬───┬───┘
-                       │   │   │
-              ┌────────┘   │   └────────┐
-              ▼            ▼            ▼
-        ┌──────────┐ ┌──────────┐ ┌──────────┐
-        │   api    │ │   auth   │ │  config   │
-        └──────────┘ └──────────┘ └──────────┘
-              │            │
-              └─────┬──────┘
-                    ▼
-            ┌──────────────┐
-            │ google-auth  │  <- External dependency
-            │  -library    │
-            └──────────────┘
+       ┌───────────┬───────┼────────┬───────────┐
+       ▼           ▼       ▼        ▼           ▼
+  ┌─────────┐ ┌─────────┐ ┌──────┐ ┌────────┐ ┌────────────┐
+  │  core   │ │   api   │ │ auth │ │ config │ │ plugin-sdk │
+  └────┬────┘ └─────────┘ └──────┘ └────────┘ └────────────┘
+       │           ▲          ▲         ▲            ▲
+       └───────────┴──────────┴─────────┴────────────┘
 ```
 
 **Dependency rules:**
 
-- `cli` depends on `core` only. Never imports `api`, `auth`, or `config` directly.
-- `core` depends on `api`, `auth`, and `config`. Contains all orchestration logic.
-- `api`, `auth`, and `config` are leaf packages. They do not depend on each other.
+- `cli` is the composition root and directly uses `core`, `api`, `auth`, `config`, and `plugin-sdk`.
+- `core` depends on `api`, `auth`, `config`, and `plugin-sdk` for reusable workflows and plugin orchestration.
+- `api`, `auth`, and `config` expose focused lower-level capabilities and do not depend on `cli` or `core`.
 - `plugin-sdk` has zero dependencies. It defines interfaces only.
+- `plugin-ci` depends only on `plugin-sdk`.
 - No circular dependencies between any packages.
 
 ## Package Responsibilities
@@ -144,7 +136,7 @@ gpc/
 
 ### 1. Layered Architecture
 
-Each package has a single responsibility. No circular dependencies. The CLI layer never touches the API directly -- it always goes through core.
+Each package has a focused responsibility and there are no circular dependencies. The CLI composes both reusable Core workflows and lower-level clients where a command needs direct access.
 
 ### 2. Output-First Design
 
@@ -261,17 +253,21 @@ User runs command
 
 **Plugin lifecycle:**
 
-1. Plugins discovered via config, `node_modules`, or local file path
+1. Plugins loaded from explicit config entries, which may be installed package names or local file paths
 2. `PluginManager.load()` validates permissions and calls `plugin.register(hooks)`
 3. Before each command: `runBeforeCommand(event)` fires all registered hooks
-4. After each command: `runAfterCommand(event, result)` fires all registered hooks
+4. After each successful command: `runAfterCommand(event, result)` fires all registered hooks
 5. On error: `runOnError(event, error)` fires all registered hooks (errors in handlers are swallowed)
+6. Before and after each request sent through the lifecycle-aware `@gpc-cli/api` transport: `runBeforeRequest(event)` and `runAfterResponse(event, response)` fire with redacted, non-capability paths
 
 **Trust model:**
 
-- First-party plugins (`@gpc-cli/plugin-*`): auto-trusted, no permission checks
-- Third-party plugins (`gpc-plugin-*`): permissions validated against declared manifest
-- Unknown permissions throw `PLUGIN_INVALID_PERMISSION` (exit code 10)
+- Configured allowlisted first-party plugins (currently `@gpc-cli/plugin-ci`): trusted only after exact resolved package-manifest identity verification; no permission checks
+- Third-party plugins (`gpc-plugin-*`): permissions loaded from `package.json` and enforced at hook registration
+- Trust comes from the configured module specifier, preventing exported-name spoofing
+- Approved legacy package names and stable file identities without permission metadata retain broad hook and command permissions with a deprecation warning; ambiguous historical relative paths require reapproval
+- Explicit untrusted manifests without permissions produce `PLUGIN_PERMISSIONS_REQUIRED`; unknown permissions produce `PLUGIN_INVALID_PERMISSION`
+- Permissions gate GPC-managed hook and command registration; plugin approval remains the trust boundary for ordinary module code
 
 ## Two API Clients
 

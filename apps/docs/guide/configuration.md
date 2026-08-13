@@ -28,13 +28,15 @@ GPC looks for a config file in two locations:
 
 If both exist, the project config values override the user config values. Within each file, all fields are optional.
 
-### Create a config file interactively
+### Create user defaults interactively
 
 ```bash
 gpc config init
 ```
 
-This prompts for common settings and writes a `.gpcrc.json` file in the current directory.
+This prompts for common settings and writes the user config at `~/.config/gpc/config.json` (or
+the XDG-equivalent path). To scaffold `.gpcrc.json` plus project metadata and CI templates, run
+`gpc init` from the project directory.
 
 ### Show resolved configuration
 
@@ -53,7 +55,7 @@ GPC_MAX_RETRIES     maxRetries      5
 default             timeout         30000
 ```
 
-### Show config file path
+### Show the user config path
 
 ```bash
 gpc config path
@@ -62,10 +64,10 @@ gpc config path
 Expected output:
 
 ```
-/Users/developer/projects/my-app/.gpcrc.json
+/Users/developer/.config/gpc/config.json
 ```
 
-### Set a config value
+### Set a user-level default
 
 ```bash
 gpc config set app com.example.myapp

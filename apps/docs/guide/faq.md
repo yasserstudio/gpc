@@ -93,7 +93,7 @@ Yes. GPC is free to use with no tiers, seat pricing, or usage limits. Source cod
 
 ### Can I extend GPC with plugins?
 
-Yes. GPC has a plugin system with lifecycle hooks (`beforeCommand`, `afterCommand`, `onError`), custom command registration, and API request interception. A first-party CI plugin (`@gpc-cli/plugin-ci`) is included. See [Plugin Development](../advanced/plugins) for the SDK documentation.
+Yes. GPC has a plugin system with lifecycle hooks (`beforeCommand`, `afterCommand`, `onError`), custom command registration, and API request-attempt observation. A first-party CI plugin (`@gpc-cli/plugin-ci`) is included. See [Plugin Development](../advanced/plugins) for the SDK documentation.
 
 ### What is the difference between `iap` and `otp` commands?
 

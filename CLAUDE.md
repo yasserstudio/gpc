@@ -28,7 +28,7 @@ e2e/               → End-to-end tests
 - Conventional commits: feat(scope), fix(scope), docs(scope)
 - Scopes: cli, core, api, auth, config, plugin-sdk, ci, docs
 - No circular dependencies between packages
-- Dependency flow: cli → core → api, auth, config
+- Dependency flow: cli is the composition root → core, api, auth, config, plugin-sdk; core → api, auth, config, plugin-sdk
 
 ## Current Status
 

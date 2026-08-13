@@ -249,18 +249,19 @@ pnpm test:e2e                   # End-to-end tests
 Dependencies flow in one direction. No circular dependencies.
 
 ```
-cli -> core -> api
-               auth
-               config
-plugin-sdk (zero deps)
+cli -> core, api, auth, config, plugin-sdk
+core -> api, auth, config, plugin-sdk
+plugin-ci -> plugin-sdk
+api, auth, config, plugin-sdk -> no higher-level GPC packages
 ```
 
 **Enforced rules:**
 
-- `cli` imports from `core` only -- never directly from `api`, `auth`, or `config`
-- `core` imports from `api`, `auth`, and `config`
+- `cli` is the composition root and may import from `core`, `api`, `auth`, `config`, and `plugin-sdk`
+- `core` imports from `api`, `auth`, `config`, and `plugin-sdk`
 - `api`, `auth`, and `config` do not import from each other
 - `plugin-sdk` has zero internal dependencies
+- No lower-level package imports from `cli` or `core`
 
 ### External Dependencies
 

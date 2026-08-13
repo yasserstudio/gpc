@@ -4,7 +4,7 @@ outline: deep
 
 # Plugin Development
 
-Extend GPC with custom commands, lifecycle hooks, and integrations -- without forking the core. Plugins can react to command execution, register new CLI commands, and intercept API requests.
+Extend GPC with custom commands, lifecycle hooks, and integrations -- without forking the core. Plugins can react to command execution, register new CLI commands, and observe GPC API request attempts.
 
 ## Agent Skills
 
@@ -83,7 +83,7 @@ gpc plugins list
 
 ### Publishing
 
-When your plugin is ready to share, publish it to npm. Follow the `gpc-plugin-*` naming convention so GPC can auto-discover it from `node_modules`. Declare required permissions in your `package.json` under the `gpc` key (see [Permissions](#permissions) below).
+When your plugin is ready to share, publish it to npm. Follow the `gpc-plugin-*` naming convention, and have users add the package name to their `plugins` config. Declare required permissions in your `package.json` under the `gpc` key (see [Permissions](#permissions) below).
 
 ## Plugin Interface
 
@@ -120,10 +120,10 @@ interface PluginHooks {
   /** Register additional CLI commands from the plugin */
   registerCommands(handler: CommandRegistrar): void;
 
-  /** Run before an API request is sent */
+  /** Run before an @gpc-cli/api request attempt is sent */
   beforeRequest(handler: BeforeRequestHandler): void;
 
-  /** Run after an API response is received */
+  /** Run after an @gpc-cli/api request attempt completes */
   afterResponse(handler: AfterResponseHandler): void;
 }
 ```
@@ -136,7 +136,7 @@ type AfterCommandHandler = (ctx: CommandEvent, result: CommandResult) => void | 
 type ErrorHandler = (ctx: CommandEvent, error: PluginError) => void | Promise<void>;
 type CommandRegistrar = (registry: CommandRegistry) => void;
 type BeforeRequestHandler = (event: RequestEvent) => void | Promise<void>;
-type AfterResponseHandler = (event: ResponseEvent) => void | Promise<void>;
+type AfterResponseHandler = (event: RequestEvent, response: ResponseEvent) => void | Promise<void>;
 ```
 
 ## Event Types
@@ -148,7 +148,7 @@ Passed to `beforeCommand`, `afterCommand`, and `onError` handlers.
 ```typescript
 interface CommandEvent {
   command: string; // e.g., "releases upload"
-  args: Record<string, unknown>; // Resolved arguments
+  args: Record<string, unknown>; // Resolved options + positional arguments; credentials are redacted
   app?: string; // Package name (if available)
   startedAt: Date; // When the command started
 }
@@ -198,7 +198,7 @@ Passed to `afterResponse` handlers.
 
 ```typescript
 interface ResponseEvent {
-  status: number;
+  status: number; // HTTP status, or 0 when transport fails before a response
   durationMs: number;
   ok: boolean;
 }
@@ -220,6 +220,20 @@ interface PluginCommand {
   arguments?: PluginCommandArgument[];
   action: (args: Record<string, unknown>, options: Record<string, unknown>) => void | Promise<void>;
 }
+
+interface PluginCommandOption {
+  flags: string;
+  description: string;
+  defaultValue?: unknown;
+  sensitive?: boolean; // Redact the value from lifecycle and webhook metadata
+}
+
+interface PluginCommandArgument {
+  name: string;
+  description: string;
+  required?: boolean;
+  sensitive?: boolean; // Redact the value from lifecycle and webhook metadata
+}
 ```
 
 ### Example: Adding a Custom Command
@@ -230,8 +244,9 @@ hooks.registerCommands((registry) => {
     name: "notify",
     description: "Send release notification to Slack",
     options: [
-      { flags: "--channel <channel>", description: "Slack channel", required: true },
+      { flags: "--channel <channel>", description: "Slack channel" },
       { flags: "--message <message>", description: "Custom message" },
+      { flags: "--api-key <key>", description: "Integration API key", sensitive: true },
     ],
     action: async (args, options) => {
       const channel = options.channel as string;
@@ -243,70 +258,70 @@ hooks.registerCommands((registry) => {
 ```
 
 Registered commands appear under `gpc <command-name>` and show up in `gpc --help`.
+Mark every credential-bearing option or positional argument as `sensitive: true`. GPC then replaces
+its value in command lifecycle events and webhook command metadata, including parse-failure paths.
 
 ## Permissions
 
-Third-party plugins must declare required permissions in their `PluginManifest`.
+Third-party plugins must declare required permissions in `package.json` under `gpc.permissions`.
 
 ```typescript
 type PluginPermission =
-  | "read:config" // Read configuration values
-  | "write:config" // Modify configuration
-  | "read:auth" // Read authentication state
-  | "api:read" // Read data from Google Play API
-  | "api:write" // Write data to Google Play API
+  | "read:config" // Reserved for a future managed capability
+  | "write:config" // Reserved for a future managed capability
+  | "read:auth" // Reserved for a future managed capability
+  | "api:read" // Reserved for a future managed capability
+  | "api:write" // Reserved for a future managed capability
   | "commands:register" // Register new CLI commands
   | "hooks:beforeCommand" // Hook into pre-command execution
   | "hooks:afterCommand" // Hook into post-command execution
   | "hooks:onError" // Hook into error handling
-  | "hooks:beforeRequest" // Hook into pre-API-request
-  | "hooks:afterResponse"; // Hook into post-API-response
+  | "hooks:beforeRequest" // Hook into pre-transport-attempt
+  | "hooks:afterResponse"; // Hook into post-transport-attempt
 ```
 
 ### Trust Model
 
-| Plugin Type | Name Pattern        | Trust Level  | Permission Check           |
-| ----------- | ------------------- | ------------ | -------------------------- |
-| First-party | `@gpc-cli/plugin-*` | Auto-trusted | No checks                  |
-| Third-party | `gpc-plugin-*`      | Untrusted    | Validated against manifest |
+| Plugin Type | Name Pattern           | Trust Level                                                | Permission Check           |
+| ----------- | ---------------------- | ---------------------------------------------------------- | -------------------------- |
+| First-party | Explicit GPC allowlist | Trusted after exact package-manifest identity verification | No permission checks       |
+| Third-party | `gpc-plugin-*`         | Untrusted                                                  | Validated against manifest |
 
-Third-party plugins that use hooks or APIs without declaring the corresponding permission throw `PLUGIN_INVALID_PERMISSION` (exit code 10).
+Third-party plugins already approved before permission metadata was introduced continue to load with broad hook and command permissions. The CLI emits a deprecation warning for this compatibility path. New approvals require an explicit permission list, and new plugins should declare the smallest set they need.
+
+When `PluginManager` is used directly with an explicit untrusted manifest, a missing permission list produces `PLUGIN_PERMISSIONS_REQUIRED`. Unknown permission names produce `PLUGIN_INVALID_PERMISSION`. Both errors use exit code 10. During normal CLI discovery, an invalid declaration is rejected before the plugin module is imported, and a plugin configuration problem cannot block unrelated commands.
 
 ### Manifest Declaration
 
-```typescript
-interface PluginManifest {
-  name: string;
-  version: string;
-  permissions?: PluginPermission[];
-  trusted?: boolean; // Only true for @gpc-cli/* packages
+```json
+{
+  "name": "gpc-plugin-my-plugin",
+  "version": "0.1.0",
+  "gpc": {
+    "permissions": ["hooks:beforeCommand", "hooks:afterCommand"]
+  }
 }
 ```
+
+GPC reads this metadata from the package that supplied the configured module. First-party trust is limited to GPC's explicit package allowlist (currently `@gpc-cli/plugin-ci`) and requires a matching package manifest name, so namespace lookalikes, exported-name spoofing, and npm aliases cannot impersonate a first-party plugin.
+
+Plugin permissions control registration of GPC-managed hooks and commands. They do not sandbox JavaScript or restrict ordinary Node.js APIs. Approval is therefore a code-trust decision: only approve packages whose source and publisher you trust.
 
 ## Plugin Discovery
 
-Plugins are discovered in this order:
+Plugins are loaded from the explicit `plugins` list in GPC configuration. Third-party entries must also be approved before their module code is imported.
 
-### 1. Config File (explicit)
-
-```json
-{
-  "plugins": ["@gpc-cli/plugin-ci", "gpc-plugin-slack"]
-}
-```
-
-### 2. node_modules (auto-discover by naming convention)
-
-- `@gpc-cli/plugin-*` -- first-party, auto-trusted
-- `gpc-plugin-*` -- third-party, permission-checked
-
-### 3. Local File (relative path)
+### Config File
 
 ```json
 {
-  "plugins": ["./plugins/custom.js"]
+  "plugins": ["@gpc-cli/plugin-ci", "gpc-plugin-slack", "./plugins/custom.js"]
 }
 ```
+
+Relative paths resolve from the directory containing the discovered project config (or an explicit `cwd` supplied to the Core discovery API), so invoking GPC from a nested directory does not change plugin identity. Without a project config, the current directory is used. GPC does not scan `node_modules` automatically.
+
+During the one-time permission-policy migration, old relative-path approvals are removed because the earlier format did not record which project they belonged to. Reapprove the local path from its intended project; GPC then stores an absolute file identity. Package-name and already-absolute approvals are migrated automatically.
 
 ### Module Resolution
 
@@ -326,6 +341,9 @@ class PluginManager {
   runBeforeCommand(event: CommandEvent): Promise<void>;
   runAfterCommand(event: CommandEvent, result: CommandResult): Promise<void>;
   runOnError(event: CommandEvent, error: PluginError): Promise<void>;
+  runBeforeRequest(event: RequestEvent): Promise<void>;
+  runAfterResponse(event: RequestEvent, response: ResponseEvent): Promise<void>;
+  hasRequestHooks(): boolean;
   getRegisteredCommands(): PluginCommand[];
   getLoadedPlugins(): LoadedPlugin[];
   reset(): void;
@@ -334,7 +352,7 @@ class PluginManager {
 
 Key behaviors:
 
-- `runOnError` swallows handler errors to prevent cascading failures
+- Completion, error, and request observer failures are swallowed to prevent cascading failures
 - Hooks run sequentially in registration order
 - `reset()` clears all state (used in tests)
 

@@ -20,7 +20,7 @@ outline: deep
 
 ## Plugin Trust Model
 
-- **First-party plugins** (`@gpc-cli/*` scope) are automatically trusted and loaded.
+- **First-party plugins** are limited to GPC's explicit allowlist (currently `@gpc-cli/plugin-ci`) and are trusted only when configured and their resolved package-manifest identity exactly matches the specifier.
 - **Third-party plugins** must be explicitly approved before they are loaded. This prevents untrusted code from running automatically.
 
 ## `plugins list`
@@ -133,7 +133,7 @@ gpc plugins init notifications \
 
 ## `plugins approve`
 
-Approve a third-party plugin for loading. Adds the plugin name to the `approvedPlugins` array in `.gpcrc.json`.
+Approve a third-party plugin for loading. GPC validates its declared permissions and records the canonical package or file identity in the user config at `~/.config/gpc/config.json` (or the platform's XDG config directory).
 
 ### Synopsis
 
@@ -155,7 +155,7 @@ gpc plugins approve gpc-plugin-slack
 Plugin "gpc-plugin-slack" approved. It will be loaded on next run.
 ```
 
-This adds to your config:
+This adds to your user config:
 
 ```json
 {
@@ -167,7 +167,7 @@ This adds to your config:
 
 ## `plugins revoke`
 
-Revoke approval for a third-party plugin. Removes the plugin name from the `approvedPlugins` array. The plugin will no longer be loaded.
+Revoke approval for a third-party plugin. Removes its identity from the user-level approval records. The plugin will no longer be loaded.
 
 ### Synopsis
 
@@ -201,16 +201,18 @@ Plugins are configured in `.gpcrc.json`:
 
 ```json
 {
-  "plugins": ["@gpc-cli/plugin-ci", "gpc-plugin-slack"],
-  "approvedPlugins": ["gpc-plugin-slack"]
+  "plugins": ["@gpc-cli/plugin-ci", "gpc-plugin-slack"]
 }
 ```
 
-GPC discovers plugins from:
+Third-party approvals are deliberately stored only in the user config. A project `.gpcrc.json` cannot approve its own plugin code.
 
-1. The `plugins` array in config
-2. `node_modules` packages matching `gpc-plugin-*` or `@*/gpc-plugin-*`
-3. Local file paths in the `plugins` array
+GPC loads plugins from:
+
+1. Installed package names listed in the `plugins` config array
+2. Local file paths listed in the `plugins` config array, resolved from the project directory
+
+GPC does not scan `node_modules` automatically. New third-party approvals must declare `gpc.permissions`; plugins approved before that metadata existed retain compatibility permissions with a warning. Old relative-path approvals must be reapproved once because their original project was not recorded; the replacement approval is stored as an absolute file identity.
 
 ## Related
 
