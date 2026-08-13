@@ -451,15 +451,33 @@ async function readPluginManifest(
   specifier: string,
   resolveSpecifier?: (specifier: string) => string,
 ): Promise<{ manifest: PluginManifest; legacyPermissions: boolean; packageFound: boolean }> {
-  const packageJson = await findPackageJson(specifier, resolveSpecifier);
-  const packageName = typeof packageJson?.["name"] === "string" ? packageJson["name"] : specifier;
-  const packageVersion =
-    typeof packageJson?.["version"] === "string" ? packageJson["version"] : "unknown";
+  const { packageJson, adjacent } = await findPackageJson(specifier, resolveSpecifier);
   const gpc =
     packageJson?.["gpc"] && typeof packageJson["gpc"] === "object"
       ? (packageJson["gpc"] as Record<string, unknown>)
       : undefined;
   const permissionDeclaration = gpc?.["permissions"];
+
+  // package.json lookup walks up to the nearest enclosing package. For a package
+  // entry point that package IS the plugin, so its name is the right identity.
+  // For a loose file it is merely whatever project happens to contain the file,
+  // and adopting that name would attribute the plugin to an unrelated package
+  // and disagree with the approval record, which stores the file URL.
+  //
+  // Two signals mark the package as the plugin rather than an incidental
+  // container: a package.json sitting beside the module, or a gpc.permissions
+  // declaration opting the package in. Either is enough. A file specifier with
+  // neither is a loose script inside some larger project, so it is identified by
+  // its path — which is also what the approval record stores.
+  const declaresPluginMetadata = permissionDeclaration !== undefined;
+  const identifyByPath = specifier.startsWith("file:") && !declaresPluginMetadata && !adjacent;
+  const packageName =
+    !identifyByPath && typeof packageJson?.["name"] === "string" ? packageJson["name"] : specifier;
+  const packageVersion =
+    !identifyByPath && typeof packageJson?.["version"] === "string"
+      ? packageJson["version"]
+      : "unknown";
+
   if (permissionDeclaration !== undefined && !Array.isArray(permissionDeclaration)) {
     throw new GpcError(
       `Plugin "${packageName}" must declare gpc.permissions as an array`,
@@ -482,37 +500,47 @@ async function readPluginManifest(
   };
 }
 
+interface FoundPackageJson {
+  packageJson?: Record<string, unknown>;
+  /** True when the manifest sits in the module's own directory, not an ancestor. */
+  adjacent: boolean;
+}
+
 async function findPackageJson(
   specifier: string,
   resolveSpecifier: (specifier: string) => string = import.meta.resolve,
-): Promise<Record<string, unknown> | undefined> {
+): Promise<FoundPackageJson> {
   let resolved: string;
   try {
     resolved = resolveSpecifier(specifier);
   } catch {
-    return undefined;
+    return { adjacent: false };
   }
-  if (!resolved.startsWith("file:")) return undefined;
+  if (!resolved.startsWith("file:")) return { adjacent: false };
 
-  let directory = dirname(fileURLToPath(resolved));
+  const moduleDirectory = dirname(fileURLToPath(resolved));
+  let directory = moduleDirectory;
   const root = parse(directory).root;
   while (directory !== root) {
     let contents: string;
     try {
       contents = await readFile(join(directory, "package.json"), "utf8");
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ENOENT") return undefined;
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") return { adjacent: false };
       directory = dirname(directory);
       continue;
     }
     try {
-      return JSON.parse(contents) as Record<string, unknown>;
+      return {
+        packageJson: JSON.parse(contents) as Record<string, unknown>,
+        adjacent: directory === moduleDirectory,
+      };
     } catch {
       // Do not borrow metadata from an ancestor if the nearest package is malformed.
-      return undefined;
+      return { adjacent: false };
     }
   }
-  return undefined;
+  return { adjacent: false };
 }
 
 /**

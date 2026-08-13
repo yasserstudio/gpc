@@ -1,7 +1,7 @@
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 
@@ -3916,6 +3916,60 @@ describe("discoverPlugins", () => {
 
     expect(entries).toEqual([]);
     expect(resolveSpecifier).not.toHaveBeenCalled();
+  });
+
+  // A loose plugin file has no manifest of its own, so the package.json walk
+  // reaches whatever project encloses it. Reporting that project's name would
+  // attribute the plugin to an unrelated package and disagree with the approval
+  // record, which stores the file URL.
+  describe("plugin identity for loose files", () => {
+    async function writeLoosePlugin(rootPackageJson: Record<string, unknown>): Promise<string> {
+      const root = await mkdtemp(join(tmpdir(), "gpc-loose-plugin-"));
+      await writeFile(join(root, "package.json"), JSON.stringify(rootPackageJson));
+      const pluginDir = join(root, "plugins");
+      await mkdir(pluginDir);
+      const pluginPath = join(pluginDir, "custom.js");
+      await writeFile(
+        pluginPath,
+        `export const plugin = { name: "custom", version: "1.0.0", register() {} };\n`,
+      );
+      return pathToFileURL(pluginPath).href;
+    }
+
+    it("identifies a loose file by path, not by the enclosing project", async () => {
+      const specifier = await writeLoosePlugin({
+        name: "some-unrelated-project",
+        version: "4.2.0",
+      });
+
+      const entries = await discoverPluginEntries({
+        configPlugins: [specifier],
+        approvedPlugins: [specifier],
+        legacyApprovedPlugins: [specifier],
+      });
+
+      expect(entries).toHaveLength(1);
+      expect(entries[0]!.manifest.name).toBe(specifier);
+      expect(entries[0]!.manifest.name).not.toBe("some-unrelated-project");
+      expect(entries[0]!.manifest.version).toBe("unknown");
+    });
+
+    it("still credits an enclosing package that opts in via gpc.permissions", async () => {
+      const specifier = await writeLoosePlugin({
+        name: "opted-in-plugin-project",
+        version: "4.2.0",
+        gpc: { permissions: ["hooks:beforeCommand"] },
+      });
+
+      const entries = await discoverPluginEntries({
+        configPlugins: [specifier],
+        approvedPlugins: [specifier],
+      });
+
+      expect(entries).toHaveLength(1);
+      expect(entries[0]!.manifest.name).toBe("opted-in-plugin-project");
+      expect(entries[0]!.manifest.permissions).toEqual(["hooks:beforeCommand"]);
+    });
   });
 });
 
