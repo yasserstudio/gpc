@@ -656,23 +656,31 @@ jobs:
       - name: Some other step  # can read GPC_SERVICE_ACCOUNT
 ```
 
-### deepsec scan (v0.9.74+)
+### Workflow security scanning
 
-GPC's own CI runs deepsec on every PR. You can run the same scanner against your GPC-based workflow files:
+Workflow files are a common injection target: an untrusted value interpolated into a `run:` block executes as shell. GPC's own CI relies on CodeQL, which covers GitHub Actions workflows, plus secret scanning with push protection. Both are free on public repositories and need no third-party token:
 
 ```yaml
-# .github/workflows/security.yml
-name: Security
+# .github/workflows/codeql.yml
+name: CodeQL
 on: [push, pull_request]
 
 jobs:
-  deepsec:
+  analyze:
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
     steps:
       - uses: actions/checkout@v4
-      - name: Run deepsec
-        run: npx deepsec scan .github/workflows/
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: actions, javascript-typescript
+      - uses: github/codeql-action/analyze@v3
 ```
+
+Enable secret scanning and push protection under **Settings → Code security**. Push protection blocks a credential at `git push` time, which is considerably better than finding it after it reaches the remote.
+
+The two rules worth applying by hand: never interpolate `${{ github.event.* }}` directly into a `run:` block (pass it through `env:` instead), and scope secrets to the single step that needs them rather than the whole job.
 
 ### Lockfile verification
 

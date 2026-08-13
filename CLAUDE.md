@@ -65,7 +65,7 @@ e2e/               → End-to-end tests
 - v0.9.77: fix large AAB upload timeout -- extended bundle processing poll from ~31s to ~86s (Fibonacci backoff), multi-retry guard on validate/commit (15s, 30s, 45s). Supply chain hardening -- Trusted Publisher (OIDC, no long-lived NPM_TOKEN), staged publishing (human 2FA approval before packages go live).
 - v0.9.76: Google I/O 2026 response -- full API contract audit (50+ fixes against official reference docs), SubscriptionPurchaseV2 new fields, blog launch, docs alignment.
 - v0.9.75: data safety API fix (CSV format, input validation), docs rewrite.
-- v0.9.74: security hardening release -- deepsec audit, 16 fixes (plugin RCE, SSRF, path traversal, token redaction, API path encoding, CSV injection, prompt injection, rate limiter race, vitals gate ordering, env scrubbing, dry-run enforcement). CI hardened with deepsec scanning and supply chain protections. Run `pnpm security:deep` for full deepsec pipeline.
+- v0.9.74: security hardening release -- deepsec audit, 16 fixes (plugin RCE, SSRF, path traversal, token redaction, API path encoding, CSV injection, prompt injection, rate limiter race, vitals gate ordering, env scrubbing, dry-run enforcement). CI hardened with supply chain protections. (The deepsec CI scan was retired in Aug 2026 on cost; see `apps/docs/advanced/security.md` for the current process.)
 - v0.9.73: `gpc skills check`, `gpc doctor` Android CLI detection, `--changelog-ai` on upload, SEO/docs overhaul (JSON-LD, recipes, staged rollout guide, rate limits reference).
 - v0.9.72: API compliance patch (error reports endpoint, input validation).
 - v0.9.71: `gpc doctor` quota proximity check (warns at >80% daily/per-minute API usage) and plugin health check (discovers, loads, reports each plugin).

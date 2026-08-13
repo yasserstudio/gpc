@@ -67,57 +67,12 @@ jobs:
           SOCKET_SECURITY_API_TOKEN: ${{ secrets.SOCKET_SECURITY_API_TOKEN }}
           SOCKET_CLI_ORG_SLUG: yasser-s-studio
 
-  deepsec:
-    name: Deep Security Scan
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v6
-
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
-
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
-        with:
-          node-version: 22
-          cache: "pnpm"
-
-      # `deepsec process` needs an AI backend. Without the credential the whole
-      # job fails, which is indistinguishable from a genuine finding and hides
-      # any other failure in this job. Report the gap honestly instead, and let
-      # the scan start running automatically the moment the secret is added.
-      - name: Check for AI credentials
-        id: creds
-        env:
-          AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
-        run: |
-          if [ -z "$AI_GATEWAY_API_KEY" ]; then
-            echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::warning title=Deep security scan skipped::AI_GATEWAY_API_KEY is not configured, so 'deepsec process' cannot run. Add the repository secret to enable the scan. Until then, run 'pnpm security:deep' locally before releases."
-          else
-            echo "available=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Deep security scan
-        if: steps.creds.outputs.available == 'true'
-        working-directory: .deepsec
-        run: |
-          pnpm install --ignore-scripts
-          npx deepsec scan
-          npx deepsec process
-          npx deepsec revalidate
-          npx deepsec export --format json --out deepsec-results.json
-        env:
-          AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
-
-      - name: Upload findings
-        if: always() && steps.creds.outputs.available == 'true'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: deepsec-findings
-          path: .deepsec/deepsec-results.json
-          retention-days: 30
+  # The AI-backed deep scan was removed on 2026-08-13: it bills per token per
+  # file, and at ~205 scannable source files a single full pass runs into tens
+  # of dollars — on every push. Static and supply-chain coverage below is free
+  # and unchanged (CodeQL, Socket, Dependency Review, pnpm audit, licenses).
+  # Deeper review is now a skill-driven audit run deliberately before releases,
+  # documented in apps/docs/advanced/security.md.
 
   check:
     runs-on: ubuntu-latest

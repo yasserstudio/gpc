@@ -24,8 +24,7 @@
     "license:check": "tsx scripts/check-licenses.ts",
     "audit": "pnpm audit --prod --audit-level=high",
     "audit:all": "pnpm audit --audit-level=moderate",
-    "security:check": "pnpm audit --prod --audit-level=high && pnpm license:check",
-    "security:deep": "npx deepsec scan && npx deepsec process && npx deepsec revalidate && npx deepsec export --format md-dir --out ./deepsec-findings"
+    "security:check": "pnpm audit --prod --audit-level=high && pnpm license:check"
   },
   "prettier": {
     "semi": true,

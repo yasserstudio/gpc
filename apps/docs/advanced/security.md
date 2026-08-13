@@ -286,7 +286,6 @@ Push protection blocks any commit containing a detected secret before it reaches
 
 | Tool         | Trigger                | What it checks                                             |
 | ------------ | ---------------------- | ---------------------------------------------------------- |
-| deepsec      | Every PR               | AI-powered security audit (RCE, SSRF, injection, etc.)     |
 | Socket.dev   | Every PR               | Supply chain alerts, malware, typosquats, license risks    |
 | `pnpm audit` | Every PR (`check` job) | Known CVEs in dependency tree (moderate+)                  |
 | CodeQL       | Every push and PR      | Static analysis for JS/TS vulnerabilities                  |
@@ -440,7 +439,7 @@ GPC v0.9.74 was audited with [deepsec](https://deepsec.vercel.app/) (Vercel Labs
 | 15  | Race condition     | Rate limiter lacked per-bucket mutex for concurrent waiters | Per-bucket mutex added to fix concurrent waiter race   |
 | 16  | Least privilege    | CI template scoped secrets at job level                     | Secrets scoped to upload step only                     |
 
-deepsec is run on every PR as of v0.9.74. See the [Automated Security](#automated-security) table above.
+This audit was run with deepsec. GPC no longer runs it in CI — see [Current audit process](#current-audit-process) below.
 
 ### deepsec audit (v0.9.80)
 
@@ -465,6 +464,31 @@ GPC v0.9.80 ran a second full-codebase deepsec audit (v2.0.9, Codex gpt-5.5). 94
 | 15  | Supply chain     | Generated CI template used unpinned GPC install         | `--ignore-scripts` added to generated templates           |
 
 Post-fix deepsec re-scan: 0 new findings, 24 previously-open findings marked Fixed.
+
+### Current audit process
+
+The AI-backed deep scan was retired in August 2026. It billed per token per file, and at ~205 scannable source files a full pass cost tens of dollars — charged on every push, including documentation-only commits. The findings above were worth the spend as one-off audits; running it continuously was not.
+
+**Continuous, automated, and free** — every push and pull request:
+
+| Layer             | Tool                                     | Catches                                     |
+| ----------------- | ---------------------------------------- | ------------------------------------------- |
+| Static analysis   | CodeQL                                   | Injection, unsafe patterns, taint flows     |
+| Secret detection  | GitHub secret scanning + push protection | Committed credentials, blocked at push time |
+| Supply chain      | Socket.dev                               | Malicious or risky dependency behaviour     |
+| Dependency review | GitHub Dependency Review                 | Vulnerable packages introduced in a PR      |
+| Dependency alerts | Dependabot security updates              | Known CVEs in the dependency tree           |
+| Advisory gate     | `pnpm audit --prod --audit-level=high`   | High-severity production advisories         |
+| Licensing         | `pnpm license:check`                     | Incompatible licences                       |
+
+**Deliberate, before each release** — a focused review rather than a scheduled scan:
+
+1. **Threat model anything that crosses a trust boundary.** New auth paths, plugin loading, credential handling, or anything that parses untrusted input gets a STRIDE pass. Threats scoring DREAD ≥ 7 need a named mitigation before the release ships.
+2. **Adversarially review the release diff**, not the whole codebase. The highest-value target is what changed since the last tag.
+3. **Re-check the dependency surface** when `package.json` changed: `pnpm security:check`.
+4. **Walk the [Security Checklist](#security-checklist)** below.
+
+This is a review discipline, not a subscription. It costs attention rather than tokens, and it concentrates that attention on the diff — which is where regressions actually enter.
 
 ## Dependency Policy
 
@@ -524,7 +548,8 @@ Running `npm audit` after installing GPC reports advisories against `undici`, in
 - [ ] Plugin permission model enforced
 - [ ] Error messages do not leak sensitive information
 - [ ] TLS enforced for all network communication
-- [ ] deepsec scan passes in CI
+- [ ] CodeQL, Socket, and Dependency Review pass in CI
+- [ ] Release diff reviewed for anything crossing a trust boundary
 
 ### For Contributors
 
