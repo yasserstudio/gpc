@@ -45,6 +45,9 @@ export async function scaffoldPlugin(options: ScaffoldOptions): Promise<Scaffold
       },
     },
     files: ["dist"],
+    gpc: {
+      permissions: ["hooks:beforeCommand", "hooks:afterCommand"],
+    },
     scripts: {
       build: "tsup src/index.ts --format esm --dts",
       dev: "tsup src/index.ts --format esm --dts --watch",
@@ -103,7 +106,8 @@ export const plugin = definePlugin({
       // Example: send notifications, update dashboards, etc.
     });
 
-    // Uncomment to add custom commands:
+    // To add custom commands, first add "commands:register" to
+    // package.json#gpc.permissions, then uncomment this block:
     // hooks.registerCommands((registry) => {
     //   registry.add({
     //     name: "${shortName}",

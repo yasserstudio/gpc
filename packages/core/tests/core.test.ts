@@ -1,4 +1,11 @@
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+
+import { PlayApiError } from "@gpc-cli/api";
 
 // Mock file validation so uploadRelease tests don't need real files
 vi.mock("../src/utils/file-validation.js", () => ({
@@ -35,7 +42,6 @@ import {
   diffReleases,
   fetchReleaseNotes,
 } from "../src/commands/releases.js";
-import { PlayApiError } from "@gpc-cli/api";
 import {
   getListings,
   updateListing,
@@ -67,9 +73,6 @@ import {
 } from "../src/commands/vitals.js";
 import { isValidBcp47, GOOGLE_PLAY_LANGUAGES } from "../src/utils/bcp47.js";
 import { readListingsFromDir, writeListingsToDir, diffListings } from "../src/utils/fastlane.js";
-import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 
 // ---------------------------------------------------------------------------
 // GpcError
@@ -3449,7 +3452,12 @@ describe("tester commands", () => {
 // Phase 8 – Plugin System
 // ---------------------------------------------------------------------------
 
-import { PluginManager, discoverPlugins } from "../src/plugins.js";
+import {
+  PluginManager,
+  discoverPluginEntries,
+  discoverPlugins,
+  validatePluginForApproval,
+} from "../src/plugins.js";
 import type { GpcPlugin } from "@gpc-cli/plugin-sdk";
 
 describe("PluginManager", () => {
@@ -3467,7 +3475,7 @@ describe("PluginManager", () => {
     expect(loaded[0]!.version).toBe("1.0.0");
   });
 
-  it("marks @gpc-cli/* plugins as trusted", async () => {
+  it("marks explicitly allowlisted first-party plugins as trusted", async () => {
     const manager = new PluginManager();
     await manager.load({
       name: "@gpc-cli/plugin-ci",
@@ -3534,6 +3542,35 @@ describe("PluginManager", () => {
     const result = { success: true, durationMs: 100, exitCode: 0, data: { app: "com.example" } };
     await manager.runAfterCommand(event, result);
     expect(receivedResult).toEqual(result);
+  });
+
+  it("swallows afterCommand handler errors and continues", async () => {
+    const manager = new PluginManager();
+    const completed = vi.fn();
+    await manager.load({
+      name: "crash-after",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.afterCommand(async () => {
+          throw new Error("handler crashed");
+        });
+      },
+    });
+    await manager.load({
+      name: "good-after",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.afterCommand(completed);
+      },
+    });
+
+    await expect(
+      manager.runAfterCommand(
+        { command: "apps info", args: {}, startedAt: new Date() },
+        { success: true, durationMs: 100, exitCode: 0 },
+      ),
+    ).resolves.toBeUndefined();
+    expect(completed).toHaveBeenCalledOnce();
   });
 
   it("runs onError handlers and swallows handler errors", async () => {
@@ -3623,6 +3660,16 @@ describe("PluginManager", () => {
     ).rejects.toThrow("Unknown plugin permission");
   });
 
+  it("rejects an explicitly untrusted plugin without declared permissions", async () => {
+    const manager = new PluginManager();
+    await expect(
+      manager.load(
+        { name: "@gpc-cli/plugin-ci", version: "1.0.0", register() {} },
+        { name: "gpc-plugin-spoof", version: "1.0.0" },
+      ),
+    ).rejects.toMatchObject({ code: "PLUGIN_PERMISSIONS_REQUIRED", exitCode: 10 });
+  });
+
   it("allows any permissions for trusted plugins", async () => {
     const manager = new PluginManager();
     // Should not throw — trusted plugins skip permission validation
@@ -3647,6 +3694,30 @@ describe("PluginManager", () => {
     });
     expect(registered).toBe(true);
   });
+
+  it("rolls back hooks and commands when registration fails", async () => {
+    const manager = new PluginManager();
+    const leakedHandler = vi.fn();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    await manager.load({
+      name: "partial-plugin",
+      version: "1.0.0",
+      register(hooks) {
+        hooks.beforeCommand(leakedHandler);
+        hooks.registerCommands((registry) => {
+          registry.add({ name: "leaked", description: "leaked", action: async () => {} });
+        });
+        throw new Error("registration failed");
+      },
+    });
+
+    await manager.runBeforeCommand({ command: "apps list", args: {}, startedAt: new Date() });
+    expect(leakedHandler).not.toHaveBeenCalled();
+    expect(manager.getRegisteredCommands()).toEqual([]);
+    expect(manager.getLoadedPlugins()).toEqual([]);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("registration failed"));
+  });
 });
 
 describe("discoverPlugins", () => {
@@ -3658,6 +3729,193 @@ describe("discoverPlugins", () => {
   it("returns empty array for non-existent plugin modules", async () => {
     const plugins = await discoverPlugins({ configPlugins: ["nonexistent-plugin-xyz"] });
     expect(plugins).toEqual([]);
+  });
+
+  it("reads package permissions and derives trust from the configured specifier", async () => {
+    const specifier = new URL("./fixtures/permission-plugin/index.js", import.meta.url).href;
+    const entries = await discoverPluginEntries({
+      configPlugins: [specifier],
+      approvedPlugins: [specifier],
+      legacyApprovedPlugins: [specifier],
+    });
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0]!.legacyPermissions).toBe(false);
+    expect(entries[0]!.manifest).toEqual({
+      name: "gpc-plugin-permission-fixture",
+      version: "1.0.0",
+      permissions: ["hooks:beforeRequest"],
+      trusted: false,
+    });
+
+    const manager = new PluginManager();
+    await manager.load(entries[0]!.plugin, entries[0]!.manifest);
+    expect(manager.getLoadedPlugins()).toEqual([
+      { name: "gpc-plugin-permission-fixture", version: "1.0.0", trusted: false },
+    ]);
+    expect(manager.hasRequestHooks()).toBe(true);
+
+    const legacyApiPlugins = await discoverPlugins({
+      configPlugins: [specifier],
+      approvedPlugins: [specifier],
+    });
+    const managerUsingLegacyApi = new PluginManager();
+    await managerUsingLegacyApi.load(legacyApiPlugins[0]!);
+    expect(managerUsingLegacyApi.getLoadedPlugins()[0]!.trusted).toBe(false);
+  });
+
+  it("resolves configured relative plugin paths from cwd", async () => {
+    const specifier = "./fixtures/permission-plugin/index.js";
+    const cwd = fileURLToPath(new URL(".", import.meta.url));
+    const entries = await discoverPluginEntries({
+      configPlugins: [specifier],
+      approvedPlugins: [specifier],
+      cwd,
+    });
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0]!.manifest.name).toBe("gpc-plugin-permission-fixture");
+  });
+
+  it("deduplicates local plugin aliases by canonical identity", async () => {
+    const relativeSpecifier = "./fixtures/permission-plugin/index.js";
+    const cwd = fileURLToPath(new URL(".", import.meta.url));
+    const absoluteSpecifier = new URL(relativeSpecifier, import.meta.url).href;
+
+    const entries = await discoverPluginEntries({
+      configPlugins: [relativeSpecifier, absoluteSpecifier],
+      approvedPlugins: [relativeSpecifier],
+      cwd,
+    });
+
+    expect(entries).toHaveLength(1);
+  });
+
+  it("keeps approved legacy plugins working with explicit compatibility permissions", async () => {
+    const specifier = new URL("./fixtures/legacy-plugin/index.js", import.meta.url).href;
+    const entries = await discoverPluginEntries({
+      configPlugins: [specifier],
+      approvedPlugins: [specifier],
+      legacyApprovedPlugins: [specifier],
+    });
+
+    expect(entries).toHaveLength(1);
+    expect(entries[0]!.legacyPermissions).toBe(true);
+    expect(entries[0]!.manifest.trusted).toBe(false);
+    expect(entries[0]!.manifest.permissions).toEqual(
+      expect.arrayContaining(["hooks:beforeCommand", "hooks:afterResponse", "commands:register"]),
+    );
+
+    const manager = new PluginManager();
+    await expect(manager.load(entries[0]!.plugin, entries[0]!.manifest)).resolves.toBeUndefined();
+    expect(manager.getLoadedPlugins()[0]!.trusted).toBe(false);
+  });
+
+  it("does not infer legacy status from a manually edited approval", async () => {
+    const specifier = new URL("./fixtures/legacy-plugin/index.js", import.meta.url).href;
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const entries = await discoverPluginEntries({
+      configPlugins: [specifier],
+      approvedPlugins: [specifier],
+      legacyApprovedPlugins: [],
+    });
+
+    expect(entries).toEqual([]);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("must declare permissions"));
+  });
+
+  it("preserves approved legacy plugins through the original public discovery API", async () => {
+    const specifier = new URL("./fixtures/legacy-plugin/index.js", import.meta.url).href;
+
+    const plugins = await discoverPlugins({
+      configPlugins: [specifier],
+      approvedPlugins: [specifier],
+    });
+
+    expect(plugins).toHaveLength(1);
+    const manager = new PluginManager();
+    await manager.load(plugins[0]!);
+    expect(manager.getLoadedPlugins()).toEqual([
+      { name: "gpc-plugin-legacy-fixture", version: "1.0.0", trusted: false },
+    ]);
+  });
+
+  it("requires explicit permissions for new plugin approvals", async () => {
+    const declared = new URL("./fixtures/permission-plugin/index.js", import.meta.url).href;
+    const legacy = new URL("./fixtures/legacy-plugin/index.js", import.meta.url).href;
+
+    await expect(validatePluginForApproval(declared)).resolves.toMatchObject({
+      specifier: declared,
+      manifest: {
+        name: "gpc-plugin-permission-fixture",
+        permissions: ["hooks:beforeRequest"],
+      },
+    });
+    await expect(validatePluginForApproval(legacy)).rejects.toMatchObject({
+      code: "PLUGIN_PERMISSIONS_REQUIRED",
+      exitCode: 10,
+    });
+  });
+
+  it("validates the official CI plugin for install-and-approve flows", async () => {
+    const specifier = new URL("../../../plugins/plugin-ci/src/index.ts", import.meta.url).href;
+
+    await expect(validatePluginForApproval(specifier)).resolves.toMatchObject({
+      specifier,
+      manifest: {
+        name: "@gpc-cli/plugin-ci",
+        permissions: ["hooks:afterCommand", "hooks:onError"],
+      },
+    });
+  });
+
+  it("rejects invalid package permissions before importing plugin code", async () => {
+    const specifier = new URL("./fixtures/invalid-permission-plugin/index.js", import.meta.url)
+      .href;
+    const marker = "__gpcInvalidPermissionFixtureImported";
+    delete (globalThis as Record<string, unknown>)[marker];
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const entries = await discoverPluginEntries({
+      configPlugins: [specifier],
+      approvedPlugins: [specifier],
+    });
+
+    expect(entries).toEqual([]);
+    expect((globalThis as Record<string, unknown>)[marker]).toBeUndefined();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("Unknown plugin permission"));
+  });
+
+  it("rejects a first-party specifier resolved through an npm alias before import", async () => {
+    const aliasTarget = new URL("./fixtures/aliased-first-party/index.js", import.meta.url).href;
+    const marker = "__gpcAliasedFirstPartyFixtureImported";
+    delete (globalThis as Record<string, unknown>)[marker];
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const entries = await discoverPluginEntries({
+      configPlugins: ["@gpc-cli/plugin-ci"],
+      resolveSpecifier: (specifier) =>
+        specifier === "@gpc-cli/plugin-ci" ? aliasTarget : import.meta.resolve(specifier),
+    });
+
+    expect(entries).toEqual([]);
+    expect((globalThis as Record<string, unknown>)[marker]).toBeUndefined();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("resolved to package"));
+  });
+
+  it("does not auto-trust unknown packages in the @gpc-cli plugin namespace", async () => {
+    const resolveSpecifier = vi.fn(
+      () => new URL("./fixtures/aliased-first-party/index.js", import.meta.url).href,
+    );
+
+    const entries = await discoverPluginEntries({
+      configPlugins: ["@gpc-cli/plugin-evil"],
+      resolveSpecifier,
+    });
+
+    expect(entries).toEqual([]);
+    expect(resolveSpecifier).not.toHaveBeenCalled();
   });
 });
 

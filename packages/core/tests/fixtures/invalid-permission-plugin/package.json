@@ -1,0 +1,10 @@
+{
+  "name": "gpc-plugin-invalid-permission-fixture",
+  "version": "1.0.0",
+  "type": "module",
+  "gpc": {
+    "permissions": [
+      "filesystem:write"
+    ]
+  }
+}

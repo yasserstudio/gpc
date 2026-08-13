@@ -8,6 +8,29 @@ import { buildSafeCommandArguments } from "./webhook-args.js";
 
 const pluginEvents = new WeakMap<Command, CommandEvent>();
 
+async function approvePluginWithPolicy(name: string): Promise<string> {
+  const configApi = await import("@gpc-cli/config");
+  await configApi.ensurePluginApprovalPolicy();
+  const config = await configApi.loadConfig();
+  const { dirname } = await import("node:path");
+  const projectDir = config.configPath ? dirname(config.configPath) : process.cwd();
+  const approvalId = configApi.resolvePluginApprovalId(name, projectDir);
+  const alreadyGrandfathered =
+    config.approvedPlugins?.includes(approvalId) === true &&
+    config.legacyApprovedPlugins?.includes(approvalId) === true;
+
+  if (!alreadyGrandfathered) {
+    const { validatePluginForApproval } = await import("@gpc-cli/core");
+    const validated = await validatePluginForApproval(approvalId, projectDir);
+    await configApi.approvePlugin(validated.specifier);
+    return validated.specifier;
+  }
+
+  // Preserve idempotent approval scripts for explicitly migrated legacy plugins.
+  await configApi.approvePlugin(approvalId);
+  return approvalId;
+}
+
 export async function createProgram(pluginManager?: PluginManager): Promise<Command> {
   const program = new Command();
 
@@ -376,8 +399,7 @@ function registerPluginsCommand(program: Command, manager?: PluginManager): void
     .command("approve <name>")
     .description("Approve a third-party plugin for loading")
     .action(async (name: string) => {
-      const { approvePlugin } = await import("@gpc-cli/config");
-      await approvePlugin(name);
+      await approvePluginWithPolicy(name);
       console.log(`Plugin "${name}" approved. It will be loaded on next run.`);
     });
 
@@ -385,8 +407,12 @@ function registerPluginsCommand(program: Command, manager?: PluginManager): void
     .command("revoke <name>")
     .description("Revoke approval for a third-party plugin")
     .action(async (name: string) => {
-      const { revokePluginApproval } = await import("@gpc-cli/config");
-      const removed = await revokePluginApproval(name);
+      const { loadConfig, resolvePluginApprovalId, revokePluginApproval } =
+        await import("@gpc-cli/config");
+      const config = await loadConfig();
+      const { dirname } = await import("node:path");
+      const projectDir = config.configPath ? dirname(config.configPath) : process.cwd();
+      const removed = await revokePluginApproval(resolvePluginApprovalId(name, projectDir));
       if (removed) {
         console.log(`Plugin "${name}" approval revoked.`);
       } else {
@@ -449,8 +475,7 @@ function registerPluginsCommand(program: Command, manager?: PluginManager): void
         if (result.status !== 0) {
           throw new Error(`npm install exited with code ${result.status ?? "unknown"}`);
         }
-        const { approvePlugin } = await import("@gpc-cli/config");
-        await approvePlugin(name);
+        await approvePluginWithPolicy(name);
         console.log(`\nPlugin "${name}" installed and approved. It will be loaded on next run.`);
         console.log(`Configure it in .gpcrc.json: { "plugins": ["${name}"] }`);
       } catch (error) {

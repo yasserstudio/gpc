@@ -140,6 +140,8 @@ export async function loadConfig(overrides?: Partial<GpcConfig>): Promise<Resolv
       const projectConfig = await readConfigFile(projectConfigPath);
       // Security: project config must not self-approve plugins
       delete (projectConfig as Record<string, unknown>)["approvedPlugins"];
+      delete (projectConfig as Record<string, unknown>)["legacyApprovedPlugins"];
+      delete (projectConfig as Record<string, unknown>)["pluginApprovalPolicyVersion"];
       Object.assign(result, stripUndefined(projectConfig));
       result.configPath = projectConfigPath;
     } catch {

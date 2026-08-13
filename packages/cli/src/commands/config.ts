@@ -14,8 +14,8 @@ export function registerConfigCommands(program: Command): void {
 
   config
     .command("init")
-    .description("Create a configuration file")
-    .option("--global", "Create in user config directory (~/.config/gpc/)")
+    .description("Create the user configuration file")
+    .option("--global", "Create in user config directory (retained for compatibility)")
     .action(async (_options: { global?: boolean }) => {
       const initialConfig: Record<string, unknown> = {};
 

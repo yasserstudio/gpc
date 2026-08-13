@@ -37,6 +37,7 @@ describe("scaffoldPlugin", () => {
     expect(pkg.type).toBe("module");
     expect(pkg.peerDependencies["@gpc-cli/plugin-sdk"]).toBeDefined();
     expect(pkg.keywords).toContain("gpc-plugin");
+    expect(pkg.gpc.permissions).toEqual(["hooks:beforeCommand", "hooks:afterCommand"]);
   });
 
   it("generates src/index.ts with definePlugin", async () => {
@@ -48,6 +49,7 @@ describe("scaffoldPlugin", () => {
     expect(content).toContain('"gpc-plugin-notify"');
     expect(content).toContain("hooks.beforeCommand");
     expect(content).toContain("hooks.afterCommand");
+    expect(content).toContain('add "commands:register"');
   });
 
   it("generates test file", async () => {

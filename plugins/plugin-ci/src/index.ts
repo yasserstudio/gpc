@@ -168,3 +168,6 @@ export const ciPlugin = definePlugin({
     });
   },
 });
+
+/** Conventional named export consumed by GPC plugin discovery. */
+export const plugin = ciPlugin;

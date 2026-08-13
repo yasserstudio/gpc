@@ -44,6 +44,12 @@
   "engines": {
     "node": ">=20"
   },
+  "gpc": {
+    "permissions": [
+      "hooks:afterCommand",
+      "hooks:onError"
+    ]
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public"

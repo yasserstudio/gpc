@@ -19,6 +19,8 @@ import {
   listProfiles,
   approvePlugin,
   revokePluginApproval,
+  ensurePluginApprovalPolicy,
+  resolvePluginApprovalId,
   DEFAULT_CONFIG,
 } from "../src/index";
 import { readConfigFile } from "../src/loader";
@@ -650,6 +652,8 @@ describe("plugin approval", () => {
     const configPath = join(getConfigDir(), "config.json");
     const content = JSON.parse(await readFile(configPath, "utf-8"));
     expect(content.approvedPlugins).toContain("gpc-plugin-slack");
+    expect(content.legacyApprovedPlugins).toEqual([]);
+    expect(content.pluginApprovalPolicyVersion).toBe(1);
   });
 
   it("does not duplicate approved plugin", async () => {
@@ -683,6 +687,32 @@ describe("plugin approval", () => {
   it("returns false when revoking unapproved plugin", async () => {
     const revoked = await revokePluginApproval("gpc-plugin-nope");
     expect(revoked).toBe(false);
+  });
+
+  it("grandfathers existing approvals exactly once", async () => {
+    const configPath = join(getConfigDir(), "config.json");
+    await mkdir(getConfigDir(), { recursive: true });
+    await writeFile(
+      configPath,
+      JSON.stringify({ approvedPlugins: ["gpc-plugin-legacy", "./plugins/local.js"] }),
+    );
+
+    await ensurePluginApprovalPolicy("/workspace/project-a");
+    let content = JSON.parse(await readFile(configPath, "utf-8"));
+    expect(content.approvedPlugins).toEqual(["gpc-plugin-legacy"]);
+    expect(content.legacyApprovedPlugins).toEqual(["gpc-plugin-legacy"]);
+
+    content.approvedPlugins.push("gpc-plugin-manual-new");
+    await writeFile(configPath, JSON.stringify(content));
+    await ensurePluginApprovalPolicy("/workspace/project-a");
+    content = JSON.parse(await readFile(configPath, "utf-8"));
+    expect(content.legacyApprovedPlugins).not.toContain("gpc-plugin-manual-new");
+  });
+
+  it("scopes relative approval identities to the project directory", () => {
+    expect(resolvePluginApprovalId("./plugins/custom.js", "/workspace/project-a")).not.toBe(
+      resolvePluginApprovalId("./plugins/custom.js", "/workspace/project-b"),
+    );
   });
 });
 
@@ -779,15 +809,22 @@ describe("project config plugin trust gate", () => {
     await rm(tmpDir, { recursive: true, force: true });
   });
 
-  it("strips approvedPlugins from project .gpcrc.json", async () => {
+  it("strips all plugin approval state from project .gpcrc.json", async () => {
     await writeFile(
       join(tmpDir, ".gpcrc.json"),
-      JSON.stringify({ app: "com.test", approvedPlugins: ["evil-plugin"] }),
+      JSON.stringify({
+        app: "com.test",
+        approvedPlugins: ["evil-plugin"],
+        legacyApprovedPlugins: ["evil-plugin"],
+        pluginApprovalPolicyVersion: 1,
+      }),
     );
 
     const config = await loadConfig();
     expect(config.app).toBe("com.test");
-    expect((config as any).approvedPlugins).toBeUndefined();
+    expect(config.approvedPlugins).toBeUndefined();
+    expect(config.legacyApprovedPlugins).toBeUndefined();
+    expect(config.pluginApprovalPolicyVersion).toBeUndefined();
   });
 
   it("preserves approvedPlugins from user config", async () => {
@@ -799,7 +836,7 @@ describe("project config plugin trust gate", () => {
     );
 
     const config = await loadConfig();
-    expect((config as any).approvedPlugins).toEqual(["trusted-plugin"]);
+    expect(config.approvedPlugins).toEqual(["trusted-plugin"]);
   });
 });
 

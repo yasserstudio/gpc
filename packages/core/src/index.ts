@@ -11,8 +11,18 @@ export {
   formatMoney,
 } from "./output.js";
 export type { CommandContext } from "./context.js";
-export { PluginManager, discoverPlugins } from "./plugins.js";
-export type { LoadedPlugin, DiscoverPluginsOptions } from "./plugins.js";
+export {
+  PluginManager,
+  discoverPluginEntries,
+  discoverPlugins,
+  validatePluginForApproval,
+} from "./plugins.js";
+export type {
+  LoadedPlugin,
+  DiscoveredPlugin,
+  DiscoverPluginsOptions,
+  ValidatedPluginApproval,
+} from "./plugins.js";
 export { getAppInfo } from "./commands/apps.js";
 export type { AppInfo } from "./commands/apps.js";
 export {

@@ -10,6 +10,8 @@ export {
   listProfiles,
   approvePlugin,
   revokePluginApproval,
+  ensurePluginApprovalPolicy,
+  resolvePluginApprovalId,
 } from "./writer.js";
 export { DEFAULT_CONFIG } from "./defaults.js";
 export type {

@@ -1,5 +1,6 @@
 import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, isAbsolute, join, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { ConfigError } from "./errors.js";
 import { getConfigDir } from "./paths.js";
@@ -157,7 +158,65 @@ export async function listProfiles(): Promise<string[]> {
   }
 }
 
+const PLUGIN_APPROVAL_POLICY_VERSION = 1;
+
+function readStringList(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === "string")
+    : [];
+}
+
+function isRelativePluginPath(pluginName: string): boolean {
+  return pluginName.startsWith(".");
+}
+
+/** Canonical identity used for approval comparisons across projects. */
+export function resolvePluginApprovalId(pluginName: string, cwd = process.cwd()): string {
+  if (pluginName.startsWith("file:")) {
+    try {
+      return pathToFileURL(fileURLToPath(pluginName)).href;
+    } catch {
+      return pluginName;
+    }
+  }
+  if (pluginName.startsWith(".") || isAbsolute(pluginName)) {
+    return pathToFileURL(resolve(cwd, pluginName)).href;
+  }
+  return pluginName;
+}
+
+/**
+ * Grandfather approvals that predate manifest permissions exactly once.
+ * Later manual additions to approvedPlugins are not added to the legacy set.
+ */
+export async function ensurePluginApprovalPolicy(cwd = process.cwd()): Promise<void> {
+  const configPath = join(getConfigDir(), "config.json");
+  let existing: Record<string, unknown>;
+  try {
+    existing = JSON.parse(await readFile(configPath, "utf-8")) as Record<string, unknown>;
+  } catch {
+    return;
+  }
+
+  if (existing["pluginApprovalPolicyVersion"] === PLUGIN_APPROVAL_POLICY_VERSION) return;
+
+  // Historical relative approvals did not record which project they belonged
+  // to. Binding them to the first post-upgrade cwd could approve an unrelated
+  // repository, so require an explicit re-approval instead.
+  const approved = readStringList(existing["approvedPlugins"])
+    .filter((name) => !isRelativePluginPath(name))
+    .map((name) => resolvePluginApprovalId(name, cwd));
+  const priorLegacy = readStringList(existing["legacyApprovedPlugins"])
+    .filter((name) => !isRelativePluginPath(name))
+    .map((name) => resolvePluginApprovalId(name, cwd));
+  existing["approvedPlugins"] = [...new Set(approved)];
+  existing["legacyApprovedPlugins"] = [...new Set([...priorLegacy, ...approved])];
+  existing["pluginApprovalPolicyVersion"] = PLUGIN_APPROVAL_POLICY_VERSION;
+  await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
+}
+
 export async function approvePlugin(pluginName: string): Promise<void> {
+  await ensurePluginApprovalPolicy();
   const configPath = join(getConfigDir(), "config.json");
 
   let existing: Record<string, unknown> = {};
@@ -168,17 +227,21 @@ export async function approvePlugin(pluginName: string): Promise<void> {
     // start fresh
   }
 
-  const approved = (existing["approvedPlugins"] as string[] | undefined) ?? [];
-  if (!approved.includes(pluginName)) {
-    approved.push(pluginName);
+  const approvalId = resolvePluginApprovalId(pluginName);
+  const approved = readStringList(existing["approvedPlugins"]);
+  if (!approved.includes(approvalId)) {
+    approved.push(approvalId);
   }
   existing["approvedPlugins"] = approved;
+  existing["legacyApprovedPlugins"] = readStringList(existing["legacyApprovedPlugins"]);
+  existing["pluginApprovalPolicyVersion"] = PLUGIN_APPROVAL_POLICY_VERSION;
 
   await mkdir(dirname(configPath), { recursive: true, mode: 0o700 });
   await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
 }
 
 export async function revokePluginApproval(pluginName: string): Promise<boolean> {
+  await ensurePluginApprovalPolicy();
   const configPath = join(getConfigDir(), "config.json");
 
   let existing: Record<string, unknown>;
@@ -189,12 +252,17 @@ export async function revokePluginApproval(pluginName: string): Promise<boolean>
     return false;
   }
 
-  const approved = (existing["approvedPlugins"] as string[] | undefined) ?? [];
-  const index = approved.indexOf(pluginName);
+  const approvalId = resolvePluginApprovalId(pluginName);
+  const approved = readStringList(existing["approvedPlugins"]);
+  const index = approved.findIndex((name) => name === approvalId || name === pluginName);
   if (index === -1) return false;
 
   approved.splice(index, 1);
   existing["approvedPlugins"] = approved;
+  const legacy = readStringList(existing["legacyApprovedPlugins"]);
+  existing["legacyApprovedPlugins"] = legacy.filter(
+    (name) => name !== approvalId && name !== pluginName,
+  );
   await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
   return true;
 }

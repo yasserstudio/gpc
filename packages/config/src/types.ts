@@ -29,6 +29,10 @@ export interface GpcConfig {
   plugins?: string[];
   profiles?: Record<string, ProfileConfig>;
   approvedPlugins?: string[];
+  /** Approvals grandfathered when manifest permissions became mandatory. User-config only. */
+  legacyApprovedPlugins?: string[];
+  /** Internal migration marker for the plugin approval policy. User-config only. */
+  pluginApprovalPolicyVersion?: number;
   webhooks?: WebhookConfig;
   vitals?: { thresholds?: VitalsThresholds };
   games?: GamesConfig;
@@ -58,6 +62,8 @@ export interface ResolvedConfig extends Required<Pick<GpcConfig, "output">> {
   plugins?: string[];
   profiles?: Record<string, ProfileConfig>;
   approvedPlugins?: string[];
+  legacyApprovedPlugins?: string[];
+  pluginApprovalPolicyVersion?: number;
   webhooks?: WebhookConfig;
   vitals?: { thresholds?: VitalsThresholds };
   games?: GamesConfig;

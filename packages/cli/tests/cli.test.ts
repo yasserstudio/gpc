@@ -1513,6 +1513,53 @@ describe("plugins subcommands structure", () => {
     expect(subcommandNames).toContain("approve");
     expect(subcommandNames).toContain("revoke");
   });
+
+  it("validates plugin permissions before recording a new approval", async () => {
+    const { validatePluginForApproval } = await import("@gpc-cli/core");
+    const { approvePlugin } = await import("@gpc-cli/config");
+    vi.spyOn(console, "log").mockImplementation(() => {});
+
+    await program.parseAsync(["node", "gpc", "plugins", "approve", "gpc-plugin-test"]);
+
+    expect(validatePluginForApproval).toHaveBeenCalledWith("gpc-plugin-test", expect.any(String));
+    expect(approvePlugin).toHaveBeenCalledWith("gpc-plugin-test");
+    expect(vi.mocked(validatePluginForApproval).mock.invocationCallOrder[0]).toBeLessThan(
+      vi.mocked(approvePlugin).mock.invocationCallOrder[0]!,
+    );
+  });
+
+  it("keeps re-approval idempotent for a migrated legacy plugin", async () => {
+    const configApi = await import("@gpc-cli/config");
+    const { validatePluginForApproval } = await import("@gpc-cli/core");
+    vi.mocked(configApi.loadConfig).mockResolvedValueOnce({
+      output: "table",
+      approvedPlugins: ["gpc-plugin-legacy"],
+      legacyApprovedPlugins: ["gpc-plugin-legacy"],
+    });
+    vi.spyOn(console, "log").mockImplementation(() => {});
+
+    await program.parseAsync(["node", "gpc", "plugins", "approve", "gpc-plugin-legacy"]);
+
+    expect(validatePluginForApproval).not.toHaveBeenCalledWith("gpc-plugin-legacy");
+    expect(configApi.approvePlugin).toHaveBeenCalledWith("gpc-plugin-legacy");
+  });
+
+  it("revokes a local plugin using the project config directory", async () => {
+    const configApi = await import("@gpc-cli/config");
+    vi.mocked(configApi.loadConfig).mockResolvedValueOnce({
+      output: "table",
+      configPath: "/repo/.gpcrc.json",
+    });
+    vi.mocked(configApi.resolvePluginApprovalId).mockReturnValueOnce(
+      "file:///repo/plugins/custom.js",
+    );
+    vi.spyOn(console, "log").mockImplementation(() => {});
+
+    await program.parseAsync(["node", "gpc", "plugins", "revoke", "./plugins/custom.js"]);
+
+    expect(configApi.resolvePluginApprovalId).toHaveBeenCalledWith("./plugins/custom.js", "/repo");
+    expect(configApi.revokePluginApproval).toHaveBeenCalledWith("file:///repo/plugins/custom.js");
+  });
 });
 
 // ---------------------------------------------------------------------------

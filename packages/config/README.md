@@ -62,21 +62,23 @@ await deleteProfile("staging");
 
 ## API
 
-| Function                 | Description                                     |
-| ------------------------ | ----------------------------------------------- |
-| `loadConfig()`           | Load merged config from all sources             |
-| `findConfigFile()`       | Find `.gpcrc.json` in cwd or parent directories |
-| `loadEnvConfig()`        | Load config from `GPC_*` env vars               |
-| `initConfig()`           | Create initial `.gpcrc.json`                    |
-| `setConfigValue()`       | Set a config key/value                          |
-| `getConfigDir()`         | XDG config directory (`~/.config/gpc`)          |
-| `getDataDir()`           | XDG data directory (`~/.local/share/gpc`)       |
-| `getCacheDir()`          | XDG cache directory (`~/.cache/gpc`)            |
-| `listProfiles()`         | List saved auth profiles                        |
-| `setProfileConfig()`     | Create or update a profile                      |
-| `deleteProfile()`        | Delete a profile                                |
-| `approvePlugin()`        | Approve a third-party plugin                    |
-| `revokePluginApproval()` | Revoke plugin approval                          |
+| Function                       | Description                                               |
+| ------------------------------ | --------------------------------------------------------- |
+| `loadConfig()`                 | Load merged config from all sources                       |
+| `findConfigFile()`             | Find `.gpcrc.json` in cwd or parent directories           |
+| `loadEnvConfig()`              | Load config from `GPC_*` env vars                         |
+| `initConfig()`                 | Create initial user `config.json`                         |
+| `setConfigValue()`             | Set a config key/value                                    |
+| `getConfigDir()`               | XDG config directory (`~/.config/gpc`)                    |
+| `getDataDir()`                 | XDG data directory (`~/.local/share/gpc`)                 |
+| `getCacheDir()`                | XDG cache directory (`~/.cache/gpc`)                      |
+| `listProfiles()`               | List saved auth profiles                                  |
+| `setProfileConfig()`           | Create or update a profile                                |
+| `deleteProfile()`              | Delete a profile                                          |
+| `approvePlugin()`              | Approve a third-party plugin                              |
+| `revokePluginApproval()`       | Revoke plugin approval                                    |
+| `resolvePluginApprovalId()`    | Canonicalize a package or project-local approval identity |
+| `ensurePluginApprovalPolicy()` | Migrate pre-permission approvals once                     |
 
 ## Documentation
 

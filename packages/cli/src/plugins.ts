@@ -1,13 +1,16 @@
+import { dirname } from "node:path";
+
 import type { Command } from "commander";
 
 import { setDefaultApiLifecycleHooks } from "@gpc-cli/api";
-import { PluginManager, discoverPlugins } from "@gpc-cli/core";
+import { PluginManager, discoverPluginEntries } from "@gpc-cli/core";
 
 import { registerSensitivePluginCommand } from "./webhook-args.js";
 
 /**
  * Load and initialize all plugins.
- * First-party plugins (@gpc-cli/*) are auto-trusted.
+ * Explicitly allowlisted first-party packages are trusted only when their resolved
+ * manifest identity exactly matches the configured package specifier.
  * Third-party plugins require prior approval stored in config.
  * Plugin loading is disabled in standalone binary mode.
  */
@@ -21,18 +24,32 @@ export async function loadPlugins(): Promise<PluginManager> {
   }
 
   try {
-    const { loadConfig } = await import("@gpc-cli/config");
+    const { ensurePluginApprovalPolicy, loadConfig } = await import("@gpc-cli/config");
+    await ensurePluginApprovalPolicy();
     const config = await loadConfig();
-    const plugins = await discoverPlugins({
+    const projectDir = config.configPath ? dirname(config.configPath) : process.cwd();
+    const plugins = await discoverPluginEntries({
       configPlugins: config.plugins,
       approvedPlugins: config.approvedPlugins,
+      legacyApprovedPlugins: config.legacyApprovedPlugins,
+      cwd: projectDir,
     });
 
-    for (const plugin of plugins) {
+    for (const { plugin, manifest, legacyPermissions } of plugins) {
       try {
-        await manager.load(plugin);
-      } catch {
+        if (legacyPermissions) {
+          console.warn(
+            `[gpc] Plugin "${plugin.name}" uses legacy broad permissions. Add gpc.permissions to its package.json.`,
+          );
+        }
+        await manager.load(plugin, manifest);
+      } catch (error) {
         // Skip plugins that fail to load — don't block the CLI
+        const code = (error as { code?: unknown })?.code;
+        if (typeof code === "string" && code.startsWith("PLUGIN_")) {
+          const message = error instanceof Error ? error.message : String(error);
+          console.warn(`[gpc] Skipping plugin "${plugin.name}": ${message}`);
+        }
       }
     }
   } catch {
