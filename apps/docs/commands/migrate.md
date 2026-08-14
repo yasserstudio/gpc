@@ -87,7 +87,7 @@ gpc migrate fastlane --dir ./android --out-dir ./migration
 Get structured output for scripting:
 
 ```bash
-gpc migrate fastlane --output json
+gpc migrate fastlane --json
 ```
 
 ```json

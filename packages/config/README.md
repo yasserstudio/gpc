@@ -53,7 +53,7 @@ Configuration is merged in priority order:
 import { setProfileConfig, listProfiles, deleteProfile } from "@gpc-cli/config";
 
 await setProfileConfig("production", {
-  serviceAccount: "./keys/prod.json",
+  auth: { serviceAccount: "./keys/prod.json" },
 });
 
 const profiles = await listProfiles();
@@ -73,7 +73,8 @@ await deleteProfile("staging");
 | `getDataDir()`                 | XDG data directory (`~/.local/share/gpc`)                 |
 | `getCacheDir()`                | XDG cache directory (`~/.cache/gpc`)                      |
 | `listProfiles()`               | List saved auth profiles                                  |
-| `setProfileConfig()`           | Create or update a profile                                |
+| `setProfileConfig()`           | Create a profile, or shallow-merge updates into one       |
+| `clearProfileCredentials()`    | Clear a profile's credentials, keep its other settings    |
 | `deleteProfile()`              | Delete a profile                                          |
 | `approvePlugin()`              | Approve a third-party plugin                              |
 | `revokePluginApproval()`       | Revoke plugin approval                                    |
