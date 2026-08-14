@@ -217,7 +217,7 @@ export function registerStatusCommand(program: Command): void {
     .option("--watch [seconds]", "Poll every N seconds (min 10, default 30)")
     .option("--since-last", "Show diff from last cached status")
     .option("--all-apps", `Run status for all configured app profiles (max ${MAX_ALL_APPS})`)
-    .option("--notify", "Send desktop notification on threshold breach or clear")
+    .option("--desktop-notify", "Send desktop notification on threshold breach or clear")
     .option("--threshold <overrides>", "Override vitals thresholds: crashes=1.5,anr=0.5 (percent)")
     .action(
       async (opts: {
@@ -233,7 +233,7 @@ export function registerStatusCommand(program: Command): void {
         sinceLast?: boolean;
         allApps?: boolean;
         threshold?: string;
-        notify?: boolean;
+        desktopNotify?: boolean;
       }) => {
         if (!VALID_FORMATS.has(opts.format)) {
           usageError(`Unknown format "${opts.format}"`, "Valid: table, summary");
@@ -326,7 +326,7 @@ interface RunCtx {
     ttl: number;
     format: string;
     sinceLast?: boolean;
-    notify?: boolean;
+    desktopNotify?: boolean;
   };
   sections: string[];
   format: string;
@@ -414,7 +414,13 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
 
   // --watch: hand off entirely to runWatchLoop
   if (watchInterval !== null) {
-    await runWatchLoop({ intervalSeconds: watchInterval, render, fetch: fetchLive, save });
+    await runWatchLoop({
+      intervalSeconds: watchInterval,
+      render,
+      fetch: fetchLive,
+      save,
+      onStatus: (s) => handleNotify(packageName, s, opts.desktopNotify),
+    });
     return false;
   }
 
@@ -435,7 +441,7 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
     }
     const display = applyDisplaySections(stripStaleAnalysis(cached, !!opts.full), sections);
     printWithDiff(display, prevStatus, opts.sinceLast, render, ctx.format);
-    await handleNotify(packageName, cached, opts.notify);
+    await handleNotify(packageName, cached, opts.desktopNotify);
     return statusHasBreach(cached);
   }
 
@@ -451,7 +457,7 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
         );
       }
       printWithDiff(display, prevStatus, opts.sinceLast, render, ctx.format);
-      await handleNotify(packageName, cached, opts.notify);
+      await handleNotify(packageName, cached, opts.desktopNotify);
       return statusHasBreach(cached);
     }
   }
@@ -470,7 +476,7 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
   await save(status);
 
   printWithDiff(status, prevStatus, opts.sinceLast, render, ctx.format);
-  await handleNotify(packageName, status, opts.notify);
+  await handleNotify(packageName, status, opts.desktopNotify);
   return statusHasBreach(status);
 }
 

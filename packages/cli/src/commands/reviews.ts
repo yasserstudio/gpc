@@ -237,7 +237,7 @@ export function registerReviewsCommands(program: Command): void {
     .option("--lang <code>", "Filter by reviewer language")
     .option("--since <date>", "Filter reviews after date (ISO 8601)")
     .option("--translate-to <lang>", "Translate reviews to language")
-    .option("--output <file>", "Write output to file instead of stdout")
+    .option("--output-file <file>", "Write output to file instead of stdout")
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -251,10 +251,10 @@ export function registerReviewsCommands(program: Command): void {
         translationLanguage: options.translateTo,
       });
 
-      if (options.output) {
+      if (options.outputFile) {
         const { writeFile } = await import("node:fs/promises");
-        await writeFile(options.output, result, "utf-8");
-        console.log(`Reviews exported to ${options.output}`);
+        await writeFile(options.outputFile, result, "utf-8");
+        console.log(`Reviews exported to ${options.outputFile}`);
       } else {
         console.log(result);
       }

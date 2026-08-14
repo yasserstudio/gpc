@@ -194,7 +194,7 @@ gpc reviews export [options]
 | `--lang`         |       | `string` |         | Filter by reviewer language code       |
 | `--since`        |       | `string` |         | Filter reviews after date (ISO 8601)   |
 | `--translate-to` |       | `string` |         | Translate reviews to this language     |
-| `--output`       |       | `string` |         | Write output to file instead of stdout |
+| `--output-file`  |       | `string` |         | Write output to file instead of stdout |
 
 ### Example
 
@@ -211,7 +211,7 @@ gpc reviews export \
   --app com.example.myapp \
   --format csv \
   --stars 1 \
-  --output negative-reviews.csv
+  --output-file negative-reviews.csv
 ```
 
 Export recent reviews to a file:
@@ -221,7 +221,7 @@ gpc reviews export \
   --app com.example.myapp \
   --format json \
   --since 2026-03-01T00:00:00Z \
-  --output reviews-march.json
+  --output-file reviews-march.json
 ```
 
 ## Related

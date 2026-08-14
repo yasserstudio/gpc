@@ -823,13 +823,13 @@ describe("migrate subcommands", () => {
     expect(subcommandNames).toContain("fastlane");
   });
 
-  it("migrate fastlane has --dir and --output options", () => {
+  it("migrate fastlane has --dir and --out-dir options", () => {
     const migrateCmd = program.commands.find((cmd) => cmd.name() === "migrate");
     const fastlaneCmd = migrateCmd!.commands.find((cmd) => cmd.name() === "fastlane");
     expect(fastlaneCmd).toBeDefined();
     const optionFlags = fastlaneCmd!.options.map((opt) => opt.long ?? opt.short);
     expect(optionFlags).toContain("--dir");
-    expect(optionFlags).toContain("--output");
+    expect(optionFlags).toContain("--out-dir");
   });
 });
 

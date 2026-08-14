@@ -11,7 +11,24 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.94 <Badge type="tip" text="latest" />
+## v0.9.95 <Badge type="tip" text="latest" />
+
+Command flags now work the way the help text says they do, and profiles can no longer lose data.
+
+- fix: subcommand flags that share a name with a global flag were silently ignored — the global flag consumed them. `gpc auth login --profile` now creates the profile (it never did, on any platform), `gpc init --app` uses the package name you passed, `gpc install-skills --yes` skips prompts, and `gpc migrate fastlane --dry-run` no longer writes files during a preview.
+- fix: flags that never worked because of the same conflict were renamed: `reviews export --output-file`, `migrate fastlane --out-dir`, `status --desktop-notify`, and `generated-apks download` / `system-apks download` `--output-file`. The two download commands previously failed on every invocation because their own required flag could never be satisfied.
+- fix: re-running `auth login --profile <name>` updates that profile's credentials in place instead of erasing its other settings (`app`, `developerId`, `reports`), so key rotation is safe.
+- fix: `auth logout --profile <name>` clears only that profile's credentials instead of deleting the whole profile, and the CLI can no longer be left pointing at a profile that does not exist.
+- fix: `doctor --fix` refuses to overwrite an existing config file that failed to load, instead of resetting it to empty.
+- fix: `auth login --adc --profile` returns a usage error instead of silently ignoring the profile; the interactive login wizard now offers a global `-p <name>` as its default profile.
+- feat: `status --watch` delivers `--desktop-notify` desktop notifications on every poll cycle, not just single runs.
+- docs: repaired the documentation site build and the homepage coverage links, which returned 404.
+
+**Tests:** 2,630 (+18).
+
+---
+
+## v0.9.94
 
 Upload errors now name the real problem, and plugins are trusted on evidence rather than on their name.
 

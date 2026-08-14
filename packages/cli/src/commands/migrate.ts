@@ -9,6 +9,7 @@ import {
   formatOutput,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
+import { isDryRun } from "../dry-run.js";
 
 const WARN = "\u26A0";
 
@@ -28,12 +29,14 @@ export function registerMigrateCommands(program: Command): void {
     .command("fastlane")
     .description("Migrate from Fastlane to GPC")
     .option("--dir <path>", "Directory containing Fastlane files", ".")
-    .option("--output <path>", "Output directory for migration files", ".")
+    .option("--out-dir <path>", "Output directory for migration files", ".")
     .option("--dry-run", "Preview migration plan without writing any files")
-    .action(async (options: { dir: string; output: string; dryRun?: boolean }) => {
+    .action(async (options: { dir: string; outDir: string; dryRun?: boolean }) => {
       const config = await loadConfig();
       const format = getOutputFormat(program, config);
-      const dryRun = options.dryRun ?? false;
+      // The root program's global --dry-run wins during parsing, so the
+      // subcommand option never receives the flag — read both.
+      const dryRun = Boolean(options.dryRun) || isDryRun(program);
 
       const detection = await detectFastlane(options.dir);
 
@@ -44,7 +47,7 @@ export function registerMigrateCommands(program: Command): void {
         }
         const plan = generateMigrationPlan(detection);
         if (!dryRun) {
-          const files = await writeMigrationOutput(plan, options.output);
+          const files = await writeMigrationOutput(plan, options.outDir);
           console.log(formatOutput({ detection, plan, files }, format));
         } else {
           console.log(formatOutput({ detection, plan, files: [] }, format));
@@ -122,7 +125,7 @@ export function registerMigrateCommands(program: Command): void {
       // Conflict check — abort before clobbering existing .gpcrc.json unless --yes
       if (
         Object.keys(plan.config).length > 0 &&
-        (await fileExists(join(options.output, ".gpcrc.json")))
+        (await fileExists(join(options.outDir, ".gpcrc.json")))
       ) {
         const hasYes = process.argv.includes("--yes") || process.argv.includes("-y");
 
@@ -135,11 +138,11 @@ export function registerMigrateCommands(program: Command): void {
         }
 
         console.log(
-          `\n${WARN} .gpcrc.json already exists in ${options.output} — overwriting (--yes passed).`,
+          `\n${WARN} .gpcrc.json already exists in ${options.outDir} — overwriting (--yes passed).`,
         );
       }
 
-      const files = await writeMigrationOutput(plan, options.output);
+      const files = await writeMigrationOutput(plan, options.outDir);
 
       console.log("\nMigration files written:");
       for (const file of files) {

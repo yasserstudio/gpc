@@ -6,6 +6,7 @@ export {
   deleteConfigValue,
   initConfig,
   setProfileConfig,
+  clearProfileCredentials,
   deleteProfile,
   listProfiles,
   approvePlugin,

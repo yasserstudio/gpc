@@ -87,8 +87,16 @@ async function runLoginWizard(program: Command): Promise<void> {
       }
     }
 
-    // Step 3: optional profile name
-    const profileName = await askQuestion(rl, "\nProfile name (optional, press Enter to skip): ");
+    // Step 3: optional profile name — a global -p/--profile becomes the
+    // default, so `gpc -p prod auth login` rotates the profile it names.
+    const globalProfile = program.opts()["profile"] as string | undefined;
+    const profileName =
+      (await askQuestion(
+        rl,
+        globalProfile
+          ? `\nProfile name [${globalProfile}]: `
+          : "\nProfile name (optional, press Enter to skip): ",
+      )) || globalProfile;
 
     // Step 4: default package name
     const packageName = await askQuestion(
@@ -194,13 +202,16 @@ export function registerAuthCommands(program: Command): void {
     .option("--adc", "Use Application Default Credentials")
     .option("--profile <name>", "Store credentials under a named profile")
     .action(async (options: { serviceAccount?: string; adc?: boolean; profile?: string }) => {
+      // The root program's global -p/--profile wins during parsing, so the
+      // subcommand option never receives the value — read both.
+      const profileName = options.profile ?? (program.opts()["profile"] as string | undefined);
       if (options.serviceAccount) {
         const absolutePath = toAbsolutePath(options.serviceAccount);
         const key = await loadServiceAccountKey(absolutePath);
 
-        if (options.profile) {
+        if (profileName) {
           const { setProfileConfig } = await import("@gpc-cli/config");
-          await setProfileConfig(options.profile, {
+          await setProfileConfig(profileName, {
             auth: { serviceAccount: absolutePath },
           });
         } else {
@@ -214,11 +225,21 @@ export function registerAuthCommands(program: Command): void {
           account: key.client_email,
           project: key.project_id,
           method: "service-account",
-          profile: options.profile,
+          profile: profileName,
           verified: verification.ok,
           verifyError: verification.error,
         });
       } else if (options.adc) {
+        if (profileName) {
+          const err = new Error("--profile cannot be combined with --adc");
+          Object.assign(err, {
+            code: "USAGE_ERROR",
+            exitCode: 2,
+            suggestion:
+              "Application Default Credentials are ambient and cannot be stored in a profile. Run without --profile.",
+          });
+          throw err;
+        }
         const client = await resolveAuth();
         const email = client.getClientEmail();
         await client.getAccessToken();
@@ -279,13 +300,20 @@ export function registerAuthCommands(program: Command): void {
     .description("Clear stored credentials and token cache")
     .option("--profile <name>", "Clear credentials for a specific profile")
     .action(async (options: { profile?: string }) => {
-      if (options.profile) {
-        const { deleteProfile } = await import("@gpc-cli/config");
-        const deleted = await deleteProfile(options.profile);
-        if (deleted) {
-          console.log(`Profile "${options.profile}" removed.`);
+      // The root program's global -p/--profile wins during parsing, so the
+      // subcommand option never receives the value — read both.
+      const profileName = options.profile ?? (program.opts()["profile"] as string | undefined);
+      if (profileName) {
+        const { clearProfileCredentials } = await import("@gpc-cli/config");
+        const result = await clearProfileCredentials(profileName);
+        if (result === "not-found") {
+          console.log(`Profile "${profileName}" not found.`);
+        } else if (result === "removed") {
+          console.log(`Profile "${profileName}" removed.`);
         } else {
-          console.log(`Profile "${options.profile}" not found.`);
+          console.log(
+            `Credentials cleared for profile "${profileName}". Other profile settings kept.`,
+          );
         }
       } else {
         await deleteConfigValue("auth.serviceAccount");

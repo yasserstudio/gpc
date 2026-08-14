@@ -49,8 +49,8 @@ export function registerGeneratedApksCommands(program: Command): void {
   cmd
     .command("download <version-code> <apk-id>")
     .description("Download a generated APK")
-    .requiredOption("--output <path>", "Output file path")
-    .action(async (versionCodeStr: string, apkId: string, opts: { output: string }) => {
+    .requiredOption("--output-file <path>", "Output file path")
+    .action(async (versionCodeStr: string, apkId: string, opts: { outputFile: string }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const client = await getClient(config);
@@ -68,7 +68,7 @@ export function registerGeneratedApksCommands(program: Command): void {
         packageName,
         versionCode,
         apkId,
-        opts.output,
+        opts.outputFile,
       );
       console.log(formatOutput(result, format));
     });

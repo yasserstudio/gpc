@@ -975,7 +975,16 @@ async function applyFix(check: CheckResult): Promise<string | null> {
       return `Cleared corrupt token cache`;
     }
     case "config": {
-      const { initConfig } = await import("@gpc-cli/config");
+      const { initConfig, getUserConfigPath } = await import("@gpc-cli/config");
+      const { existsSync } = await import("node:fs");
+      // A config file that exists but fails to load (bad JSON, missing
+      // profile) holds data — profiles, credentials, plugin approvals —
+      // that a blank re-init would destroy.
+      if (existsSync(getUserConfigPath())) {
+        throw new Error(
+          `config file exists at ${getUserConfigPath()} but failed to load — inspect it manually instead of overwriting`,
+        );
+      }
       await initConfig({});
       return "Initialized config file";
     }

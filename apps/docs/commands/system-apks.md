@@ -114,19 +114,19 @@ Download a previously created system APK variant to a local file.
 ### Synopsis
 
 ```bash
-gpc system-apks download <version-code> <variant-id> --output <path>
+gpc system-apks download <version-code> <variant-id> --output-file <path>
 ```
 
 ### Options
 
-| Flag       | Type     | Default        | Description      |
-| ---------- | -------- | -------------- | ---------------- |
-| `--output` | `string` | **(required)** | Output file path |
+| Flag            | Type     | Default        | Description      |
+| --------------- | -------- | -------------- | ---------------- |
+| `--output-file` | `string` | **(required)** | Output file path |
 
 ### Example
 
 ```bash
-gpc system-apks download 142 1 --output system-app.apk
+gpc system-apks download 142 1 --output-file system-app.apk
 ```
 
 ## Related

@@ -925,6 +925,44 @@ describe("runWatchLoop", () => {
     ).rejects.toThrow("--watch interval must be at least 10 seconds");
   });
 
+  it("invokes onStatus after each successful fetch+save cycle", async () => {
+    vi.useFakeTimers();
+
+    const mockStatus = { packageName: "com.example" } as unknown as AppStatus;
+    const fetch = vi.fn().mockResolvedValue(mockStatus);
+    const save = vi.fn().mockResolvedValue(undefined);
+    const onStatus = vi.fn().mockResolvedValue(undefined);
+    const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => {
+      throw new Error("exit");
+    });
+
+    const loopPromise = runWatchLoop({
+      intervalSeconds: 10,
+      render: () => "output",
+      fetch,
+      save,
+      onStatus,
+    });
+
+    for (let i = 0; i < 20; i++) await Promise.resolve();
+
+    expect(onStatus).toHaveBeenCalledTimes(1);
+    expect(onStatus).toHaveBeenCalledWith(mockStatus);
+    // save completes before onStatus runs
+    expect(save.mock.invocationCallOrder[0]).toBeLessThan(onStatus.mock.invocationCallOrder[0]!);
+
+    try {
+      process.emit("SIGINT");
+    } catch {
+      /* expected from mocked process.exit */
+    }
+    await vi.advanceTimersByTimeAsync(10000);
+    await loopPromise;
+
+    exitSpy.mockRestore();
+    vi.useRealTimers();
+  });
+
   it("calls fetch and render on each tick", async () => {
     vi.useFakeTimers();
 

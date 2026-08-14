@@ -11,12 +11,13 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Pl
 
 - Install: `npm install -g @gpc-cli/cli`
 - Binary: `gpc`
-- Version: 0.9.94
+- Version: 0.9.95
 - API endpoints covered: 227 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1 + Games Configuration v1configuration)
-- Tests: 2,612 (90%+ coverage)
+- Tests: 2,630 (90%+ coverage)
 - Licensing: Free to use. Source code is on GitHub.
 - Repo: https://github.com/yasserstudio/gpc
 - GitHub Action: yasserstudio/gpc-action on the GitHub Actions Marketplace (one-step Play publishing from CI with built-in preflight gate, drop-in r0adkll migration)
+- Notable v0.9.95: Subcommand flags that shared a name with a global flag (like --profile on auth login, --app on init, --dry-run on migrate fastlane) were silently ignored; they now work, and profile credential updates merge instead of erasing other profile settings. Flags that never worked were renamed: reviews export --output-file, migrate fastlane --out-dir, status --desktop-notify, generated-apks/system-apks download --output-file.
 - Notable v0.9.94: Upload failures caused by an incomplete Play Console "App content" declaration are no longer misreported as service account permission errors. They return `API_DECLARATION_REQUIRED` and quote Google's own explanation. `gpc preflight` flags apps requesting foreground service permissions so the declaration can be completed before uploading. Plugin trust now comes from the installed package rather than its name, and third-party plugins must declare which hooks they use.
 - Notable v0.9.93: `gpc reports` now downloads real data: list and fetch Play stats and financial report CSVs straight from the account's Cloud Storage bucket, decoded to clean UTF-8. Requires the "download bulk reports" grant for the service account in Play Console.
 - Notable v0.9.92: `gpc listings images sync --delete` now preserves screenshot display order and no longer removes image types you do not keep locally, clearing each language and type in a single API call. Contributor fix (softlion) plus maintainer hardening.
@@ -337,7 +338,7 @@ gpc reviews list --sort newest                 # Presets: newest, oldest, rating
 gpc reviews list --all                         # Auto-paginate all pages
 gpc reviews get <review-id>
 gpc reviews reply <review-id> --text "Thanks!"  # Max 350 chars (validated)
-gpc reviews export --format csv --output reviews.csv
+gpc reviews export --format csv --output-file reviews.csv
 gpc reviews analyze --since 30d                # Sentiment, topics, keywords
 ```
 Note: Reviews API only returns production reviews from the last 7 days.
@@ -403,7 +404,7 @@ gpc pricing templates list
 ## Reports
 ```
 gpc reports download financial --month 2026-02
-gpc reports download financial --month 2026-02 --output report.csv
+gpc reports download financial --month 2026-02 --output-file report.csv
 gpc reports download stats --month 2026-02
 gpc reports list
 ```
@@ -427,10 +428,10 @@ Roles: ADMIN, RELEASE_MANAGER, GLOBAL_VIEWER, DEVELOPER, GAME_WIZARD
 ## Testers
 ```
 gpc testers list --track beta
-gpc testers add --track beta --email tester@example.com
-gpc testers remove --track beta --email tester@example.com
+gpc testers add tester@example.com --track beta
+gpc testers remove tester@example.com --track beta
 gpc testers import --track beta --file testers.csv
-gpc testers export --track beta --output testers.csv
+gpc testers list --track beta --json > testers.json
 ```
 
 CSV format: one email per line.

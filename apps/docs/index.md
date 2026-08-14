@@ -42,13 +42,17 @@ features:
     details: "Releases, vitals, reviews, subscriptions, purchases, reports, Managed Google Play, and more. Fastlane covers ~20. GPC covers everything."
 ---
 
+<script setup>
+import { withBase } from "vitepress";
+</script>
+
 <div class="stats-bar">
   <div class="stat-item">
     <span class="stat-number">227</span>
     <span class="stat-label">API Endpoints</span>
   </div>
   <div class="stat-item">
-    <span class="stat-number">2,612</span>
+    <span class="stat-number">2,630</span>
     <span class="stat-label">Tests</span>
   </div>
   <div class="stat-item">
@@ -67,54 +71,54 @@ features:
 <h2 class="section-title">What GPC Covers</h2>
 
 <div class="coverage-grid">
-<a href="/commands/releases" class="coverage-card">
+<a :href="withBase('/commands/releases')" class="coverage-card">
 <div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
 <h3>Releases</h3>
 <p>Upload, promote, staged rollouts, halt, resume, release notes with AI translation</p>
 </a>
-<a href="/commands/listings" class="coverage-card">
+<a :href="withBase('/commands/listings')" class="coverage-card">
 <div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
 <h3>Listings</h3>
 <p>Store metadata, screenshots, localization, Fastlane format compatible</p>
 </a>
-<a href="/commands/reviews" class="coverage-card">
+<a :href="withBase('/commands/reviews')" class="coverage-card">
 <div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
 <h3>Reviews</h3>
 <p>Filter by stars, language, date. Reply, export to CSV</p>
 </a>
-<a href="/commands/vitals" class="coverage-card">
+<a :href="withBase('/commands/vitals')" class="coverage-card">
 <div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
 <h3>Vitals</h3>
 <p>Crashes, ANR, startup, rendering, battery, memory with CI threshold gates</p>
 </a>
-<a href="/commands/watch" class="coverage-card">
+<a :href="withBase('/commands/watch')" class="coverage-card">
 <div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
 <h3>Monitoring</h3>
 <p>Real-time rollout monitoring, 6 vitals metrics, auto-halt, webhooks</p>
 </a>
-<a href="/commands/subscriptions" class="coverage-card">
+<a :href="withBase('/commands/subscriptions')" class="coverage-card">
 <div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
 <h3>Monetization</h3>
 <p>Subscriptions, base plans, offers, in-app products, purchase verification, refunds, pricing</p>
 </a>
-<a href="/commands/testers" class="coverage-card">
+<a :href="withBase('/commands/testers')" class="coverage-card">
 <div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
 <h3>Team</h3>
 <p>Testers, users, permissions, financial and stats reports, CSV bulk import</p>
 </a>
-<a href="/commands/preflight" class="coverage-card">
+<a :href="withBase('/commands/preflight')" class="coverage-card">
 <div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
 <h3>Compliance</h3>
 <p>Preflight scanner (9 checks), signing audit, developer verification, data safety</p>
 </a>
-<a href="/commands/bundle" class="coverage-card">
+<a :href="withBase('/commands/bundle')" class="coverage-card">
 <div class="coverage-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
 <h3>Analysis</h3>
 <p>Bundle size breakdown, cross-build comparison, size CI gates</p>
 </a>
 </div>
 
-<p class="coverage-link"><a href="/commands/">View the full command reference</a></p>
+<p class="coverage-link"><a :href="withBase('/commands/')">View the full command reference</a></p>
 
 </div>
 </section>
@@ -142,7 +146,7 @@ features:
 
 </div>
 
-<p class="compare-note">Already on Fastlane? See the <a href="/migration/from-fastlane">migration guide</a> or the <a href="/alternatives/fastlane">full comparison</a>.</p>
+<p class="compare-note">Already on Fastlane? See the <a :href="withBase('/migration/from-fastlane')">migration guide</a> or the <a :href="withBase('/alternatives/fastlane')">full comparison</a>.</p>
 
 </div>
 </section>
@@ -154,8 +158,8 @@ features:
 <p class="cta-subtitle">Free to use. Works with your existing Google Play service account. Every write operation supports <code>--dry-run</code>.</p>
 
 <div class="cta-links">
-<a href="/guide/quick-start" class="cta-btn cta-primary">Get started</a>
-<a href="/commands/" class="cta-btn cta-secondary">View commands</a>
+<a :href="withBase('/guide/quick-start')" class="cta-btn cta-primary">Get started</a>
+<a :href="withBase('/commands/')" class="cta-btn cta-secondary">View commands</a>
 </div>
 </div>
 </div>

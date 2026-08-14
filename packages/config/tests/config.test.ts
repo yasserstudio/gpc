@@ -15,6 +15,7 @@ import {
   deleteConfigValue,
   initConfig,
   setProfileConfig,
+  clearProfileCredentials,
   deleteProfile,
   listProfiles,
   approvePlugin,
@@ -493,6 +494,63 @@ describe("setProfileConfig / deleteProfile / listProfiles", () => {
   it("returns false when deleting nonexistent profile", async () => {
     const deleted = await deleteProfile("nope");
     expect(deleted).toBe(false);
+  });
+
+  it("merges over an existing profile instead of replacing it", async () => {
+    await setProfileConfig("prod", {
+      auth: { serviceAccount: "/keys/old.json" },
+      app: "com.example.clientprod",
+      developerId: "1234567890",
+    });
+
+    // Key rotation: only auth is passed — other fields must survive
+    await setProfileConfig("prod", { auth: { serviceAccount: "/keys/new.json" } });
+
+    const raw = JSON.parse(await readFile(join(tmpDir, "gpc", "config.json"), "utf-8"));
+    expect(raw.profiles.prod).toEqual({
+      auth: { serviceAccount: "/keys/new.json" },
+      app: "com.example.clientprod",
+      developerId: "1234567890",
+    });
+  });
+
+  it("clearProfileCredentials keeps other profile settings", async () => {
+    await setProfileConfig("prod", {
+      auth: { serviceAccount: "/keys/prod.json" },
+      app: "com.example.app",
+    });
+
+    const result = await clearProfileCredentials("prod");
+
+    expect(result).toBe("cleared");
+    const raw = JSON.parse(await readFile(join(tmpDir, "gpc", "config.json"), "utf-8"));
+    expect(raw.profiles.prod).toEqual({ app: "com.example.app" });
+  });
+
+  it("clearProfileCredentials removes an auth-only profile and its active pointer", async () => {
+    await setProfileConfig("prod", { auth: { serviceAccount: "/keys/prod.json" } });
+    await setConfigValue("profile", "prod");
+
+    const result = await clearProfileCredentials("prod");
+
+    expect(result).toBe("removed");
+    const raw = JSON.parse(await readFile(join(tmpDir, "gpc", "config.json"), "utf-8"));
+    expect(raw.profiles).toEqual({});
+    expect(raw.profile).toBeUndefined();
+  });
+
+  it("clearProfileCredentials returns not-found for a missing profile", async () => {
+    expect(await clearProfileCredentials("nope")).toBe("not-found");
+  });
+
+  it("deleteProfile clears a top-level pointer at the deleted profile", async () => {
+    await setProfileConfig("prod", { auth: { serviceAccount: "/keys/prod.json" } });
+    await setConfigValue("profile", "prod");
+
+    await deleteProfile("prod");
+
+    const raw = JSON.parse(await readFile(join(tmpDir, "gpc", "config.json"), "utf-8"));
+    expect(raw.profile).toBeUndefined();
   });
 
   it("returns empty list when no profiles configured", async () => {

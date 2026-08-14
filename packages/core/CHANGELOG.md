@@ -1,5 +1,16 @@
 # @gpc-cli/core
 
+## 0.10.1
+
+### Patch Changes
+
+- fix: global flags no longer swallow identically named subcommand flags (GH #103). `auth login --profile` now creates the profile, `init --app` and `install-skills --yes` are honored, and `migrate fastlane --dry-run` no longer writes files. A global `-p <name>` before the subcommand now applies to `auth login`/`auth logout` the same as the subcommand flag. Flags that never worked because of the collision were renamed: `reviews export --output` is now `--output-file`, `migrate fastlane --output` is now `--out-dir`, `status --notify` is now `--desktop-notify`, and `generated-apks download` / `system-apks download` `--output` are now `--output-file` (both previously failed on their own required option).
+
+  Safety hardening that the fix surfaced: `setProfileConfig` merges over an existing profile instead of replacing it, so re-authenticating a profile can no longer drop its `app`/`developerId`/`reports` settings; `auth logout --profile` clears only that profile's credentials (removing the entry, and any active-profile pointer to it, only when nothing else remains); `deleteProfile` clears a dangling active-profile pointer; `auth login --adc --profile` is rejected instead of silently ignoring the profile; the login wizard defaults its profile prompt to a global `-p`; `doctor --fix` refuses to overwrite an existing config file that failed to load; and `status --watch` now delivers `--desktop-notify` notifications on each poll cycle.
+
+- Updated dependencies
+  - @gpc-cli/config@0.9.22
+
 ## 0.10.0
 
 ### Minor Changes

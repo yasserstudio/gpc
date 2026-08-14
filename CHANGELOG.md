@@ -7,7 +7,20 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
-## v0.9.94
+## v0.9.95
+
+Command flags now work the way the help text says they do, and profiles can no longer lose data.
+
+- fix: subcommand flags that share a name with a global flag are no longer silently ignored. `gpc auth login --profile` now creates the profile, `gpc init --app` uses the package you passed, `gpc install-skills --yes` skips prompts, and `gpc migrate fastlane --dry-run` no longer writes files.
+- fix: renamed flags that never worked because of the same conflict: `reviews export --output-file`, `migrate fastlane --out-dir`, `status --desktop-notify`, and `generated-apks download` / `system-apks download` `--output-file` (both commands previously failed on every invocation).
+- fix: re-running `auth login --profile <name>` updates that profile's credentials in place instead of erasing its other settings, so key rotation is safe.
+- fix: `auth logout --profile <name>` clears only that profile's credentials instead of deleting the whole profile, and can no longer leave the CLI pointing at a profile that does not exist.
+- fix: `doctor --fix` no longer overwrites an existing config file that failed to load.
+- fix: `auth login --adc --profile` now returns a usage error instead of silently ignoring the profile.
+- feat: `status --watch` now delivers `--desktop-notify` notifications on every poll cycle.
+- docs: repaired the documentation site build and the homepage coverage links, which returned 404.
+
+**Tests:** 2,630 (+18).
 
 Upload errors now name the real problem, and plugins are trusted on evidence rather than on their name.
 

@@ -84,6 +84,8 @@ export interface WatchOptions {
   render: (status: AppStatus) => string;
   fetch: () => Promise<AppStatus>;
   save: (status: AppStatus) => Promise<void>;
+  /** Runs after each successful fetch+save cycle (e.g. breach notifications). */
+  onStatus?: (status: AppStatus) => Promise<void> | void;
 }
 
 // ---------------------------------------------------------------------------
@@ -739,6 +741,7 @@ export async function runWatchLoop(opts: WatchOptions): Promise<void> {
       const status = await opts.fetch();
       await opts.save(status);
       console.log(opts.render(status));
+      await opts.onStatus?.(status);
     } catch (err) {
       console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
     }

@@ -65,7 +65,7 @@ gpc preflight app.aab
 ### Post-release monitoring
 
 ```bash
-gpc status --watch 60 --notify
+gpc status --watch 60 --desktop-notify
 ```
 
 Polls releases, vitals, and reviews every 60 seconds. Desktop notification if a threshold is breached. One command replaces checking 4 Play Console tabs.

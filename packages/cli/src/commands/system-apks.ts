@@ -97,30 +97,32 @@ export function registerSystemApksCommands(program: Command): void {
   cmd
     .command("download <version-code> <variant-id>")
     .description("Download a system APK variant")
-    .requiredOption("--output <path>", "Output file path")
-    .action(async (versionCodeStr: string, variantIdStr: string, options: { output: string }) => {
-      const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()["app"], config);
-      const versionCode = parsePositiveInt(versionCodeStr, "version-code");
-      const variantId = parsePositiveInt(variantIdStr, "variant-id");
+    .requiredOption("--output-file <path>", "Output file path")
+    .action(
+      async (versionCodeStr: string, variantIdStr: string, options: { outputFile: string }) => {
+        const config = await loadConfig();
+        const packageName = resolvePackageName(program.opts()["app"], config);
+        const versionCode = parsePositiveInt(versionCodeStr, "version-code");
+        const variantId = parsePositiveInt(variantIdStr, "variant-id");
 
-      const outputPath = resolve(options.output);
-      if (outputPath.includes("\0")) {
-        const err = new Error("Output path contains null bytes");
-        Object.assign(err, { code: "USAGE_ERROR", exitCode: 2 });
-        throw err;
-      }
-      try {
-        await access(outputPath);
-        // File exists -- require confirmation
-        await requireConfirm(`File "${outputPath}" already exists. Overwrite?`, program);
-      } catch {
-        // File does not exist -- safe to write
-      }
+        const outputPath = resolve(options.outputFile);
+        if (outputPath.includes("\0")) {
+          const err = new Error("Output path contains null bytes");
+          Object.assign(err, { code: "USAGE_ERROR", exitCode: 2 });
+          throw err;
+        }
+        try {
+          await access(outputPath);
+          // File exists -- require confirmation
+          await requireConfirm(`File "${outputPath}" already exists. Overwrite?`, program);
+        } catch {
+          // File does not exist -- safe to write
+        }
 
-      const client = await getClient(config);
-      const data = await client.systemApks.download(packageName, versionCode, variantId);
-      await writeFile(outputPath, Buffer.from(data));
-      console.log(`Downloaded to ${outputPath}`);
-    });
+        const client = await getClient(config);
+        const data = await client.systemApks.download(packageName, versionCode, variantId);
+        await writeFile(outputPath, Buffer.from(data));
+        console.log(`Downloaded to ${outputPath}`);
+      },
+    );
 }

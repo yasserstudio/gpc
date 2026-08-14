@@ -103,10 +103,10 @@ gpc generated-apks download <version-code> <download-id> [options]
 
 ### Options
 
-| Flag       | Short | Type     | Default               | Description      |
-| ---------- | ----- | -------- | --------------------- | ---------------- |
-| `--output` | `-o`  | `string` | `./<download-id>.apk` | Output file path |
-| `--app`    |       | `string` |                       | App package name |
+| Flag            | Short | Type     | Default        | Description      |
+| --------------- | ----- | -------- | -------------- | ---------------- |
+| `--output-file` |       | `string` | **(required)** | Output file path |
+| `--app`         |       | `string` |                | App package name |
 
 ### Example
 
@@ -115,7 +115,7 @@ Download a specific split APK:
 ```bash
 gpc generated-apks download 142 dl-abc-001 \
   --app com.example.myapp \
-  --output ./downloads/arm64-base.apk
+  --output-file ./downloads/arm64-base.apk
 ```
 
 ```
@@ -128,7 +128,7 @@ Download the universal APK for broad testing:
 ```bash
 gpc generated-apks download 142 dl-abc-010 \
   --app com.example.myapp \
-  --output ./downloads/universal.apk
+  --output-file ./downloads/universal.apk
 ```
 
 ```

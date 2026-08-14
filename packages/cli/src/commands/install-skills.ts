@@ -30,7 +30,9 @@ export function registerInstallSkillsCommand(program: Command): void {
       if (opts["list"]) {
         args.push("--list");
       }
-      if (opts["yes"]) {
+      // The root program's global -y/--yes wins during parsing, so the
+      // subcommand option never receives the flag — read both.
+      if (opts["yes"] || program.opts()["yes"]) {
         args.push("--yes");
       }
       if (opts["global"]) {

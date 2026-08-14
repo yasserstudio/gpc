@@ -51,7 +51,7 @@ gpc status [options]
 | `--watch [seconds]`  | `number` | `30`                      | Poll and refresh every N seconds (min 10)                                                          |
 | `--since-last`       | flag     | off                       | Show diff from the last cached status                                                              |
 | `--all-apps`         | flag     | off                       | Run for all configured app profiles (max 5)                                                        |
-| `--notify`           | flag     | off                       | Send a desktop notification on threshold breach or clear                                           |
+| `--desktop-notify`   | flag     | off                       | Send a desktop notification on threshold breach or clear                                           |
 | `--output <format>`  | `string` | `table`                   | `table` or `json`                                                                                  |
 | `--app <package>`    | `string` | config                    | Override app package name                                                                          |
 
@@ -260,14 +260,14 @@ App: com.example.app  (fetched 11:00:01 AM)
 
 ## Desktop Notifications
 
-`--notify` sends a system notification when a vitals threshold breaches or clears. Only fires on state change — no repeated notifications while a breach is ongoing:
+`--desktop-notify` sends a system notification when a vitals threshold breaches or clears. Only fires on state change — no repeated notifications while a breach is ongoing:
 
 ```bash
 # Threshold breach: sends "GPC Alert: com.example.app: vitals threshold breached"
-gpc status --notify
+gpc status --desktop-notify
 
 # Breach clears on next run: sends "GPC Status: com.example.app: vitals back to normal"
-gpc status --notify
+gpc status --desktop-notify
 ```
 
 Platform support: macOS (`osascript`), Linux (`notify-send`), Windows (PowerShell). Silently skipped in CI (`CI` env var set) and when the notification utility is unavailable.
@@ -275,7 +275,7 @@ Platform support: macOS (`osascript`), Linux (`notify-send`), Windows (PowerShel
 Combine with `--watch` for continuous monitoring with alerts:
 
 ```bash
-gpc status --watch 60 --notify
+gpc status --watch 60 --desktop-notify
 ```
 
 ## JSON Output
@@ -376,7 +376,7 @@ gpc status --cached --output json | jq '{rating: .reviews.averageRating, crashes
 
 ```bash
 # Poll every 5 minutes, notify on breach
-gpc status --watch 300 --notify --sections vitals
+gpc status --watch 300 --desktop-notify --sections vitals
 ```
 
 ## Exit Codes

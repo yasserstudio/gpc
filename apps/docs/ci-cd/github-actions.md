@@ -680,7 +680,7 @@ jobs:
 
 Enable secret scanning and push protection under **Settings → Code security**. Push protection blocks a credential at `git push` time, which is considerably better than finding it after it reaches the remote.
 
-The two rules worth applying by hand: never interpolate `${{ github.event.* }}` directly into a `run:` block (pass it through `env:` instead), and scope secrets to the single step that needs them rather than the whole job.
+The two rules worth applying by hand: never interpolate `github.event.*` values directly into a `run:` block (pass it through `env:` instead), and scope secrets to the single step that needs them rather than the whole job.
 
 ### Lockfile verification
 

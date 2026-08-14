@@ -97,6 +97,12 @@ export async function deleteConfigValue(key: string): Promise<void> {
   await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
 }
 
+/**
+ * Shallow-merges `config` over an existing profile entry: fields not present
+ * in `config` are preserved, so re-authenticating a profile (key rotation)
+ * cannot drop its app/developerId/reports settings. To fully replace a
+ * profile, delete it first.
+ */
 export async function setProfileConfig(profileName: string, config: ProfileConfig): Promise<void> {
   if (!profileName || DANGEROUS_KEYS.has(profileName)) {
     throw new ConfigError(
@@ -118,10 +124,57 @@ export async function setProfileConfig(profileName: string, config: ProfileConfi
   if (typeof existing["profiles"] !== "object" || existing["profiles"] === null) {
     existing["profiles"] = {};
   }
-  (existing["profiles"] as Record<string, unknown>)[profileName] = config;
+  const profiles = existing["profiles"] as Record<string, unknown>;
+  const current = profiles[profileName];
+  profiles[profileName] =
+    typeof current === "object" && current !== null ? { ...current, ...config } : config;
 
   await mkdir(dirname(configPath), { recursive: true, mode: 0o700 });
   await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
+}
+
+/**
+ * Remove a profile's stored credentials while keeping its other settings
+ * (app, developerId, reports). Drops the whole entry when nothing else
+ * remains, and clears a top-level `profile` pointer referencing the removed
+ * entry so loadConfig() cannot be left pointing at a missing profile.
+ */
+export async function clearProfileCredentials(
+  profileName: string,
+): Promise<"cleared" | "removed" | "not-found"> {
+  const configPath = join(getConfigDir(), "config.json");
+
+  let existing: Record<string, unknown>;
+  try {
+    existing = JSON.parse(await readFile(configPath, "utf-8")) as Record<string, unknown>;
+  } catch {
+    return "not-found";
+  }
+
+  const profiles = existing["profiles"] as Record<string, unknown> | undefined;
+  const entry = profiles ? profiles[profileName] : undefined;
+  if (!profiles || typeof entry !== "object" || entry === null) return "not-found";
+
+  const rest = Object.fromEntries(
+    Object.entries(entry as Record<string, unknown>).filter(([key]) => key !== "auth"),
+  );
+
+  let result: "cleared" | "removed";
+  if (Object.keys(rest).length > 0) {
+    profiles[profileName] = rest;
+    result = "cleared";
+  } else {
+    existing["profiles"] = Object.fromEntries(
+      Object.entries(profiles).filter(([key]) => key !== profileName),
+    );
+    if (existing["profile"] === profileName) {
+      existing = Object.fromEntries(Object.entries(existing).filter(([key]) => key !== "profile"));
+    }
+    result = "removed";
+  }
+
+  await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
+  return result;
 }
 
 export async function deleteProfile(profileName: string): Promise<boolean> {
@@ -141,6 +194,11 @@ export async function deleteProfile(profileName: string): Promise<boolean> {
   existing["profiles"] = Object.fromEntries(
     Object.entries(profiles).filter(([key]) => key !== profileName),
   );
+  // A top-level pointer at the deleted profile would make every subsequent
+  // loadConfig() throw CONFIG_PROFILE_NOT_FOUND.
+  if (existing["profile"] === profileName) {
+    existing = Object.fromEntries(Object.entries(existing).filter(([key]) => key !== "profile"));
+  }
   await writeSecureFile(configPath, JSON.stringify(existing, null, 2) + "\n");
   return true;
 }

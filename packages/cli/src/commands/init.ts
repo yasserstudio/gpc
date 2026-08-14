@@ -13,7 +13,9 @@ export function registerInitCommand(program: Command): void {
     .option("--ci-template <platform>", "Generate CI template: github, gitlab")
     .option("--force", "Overwrite existing files")
     .action(async (options) => {
-      let app = options["app"] as string | undefined;
+      // The root program's global -a/--app wins during parsing, so the
+      // subcommand option never receives the value — read both.
+      let app = (options["app"] ?? program.opts()["app"]) as string | undefined;
       let ci = options["ciTemplate"] as "github" | "gitlab" | undefined;
 
       // Interactive prompts when TTY

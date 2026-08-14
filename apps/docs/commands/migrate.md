@@ -32,7 +32,7 @@ gpc migrate fastlane [options]
 | Flag        | Short | Type      | Default | Description                                        |
 | ----------- | ----- | --------- | ------- | -------------------------------------------------- |
 | `--dir`     |       | `string`  | `.`     | Directory containing Fastlane files                |
-| `--output`  |       | `string`  | `.`     | Output directory for migration files               |
+| `--out-dir` |       | `string`  | `.`     | Output directory for migration files               |
 | `--dry-run` |       | `boolean` | `false` | Preview migration plan without writing any files   |
 | `--yes`     | `-y`  | `boolean` | `false` | Overwrite existing `.gpcrc.json` without prompting |
 
@@ -81,7 +81,7 @@ Migration Checklist:
 Scan a specific directory:
 
 ```bash
-gpc migrate fastlane --dir ./android --output ./migration
+gpc migrate fastlane --dir ./android --out-dir ./migration
 ```
 
 Get structured output for scripting:

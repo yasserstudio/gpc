@@ -38,6 +38,8 @@ gpc auth login [options]
 | `--adc`             |       | `boolean` | `false` | Use Application Default Credentials     |
 | `--profile`         |       | `string`  |         | Store credentials under a named profile |
 
+Re-running `auth login --profile <name>` updates that profile's credentials in place: other profile settings (`app`, `developerId`, `reports`) are preserved, so key rotation is safe.
+
 ### Example
 
 Authenticate with a service account:
@@ -86,12 +88,16 @@ Clear stored credentials and the local token cache.
 ### Synopsis
 
 ```bash
-gpc auth logout
+gpc auth logout [options]
 ```
 
 ### Options
 
-No command-specific options.
+| Flag        | Short | Type     | Default | Description                              |
+| ----------- | ----- | -------- | ------- | ---------------------------------------- |
+| `--profile` |       | `string` |         | Clear credentials for a specific profile |
+
+Without `--profile`, the default credentials are cleared. With `--profile <name>`, only that profile's credentials are removed — its other settings (`app`, `developerId`, `reports`) are kept. A profile that held nothing but credentials is removed entirely.
 
 ### Example
 
@@ -101,6 +107,12 @@ gpc auth logout
 
 ```
 Credentials and token cache cleared.
+```
+
+Clear one profile's credentials:
+
+```bash
+gpc auth logout --profile prod
 ```
 
 ---
