@@ -49,7 +49,7 @@ GPC checks for updates automatically (once per 24 hours) and shows a notificatio
 
 ### How is GPC different from Fastlane supply?
 
-GPC covers 227 API endpoints -- Fastlane supply covers about 20. GPC gives you reviews, vitals, subscriptions, purchases, reports, user management, **Managed Google Play private app publishing** (v0.9.56, first Android publishing CLI to support it), and more. It has no Ruby dependency, supports structured JSON output for CI/CD, and starts in under 500ms (vs 2-3 seconds for Fastlane).
+GPC covers 230 API endpoints -- Fastlane supply covers about 20. GPC gives you reviews, vitals, subscriptions, purchases, reports, user management, **Managed Google Play private app publishing** (v0.9.56, first Android publishing CLI to support it), and more. It has no Ruby dependency, supports structured JSON output for CI/CD, and starts in under 500ms (vs 2-3 seconds for Fastlane).
 
 GPC reads Fastlane's `metadata/` directory format natively, so migration starts with zero file changes. See [Migrating from Fastlane](../migration/from-fastlane) for a step-by-step guide.
 
@@ -77,7 +77,7 @@ See the [CI/CD guide](../ci-cd/) for copy-pasteable GitHub Actions, GitLab CI, B
 
 ### Is it stable enough for production CI/CD?
 
-2,630 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The CLI is in a pre-release stability soak before v1.0.
+2,733 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The CLI is in a pre-release stability soak before v1.0.
 
 ## Configuration
 
@@ -119,7 +119,7 @@ The interactive wizard lets you pick skills and target agents. See [Agent Skills
 
 ### What Google Play APIs does GPC cover?
 
-227 endpoints across the Android Publisher API v3, Play Developer Reporting API v1beta1, Play Custom App Publishing API v1, and Games Configuration API v1configuration. This includes apps, releases, tracks, listings, images, reviews, vitals, subscriptions, in-app products, one-time products, purchases, users, testers, device tiers, data safety, recovery, external transactions, internal sharing, generated APKs, **Play Games achievements and leaderboard configuration** (new in v0.9.86), and **Managed Google Play private app publishing** (first Android publishing CLI to support this). See [API Coverage](../reference/api-coverage) for the full endpoint map.
+230 endpoints across the Android Publisher API v3, Play Developer Reporting API v1beta1, Play Custom App Publishing API v1, and Games Configuration API v1configuration. This includes apps, releases, tracks, listings, images, reviews, vitals, subscriptions, in-app products, one-time products, purchases, users, testers, device tiers, data safety, recovery, external transactions, internal sharing, generated APKs, **Play Games achievements and leaderboard configuration** (new in v0.9.86), and **Managed Google Play private app publishing** (first Android publishing CLI to support this). See [API Coverage](../reference/api-coverage) for the full endpoint map.
 
 ### How do I upload an AAB from the command line?
 
@@ -203,6 +203,12 @@ Run `gpc config init` to start the interactive setup wizard.
 Starting **July 22, 2026**, Google Play makes US app and game listings (name, icon, description, screenshots, and videos) available to enrolled third-party US Android app stores, to comply with a US court order. On June 22, 2026, Google notified developers that listings are included **unless you opt out by July 22, 2026**.
 
 Downloads still complete through Google Play on the same terms (Play's service fee still applies), but third-party stores are not governed by Play's content policies. This is a Play Console setting — there is no Play Developer API for it, so GPC cannot change it for you. Opt out (or confirm your choice) in the Play Console. See Google's [announcement](https://support.google.com/googleplay/android-developer/answer/17187609).
+
+### Does GPC check the 2027 memory requirements?
+
+Not yet, and not honestly possible today. Google announced the memory quality requirements on August 26, 2026: dynamic memory usage, bitmap memory usage, and DEX code optimization thresholds, enforced from February 2027, with reduced visibility and publishing capabilities for apps that miss them. Only the DEX rule has a published number so far (at least 25% coverage across optimization, shrinking, and obfuscation using R8 or another shrinking tool). The dynamic memory and bitmap thresholds are per app state and per device performance class, and Google has not published them.
+
+What GPC does today: `gpc verify checklist` carries a dated item for the February 2027 memory requirements and one for the April 2027 Zero-Tap Sign-In requirement (the Android Restore Credentials API, which games are currently exempt from), each with the action and the source link. A `gpc preflight` rule is planned once Google publishes the thresholds. In the meantime, the numbers live in Play Console under Android vitals: dynamic memory metrics, the "out of memory" crash filter, and DEX optimization insights per uploaded bundle.
 
 ## Troubleshooting
 

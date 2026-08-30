@@ -785,6 +785,17 @@ describe("listings subcommands", () => {
     expect(subcommandNames).toContain("delete");
   });
 
+  it("listings images upload and sync expose --ai-generated", () => {
+    const listingsCmd = program.commands.find((cmd) => cmd.name() === "listings");
+    const imagesCmd = listingsCmd!.commands.find((cmd) => cmd.name() === "images");
+    for (const name of ["upload", "sync"]) {
+      const cmd = imagesCmd!.commands.find((c) => c.name() === name);
+      expect(cmd, name).toBeDefined();
+      const flags = cmd!.options.map((o) => o.long);
+      expect(flags, name).toContain("--ai-generated");
+    }
+  });
+
   it("listings --help shows description", async () => {
     program.exitOverride();
     const stdoutSpy = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
@@ -799,6 +810,13 @@ describe("listings subcommands", () => {
 
     const output = stdoutSpy.mock.calls.map((call) => String(call[0])).join("");
     expect(output).toContain("Manage store listings");
+  });
+
+  it("device-tiers create exposes --allow-unknown-devices", () => {
+    const dtCmd = program.commands.find((cmd) => cmd.name() === "device-tiers");
+    const createCmd = dtCmd!.commands.find((cmd) => cmd.name() === "create");
+    expect(createCmd).toBeDefined();
+    expect(createCmd!.options.map((o) => o.long)).toContain("--allow-unknown-devices");
   });
 });
 

@@ -276,6 +276,33 @@ describe("setAchievementIcon / setLeaderboardIcon (E1)", () => {
   it("requires a resource id", async () => {
     await expect(setAchievementIcon(mockConfigClient(), "", "/path/icon.png")).rejects.toThrow();
   });
+
+  it("surfaces API_ENDPOINT_RETIRED from the api layer unchanged", async () => {
+    const client = mockConfigClient();
+    const retired = Object.assign(new Error("Google removed the Play Games icon upload endpoint"), {
+      code: "API_ENDPOINT_RETIRED",
+    });
+    (client.images.upload as ReturnType<typeof vi.fn>).mockRejectedValue(retired);
+    await expect(setAchievementIcon(client, "ach-1", "/path/icon.png")).rejects.toMatchObject({
+      code: "API_ENDPOINT_RETIRED",
+    });
+  });
+
+  it("directory push does not depend on the retired icon endpoint", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "gpc-games-noicon-"));
+    try {
+      await writeFile(join(dir, "a.json"), JSON.stringify(SAMPLE_ACHIEVEMENT), "utf-8");
+      const client = mockConfigClient();
+      (client.images.upload as ReturnType<typeof vi.fn>).mockRejectedValue(
+        Object.assign(new Error("retired"), { code: "API_ENDPOINT_RETIRED" }),
+      );
+      const result = await pushAchievementConfigs(client, "12345", dir);
+      expect(result.created).toEqual(["ach-new"]);
+      expect(client.images.upload).not.toHaveBeenCalled();
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
 });
 
 describe("pushAchievementConfigs / pullAchievementConfigs (E3)", () => {

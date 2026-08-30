@@ -8,6 +8,8 @@ import type {
   RevokeSubscriptionV2Request,
   CancellationType,
   Order,
+  ConsumptionUsageEvent,
+  RefundPreference,
 } from "@gpc-cli/api";
 import { validatePackageName } from "../utils/validation.js";
 import { GpcError } from "../errors.js";
@@ -244,4 +246,140 @@ export async function deferSubscriptionV2(
   return client.purchases.deferSubscriptionV2(packageName, token, {
     deferralContext: { etag: resolvedEtag, deferDuration },
   });
+}
+
+// --- orders.reviewrefund (chargeback review, Aug 2026) ---
+
+/** CLI-facing refund preference, mapped to the Google Play API enum. */
+export type RefundReviewPreference = "approve" | "decline" | "neutral";
+
+const REFUND_PREFERENCES: Record<RefundReviewPreference, RefundPreference> = {
+  approve: "APPROVE",
+  decline: "DECLINE",
+  neutral: "NEUTRAL",
+};
+
+/** Google Play rejects usage-event lists longer than this. */
+const MAX_CONSUMPTION_USAGE_EVENTS = 1000;
+
+/** consumptionPercentageMilliunits is capped at 100,000 (= 100%). */
+const MAX_CONSUMPTION_MILLIUNITS = 100_000;
+
+const RFC3339 = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+
+export interface ReviewOrderRefundOptions {
+  /** Token from the PendingRefundReviewNotification RTDN. */
+  pendingRefundToken: string;
+  preference: RefundReviewPreference;
+  /** Whether a free sample, trial, or functionality info was offered before purchase. */
+  sampleContentProvided: boolean;
+  consumptionPercentageMilliunits?: number;
+  consumptionUsageEvents?: ConsumptionUsageEvent[];
+}
+
+export interface ReviewOrderRefundResult {
+  packageName: string;
+  orderId: string;
+  refundPreference: RefundPreference;
+  sampleContentProvided: boolean;
+  consumptionPercentageMilliunits?: number;
+  consumptionUsageEventCount: number;
+  submitted: boolean;
+}
+
+function invalidReviewRefund(message: string, suggestion: string): GpcError {
+  return new GpcError(message, "ORDER_REVIEW_REFUND_INVALID", 2, suggestion);
+}
+
+/**
+ * Respond to a chargeback review (PendingRefundReviewNotification) with a refund
+ * preference and optional purchase-usage evidence. Google Play expects a response
+ * within 24 hours of the notification.
+ */
+export async function reviewOrderRefund(
+  client: PlayApiClient,
+  packageName: string,
+  orderId: string,
+  options: ReviewOrderRefundOptions,
+): Promise<ReviewOrderRefundResult> {
+  validatePackageName(packageName);
+
+  if (!orderId.trim()) {
+    throw invalidReviewRefund(
+      "orderId is required",
+      "Pass the order ID from the pending refund review notification",
+    );
+  }
+
+  const pendingRefundToken = options.pendingRefundToken.trim();
+  if (!pendingRefundToken) {
+    throw invalidReviewRefund(
+      "pendingRefundToken is required and cannot be empty",
+      "Pass --pending-refund-token with the token from the PendingRefundReviewNotification",
+    );
+  }
+
+  const refundPreference = REFUND_PREFERENCES[options.preference];
+  if (!refundPreference) {
+    throw invalidReviewRefund(
+      `Invalid refund preference "${options.preference}"`,
+      "Use --preference with one of: approve, decline, neutral",
+    );
+  }
+
+  const milliunits = options.consumptionPercentageMilliunits;
+  if (milliunits !== undefined) {
+    if (
+      !Number.isInteger(milliunits) ||
+      milliunits < 0 ||
+      milliunits > MAX_CONSUMPTION_MILLIUNITS
+    ) {
+      throw invalidReviewRefund(
+        `consumptionPercentageMilliunits must be an integer between 0 and ${MAX_CONSUMPTION_MILLIUNITS}, got ${milliunits}`,
+        "Pass --consumption-percent with a value between 0 and 100",
+      );
+    }
+  }
+
+  const events = options.consumptionUsageEvents ?? [];
+  if (events.length > MAX_CONSUMPTION_USAGE_EVENTS) {
+    throw invalidReviewRefund(
+      `consumptionUsageEvents has ${events.length} entries; Google Play rejects lists over ${MAX_CONSUMPTION_USAGE_EVENTS}`,
+      `Trim the usage-events file to at most ${MAX_CONSUMPTION_USAGE_EVENTS} events`,
+    );
+  }
+
+  events.forEach((event, index) => {
+    const time = event.consumptionTime;
+    if (time !== undefined && (!RFC3339.test(time) || Number.isNaN(Date.parse(time)))) {
+      throw invalidReviewRefund(
+        `consumptionUsageEvents[${index}].consumptionTime "${time}" is not an RFC 3339 timestamp`,
+        "Use a timestamp like 2026-08-30T10:15:00Z",
+      );
+    }
+    if (event.location && !event.location.regionCode?.trim()) {
+      throw invalidReviewRefund(
+        `consumptionUsageEvents[${index}].location.regionCode is required when a location is supplied`,
+        'Set a CLDR region code such as "US" on each location',
+      );
+    }
+  });
+
+  await client.orders.reviewRefund(packageName, orderId, {
+    pendingRefundToken,
+    refundPreference,
+    sampleContentProvided: options.sampleContentProvided,
+    ...(milliunits !== undefined ? { consumptionPercentageMilliunits: milliunits } : {}),
+    ...(events.length > 0 ? { consumptionUsageEvents: events } : {}),
+  });
+
+  return {
+    packageName,
+    orderId,
+    refundPreference,
+    sampleContentProvided: options.sampleContentProvided,
+    ...(milliunits !== undefined ? { consumptionPercentageMilliunits: milliunits } : {}),
+    consumptionUsageEventCount: events.length,
+    submitted: true,
+  };
 }

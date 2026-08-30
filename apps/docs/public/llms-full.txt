@@ -11,12 +11,13 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Pl
 
 - Install: `npm install -g @gpc-cli/cli`
 - Binary: `gpc`
-- Version: 0.9.95
-- API endpoints covered: 227 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1 + Games Configuration v1configuration)
-- Tests: 2,630 (90%+ coverage)
+- Version: 0.9.96
+- API endpoints covered: 230 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1 + Games Configuration v1configuration)
+- Tests: 2,733 (90%+ coverage)
 - Licensing: Free to use. Source code is on GitHub.
 - Repo: https://github.com/yasserstudio/gpc
 - GitHub Action: yasserstudio/gpc-action on the GitHub Actions Marketplace (one-step Play publishing from CI with built-in preflight gate, drop-in r0adkll migration)
+- Notable v0.9.96: One-time product create/update and offer get/create/update/delete reach Google again (write routes now match what Google serves; offers use the batch endpoints). New: purchases orders review-refund for chargeback disputes, app-signing enroll/rotate for self-hosted Cloud KMS keys, --ai-generated image attestation, device-tiers --allow-unknown-devices, verify checklist items for the Feb/Apr 2027 quality requirements.
 - Notable v0.9.95: Subcommand flags that shared a name with a global flag (like --profile on auth login, --app on init, --dry-run on migrate fastlane) were silently ignored; they now work, and profile credential updates merge instead of erasing other profile settings. Flags that never worked were renamed: reviews export --output-file, migrate fastlane --out-dir, status --desktop-notify, generated-apks/system-apks download --output-file.
 - Notable v0.9.94: Upload failures caused by an incomplete Play Console "App content" declaration are no longer misreported as service account permission errors. They return `API_DECLARATION_REQUIRED` and quote Google's own explanation. `gpc preflight` flags apps requesting foreground service permissions so the declaration can be completed before uploading. Plugin trust now comes from the installed package rather than its name, and third-party plugins must declare which hooks they use.
 - Notable v0.9.93: `gpc reports` now downloads real data: list and fetch Play stats and financial report CSVs straight from the account's Cloud Storage bucket, decoded to clean UTF-8. Requires the "download bulk reports" grant for the service account in Play Console.
@@ -100,7 +101,7 @@ gpc
   subscriptions  list, get, create, update, delete, base-plans (activate/deactivate/delete), offers (list/get/create/update/delete/activate/deactivate), analytics
   one-time-products  list, get, create, update, delete, offers (list/get/create/update/delete)
   iap          list, get, create, update, delete, batch-get, batch-update
-  purchases    get, acknowledge, subscription (get/cancel-v2/defer-v2), product (get-v2), voided, orders (get/batch-get)
+  purchases    get, acknowledge, subscription (get/cancel-v2/defer-v2), product (get-v2), voided, orders (get/batch-get/review-refund)
   pricing      convert
   reports      list, download
   users        list, invite, remove
@@ -129,6 +130,7 @@ gpc
   docs         [topic] [--list]
   plugins      list, install, remove
   enterprise   list, create
+  app-signing  enroll, rotate   # self-hosted Cloud KMS keys only (advanced)
   games        achievements {list,get,create,update,delete,diff}, leaderboards {list,get,create,update,delete,diff}, runtime
   completion   (bash/zsh/fish)
 ```
@@ -506,6 +508,18 @@ gpc games runtime achievements       # read-only (Games v1 API)
 gpc games runtime leaderboards       # read-only (Games v1 API)
 ```
 Uses the Games Configuration API (gamesconfiguration v1configuration). Requires a numeric application ID (--game-id, GPC_GAME_ID env, or games.applicationId in .gpcrc.json).
+
+---
+
+## App Signing (self-hosted Google Cloud KMS only)
+```
+gpc app-signing enroll --kms-key <cryptoKeyVersion> --existing-app
+gpc app-signing enroll --kms-key <cryptoKeyVersion> --new-app --cert <pem> [--upload-cert <pem>]
+gpc app-signing rotate --kms-key <cryptoKeyVersion> --cert <pem> --lineage <file> --reason <reason>
+```
+WARNING: do not use this for standard Play App Signing. Standard enrollment with Google-generated or Google-managed keys CANNOT be done via API — do it in Play Console. This advanced API is strictly for enterprise organizations with mandatory compliance, regulatory, or policy requirements to retain key custody in an external Google Cloud KMS instance, and requires an active Cloud KMS key with Decrypt and Sign IAM permissions already granted to Google Play.
+
+`--new-app` is for apps not yet published to Open testing or Production (Google requires --cert there); `--existing-app` is for published apps. Rotation applies only to apps enrolled with a self-hosted Cloud KMS key — standard Play App Signing rotation is requested in the Play Console UI. Reasons: COMPROMISED_KEY, USE_STRONGER_KEY, USE_SAME_KEY_FOR_MULTIPLE_APPS, ROUTINE_KEY_UPGRADE, OTHER. Both subcommands print the warning and confirm before sending; --yes skips the prompt.
 
 ---
 

@@ -273,6 +273,15 @@ before_all do
 end
 ```
 
+## Play quality requirements landing in 2027
+
+Google announced two further requirements on August 26, 2026. Neither is a preflight scanner today, because Google has not published the numbers a scanner would need to check. Both appear as dated items in `gpc verify checklist`.
+
+- **Memory quality thresholds (February 2027).** Apps and games must meet bad behavior thresholds for dynamic memory usage (anonymous RSS plus swap), bitmap memory usage, and DEX code optimization. The DEX rule is concrete: at least 25% coverage across optimization, shrinking, and obfuscation using R8 or another shrinking tool. Apps that miss the thresholds may see reduced visibility and publishing capabilities on Google Play. Play Console now exposes dynamic memory metrics in Android vitals, an "out of memory" crash filter, and DEX optimization insights per uploaded bundle.
+- **Zero-Tap Sign-In (April 2027).** Apps that support user sign-in must restore the signed-in state when a user moves to a new Android device, using the [Android Restore Credentials API](https://developer.android.com/identity/sign-in/restore-credentials). From April 2027, Google Play requires this to maintain full publishing capabilities and optimal Play Store visibility. Games are currently exempt.
+
+Source: [App quality, memory optimization, and secure onboarding](https://android-developers.googleblog.com/2026/08/app-quality-memory-optimization-secure-onboarding.html) on the Android Developers Blog.
+
 ## What preflight cannot catch
 
 Being honest about the tool's limits matters more than marketing. Preflight is **static analysis of the AAB**. It cannot catch:

@@ -37,6 +37,8 @@ gpc verify checklist [options]
 
 Interactive readiness walkthrough. Auto-detects account access, bundle uploads, and Play App Signing enrollment. Prompts for manual steps (identity verification, auto-registration review, additional keys).
 
+The checklist also carries dated policy items you cannot auto-detect: the September 30, 2026 verification enforcement start, the July 15, 2026 app registration mandate, the February 2027 [memory quality requirements](/guide/preflight-deep-dive#play-quality-requirements-landing-in-2027), and the April 2027 Zero-Tap Sign-In requirement (Android Restore Credentials API, games currently exempt).
+
 In non-interactive mode (CI, piped output, `--no-interactive`), all items are shown without prompts and a markdown report is printed.
 
 ## Examples
@@ -76,19 +78,29 @@ Developer Verification Checklist
   Answer Y/N for items we cannot auto-detect.
 
 Have you completed identity verification in Play Console? [y/N]: y
+Have you reviewed the September 30, 2026 enforcement timeline (Brazil, Indonesia, Singapore, Thailand)? [y/N]: y
 Have you reviewed your auto-registration results in Play Console? [y/N]: y
+Is every app on your account registered in Play Console? [y/N]: n
+Have you reviewed the February 2027 memory and DEX optimization quality requirements? [y/N]: n
+Does your sign-in flow implement the Android Restore Credentials API (Zero-Tap Sign-In)? [y/N]: n
 Have you registered all additional signing keys used outside Play? [y/N]: n
 
-Verification Readiness: 5/7
+Verification Readiness: 6/11
 
   ✓ Play Console account active
   ✓ Identity verification complete
+  ✓ Verification enforcement timeline reviewed
   ✓ Auto-registration results reviewed
+  ✗ All Play apps registered in Play Console
+  ✗ Memory quality requirements reviewed
+  ✗ Zero-Tap Sign-In (Restore Credentials API) implemented
   ✓ App accessible via API
-  ✓ Play App Signing enrolled
   ✗ At least one bundle uploaded
+  ✓ Play App Signing enrolled
   ✗ Additional signing keys registered
 ```
+
+Each item shows one of three states. `✓` means done, `✗` means action needed, and `?` means GPC cannot detect it and you did not answer for it. Manual items only ever become `✓` or `✗` when you answer their prompt, so with `--no-interactive`, `--json`, or in CI they stay at `?`.
 
 Open the verification page in your browser:
 

@@ -2,7 +2,7 @@
 
 > Ship Android apps from your terminal. The complete CLI for Google Play Developer API v3.
 
-GPC is a TypeScript CLI that covers 227 Google Play Developer API endpoints. It handles releases, rollouts, metadata, vitals, reviews, subscriptions, in-app products, purchases, reports, users, testers, and more — from one tool.
+GPC is a TypeScript CLI that covers 230 Google Play Developer API endpoints. It handles releases, rollouts, metadata, vitals, reviews, subscriptions, in-app products, purchases, reports, users, testers, and more — from one tool.
 
 ## Key Facts
 
@@ -14,8 +14,8 @@ GPC is a TypeScript CLI that covers 227 Google Play Developer API endpoints. It 
 - Exit codes: 0 success, 1 error, 2 usage, 3 auth, 4 API, 5 network, 6 threshold breach, 10 plugin
 - Config: `.gpcrc.json` (project), `~/.config/gpc/config.json` (user), `GPC_*` env vars
 - Uploads: Resumable protocol (8 MB chunks, auto-resume on failure, real-time progress bar)
-- Tests: 2,630 total, 90%+ line coverage on all core packages
-- Version: 0.9.95 (pre-release series → 1.0.0 public launch)
+- Tests: 2,733 total, 90%+ line coverage on all core packages
+- Version: 0.9.96 (pre-release series → 1.0.0 public launch)
 - GitHub Action: yasserstudio/gpc-action on the GitHub Actions Marketplace (one-step Play publishing from CI with built-in preflight gate)
 - Licensing: Free to use. Source code is on GitHub.
 - Managed Google Play: GPC is the first Android publishing CLI to support the Play Custom App Publishing API (gpc enterprise publish)
@@ -118,7 +118,7 @@ gpc games achievements push metadata/achievements/     # Bulk create/update conf
 |---------|---------|
 | @gpc-cli/cli | CLI entry point (bin: gpc) |
 | @gpc-cli/core | Business logic, command orchestration |
-| @gpc-cli/api | Typed Google Play API client (227 endpoints, including Play Custom App Publishing) |
+| @gpc-cli/api | Typed Google Play API client (230 endpoints, including Play Custom App Publishing) |
 | @gpc-cli/auth | Authentication: service account, OAuth, ADC |
 | @gpc-cli/config | Config loading, env vars, profiles |
 | @gpc-cli/plugin-sdk | Plugin interface and lifecycle hooks |

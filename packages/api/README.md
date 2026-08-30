@@ -2,7 +2,7 @@
 
 Typed Google Play Developer API v3 client for TypeScript. Part of [GPC](https://github.com/yasserstudio/gpc).
 
-227 endpoints across edits, releases, tracks, listings, subscriptions, in-app products, purchases, reviews, vitals, reports, users, testers, and **Managed Google Play private app publishing** (Play Custom App Publishing API, v0.9.64+ — first Android publishing SDK to support this). Built-in rate limiting, retry logic, resumable uploads, and pagination.
+230 endpoints across edits, releases, tracks, listings, subscriptions, in-app products, purchases, reviews, vitals, reports, users, testers, and **Managed Google Play private app publishing** (Play Custom App Publishing API, v0.9.64+ — first Android publishing SDK to support this). Built-in rate limiting, retry logic, resumable uploads, and pagination.
 
 ## Install
 
@@ -149,6 +149,7 @@ await client.purchases.acknowledgeProduct("com.example.app", "coins_100", token)
 | `client.systemApks`           | list, variants                                                                                              |
 | `client.externalTransactions` | create, get, refund                                                                                         |
 | `client.appRecovery`          | create, deploy, cancel, list                                                                                |
+| `client.appSigning`           | enroll, rotateKey (self-hosted Google Cloud KMS keys only — advanced)                                       |
 | `reporting.*`                 | queryMetricSet, getAnomalies, searchErrorIssues, searchErrorReports                                         |
 | `users.*`                     | list, get, create, patch, delete, listGrants, createGrant, patchGrant, deleteGrant                          |
 

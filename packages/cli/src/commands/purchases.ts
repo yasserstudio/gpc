@@ -2,6 +2,7 @@ import { resolvePackageName, getClient } from "../resolve.js";
 import type { Command } from "commander";
 import { Option } from "commander";
 import { loadConfig } from "@gpc-cli/config";
+import type { ConsumptionUsageEvent } from "@gpc-cli/api";
 
 import {
   getProductPurchase,
@@ -16,6 +17,9 @@ import {
   revokeSubscriptionPurchase,
   listVoidedPurchases,
   refundOrder,
+  reviewOrderRefund,
+  type RefundReviewPreference,
+  GpcError,
   getOrderDetails,
   batchGetOrders,
   formatOutput,
@@ -26,6 +30,7 @@ import {
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { getOutputFormat } from "../format.js";
 import { isInteractive, requireOption, requireConfirm } from "../prompt.js";
+import { readJsonFile } from "../json.js";
 
 export function registerPurchasesCommands(program: Command): void {
   const purchases = program.command("purchases").description("Manage purchases and orders");
@@ -385,6 +390,140 @@ export function registerPurchasesCommands(program: Command): void {
       });
       console.log(`Order ${orderId} refunded.`);
     });
+
+  orders
+    .command("review-refund <order-id>")
+    .description("Respond to a chargeback review with a refund preference (24-hour window)")
+    .requiredOption(
+      "--pending-refund-token <token>",
+      "Token from the PendingRefundReviewNotification RTDN",
+    )
+    .addOption(
+      new Option("--preference <preference>", "Refund preference sent to Google Play")
+        .choices(["approve", "decline", "neutral"])
+        .makeOptionMandatory(),
+    )
+    .option(
+      "--sample-content-provided",
+      "A free sample, trial, or functionality info was offered before purchase",
+    )
+    .option("--no-sample-content-provided", "No free sample, trial, or functionality info")
+    .option("--consumption-percent <percent>", "Percentage of the purchase consumed (0-100)")
+    .option("--usage-events-file <path>", "JSON file holding an array of consumption usage events")
+    .action(
+      async (
+        orderId: string,
+        options: {
+          pendingRefundToken: string;
+          preference: RefundReviewPreference;
+          sampleContentProvided?: boolean;
+          consumptionPercent?: string;
+          usageEventsFile?: string;
+        },
+      ) => {
+        const config = await loadConfig();
+        const packageName = resolvePackageName(program.opts()["app"], config);
+        const format = getOutputFormat(program, config);
+
+        // Commander leaves this undefined when neither the positive nor the
+        // negative flag is passed; Google Play requires an explicit answer.
+        if (options.sampleContentProvided === undefined) {
+          throw new GpcError(
+            "sampleContentProvided is required",
+            "ORDER_REVIEW_REFUND_INVALID",
+            2,
+            "Pass --sample-content-provided or --no-sample-content-provided",
+          );
+        }
+
+        let consumptionPercentageMilliunits: number | undefined;
+        // An empty or whitespace-only value means "not provided": Number("")
+        // is 0, and sending 0 would claim "0% consumed" as chargeback evidence.
+        const rawPercent = options.consumptionPercent?.trim();
+        if (rawPercent) {
+          // Number() accepts "0x10", "1e1" and "Infinity"; only plain decimals
+          // are a percentage a reviewer would recognise.
+          const percent = /^\d+(\.\d+)?$/.test(rawPercent) ? Number(rawPercent) : Number.NaN;
+          if (!Number.isFinite(percent) || percent > 100) {
+            throw new GpcError(
+              `Invalid --consumption-percent "${options.consumptionPercent}"`,
+              "ORDER_REVIEW_REFUND_INVALID",
+              2,
+              "Use a plain decimal number between 0 and 100 (for example 45.2)",
+            );
+          }
+          consumptionPercentageMilliunits = Math.round(percent * 1000);
+        }
+
+        let consumptionUsageEvents: ConsumptionUsageEvent[] | undefined;
+        if (options.usageEventsFile) {
+          const parsed = await readJsonFile(options.usageEventsFile);
+          if (!Array.isArray(parsed)) {
+            throw new GpcError(
+              `${options.usageEventsFile} must contain a JSON array of consumption usage events`,
+              "ORDER_REVIEW_REFUND_INVALID",
+              2,
+              'Use a file like [{ "consumptionTime": "2026-08-30T10:15:00Z" }]',
+            );
+          }
+          if (
+            parsed.some(
+              (event) => typeof event !== "object" || event === null || Array.isArray(event),
+            )
+          ) {
+            throw new GpcError(
+              `${options.usageEventsFile} must contain only consumption usage event objects`,
+              "ORDER_REVIEW_REFUND_INVALID",
+              2,
+              'Every array entry must be an object, for example [{ "consumptionTime": "2026-08-30T10:15:00Z" }]',
+            );
+          }
+          consumptionUsageEvents = parsed as ConsumptionUsageEvent[];
+        }
+
+        await requireConfirm(
+          `Submit a "${options.preference}" refund preference for order "${orderId}"?`,
+          program,
+        );
+
+        if (isDryRun(program)) {
+          printDryRun(
+            {
+              command: "purchases orders review-refund",
+              action: "review-refund",
+              target: orderId,
+              details: {
+                preference: options.preference,
+                sampleContentProvided: options.sampleContentProvided,
+                consumptionPercentageMilliunits,
+                consumptionUsageEvents: consumptionUsageEvents?.length ?? 0,
+              },
+            },
+            format,
+            formatOutput,
+          );
+          return;
+        }
+
+        const client = await getClient(config);
+
+        const result = await reviewOrderRefund(client, packageName, orderId, {
+          pendingRefundToken: options.pendingRefundToken,
+          preference: options.preference,
+          sampleContentProvided: options.sampleContentProvided,
+          consumptionPercentageMilliunits,
+          consumptionUsageEvents,
+        });
+
+        if (format === "json") {
+          console.log(formatOutput(result, format));
+        } else {
+          console.log(
+            `Refund review submitted for order ${orderId} (preference: ${options.preference}).`,
+          );
+        }
+      },
+    );
 
   orders
     .command("get <order-id>")

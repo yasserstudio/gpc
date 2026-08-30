@@ -215,6 +215,8 @@ export interface DeobfuscationUploadResponse {
 
 export interface ListingsListResponse {
   listings: Listing[];
+  /** The kind of this response ("androidpublisher#listingsListResponse"). */
+  kind?: string;
 }
 
 export type ImageType =
@@ -258,11 +260,23 @@ export interface CountryAvailability {
 export interface ReviewsListResponse {
   reviews: Review[];
   tokenPagination?: TokenPagination;
+  /** Information about the current page. */
+  pageInfo?: PageInfo;
 }
 
 export interface TokenPagination {
   nextPageToken?: string;
   previousPageToken?: string;
+}
+
+/** Describes the page returned by a list operation that supports paging. */
+export interface PageInfo {
+  /** Total number of results available on the backend. */
+  totalResults?: number;
+  /** Maximum number of results returned in one page. */
+  resultPerPage?: number;
+  /** Index of the first result returned in the current page. */
+  startIndex?: number;
 }
 
 export interface ReviewReplyRequest {
@@ -716,6 +730,11 @@ export interface SubscriptionPurchaseLineItem {
     replacementMode?: string;
   };
   deferredItemReplacement?: { productId?: string; replacementMode?: string };
+  /**
+   * Information for deferred item removal. The DeferredItemRemoval schema declares no fields
+   * yet (androidpublisher discovery rev 20260826) -- presence signals the pending removal.
+   */
+  deferredItemRemoval?: Record<string, unknown>;
   signupPromotion?: {
     oneTimeCode?: { amount?: Money };
     vanityCode?: { promotionCode?: string };
@@ -796,6 +815,8 @@ export interface VoidedPurchase {
 export interface VoidedPurchasesListResponse {
   voidedPurchases: VoidedPurchase[];
   tokenPagination?: TokenPagination;
+  /** General pagination information. */
+  pageInfo?: PageInfo;
 }
 
 // --- Orders API (May 2025) ---
@@ -892,6 +913,44 @@ export interface OrderLineItem {
 
 export interface BatchGetOrdersResponse {
   orders: Order[];
+}
+
+// --- orders.reviewrefund (chargeback review, Aug 2026) ---
+
+/** Developer preference for whether Play should grant a chargeback refund. */
+export type RefundPreference = "REFUND_PREFERENCE_UNSPECIFIED" | "DECLINE" | "APPROVE" | "NEUTRAL";
+
+/** Coarse geographic location for where a consumption event happened. */
+export interface CoarseLocation {
+  /** CLDR region code of the country/region. Required when a location is supplied. */
+  regionCode: string;
+  administrativeArea?: string;
+  locality?: string;
+  sublocality?: string;
+}
+
+/** An instance where the user consumed or used the purchased item or service. */
+export interface ConsumptionUsageEvent {
+  /** RFC 3339 timestamp of the consumption. */
+  consumptionTime?: string;
+  /** Free-form description of the item consumed. Maximum 5,000 characters. */
+  consumptionItemDescription?: string;
+  obfuscatedAccountId?: string;
+  obfuscatedProfileId?: string;
+  ipAddress?: string;
+  location?: CoarseLocation;
+}
+
+export interface OrdersReviewRefundRequest {
+  refundPreference: RefundPreference;
+  /** Whether a free sample, trial, or functionality info was provided before purchase. */
+  sampleContentProvided: boolean;
+  /** Token from the PendingRefundReviewNotification RTDN. */
+  pendingRefundToken: string;
+  /** Percentage consumed, in milliunits. 0–100,000 (45200 = 45.2%). */
+  consumptionPercentageMilliunits?: number;
+  /** Lists with over 1,000 items are rejected by Google Play. */
+  consumptionUsageEvents?: ConsumptionUsageEvent[];
 }
 
 // --- ProductPurchaseV2 (Jun 2025) ---
@@ -1236,15 +1295,32 @@ export interface InternalAppSharingArtifact {
 
 // --- Generated APKs ---
 
+export interface GeneratedSplitApk {
+  downloadId?: string;
+  variantId?: number;
+  moduleName?: string;
+  splitId?: string;
+}
+
+export interface GeneratedStandaloneApk {
+  downloadId?: string;
+  variantId?: number;
+}
+
 export interface GeneratedApksPerSigningKey {
   certificateSha256Hash?: string;
-  generatedSplitApks?: {
-    downloadId?: string;
-    variantId?: number;
-    moduleName?: string;
-    splitId?: string;
-  }[];
-  generatedStandaloneApks?: { downloadId?: string; variantId?: number }[];
+  generatedSplitApks?: GeneratedSplitApk[];
+  generatedStandaloneApks?: GeneratedStandaloneApk[];
+  /**
+   * Split APKs without automatic protection. Only present when the app uses automatic
+   * protection, in which case `generatedSplitApks` holds the protected variants.
+   */
+  unprotectedGeneratedSplitApks?: GeneratedSplitApk[];
+  /**
+   * Standalone APKs without automatic protection. Only present when the app uses automatic
+   * protection, in which case `generatedStandaloneApks` holds the protected variants.
+   */
+  unprotectedGeneratedStandaloneApks?: GeneratedStandaloneApk[];
   generatedUniversalApk?: { downloadId?: string };
   generatedAssetPackSlices?: {
     downloadId?: string;
@@ -1497,4 +1573,102 @@ export interface SubscriptionsBatchUpdateResponse {
 
 export interface InAppProductsBatchDeleteRequest {
   requests: { packageName: string; sku: string; latencyTolerance?: string }[];
+}
+
+// --- App Signing (applications.appSigning, discovery rev 20260826) ---
+//
+// Warning: these types back an advanced, enterprise-only API. Standard Play App
+// Signing enrollment with Google-generated or Google-managed keys CANNOT be done
+// via the API — it is a Play Console operation. The methods below are strictly for
+// organizations with mandatory compliance, regulatory, or policy requirements to
+// retain key custody in an external Google Cloud KMS instance.
+// See https://support.google.com/googleplay/android-developer/answer/9842756
+
+/** Reference to a private key hosted in developer-managed Google Cloud KMS. */
+export interface CloudKmsKey {
+  /**
+   * Resource identifier of the private key hosted in Google Cloud KMS. The Google Play
+   * service account must be granted Decrypt and Sign permissions on this resource.
+   * Format:
+   * `projects/{project}/locations/{location}/keyRings/{ring}/cryptoKeys/{key}/cryptoKeyVersions/{version}`
+   */
+  cryptoKeyVersionResource: string;
+}
+
+/** Cloud KMS key and the certificate associated with the key. */
+export interface CloudKmsKeyAndCert {
+  cloudKmsKey: CloudKmsKey;
+  /** Certificate associated with the key, as base64-encoded PEM bytes. */
+  pemCertificate: string;
+}
+
+/**
+ * Change the signing key of a new app to an external Cloud KMS key.
+ * The app must not have published to Open testing or Production tracks.
+ */
+export interface EnrollNewApp {
+  cloudKmsKeyAndCert: CloudKmsKeyAndCert;
+}
+
+/** Enroll an existing app into Play signing using an external Cloud KMS key. */
+export interface EnrollExistingApp {
+  cloudKmsKey: CloudKmsKey;
+}
+
+/** Hash digests of a certificate. */
+export interface CertificateHashes {
+  /** Hex-encoded MD5 hash, e.g. `43:51:43:A1:B5:FC:8B:B7:0A:3A:A9:B1:0F:66:73:A8`. */
+  certificateHashMd5?: string;
+  /** Hex-encoded SHA1 hash, e.g. `86:61:97:1A:D5:EF:E5:74:1E:A7:5B:84:7C:68:37:65:CD:94:16:DE`. */
+  certificateHashSha1?: string;
+  /** Hex-encoded SHA256 hash. */
+  certificateHashSha256?: string;
+}
+
+/**
+ * Request to enroll an app into Play App Signing using a self-hosted Cloud KMS key.
+ * Exactly one of `enrollNewApp` / `enrollExistingApp` may be set (oneof).
+ */
+export interface EnrollAppRequest {
+  enrollNewApp?: EnrollNewApp;
+  enrollExistingApp?: EnrollExistingApp;
+  /** Certificate associated with the upload key, as base64-encoded PEM bytes. */
+  pemUploadCertificate?: string;
+}
+
+export interface EnrollAppResponse {
+  /** Upload certificate hashes. Set only when `pemUploadCertificate` was in the request. */
+  uploadCertificate?: CertificateHashes;
+  /** Signing certificate hashes. Always set. */
+  signingCertificate: CertificateHashes;
+}
+
+/** Reason for rotating the app signing key. `KEY_ROTATION_REASON_UNSPECIFIED` cannot be used. */
+export type KeyRotationReason =
+  | "KEY_ROTATION_REASON_UNSPECIFIED"
+  | "COMPROMISED_KEY"
+  | "USE_STRONGER_KEY"
+  | "USE_SAME_KEY_FOR_MULTIPLE_APPS"
+  | "ROUTINE_KEY_UPGRADE"
+  | "OTHER";
+
+/** Rotated Cloud KMS key plus its associated proof of rotation. */
+export interface RotatedCloudKmsKey {
+  cloudKmsKeyAndCert: CloudKmsKeyAndCert;
+  /**
+   * Proof-of-rotation, as base64-encoded bytes. See "creating signing certificate lineages":
+   * https://developer.android.com/studio/command-line/apksigner#rotate_signing_keys_2
+   */
+  signingCertificateLineage: string;
+}
+
+/** Request to rotate an app's signing key. Self-hosted Cloud KMS enrollments only. */
+export interface RotateAppSigningKeyRequest {
+  keyRotationReason: KeyRotationReason;
+  rotatedCloudKmsKey: RotatedCloudKmsKey;
+}
+
+export interface RotateAppSigningKeyResponse {
+  /** The rotated key certificate hashes for the app. Always set. */
+  rotatedKeyCertificate: CertificateHashes;
 }

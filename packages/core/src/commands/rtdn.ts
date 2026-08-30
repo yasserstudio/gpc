@@ -37,6 +37,16 @@ export interface DecodedNotification {
     productType: number;
     refundType?: number;
   };
+  /** Chargeback review request — respond within 24h via `orders review-refund`. */
+  pendingRefundReviewNotification?: {
+    version: string;
+    pendingRefundToken: string;
+    orderId: string;
+    /** Pending reviews currently only use CHARGEBACK (7). */
+    refundReason?: number;
+    obfuscatedAccountId?: string;
+    obfuscatedProfileId?: string;
+  };
   testNotification?: {
     version: string;
   };
@@ -68,6 +78,11 @@ const SUBSCRIPTION_NOTIFICATION_TYPES: Record<number, string> = {
 const OTP_NOTIFICATION_TYPES: Record<number, string> = {
   1: "ONE_TIME_PRODUCT_PURCHASED",
   2: "ONE_TIME_PRODUCT_CANCELED",
+};
+
+// Pending refund reviews currently only carry CHARGEBACK; Google may add more.
+const REFUND_REASONS: Record<number, string> = {
+  7: "CHARGEBACK",
 };
 
 // ---------------------------------------------------------------------------
@@ -162,6 +177,27 @@ export function formatNotification(notification: DecodedNotification): Record<st
       event: "VOIDED_PURCHASE",
       orderId: n.orderId,
       purchaseToken: n.purchaseToken.slice(0, 16) + "...",
+    };
+  }
+
+  if (notification.pendingRefundReviewNotification) {
+    const n = notification.pendingRefundReviewNotification;
+    return {
+      ...base,
+      type: "pending-refund-review",
+      event: "PENDING_REFUND_REVIEW",
+      orderId: n.orderId,
+      // An absent reason is plain "UNKNOWN"; only an unrecognised value is worth echoing.
+      refundReason:
+        n.refundReason == null
+          ? "UNKNOWN"
+          : (REFUND_REASONS[n.refundReason] ?? `UNKNOWN(${n.refundReason})`),
+      // A partial notification (hand-crafted, or a Google field we have not seen
+      // yet) must not crash the decoder.
+      pendingRefundToken:
+        typeof n.pendingRefundToken === "string"
+          ? n.pendingRefundToken.slice(0, 16) + "..."
+          : "(missing)",
     };
   }
 

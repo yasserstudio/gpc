@@ -135,6 +135,7 @@ describe("Core Command Coverage — Purchases & Orders", () => {
       "revokeSubscriptionPurchase",
       "listVoidedPurchases",
       "refundOrder",
+      "reviewOrderRefund",
     ],
     "purchases",
   );

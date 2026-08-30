@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { createRateLimiter } from "../src/rate-limiter";
+import { createRateLimiter, resolveBucket } from "../src/rate-limiter";
 import type { RateLimitBucket } from "../src/rate-limiter";
 
 describe("createRateLimiter", () => {
@@ -98,5 +98,20 @@ describe("createRateLimiter", () => {
     const elapsed = Date.now() - start;
 
     expect(elapsed).toBeLessThan(50);
+  });
+});
+
+describe("resolveBucket", () => {
+  it("maps orders paths (including :reviewrefund) to the purchases bucket", () => {
+    expect(resolveBucket("/com.example.app/orders/GPA.1234:reviewrefund")).toBe("purchases");
+    expect(resolveBucket("/com.example.app/orders/GPA.1234:refund")).toBe("purchases");
+    expect(resolveBucket("/com.example.app/orders:batchGet")).toBe("purchases");
+  });
+
+  it("maps both spellings of the one-time products resource to the monetization bucket", () => {
+    expect(resolveBucket("/com.example.app/oneTimeProducts/otp1")).toBe("monetization");
+    expect(resolveBucket("/com.example.app/onetimeproducts/otp1?allowMissing=true")).toBe(
+      "monetization",
+    );
   });
 });

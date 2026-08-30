@@ -3,7 +3,7 @@ import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { getRtdnStatus, decodeNotification, formatNotification, formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
-import { yellow } from "../colors.js";
+import { yellow, dim } from "../colors.js";
 
 export function registerRtdnCommands(program: Command): void {
   const rtdn = program.command("rtdn").description("Real-Time Developer Notifications (Pub/Sub)");
@@ -65,6 +65,13 @@ export function registerRtdnCommands(program: Command): void {
         console.log(formatOutput(redacted, format));
       } else {
         console.log(formatOutput(formatted, format));
+        // The table truncates the token, but review-refund needs it in full. Only the
+        // table gets the hint -- csv/tsv/yaml/markdown/junit output is meant to be piped.
+        if (format === "table" && formatted["type"] === "pending-refund-review") {
+          console.log(
+            dim("\n  The pending refund token is truncated above. Get it with: --output json"),
+          );
+        }
       }
     });
 

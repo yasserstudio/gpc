@@ -27,6 +27,7 @@ outline: deep
 | [`purchases orders get`](#purchases-orders-get)                         | Get order details                               |
 | [`purchases orders batch-get`](#purchases-orders-batch-get)             | Batch get orders (up to 1000)                   |
 | [`purchases orders refund`](#purchases-orders-refund)                   | Refund an order                                 |
+| [`purchases orders review-refund`](#purchases-orders-review-refund)     | Respond to a chargeback review                  |
 
 ## `purchases get`
 
@@ -354,6 +355,100 @@ Preview without executing:
 gpc purchases orders refund "GPA.1234-5678-9012-34567" \
   --app com.example.myapp \
   --full-refund \
+  --dry-run
+```
+
+## `purchases orders review-refund`
+
+Respond to a chargeback request that Google Play has flagged for developer review.
+
+### Chargeback disputes
+
+When a user disputes a charge with their bank, Google Play sends a
+`pendingRefundReviewNotification` [RTDN](/commands/rtdn) containing a `pendingRefundToken`
+and the disputed `orderId`. You have **24 hours** to answer with a refund preference and any
+evidence that the purchase was used. Play decides the outcome; your preference and usage
+evidence are inputs to that decision, not the decision itself.
+
+Decode the notification to get the token:
+
+```bash
+gpc rtdn decode "<base64-payload>" --output json
+```
+
+See Google's [Play Developer API release notes](https://developer.android.com/google/play/billing/play-developer-apis-release-notes)
+for the API's announcement.
+
+### Synopsis
+
+```bash
+gpc purchases orders review-refund <order-id> [options]
+```
+
+### Options
+
+| Flag                           | Type      | Default | Description                                                       |
+| ------------------------------ | --------- | ------- | ----------------------------------------------------------------- |
+| `--pending-refund-token`       | `string`  | —       | Required. Token from the `pendingRefundReviewNotification` RTDN   |
+| `--preference`                 | `string`  | —       | Required. `approve`, `decline`, or `neutral`                      |
+| `--sample-content-provided`    | `boolean` | —       | Required. A free sample, trial, or functionality info was offered |
+| `--no-sample-content-provided` | `boolean` | —       | Required. Nothing was offered before purchase                     |
+| `--consumption-percent`        | `number`  | —       | How much of the purchase was consumed, 0-100 (sent as milliunits) |
+| `--usage-events-file`          | `path`    | —       | JSON file with an array of consumption usage events (max 1,000)   |
+
+One of `--sample-content-provided` / `--no-sample-content-provided` is required — Google Play
+has no default for it.
+
+### Example
+
+Decline the chargeback, with usage evidence:
+
+```bash
+gpc purchases orders review-refund "GPA.1234-5678-9012-34567" \
+  --app com.example.app \
+  --pending-refund-token "$PENDING_REFUND_TOKEN" \
+  --preference decline \
+  --sample-content-provided \
+  --consumption-percent 82 \
+  --usage-events-file ./usage-events.json
+```
+
+`usage-events.json` holds an array of consumption events:
+
+```json
+[
+  {
+    "consumptionTime": "2026-08-30T10:15:00Z",
+    "consumptionItemDescription": "Opened chapter 4",
+    "obfuscatedAccountId": "user-account-id",
+    "ipAddress": "203.0.113.10",
+    "location": { "regionCode": "US" }
+  }
+]
+```
+
+Every timestamp must be RFC 3339, `location.regionCode` is a required
+[CLDR region code](https://cldr.unicode.org/) when a location is supplied, and lists longer
+than 1,000 events are rejected.
+
+Take no side, without evidence:
+
+```bash
+gpc purchases orders review-refund "GPA.1234-5678-9012-34567" \
+  --app com.example.app \
+  --pending-refund-token "$PENDING_REFUND_TOKEN" \
+  --preference neutral \
+  --no-sample-content-provided
+```
+
+Preview without executing:
+
+```bash
+gpc purchases orders review-refund "GPA.1234-5678-9012-34567" \
+  --app com.example.app \
+  --pending-refund-token "$PENDING_REFUND_TOKEN" \
+  --preference approve \
+  --sample-content-provided \
   --dry-run
 ```
 

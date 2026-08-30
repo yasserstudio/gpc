@@ -327,14 +327,35 @@ export function registerVerifyCommand(program: Command): void {
         console.log(bold("Developer Verification Checklist"));
         console.log(dim("  Answer Y/N for items we cannot auto-detect.\n"));
 
+        // One entry per manual checklist item in buildChecklist(), in the same
+        // order. Anything missing here can never resolve past "cannot-detect".
         const manualSteps = [
           {
             id: "identity-verified",
             question: "Have you completed identity verification in Play Console?",
           },
           {
+            id: "enforcement-markets",
+            question:
+              "Have you reviewed the September 30, 2026 enforcement timeline (Brazil, Indonesia, Singapore, Thailand)?",
+          },
+          {
             id: "auto-registration-reviewed",
             question: "Have you reviewed your auto-registration results in Play Console?",
+          },
+          {
+            id: "all-apps-registered",
+            question: "Is every app on your account registered in Play Console?",
+          },
+          {
+            id: "memory-quality-thresholds",
+            question:
+              "Have you reviewed the February 2027 memory and DEX optimization quality requirements?",
+          },
+          {
+            id: "restore-credentials",
+            question:
+              "Does your sign-in flow implement the Android Restore Credentials API (Zero-Tap Sign-In)?",
           },
           {
             id: "additional-keys",

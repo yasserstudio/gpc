@@ -50,6 +50,49 @@ describe("formatNotification", () => {
     expect(result.event).toBe("VOIDED_PURCHASE");
   });
 
+  it("formats pending refund review notification", () => {
+    const result = formatNotification({
+      ...BASE,
+      pendingRefundReviewNotification: {
+        version: "1.0",
+        pendingRefundToken: "abcdefghijklmnopqrstuvwxyz",
+        orderId: "GPA.1234",
+        refundReason: 7,
+      },
+    });
+    expect(result.type).toBe("pending-refund-review");
+    expect(result.event).toBe("PENDING_REFUND_REVIEW");
+    expect(result.orderId).toBe("GPA.1234");
+    expect(result.refundReason).toBe("CHARGEBACK");
+    expect(result.pendingRefundToken).toBe("abcdefghijklmnop...");
+  });
+
+  it("does not throw on a pending refund review notification without a token", () => {
+    const result = formatNotification({
+      ...BASE,
+      pendingRefundReviewNotification: {
+        version: "1.0",
+        orderId: "GPA.1234",
+      } as unknown as { version: string; pendingRefundToken: string; orderId: string },
+    });
+    expect(result.type).toBe("pending-refund-review");
+    expect(result.pendingRefundToken).toBe("(missing)");
+    expect(result.refundReason).toBe("UNKNOWN");
+  });
+
+  it("echoes an unrecognised refund reason but not a missing one", () => {
+    const result = formatNotification({
+      ...BASE,
+      pendingRefundReviewNotification: {
+        version: "1.0",
+        pendingRefundToken: "abcdefghijklmnopqrstuvwxyz",
+        orderId: "GPA.1234",
+        refundReason: 99,
+      },
+    });
+    expect(result.refundReason).toBe("UNKNOWN(99)");
+  });
+
   it("formats OTP notification", () => {
     const result = formatNotification({
       ...BASE,

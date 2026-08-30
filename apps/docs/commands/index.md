@@ -75,6 +75,7 @@ gpc bundle analyze app.aab --threshold 150
 | [`bundle`](./bundle)                     | Local AAB/APK size analysis and comparison                                      |
 | [`internal-sharing`](./internal-sharing) | Review-free QA distribution                                                     |
 | [`enterprise`](./enterprise)             | Private apps for Managed Google Play (Play Custom App Publishing API, v0.9.56+) |
+| [`app-signing`](./app-signing)           | Play App Signing with a self-hosted Google Cloud KMS key (advanced)             |
 | [`generated-apks`](./generated-apks)     | Device-specific APK downloads                                                   |
 | [`device-tiers`](./device-tiers)         | Device capability targeting                                                     |
 

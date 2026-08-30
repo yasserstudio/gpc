@@ -84,7 +84,10 @@ export const nativeLibsScanner: PreflightScanner = {
   requires: ["zipEntries"],
 
   async scan(ctx: PreflightContext): Promise<PreflightFinding[]> {
-    const entries = ctx.zipEntries!;
+    const entries = ctx.zipEntries;
+    if (!entries) {
+      throw new Error('The "native-libs" scanner requires zipEntries in the preflight context');
+    }
     const findings: PreflightFinding[] = [];
 
     // Detect which ABIs are present
@@ -92,9 +95,9 @@ export const nativeLibsScanner: PreflightScanner = {
     let totalNativeSize = 0;
 
     for (const entry of entries) {
-      const match = LIB_PATH_RE.exec(entry.path);
-      if (match) {
-        abisFound.add(match[1]!);
+      const abi = LIB_PATH_RE.exec(entry.path)?.[1];
+      if (abi) {
+        abisFound.add(abi);
         totalNativeSize += entry.uncompressedSize;
       }
     }

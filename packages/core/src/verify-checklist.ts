@@ -24,6 +24,10 @@ export interface ChecklistInput {
 const PLAY_CONSOLE_SETTINGS = "https://play.google.com/console/developers/settings";
 const VERIFICATION_PAGE = "https://developer.android.com/developer-verification";
 const PLAY_APP_SIGNING = "https://support.google.com/googleplay/android-developer/answer/9842756";
+const QUALITY_REQUIREMENTS_ANNOUNCEMENT =
+  "https://android-developers.googleblog.com/2026/08/app-quality-memory-optimization-secure-onboarding.html";
+const RESTORE_CREDENTIALS_DOCS =
+  "https://developer.android.com/identity/sign-in/restore-credentials";
 
 export function buildChecklist(input: ChecklistInput): ChecklistResult {
   const items: ChecklistItem[] = [];
@@ -75,6 +79,28 @@ export function buildChecklist(input: ChecklistInput): ChecklistResult {
       "All Play apps registered in Play Console",
       "As of July 15, 2026, every app on your account must be registered in Play Console to meet Android developer verification requirements. Unregistered apps risk removal from Google Play. Apps using Play App Signing are auto-registered; register any others manually.",
       PLAY_CONSOLE_SETTINGS,
+      answers,
+    ),
+  );
+
+  items.push(
+    resolveManualStep(
+      "memory-quality-thresholds",
+      "Memory quality requirements reviewed",
+      "Starting February 2027, apps and games must meet Google Play's dynamic memory, bitmap memory, and DEX code optimization thresholds (at least 25% coverage using R8 or another shrinking tool); apps that miss them may see reduced visibility and publishing capabilities. Review the dynamic memory metrics, out of memory crash filters, and DEX optimization insights in Play Console under Android vitals. Source: " +
+        QUALITY_REQUIREMENTS_ANNOUNCEMENT,
+      QUALITY_REQUIREMENTS_ANNOUNCEMENT,
+      answers,
+    ),
+  );
+
+  items.push(
+    resolveManualStep(
+      "restore-credentials",
+      "Zero-Tap Sign-In (Restore Credentials API) implemented",
+      "Starting April 2027, apps that support user sign-in must restore the signed-in state when a user moves to a new Android device, using the Android Restore Credentials API, to keep full publishing capabilities and optimal Play Store visibility. Games are currently exempt. Adopt the Restore Credentials API in your sign-in flow. Source: " +
+        QUALITY_REQUIREMENTS_ANNOUNCEMENT,
+      RESTORE_CREDENTIALS_DOCS,
       answers,
     ),
   );

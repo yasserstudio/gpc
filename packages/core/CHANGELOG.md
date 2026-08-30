@@ -1,5 +1,38 @@
 # @gpc-cli/core
 
+## 0.10.2
+
+### Patch Changes
+
+- Fix one-time product create and update failing with a 404. Google Play spells the one-time products resource two ways: every read and delete route uses `oneTimeProducts`, but the write (PATCH) route is lowercase `onetimeproducts`, and Play matches paths case-sensitively. GPC used the camelCase spelling everywhere, so `gpc one-time-products create` and `gpc one-time-products update` came back as a route-not-found error rather than saving the product. Those commands now use the route Google actually serves, and both spellings count against the same rate-limit bucket. Reads, deletes, and every batch command were already correct and are unchanged. (GH #107)
+
+  Fix one-time product offer get, create, update, and delete failing the same way. Google Play does not publish single-offer endpoints at all -- only the batch ones -- so those four commands were calling routes that do not exist and returned a route-not-found error. They now go through Google's batch offer endpoints as single-item requests, with the same flags and output as before. Because the batch endpoints address one purchase option at a time, these four commands now need `--purchase-option <id>`; the `-` wildcard still works with `gpc otp offers list`, which is where you can look the ID up.
+
+  Declare AI-generated store images. `gpc listings images upload` and `gpc listings images sync` gain `--ai-generated`, which records the developer attestation Google Play asks for when a screenshot, icon, or feature graphic was produced by AI. Leave the flag off and images upload exactly as before, with no declaration attached.
+
+  Create device tier configurations for devices Play has not catalogued yet. `gpc device-tiers create` gains `--allow-unknown-devices`, so a config that names a just-launched model is accepted instead of rejected.
+
+  Also fills in schema fields Google added to the Play Developer API: pending item removal on subscription purchase line items, unprotected split and standalone APK lists on generated APKs, and page counts on the reviews and voided purchases list responses.
+
+- feat(cli): `gpc purchases orders review-refund` for chargeback disputes
+
+  When a user disputes a charge, Google Play sends a `pendingRefundReviewNotification` and gives you
+  24 hours to respond. The new command answers it via the `orders.reviewrefund` API (discovery rev
+  20260826): pass the token from the notification, a refund preference (`approve`, `decline`,
+  `neutral`), whether a sample or trial was offered, and optional usage evidence
+  (`--consumption-percent`, `--usage-events-file`). `gpc rtdn decode` now recognises the
+  notification and surfaces the token.
+
+- Track Google Play's August 26, 2026 quality requirements. `gpc verify checklist` gains two dated items: the February 2027 memory quality thresholds (dynamic memory, bitmap memory, and DEX code optimization at a minimum of 25% coverage with R8 or another shrinking tool, with reduced visibility and publishing capabilities for apps that miss them), and the April 2027 Zero-Tap Sign-In requirement, which asks apps with sign-in to restore the signed-in state on a new device through the Android Restore Credentials API. Games are currently exempt from Zero-Tap Sign-In.
+
+  Both items carry the action and the source link, and both are documented in the preflight deep-dive and the FAQ. There is no `gpc preflight` rule yet on purpose: Google has published the DEX number but not the dynamic memory or bitmap thresholds, which vary by app state and device performance class. A scanner follows once those numbers exist.
+
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+- Updated dependencies
+  - @gpc-cli/api@1.1.1
+
 ## 0.10.1
 
 ### Patch Changes

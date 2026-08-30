@@ -367,12 +367,16 @@ const TYPE_PRIORITY: Record<string, number> = {
 function clusterCommits(commits: ParsedCommit[]): CommitCluster[] {
   const n = commits.length;
   const parent = Array.from({ length: n }, (_, i) => i);
+  // Union-Find over commit indices. An index outside the set is its own root, which is
+  // unreachable here (every index comes from 0..n-1) but keeps the loop total.
+  const parentOf = (i: number): number => parent[i] ?? i;
   const find = (i: number): number => {
-    while (parent[i] !== i) {
-      parent[i] = parent[parent[i]!]!;
-      i = parent[i]!;
+    let cur = i;
+    while (parentOf(cur) !== cur) {
+      parent[cur] = parentOf(parentOf(cur));
+      cur = parentOf(cur);
     }
-    return i;
+    return cur;
   };
   const union = (i: number, j: number) => {
     const ri = find(i);
@@ -381,22 +385,37 @@ function clusterCommits(commits: ParsedCommit[]): CommitCluster[] {
   };
   const tokens = commits.map((c) => tokenize(c.subject));
   for (let i = 0; i < n; i++) {
+    const ci = commits[i];
+    const ti = tokens[i];
+    if (ci === undefined || ti === undefined) continue;
     for (let j = i + 1; j < n; j++) {
-      if (shouldCluster(commits[i]!, commits[j]!, tokens[i]!, tokens[j]!)) union(i, j);
+      const cj = commits[j];
+      const tj = tokens[j];
+      if (cj === undefined || tj === undefined) continue;
+      if (shouldCluster(ci, cj, ti, tj)) union(i, j);
     }
   }
   const groups = new Map<number, ParsedCommit[]>();
   for (let i = 0; i < n; i++) {
+    const commit = commits[i];
+    if (commit === undefined) continue;
     const root = find(i);
-    if (!groups.has(root)) groups.set(root, []);
-    groups.get(root)!.push(commits[i]!);
+    let group = groups.get(root);
+    if (!group) {
+      group = [];
+      groups.set(root, group);
+    }
+    group.push(commit);
   }
   const clusters: CommitCluster[] = [];
   for (const [, members] of groups) {
     const weight = members.reduce((s, m) => s + m.weight, 0);
-    const primaryType = members
-      .map((m) => m.type)
-      .sort((a, b) => (TYPE_PRIORITY[a] ?? 99) - (TYPE_PRIORITY[b] ?? 99))[0]!;
+    // Groups are built from commits, so they always have at least one member; "other" is the
+    // lowest-priority type and the right fallback for an empty one.
+    const primaryType =
+      members
+        .map((m) => m.type)
+        .sort((a, b) => (TYPE_PRIORITY[a] ?? 99) - (TYPE_PRIORITY[b] ?? 99))[0] ?? "other";
     const label = clusterLabel(members);
     clusters.push({
       id: label.toLowerCase().replace(/\s+/g, "-"),
@@ -441,7 +460,7 @@ function clusterLabel(members: ParsedCommit[]): string {
       bestTokenCount = c;
     }
   }
-  return bestToken ?? members[0]!.subject.slice(0, 30);
+  return bestToken ?? members[0]?.subject.slice(0, 30) ?? "changes";
 }
 
 function scoreHeadlines(clusters: CommitCluster[]): CommitCluster[] {
@@ -526,8 +545,8 @@ export async function generateChangelog(
 
   const grouped: Record<string, ParsedCommit[]> = {};
   for (const c of visible) {
-    if (!grouped[c.type]) grouped[c.type] = [];
-    grouped[c.type]!.push(c);
+    const bucket = (grouped[c.type] ??= []);
+    bucket.push(c);
   }
 
   warnings.push(...lintJargon(visible));

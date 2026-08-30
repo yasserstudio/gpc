@@ -7,6 +7,25 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.96
+
+One-time product writes reach Google again, chargebacks can be answered from the terminal, and the client matches Google's latest API surface.
+
+- fix: `gpc one-time-products create` and `update` no longer fail with a route-not-found error. Google Play serves the write route under a different spelling than the read routes, and GPC now uses the one Google actually answers.
+- fix: `gpc one-time-products offers get`, `create`, `update`, and `delete` no longer fail the same way. Google publishes no single-offer endpoints, so these commands now go through Google's batch offer endpoints with the same flags and output. `--purchase-option` is now required for them.
+- feat: `gpc purchases orders review-refund` answers a chargeback dispute within Google's 24-hour window: refund preference, whether a sample or trial was offered, and optional usage evidence. `gpc rtdn decode` now recognises the pending refund review notification and surfaces its token.
+- feat: `gpc app-signing enroll` and `gpc app-signing rotate` for Play App Signing with a self-hosted Google Cloud KMS key. Advanced, compliance-driven use only; standard Play App Signing stays in Play Console. Certificate files are checked before anything is sent, so a private key can never be uploaded by mistake.
+- feat: `gpc listings images upload` and `images sync` gain `--ai-generated` to record Google Play's AI-generated image attestation.
+- feat: `gpc device-tiers create --allow-unknown-devices` accepts device IDs Play has not catalogued yet.
+- feat: `gpc verify checklist` tracks Google Play's August 26, 2026 quality requirements: the February 2027 memory thresholds and the April 2027 Zero-Tap Sign-In requirement. Every checklist item can now be answered interactively.
+- fix: Play Games icon upload reports `API_ENDPOINT_RETIRED` with Google's own message when the upload endpoint Google removed from its published API is unavailable, instead of a bare 404.
+- fix: `gpc rtdn decode` no longer crashes on a partial chargeback notification.
+- feat: typed client gains the new Play API fields for deferred item removal, unprotected generated APKs, and list page info.
+
+**Tests:** 2,733 (+103).
+
+---
+
 ## v0.9.95
 
 Command flags now work the way the help text says they do, and profiles can no longer lose data.

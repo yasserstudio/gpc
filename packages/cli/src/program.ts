@@ -217,6 +217,9 @@ export async function createProgram(pluginManager?: PluginManager): Promise<Comm
     enterprise: async () => {
       (await import("./commands/enterprise.js")).registerEnterpriseCommands(program);
     },
+    "app-signing": async () => {
+      (await import("./commands/app-signing.js")).registerAppSigningCommands(program);
+    },
     diff: async () => {
       (await import("./commands/diff.js")).registerDiffCommand(program);
     },

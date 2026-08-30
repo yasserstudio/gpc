@@ -205,7 +205,10 @@ export const permissionsScanner: PreflightScanner = {
   requires: ["manifest"],
 
   async scan(ctx: PreflightContext): Promise<PreflightFinding[]> {
-    const manifest = ctx.manifest!;
+    const manifest = ctx.manifest;
+    if (!manifest) {
+      throw new Error('The "permissions" scanner requires manifest in the preflight context');
+    }
     const findings: PreflightFinding[] = [];
     const allowed = new Set(ctx.config.allowedPermissions);
 

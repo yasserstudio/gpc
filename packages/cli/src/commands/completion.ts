@@ -194,6 +194,7 @@ export function getCommandTree(): Record<string, CommandDef> {
           description: "Manage orders",
           subcommands: {
             refund: { description: "Refund an order" },
+            "review-refund": { description: "Respond to a chargeback review" },
           },
         },
       },
@@ -294,6 +295,17 @@ export function getCommandTree(): Record<string, CommandDef> {
       description: "Manage internal app sharing",
       subcommands: {
         upload: { description: "Upload an artifact for internal sharing" },
+      },
+    },
+    "app-signing": {
+      description: "Play App Signing with a self-hosted Google Cloud KMS key (advanced)",
+      subcommands: {
+        enroll: {
+          description: "Enroll an app in Play App Signing using a self-hosted Cloud KMS key",
+        },
+        rotate: {
+          description: "Rotate the signing key of an app enrolled with a self-hosted Cloud KMS key",
+        },
       },
     },
     "generated-apks": {

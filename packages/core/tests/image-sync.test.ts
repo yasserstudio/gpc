@@ -116,6 +116,30 @@ describe("syncImages", () => {
     expect(client.images.upload).toHaveBeenCalledTimes(1);
   });
 
+  it("forwards the AI-generated attestation to each upload", async () => {
+    await writeImage(tmp, "ja", "phoneScreenshots", "1.png", "screenshot");
+
+    const client = mockClient();
+    await syncImages(client, PKG, tmp, { aiGenerated: true });
+    expect(client.images.upload).toHaveBeenCalledWith(
+      PKG,
+      "edit1",
+      "ja",
+      "phoneScreenshots",
+      expect.any(String),
+      { aiGenerated: true },
+    );
+  });
+
+  it("omits the AI-generated attestation when not set", async () => {
+    await writeImage(tmp, "ja", "phoneScreenshots", "1.png", "screenshot");
+
+    const client = mockClient();
+    await syncImages(client, PKG, tmp);
+    const call = (client.images.upload as unknown as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(call?.[5]).toBeUndefined();
+  });
+
   it("deletes remote-only images when --delete is set", async () => {
     const client = mockClient({
       "en-US/icon": [makeImage("orphan", "orphan-hash")],

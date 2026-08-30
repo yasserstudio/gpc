@@ -1702,10 +1702,28 @@ describe("uploadImage", () => {
       "en-US",
       "icon",
       "/tmp/icon.png",
+      undefined,
     );
     expect(client.edits.validate).toHaveBeenCalled();
     expect(client.edits.commit).toHaveBeenCalled();
     expect(result).toHaveProperty("id");
+  });
+
+  it("forwards the AI-generated attestation to the API client", async () => {
+    const client = mockClient();
+
+    await uploadImage(client, PKG, "en-US", "icon", "/tmp/icon.png", undefined, {
+      aiGenerated: true,
+    });
+
+    expect(client.images.upload).toHaveBeenCalledWith(
+      PKG,
+      "edit-1",
+      "en-US",
+      "icon",
+      "/tmp/icon.png",
+      { aiGenerated: true },
+    );
   });
 
   it("deletes edit on error", async () => {
@@ -2806,6 +2824,7 @@ import {
   revokeSubscriptionPurchase,
   listVoidedPurchases,
   refundOrder,
+  reviewOrderRefund,
   getOrderDetails,
   batchGetOrders,
 } from "../src/commands/purchases.js";
@@ -2843,6 +2862,7 @@ describe("purchases commands", () => {
         get: vi.fn().mockResolvedValue({ orderId: "GPA.1234", state: "PROCESSED" }),
         batchGet: vi.fn().mockResolvedValue([{ orderId: "GPA.1" }, { orderId: "GPA.2" }]),
         refund: vi.fn().mockResolvedValue(undefined),
+        reviewRefund: vi.fn().mockResolvedValue(undefined),
       },
     };
   }
@@ -2948,6 +2968,118 @@ describe("purchases commands", () => {
     expect(client.orders.refund).toHaveBeenCalledWith("com.example", "GPA.1234", {
       revoke: true,
     });
+  });
+
+  it("reviewOrderRefund maps the preference and posts the request body", async () => {
+    const client = mockClient();
+    const result = await reviewOrderRefund(client, "com.example.app", "GPA.1234", {
+      pendingRefundToken: "  tok-1  ",
+      preference: "decline",
+      sampleContentProvided: true,
+      consumptionPercentageMilliunits: 45200,
+      consumptionUsageEvents: [{ consumptionTime: "2026-08-30T10:15:00Z" }],
+    });
+    expect(client.orders.reviewRefund).toHaveBeenCalledWith("com.example.app", "GPA.1234", {
+      pendingRefundToken: "tok-1",
+      refundPreference: "DECLINE",
+      sampleContentProvided: true,
+      consumptionPercentageMilliunits: 45200,
+      consumptionUsageEvents: [{ consumptionTime: "2026-08-30T10:15:00Z" }],
+    });
+    expect(result).toMatchObject({
+      orderId: "GPA.1234",
+      refundPreference: "DECLINE",
+      consumptionUsageEventCount: 1,
+      submitted: true,
+    });
+  });
+
+  it("reviewOrderRefund omits optional fields when not supplied", async () => {
+    const client = mockClient();
+    const result = await reviewOrderRefund(client, "com.example.app", "GPA.1234", {
+      pendingRefundToken: "tok-1",
+      preference: "neutral",
+      sampleContentProvided: false,
+    });
+    expect(client.orders.reviewRefund).toHaveBeenCalledWith("com.example.app", "GPA.1234", {
+      pendingRefundToken: "tok-1",
+      refundPreference: "NEUTRAL",
+      sampleContentProvided: false,
+    });
+    expect(result.consumptionUsageEventCount).toBe(0);
+    expect(result.consumptionPercentageMilliunits).toBeUndefined();
+  });
+
+  it("reviewOrderRefund rejects an empty pending refund token", async () => {
+    const client = mockClient();
+    await expect(
+      reviewOrderRefund(client, "com.example.app", "GPA.1234", {
+        pendingRefundToken: "   ",
+        preference: "approve",
+        sampleContentProvided: true,
+      }),
+    ).rejects.toMatchObject({ code: "ORDER_REVIEW_REFUND_INVALID", exitCode: 2 });
+    expect(client.orders.reviewRefund).not.toHaveBeenCalled();
+  });
+
+  it("reviewOrderRefund rejects an unknown preference", async () => {
+    const client = mockClient();
+    await expect(
+      reviewOrderRefund(client, "com.example.app", "GPA.1234", {
+        pendingRefundToken: "tok-1",
+        preference: "maybe" as never,
+        sampleContentProvided: true,
+      }),
+    ).rejects.toMatchObject({ code: "ORDER_REVIEW_REFUND_INVALID" });
+  });
+
+  it("reviewOrderRefund rejects an out-of-range consumption percentage", async () => {
+    const client = mockClient();
+    await expect(
+      reviewOrderRefund(client, "com.example.app", "GPA.1234", {
+        pendingRefundToken: "tok-1",
+        preference: "approve",
+        sampleContentProvided: true,
+        consumptionPercentageMilliunits: 100_001,
+      }),
+    ).rejects.toMatchObject({ code: "ORDER_REVIEW_REFUND_INVALID" });
+  });
+
+  it("reviewOrderRefund rejects more than 1000 usage events", async () => {
+    const client = mockClient();
+    const events = Array.from({ length: 1001 }, () => ({ ipAddress: "203.0.113.1" }));
+    await expect(
+      reviewOrderRefund(client, "com.example.app", "GPA.1234", {
+        pendingRefundToken: "tok-1",
+        preference: "approve",
+        sampleContentProvided: true,
+        consumptionUsageEvents: events,
+      }),
+    ).rejects.toMatchObject({ code: "ORDER_REVIEW_REFUND_INVALID" });
+  });
+
+  it("reviewOrderRefund rejects a non-RFC-3339 consumption time", async () => {
+    const client = mockClient();
+    await expect(
+      reviewOrderRefund(client, "com.example.app", "GPA.1234", {
+        pendingRefundToken: "tok-1",
+        preference: "approve",
+        sampleContentProvided: true,
+        consumptionUsageEvents: [{ consumptionTime: "30/08/2026" }],
+      }),
+    ).rejects.toMatchObject({ code: "ORDER_REVIEW_REFUND_INVALID" });
+  });
+
+  it("reviewOrderRefund rejects a location without a region code", async () => {
+    const client = mockClient();
+    await expect(
+      reviewOrderRefund(client, "com.example.app", "GPA.1234", {
+        pendingRefundToken: "tok-1",
+        preference: "approve",
+        sampleContentProvided: true,
+        consumptionUsageEvents: [{ location: { regionCode: "" } }],
+      }),
+    ).rejects.toMatchObject({ code: "ORDER_REVIEW_REFUND_INVALID" });
   });
 
   it("getOrderDetails calls client.orders.get", async () => {
@@ -5338,8 +5470,20 @@ describe("device tiers commands", () => {
       ],
     };
     const result = await createDeviceTier(client, "com.example", config);
-    expect(client.deviceTiers.create).toHaveBeenCalledWith("com.example", config);
+    expect(client.deviceTiers.create).toHaveBeenCalledWith("com.example", config, undefined);
     expect(result.deviceTierConfigId).toBe("tier-new");
+  });
+
+  it("createDeviceTier forwards allowUnknownDevices", async () => {
+    const client = mockClient();
+    const config = {
+      deviceTierConfigId: "",
+      deviceGroups: [{ name: "mid-range", deviceSelectors: [] }],
+    };
+    await createDeviceTier(client, "com.example", config, { allowUnknownDevices: true });
+    expect(client.deviceTiers.create).toHaveBeenCalledWith("com.example", config, {
+      allowUnknownDevices: true,
+    });
   });
 
   it("listDeviceTiers throws when packageName is empty", async () => {
@@ -5681,6 +5825,42 @@ describe("one-time products commands", () => {
       "offer1",
       data,
       "pricing",
+      undefined,
+    );
+  });
+
+  it("updateOneTimeOffer leaves output-only fields out of the derived mask", async () => {
+    const client = mockClient();
+    const data = {
+      offerId: "offer1",
+      state: "ACTIVE",
+      regionsVersion: { version: "2022/02" },
+      pricing: {},
+    } as any;
+    await updateOneTimeOffer(client, "com.example", "otp1", "offer1", data);
+    expect(client.oneTimeProducts.updateOffer).toHaveBeenCalledWith(
+      "com.example",
+      "otp1",
+      "-",
+      "offer1",
+      data,
+      "pricing",
+      undefined,
+    );
+  });
+
+  it("updateOneTimeOffer passes no mask when the payload has nothing updatable", async () => {
+    // The client raises API_INVALID_INPUT rather than masking everything.
+    const client = mockClient();
+    const data = { offerId: "offer1", state: "ACTIVE" } as any;
+    await updateOneTimeOffer(client, "com.example", "otp1", "offer1", data);
+    expect(client.oneTimeProducts.updateOffer).toHaveBeenCalledWith(
+      "com.example",
+      "otp1",
+      "-",
+      "offer1",
+      data,
+      undefined,
       undefined,
     );
   });

@@ -103,7 +103,7 @@ function getPageDescription(page: PageData): string {
     "advanced/plugins.md":
       "Build GPC plugins with lifecycle hooks and custom commands using the @gpc-cli/plugin-sdk.",
     "advanced/sdk-usage.md":
-      "Google Play API TypeScript SDK: use @gpc-cli/api and @gpc-cli/auth as standalone libraries in any Node.js project. Typed client for all 227 endpoints including Play Custom App Publishing.",
+      "Google Play API TypeScript SDK: use @gpc-cli/api and @gpc-cli/auth as standalone libraries in any Node.js project. Typed client for all 230 endpoints including Play Custom App Publishing.",
     "commands/preflight.md":
       "gpc preflight: Scan your AAB against Google Play policies before submission. Offline, free, CI-ready. The missing compliance tool for Android.",
     "guide/preflight-deep-dive.md":
@@ -218,6 +218,8 @@ function getPageDescription(page: PageData): string {
       "gpc games: Manage Play Games Services achievement and leaderboard configurations. CRUD operations via the Games Configuration API.",
     "commands/enterprise.md":
       "gpc enterprise: Manage private enterprise app distribution via Managed Google Play.",
+    "commands/app-signing.md":
+      "gpc app-signing: Enroll and rotate Play App Signing keys hosted in your own Google Cloud KMS. Advanced, compliance-driven use only.",
     // CI/CD
     "ci-cd/gitlab-ci.md":
       "Use GPC in GitLab CI to automate Google Play releases, vitals monitoring, and metadata sync.",
@@ -232,9 +234,9 @@ function getPageDescription(page: PageData): string {
       "Replace Play Console UI workflows with GPC CLI commands. 60+ task-to-command mappings.",
     // Alternatives
     "alternatives/fastlane.md":
-      "GPC vs Fastlane supply: 227 endpoints vs ~20, Node.js vs Ruby, plus vitals, reviews, subscriptions, preflight scanning, and Managed Google Play private app publishing.",
+      "GPC vs Fastlane supply: 230 endpoints vs ~20, Node.js vs Ruby, plus vitals, reviews, subscriptions, preflight scanning, and Managed Google Play private app publishing.",
     "alternatives/index.md":
-      "Compare every Google Play Console CLI tool: GPC (227 endpoints), Fastlane supply, gradle-play-publisher, and Go-based CLIs. Feature matrix, API coverage, runtime, CI/CD support, and how to choose.",
+      "Compare every Google Play Console CLI tool: GPC (230 endpoints), Fastlane supply, gradle-play-publisher, and Go-based CLIs. Feature matrix, API coverage, runtime, CI/CD support, and how to choose.",
     "alternatives/android-release-automation.md":
       "Automate Android releases with GPC. Upload, promote, staged rollout, vitals gating, and monitoring from the command line or CI/CD.",
     "alternatives/gradle-play-publisher.md":
@@ -243,7 +245,7 @@ function getPageDescription(page: PageData): string {
     "reference/json-contract.md":
       "GPC JSON output contract: structured response format for CI/CD scripting and automation.",
     "reference/api-coverage.md":
-      "Complete Google Play Developer API coverage map. 227 endpoints across Android Publisher v3, Play Developer Reporting, and Play Custom App Publishing.",
+      "Complete Google Play Developer API coverage map. 230 endpoints across Android Publisher v3, Play Developer Reporting, and Play Custom App Publishing.",
     "reference/deprecations.md":
       "Deprecated Google Play API endpoints and GPC commands. Migration timelines and replacement commands.",
     "reference/rate-limits.md":
@@ -338,7 +340,7 @@ export default defineConfig({
         "@type": "SoftwareApplication",
         name: "GPC: Google Play Console CLI",
         description:
-          "The complete Google Play CLI. 227 API endpoints including Managed Google Play. Upload AABs, manage releases, monitor crash rates, sync metadata, publish private enterprise apps. Fastlane alternative for Android.",
+          "The complete Google Play CLI. 230 API endpoints including Managed Google Play. Upload AABs, manage releases, monitor crash rates, sync metadata, publish private enterprise apps. Fastlane alternative for Android.",
         applicationCategory: "DeveloperApplication",
         operatingSystem: "macOS, Linux, Windows",
         offers: {
@@ -353,7 +355,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
 
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.95",
+        softwareVersion: "0.9.96",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: {
@@ -459,7 +461,7 @@ export default defineConfig({
             name: "How is GPC different from Fastlane supply?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "GPC covers 227 Google Play API endpoints. Fastlane supply covers about 20. GPC adds reviews, vitals, subscriptions, reports, preflight scanning, and more. No Ruby required.",
+              text: "GPC covers 230 Google Play API endpoints. Fastlane supply covers about 20. GPC adds reviews, vitals, subscriptions, reports, preflight scanning, and more. No Ruby required.",
             },
           },
           {
@@ -491,7 +493,7 @@ export default defineConfig({
             name: "Is it stable enough for production CI/CD?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "2,630 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
+              text: "2,733 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
             },
           },
           {
@@ -570,7 +572,7 @@ export default defineConfig({
             name: "How much of the Fastlane supply API does GPC replace?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Fastlane supply covers roughly 20 Google Play Developer API endpoints. GPC covers 227 across Android Publisher v3, Play Developer Reporting v1beta1, and Play Custom App Publishing v1. GPC adds approximately 197 capabilities Fastlane does not, including vitals, reviews, subscriptions, reports, and private enterprise app publishing.",
+              text: "Fastlane supply covers roughly 20 Google Play Developer API endpoints. GPC covers 230 across Android Publisher v3, Play Developer Reporting v1beta1, and Play Custom App Publishing v1. GPC adds approximately 197 capabilities Fastlane does not, including vitals, reviews, subscriptions, reports, and private enterprise app publishing.",
             },
           },
           {
@@ -648,7 +650,7 @@ export default defineConfig({
             name: "Which Google Play CLI tool has the most complete API coverage?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "GPC, with 227 endpoints. This includes the full Google Play Developer API v3 surface plus the Play Custom App Publishing API for Managed Google Play. The next closest covers around 80 endpoints.",
+              text: "GPC, with 230 endpoints. This includes the full Google Play Developer API v3 surface plus the Play Custom App Publishing API for Managed Google Play. The next closest covers around 80 endpoints.",
             },
           },
           {
@@ -688,7 +690,7 @@ export default defineConfig({
             name: "Does Google's Android CLI replace GPC?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "No. Google's Android CLI covers environment setup, project creation, and device management. It does not publish to the Play Store, manage tracks or rollouts, read vitals, or sync metadata. GPC handles that half of the workflow via 227 typed Play API endpoints.",
+              text: "No. Google's Android CLI covers environment setup, project creation, and device management. It does not publish to the Play Store, manage tracks or rollouts, read vitals, or sync metadata. GPC handles that half of the workflow via 230 typed Play API endpoints.",
             },
           },
           {
@@ -720,7 +722,7 @@ export default defineConfig({
             name: "Can agents drive the full Android publish pipeline end-to-end?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Yes. Google's Android CLI exposes build and device management to agents. GPC exposes publishing to agents via semantic exit codes, JSON output, and 227 typed endpoints. Together they cover scaffold through production release.",
+              text: "Yes. Google's Android CLI exposes build and device management to agents. GPC exposes publishing to agents via semantic exit codes, JSON output, and 230 typed endpoints. Together they cover scaffold through production release.",
             },
           },
         ],
@@ -1144,6 +1146,7 @@ export default defineConfig({
             { text: "system-apks", link: "/commands/system-apks" },
             { text: "device-tiers", link: "/commands/device-tiers" },
             { text: "enterprise", link: "/commands/enterprise" },
+            { text: "app-signing", link: "/commands/app-signing" },
             { text: "games", link: "/commands/games" },
           ],
         },

@@ -309,27 +309,24 @@ System APKs are bundled, unsigned variants produced for a specific version. Used
 
 ## One-Time Products
 
-| API Endpoint                                        | Method | GPC Command                                    |
-| --------------------------------------------------- | ------ | ---------------------------------------------- |
-| `monetization.oneTimeProducts.list`                 | GET    | `gpc otp list`                                 |
-| `monetization.oneTimeProducts.get`                  | GET    | `gpc otp get <id>`                             |
-| `monetization.oneTimeProducts.create`               | POST   | `gpc otp create`                               |
-| `monetization.oneTimeProducts.patch`                | PATCH  | `gpc otp update <id>`                          |
-| `monetization.oneTimeProducts.delete`               | DELETE | `gpc otp delete <id>`                          |
-| `oneTimeProducts.offers.list`                       | GET    | `gpc otp offers list`                          |
-| `oneTimeProducts.offers.get`                        | GET    | `gpc otp offers get`                           |
-| `oneTimeProducts.offers.create`                     | POST   | `gpc otp offers create`                        |
-| `oneTimeProducts.offers.patch`                      | PATCH  | `gpc otp offers update`                        |
-| `oneTimeProducts.offers.delete`                     | DELETE | `gpc otp offers delete`                        |
-| `oneTimeProducts.offers.activate`                   | POST   | `gpc otp offers activate`                      |
-| `oneTimeProducts.offers.deactivate`                 | POST   | `gpc otp offers deactivate`                    |
-| `oneTimeProducts.offers.cancel`                     | POST   | `gpc otp offers cancel`                        |
-| `oneTimeProducts.offers.batchGet`                   | POST   | `gpc otp offers batch-get`                     |
-| `oneTimeProducts.offers.batchUpdate`                | POST   | `gpc otp offers batch-update`                  |
-| `oneTimeProducts.offers.batchUpdateStates`          | POST   | `gpc otp offers batch-update-states`           |
-| `oneTimeProducts.offers.batchDelete`                | POST   | `gpc otp offers batch-delete`                  |
-| `oneTimeProducts.purchaseOptions.batchDelete`       | POST   | `gpc otp purchase-options batch-delete`        |
-| `oneTimeProducts.purchaseOptions.batchUpdateStates` | POST   | `gpc otp purchase-options batch-update-states` |
+| API Endpoint                                        | Method | GPC Command                                                     |
+| --------------------------------------------------- | ------ | --------------------------------------------------------------- |
+| `monetization.oneTimeProducts.list`                 | GET    | `gpc otp list`                                                  |
+| `monetization.oneTimeProducts.get`                  | GET    | `gpc otp get <id>`                                              |
+| `monetization.onetimeproducts.patch`                | PATCH  | `gpc otp create` (`allowMissing`), `gpc otp update <id>`        |
+| `monetization.oneTimeProducts.delete`               | DELETE | `gpc otp delete <id>`                                           |
+| `oneTimeProducts.offers.list`                       | GET    | `gpc otp offers list`                                           |
+| `oneTimeProducts.offers.activate`                   | POST   | `gpc otp offers activate`                                       |
+| `oneTimeProducts.offers.deactivate`                 | POST   | `gpc otp offers deactivate`                                     |
+| `oneTimeProducts.offers.cancel`                     | POST   | `gpc otp offers cancel`                                         |
+| `oneTimeProducts.offers.batchGet`                   | POST   | `gpc otp offers batch-get`, `offers get`                        |
+| `oneTimeProducts.offers.batchUpdate`                | POST   | `gpc otp offers batch-update`, `offers create`, `offers update` |
+| `oneTimeProducts.offers.batchUpdateStates`          | POST   | `gpc otp offers batch-update-states`                            |
+| `oneTimeProducts.offers.batchDelete`                | POST   | `gpc otp offers batch-delete`, `offers delete`                  |
+| `oneTimeProducts.purchaseOptions.batchDelete`       | POST   | `gpc otp purchase-options batch-delete`                         |
+| `oneTimeProducts.purchaseOptions.batchUpdateStates` | POST   | `gpc otp purchase-options batch-update-states`                  |
+
+Google Play publishes no single-offer get, create, patch, or delete route for one-time products -- only the batch endpoints above. `gpc otp offers get|create|update|delete` are therefore single-item batch requests, which is why they need `--purchase-option <id>`.
 
 ## Managed Google Play (Play Custom App Publishing API)
 
@@ -367,12 +364,12 @@ Private app publishing for enterprise customers. Separate Google API (`playcusto
 | Internal App Sharing                     | 2         | Publisher    |
 | Generated APKs                           | 2         | Publisher    |
 | System APKs                              | 4         | Publisher    |
-| One-Time Products + Offers               | 19        | Publisher    |
+| One-Time Products + Offers               | 14        | Publisher    |
 | Managed Google Play (Custom Apps)        | 1         | Custom App   |
 | Play Games (Achievements + Leaderboards) | 10        | Games Config |
-| **Total API endpoints covered**          | **~227**  |              |
+| **Total API endpoints covered**          | **~230**  |              |
 
-The domain rows above are a grouped view, not a one-to-one enumeration, so they do not sum exactly to the headline figure. The **~227** total is GPC's tracked count of the individual endpoints it covers across its four Google Play APIs (Android Publisher v3, Play Developer Reporting v1beta1, Play Custom App Publishing v1, and Games Configuration v1configuration); a single grouped row can map to several underlying endpoints. Counts are approximate: some endpoints overload one Google URL (for example, `reports.download` serves both financial and stats buckets via query parameters).
+The domain rows above are a grouped view, not a one-to-one enumeration, so they do not sum exactly to the headline figure. The **~230** total is GPC's tracked count of the individual endpoints it covers across its four Google Play APIs (Android Publisher v3, Play Developer Reporting v1beta1, Play Custom App Publishing v1, and Games Configuration v1configuration); a single grouped row can map to several underlying endpoints. Counts are approximate: some endpoints overload one Google URL (for example, `reports.download` serves both financial and stats buckets via query parameters).
 
 ## Planned coverage
 

@@ -66,7 +66,16 @@ function deriveOtpUpdateMask(data: Partial<OneTimeProduct>): string {
     .join(",");
 }
 
-const OTP_OFFER_ID_FIELDS = new Set(["packageName", "productId", "purchaseOptionId", "offerId"]);
+// Mirrors the api client's unmaskable set: identity fields plus the readOnly fields
+// (`state`, `regionsVersion`) a get -> edit -> update round trip carries back.
+const OTP_OFFER_ID_FIELDS = new Set([
+  "packageName",
+  "productId",
+  "purchaseOptionId",
+  "offerId",
+  "state",
+  "regionsVersion",
+]);
 
 function deriveOtpOfferUpdateMask(data: Partial<OneTimeOffer>): string {
   return Object.keys(data)
@@ -186,7 +195,9 @@ export async function updateOneTimeOffer(
   regionsVersion?: string,
 ): Promise<OneTimeOffer> {
   try {
-    const mask = updateMask || deriveOtpOfferUpdateMask(data);
+    // An empty derived mask stays undefined so the client raises API_INVALID_INPUT
+    // rather than receiving an empty string it could read as "mask everything".
+    const mask = updateMask || deriveOtpOfferUpdateMask(data) || undefined;
     return await client.oneTimeProducts.updateOffer(
       packageName,
       productId,

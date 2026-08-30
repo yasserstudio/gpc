@@ -54,7 +54,11 @@ export function registerDeviceTiersCommands(program: Command): void {
   dt.command("create")
     .description("Create a device tier configuration from a JSON file")
     .requiredOption("--file <path>", "Path to JSON config file")
-    .action(async (opts: { file: string }) => {
+    .option(
+      "--allow-unknown-devices",
+      "Accept device IDs that are unknown to Play's device catalog",
+    )
+    .action(async (opts: { file: string; allowUnknownDevices?: boolean }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const format = getOutputFormat(program, config);
@@ -65,6 +69,7 @@ export function registerDeviceTiersCommands(program: Command): void {
             command: "device-tiers create",
             action: "create device tier config from",
             target: opts.file,
+            details: { allowUnknownDevices: Boolean(opts.allowUnknownDevices) },
           },
           format,
           formatOutput,
@@ -76,7 +81,12 @@ export function registerDeviceTiersCommands(program: Command): void {
 
       const raw = await readFile(opts.file, "utf-8");
       const tierConfig = JSON.parse(raw);
-      const result = await createDeviceTier(client, packageName, tierConfig);
+      const result = await createDeviceTier(
+        client,
+        packageName,
+        tierConfig,
+        opts.allowUnknownDevices ? { allowUnknownDevices: true } : undefined,
+      );
       console.log(formatOutput(result, format));
     });
 }

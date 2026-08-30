@@ -76,16 +76,24 @@ gpc otp offers list premium_upgrade
 
 Get details of a specific offer.
 
+```bash
+gpc otp offers get premium_upgrade launch_discount --purchase-option buy_once
+```
+
 ### `gpc otp offers create <product-id> --file <path>`
 
 Create a new offer for a product.
+
+```bash
+gpc otp offers create premium_upgrade --file offer.json --purchase-option buy_once
+```
 
 ### `gpc otp offers update <product-id> <offer-id> --file <path>`
 
 Update an existing offer. The `updateMask` is automatically derived, and `regionsVersion` defaults to `2022/02` (override with `--regions-version`).
 
 ```bash
-gpc otp offers update premium_upgrade launch_discount --file offer-update.json
+gpc otp offers update premium_upgrade launch_discount --file offer-update.json --purchase-option buy_once
 gpc otp offers update premium_upgrade launch_discount --file offer-update.json --update-mask pricingPhases
 gpc otp offers update premium_upgrade launch_discount --file offer-update.json --regions-version 2025/01
 ```
@@ -93,6 +101,10 @@ gpc otp offers update premium_upgrade launch_discount --file offer-update.json -
 ### `gpc otp offers delete <product-id> <offer-id>`
 
 Delete an offer. Requires confirmation.
+
+::: tip `--purchase-option` is required for single-offer commands
+Google Play only serves batch endpoints for one-time product offers, so `offers get`, `offers create`, `offers update`, and `offers delete` are sent as single-item batch requests and need a concrete purchase option ID. Omitting `--purchase-option` on those four commands fails immediately as a missing-option error, before any API call. The `-` wildcard works only with `offers list`; run that first if you do not know which purchase option an offer belongs to.
+:::
 
 ### Offer Creation Payload
 
@@ -237,15 +249,15 @@ Output shows each field that differs between local and remote. Use `--output jso
 
 ## Options
 
-| Option              | Type     | Description                                                          |
-| ------------------- | -------- | -------------------------------------------------------------------- |
-| `--file`            | `string` | Path to JSON file                                                    |
-| `--update-mask`     | `string` | Comma-separated field mask (for update commands)                     |
-| `--regions-version` | `string` | Regional pricing version (create/update commands, default `2022/02`) |
-| `--purchase-option` | `string` | Purchase option ID for offer commands (default: `"-"` for all)       |
-| `--sort`            | `string` | Sort field for list output                                           |
-| `--output`          | `string` | Output format                                                        |
-| `--app`             | `string` | App package name                                                     |
+| Option              | Type     | Description                                                                                                 |
+| ------------------- | -------- | ----------------------------------------------------------------------------------------------------------- |
+| `--file`            | `string` | Path to JSON file                                                                                           |
+| `--update-mask`     | `string` | Comma-separated field mask (for update commands)                                                            |
+| `--regions-version` | `string` | Regional pricing version (create/update commands, default `2022/02`)                                        |
+| `--purchase-option` | `string` | Purchase option ID. Required on `offers get/create/update/delete`; defaults to `"-"` (all) on `offers list` |
+| `--sort`            | `string` | Sort field for list output                                                                                  |
+| `--output`          | `string` | Output format                                                                                               |
+| `--app`             | `string` | App package name                                                                                            |
 
 ## Related
 

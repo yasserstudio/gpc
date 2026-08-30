@@ -333,6 +333,7 @@ const EXPECTED_TOP_LEVEL_COMMANDS = [
   "quota",
   "games",
   "enterprise",
+  "app-signing",
   "preflight",
   "init",
   "diff",

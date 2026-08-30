@@ -151,14 +151,16 @@ GPC pattern-matches Google Play API error responses to provide specific, actiona
 
 #### Access & Session Errors
 
-| Code                           | HTTP | What happened                            | What to do                                                                      |
-| ------------------------------ | ---- | ---------------------------------------- | ------------------------------------------------------------------------------- |
-| `API_APP_NOT_FOUND`            | 404  | App not in developer account             | Verify package name. List apps: `gpc apps list`                                 |
-| `API_TRACK_NOT_FOUND`          | 404  | Track doesn't exist                      | Built-in: internal, alpha, beta, production. List custom: `gpc tracks list`     |
-| `API_INSUFFICIENT_PERMISSIONS` | 403  | Service account missing permissions      | Grant permissions in Play Console → Users and permissions. Verify: `gpc doctor` |
-| `API_DECLARATION_REQUIRED`     | 403  | An App content declaration is incomplete | Play Console → your app → Policy → App content. **Not** a permissions problem   |
-| `API_EDIT_CONFLICT`            | 409  | Another edit session open                | Wait and retry. GPC auto-retries once. Or discard stale edit in Play Console    |
-| `API_EDIT_EXPIRED`             | 400  | Edit session expired (~1 hour TTL)       | Safe to retry -- no data was lost. GPC opens a fresh edit automatically         |
+| Code                           | HTTP | What happened                                     | What to do                                                                      |
+| ------------------------------ | ---- | ------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `API_APP_NOT_FOUND`            | 404  | App not in developer account                      | Verify package name. List apps: `gpc apps list`                                 |
+| `API_TRACK_NOT_FOUND`          | 404  | Track doesn't exist                               | Built-in: internal, alpha, beta, production. List custom: `gpc tracks list`     |
+| `API_INSUFFICIENT_PERMISSIONS` | 403  | Service account missing permissions               | Grant permissions in Play Console → Users and permissions. Verify: `gpc doctor` |
+| `API_DECLARATION_REQUIRED`     | 403  | An App content declaration is incomplete          | Play Console → your app → Policy → App content. **Not** a permissions problem   |
+| `API_EDIT_CONFLICT`            | 409  | Another edit session open                         | Wait and retry. GPC auto-retries once. Or discard stale edit in Play Console    |
+| `API_ALREADY_EXISTS`           | 409  | The resource you tried to create is already there | Use the matching `update` command instead of `create`                           |
+| `API_EDIT_EXPIRED`             | 400  | Edit session expired (~1 hour TTL)                | Safe to retry -- no data was lost. GPC opens a fresh edit automatically         |
+| `API_ENDPOINT_RETIRED`         | 404  | Google removed the endpoint from its API          | Use the Play Console for this task. Currently affects `gpc games ... set-icon`  |
 
 #### Review State Errors
 
@@ -272,6 +274,18 @@ Google Cloud Storage bucket.
 | `REPORT_DECODE_FAILED`      | 4    | Report could not be decoded  | Corrupt transfer or malformed object                         | Re-download; compare with the Play Console download if it persists                                          |
 | `REPORT_ARCHIVE_UNREADABLE` | 4    | Report archive unreadable    | Corrupt or unsupported ZIP archive                           | Save the raw archive (`--output-file report.zip`) and open it locally                                       |
 | `REPORT_MULTIPLE_ENTRIES`   | 2    | Archive holds multiple CSVs  | Financial ZIP contains more than one CSV (stdout, non-JSON)  | Save the whole archive with `--output-file report.zip`, or use `--json`                                     |
+
+### ORDER\_\* -- Order Refund Review Errors
+
+Exit code: `2`
+
+Emitted by `gpc purchases orders review-refund`, which submits chargeback-dispute evidence to Google Play.
+
+| Code                          | Message                     | Cause                                                                                                                                              | Fix                                                                                                                                                                                          |
+| ----------------------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ORDER_REVIEW_REFUND_INVALID` | Invalid refund review input | `--sample-content-provided` unanswered, `--consumption-percent` not a plain 0-100 decimal, or `--usage-events-file` is not a JSON array of objects | Pass `--sample-content-provided` or `--no-sample-content-provided`, use e.g. `--consumption-percent 45.2`, and give the file an array like `[{ "consumptionTime": "2026-08-30T10:15:00Z" }]` |
+
+An empty or whitespace-only `--consumption-percent` is treated as not provided, so a typo never claims "0% consumed" on your behalf.
 
 ### WATCH\_\* -- Watch Errors
 

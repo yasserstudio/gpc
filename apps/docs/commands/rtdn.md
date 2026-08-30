@@ -120,6 +120,23 @@ Returns the full decoded notification object including all fields.
 
 **Other events:** `VOIDED_PURCHASE`, `TEST_NOTIFICATION`
 
+**Chargeback reviews:**
+
+A `pendingRefundReviewNotification` is sent when a user disputes a charge and Google Play wants
+your input. It carries a `pendingRefundToken`, the disputed `orderId`, and a `refundReason`
+(currently only `CHARGEBACK`, 7). Answer within 24 hours with
+[`gpc purchases orders review-refund`](/commands/purchases#purchases-orders-review-refund):
+
+```bash
+TOKEN=$(gpc rtdn decode "<base64-payload>" --output json \
+  | jq -r .pendingRefundReviewNotification.pendingRefundToken)
+
+gpc purchases orders review-refund "GPA.1234-5678-9012-34567" \
+  --pending-refund-token "$TOKEN" \
+  --preference decline \
+  --sample-content-provided
+```
+
 ---
 
 ## `rtdn test`

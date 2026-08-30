@@ -44,6 +44,7 @@ export async function createDeviceTier(
   client: PlayApiClient,
   packageName: string,
   config: DeviceTierConfig,
+  options?: { allowUnknownDevices?: boolean },
 ): Promise<DeviceTierConfig> {
   if (!packageName) {
     throw new GpcError(
@@ -61,5 +62,5 @@ export async function createDeviceTier(
       "Provide a valid config with deviceGroups.",
     );
   }
-  return client.deviceTiers.create(packageName, config);
+  return client.deviceTiers.create(packageName, config, options);
 }

@@ -8,7 +8,10 @@ export const manifestScanner: PreflightScanner = {
   requires: ["manifest"],
 
   async scan(ctx: PreflightContext): Promise<PreflightFinding[]> {
-    const manifest = ctx.manifest!;
+    const manifest = ctx.manifest;
+    if (!manifest) {
+      throw new Error('The "manifest" scanner requires manifest in the preflight context');
+    }
     const findings: PreflightFinding[] = [];
     const minTargetSdk = ctx.config.targetSdkMinimum;
 

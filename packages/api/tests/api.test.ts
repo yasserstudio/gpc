@@ -796,6 +796,46 @@ describe("createApiClient", () => {
       expect(result).toEqual([]);
     });
 
+    it("images.upload omits aiGeneratedState when not attested", async () => {
+      const IMAGE_UPLOAD_BASE =
+        "https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications";
+      mockFetch.mockResolvedValueOnce(mockResponse({ image: { id: "1" } }));
+
+      const client = makeClient();
+      await client.images.upload(PKG, EDIT_ID, "en-US", "icon", "/tmp/icon.png");
+
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toBe(
+        `${IMAGE_UPLOAD_BASE}/${PKG}/edits/${EDIT_ID}/listings/en-US/icon?uploadType=media`,
+      );
+    });
+
+    it("images.upload sends aiGeneratedState when the developer attests AI generation", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ image: { id: "1" } }));
+
+      const client = makeClient();
+      await client.images.upload(PKG, EDIT_ID, "en-US", "icon", "/tmp/icon.png", {
+        aiGenerated: true,
+      });
+
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toContain("?aiGeneratedState=aiGeneratedStateAiGeneratedDeveloperAttested");
+      expect(url).toContain("&uploadType=media");
+    });
+
+    it("images.upload sends the not-AI-generated state when attested false", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({ image: { id: "1" } }));
+
+      const client = makeClient();
+      await client.images.upload(PKG, EDIT_ID, "en-US", "icon", "/tmp/icon.png", {
+        aiGenerated: false,
+      });
+
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toContain("?aiGeneratedState=aiGeneratedStateNotAiGenerated");
+      expect(url).toContain("&uploadType=media");
+    });
+
     it("images.delete calls DELETE with imageId", async () => {
       mockFetch.mockResolvedValueOnce(mockResponse({}));
 
@@ -1390,6 +1430,40 @@ describe("monetization API endpoints", () => {
       const orders = await client.orders.batchGet(PKG, ["GPA.999"]);
       expect(orders).toEqual([]);
     });
+
+    it("reviewRefund calls POST /{pkg}/orders/{id}:reviewrefund with the request body", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      await client.orders.reviewRefund(PKG, "GPA.1234", {
+        pendingRefundToken: "tok-1",
+        refundPreference: "DECLINE",
+        sampleContentProvided: true,
+        consumptionPercentageMilliunits: 45200,
+        consumptionUsageEvents: [{ consumptionTime: "2026-08-30T10:00:00Z" }],
+      });
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/orders/GPA.1234:reviewrefund`);
+      expect(init.method).toBe("POST");
+      expect(JSON.parse(init.body as string)).toEqual({
+        pendingRefundToken: "tok-1",
+        refundPreference: "DECLINE",
+        sampleContentProvided: true,
+        consumptionPercentageMilliunits: 45200,
+        consumptionUsageEvents: [{ consumptionTime: "2026-08-30T10:00:00Z" }],
+      });
+    });
+
+    it("reviewRefund percent-encodes path params", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      await client.orders.reviewRefund(PKG, "GPA.1/../evil", {
+        pendingRefundToken: "tok-1",
+        refundPreference: "NEUTRAL",
+        sampleContentProvided: false,
+      });
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/orders/GPA.1%2F..%2Fevil:reviewrefund`);
+    });
   });
 
   describe("purchases v2 endpoints", () => {
@@ -1578,6 +1652,15 @@ describe("monetization API endpoints", () => {
       const [url, init] = mockFetch.mock.calls[0];
       expect(url).toBe(`${BASE_URL}/${PKG}/deviceTierConfigs`);
       expect(init.method).toBe("POST");
+    });
+
+    it("deviceTiers.create passes allowUnknownDevices when requested", async () => {
+      const config = { deviceGroups: [{ name: "mid", deviceSelectors: [] }] };
+      mockFetch.mockResolvedValueOnce(mockResponse(config));
+      const client = makeClient();
+      await client.deviceTiers.create(PKG, config, { allowUnknownDevices: true });
+      const [url] = mockFetch.mock.calls[0];
+      expect(url).toBe(`${BASE_URL}/${PKG}/deviceTierConfigs?allowUnknownDevices=true`);
     });
   });
 });
@@ -2588,21 +2671,51 @@ describe("oneTimeProducts", () => {
     const result = await client.oneTimeProducts.create(PKG, product as any);
     expect(result).toEqual(product);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toContain(`${BASE_URL}/${PKG}/oneTimeProducts/otp1`);
+    expect(url).toContain(`${BASE_URL}/${PKG}/onetimeproducts/otp1`);
     expect(url).toContain("regionsVersion.version=2022%2F02");
     expect(url).toContain("allowMissing=true");
     expect(init.method).toBe("PATCH");
   });
 
-  it("update calls PATCH /{pkg}/oneTimeProducts/{id} with regionsVersion", async () => {
+  it("update calls PATCH /{pkg}/onetimeproducts/{id} with regionsVersion", async () => {
     const product = { productId: "otp1", packageName: PKG };
     mockFetch.mockResolvedValueOnce(mockResponse(product));
     const client = makeClient();
     await client.oneTimeProducts.update(PKG, "otp1", product as any);
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toContain(`${BASE_URL}/${PKG}/oneTimeProducts/otp1`);
+    expect(url).toContain(`${BASE_URL}/${PKG}/onetimeproducts/otp1`);
     expect(url).toContain("regionsVersion.version=2022%2F02");
     expect(init.method).toBe("PATCH");
+  });
+
+  // GH #107: Play routes case-sensitively and the PATCH route is the only lowercase one
+  // (discovery rev 20260826). camelCase on PATCH returns an HTML 404.
+  it("create uses the lowercase onetimeproducts PATCH route (GH #107)", async () => {
+    const product = { productId: "otp1", packageName: PKG };
+    mockFetch.mockResolvedValueOnce(mockResponse(product));
+    const client = makeClient();
+    await client.oneTimeProducts.create(PKG, product as any);
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("/onetimeproducts/otp1");
+    expect(url).not.toContain("/oneTimeProducts/");
+  });
+
+  it("update uses the lowercase onetimeproducts PATCH route (GH #107)", async () => {
+    const product = { productId: "otp1", packageName: PKG };
+    mockFetch.mockResolvedValueOnce(mockResponse(product));
+    const client = makeClient();
+    await client.oneTimeProducts.update(PKG, "otp1", product as any, "listings");
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain("/onetimeproducts/otp1");
+    expect(url).not.toContain("/oneTimeProducts/");
+  });
+
+  it("get keeps the camelCase oneTimeProducts route (GH #107)", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ productId: "otp1" }));
+    const client = makeClient();
+    await client.oneTimeProducts.get(PKG, "otp1");
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1`);
   });
 
   it("update passes updateMask when provided", async () => {
@@ -2614,16 +2727,84 @@ describe("oneTimeProducts", () => {
     expect(url).toContain("updateMask=listings");
   });
 
-  it("updateOffer passes regionsVersion, updateMask, and purchaseOptionId in URL", async () => {
+  it("updateOffer posts a single-element offers:batchUpdate with regionsVersion + updateMask", async () => {
     const offer = { productId: "otp1", offerId: "offer1" };
-    mockFetch.mockResolvedValueOnce(mockResponse(offer));
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [offer] }));
     const client = makeClient();
-    await client.oneTimeProducts.updateOffer(PKG, "otp1", "-", "offer1", offer as any, "pricing");
+    await client.oneTimeProducts.updateOffer(PKG, "otp1", "po1", "offer1", offer as any, "pricing");
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toContain("/purchaseOptions/-/offers/offer1");
-    expect(url).toContain("updateMask=pricing");
-    expect(url).toContain("regionsVersion.version=2022%2F02");
-    expect(init.method).toBe("PATCH");
+    expect(url).toBe(
+      `${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers:batchUpdate`,
+    );
+    expect(init.method).toBe("POST");
+    const body = JSON.parse(init.body);
+    expect(body.requests).toHaveLength(1);
+    expect(body.requests[0].updateMask).toBe("pricing");
+    expect(body.requests[0].regionsVersion).toEqual({ version: "2022/02" });
+    expect(body.requests[0].oneTimeProductOffer).toMatchObject({
+      packageName: PKG,
+      productId: "otp1",
+      purchaseOptionId: "po1",
+      offerId: "offer1",
+    });
+    expect(body.requests[0].allowMissing).toBeUndefined();
+  });
+
+  it("updateOffer forwards latencyTolerance and allowMissing into the batch request", async () => {
+    const offer = { productId: "otp1", offerId: "offer1" };
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [offer] }));
+    const client = makeClient();
+    await client.oneTimeProducts.updateOffer(
+      PKG,
+      "otp1",
+      "po1",
+      "offer1",
+      offer as any,
+      "pricing",
+      "2025/01",
+      { allowMissing: true, latencyTolerance: "PRODUCT_UPDATE_LATENCY_TOLERANCE_LATENCY_TOLERANT" },
+    );
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.requests[0].regionsVersion).toEqual({ version: "2025/01" });
+    expect(body.requests[0].allowMissing).toBe(true);
+    expect(body.requests[0].latencyTolerance).toBe(
+      "PRODUCT_UPDATE_LATENCY_TOLERANCE_LATENCY_TOLERANT",
+    );
+  });
+
+  it("updateOffer derives an updateMask when none is supplied", async () => {
+    const offer = { productId: "otp1", offerId: "offer1", offerTags: [{ tag: "a" }] };
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [offer] }));
+    const client = makeClient();
+    await client.oneTimeProducts.updateOffer(PKG, "otp1", "po1", "offer1", offer as any);
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.requests[0].updateMask).toBe("offerTags");
+  });
+
+  it("updateOffer keeps output-only fields out of the derived updateMask", async () => {
+    // A get -> edit -> update round trip carries readOnly fields back in the payload.
+    const offer = {
+      productId: "otp1",
+      offerId: "offer1",
+      state: "ACTIVE",
+      regionsVersion: { version: "2022/02" },
+      offerTags: [{ tag: "a" }],
+    };
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [offer] }));
+    const client = makeClient();
+    await client.oneTimeProducts.updateOffer(PKG, "otp1", "po1", "offer1", offer as any);
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.requests[0].updateMask).toBe("offerTags");
+  });
+
+  it("updateOffer rejects an empty derived updateMask instead of sending *", async () => {
+    const client = makeClient();
+    await expect(
+      client.oneTimeProducts.updateOffer(PKG, "otp1", "po1", "offer1", {
+        state: "ACTIVE",
+      } as any),
+    ).rejects.toMatchObject({ code: "API_INVALID_INPUT" });
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 
   it("delete calls DELETE /{pkg}/oneTimeProducts/{id}", async () => {
@@ -2652,35 +2833,140 @@ describe("oneTimeProducts", () => {
     expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers`);
   });
 
-  it("createOffer calls POST with /purchaseOptions/{id}/offers path", async () => {
-    const offer = { productId: "otp1", offerId: "offer1", purchaseOptionId: "-" };
-    mockFetch.mockResolvedValueOnce(mockResponse(offer));
+  it("createOffer posts offers:batchUpdate with allowMissing (no singular create route)", async () => {
+    const offer = { productId: "otp1", offerId: "offer1", offerTags: [{ tag: "a" }] };
+    // Probe first (offer does not exist yet), then the create.
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [] }));
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [offer] }));
     const client = makeClient();
-    await client.oneTimeProducts.createOffer(PKG, "otp1", "po1", offer as any);
-    const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toContain(`/oneTimeProducts/otp1/purchaseOptions/po1/offers`);
-    expect(url).toContain("regionsVersion.version=2022%2F02");
+    const result = await client.oneTimeProducts.createOffer(PKG, "otp1", "po1", offer as any);
+    expect(result).toEqual(offer);
+    expect(mockFetch.mock.calls[0][0]).toBe(
+      `${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers:batchGet`,
+    );
+    const [url, init] = mockFetch.mock.calls[1];
+    expect(url).toBe(
+      `${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers:batchUpdate`,
+    );
     expect(init.method).toBe("POST");
+    const body = JSON.parse(init.body);
+    expect(body.requests[0].allowMissing).toBe(true);
+    expect(body.requests[0].updateMask).toBe("offerTags");
+    expect(body.requests[0].regionsVersion).toEqual({ version: "2022/02" });
+    expect(body.requests[0].oneTimeProductOffer.purchaseOptionId).toBe("po1");
   });
 
-  it("deleteOffer calls DELETE with /purchaseOptions/{id}/offers/{offerId} path", async () => {
+  it("createOffer forwards regionsVersion into the batch request", async () => {
+    const offer = { productId: "otp1", offerId: "offer1", offerTags: [{ tag: "a" }] };
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [] }));
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [offer] }));
+    const client = makeClient();
+    await client.oneTimeProducts.createOffer(PKG, "otp1", "po1", offer as any, "2025/01");
+    const body = JSON.parse(mockFetch.mock.calls[1][1].body);
+    expect(body.requests[0].regionsVersion).toEqual({ version: "2025/01" });
+  });
+
+  it("createOffer refuses to overwrite an offer that already exists", async () => {
+    const existing = { productId: "otp1", offerId: "offer1", offerTags: [{ tag: "a" }] };
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [existing] }));
+    const client = makeClient();
+    await expect(
+      client.oneTimeProducts.createOffer(PKG, "otp1", "po1", existing as any),
+    ).rejects.toMatchObject({ code: "API_ALREADY_EXISTS" });
+    // Only the batchGet probe -- nothing was written.
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(mockFetch.mock.calls[0][0]).toContain("offers:batchGet");
+  });
+
+  it("createOffer proceeds when the existence probe 404s", async () => {
+    const offer = { productId: "otp1", offerId: "offer1", offerTags: [{ tag: "a" }] };
+    mockFetch.mockResolvedValueOnce(mockResponse({ error: { message: "not found" } }, 404));
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [offer] }));
+    const client = makeClient();
+    const result = await client.oneTimeProducts.createOffer(PKG, "otp1", "po1", offer as any);
+    expect(result).toEqual(offer);
+    expect(mockFetch.mock.calls[1][0]).toContain("offers:batchUpdate");
+  });
+
+  it("createOffer rejects a payload with no updatable fields", async () => {
+    const client = makeClient();
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [] }));
+    await expect(
+      client.oneTimeProducts.createOffer(PKG, "otp1", "po1", {
+        productId: "otp1",
+        offerId: "offer1",
+        state: "DRAFT",
+      } as any),
+    ).rejects.toMatchObject({ code: "API_INVALID_INPUT" });
+    // The probe ran, but nothing was written.
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("createOffer rejects a payload without an offerId", async () => {
+    const client = makeClient();
+    await expect(
+      client.oneTimeProducts.createOffer(PKG, "otp1", "po1", { productId: "otp1" } as any),
+    ).rejects.toThrow(/offerId is required/);
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it("deleteOffer posts offers:batchDelete (no singular delete route)", async () => {
     mockFetch.mockResolvedValueOnce(mockResponse({}));
     const client = makeClient();
-    await client.oneTimeProducts.deleteOffer(PKG, "otp1", "-", "offer1");
+    await client.oneTimeProducts.deleteOffer(PKG, "otp1", "po1", "offer1");
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/-/offers/offer1`);
-    expect(init.method).toBe("DELETE");
+    expect(url).toBe(
+      `${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers:batchDelete`,
+    );
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body)).toEqual({
+      requests: [
+        { packageName: PKG, productId: "otp1", purchaseOptionId: "po1", offerId: "offer1" },
+      ],
+    });
   });
 
-  it("getOffer calls GET with /purchaseOptions/{id}/offers/{offerId} path", async () => {
+  it("getOffer posts a single-element offers:batchGet (no singular get route)", async () => {
     const offer = { productId: "otp1", offerId: "offer1", purchaseOptionId: "po1" };
-    mockFetch.mockResolvedValueOnce(mockResponse(offer));
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [offer] }));
     const client = makeClient();
     const result = await client.oneTimeProducts.getOffer(PKG, "otp1", "po1", "offer1");
     expect(result).toEqual(offer);
-    const [url] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers/offer1`);
+    const [url, init] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${BASE_URL}/${PKG}/oneTimeProducts/otp1/purchaseOptions/po1/offers:batchGet`);
+    expect(init.method).toBe("POST");
+    expect(JSON.parse(init.body)).toEqual({
+      requests: [
+        { packageName: PKG, productId: "otp1", purchaseOptionId: "po1", offerId: "offer1" },
+      ],
+    });
   });
+
+  it("getOffer throws API_NOT_FOUND when batchGet returns no offer", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+    const client = makeClient();
+    await expect(
+      client.oneTimeProducts.getOffer(PKG, "otp1", "po1", "missing"),
+    ).rejects.toMatchObject({ code: "API_NOT_FOUND", statusCode: 404 });
+  });
+
+  // The "-" wildcard is only documented for offers.list; the batch endpoints backing the
+  // singular offer methods need a concrete purchase option.
+  it.each(["get", "create", "update", "delete"] as const)(
+    "%sOffer rejects the '-' purchase option wildcard",
+    async (verb) => {
+      const client = makeClient();
+      const offer = { productId: "otp1", offerId: "offer1" } as any;
+      const calls: Record<string, () => Promise<unknown>> = {
+        get: () => client.oneTimeProducts.getOffer(PKG, "otp1", "-", "offer1"),
+        create: () => client.oneTimeProducts.createOffer(PKG, "otp1", "-", offer),
+        update: () => client.oneTimeProducts.updateOffer(PKG, "otp1", "-", "offer1", offer),
+        delete: () => client.oneTimeProducts.deleteOffer(PKG, "otp1", "-", "offer1"),
+      };
+      await expect(calls[verb]!()).rejects.toMatchObject({ code: "API_INVALID_INPUT" });
+      expect(mockFetch).not.toHaveBeenCalled();
+    },
+  );
 
   it("activateOffer calls POST with :activate action", async () => {
     const offer = { productId: "otp1", offerId: "offer1" };

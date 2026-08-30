@@ -8,7 +8,10 @@ export const sizeScanner: PreflightScanner = {
   requires: ["zipEntries"],
 
   async scan(ctx: PreflightContext): Promise<PreflightFinding[]> {
-    const entries = ctx.zipEntries!;
+    const entries = ctx.zipEntries;
+    if (!entries) {
+      throw new Error('The "size" scanner requires zipEntries in the preflight context');
+    }
     const findings: PreflightFinding[] = [];
     const maxMb = ctx.config.maxDownloadSizeMb;
 

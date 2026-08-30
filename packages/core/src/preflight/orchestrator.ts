@@ -122,12 +122,13 @@ export async function runPreflight(options: PreflightOptions): Promise<Preflight
 
   // Flatten findings, report scanner failures as error findings
   let findings: PreflightFinding[] = [...earlyFindings];
-  for (let i = 0; i < settled.length; i++) {
-    const result = settled[i]!;
+  // settled is a 1:1 map of applicableScanners, so every scanner has a result.
+  for (const [i, scanner] of applicableScanners.entries()) {
+    const result = settled[i];
+    if (!result) continue;
     if (result.status === "fulfilled") {
       findings.push(...result.value);
     } else {
-      const scanner = applicableScanners[i]!;
       findings.push({
         scanner: scanner.name,
         ruleId: "scanner-error",

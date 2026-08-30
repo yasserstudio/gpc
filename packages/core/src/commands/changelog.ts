@@ -82,7 +82,7 @@ export async function fetchChangelog(options?: FetchChangelogOptions): Promise<C
     .map((r) => ({
       version: r.tag_name,
       title: r.name || r.tag_name,
-      date: r.published_at ? r.published_at.split("T")[0]! : "unknown",
+      date: r.published_at ? (r.published_at.split("T")[0] ?? "unknown") : "unknown",
       body: r.body || "No release notes.",
       url: r.html_url,
     }));

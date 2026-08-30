@@ -10,7 +10,7 @@ If you are evaluating alternatives to Fastlane for Google Play automation, here 
 
 |                         | **GPC**                                                    | **Fastlane supply** |
 | ----------------------- | ---------------------------------------------------------- | ------------------- |
-| API coverage            | **227 endpoints**                                          | ~20                 |
+| API coverage            | **230 endpoints**                                          | ~20                 |
 | Runtime                 | Node.js or standalone binary                               | Ruby + Bundler      |
 | Cold start              | <500ms                                                     | 2-3s                |
 | Reviews & Vitals        | Yes                                                        | No                  |
@@ -21,7 +21,7 @@ If you are evaluating alternatives to Fastlane for Google Play automation, here 
 | Plugin system           | Yes (lifecycle hooks)                                      | Actions (different) |
 | Interactive mode        | Yes (guided prompts)                                       | No                  |
 | Release notes generator | **`gpc changelog generate`** (clusters, lints, LLM prompt) | No                  |
-| Test suite              | 2,630 tests, 90%+ coverage                                 | --                  |
+| Test suite              | 2,733 tests, 90%+ coverage                                 | --                  |
 
 ## What GPC Covers That Fastlane Does Not
 
@@ -112,7 +112,7 @@ Yes. They do not conflict. A common migration pattern is to keep Fastlane's `fas
 
 ### How much of the Fastlane supply API does GPC replace?
 
-Fastlane supply covers roughly 20 Google Play Developer API endpoints. GPC covers 227 across four Google APIs (Android Publisher v3, Play Developer Reporting v1beta1, Play Custom App Publishing v1, and Games Configuration v1configuration). That is an additional ~207 capabilities, including reviews, vitals (crashes, ANR, startup, rendering, battery, memory), subscriptions, in-app products, financial reports, private enterprise app publishing, and Play Games achievement and leaderboard configuration.
+Fastlane supply covers roughly 20 Google Play Developer API endpoints. GPC covers 230 across four Google APIs (Android Publisher v3, Play Developer Reporting v1beta1, Play Custom App Publishing v1, and Games Configuration v1configuration). That is an additional ~207 capabilities, including reviews, vitals (crashes, ANR, startup, rendering, battery, memory), subscriptions, in-app products, financial reports, private enterprise app publishing, and Play Games achievement and leaderboard configuration.
 
 ### Do I need to rewrite my Fastfile?
 

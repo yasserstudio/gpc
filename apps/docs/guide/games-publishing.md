@@ -182,6 +182,17 @@ The Configuration API uses a draft/published model:
 
 When you create or update a configuration, changes go to the `draft` state. Publishing happens through the Play Console UI when you publish your Play Games Services configuration.
 
+## Icon Upload Depends on a Retired Endpoint
+
+`gpc games achievements set-icon` and `gpc games leaderboards set-icon` call the Games Configuration API's `imageConfigurations` resource. As of discovery revision 20260820 that resource is no longer in Google's published API: only `achievementConfigurations` and `leaderboardConfigurations` remain. Google may still serve the upload route, so GPC still makes the call, but if it has been switched off you get a clear error instead of a raw 404:
+
+```
+Error [API_ENDPOINT_RETIRED]: Google removed the Play Games icon upload endpoint (imageConfigurations) from the Games Configuration API
+Suggestion: Upload achievement and leaderboard icons in the Play Console (Grow > Play Games Services > Setup and management > Achievements / Leaderboards)
+```
+
+Nothing else is affected. `create`, `update`, `delete`, `diff`, `push`, and `pull` never touch that endpoint, so directory sync keeps working in full: icons are the only piece that has to move to the Play Console.
+
 ## Deprecation Note
 
 Google deprecated the Play Games v1 SDK (September 2025) with full shutdown in June 2027. The Configuration API uses a separate path (`v1configuration`) and the `androidpublisher` scope, and has no announced deprecation. GPC will track any changes.

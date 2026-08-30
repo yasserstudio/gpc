@@ -50,7 +50,9 @@ export async function checkSigningConsistency(
     const bundlesData = (await bundlesResp.json()) as { bundles?: { versionCode: number }[] };
     const bundles = (bundlesData.bundles ?? []).sort((a, b) => b.versionCode - a.versionCode);
 
-    if (bundles.length === 0) {
+    const [current, previous] = bundles;
+
+    if (!current) {
       throw new GpcError(
         "No bundles found for this app",
         "NO_BUNDLES",
@@ -59,10 +61,10 @@ export async function checkSigningConsistency(
       );
     }
 
-    const currentVc = bundles[0]!.versionCode;
+    const currentVc = current.versionCode;
     const currentFp = await fetchFingerprint(baseUrl, accessToken, currentVc);
 
-    if (bundles.length === 1) {
+    if (!previous) {
       return {
         currentVersionCode: currentVc,
         currentFingerprint: currentFp,
@@ -71,7 +73,7 @@ export async function checkSigningConsistency(
       };
     }
 
-    const previousVc = bundles[1]!.versionCode;
+    const previousVc = previous.versionCode;
     const previousFp = await fetchFingerprint(baseUrl, accessToken, previousVc);
 
     const consistent = normalizeFingerprint(currentFp) === normalizeFingerprint(previousFp);

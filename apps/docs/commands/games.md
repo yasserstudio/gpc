@@ -127,6 +127,10 @@ gpc games achievements set-icon CgkI1234567890 ./icons/first-win.png
 
 Honors `--dry-run` (prints the intended upload without sending it).
 
+::: warning Depends on an endpoint Google has retired
+Icon upload uses the Games Configuration API's `imageConfigurations` resource, which Google removed from its published API (discovery revision 20260820). If the route has been switched off, the command fails with `API_ENDPOINT_RETIRED` and points you to the Play Console. Every other `games` command, `push` and `pull` included, is unaffected. See [Games Publishing](/guide/games-publishing#icon-upload-depends-on-a-retired-endpoint).
+:::
+
 ### `games achievements push <dir>`
 
 Create or update achievement configurations from a directory of JSON files. Each file with an `id` is updated; each file without one is created. Follows the same shape as `create`/`update`.
@@ -227,6 +231,8 @@ Upload a leaderboard icon (PNG or JPG, 512x512). Content type is inferred from t
 ```sh
 gpc games leaderboards set-icon CgkI9876543210 ./icons/high-scores.png
 ```
+
+Same caveat as `achievements set-icon`: this route was removed from Google's published API and may return `API_ENDPOINT_RETIRED`.
 
 ### `games leaderboards push <dir>` / `games leaderboards pull <dir>`
 

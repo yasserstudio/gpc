@@ -227,7 +227,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
   offers
     .command("get <product-id> <offer-id>")
     .description("Get an offer for a one-time product")
-    .option("--purchase-option <id>", 'Purchase option ID (default: "-" for all)', "-")
+    .requiredOption("--purchase-option <id>", "Purchase option ID (required)")
     .action(async (productId: string, offerId: string, options: { purchaseOption: string }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -248,7 +248,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
     .command("create <product-id>")
     .description("Create an offer from JSON file")
     .requiredOption("--file <path>", "JSON file with offer data")
-    .option("--purchase-option <id>", 'Purchase option ID (default: "-" for all)', "-")
+    .requiredOption("--purchase-option <id>", "Purchase option ID (required)")
     .option("--regions-version <version>", "Regional pricing version (default 2022/02)")
     .action(
       async (
@@ -297,7 +297,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
     .description("Update an offer from JSON file")
     .requiredOption("--file <path>", "JSON file with offer data")
     .option("--update-mask <fields>", "Comma-separated field mask")
-    .option("--purchase-option <id>", 'Purchase option ID (default: "-" for all)', "-")
+    .requiredOption("--purchase-option <id>", "Purchase option ID (required)")
     .option("--regions-version <version>", "Regional pricing version (default 2022/02)")
     .action(
       async (
@@ -352,7 +352,7 @@ export function registerOneTimeProductsCommands(program: Command): void {
   offers
     .command("delete <product-id> <offer-id>")
     .description("Delete an offer")
-    .option("--purchase-option <id>", 'Purchase option ID (default: "-" for all)', "-")
+    .requiredOption("--purchase-option <id>", "Purchase option ID (required)")
     .action(async (productId: string, offerId: string, options: { purchaseOption: string }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);

@@ -1,5 +1,38 @@
 # @gpc-cli/api
 
+## 1.1.1
+
+### Patch Changes
+
+- Add `gpc app-signing enroll` and `gpc app-signing rotate` for Play App Signing with a self-hosted Google Cloud KMS key (androidpublisher discovery rev 20260826).
+
+  The new `appsigning` resource was missing from the client entirely. `client.appSigning.enroll()` and `client.appSigning.rotateKey()` now cover `appSigning:enrollApp` and `appSigning:rotateAppSigningKey`, with types built directly from the discovery doc: the `enrollNewApp` / `enrollExistingApp` oneof, `CloudKmsKey`, `CloudKmsKeyAndCert`, `RotatedCloudKmsKey`, `CertificateHashes`, and the `KeyRotationReason` enum.
+
+  This is an advanced, enterprise-only API. Standard Play App Signing enrollment with Google-generated or Google-managed keys cannot be done through the API at all — it is a Play Console operation. Google's warning is carried verbatim-ish in the types, the client interface, the docs page, and the CLI itself: both subcommands print a prominent warning and require confirmation (skip with the global `--yes`) before anything is sent. Certificate and lineage files are read from disk and base64-encoded for the API's `bytes` fields, and an unusable `--reason` (including Google's forbidden `KEY_ROTATION_REASON_UNSPECIFIED`) is rejected as a usage error before the request goes out.
+
+- Report a clear error when Play Games icon upload hits a retired endpoint. Google removed the `imageConfigurations` resource from the Games Configuration API's published discovery document (revision 20260820); only `achievementConfigurations` and `leaderboardConfigurations` remain. `gpc games achievements set-icon` and `gpc games leaderboards set-icon` still call the upload route, so nothing changes while Google keeps serving it, but a 404 (or any other non-2xx that comes back as a route-not-found page) is now mapped to `API_ENDPOINT_RETIRED` with a message naming the removed resource and a suggestion pointing at Play Console under Grow > Play Games Services > Setup and management.
+
+  Every other `games` command is unaffected. `create`, `update`, `delete`, `diff`, `push`, and `pull` never touch that endpoint, so directory sync keeps working in full.
+
+- Fix one-time product create and update failing with a 404. Google Play spells the one-time products resource two ways: every read and delete route uses `oneTimeProducts`, but the write (PATCH) route is lowercase `onetimeproducts`, and Play matches paths case-sensitively. GPC used the camelCase spelling everywhere, so `gpc one-time-products create` and `gpc one-time-products update` came back as a route-not-found error rather than saving the product. Those commands now use the route Google actually serves, and both spellings count against the same rate-limit bucket. Reads, deletes, and every batch command were already correct and are unchanged. (GH #107)
+
+  Fix one-time product offer get, create, update, and delete failing the same way. Google Play does not publish single-offer endpoints at all -- only the batch ones -- so those four commands were calling routes that do not exist and returned a route-not-found error. They now go through Google's batch offer endpoints as single-item requests, with the same flags and output as before. Because the batch endpoints address one purchase option at a time, these four commands now need `--purchase-option <id>`; the `-` wildcard still works with `gpc otp offers list`, which is where you can look the ID up.
+
+  Declare AI-generated store images. `gpc listings images upload` and `gpc listings images sync` gain `--ai-generated`, which records the developer attestation Google Play asks for when a screenshot, icon, or feature graphic was produced by AI. Leave the flag off and images upload exactly as before, with no declaration attached.
+
+  Create device tier configurations for devices Play has not catalogued yet. `gpc device-tiers create` gains `--allow-unknown-devices`, so a config that names a just-launched model is accepted instead of rejected.
+
+  Also fills in schema fields Google added to the Play Developer API: pending item removal on subscription purchase line items, unprotected split and standalone APK lists on generated APKs, and page counts on the reviews and voided purchases list responses.
+
+- feat(cli): `gpc purchases orders review-refund` for chargeback disputes
+
+  When a user disputes a charge, Google Play sends a `pendingRefundReviewNotification` and gives you
+  24 hours to respond. The new command answers it via the `orders.reviewrefund` API (discovery rev
+  20260826): pass the token from the notification, a refund preference (`approve`, `decline`,
+  `neutral`), whether a sample or trial was offered, and optional usage evidence
+  (`--consumption-percent`, `--usage-events-file`). `gpc rtdn decode` now recognises the
+  notification and surfaces the token.
+
 ## 1.1.0
 
 ### Minor Changes

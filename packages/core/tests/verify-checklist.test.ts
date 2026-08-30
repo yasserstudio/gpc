@@ -83,7 +83,7 @@ describe("buildChecklist", () => {
       interactiveAnswers: { "identity-verified": true },
     });
     expect(result.completed).toBe(5);
-    expect(result.total).toBe(9);
+    expect(result.total).toBe(11);
   });
 
   it("uses singular for 1 bundle", () => {
@@ -123,7 +123,38 @@ describe("buildChecklist", () => {
     expect(result.items.find((i) => i.id === "app-accessible")).toBeUndefined();
     expect(result.items.find((i) => i.id === "bundle-uploaded")).toBeUndefined();
     expect(result.items.find((i) => i.id === "play-app-signing")).toBeUndefined();
-    expect(result.total).toBe(6);
+    expect(result.total).toBe(8);
+  });
+
+  it("includes a memory quality step citing the February 2027 thresholds", () => {
+    const result = buildChecklist({ authenticated: true });
+    const memory = result.items.find((i) => i.id === "memory-quality-thresholds");
+    expect(memory).toBeDefined();
+    expect(memory?.status).toBe("cannot-detect");
+    expect(memory?.detail).toContain("February 2027");
+    expect(memory?.detail).toContain("DEX code optimization");
+    expect(memory?.detail).toContain("25%");
+    expect(memory?.actionUrl).toContain("android-developers.googleblog.com");
+  });
+
+  it("includes a Restore Credentials step citing the April 2027 requirement", () => {
+    const result = buildChecklist({ authenticated: true });
+    const restore = result.items.find((i) => i.id === "restore-credentials");
+    expect(restore).toBeDefined();
+    expect(restore?.status).toBe("cannot-detect");
+    expect(restore?.detail).toContain("April 2027");
+    expect(restore?.detail).toContain("Restore Credentials API");
+    expect(restore?.detail).toContain("Games are currently exempt");
+    expect(restore?.actionUrl).toContain("restore-credentials");
+  });
+
+  it("resolves the 2027 quality steps from interactive answers", () => {
+    const result = buildChecklist({
+      authenticated: true,
+      interactiveAnswers: { "memory-quality-thresholds": true, "restore-credentials": false },
+    });
+    expect(result.items.find((i) => i.id === "memory-quality-thresholds")?.status).toBe("done");
+    expect(result.items.find((i) => i.id === "restore-credentials")?.status).toBe("action-needed");
   });
 
   it("includes an all-apps-registered step citing the July 15 2026 registration mandate", () => {

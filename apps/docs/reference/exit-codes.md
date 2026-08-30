@@ -97,6 +97,7 @@ When an error occurs with `--output json`, the response follows this structure:
 | `UPLOAD_*`       | File upload errors               | 4          |
 | `NETWORK_*`      | Network / connectivity           | 5          |
 | `PLUGIN_*`       | Plugin system errors             | 1          |
+| `ORDER_*`        | Order refund review errors       | 2          |
 | `CHANGELOG_*`    | Changelog generation errors      | 1          |
 | `CHANGELOG_AI_*` | AI translation errors (v0.9.63+) | 1, 2, or 3 |
 | `GIT_*`          | Git subprocess errors            | 1          |
@@ -115,9 +116,11 @@ When an error occurs with `--output json`, the response follows this structure:
 | `API_INSUFFICIENT_PERMISSIONS`    | 403 error: specific permission missing for this action     | Grant the required permission in Play Console                                                      |
 | `API_DECLARATION_REQUIRED`        | 403 error: an App content declaration is incomplete        | Play Console → Policy → App content. Not fixable by changing permissions                           |
 | `API_NOT_FOUND`                   | 404 error: resource does not exist                         | Verify package name and resource IDs                                                               |
+| `API_ENDPOINT_RETIRED`            | Google removed this endpoint from its published API        | Do the task in the Play Console. Affects Play Games icon upload (`games ... set-icon`)             |
 | `API_APP_NOT_FOUND`               | The configured app has no Play Console listing             | Create a draft listing or check the package name                                                   |
 | `API_TRACK_NOT_FOUND`             | Named track does not exist on this app                     | Run `gpc tracks list` to see valid tracks                                                          |
 | `API_EDIT_CONFLICT`               | 409 error: another edit is already in progress             | Delete the existing edit and retry                                                                 |
+| `API_ALREADY_EXISTS`              | 409 error: the resource you tried to create already exists | Use the matching `update` command instead of `create`                                              |
 | `API_EDIT_EXPIRED`                | Edit session exceeded 14-day lifetime                      | Run the command again; GPC creates a new edit                                                      |
 | `API_CHANGES_ALREADY_IN_REVIEW`   | Track has a release already in review                      | Wait for Google to finish reviewing, or use `--error-if-in-review`                                 |
 | `API_CHANGES_NOT_SENT_FOR_REVIEW` | App rejected; changes not submitted                        | Use `--changes-not-sent-for-review` flag                                                           |
@@ -144,6 +147,7 @@ When an error occurs with `--output json`, the response follows this structure:
 | `CONFIG_INVALID_VALUE`            | Config value failed validation                             | Run `gpc config show` to see resolved config                                                       |
 | `CONFIG_PROFILE_NOT_FOUND`        | Named profile does not exist                               | Run `gpc auth profiles` to list profiles                                                           |
 | `PLUGIN_INVALID_PERMISSION`       | Plugin requests unknown permission                         | Check plugin manifest                                                                              |
+| `ORDER_REVIEW_REFUND_INVALID`     | `purchases orders review-refund` was given invalid input   | Answer `--sample-content-provided`, use a plain 0-100 `--consumption-percent`, pass a JSON array   |
 | `CHANGELOG_AI_NO_CREDENTIALS`     | `--ai` passed but no provider key in env                   | Set `AI_GATEWAY_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, or `GOOGLE_GENERATIVE_AI_API_KEY` |
 | `CHANGELOG_AI_UNKNOWN_PROVIDER`   | `--provider` value not in whitelist                        | Use `anthropic`, `openai`, or `google`                                                             |
 | `CHANGELOG_AI_TRANSLATION_FAILED` | `--strict` set and at least one locale failed to translate | Remove `--strict` or inspect per-locale reasons on stderr                                          |

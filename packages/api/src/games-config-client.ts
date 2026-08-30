@@ -1,3 +1,4 @@
+import { PlayApiError } from "./errors.js";
 import { createHttpClient } from "./http.js";
 import type { ApiClientOptions } from "./types.js";
 
@@ -146,6 +147,46 @@ export interface GamesConfigClient {
 
 const p = (segment: string): string => encodeURIComponent(segment);
 
+/**
+ * Google removed the `imageConfigurations` resource from the published
+ * gamesconfiguration discovery document (revision 20260820); only
+ * achievementConfigurations and leaderboardConfigurations remain. The upload
+ * route may still be served, so we leave the call in place and only translate
+ * its failure — but only when the failure says the ROUTE is gone.
+ *
+ * A bare 404 is not enough: the same status covers "no such achievement id",
+ * and replacing Google's explanation with our own is exactly the misdiagnosis
+ * that cost a reporter five hours in GH #101. So we match the route-not-found
+ * signature only: Google's HTML 404 page, or a JSON error saying the URL or
+ * method itself was not found. "Requested entity was not found" stays untouched.
+ */
+const RETIRED_ROUTE_PATTERNS = [
+  // Google's HTML 404 page, before and after tag stripping.
+  "<html",
+  "error 404 (not found)!!1",
+  "the requested url",
+  "was not found on this server",
+  // JSON route/method-level 404s.
+  "method not found",
+  "unknown path",
+];
+
+function isRetiredEndpointError(err: unknown): err is PlayApiError {
+  if (!(err instanceof PlayApiError)) return false;
+  if (err.statusCode === undefined || err.statusCode < 300) return false;
+  const message = err.message.toLowerCase();
+  return RETIRED_ROUTE_PATTERNS.some((pattern) => message.includes(pattern));
+}
+
+function retiredImageEndpointError(cause: PlayApiError): PlayApiError {
+  return new PlayApiError(
+    `Google removed the Play Games icon upload endpoint (imageConfigurations) from the Games Configuration API. Google Play said: ${cause.message}`,
+    "API_ENDPOINT_RETIRED",
+    cause.statusCode,
+    "Upload achievement and leaderboard icons in the Play Console (Grow > Play Games Services > Setup and management > Achievements / Leaderboards)",
+  );
+}
+
 export function createGamesConfigClient(options: ApiClientOptions): GamesConfigClient {
   const http = createHttpClient({ ...options, baseUrl: GAMES_CONFIG_BASE_URL });
 
@@ -230,12 +271,17 @@ export function createGamesConfigClient(options: ApiClientOptions): GamesConfigC
 
     images: {
       async upload(resourceId, imageType, filePath, contentType) {
-        const { data } = await http.uploadGamesImage<ImageConfiguration>(
-          `/images/${p(resourceId)}/imageType/${p(imageType)}`,
-          filePath,
-          contentType,
-        );
-        return data;
+        try {
+          const { data } = await http.uploadGamesImage<ImageConfiguration>(
+            `/images/${p(resourceId)}/imageType/${p(imageType)}`,
+            filePath,
+            contentType,
+          );
+          return data;
+        } catch (err) {
+          if (isRetiredEndpointError(err)) throw retiredImageEndpointError(err);
+          throw err;
+        }
       },
     },
   };

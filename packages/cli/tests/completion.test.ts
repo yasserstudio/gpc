@@ -82,6 +82,12 @@ describe("getCommandTree", () => {
     expect(subs).toEqual(["list", "cancel", "deploy", "create", "add-targeting"]);
   });
 
+  it("includes subcommands for app-signing", () => {
+    const tree = getCommandTree();
+    const subs = Object.keys(tree["app-signing"]?.subcommands ?? {});
+    expect(subs).toEqual(["enroll", "rotate"]);
+  });
+
   it("includes subcommands for data-safety", () => {
     const tree = getCommandTree();
     const subs = Object.keys(tree["data-safety"]?.subcommands ?? {});

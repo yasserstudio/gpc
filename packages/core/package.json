@@ -1,6 +1,6 @@
 {
   "name": "@gpc-cli/core",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "Core business logic for GPC. Releases, rollouts, vitals, preflight scanner, AI changelog, metadata sync for Google Play Developer API.",
   "type": "module",
   "main": "./dist/index.js",
@@ -32,7 +32,7 @@
     "@gpc-cli/config": "workspace:*",
     "@gpc-cli/plugin-sdk": "workspace:*",
     "ai": "^6.0.0",
-    "protobufjs": "^8.6.5",
+    "protobufjs": "^8.8.0",
     "yauzl": "^3.4.0"
   },
   "homepage": "https://yasserstudio.github.io/gpc/",

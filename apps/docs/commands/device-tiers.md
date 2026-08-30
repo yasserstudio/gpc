@@ -138,11 +138,16 @@ gpc device-tiers create --file <path> [options]
 
 ### Options
 
-| Flag     | Short | Type     | Default        | Description              |
-| -------- | ----- | -------- | -------------- | ------------------------ |
-| `--file` | `-f`  | `string` | **(required)** | Path to JSON config file |
-| `--app`  |       | `string` |                | App package name         |
-| `--json` |       | `flag`   |                | Output as JSON           |
+| Flag                      | Short | Type     | Default        | Description                                                 |
+| ------------------------- | ----- | -------- | -------------- | ----------------------------------------------------------- |
+| `--file`                  |       | `string` | **(required)** | Path to JSON config file                                    |
+| `--allow-unknown-devices` |       | `flag`   |                | Accept device IDs that are unknown to Play's device catalog |
+| `--app`                   |       | `string` |                | App package name                                            |
+| `--json`                  |       | `flag`   |                | Output as JSON                                              |
+
+Use `--allow-unknown-devices` when your selectors name devices Play does not yet have in its
+catalog (for example a model that has just launched). Without the flag, Play rejects the
+configuration rather than creating it.
 
 ### Example
 

@@ -32,7 +32,10 @@ export const metadataScanner: PreflightScanner = {
   requires: ["metadataDir"],
 
   async scan(ctx: PreflightContext): Promise<PreflightFinding[]> {
-    const dir = ctx.metadataDir!;
+    const dir = ctx.metadataDir;
+    if (!dir) {
+      throw new Error('The "metadata" scanner requires metadataDir in the preflight context');
+    }
     const findings: PreflightFinding[] = [];
 
     let entries: string[];
@@ -156,7 +159,8 @@ export const metadataScanner: PreflightScanner = {
     }
 
     // Check for privacy policy URL
-    const defaultLang = locales.includes("en-US") ? "en-US" : locales[0]!;
+    // locales is non-empty here (the empty case returned above at "no-locales-found").
+    const defaultLang = locales.includes("en-US") ? "en-US" : (locales[0] ?? "en-US");
     const privacyPath = join(dir, defaultLang, "privacy_policy_url.txt");
     try {
       const url = await readFile(privacyPath, "utf-8");

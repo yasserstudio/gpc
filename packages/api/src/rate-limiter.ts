@@ -54,7 +54,9 @@ export function resolveBucket(path: string): string {
     return "reporting";
   if (
     path.includes("/inappproducts") ||
-    path.includes("/oneTimeProducts") ||
+    // Play spells this resource both ways: camelCase for get/list/delete/batch*, lowercase
+    // `onetimeproducts` for the PATCH route (discovery rev 20260826). Both are the same quota.
+    path.toLowerCase().includes("/onetimeproducts") ||
     path.includes("/subscriptions") ||
     path.includes("/monetization")
   )

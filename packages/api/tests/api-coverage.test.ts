@@ -153,7 +153,7 @@ describe("API Coverage Audit — PlayApiClient", () => {
   });
 
   describe("orders namespace", () => {
-    assertMethods(client.orders, ["get", "batchGet", "refund"], "orders");
+    assertMethods(client.orders, ["get", "batchGet", "refund", "reviewRefund"], "orders");
   });
 
   describe("monetization namespace", () => {
@@ -275,6 +275,7 @@ describe("API Coverage Audit — Namespace completeness", () => {
     "generatedApks",
     "systemApks",
     "releases",
+    "appSigning",
   ];
 
   it("PlayApiClient exposes all expected namespaces", () => {

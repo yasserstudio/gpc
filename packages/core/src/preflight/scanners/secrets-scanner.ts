@@ -96,7 +96,8 @@ export const secretsScanner: PreflightScanner = {
   requires: ["sourceDir"],
 
   async scan(ctx: PreflightContext): Promise<PreflightFinding[]> {
-    const dir = ctx.sourceDir!;
+    const dir = ctx.sourceDir;
+    if (!dir) throw new Error('The "secrets" scanner requires sourceDir in the preflight context');
     const findings: PreflightFinding[] = [];
     const files = await collectSourceFiles(dir, SCAN_EXTENSIONS);
 
@@ -110,7 +111,8 @@ export const secretsScanner: PreflightScanner = {
 
       const lines = content.split("\n");
       for (let i = 0; i < lines.length; i++) {
-        const line = lines[i]!;
+        const line = lines[i];
+        if (line === undefined) continue;
         for (const pattern of SECRET_PATTERNS) {
           if (pattern.pattern.test(line)) {
             const relativePath = filePath.startsWith(dir)

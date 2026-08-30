@@ -10,7 +10,10 @@ export const policyScanner: PreflightScanner = {
   requires: ["manifest"],
 
   async scan(ctx: PreflightContext): Promise<PreflightFinding[]> {
-    const manifest = ctx.manifest!;
+    const manifest = ctx.manifest;
+    if (!manifest) {
+      throw new Error('The "policy" scanner requires manifest in the preflight context');
+    }
     const findings: PreflightFinding[] = [];
     const perms = new Set(manifest.permissions);
 

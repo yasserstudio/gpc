@@ -44,7 +44,8 @@ export const privacyScanner: PreflightScanner = {
   requires: ["sourceDir"],
 
   async scan(ctx: PreflightContext): Promise<PreflightFinding[]> {
-    const dir = ctx.sourceDir!;
+    const dir = ctx.sourceDir;
+    if (!dir) throw new Error('The "privacy" scanner requires sourceDir in the preflight context');
     const findings: PreflightFinding[] = [];
     const detectedSdks = new Set<string>();
     const files = await collectSourceFiles(dir, SCAN_EXTENSIONS);

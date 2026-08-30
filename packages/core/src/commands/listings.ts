@@ -288,6 +288,7 @@ export async function uploadImage(
   imageType: ImageType,
   filePath: string,
   commitOptions?: EditCommitOptions,
+  uploadOptions?: { aiGenerated?: boolean },
 ): Promise<Image> {
   validateLanguage(language);
 
@@ -307,7 +308,14 @@ export async function uploadImage(
 
   const edit = await client.edits.insert(packageName);
   try {
-    const image = await client.images.upload(packageName, edit.id, language, imageType, filePath);
+    const image = await client.images.upload(
+      packageName,
+      edit.id,
+      language,
+      imageType,
+      filePath,
+      uploadOptions,
+    );
     await validateAndCommit(client, packageName, edit.id, commitOptions);
     return image;
   } catch (error) {
