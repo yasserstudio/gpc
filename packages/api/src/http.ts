@@ -389,6 +389,25 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
     };
   }
 
+  // — No rejected update: Play refuses changesNotSentForReview=true (400)
+  // Google: "The query parameter changesNotSentForReview must not be set to true. Please set it to false."
+  // Must be checked before the branch below, which matches the same parameter name.
+  if (
+    (status === 403 || status === 400) &&
+    errorMsg.includes("changesnotsentforreview") &&
+    /must not be set|should not be set|not be set to true|set it to false/.test(errorMsg)
+  ) {
+    return {
+      code: "API_CHANGES_NOT_SENT_FOR_REVIEW_NOT_ALLOWED",
+      message:
+        "Google Play rejected changesNotSentForReview=true: this app has no rejected update, so changes must be sent for review normally.",
+      suggestion: [
+        "Drop --changes-not-sent-for-review and re-run the same command.",
+        "That flag is only accepted while the app has a rejected update pending in Play Console.",
+      ].join("\n"),
+    };
+  }
+
   // — Rejected app: changesNotSentForReview required (403)
   if (
     (status === 403 || status === 400) &&
@@ -583,6 +602,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
           mapped.code,
           response.status,
           mapped.suggestion,
+          mapped.message ? sanitizeErrorBody(errorBody) : undefined,
         );
 
         if (isRetryable(response.status) && attempt < maxRetries) {
@@ -740,6 +760,7 @@ export function createHttpClient(options: ApiClientOptions): HttpClient {
           mapped.code,
           response.status,
           mapped.suggestion,
+          mapped.message ? sanitizeErrorBody(errorBody) : undefined,
         );
 
         if (isRetryable(response.status) && attempt < maxRetries) {

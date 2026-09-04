@@ -184,3 +184,38 @@ describe("validateAndCommit", () => {
     expect(client.edits.commit).not.toHaveBeenCalled();
   });
 });
+
+describe("commitWithRescue — flag no longer accepted", () => {
+  it("retries WITHOUT changesNotSentForReview when Play says it must not be set", async () => {
+    const client = mockClient();
+    const notAllowed = new PlayApiError(
+      "must not be set to true",
+      "API_CHANGES_NOT_SENT_FOR_REVIEW_NOT_ALLOWED",
+      400,
+    );
+    vi.mocked(client.edits.commit).mockRejectedValueOnce(notAllowed);
+    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const result = await commitWithRescue(client, "com.example", "edit1", {
+      changesNotSentForReview: true,
+    });
+
+    expect(result.rescued).toBe(true);
+    expect(client.edits.commit).toHaveBeenCalledTimes(2);
+    expect(client.edits.commit).toHaveBeenLastCalledWith("com.example", "edit1", {});
+    expect(errSpy).toHaveBeenCalledWith(expect.stringContaining("no longer accepts"));
+    errSpy.mockRestore();
+  });
+
+  it("does not retry the NOT_ALLOWED error when the flag was never set", async () => {
+    const client = mockClient();
+    const notAllowed = new PlayApiError(
+      "must not be set to true",
+      "API_CHANGES_NOT_SENT_FOR_REVIEW_NOT_ALLOWED",
+      400,
+    );
+    vi.mocked(client.edits.commit).mockRejectedValueOnce(notAllowed);
+    await expect(commitWithRescue(client, "com.example", "edit1")).rejects.toBe(notAllowed);
+    expect(client.edits.commit).toHaveBeenCalledTimes(1);
+  });
+});

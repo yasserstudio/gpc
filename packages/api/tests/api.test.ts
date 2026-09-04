@@ -3997,3 +3997,41 @@ describe("subscriptions.create with regionsVersion", () => {
     expect(url).toContain("regionsVersion.version=2024%2F01");
   });
 });
+
+describe("changesNotSentForReview error mapping", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function clientWith(body: unknown, status: number) {
+    mockFetch.mockResolvedValueOnce(mockResponse(body, status));
+    return createHttpClient({ auth: mockAuth(), maxRetries: 0, baseDelay: 0 });
+  }
+
+  it("maps 'must not be set to true' to NOT_ALLOWED and keeps Google's message", async () => {
+    const raw =
+      "The query parameter changesNotSentForReview must not be set to true. Please set it to false.";
+    const client = clientWith({ error: { code: 400, status: "INVALID_ARGUMENT", message: raw } }, 400);
+    const err = await client.get("/com.example.app/edits/1:commit").catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(PlayApiError);
+    expect((err as PlayApiError).code).toBe("API_CHANGES_NOT_SENT_FOR_REVIEW_NOT_ALLOWED");
+    expect((err as PlayApiError).details).toContain(raw);
+    expect((err as PlayApiError).toJSON().error).toMatchObject({ details: expect.stringContaining(raw) });
+  });
+
+  it("still maps 'set the query parameter ... to true' to the add-the-flag code", async () => {
+    const raw =
+      "Changes cannot be sent for review automatically. Please set the query parameter changesNotSentForReview to true.";
+    const client = clientWith({ error: { code: 403, status: "PERMISSION_DENIED", message: raw } }, 403);
+    const err = await client.get("/com.example.app/edits/1:commit").catch((e: unknown) => e);
+    expect((err as PlayApiError).code).toBe("API_CHANGES_NOT_SENT_FOR_REVIEW");
+    expect((err as PlayApiError).details).toContain(raw);
+  });
+});

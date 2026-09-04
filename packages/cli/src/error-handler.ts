@@ -7,6 +7,8 @@ interface TypedError {
   message: string;
   code?: string;
   suggestion?: string;
+  /** Raw upstream message (e.g. Google's), printed after the suggestion. */
+  details?: string;
   exitCode?: number;
   /** When true, error handler prints nothing (e.g., user-aborted operations). */
   silent?: boolean;
@@ -52,6 +54,9 @@ export function handleCliError(error: unknown): number {
     console.error(`Error [${error.code}]: ${error.message}`);
     if (error.suggestion) {
       console.error(`Suggestion: ${error.suggestion}`);
+    }
+    if (error.details) {
+      console.error(`Details: ${error.details}`);
     }
     if (authHint) console.error(authHint);
     return error.exitCode ?? 1;
