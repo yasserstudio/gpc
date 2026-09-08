@@ -1,6 +1,6 @@
 {
   "name": "@gpc-cli/api",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "TypeScript client for 234 publisher-focused endpoints across four Google Play APIs. Typed requests and responses, rate limiting, and edit lifecycle management.",
   "type": "module",
   "main": "./dist/index.js",
