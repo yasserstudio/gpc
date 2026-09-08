@@ -1,5 +1,13 @@
 # @gpc-cli/core
 
+## 0.10.3
+
+### Patch Changes
+
+- 761b5b0: Add Play Developer Reporting's anonymous RSS plus swap and bitmap memory usage metric sets, exposed as `gpc vitals memory-rss` and `gpc vitals memory-bitmap`.
+- Updated dependencies [761b5b0]
+  - @gpc-cli/api@1.1.2
+
 ## 0.10.2
 
 ### Patch Changes
