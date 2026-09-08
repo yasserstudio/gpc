@@ -246,6 +246,8 @@ vi.mock("@gpc-cli/core", () => {
     writeMigrationOutput: vi.fn().mockResolvedValue([]),
     // v0.9.35 new exports
     getVitalsLmk: vi.fn().mockResolvedValue({ rows: [] }),
+    getVitalsMemoryRss: vi.fn().mockResolvedValue({ rows: [] }),
+    getVitalsMemoryBitmap: vi.fn().mockResolvedValue({ rows: [] }),
     getVitalsErrorCount: vi.fn().mockResolvedValue({ rows: [] }),
     compareVitalsTrend: vi.fn().mockResolvedValue({
       metric: "crashRateMetricSet",
@@ -950,6 +952,8 @@ describe("vitals subcommands", () => {
     expect(subcommandNames).toContain("memory");
     expect(subcommandNames).toContain("wakeup");
     expect(subcommandNames).toContain("lmk");
+    expect(subcommandNames).toContain("memory-rss");
+    expect(subcommandNames).toContain("memory-bitmap");
     expect(subcommandNames).toContain("error-count");
     expect(subcommandNames).toContain("compare");
     expect(subcommandNames).toContain("compare-versions");
@@ -969,7 +973,7 @@ describe("vitals subcommands", () => {
     expect(metricOption!.description).toContain("error-count");
   });
 
-  it("vitals metric commands have threshold option", () => {
+  it("vitals metric commands expose thresholds and memory uses P90", async () => {
     const vitalsCmd = program.commands.find((cmd) => cmd.name() === "vitals");
     const crashesCmd = vitalsCmd!.commands.find((cmd) => cmd.name() === "crashes");
     expect(crashesCmd).toBeDefined();
@@ -977,6 +981,32 @@ describe("vitals subcommands", () => {
     expect(optionFlags).toContain("--dim");
     expect(optionFlags).toContain("--days");
     expect(optionFlags).toContain("--threshold");
+
+    const core = await import("@gpc-cli/core");
+    vi.mocked(core.getVitalsMemoryRss).mockResolvedValueOnce({
+      rows: [
+        {
+          metrics: {
+            anonRssAndSwapMemoryUsageP50: { decimalValue: { value: "50" } },
+            anonRssAndSwapMemoryUsageP90: { decimalValue: { value: "90" } },
+          },
+        },
+      ],
+    } as never);
+    vi.spyOn(console, "log").mockImplementation(() => {});
+
+    await program.parseAsync([
+      "node",
+      "test",
+      "--app",
+      "com.example.app",
+      "vitals",
+      "memory-rss",
+      "--threshold",
+      "100",
+    ]);
+
+    expect(core.checkThreshold).toHaveBeenCalledWith(90, 100);
   });
 
   it("vitals errors has search subcommand", () => {

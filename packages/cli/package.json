@@ -1,7 +1,7 @@
 {
   "name": "@gpc-cli/cli",
   "version": "0.9.96",
-  "description": "GPC — Google Play Console CLI. 227 API endpoints including Managed Google Play. Upload AABs, manage releases, monitor vitals, publish private enterprise apps. Fastlane alternative for Android.",
+  "description": "GPC — Google Play Console CLI. 234 API endpoints including Managed Google Play. Upload AABs, manage releases, monitor vitals, publish private enterprise apps. Fastlane alternative for Android.",
   "type": "module",
   "bin": {
     "gpc": "./dist/bin.js"

@@ -22,6 +22,8 @@ outline: deep
 | [`vitals wakeup`](#vitals-battery)              | Alias for `vitals battery`             |
 | [`vitals memory`](#vitals-memory)               | Query stuck wakelock metrics           |
 | [`vitals lmk`](#vitals-lmk)                     | Query low-memory killer metrics        |
+| [`vitals memory-rss`](#vitals-memory-rss)       | Query anonymous RSS and swap memory    |
+| [`vitals memory-bitmap`](#vitals-memory-bitmap) | Query bitmap memory usage              |
 | [`vitals error-count`](#vitals-error-count)     | Query error report count metrics       |
 | [`vitals errors search`](#vitals-errors-search) | Search error issues and reports        |
 | [`vitals compare`](#vitals-compare)             | Compare metric trend across periods    |
@@ -32,17 +34,13 @@ Vitals commands use the Google Play Developer Reporting API, which must be enabl
 Enable it at: `https://console.cloud.google.com/apis/library/playdeveloperreporting.googleapis.com`
 :::
 
-::: warning Known issue: `vitals errors reports`
-The per-issue drill-down path currently calls an endpoint that does not exist in Google's current Reporting API discovery doc (revision `20260415`). Scheduled for a future release alongside additions for `apps.search`, `apps.fetchReleaseFilterOptions`, and extended `errorIssues.search` query parameters. See [Planned coverage](../reference/api-coverage.md#planned-coverage).
-:::
-
 ::: tip Automatic freshness clamping (v0.9.70+)
 Google's vitals data typically lags 3-4 days behind real-time. GPC automatically queries the freshness endpoint for each metric set and clamps the date range to avoid `400 INVALID_ARGUMENT` errors. No configuration needed.
 :::
 
 ## Shared Options
 
-The metric commands (`crashes`, `anr`, `startup`, `rendering`, `battery`, `memory`) share these options:
+The metric commands (`crashes`, `anr`, `startup`, `rendering`, `battery`, `memory`, `lmk`, `memory-rss`, `memory-bitmap`, and `error-count`) share these options:
 
 | Flag          | Short | Type     | Default | Description                                               |
 | ------------- | ----- | -------- | ------- | --------------------------------------------------------- |
@@ -50,7 +48,7 @@ The metric commands (`crashes`, `anr`, `startup`, `rendering`, `battery`, `memor
 | `--days`      |       | `number` |         | Number of days to query                                   |
 | `--threshold` |       | `number` |         | Threshold value for CI alerting (exit code 6 if breached) |
 
-Valid dimensions: `apiLevel`, `versionCode`, `deviceModel`, `deviceType`, `countryCode`, `deviceRamBucket`, `deviceSocName`, `deviceCpuMakeModel`, `deviceGlEsVersion`, `deviceVulkanVersion`, `deviceOpenGlVersion`, `deviceBrand`.
+Valid dimensions include `apiLevel`, `versionCode`, `deviceModel`, `deviceType`, `countryCode`, `deviceRamBucket`, `deviceBrand`, GPU/CPU/SoC details, screen size and density, `processName`, and `appState`. Google supports different subsets for each metric set.
 
 ## `vitals overview`
 
@@ -301,6 +299,29 @@ gpc vitals lmk [options]
 
 ```bash
 gpc vitals lmk --app com.example.myapp --days 30 --threshold 0.01
+```
+
+---
+
+## `vitals memory-rss`
+
+Query the 50th, 75th, 90th, 95th, and 99th percentiles of anonymous RSS plus swap memory usage. This is one of the dynamic-memory signals Google uses for its February 2027 app-quality requirements. The Reporting API supports daily aggregation only. `--threshold` evaluates the P90 metric used by Google's requirement.
+
+```bash
+gpc vitals memory-rss --app com.example.myapp --days 30
+gpc vitals memory-rss --app com.example.myapp --dim deviceRamBucket
+gpc vitals memory-rss --app com.example.myapp --dim appState
+```
+
+---
+
+## `vitals memory-bitmap`
+
+Query the 50th, 75th, 90th, 95th, and 99th percentiles of bitmap memory usage. The Reporting API supports daily aggregation only. `--threshold` evaluates the P90 metric used by Google's requirement.
+
+```bash
+gpc vitals memory-bitmap --app com.example.myapp --days 30
+gpc vitals memory-bitmap --app com.example.myapp --dim deviceModel
 ```
 
 ---

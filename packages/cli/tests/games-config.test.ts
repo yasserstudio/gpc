@@ -264,6 +264,8 @@ vi.mock("@gpc-cli/core", () => {
     generateMigrationPlan: vi.fn().mockReturnValue({ config: {}, checklist: [], warnings: [] }),
     writeMigrationOutput: vi.fn().mockResolvedValue([]),
     getVitalsLmk: vi.fn().mockResolvedValue({ rows: [] }),
+    getVitalsMemoryRss: vi.fn().mockResolvedValue({ rows: [] }),
+    getVitalsMemoryBitmap: vi.fn().mockResolvedValue({ rows: [] }),
     getVitalsErrorCount: vi.fn().mockResolvedValue({ rows: [] }),
     compareVitalsTrend: vi.fn().mockResolvedValue({
       metric: "crashRateMetricSet",

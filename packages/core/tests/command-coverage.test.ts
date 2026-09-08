@@ -74,6 +74,8 @@ describe("Core Command Coverage — Vitals & Reporting", () => {
       "getVitalsBattery",
       "getVitalsMemory",
       "getVitalsLmk",
+      "getVitalsMemoryRss",
+      "getVitalsMemoryBitmap",
       "getVitalsErrorCount",
       "getVitalsAnomalies",
       "searchVitalsErrors",

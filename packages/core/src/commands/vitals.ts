@@ -49,6 +49,22 @@ const METRIC_SET_METRICS: Record<VitalsMetricSet, string[]> = {
     "userPerceivedLmkRate28dUserWeighted",
     "distinctUsers",
   ],
+  anonRssAndSwapMemoryUsageMetricSet: [
+    "anonRssAndSwapMemoryUsageP50",
+    "anonRssAndSwapMemoryUsageP75",
+    "anonRssAndSwapMemoryUsageP90",
+    "anonRssAndSwapMemoryUsageP95",
+    "anonRssAndSwapMemoryUsageP99",
+    "distinctUsers",
+  ],
+  bitmapMemoryUsageMetricSet: [
+    "bitmapMemoryUsageP50",
+    "bitmapMemoryUsageP75",
+    "bitmapMemoryUsageP90",
+    "bitmapMemoryUsageP95",
+    "bitmapMemoryUsageP99",
+    "distinctUsers",
+  ],
   errorCountMetricSet: ["errorReportCount", "distinctUsers"],
 };
 
@@ -229,6 +245,30 @@ export async function getVitalsLmk(
   options?: VitalsQueryOptions,
 ): Promise<MetricSetResponse> {
   return queryMetric(reporting, packageName, "lmkRateMetricSet", {
+    ...options,
+    aggregation: "DAILY",
+  });
+}
+
+/** Dynamic anonymous RSS plus swap memory usage percentiles. DAILY is the only supported period. */
+export async function getVitalsMemoryRss(
+  reporting: ReportingApiClient,
+  packageName: string,
+  options?: VitalsQueryOptions,
+): Promise<MetricSetResponse> {
+  return queryMetric(reporting, packageName, "anonRssAndSwapMemoryUsageMetricSet", {
+    ...options,
+    aggregation: "DAILY",
+  });
+}
+
+/** Bitmap memory usage percentiles. DAILY is the only supported period. */
+export async function getVitalsMemoryBitmap(
+  reporting: ReportingApiClient,
+  packageName: string,
+  options?: VitalsQueryOptions,
+): Promise<MetricSetResponse> {
+  return queryMetric(reporting, packageName, "bitmapMemoryUsageMetricSet", {
     ...options,
     aggregation: "DAILY",
   });

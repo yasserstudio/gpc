@@ -15,6 +15,8 @@ import {
   getVitalsBattery,
   getVitalsMemory,
   getVitalsLmk,
+  getVitalsMemoryRss,
+  getVitalsMemoryBitmap,
   getVitalsErrorCount,
   getVitalsAnomalies,
   searchVitalsErrors,
@@ -41,11 +43,22 @@ const VALID_DIMENSIONS: ReportingDimension[] = [
   "countryCode",
   "deviceRamBucket",
   "deviceSocName",
+  "deviceSocMake",
+  "deviceSocModel",
   "deviceCpuMakeModel",
+  "deviceCpuMake",
+  "deviceCpuModel",
+  "deviceGpuMake",
+  "deviceGpuModel",
+  "deviceGpuVersion",
   "deviceGlEsVersion",
   "deviceVulkanVersion",
   "deviceOpenGlVersion",
   "deviceBrand",
+  "deviceScreenSize",
+  "deviceScreenDpi",
+  "processName",
+  "appState",
   "startType", // Required dimension for slowStartRateMetricSet
 ];
 
@@ -81,6 +94,7 @@ function registerMetricCommand(
   description: string,
   fn: MetricFn,
   program: Command,
+  thresholdMetric?: string,
 ): void {
   parent
     .command(name)
@@ -202,10 +216,8 @@ function registerMetricCommand(
       if (threshold !== undefined) {
         const latestRow = result.rows?.[result.rows.length - 1];
         const metricKeys = latestRow?.metrics ? Object.keys(latestRow.metrics) : [];
-        const firstMetric = metricKeys[0];
-        const value = firstMetric
-          ? Number(latestRow?.metrics[firstMetric]?.decimalValue?.value)
-          : undefined;
+        const metric = thresholdMetric ?? metricKeys[0];
+        const value = metric ? Number(latestRow?.metrics[metric]?.decimalValue?.value) : undefined;
         const check = checkThreshold(value, threshold);
         if (check.breached) {
           console.error(`${red("✗")} Threshold breached: ${check.value} > ${check.threshold}`);
@@ -288,12 +300,22 @@ export function registerVitalsCommands(program: Command): void {
     getVitalsBattery,
     program,
   );
+  registerMetricCommand(vitals, "lmk", "Query low-memory kill metrics", getVitalsLmk, program);
   registerMetricCommand(
     vitals,
-    "lmk",
-    "Query low-memory kill (stuck wakelock) metrics",
-    getVitalsLmk,
+    "memory-rss",
+    "Query anonymous RSS and swap memory usage percentiles",
+    getVitalsMemoryRss,
     program,
+    "anonRssAndSwapMemoryUsageP90",
+  );
+  registerMetricCommand(
+    vitals,
+    "memory-bitmap",
+    "Query bitmap memory usage percentiles",
+    getVitalsMemoryBitmap,
+    program,
+    "bitmapMemoryUsageP90",
   );
   registerMetricCommand(
     vitals,

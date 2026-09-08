@@ -4,7 +4,7 @@ outline: deep
 
 # What is GPC?
 
-GPC is a command-line tool that gives you access to the **entire Google Play Developer API** from your terminal. One tool replaces the Play Console UI, Fastlane supply, gradle-play-publisher, and any custom scripts you've been maintaining.
+GPC is a command-line tool that gives you access to **234 publisher-focused endpoints across four Google Play APIs** from your terminal. One tool replaces the Play Console UI, Fastlane supply, gradle-play-publisher, and many custom scripts.
 
 Upload a release, promote to production, check crash rates, reply to reviews, manage subscriptions — all without opening a browser.
 
@@ -17,7 +17,7 @@ gpc reviews list --stars 1-2 --since 7d
 
 ## What GPC Covers
 
-230 API endpoints across every Google Play domain:
+234 API endpoints across every Google Play domain:
 
 | Domain                  | Commands                                                             | What it does                                                                 |
 | ----------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
@@ -41,7 +41,7 @@ Plus: device tiers, internal sharing, data safety, recovery actions, external tr
 
 | Feature              | GPC                                                | Fastlane supply        | gradle-play-publisher | Console UI     |
 | -------------------- | -------------------------------------------------- | ---------------------- | --------------------- | -------------- |
-| **API endpoints**    | 230                                                | ~20                    | ~15                   | All (manual)   |
+| **API endpoints**    | 234                                                | ~20                    | ~15                   | All (manual)   |
 | **Language**         | TypeScript (Node.js)                               | Ruby                   | Kotlin (Gradle)       | Browser        |
 | **Install**          | `npm install -g @gpc-cli/cli` or standalone binary | `gem install fastlane` | Gradle plugin         | None           |
 | **Releases**         | Upload, promote, rollout, halt, resume, complete   | Upload, promote        | Upload, promote       | Manual         |

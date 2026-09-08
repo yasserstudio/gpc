@@ -122,6 +122,8 @@ export function getCommandTree(): Record<string, CommandDef> {
         rendering: { description: "Query slow rendering metrics" },
         battery: { description: "Query excessive wakeup metrics" },
         memory: { description: "Query stuck wakelock metrics" },
+        "memory-rss": { description: "Query anonymous RSS and swap memory usage" },
+        "memory-bitmap": { description: "Query bitmap memory usage" },
         anomalies: { description: "Detect anomalies in app vitals" },
         errors: {
           description: "Search and view error issues",

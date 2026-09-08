@@ -145,6 +145,8 @@ export {
   getVitalsBattery,
   getVitalsMemory,
   getVitalsLmk,
+  getVitalsMemoryRss,
+  getVitalsMemoryBitmap,
   getVitalsErrorCount,
   getVitalsAnomalies,
   searchVitalsErrors,

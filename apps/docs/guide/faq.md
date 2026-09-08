@@ -49,7 +49,7 @@ GPC checks for updates automatically (once per 24 hours) and shows a notificatio
 
 ### How is GPC different from Fastlane supply?
 
-GPC covers 230 API endpoints -- Fastlane supply covers about 20. GPC gives you reviews, vitals, subscriptions, purchases, reports, user management, **Managed Google Play private app publishing** (v0.9.56, first Android publishing CLI to support it), and more. It has no Ruby dependency, supports structured JSON output for CI/CD, and starts in under 500ms (vs 2-3 seconds for Fastlane).
+GPC covers 234 API endpoints -- Fastlane supply covers about 20. GPC gives you reviews, vitals, subscriptions, purchases, reports, user management, **Managed Google Play private app publishing** (v0.9.56, first Android publishing CLI to support it), and more. It has no Ruby dependency, supports structured JSON output for CI/CD, and starts in under 500ms (vs 2-3 seconds for Fastlane).
 
 GPC reads Fastlane's `metadata/` directory format natively, so migration starts with zero file changes. See [Migrating from Fastlane](../migration/from-fastlane) for a step-by-step guide.
 
@@ -77,7 +77,7 @@ See the [CI/CD guide](../ci-cd/) for copy-pasteable GitHub Actions, GitLab CI, B
 
 ### Is it stable enough for production CI/CD?
 
-2,733 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The CLI is in a pre-release stability soak before v1.0.
+2,735 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The CLI is in a pre-release stability soak before v1.0.
 
 ## Configuration
 
@@ -87,7 +87,7 @@ Yes. Use the `--app` flag per command, set `GPC_APP` as an environment variable,
 
 ### Is GPC free?
 
-Yes. GPC is free to use with no tiers, seat pricing, or usage limits. Source code is public at [github.com/yasserstudio/gpc](https://github.com/yasserstudio/gpc). The license is source-available rather than OSI open source, and outside contributions are deferred until v1.0.0. See [Why GPC Is Free to Use](./free-to-use) for the full stance, what is not for sale today, and what may change after v1.0.0.
+Yes. GPC is MIT-licensed open source and free to use with no tiers, seat pricing, or usage limits. Contributions are welcome through the repository's contribution guide. See [Why GPC Is Free to Use](./free-to-use) for the full stance, what is not for sale today, and what may change after v1.0.0.
 
 ## Features
 
@@ -119,7 +119,7 @@ The interactive wizard lets you pick skills and target agents. See [Agent Skills
 
 ### What Google Play APIs does GPC cover?
 
-230 endpoints across the Android Publisher API v3, Play Developer Reporting API v1beta1, Play Custom App Publishing API v1, and Games Configuration API v1configuration. This includes apps, releases, tracks, listings, images, reviews, vitals, subscriptions, in-app products, one-time products, purchases, users, testers, device tiers, data safety, recovery, external transactions, internal sharing, generated APKs, **Play Games achievements and leaderboard configuration** (new in v0.9.86), and **Managed Google Play private app publishing** (first Android publishing CLI to support this). See [API Coverage](../reference/api-coverage) for the full endpoint map.
+234 endpoints across the Android Publisher API v3, Play Developer Reporting API v1beta1, Play Custom App Publishing API v1, and Games Configuration API v1configuration. This includes apps, releases, tracks, listings, images, reviews, vitals, subscriptions, in-app products, one-time products, purchases, users, testers, device tiers, data safety, recovery, external transactions, internal sharing, generated APKs, **Play Games achievements and leaderboard configuration** (new in v0.9.86), and **Managed Google Play private app publishing** (first Android publishing CLI to support this). See [API Coverage](../reference/api-coverage) for the full endpoint map.
 
 ### How do I upload an AAB from the command line?
 

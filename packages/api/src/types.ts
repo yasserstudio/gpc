@@ -305,6 +305,8 @@ export type VitalsMetricSet =
   | "excessiveWakeupRateMetricSet"
   | "stuckBackgroundWakelockRateMetricSet"
   | "lmkRateMetricSet"
+  | "anonRssAndSwapMemoryUsageMetricSet"
+  | "bitmapMemoryUsageMetricSet"
   | "slowStartRateMetricSet"
   | "slowRenderingRateMetricSet"
   | "errorCountMetricSet";
@@ -317,11 +319,22 @@ export type ReportingDimension =
   | "countryCode"
   | "deviceRamBucket"
   | "deviceSocName"
+  | "deviceSocMake"
+  | "deviceSocModel"
   | "deviceCpuMakeModel"
+  | "deviceCpuMake"
+  | "deviceCpuModel"
+  | "deviceGpuMake"
+  | "deviceGpuModel"
+  | "deviceGpuVersion"
   | "deviceGlEsVersion"
   | "deviceVulkanVersion"
   | "deviceOpenGlVersion"
   | "deviceBrand"
+  | "deviceScreenSize"
+  | "deviceScreenDpi"
+  | "processName"
+  | "appState"
   | "startType";
 
 export type ReportingAggregation = "DAILY" | "HOURLY";

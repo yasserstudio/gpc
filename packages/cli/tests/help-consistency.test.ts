@@ -186,6 +186,8 @@ vi.mock("@gpc-cli/core", () => {
     topFiles: vi.fn().mockResolvedValue([]),
     checkBundleSize: vi.fn().mockResolvedValue({ pass: true, violations: [] }),
     getVitalsLmk: vi.fn().mockResolvedValue({ rows: [] }),
+    getVitalsMemoryRss: vi.fn().mockResolvedValue({ rows: [] }),
+    getVitalsMemoryBitmap: vi.fn().mockResolvedValue({ rows: [] }),
     getVitalsErrorCount: vi.fn().mockResolvedValue({ rows: [] }),
     compareVitalsTrend: vi.fn().mockResolvedValue({
       metric: "crashRateMetricSet",

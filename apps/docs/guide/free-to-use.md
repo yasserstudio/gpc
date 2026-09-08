@@ -6,7 +6,7 @@ outline: deep
 
 GPC is free. The code is on GitHub. Your company does not need a license, a subscription, or a support contract to ship with it.
 
-This page explains what that means in practice, why GPC is not open source in the OSI sense, and what might change after v1.0.0.
+This page explains what that means in practice, how contributions work, and what might change after v1.0.0.
 
 ## What "Free to Use" Means
 
@@ -14,33 +14,31 @@ This page explains what that means in practice, why GPC is not open source in th
 - **Installable anywhere.** `npm install -g @gpc-cli/cli`, `brew install yasserstudio/tap/gpc`, or the standalone binary. No account creation, no API key on GPC's side.
 - **Works with your existing Google Play service account.** No new credentials.
 - **No telemetry, no phone-home.** GPC only talks to Google's own APIs and whatever LLM provider you configure for `--ai` translation.
-- **Viewable source on GitHub.** Every line of code is public at `github.com/yasserstudio/gpc`. Your security review can read it, clone it, fork it if you need to ship a patched build.
+- **MIT-licensed source on GitHub.** Every line of code is public at `github.com/yasserstudio/gpc`. Your security review can read it, clone it, modify it, and distribute it under the MIT license.
 - **Machine-readable pricing.** Agents evaluating tools on your behalf can read `/pricing.md` for a structured summary.
 
-## Why Not "Open Source"
+## MIT-Licensed Open Source
 
-GPC is **source-available**, not open source in the OSI sense. We do not currently accept outside contributions.
+GPC is open source under the [MIT License](https://github.com/yasserstudio/gpc/blob/main/LICENSE). The license permits use, modification, distribution, sublicensing, and commercial use, provided copies retain the copyright and license notice.
 
-That distinction matters to two audiences: security reviewers at larger companies, and developers who expect "open source" to mean community-driven.
+Outside contributions are welcome through the repository's [contribution guide](https://github.com/yasserstudio/gpc/blob/main/CONTRIBUTING.md). Every change still goes through maintainer review and the same automated checks as first-party work.
 
 ### The honest reason
 
-GPC is a one-maintainer project covering 230 API endpoints across four Google APIs. Accepting random pull requests at this stage would multiply the surface area we can vouch for without adding headcount to vouch for it. Every commit in GPC has been written, reviewed, and tested by one person against real production apps. That is the quality bar the project ships at today.
+GPC is a one-maintainer project covering 234 API endpoints across four Google APIs. The maintainer reviews every release and tests it against real production apps. Contributions need to be focused, tested, documented, and aligned with GPC's publisher-CLI mission so that quality bar remains sustainable.
 
-We intend to reopen contributions after v1.0.0, once the API surface is locked and the contribution guide is written. Until then, the honest framing is: free to use, code is public for inspection, contributions deferred.
-
-This is the same model Tailwind CSS ran for years before going fully open source, and the same model several well-regarded tools use today. It is not experimental or hostile to the developer community.
+Opening a pull request does not guarantee that a change will merge or set a delivery timeline. It starts a technical review.
 
 ### What you can do with the code
 
 - **Read it.** Use it for security review.
-- **Fork it.** Publish a private build internally if you need a modified version urgently.
+- **Fork and modify it.** Maintain a private or public build if you need a modified version.
 - **Install it.** Ship with it in production.
-- **Package it.** Include it in your CI Docker image or internal tooling distribution.
+- **Package or distribute it.** Include it in your CI image or tooling distribution, retaining the MIT notice.
 
-### What you cannot do (yet)
+### What the project does not promise
 
-- Submit a pull request and expect it to be merged (we will decline politely).
+- A pull request will merge merely because the implementation works.
 - Expect a merged bug fix on your timeline — open an Issue and we will prioritize.
 - Rely on third-party forks for feature parity with upstream.
 
@@ -60,7 +58,7 @@ After v1.0.0, we may ship:
 
 - **Premium plugins** for capabilities adjacent to the core CLI (for example, reporting dashboards, multi-org management)
 - **Hosted services** for teams that want managed versions of specific workflows
-- **Open contributions** with a documented contribution guide
+- **More contributor ownership** once the public API surface is stable
 
 The core CLI and the `@gpc-cli/api`, `@gpc-cli/auth`, `@gpc-cli/core` SDK packages will remain free. Any monetization would be additive, not a gate on existing functionality.
 
@@ -77,15 +75,15 @@ We will update this page if anything changes.
 
 ### Is GPC open source?
 
-Not in the OSI sense. The code is public on GitHub, free to read, inspect, and use. We do not accept outside contributions before v1.0.0.
+Yes. GPC is MIT-licensed open source. Contributions are welcome through the repository's contribution guide.
 
 ### Is there an MIT / Apache 2.0 license?
 
-No. The license is source-available. You can inspect, fork for internal use, and install. You cannot relicense or redistribute without permission.
+Yes. GPC uses the MIT License. You can use, modify, distribute, sublicense, and sell copies subject to its notice requirement.
 
-### Will GPC become fully open source?
+### Does GPC accept outside contributions?
 
-We intend to reopen contributions after v1.0.0 ships. Whether GPC adopts a standard OSI license at that point depends on how the project grows; we will update this page with the decision.
+Yes. Start with an issue for broad or user-facing changes, keep the pull request focused, add tests where behavior changes, and follow the contribution guide. Maintainer review is required before merge.
 
 ### Can my company use GPC in production?
 
@@ -93,11 +91,11 @@ Yes. That is exactly who GPC is built for. Use it in CI/CD pipelines, release wo
 
 ### Do I need to attribute GPC?
 
-Not required. You may display a "Uses GPC" badge if you want (see `/users/` once the showcase page is live). We welcome mentions but do not mandate them.
+Not when merely using GPC. If you distribute the software or substantial portions of it, retain the copyright and MIT license notice. You may display a "Uses GPC" badge if you want (see `/users/` once the showcase page is live).
 
 ### What happens if the maintainer stops shipping?
 
-The source is on GitHub. Forks are permitted for internal use. The current approach is single-maintainer by design — that gives us quality control today and succession risk tomorrow. We mitigate the succession risk by keeping the project fully documented, heavily tested (2,733 tests at 90%+ coverage), and publicly versioned.
+The source is on GitHub under MIT, so anyone can fork and continue it. The current approach is single-maintainer by design — that gives us quality control today and succession risk tomorrow. We mitigate the succession risk by keeping the project fully documented, heavily tested (2,735 tests at 90%+ coverage), and publicly versioned.
 
 ### Can I sponsor the project?
 

@@ -65,6 +65,8 @@ import {
   getVitalsBattery,
   getVitalsMemory,
   getVitalsLmk,
+  getVitalsMemoryRss,
+  getVitalsMemoryBitmap,
   getVitalsErrorCount,
   getVitalsAnomalies,
   searchVitalsErrors,
@@ -2301,6 +2303,44 @@ describe("getVitalsLmk", () => {
     expect(query.metrics).toContain("userPerceivedLmkRate7dUserWeighted");
     expect(query.metrics).toContain("userPerceivedLmkRate28dUserWeighted");
     expect(query.metrics).toContain("distinctUsers");
+  });
+});
+
+describe("getVitalsMemoryRss", () => {
+  it("queries anon RSS and swap percentiles with DAILY aggregation", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsMemoryRss(reporting, PKG);
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(
+      PKG,
+      "anonRssAndSwapMemoryUsageMetricSet",
+      expect.objectContaining({
+        metrics: expect.arrayContaining([
+          "anonRssAndSwapMemoryUsageP50",
+          "anonRssAndSwapMemoryUsageP99",
+          "distinctUsers",
+        ]),
+        timelineSpec: expect.objectContaining({ aggregationPeriod: "DAILY" }),
+      }),
+    );
+  });
+});
+
+describe("getVitalsMemoryBitmap", () => {
+  it("queries bitmap memory percentiles with DAILY aggregation", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsMemoryBitmap(reporting, PKG);
+    expect(reporting.queryMetricSet).toHaveBeenCalledWith(
+      PKG,
+      "bitmapMemoryUsageMetricSet",
+      expect.objectContaining({
+        metrics: expect.arrayContaining([
+          "bitmapMemoryUsageP50",
+          "bitmapMemoryUsageP99",
+          "distinctUsers",
+        ]),
+        timelineSpec: expect.objectContaining({ aggregationPeriod: "DAILY" }),
+      }),
+    );
   });
 });
 

@@ -7,6 +7,8 @@ pageClass: wide-page
 
 Maps every Google Play Developer API endpoint that GPC implements to a CLI command.
 
+Last audited against Google's live discovery documents on **2026-09-08**.
+
 GPC interacts with four separate Google APIs:
 
 | API                                     | Base URL                                | Purpose                                              |
@@ -192,11 +194,12 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 ## Orders
 
-| API Endpoint      | Method | GPC Command                              |
-| ----------------- | ------ | ---------------------------------------- |
-| `orders.get`      | GET    | `gpc purchases orders get <order-id>`    |
-| `orders.batchGet` | POST   | `gpc purchases orders batch-get --ids`   |
-| `orders.refund`   | POST   | `gpc purchases orders refund <order-id>` |
+| API Endpoint          | Method | GPC Command                                     |
+| --------------------- | ------ | ----------------------------------------------- |
+| `orders.get`          | GET    | `gpc purchases orders get <order-id>`           |
+| `orders.batchGet`     | GET    | `gpc purchases orders batch-get --ids`          |
+| `orders.refund`       | POST   | `gpc purchases orders refund <order-id>`        |
+| `orders.reviewRefund` | POST   | `gpc purchases orders review-refund <order-id>` |
 
 ## Monetization: Pricing
 
@@ -236,19 +239,22 @@ Bulk reports are served from the Play-linked Cloud Storage bucket (`pubsite_prod
 
 ## Play Developer Reporting API: Vitals
 
-| API Endpoint                                 | Method | GPC Command                                                               |
-| -------------------------------------------- | ------ | ------------------------------------------------------------------------- |
-| `crashRateMetricSet.query`                   | POST   | `gpc vitals crashes`                                                      |
-| `anrRateMetricSet.query`                     | POST   | `gpc vitals anr`                                                          |
-| `slowStartRateMetricSet.query`               | POST   | `gpc vitals startup`                                                      |
-| `slowRenderingRateMetricSet.query`           | POST   | `gpc vitals rendering`                                                    |
-| `excessiveWakeupRateMetricSet.query`         | POST   | `gpc vitals battery` / `gpc vitals wakeup`                                |
-| `stuckBackgroundWakelockRateMetricSet.query` | POST   | `gpc vitals memory`                                                       |
-| `lmkRateMetricSet.query`                     | POST   | `gpc vitals lmk`                                                          |
-| `errorCountMetricSet.query`                  | POST   | `gpc vitals error-count`                                                  |
-| `anomalies.list`                             | GET    | `gpc vitals anomalies`                                                    |
-| `errorIssues.search`                         | GET    | `gpc vitals errors search`                                                |
-| `errorReports.search`                        | GET    | `gpc vitals errors reports` _(see [Planned coverage](#planned-coverage))_ |
+| API Endpoint                                     | Method | GPC Command                                |
+| ------------------------------------------------ | ------ | ------------------------------------------ |
+| `crashRateMetricSet.query`                       | POST   | `gpc vitals crashes`                       |
+| `anrRateMetricSet.query`                         | POST   | `gpc vitals anr`                           |
+| `slowStartRateMetricSet.query`                   | POST   | `gpc vitals startup`                       |
+| `slowRenderingRateMetricSet.query`               | POST   | `gpc vitals rendering`                     |
+| `excessiveWakeupRateMetricSet.query`             | POST   | `gpc vitals battery` / `gpc vitals wakeup` |
+| `stuckBackgroundWakelockRateMetricSet.query`     | POST   | `gpc vitals memory`                        |
+| `lmkRateMetricSet.query`                         | POST   | `gpc vitals lmk`                           |
+| `anonRssAndSwapMemoryUsageMetricSet.query`       | POST   | `gpc vitals memory-rss`                    |
+| `bitmapMemoryUsageMetricSet.query`               | POST   | `gpc vitals memory-bitmap`                 |
+| `errorCountMetricSet.query`                      | POST   | `gpc vitals error-count`                   |
+| `*.get` metric-set metadata and freshness routes | GET    | Used automatically before each query       |
+| `anomalies.list`                                 | GET    | `gpc vitals anomalies`                     |
+| `errorIssues.search`                             | GET    | `gpc vitals errors search`                 |
+| `errorReports.search`                            | GET    | `gpc vitals errors reports`                |
 
 ## App Recovery Actions
 
@@ -265,6 +271,15 @@ Bulk reports are served from the Play-linked Cloud Storage bucket (`pubsite_prod
 | API Endpoint        | Method | GPC Command              |
 | ------------------- | ------ | ------------------------ |
 | `dataSafety.update` | POST   | `gpc data-safety update` |
+
+## App Signing
+
+Advanced Play App Signing operations for enterprise organizations that retain signing-key custody in Google Cloud KMS. Standard Google-managed Play App Signing remains a Play Console workflow.
+
+| API Endpoint                     | Method | GPC Command              |
+| -------------------------------- | ------ | ------------------------ |
+| `appsigning.enrollApp`           | POST   | `gpc app-signing enroll` |
+| `appsigning.rotateAppSigningKey` | POST   | `gpc app-signing rotate` |
 
 ## External Transactions
 
@@ -338,47 +353,57 @@ Private app publishing for enterprise customers. Separate Google API (`playcusto
 
 ## Coverage Summary
 
-| Domain                                   | Endpoints | API          |
-| ---------------------------------------- | --------- | ------------ |
-| Edits (internal transactional ops)       | 5         | Publisher    |
-| Edits: Bundles + APKs                    | 5         | Publisher    |
-| Edits: Tracks + Release Lifecycle        | 6         | Publisher    |
-| Edits: Deobfuscation + Expansion         | 5         | Publisher    |
-| Edits: Listings + Images                 | 10        | Publisher    |
-| Edits: Details                           | 3         | Publisher    |
-| Edits: Country Availability              | 1         | Publisher    |
-| Edits: Testers                           | 3         | Publisher    |
-| Reviews                                  | 3         | Publisher    |
-| In-App Products                          | 9         | Publisher    |
-| Subscriptions + Base Plans + Offers      | 19        | Publisher    |
-| Purchases                                | 13        | Publisher    |
-| Orders                                   | 3         | Publisher    |
-| Monetization (pricing)                   | 1         | Publisher    |
-| Users + Grants                           | 8         | Publisher    |
-| Reports                                  | 3         | Publisher    |
-| Vitals (metric sets + metadata)          | 11        | Reporting    |
-| App Recovery                             | 5         | Publisher    |
-| Data Safety                              | 1         | Publisher    |
-| External Transactions                    | 3         | Publisher    |
-| Device Tiers                             | 3         | Publisher    |
-| Internal App Sharing                     | 2         | Publisher    |
-| Generated APKs                           | 2         | Publisher    |
-| System APKs                              | 4         | Publisher    |
-| One-Time Products + Offers               | 14        | Publisher    |
-| Managed Google Play (Custom Apps)        | 1         | Custom App   |
-| Play Games (Achievements + Leaderboards) | 10        | Games Config |
-| **Total API endpoints covered**          | **~230**  |              |
+| Domain                                        | Endpoints | API          |
+| --------------------------------------------- | --------- | ------------ |
+| Edits (internal transactional ops)            | 5         | Publisher    |
+| Edits: Bundles + APKs                         | 5         | Publisher    |
+| Edits: Tracks + Release Lifecycle             | 6         | Publisher    |
+| Edits: Deobfuscation + Expansion              | 5         | Publisher    |
+| Edits: Listings + Images                      | 10        | Publisher    |
+| Edits: Details                                | 3         | Publisher    |
+| Edits: Country Availability                   | 1         | Publisher    |
+| Edits: Testers                                | 3         | Publisher    |
+| Reviews                                       | 3         | Publisher    |
+| In-App Products                               | 9         | Publisher    |
+| Subscriptions + Base Plans + Offers           | 19        | Publisher    |
+| Purchases                                     | 13        | Publisher    |
+| Orders                                        | 4         | Publisher    |
+| Monetization (pricing)                        | 1         | Publisher    |
+| Users + Grants                                | 8         | Publisher    |
+| Reports                                       | 3         | Publisher    |
+| Vitals (metric sets + metadata)               | 13        | Reporting    |
+| App Recovery                                  | 5         | Publisher    |
+| Data Safety                                   | 1         | Publisher    |
+| App Signing                                   | 2         | Publisher    |
+| External Transactions                         | 3         | Publisher    |
+| Device Tiers                                  | 3         | Publisher    |
+| Internal App Sharing                          | 2         | Publisher    |
+| Generated APKs                                | 2         | Publisher    |
+| System APKs                                   | 4         | Publisher    |
+| One-Time Products + Offers                    | 14        | Publisher    |
+| Managed Google Play (Custom Apps)             | 1         | Custom App   |
+| Play Games (Achievements + Leaderboards)      | 10        | Games Config |
+| **Total publisher-focused endpoints covered** | **~234**  |              |
 
-The domain rows above are a grouped view, not a one-to-one enumeration, so they do not sum exactly to the headline figure. The **~230** total is GPC's tracked count of the individual endpoints it covers across its four Google Play APIs (Android Publisher v3, Play Developer Reporting v1beta1, Play Custom App Publishing v1, and Games Configuration v1configuration); a single grouped row can map to several underlying endpoints. Counts are approximate: some endpoints overload one Google URL (for example, `reports.download` serves both financial and stats buckets via query parameters).
+The domain rows above are a grouped view, not a one-to-one enumeration, so they do not sum exactly to the headline figure. The **~234** total is GPC's tracked count of the publisher-focused operations it covers across four Google Play APIs (Android Publisher v3, Play Developer Reporting v1beta1, Play Custom App Publishing v1, and Games Configuration v1configuration); a single grouped row can map to several underlying endpoints. Counts are approximate: some operations share one Google URL (for example, `reports.download` serves both financial and stats buckets via query parameters).
 
 ## Planned coverage
 
-Tracked against the live discovery docs audited 2026-05-04:
+Tracked against the live discovery docs audited 2026-09-08:
 
-- `androidpublisher v3`, revision `20260416`: **134 / 137** methods covered (3 intentional gaps: `monetization.subscriptions.archive` plus two hard-deprecated v1 subscription methods)
-- `playdeveloperreporting v1beta1`, revision `20260415`: see gaps below
-- `playcustomapp v1`, revision `20260415`: **1 / 1** methods covered
-- `games*` APIs: see strategic direction below
+- `androidpublisher v3`, revision `20260908`: **134 / 137** publisher-app methods covered (3 intentional gaps: `monetization.subscriptions.archive` plus two hard-deprecated v1 subscription methods). Google's discovery document also contains 8 methods exclusively for operators enrolled in the Third-party app store on Play program; these are outside GPC's Google Play publisher scope.
+- `playdeveloperreporting v1beta1`, revision `20260907`: **23 / 25** methods covered through the generic metric-set client and error/anomaly commands; the 2 `apps` methods remain planned below.
+- `playcustomapp v1`, revision `20260907`: **1 / 1** methods covered.
+- `gamesconfiguration v1configuration`, revision `20260907`: **10 / 10** publisher configuration methods covered. See Games APIs below.
+
+### Third-party app store APIs: intentionally excluded
+
+The Android Publisher discovery document now includes 8 methods for businesses operating a third-party Android app store:
+
+- `appstoreappsreview`: create/update a hosted app, update its publish status, and upload its APK, images, and policy declaration files (6 methods)
+- `appstorecatalog`: read recent eligible-app views and update events (2 methods)
+
+These endpoints serve app-store operators registered in Google's **Third-party app store on Play** program. They do not publish an Android app to Google Play, so they are not included in GPC's coverage headline. If GPC later targets app-store operators, they should ship as a clearly separate command surface rather than being mixed into ordinary Play publishing commands.
 
 ### Recent API field additions (shipped in GPC types)
 
@@ -420,16 +445,18 @@ No spec-driven changes needed: `accounts.customApps.create` is the entire API su
 
 ### Games APIs
 
-GPC v0.9.86 implements the full `gamesconfiguration v1configuration` API (10 endpoints) for publisher CRUD on achievement and leaderboard definitions:
+GPC v0.9.86 implements the full live `gamesconfiguration v1configuration` API (revision `20260907`, 10 endpoints) for publisher CRUD on achievement and leaderboard definitions:
 
 | Resource                    | Methods (5 each)                            | Status |
 | --------------------------- | ------------------------------------------- | ------ |
 | `achievementConfigurations` | `list`, `get`, `insert`, `update`, `delete` | Done   |
 | `leaderboardConfigurations` | `list`, `get`, `insert`, `update`, `delete` | Done   |
 
-The runtime `games v1` API is preserved read-only under `gpc games runtime` for inspection. `gpc games events` was removed (runtime-only, no publisher equivalent).
+The live discovery document contains no `imageConfigurations` resource. Achievement and leaderboard icon upload was removed from the published API surface in revision `20260820`; GPC retains the legacy call only to return a clear `API_ENDPOINT_RETIRED` error when Google rejects the route.
 
-`gamesManagement v1management` will not be expanded; it is a QA-reset surface outside GPC's publisher-CLI mission.
+The runtime `games v1` API (revision `20260907`) is preserved read-only under `gpc games runtime` for inspection. `gpc games events` was removed (runtime-only, no publisher equivalent).
+
+`gamesManagement v1management` (revision `20260907`, 18 methods) will not be expanded. It is a QA/reset and player-moderation surface that requires a developer-console user or whitelisted tester account, rather than GPC's service-account publishing workflow.
 
 ### Deprecation watch
 

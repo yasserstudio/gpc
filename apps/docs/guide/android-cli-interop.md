@@ -43,7 +43,7 @@ Current limitations: internal test track only (not production), apps intended fo
 - Pre-submission compliance scanning
 - CI/CD pipeline integration
 
-That entire surface is what GPC handles. 230 typed endpoints across the Android Publisher API, the Play Developer Reporting API, and the Play Custom App Publishing API.
+That publisher-focused surface is what GPC handles: 234 typed endpoints across the Android Publisher API, Play Developer Reporting API, Play Custom App Publishing API, and Games Configuration API.
 
 ## Where GPC fits
 

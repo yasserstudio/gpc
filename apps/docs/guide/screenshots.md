@@ -271,7 +271,7 @@ Being explicit about the edges so you know where to reach for other tools:
 
 - **Screenshot generation.** GPC does not drive an emulator, run UI tests, or take screenshots of your app. If you need automated screenshot capture, use [Fastlane `screengrab`](https://docs.fastlane.tools/getting-started/android/screenshots/) or a custom Espresso test suite. Pipe the resulting PNGs into `gpc listings images sync --dir`.
 - **Image optimization.** GPC does not compress, resize, or convert images. Your source files need to meet Google's specs already. Tools like `pngquant`, `jpegoptim`, or `squoosh` work well in a pre-upload step.
-- **A/B testing store listings.** Google Play has a Store Listing Experiments feature for this. It's a separate API surface that GPC does not currently wrap. Open an issue if you want it.
+- **A/B testing store listings.** Google Play has a Store Listing Experiments feature in Play Console, but does not expose it through the current public API. Experiments must be managed in the Console.
 - **Automatic translation of listing text or screenshot overlays.** GPC copies what's in your local directory. Translation is a separate concern.
 - **Old `promoGraphic` image type.** Google Play deprecated this years ago; GPC does not support it.
 
@@ -309,7 +309,7 @@ These are tracked for future GPC versions. Your feedback on which matter most dr
 - **`gpc listings images delete --all`** — bulk-delete all images for a locale + type from the CLI directly. The underlying API supports it (`deleteAll`), and `gpc listings images sync --delete` already uses it internally, but a standalone bulk-delete command is not exposed.
 - **Fastlane-layout compat for images.** GPC writes `<dir>/<lang>/<type>/` while Fastlane uses `<dir>/<lang>/images/<type>/`. Adding a `--fastlane-layout` flag to `export`/`upload` would enable direct round-trips with existing Fastlane repos.
 - **Pre-upload image validation surfaced in preflight.** Currently only checked at upload time; could be moved to `gpc preflight` for earlier feedback.
-- **Store Listing Experiments API** — A/B testing of icons, graphics, and descriptions. Google has the API; GPC doesn't wrap it yet.
+- **Store Listing Experiments** — A/B testing of icons, graphics, and descriptions is available in Play Console, but Google does not expose a public API for it.
 - **Deprecated image types** — `promoGraphic` is no longer supported by Google Play and GPC matches that.
 
 If any of these block your workflow, open an issue at [github.com/yasserstudio/gpc](https://github.com/yasserstudio/gpc/issues) with your use case.
