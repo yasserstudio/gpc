@@ -48,7 +48,8 @@ export function createUsersClient(options: ApiClientOptions): UsersApiClient {
 
   return {
     async list(developerId, listOptions?) {
-      const params: Record<string, string> = {};
+      // Google users.list requires -1 to disable pagination.
+      const params: Record<string, string> = { pageSize: "-1" };
       if (listOptions?.pageToken) params["pageToken"] = listOptions.pageToken;
       if (listOptions?.pageSize) params["pageSize"] = String(listOptions.pageSize);
       const hasParams = Object.keys(params).length > 0;
