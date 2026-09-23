@@ -62,6 +62,8 @@ gpc users list [options]
 | `--limit`        |       | `number` |         | Maximum total results                            |
 | `--next-page`    |       | `string` |         | Resume from pagination token                     |
 
+Google Play does not paginate the users list: it returns every user in one response, so `--limit` trims that response and `nextPageToken` is always `null`. Versions before v0.9.98 did not ask Google for the full list, and `users list` and `users get` failed with `Pagination is not currently available`.
+
 ### Example
 
 ```bash
