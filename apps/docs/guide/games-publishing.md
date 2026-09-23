@@ -165,11 +165,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: yasserstudio/gpc-action@v1
+      - uses: actions/setup-node@v4
         with:
-          service-account-json: ${{ secrets.GPC_SERVICE_ACCOUNT }}
+          node-version: 22
+      - run: npm install -g @gpc-cli/cli
       - run: gpc games achievements push games/achievements
         env:
+          GPC_SERVICE_ACCOUNT: ${{ secrets.GPC_SERVICE_ACCOUNT }}
           GPC_GAME_ID: ${{ vars.GAME_ID }}
 ```
 
