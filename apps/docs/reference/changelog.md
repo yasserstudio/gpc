@@ -11,7 +11,23 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.96 <Badge type="tip" text="latest" />
+## v0.9.97 <Badge type="tip" text="latest" />
+
+Memory vitals for Google Play's February 2027 quality requirements, plus a full audit of GPC's Google API coverage.
+
+- feat: `gpc vitals memory-rss` queries anonymous RSS plus swap usage at P50, P75, P90, P95, and P99.
+- feat: `gpc vitals memory-bitmap` queries bitmap memory usage at the same percentiles.
+- feat: both memory commands support Google's new hardware and app-state dimensions, enforce daily aggregation, and apply `--threshold` to P90, the percentile Google Play's February 2027 quality requirements use.
+- fix: Google's "changesNotSentForReview must not be set" response is now reported separately from the "required" response, so the suggestion matches what Google asked for.
+- docs: audited the live Android Publisher, Play Developer Reporting, Play Custom App, Games Configuration, Games Management, and Games runtime discovery documents. GPC covers 234 publisher-focused operations across four Google Play APIs.
+- docs: the Android Publisher operations reserved for third-party app-store operators and the Games Management tester/reset operations are documented as intentionally outside GPC's publisher workflow.
+- docs: the MIT license, contribution policy, Store Listing Experiments limitation, and package descriptions now agree everywhere.
+
+**Tests:** 2,741 (+8).
+
+---
+
+## v0.9.96
 
 One-time product writes reach Google again, chargebacks can be answered from the terminal, and the client matches Google's latest API surface.
 

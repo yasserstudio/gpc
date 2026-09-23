@@ -79,4 +79,4 @@ const analysis = await analyzeBundle("./app.aab");
 
 ## Licensing
 
-Free to use. Source code is on GitHub at [yasserstudio/gpc](https://github.com/yasserstudio/gpc).
+MIT-licensed open source and free to use. Source code is on GitHub at [yasserstudio/gpc](https://github.com/yasserstudio/gpc).

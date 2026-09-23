@@ -345,7 +345,7 @@ Yes. GPC is the first command-line tool to support the Play Custom App Publishin
 
 ## License
 
-Free to use. The code is on GitHub. See [LICENSE](./LICENSE) for legal details.
+MIT-licensed open source and free to use. See [LICENSE](./LICENSE) for the full terms.
 
 ---
 
