@@ -103,7 +103,6 @@ export function checkPackageName(app: string | undefined): CheckResult | null {
 export function checkProxy(url: string | undefined): CheckResult | null {
   if (!url) return null;
   try {
-    new URL(url);
     const parsed = new URL(url);
     const safeUrl = `${parsed.protocol}//${parsed.host}${parsed.pathname}`;
     return { name: "proxy", status: "pass", message: `Proxy configured: ${safeUrl}` };
@@ -111,7 +110,8 @@ export function checkProxy(url: string | undefined): CheckResult | null {
     return {
       name: "proxy",
       status: "warn",
-      message: `Invalid proxy URL: ${url}`,
+      // The raw value is not echoed: it can contain proxy credentials.
+      message: "Invalid proxy URL in HTTPS_PROXY / HTTP_PROXY",
       suggestion: "Set HTTPS_PROXY to a valid URL (e.g. http://proxy.example.com:8080)",
     };
   }

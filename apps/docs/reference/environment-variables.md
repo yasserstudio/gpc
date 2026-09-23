@@ -36,18 +36,19 @@ All `GPC_*` environment variables and external variables that GPC respects.
 
 ## Network & Retry
 
-| Variable                         | Type      | Description                                                                                                                  | Default          |
-| -------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| `GPC_MAX_RETRIES`                | `integer` | Maximum retry attempts on transient errors (408, 429, 5xx).                                                                  | `5`              |
-| `GPC_TIMEOUT`                    | `integer` | Request timeout in milliseconds.                                                                                             | `30000`          |
-| `GPC_BASE_DELAY`                 | `integer` | Base retry delay in milliseconds (exponential backoff).                                                                      | `1000`           |
-| `GPC_MAX_DELAY`                  | `integer` | Maximum retry delay in milliseconds.                                                                                         | `60000`          |
-| `GPC_UPLOAD_TIMEOUT`             | `integer` | Upload timeout in milliseconds. If unset, auto-scales: 30s + 1s per MB.                                                      | Auto             |
-| `GPC_UPLOAD_CHUNK_SIZE`          | `integer` | Resumable upload chunk size in bytes. Must be a multiple of 256 KB (262144). Larger chunks mean fewer requests and more RAM. | `8388608` (8 MB) |
-| `GPC_UPLOAD_RESUMABLE_THRESHOLD` | `integer` | File size threshold in bytes for switching from simple to resumable upload.                                                  | `5242880` (5 MB) |
-| `GPC_CA_CERT`                    | `string`  | Path to custom CA certificate file (PEM format). For corporate proxies.                                                      | —                |
-| `NODE_EXTRA_CA_CERTS`            | `string`  | Standard Node.js variable. Path to additional CA certificate bundle. Read at runtime by the network layer.                   | —                |
-| `HTTPS_PROXY` / `HTTP_PROXY`     | `string`  | HTTP proxy URLs (e.g., `https://proxy.corp:8080`). Lowercase `https_proxy` / `http_proxy` also respected.                    | —                |
+| Variable                         | Type      | Description                                                                                                                      | Default          |
+| -------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| `GPC_MAX_RETRIES`                | `integer` | Maximum retry attempts on transient errors (408, 429, 5xx).                                                                      | `5`              |
+| `GPC_TIMEOUT`                    | `integer` | Request timeout in milliseconds.                                                                                                 | `30000`          |
+| `GPC_BASE_DELAY`                 | `integer` | Base retry delay in milliseconds (exponential backoff).                                                                          | `1000`           |
+| `GPC_MAX_DELAY`                  | `integer` | Maximum retry delay in milliseconds.                                                                                             | `60000`          |
+| `GPC_UPLOAD_TIMEOUT`             | `integer` | Upload timeout in milliseconds. If unset, auto-scales: 30s + 1s per MB.                                                          | Auto             |
+| `GPC_UPLOAD_CHUNK_SIZE`          | `integer` | Resumable upload chunk size in bytes. Must be a multiple of 256 KB (262144). Larger chunks mean fewer requests and more RAM.     | `8388608` (8 MB) |
+| `GPC_UPLOAD_RESUMABLE_THRESHOLD` | `integer` | File size threshold in bytes for switching from simple to resumable upload.                                                      | `5242880` (5 MB) |
+| `GPC_CA_CERT`                    | `string`  | Path to custom CA certificate file (PEM format). For corporate proxies.                                                          | —                |
+| `NODE_EXTRA_CA_CERTS`            | `string`  | Standard Node.js variable. Path to additional CA certificate bundle. Read at runtime by the network layer.                       | —                |
+| `HTTPS_PROXY` / `HTTP_PROXY`     | `string`  | HTTP proxy URLs (e.g., `https://proxy.corp:8080`). Lowercase `https_proxy` / `http_proxy` also respected.                        | —                |
+| `NO_PROXY`                       | `string`  | Comma-separated hosts to reach without the proxy (e.g., `localhost,.internal.example.com`). Lowercase `no_proxy` also respected. | —                |
 
 ## Updates & Self-Maintenance
 

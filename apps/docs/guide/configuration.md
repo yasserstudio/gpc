@@ -233,16 +233,13 @@ For corporate networks with HTTP proxies or TLS-intercepting firewalls.
 
 ```bash
 export HTTPS_PROXY=http://proxy.example.com:8080
+export NO_PROXY=localhost,.internal.example.com   # optional: hosts to reach directly
 gpc apps list
 ```
 
-Or in the config file:
+GPC reads `HTTPS_PROXY`, `HTTP_PROXY`, and `NO_PROXY` (uppercase or lowercase) from the environment. There is no config-file key for the proxy.
 
-```json
-{
-  "proxy": "http://proxy.example.com:8080"
-}
-```
+If a proxy variable is set but GPC cannot use it (for example, the URL is malformed), GPC stops with `NETWORK_ERROR` (exit code 5) before sending anything, rather than connecting directly and bypassing your proxy. The error does not repeat the proxy URL, so credentials in it are not printed.
 
 ### Custom CA certificate
 

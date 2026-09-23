@@ -34,7 +34,8 @@
     "@gpc-cli/config": "workspace:*",
     "@gpc-cli/core": "workspace:*",
     "@gpc-cli/plugin-sdk": "workspace:*",
-    "commander": "^14.0.3"
+    "commander": "^14.0.3",
+    "undici": "^6.28.1"
   },
   "homepage": "https://yasserstudio.github.io/gpc/",
   "keywords": [

@@ -133,6 +133,12 @@ describe("checkProxy", () => {
     expect(result?.suggestion).toContain("HTTPS_PROXY");
   });
 
+  it("does not echo an invalid proxy URL that may carry credentials", () => {
+    const result = checkProxy("http://user:s3cret@[bad");
+    expect(result?.status).toBe("warn");
+    expect(JSON.stringify(result)).not.toContain("s3cret");
+  });
+
   it("returns null for empty string (no proxy configured)", () => {
     expect(checkProxy("")).toBeNull();
   });

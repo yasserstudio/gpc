@@ -160,12 +160,14 @@ Redaction is applied before formatting and cannot be disabled.
 
 ### Proxy Support
 
-| Configuration        | Method                             |
-| -------------------- | ---------------------------------- |
-| Environment variable | `HTTPS_PROXY` or `https_proxy`     |
-| Exclusions           | `NO_PROXY` for bypass rules        |
-| Config file          | `proxy: "https://proxy.corp:8080"` |
-| With authentication  | `https://user:pass@proxy:8080`     |
+| Configuration        | Method                                     |
+| -------------------- | ------------------------------------------ |
+| Environment variable | `HTTPS_PROXY` / `HTTP_PROXY` (either case) |
+| Exclusions           | `NO_PROXY` for bypass rules                |
+| With authentication  | `https://user:pass@proxy:8080`             |
+| If unusable          | Fails closed: exit 5, nothing sent direct  |
+
+A configured proxy is never silently skipped. If GPC cannot apply it, the command stops before any request, so OAuth tokens cannot leave through a direct connection. Proxy URLs are not echoed in errors or `gpc doctor` output.
 
 ### Client-Side Rate Limiting
 

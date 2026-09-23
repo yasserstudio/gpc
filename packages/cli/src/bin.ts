@@ -33,7 +33,12 @@ if (!_isJsonMode && !_isQuiet && !_isSetupCommand && !existsSync(getUserConfigPa
   process.stderr.write("\u2726 First time? Run gpc config init to get set up.\n\n");
 }
 
-await setupNetworking();
+try {
+  await setupNetworking();
+} catch (error) {
+  // Nothing has run yet; stop before any request can bypass a configured proxy.
+  process.exit(handleCliError(error));
+}
 initAudit(getConfigDir());
 
 const currentVersion = process.env["__GPC_VERSION"] || "0.0.0";

@@ -113,6 +113,9 @@ importers:
       commander:
         specifier: ^14.0.3
         version: 14.0.3
+      undici:
+        specifier: ^6.28.1
+        version: 6.28.1
     devDependencies:
       '@types/node':
         specifier: ^25.6.0
