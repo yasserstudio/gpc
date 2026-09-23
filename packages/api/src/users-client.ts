@@ -11,7 +11,14 @@ export interface GrantsListResponse {
 export interface UsersApiClient {
   list(
     developerId: string,
-    options?: { pageToken?: string; pageSize?: number },
+    options?: {
+      pageToken?: string;
+      /**
+       * @deprecated Ignored. Google requires `pageSize=-1` (pagination is not
+       * available for users.list), so every request sends -1.
+       */
+      pageSize?: number;
+    },
   ): Promise<UsersListResponse>;
 
   // get() removed: no GET endpoint exists on the users resource in the official API.
@@ -48,15 +55,11 @@ export function createUsersClient(options: ApiClientOptions): UsersApiClient {
 
   return {
     async list(developerId, listOptions?) {
-      // Google users.list requires -1 to disable pagination.
+      // Google rejects any users.list pageSize other than -1 ("Pagination is not
+      // currently available"), so a caller-supplied pageSize is ignored.
       const params: Record<string, string> = { pageSize: "-1" };
       if (listOptions?.pageToken) params["pageToken"] = listOptions.pageToken;
-      if (listOptions?.pageSize) params["pageSize"] = String(listOptions.pageSize);
-      const hasParams = Object.keys(params).length > 0;
-      const { data } = await http.get<UsersListResponse>(
-        `/${developerId}/users`,
-        hasParams ? params : undefined,
-      );
+      const { data } = await http.get<UsersListResponse>(`/${developerId}/users`, params);
       return data;
     },
 

@@ -1851,13 +1851,12 @@ describe("createUsersClient", () => {
     expect(url).toBe(`${USERS_BASE}/${DEV_ID}/users?pageSize=-1`);
   });
 
-  it("list passes pagination params", async () => {
+  it("list keeps pageSize=-1 even when a caller passes a page size", async () => {
     mockFetch.mockResolvedValueOnce(mockResponse({ users: [] }));
     const client = makeClient();
     await client.list(DEV_ID, { pageSize: 5, pageToken: "next" });
     const [url] = mockFetch.mock.calls[0];
-    expect(url).toContain("pageSize=5");
-    expect(url).toContain("pageToken=next");
+    expect(url).toBe(`${USERS_BASE}/${DEV_ID}/users?pageSize=-1&pageToken=next`);
   });
 
   // users.get removed: no GET endpoint exists in the official API.

@@ -50,7 +50,10 @@ export function registerUsersCommands(program: Command): void {
     .command("list")
     .description("List all users in the developer account")
     .option("--limit <n>", "Maximum total results", parseInt)
-    .option("--next-page <token>", "Resume from page token")
+    .option(
+      "--next-page <token>",
+      "Resume from page token (unused: Google returns all users in one page)",
+    )
     .option("--sort <field>", "Sort by field (prefix with - for descending)")
     .action(async (options) => {
       const config = await loadConfig();

@@ -3440,6 +3440,23 @@ describe("user commands", () => {
     expect(client.list).toHaveBeenCalledWith("12345", undefined);
   });
 
+  it("listUsers --limit trims Google's single unpaginated page", async () => {
+    const client = mockUsersClient();
+    const all = Array.from({ length: 20 }, (_, i) => ({ email: `u${i}@b.com` }));
+    client.list.mockResolvedValue({ users: all });
+    const result = await listUsers(client, "12345", { limit: 5, pageSize: 50 });
+    expect(result.users).toHaveLength(5);
+    expect(result.nextPageToken).toBeUndefined();
+    expect(client.list).toHaveBeenCalledTimes(1);
+    expect(client.list).toHaveBeenCalledWith("12345", { pageToken: undefined });
+  });
+
+  it("getUser makes a single list call when Google returns no page token", async () => {
+    const client = mockUsersClient();
+    await expect(getUser(client, "12345", "missing@b.com")).rejects.toThrow();
+    expect(client.list).toHaveBeenCalledTimes(1);
+  });
+
   it("getUser throws when user not found", async () => {
     const client = mockUsersClient();
     await expect(getUser(client, "12345", "missing@b.com")).rejects.toThrow(

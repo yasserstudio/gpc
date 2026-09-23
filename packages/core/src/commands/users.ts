@@ -13,6 +13,7 @@ export const PERMISSION_PROPAGATION_WARNING =
 
 export interface ListUsersOptions {
   pageToken?: string;
+  /** @deprecated Ignored: Google does not paginate users.list. */
   pageSize?: number;
   limit?: number;
   nextPage?: string;
@@ -26,7 +27,7 @@ export async function listUsers(
   if (options?.limit || options?.nextPage) {
     const result = await paginateAll<User>(
       async (pageToken) => {
-        const resp = await client.list(developerId, { pageToken, pageSize: options?.pageSize });
+        const resp = await client.list(developerId, { pageToken });
         return { items: resp.users || [], nextPageToken: resp.nextPageToken };
       },
       { limit: options.limit, startPageToken: options.nextPage },
