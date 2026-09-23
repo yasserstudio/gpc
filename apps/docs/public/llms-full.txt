@@ -11,12 +11,13 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Pl
 
 - Install: `npm install -g @gpc-cli/cli`
 - Binary: `gpc`
-- Version: 0.9.97
+- Version: 0.9.98
 - API endpoints covered: 234 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1 + Games Configuration v1configuration)
-- Tests: 2,741 (90%+ coverage)
+- Tests: 2,753 (90%+ coverage)
 - Licensing: MIT-licensed open source, free to use. Source code is on GitHub.
 - Repo: https://github.com/yasserstudio/gpc
 - GitHub Action: yasserstudio/gpc-action on the GitHub Actions Marketplace (one-step Play publishing from CI with built-in preflight gate, drop-in r0adkll migration)
+- Notable v0.9.98: `gpc users list` and `users get` work against the live API again (Google requires an unpaginated request). HTTPS_PROXY/HTTP_PROXY are applied reliably on npm installs, NO_PROXY is honored, and a proxy that cannot be applied stops the command (exit 5) instead of sending requests and credentials around it. `gpc doctor` no longer flags GPC's own config keys. AI SDK dependencies moved to releases with a published security fix.
 - Notable v0.9.97: New `gpc vitals memory-rss` and `gpc vitals memory-bitmap` query Play Developer Reporting memory usage at P50-P99 with hardware and app-state dimensions; `--threshold` gates on P90, the percentile behind Google Play's February 2027 memory requirements. Google's "changesNotSentForReview must not be set" response is now told apart from "required". Coverage audited against the live discovery docs: 234 publisher-focused operations across four Google Play APIs.
 - Notable v0.9.96: One-time product create/update and offer get/create/update/delete reach Google again (write routes now match what Google serves; offers use the batch endpoints). New: purchases orders review-refund for chargeback disputes, app-signing enroll/rotate for self-hosted Cloud KMS keys, --ai-generated image attestation, device-tiers --allow-unknown-devices, verify checklist items for the Feb/Apr 2027 quality requirements.
 - Notable v0.9.95: Subcommand flags that shared a name with a global flag (like --profile on auth login, --app on init, --dry-run on migrate fastlane) were silently ignored; they now work, and profile credential updates merge instead of erasing other profile settings. Flags that never worked were renamed: reviews export --output-file, migrate fastlane --out-dir, status --desktop-notify, generated-apks/system-apks download --output-file.

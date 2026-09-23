@@ -1,5 +1,12 @@
 # @gpc-cli/api
 
+## 1.1.3
+
+### Patch Changes
+
+- 0475150: Default users.list requests to pageSize=-1, as required by Google Play, fixing INVALID_ARGUMENT errors in users list and users get.
+- 4e7b840: The users client always sends `pageSize=-1`, the only value Google accepts, and ignores a caller-supplied page size (now deprecated) instead of sending a request Google rejects.
+
 ## 1.1.2
 
 ### Patch Changes
@@ -114,7 +121,7 @@
 
 ### Patch Changes
 
-- Hotfix: `gpc vitals lmk` was 404'ing in v0.9.58 because the metric set name shipped with the wrong identifier (`lowMemoryKillerRateMetricSet`). Google's Play Developer Reporting API actually exposes the resource as `lmkRateMetricSet`, with metrics `userPerceivedLmkRate`, `userPerceivedLmkRate7dUserWeighted`, `userPerceivedLmkRate28dUserWeighted`, `distinctUsers`. The corrected name is now in the type union and the query path. Verified live against `com.sfnemploiappli`.
+- Hotfix: `gpc vitals lmk` was 404'ing in v0.9.58 because the metric set name shipped with the wrong identifier (`lowMemoryKillerRateMetricSet`). Google's Play Developer Reporting API actually exposes the resource as `lmkRateMetricSet`, with metrics `userPerceivedLmkRate`, `userPerceivedLmkRate7dUserWeighted`, `userPerceivedLmkRate28dUserWeighted`, `distinctUsers`. The corrected name is now in the type union and the query path. Verified live against a production app.
 
 ## 1.0.33
 

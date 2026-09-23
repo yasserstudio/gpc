@@ -1,5 +1,17 @@
 # @gpc-cli/cli
 
+## 0.9.98
+
+### Patch Changes
+
+- ce701f2: `gpc doctor` no longer reports GPC's own config keys as unknown: the plugin approval keys GPC writes itself, the documented `vitals`, `games`, and `reports` sections, and the path it records for a project config file.
+- f5f4f49: Proxy support is now reliable and safe on npm installs. `HTTPS_PROXY` / `HTTP_PROXY` are applied through a bundled dependency instead of one that happened to be installed, `NO_PROXY` is honored, and a proxy that cannot be applied stops the command with `NETWORK_ERROR` (exit 5) instead of silently sending requests, and their OAuth tokens, around it. Proxy URLs are no longer printed in errors or `gpc doctor` output.
+- Updated dependencies [fd267f9]
+- Updated dependencies [0475150]
+- Updated dependencies [4e7b840]
+  - @gpc-cli/core@0.10.4
+  - @gpc-cli/api@1.1.3
+
 ## 0.9.97
 
 ### Patch Changes
@@ -318,7 +330,7 @@
 
 ### Patch Changes
 
-- Hotfix: `gpc vitals lmk` was 404'ing in v0.9.58 because the metric set name shipped with the wrong identifier (`lowMemoryKillerRateMetricSet`). Google's Play Developer Reporting API actually exposes the resource as `lmkRateMetricSet`, with metrics `userPerceivedLmkRate`, `userPerceivedLmkRate7dUserWeighted`, `userPerceivedLmkRate28dUserWeighted`, `distinctUsers`. The corrected name is now in the type union and the query path. Verified live against `com.sfnemploiappli`.
+- Hotfix: `gpc vitals lmk` was 404'ing in v0.9.58 because the metric set name shipped with the wrong identifier (`lowMemoryKillerRateMetricSet`). Google's Play Developer Reporting API actually exposes the resource as `lmkRateMetricSet`, with metrics `userPerceivedLmkRate`, `userPerceivedLmkRate7dUserWeighted`, `userPerceivedLmkRate28dUserWeighted`, `distinctUsers`. The corrected name is now in the type union and the query path. Verified live against a production app.
 - Updated dependencies
   - @gpc-cli/core@0.9.49
   - @gpc-cli/api@1.0.34

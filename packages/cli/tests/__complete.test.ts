@@ -74,10 +74,10 @@ describe("__complete profiles", () => {
 
   it("returns profile names from user config", async () => {
     await writeUserConfig({
-      profiles: { visioo: { app: "tv.visioo.app" }, jowee: { app: "com.jowee.app" } },
+      profiles: { staging: { app: "com.example.staging" }, prod: { app: "com.example.app" } },
     });
     const result = await completeProfiles();
-    expect(result.sort()).toEqual(["jowee", "visioo"]);
+    expect(result.sort()).toEqual(["prod", "staging"]);
   });
 });
 

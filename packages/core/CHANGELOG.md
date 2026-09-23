@@ -1,5 +1,15 @@
 # @gpc-cli/core
 
+## 0.10.4
+
+### Patch Changes
+
+- fd267f9: Require AI SDK releases that include the `@ai-sdk/provider-utils` fix for GHSA-866g-f22w-33x8 (uncontrolled resource consumption), used by `--ai` release-note translation. Installs can no longer resolve a vulnerable version.
+- 4e7b840: The users client always sends `pageSize=-1`, the only value Google accepts, and ignores a caller-supplied page size (now deprecated) instead of sending a request Google rejects.
+- Updated dependencies [0475150]
+- Updated dependencies [4e7b840]
+  - @gpc-cli/api@1.1.3
+
 ## 0.10.3
 
 ### Patch Changes
@@ -281,7 +291,7 @@
 
 ### Patch Changes
 
-- Hotfix: `gpc vitals lmk` was 404'ing in v0.9.58 because the metric set name shipped with the wrong identifier (`lowMemoryKillerRateMetricSet`). Google's Play Developer Reporting API actually exposes the resource as `lmkRateMetricSet`, with metrics `userPerceivedLmkRate`, `userPerceivedLmkRate7dUserWeighted`, `userPerceivedLmkRate28dUserWeighted`, `distinctUsers`. The corrected name is now in the type union and the query path. Verified live against `com.sfnemploiappli`.
+- Hotfix: `gpc vitals lmk` was 404'ing in v0.9.58 because the metric set name shipped with the wrong identifier (`lowMemoryKillerRateMetricSet`). Google's Play Developer Reporting API actually exposes the resource as `lmkRateMetricSet`, with metrics `userPerceivedLmkRate`, `userPerceivedLmkRate7dUserWeighted`, `userPerceivedLmkRate28dUserWeighted`, `distinctUsers`. The corrected name is now in the type union and the query path. Verified live against a production app.
 - Updated dependencies
   - @gpc-cli/api@1.0.34
 

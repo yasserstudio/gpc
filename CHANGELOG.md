@@ -7,6 +7,21 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.98
+
+`gpc users` works again against the live API, proxies are applied reliably and never silently bypassed, and a dependency security fix.
+
+- fix: `gpc users list` and `gpc users get` no longer fail with "Pagination is not currently available". Google returns every user in one response and requires GPC to ask for it that way. Thanks to @suropark for the fix (#114).
+- fix: `HTTPS_PROXY` and `HTTP_PROXY` now always work on npm installs, and `NO_PROXY` is honored.
+- fix: if a proxy is configured but cannot be used, GPC now stops with a clear network error instead of quietly connecting directly and sending your credentials around the proxy. Proxy addresses, which can contain passwords, are never printed in errors or `gpc doctor` output.
+- fix: `gpc doctor` no longer warns about config keys that GPC itself writes or documents.
+- fix: updated the AI libraries behind `--ai` release-note translation to versions with a published security fix.
+- docs: proxy setup now documents `NO_PROXY` and removes a config-file proxy setting that never existed.
+
+**Tests:** 2,753 (+12).
+
+---
+
 ## v0.9.97
 
 Memory vitals for Google Play's February 2027 quality requirements, plus a full audit of GPC's Google API coverage.
