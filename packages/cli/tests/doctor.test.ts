@@ -278,6 +278,19 @@ describe("checkConfigKeys", () => {
   it("returns null for empty config", () => {
     expect(checkConfigKeys({})).toBeNull();
   });
+
+  it("accepts keys GPC writes or documents itself", () => {
+    expect(
+      checkConfigKeys({
+        legacyApprovedPlugins: [],
+        pluginApprovalPolicyVersion: 1,
+        vitals: { thresholds: {} },
+        games: { applicationId: "123" },
+        reports: { bucket: "pubsite_prod_1" },
+        configPath: "/repo/.gpcrc.json",
+      }),
+    ).toBeNull();
+  });
 });
 
 // ---------------------------------------------------------------------------

@@ -44,9 +44,16 @@ const KNOWN_CONFIG_KEYS = new Set([
   "plugins",
   "profiles",
   "approvedPlugins",
+  "legacyApprovedPlugins",
+  "pluginApprovalPolicyVersion",
   "webhooks",
+  "vitals",
+  "games",
+  "reports",
   "debug",
   "train",
+  // Added by the loader when a project config file is found, not written by users.
+  "configPath",
 ]);
 
 const NPM_REGISTRY_URL = "https://registry.npmjs.org/@gpc-cli/cli/latest";
