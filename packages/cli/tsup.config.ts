@@ -15,5 +15,8 @@ export default defineConfig({
   },
   define: {
     "process.env.__GPC_VERSION": JSON.stringify(pkg.version),
+    // The npm build is never the standalone binary; pin this so an env var
+    // cannot switch off proxy setup or change install detection.
+    "process.env.__GPC_BINARY": '"0"',
   },
 });
