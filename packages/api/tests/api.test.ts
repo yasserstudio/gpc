@@ -1840,8 +1840,15 @@ describe("createUsersClient", () => {
     const result = await client.list(DEV_ID);
     expect(result).toEqual({ users: [{ email: "a@b.com" }] });
     const [url, init] = mockFetch.mock.calls[0];
-    expect(url).toBe(`${USERS_BASE}/${DEV_ID}/users`);
+    expect(url).toBe(`${USERS_BASE}/${DEV_ID}/users?pageSize=-1`);
     expect(init.method).toBe("GET");
+  });
+
+  it("list disables pagination when options omit pageSize", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({ users: [] }));
+    await makeClient().list(DEV_ID, { pageSize: undefined });
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toBe(`${USERS_BASE}/${DEV_ID}/users?pageSize=-1`);
   });
 
   it("list passes pagination params", async () => {
