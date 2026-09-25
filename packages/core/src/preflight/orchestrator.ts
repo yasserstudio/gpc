@@ -59,6 +59,8 @@ export async function runPreflight(options: PreflightOptions): Promise<Preflight
     ctx.manifest = aab.manifest;
     ctx.zipEntries = aab.entries;
     ctx.nativeLibHeaders = aab.nativeLibHeaders;
+    ctx.isAppBundle = aab.isAppBundle;
+    ctx.deferredModules = aab.deferredModules;
 
     // If manifest had a parse error, emit a warning and clear manifest
     // so manifest-dependent scanners are skipped gracefully

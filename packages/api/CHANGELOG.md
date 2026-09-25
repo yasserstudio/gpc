@@ -1,5 +1,11 @@
 # @gpc-cli/api
 
+## 1.1.4
+
+### Patch Changes
+
+- Aligned with Google Play Developer API revision 20260924 (new fields only; no new endpoints). External transactions accept `externalContentLinkDetails` for Google's US external content links program, and one-time product offers accept `gameRewardOffer` for Play Games Rewards. Both already passed through `--file` unchanged, so they are now typed and documented, and the docs note the program's reporting deadlines. The SDK's `OneTimeOffer` type now matches Google's schema: `regionalPricingAndAvailabilityConfigs` is a list of `{ regionCode, availability, relativeDiscount | absoluteDiscount | noOverride }`, `preOrderOffer`/`discountedOffer` are typed, and the fields Google never accepted (`regionalConfigs`, `otherRegionsConfig`) are removed. `OneTimeProductPurchaseOption.regionalPricingAndAvailabilityConfigs` is likewise typed as the list Google returns (`{ regionCode, availability, price }`), not an object keyed by region. That is a type-level breaking change for SDK users only; CLI behavior is unchanged. The one-time product offer docs had described a subscription-style payload that Google rejects and now show the real one.
+
 ## 1.1.3
 
 ### Patch Changes

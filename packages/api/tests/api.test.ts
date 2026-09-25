@@ -1787,6 +1787,22 @@ describe("externalTransactions API endpoints", () => {
     expect(init.method).toBe("POST");
   });
 
+  it("externalTransactions.create sends externalContentLinkDetails unchanged", async () => {
+    const txn = {
+      externalTransactionId: "txn1",
+      externalContentLinkDetails: {
+        linkType: "LINK_TO_APP_DOWNLOAD",
+        installedAppPackage: "com.example.game",
+        externalAppCategory: "GAME",
+      },
+    };
+    mockFetch.mockResolvedValueOnce(mockResponse(txn));
+    const client = makeClient();
+    await client.externalTransactions.create(PKG, txn as any, "txn1");
+    const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(body.externalContentLinkDetails).toEqual(txn.externalContentLinkDetails);
+  });
+
   it("externalTransactions.get calls GET /{pkg}/externalTransactions/{id}", async () => {
     const txn = { externalTransactionId: "txn1", transactionState: "COMPLETED" };
     mockFetch.mockResolvedValueOnce(mockResponse(txn));
@@ -2860,6 +2876,21 @@ describe("oneTimeProducts", () => {
     expect(body.requests[0].updateMask).toBe("offerTags");
     expect(body.requests[0].regionsVersion).toEqual({ version: "2022/02" });
     expect(body.requests[0].oneTimeProductOffer.purchaseOptionId).toBe("po1");
+  });
+
+  it("createOffer sends a game reward offer and includes it in the update mask", async () => {
+    const offer = {
+      productId: "otp1",
+      offerId: "reward1",
+      gameRewardOffer: { redemptionLimit: "1" },
+    };
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [] }));
+    mockFetch.mockResolvedValueOnce(mockResponse({ oneTimeProductOffers: [offer] }));
+    const client = makeClient();
+    await client.oneTimeProducts.createOffer(PKG, "otp1", "po1", offer as any);
+    const request = JSON.parse(mockFetch.mock.calls[1][1].body).requests[0];
+    expect(request.updateMask).toBe("gameRewardOffer");
+    expect(request.oneTimeProductOffer.gameRewardOffer).toEqual({ redemptionLimit: "1" });
   });
 
   it("createOffer forwards regionsVersion into the batch request", async () => {

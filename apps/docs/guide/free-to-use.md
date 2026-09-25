@@ -95,7 +95,7 @@ Not when merely using GPC. If you distribute the software or substantial portion
 
 ### What happens if the maintainer stops shipping?
 
-The source is on GitHub under MIT, so anyone can fork and continue it. The current approach is single-maintainer by design — that gives us quality control today and succession risk tomorrow. We mitigate the succession risk by keeping the project fully documented, heavily tested (2,753 tests at 90%+ coverage), and publicly versioned.
+The source is on GitHub under MIT, so anyone can fork and continue it. The current approach is single-maintainer by design — that gives us quality control today and succession risk tomorrow. We mitigate the succession risk by keeping the project fully documented, heavily tested (2,809 tests at 90%+ coverage), and publicly versioned.
 
 ### Can I sponsor the project?
 

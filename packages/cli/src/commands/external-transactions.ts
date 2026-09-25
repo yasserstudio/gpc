@@ -2,11 +2,13 @@ import { resolvePackageName, getClient } from "../resolve.js";
 import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 
-import type { ExternalTransaction } from "@gpc-cli/api";
+import type { ExternalTransaction, ExternalTransactionRefund } from "@gpc-cli/api";
 import {
   createExternalTransaction,
   getExternalTransaction,
   refundExternalTransaction,
+  buildExternalTransactionRefund,
+  formatMoney,
   formatOutput,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
@@ -86,29 +88,19 @@ export function registerExternalTransactionsCommands(program: Command): void {
   extTxn
     .command("refund <id>")
     .description("Refund an external transaction")
-    .option("--full", "Full refund")
+    .option("--full", "Refund the whole transaction")
     .option("--partial-amount <micros>", "Partial refund pre-tax amount in micros (e.g., 1990000)")
-    .option("--currency <code>", "Currency code for partial refund (e.g. USD)")
+    .option("--currency <code>", "Currency code for a partial refund (e.g. USD)")
+    .option("--refund-id <id>", "Unique ID for a partial refund (required with --partial-amount)")
+    .option("--refund-time <iso>", "When the refund happened, ISO 8601 (default: now)")
     .action(async (id: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const format = getOutputFormat(program, config);
 
-      const refundData: Record<string, unknown> = {};
-      if (options.full) {
-        refundData["fullRefund"] = {};
-      } else if (options.partialAmount) {
-        refundData["partialRefund"] = {
-          refundPreTaxAmount: {
-            priceMicros: options.partialAmount,
-            currency: options.currency,
-          },
-        };
-      } else {
-        refundData["fullRefund"] = {};
-      }
+      const refundData = buildExternalTransactionRefund(options);
 
-      await requireConfirm(`Refund external transaction "${id}"?`, program);
+      await requireConfirm(describeRefund(id, refundData), program);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -116,7 +108,7 @@ export function registerExternalTransactionsCommands(program: Command): void {
             command: "external-transactions refund",
             action: "refund external transaction",
             target: id,
-            details: refundData,
+            details: { ...refundData },
           },
           format,
           formatOutput,
@@ -129,4 +121,20 @@ export function registerExternalTransactionsCommands(program: Command): void {
       const result = await refundExternalTransaction(client, packageName, id, refundData);
       console.log(formatOutput(result, format));
     });
+}
+
+/** Confirmation text that states the refund type and amount, since a refund cannot be undone. */
+function describeRefund(id: string, refund: ExternalTransactionRefund): string {
+  const partial = refund.partialRefund;
+  const amount = partial?.refundPreTaxAmount;
+  if (!partial || !amount?.priceMicros) {
+    return `Refund external transaction "${id}" in full? This cannot be undone.`;
+  }
+  const micros = BigInt(amount.priceMicros);
+  const money = formatMoney(
+    String(micros / 1_000_000n),
+    Number(micros % 1_000_000n) * 1000,
+    amount.currency,
+  );
+  return `Refund ${amount.currency} ${money} (pre-tax) of external transaction "${id}" as partial refund "${partial.refundId}"? This cannot be undone.`;
 }

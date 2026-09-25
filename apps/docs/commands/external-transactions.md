@@ -9,89 +9,91 @@ outline: deep
   :badges="['--json']"
 />
 
-Under regulations like the EU Digital Markets Act (DMA), apps may offer alternative billing flows outside of Google Play Billing. When a user completes a purchase through an external payment provider, you must report the transaction to Google Play. These commands let you create, query, and refund those external transaction records.
+When users pay outside Google Play Billing, through alternative billing (for example under the EU Digital Markets Act) or the US external offers and external content links programs, you must report each transaction to Google Play. These commands create, fetch, and refund those reports.
 
 ## Commands
 
 | Command                                                         | Description                            |
 | --------------------------------------------------------------- | -------------------------------------- |
-| [`external-transactions create`](#external-transactions-create) | Create an external transaction record  |
+| [`external-transactions create`](#external-transactions-create) | Report an external transaction         |
 | [`external-transactions get`](#external-transactions-get)       | Get details of an external transaction |
 | [`external-transactions refund`](#external-transactions-refund) | Refund an external transaction         |
 
 ## `external-transactions create`
 
-Report a new external transaction to Google Play. Requires the external transaction token (provided by Google when the user initiates the alternative billing flow), the transaction amount, and the currency.
+Report a new external transaction. The transaction body comes from a JSON file and is sent to Google Play unchanged, so every field of Google's [`ExternalTransaction`](https://developers.google.com/android-publisher/api-ref/rest/v3/externaltransactions) resource works.
 
 ### Synopsis
 
 ```bash
-gpc external-transactions create [options]
-gpc ext-txn create [options]
+gpc external-transactions create --file <path> --transaction-id <id> [options]
+gpc ext-txn create --file <path> --transaction-id <id> [options]
 ```
 
 ### Options
 
-| Flag         | Short | Type     | Default        | Description                                             |
-| ------------ | ----- | -------- | -------------- | ------------------------------------------------------- |
-| `--token`    |       | `string` | **(required)** | External transaction token from Google                  |
-| `--amount`   |       | `number` | **(required)** | Transaction amount in major currency units (e.g., 9.99) |
-| `--currency` |       | `string` | **(required)** | ISO 4217 currency code (e.g., EUR, USD)                 |
-| `--app`      |       | `string` |                | App package name                                        |
-| `--json`     |       | `flag`   |                | Output as JSON                                          |
+| Flag               | Type     | Default        | Description                                              |
+| ------------------ | -------- | -------------- | -------------------------------------------------------- |
+| `--file`           | `string` | **(required)** | JSON file with the transaction                           |
+| `--transaction-id` | `string` | **(required)** | Your unique ID for the transaction (1-63 characters)     |
+| `--app`            | `string` |                | App package name (global option)                         |
+| `--dry-run`        | `flag`   |                | Print what would be sent without calling Google (global) |
+| `--json`           | `flag`   |                | Output as JSON (global)                                  |
 
 ### Example
 
-Create a transaction record:
-
-```bash
-gpc ext-txn create \
-  --app com.example.myapp \
-  --token ext_txn_tok_1a2b3c4d5e6f \
-  --amount 9.99 \
-  --currency EUR
-```
-
-```
-External transaction created
-  Transaction ID: ext-txn-7f8e9d0c-1a2b-3c4d-5e6f-a1b2c3d4e5f6
-  Amount:         EUR 9.99
-  Status:         COMPLETED
-  Created:        2026-03-12T10:30:00Z
-```
-
-Create with JSON output for CI:
-
-```bash
-gpc ext-txn create \
-  --app com.example.myapp \
-  --token ext_txn_tok_1a2b3c4d5e6f \
-  --amount 4.99 \
-  --currency USD \
-  --json
-```
+A one-time purchase made through alternative billing:
 
 ```json
 {
-  "externalTransactionId": "ext-txn-7f8e9d0c-1a2b-3c4d-5e6f-a1b2c3d4e5f6",
-  "originalPreTaxAmount": {
-    "priceMicros": "4990000",
-    "currency": "USD"
-  },
-  "originalTaxAmount": {
-    "priceMicros": "0",
-    "currency": "USD"
-  },
-  "transactionTime": "2026-03-12T10:30:00Z",
-  "transactionState": "TRANSACTION_REPORTED"
+  "originalPreTaxAmount": { "priceMicros": "9990000", "currency": "EUR" },
+  "originalTaxAmount": { "priceMicros": "1900000", "currency": "EUR" },
+  "transactionTime": "2026-09-25T10:30:00Z",
+  "userTaxAddress": { "regionCode": "DE" },
+  "oneTimeTransaction": { "externalTransactionToken": "<token from Play Billing Library>" }
 }
 ```
+
+```bash
+gpc ext-txn create --app com.example.app --file txn.json --transaction-id order-1001
+```
+
+### External content links (US)
+
+Apps in Google's US [external content links program](https://developer.android.com/google/play/billing/externalcontentlinks) add `externalContentLinkDetails`. This is separate from the older `externalOfferDetails` used by the external offers program.
+
+| Field                 | Values                                                    | When              |
+| --------------------- | --------------------------------------------------------- | ----------------- |
+| `linkType`            | `LINK_TO_DIGITAL_CONTENT_OFFER`, `LINK_TO_APP_DOWNLOAD`   | Always            |
+| `installedAppPackage` | Package name of the downloaded app                        | App installs only |
+| `externalAppCategory` | `APP`, `GAME` (must match your Play Console verification) | App installs only |
+
+An app install reported through the program:
+
+```json
+{
+  "originalPreTaxAmount": { "priceMicros": "0", "currency": "USD" },
+  "originalTaxAmount": { "priceMicros": "0", "currency": "USD" },
+  "transactionTime": "2026-09-25T10:30:00Z",
+  "userTaxAddress": { "regionCode": "US" },
+  "oneTimeTransaction": { "externalTransactionToken": "<token from Play Billing Library>" },
+  "externalContentLinkDetails": {
+    "linkType": "LINK_TO_APP_DOWNLOAD",
+    "installedAppPackage": "com.example.game",
+    "externalAppCategory": "GAME"
+  }
+}
+```
+
+::: warning Reporting deadlines
+Google requires enrolled developers to report purchases made through external content links from October 1, 2026, and app downloads by December 1, 2026. Check the [program requirements](https://support.google.com/googleplay/android-developer/answer/16470497) for the current dates and fees.
+:::
 
 ---
 
 ## `external-transactions get`
 
-Retrieve details of a previously reported external transaction.
+Retrieve a previously reported external transaction.
 
 ### Synopsis
 
@@ -100,114 +102,59 @@ gpc external-transactions get <transaction-id> [options]
 gpc ext-txn get <transaction-id> [options]
 ```
 
-### Options
-
-| Flag     | Short | Type     | Default | Description      |
-| -------- | ----- | -------- | ------- | ---------------- |
-| `--app`  |       | `string` |         | App package name |
-| `--json` |       | `flag`   |         | Output as JSON   |
-
 ### Example
 
 ```bash
-gpc ext-txn get ext-txn-7f8e9d0c-1a2b-3c4d-5e6f-a1b2c3d4e5f6 \
-  --app com.example.myapp
-```
-
-```
-External Transaction
-
-  ID:        ext-txn-7f8e9d0c-1a2b-3c4d-5e6f-a1b2c3d4e5f6
-  Amount:    EUR 9.99
-  Tax:       EUR 0.00
-  Status:    TRANSACTION_REPORTED
-  Created:   2026-03-12T10:30:00Z
-  Refunded:  No
-```
-
-```bash
-gpc ext-txn get ext-txn-7f8e9d0c-1a2b-3c4d-5e6f-a1b2c3d4e5f6 \
-  --app com.example.myapp --json
-```
-
-```json
-{
-  "externalTransactionId": "ext-txn-7f8e9d0c-1a2b-3c4d-5e6f-a1b2c3d4e5f6",
-  "originalPreTaxAmount": {
-    "priceMicros": "9990000",
-    "currency": "EUR"
-  },
-  "originalTaxAmount": {
-    "priceMicros": "0",
-    "currency": "EUR"
-  },
-  "transactionTime": "2026-03-12T10:30:00Z",
-  "transactionState": "TRANSACTION_REPORTED"
-}
+gpc ext-txn get order-1001 --app com.example.app --json
 ```
 
 ---
 
 ## `external-transactions refund`
 
-Refund a previously reported external transaction. This notifies Google Play that the user received a refund through the external billing system.
+Report that a previously reported transaction was refunded, fully or in part. You must choose the refund type explicitly. Google requires a refund time on every refund, and GPC sends the current time unless you pass `--refund-time`.
 
 ### Synopsis
 
 ```bash
-gpc external-transactions refund <transaction-id> [options]
-gpc ext-txn refund <transaction-id> [options]
+gpc external-transactions refund <transaction-id> --full [options]
+gpc external-transactions refund <transaction-id> --partial-amount <micros> --currency <code> --refund-id <id> [options]
 ```
 
 ### Options
 
-| Flag         | Short | Type     | Default | Description                                  |
-| ------------ | ----- | -------- | ------- | -------------------------------------------- |
-| `--amount`   |       | `number` |         | Partial refund amount (omit for full refund) |
-| `--currency` |       | `string` |         | Currency code (required for partial refunds) |
-| `--app`      |       | `string` |         | App package name                             |
-| `--json`     |       | `flag`   |         | Output as JSON                               |
+| Flag               | Type     | Default | Description                                                                                        |
+| ------------------ | -------- | ------- | -------------------------------------------------------------------------------------------------- |
+| `--full`           | `flag`   |         | Refund the whole transaction                                                                       |
+| `--partial-amount` | `string` |         | Pre-tax amount to refund, in micros (`1990000` = 1.99)                                             |
+| `--currency`       | `string` |         | ISO 4217 currency code (required with `--partial-amount`)                                          |
+| `--refund-id`      | `string` |         | Unique ID for this partial refund (required with `--partial-amount`); Google rejects a repeated ID |
+| `--refund-time`    | `string` | now     | When the refund happened, ISO 8601                                                                 |
+| `--yes`            | `flag`   |         | Skip the confirmation prompt (global)                                                              |
+| `--dry-run`        | `flag`   |         | Print the refund request without sending it (global)                                               |
 
 ### Example
 
 Full refund:
 
 ```bash
-gpc ext-txn refund ext-txn-7f8e9d0c-1a2b-3c4d-5e6f-a1b2c3d4e5f6 \
-  --app com.example.myapp
+gpc ext-txn refund order-1001 --app com.example.app --full
 ```
 
-```
-External transaction refunded
-  Transaction ID: ext-txn-7f8e9d0c-1a2b-3c4d-5e6f-a1b2c3d4e5f6
-  Refund amount:  EUR 9.99 (full)
-  Status:         TRANSACTION_REFUNDED
-```
-
-Partial refund:
+Partial refund of 4.99:
 
 ```bash
-gpc ext-txn refund ext-txn-7f8e9d0c-1a2b-3c4d-5e6f-a1b2c3d4e5f6 \
-  --app com.example.myapp \
-  --amount 4.99 \
-  --currency EUR
-```
-
-```
-External transaction partially refunded
-  Transaction ID: ext-txn-7f8e9d0c-1a2b-3c4d-5e6f-a1b2c3d4e5f6
-  Refund amount:  EUR 4.99 (partial)
-  Status:         TRANSACTION_REFUNDED
+gpc ext-txn refund order-1001 --app com.example.app \
+  --partial-amount 4990000 --currency EUR --refund-id order-1001-r1
 ```
 
 ## Errors
 
-| Code                           | Exit | Description                                          |
-| ------------------------------ | ---- | ---------------------------------------------------- |
-| `INVALID_TOKEN`                | 2    | The external transaction token is invalid or expired |
-| `TRANSACTION_NOT_FOUND`        | 4    | No transaction exists with the specified ID          |
-| `ALREADY_REFUNDED`             | 4    | The transaction has already been fully refunded      |
-| `ALTERNATIVE_BILLING_DISABLED` | 4    | Alternative billing is not enabled for this app      |
+| Code                     | Exit | Description                                                            |
+| ------------------------ | ---- | ---------------------------------------------------------------------- |
+| `EXT_TXN_REFUND_INVALID` | 2    | Refund options are missing or invalid; nothing was sent to Google Play |
+
+Errors returned by Google Play use the standard API codes listed in [Exit codes](../reference/exit-codes).
 
 ## Related
 

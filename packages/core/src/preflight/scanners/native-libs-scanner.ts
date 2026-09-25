@@ -6,11 +6,9 @@ import type {
   PreflightFinding,
   EntryHeaderMap,
 } from "../types.js";
+import { firstInstallEntries, largestAbi, nativeLibAbi } from "../bundle-layout.js";
 
 const KNOWN_ABIS = ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"] as const;
-
-/** Regex to match native library paths in AAB or APK. */
-const LIB_PATH_RE = /^(?:[^/]+\/)?lib\/([^/]+)\/[^/]+\.so$/;
 
 // ELF constants
 const ELF_MAGIC = 0x7f454c46; // \x7fELF
@@ -95,7 +93,7 @@ export const nativeLibsScanner: PreflightScanner = {
     let totalNativeSize = 0;
 
     for (const entry of entries) {
-      const abi = LIB_PATH_RE.exec(entry.path)?.[1];
+      const abi = nativeLibAbi(entry.path);
       if (abi) {
         abisFound.add(abi);
         totalNativeSize += entry.uncompressedSize;
@@ -161,16 +159,30 @@ export const nativeLibsScanner: PreflightScanner = {
       message: `Found native libraries for ${abisFound.size} architecture(s): ${abiList}. Total uncompressed size: ${sizeMb} MB.`,
     });
 
-    // Warn on large native libraries
-    if (totalNativeSize > 150 * 1024 * 1024) {
+    // Warn on large native libraries. A device gets one ABI from an AAB (#116),
+    // but every ABI in an APK.
+    const bundle = ctx.isAppBundle ?? false;
+    const perDevice = bundle
+      ? largestAbi(
+          firstInstallEntries(entries, true, ctx.deferredModules),
+          (e) => e.uncompressedSize,
+        )
+      : undefined;
+    // A bundle whose native code is all in deferred modules ships none at install.
+    const perDeviceSize = bundle ? (perDevice?.bytes ?? 0) : totalNativeSize;
+    if (perDeviceSize > 150 * 1024 * 1024) {
+      const perDeviceMb = (perDeviceSize / (1024 * 1024)).toFixed(1);
       findings.push({
         scanner: "native-libs",
         ruleId: "native-libs-large",
         severity: "warning",
         title: "Large native libraries",
-        message: `Native libraries total ${sizeMb} MB (uncompressed). This significantly increases download size.`,
-        suggestion:
-          "Consider using Android App Bundles to deliver only the required ABI per device. Review if all native libraries are necessary.",
+        message: perDevice
+          ? `Native libraries for ${perDevice.abi} total ${perDeviceMb} MB (uncompressed). Each device on that ABI downloads all of them.`
+          : `Native libraries total ${sizeMb} MB (uncompressed). This significantly increases download size.`,
+        suggestion: perDevice
+          ? "Review whether all native libraries are necessary, and move optional native code into on-demand feature modules."
+          : "Consider using Android App Bundles to deliver only the required ABI per device. Review if all native libraries are necessary.",
       });
     }
 

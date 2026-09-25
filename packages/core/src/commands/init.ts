@@ -66,7 +66,7 @@ export async function initProject(options: InitOptions): Promise<InitResult> {
     {
       failOn: "error",
       targetSdkMinimum: 36,
-      maxDownloadSizeMb: 150,
+      maxDownloadSizeMb: 200,
       allowedPermissions: [],
       disabledRules: [],
       severityOverrides: {},

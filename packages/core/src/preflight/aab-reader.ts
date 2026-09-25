@@ -3,12 +3,19 @@
 import { readFile } from "node:fs/promises";
 import { fromBuffer, type Entry, type ZipFile } from "yauzl";
 import type { ParsedManifest, ZipEntryInfo, EntryHeaderMap } from "./types.js";
-import { decodeManifest } from "./manifest-parser.js";
+import { decodeManifest, isInstallTimeModule } from "./manifest-parser.js";
 
 const AAB_MANIFEST_PATH = "base/manifest/AndroidManifest.xml";
 const APK_MANIFEST_PATH = "AndroidManifest.xml";
 const SO_HEADER_BYTES = 4096;
 const SO_PATH_RE = /(?:^|\/)lib\/[^/]+\/[^/]+\.so$/;
+/** Manifest of a non-base AAB module (feature module or asset pack). */
+const MODULE_MANIFEST_RE = /^([^/]+)\/manifest\/AndroidManifest\.xml$/;
+// Real module manifests are a few KB and Play allows far fewer modules than this.
+// Anything past either cap is not read and counts as installing with the app, so
+// a crafted bundle cannot make the scan buffer gigabytes of "manifests".
+const MAX_MODULE_MANIFEST_BYTES = 1024 * 1024;
+const MAX_MODULE_MANIFESTS = 256;
 
 // Safety backstop. An offline scan of an in-memory buffer completes in well
 // under a second; if the ZIP layer ever wedges we reject rather than hang the
@@ -22,6 +29,9 @@ interface AabContents {
   manifest: ParsedManifest;
   entries: ZipEntryInfo[];
   nativeLibHeaders: EntryHeaderMap;
+  isAppBundle: boolean;
+  /** AAB modules not delivered at install time. Always empty for an APK. */
+  deferredModules: string[];
 }
 
 function detectManifestPath(filePath: string): string {
@@ -49,7 +59,10 @@ export async function readAab(aabPath: string): Promise<AabContents> {
     throw new Error(`Could not read ${aabPath}: ${msg}`, { cause: err });
   }
 
-  const { zipfile, entries, manifestBuf, soHeaders } = await openAndScan(buffer, manifestPath);
+  const { zipfile, entries, manifestBuf, soHeaders, moduleManifests } = await openAndScan(
+    buffer,
+    manifestPath,
+  );
   zipfile.close();
 
   if (!manifestBuf) {
@@ -71,7 +84,25 @@ export async function readAab(aabPath: string): Promise<AabContents> {
     manifest._parseError = `Manifest could not be fully parsed: ${errMsg}. Manifest-dependent checks will be skipped.`;
   }
 
-  return { manifest, entries, nativeLibHeaders: soHeaders };
+  // A module whose manifest cannot be read is counted as installing with the app,
+  // so the download estimate errs high rather than hiding a large module.
+  const deferredModules = [...moduleManifests]
+    .filter(([, buf]) => {
+      try {
+        return !isInstallTimeModule(buf);
+      } catch {
+        return false;
+      }
+    })
+    .map(([name]) => name);
+
+  return {
+    manifest,
+    entries,
+    nativeLibHeaders: soHeaders,
+    isAppBundle: manifestPath === AAB_MANIFEST_PATH,
+    deferredModules,
+  };
 }
 
 function createFallbackManifest(): ParsedManifest {
@@ -111,6 +142,7 @@ function openAndScan(
   entries: ZipEntryInfo[];
   manifestBuf: Buffer | null;
   soHeaders: EntryHeaderMap;
+  moduleManifests: Map<string, Buffer>;
 }> {
   return new Promise((resolve, reject) => {
     let settled = false;
@@ -127,6 +159,7 @@ function openAndScan(
       entries: ZipEntryInfo[];
       manifestBuf: Buffer | null;
       soHeaders: EntryHeaderMap;
+      moduleManifests: Map<string, Buffer>;
     }): void {
       if (settled) return;
       settled = true;
@@ -150,6 +183,8 @@ function openAndScan(
 
         const entries: ZipEntryInfo[] = [];
         const soHeaders: EntryHeaderMap = new Map();
+        const moduleManifests = new Map<string, Buffer>();
+        let moduleManifestReads = 0;
         let manifestBuf: Buffer | null = null;
         let pendingStreams = 0;
         let entrysDone = false;
@@ -166,24 +201,39 @@ function openAndScan(
 
         function maybeResolve(): void {
           if (!settled && entrysDone && pendingStreams === 0) {
-            settleResolve({ zipfile, entries, manifestBuf, soHeaders });
+            settleResolve({ zipfile, entries, manifestBuf, soHeaders, moduleManifests });
           }
         }
 
+        /**
+         * Read one entry. With `optional`, a read error drops the entry instead of
+         * failing the whole scan (used for entries the scan can do without).
+         */
         function readEntryStream(
           entry: Entry,
           onData: (buf: Buffer) => void,
           maxBytes?: number,
+          optional = false,
         ): void {
           pendingStreams++;
+          let done = false;
+          const onError = (e: Error): void => {
+            if (!optional) {
+              fail(e);
+              return;
+            }
+            if (done) return;
+            done = true;
+            pendingStreams--;
+            maybeResolve();
+          };
           zipfile.openReadStream(entry, (streamErr, stream) => {
             if (streamErr || !stream) {
-              fail(streamErr ?? new Error(`Failed to read ${entry.fileName}`));
+              onError(streamErr ?? new Error(`Failed to read ${entry.fileName}`));
               return;
             }
             const chunks: Buffer[] = [];
             let totalBytes = 0;
-            let done = false;
             stream.on("data", (chunk: Buffer) => {
               chunks.push(chunk);
               totalBytes += chunk.length;
@@ -194,7 +244,7 @@ function openAndScan(
             stream.on("error", (e: Error) => {
               // stream.destroy() may emit an error on some Node versions; ignore it
               if (maxBytes && totalBytes >= maxBytes) return;
-              fail(e);
+              onError(e);
             });
             const finish = () => {
               if (done) return;
@@ -228,11 +278,30 @@ function openAndScan(
               });
             }
 
+            const moduleName =
+              manifestPath === AAB_MANIFEST_PATH ? MODULE_MANIFEST_RE.exec(path)?.[1] : undefined;
+            const readModuleManifest =
+              moduleName !== undefined &&
+              entry.uncompressedSize <= MAX_MODULE_MANIFEST_BYTES &&
+              moduleManifestReads < MAX_MODULE_MANIFESTS;
+
             // Extract manifest content
             if (path === manifestPath) {
               readEntryStream(entry, (buf) => {
                 manifestBuf = buf;
               });
+            }
+            // Non-base module manifests (AAB only) decide which modules ship at install
+            else if (moduleName !== undefined && readModuleManifest) {
+              moduleManifestReads++;
+              readEntryStream(
+                entry,
+                (buf) => {
+                  moduleManifests.set(moduleName, buf);
+                },
+                MAX_MODULE_MANIFEST_BYTES,
+                true,
+              );
             }
             // Extract first N bytes of .so files for ELF header analysis (early stream destroy)
             else if (SO_PATH_RE.test(path)) {

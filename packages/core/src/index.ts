@@ -298,7 +298,9 @@ export {
   createExternalTransaction,
   getExternalTransaction,
   refundExternalTransaction,
+  buildExternalTransactionRefund,
 } from "./commands/external-transactions.js";
+export type { ExternalTransactionRefundOptions } from "./commands/external-transactions.js";
 export { listDeviceTiers, getDeviceTier, createDeviceTier } from "./commands/device-tiers.js";
 export {
   listOneTimeProducts,

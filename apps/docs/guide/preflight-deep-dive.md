@@ -66,7 +66,7 @@ Flags the `AndroidManifest.xml` configurations that cause the fastest rejections
 - `android:testOnly="true"` — **critical**. Automatic rejection.
 - `targetSdkVersion` below the floor — **error**. Floor moves annually; GPC defaults to 36 (Android 16, required Aug 31 2026), configurable via `targetSdkMinimum`.
 - Missing `android:exported` on components with intent filters (Android 12+) — **error**. Install fails on target SDK ≥ 31.
-- Missing `foregroundServiceType` on `startForeground()` services (Android 14+) — **error**.
+- No `foregroundServiceType` on any service while the app requests `FOREGROUND_SERVICE` (Android 14+) — **warning**, reported once. Only services that call `startForeground()` need a type, and the manifest cannot show which ones do, so library services (Firebase, WorkManager) without a type are not flagged on their own.
 - `android:usesCleartextTraffic="true"` without a network security config — **warning**.
 - Components exported without a permission guard — **warning**.
 - `QUERY_ALL_PACKAGES` permission — **error**. Requires declared justification; rarely approved.
@@ -158,13 +158,15 @@ These are **reminders**, not automatic rejections. But missing declarations in r
 
 ### 9. Size
 
-Measures the AAB's download size components and flags:
+Estimates what one device downloads and flags:
 
-- Total download size above `maxDownloadSizeMb` threshold (default 150 MB) — **warning**
-- Any single native lib > 40 MB — **warning**
-- Asset budget breaches (custom `maxAssetMb` per directory)
+- Estimated download above `maxDownloadSizeMb` (default 200 MB, the size at which Google Play shows users on mobile data a large-download dialog) — **warning**
+- Native libraries over 50 MB compressed for one device — **warning**
+- Assets over 30 MB compressed — **info**, pointing to Play Asset Delivery
 
-Not a rejection scanner — Google Play accepts up to 200 MB base APK — but unreasonable size kills install conversion. Treat this as a product-quality signal.
+For an AAB the estimate follows how Play serves the bundle: a device gets split APKs for its own ABI, so only the largest ABI's native libraries are counted. `BUNDLE-METADATA/` (debug symbols, R8 mapping) and the bundle signature are never shipped and are left out, as are feature modules and asset packs delivered `on-demand` or `fast-follow`. Every screen density and language is still counted, so the figure errs high. A multi-ABI Flutter or React Native bundle is often three to four times larger on disk than its Play Store download. An APK is downloaded whole, so for an APK every file counts. For an exact per-device figure, run `bundletool get-size total` on the bundle.
+
+Not a rejection scanner. Google Play accepts a base module of up to 500 MB compressed and 4 GB across install-time modules ([Play Console Help](https://support.google.com/googleplay/android-developer/answer/9859372)), but a large download hurts install conversion. Treat this as a product-quality signal.
 
 ## Severity model
 
@@ -179,13 +181,13 @@ CI default: fail on `error`+. The rationale: `warning` is too noisy for a hard g
 
 ## Tuning `.preflightrc.json`
 
-Commit a `.preflightrc.json` to your repo root for project-specific tuning:
+Commit a `.preflightrc.json` to your repo root for project-specific tuning. This example tightens the download threshold below the 200 MB default:
 
 ```json
 {
   "failOn": "error",
   "targetSdkMinimum": 36,
-  "maxDownloadSizeMb": 200,
+  "maxDownloadSizeMb": 150,
   "allowedPermissions": [
     "android.permission.READ_SMS",
     "android.permission.ACCESS_BACKGROUND_LOCATION"

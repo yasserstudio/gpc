@@ -108,25 +108,30 @@ export const manifestScanner: PreflightScanner = {
       }
     }
 
-    // foreground service type required (API 34+)
+    // foreground service type required (API 34+). Only a service that calls
+    // startForeground() needs a type, and the manifest cannot show which ones do;
+    // library services (Firebase, WorkManager, ...) are usually background or bound.
+    // So warn once, only when the app requests FOREGROUND_SERVICE and no service
+    // declares any type at all.
     if (manifest.targetSdk >= 34) {
       const hasFgsPerm = manifest.permissions.includes("android.permission.FOREGROUND_SERVICE");
-
-      if (hasFgsPerm) {
-        for (const service of manifest.services) {
-          if (!service.foregroundServiceType) {
-            findings.push({
-              scanner: "manifest",
-              ruleId: "foreground-service-type-missing",
-              severity: "error",
-              title: `Missing foregroundServiceType on ${service.name}`,
-              message: `Service "${service.name}" does not declare android:foregroundServiceType. This is required for apps targeting API 34+.`,
-              suggestion: `Add android:foregroundServiceType to the <service> declaration. Valid types: camera, connectedDevice, dataSync, health, location, mediaPlayback, mediaProcessing, mediaProjection, microphone, phoneCall, remoteMessaging, shortService, specialUse, systemExempted.`,
-              policyUrl:
-                "https://developer.android.com/about/versions/14/changes/fgs-types-required",
-            });
-          }
-        }
+      const anyTyped = manifest.services.some((s) => s.foregroundServiceType);
+      if (hasFgsPerm && !anyTyped && manifest.services.length > 0) {
+        const typedPerms = manifest.permissions
+          .filter((p) => p.startsWith("android.permission.FOREGROUND_SERVICE_"))
+          .map((p) => p.replace("android.permission.", ""));
+        findings.push({
+          scanner: "manifest",
+          ruleId: "foreground-service-type-missing",
+          severity: "warning",
+          title: "No service declares a foregroundServiceType",
+          message:
+            `The app requests FOREGROUND_SERVICE${typedPerms.length > 0 ? ` (and ${typedPerms.join(", ")})` : ""} but none of its ${manifest.services.length} services declares android:foregroundServiceType. ` +
+            "On API 34+, any service that calls startForeground() must declare a type or it crashes at runtime. Services that never run in the foreground do not need one.",
+          suggestion:
+            'Add android:foregroundServiceType to each service you start in the foreground (for example dataSync, mediaPlayback, location). If none do, remove the FOREGROUND_SERVICE permission or add this rule to "disabledRules".',
+          policyUrl: "https://developer.android.com/about/versions/14/changes/fgs-types-required",
+        });
       }
     }
 

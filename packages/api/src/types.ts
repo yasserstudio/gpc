@@ -1243,6 +1243,19 @@ export interface ExternalTransaction {
     installedAppCategory?: string;
     appDownloadEventExternalTransactionId?: string;
   };
+  /** US external content links program. Separate from `externalOfferDetails`. */
+  externalContentLinkDetails?: ExternalContentLinkDetails;
+}
+
+export interface ExternalContentLinkDetails {
+  linkType?:
+    | "EXTERNAL_CONTENT_LINK_TYPE_UNSPECIFIED"
+    | "LINK_TO_DIGITAL_CONTENT_OFFER"
+    | "LINK_TO_APP_DOWNLOAD";
+  /** Package of the downloaded app. Only for app installs. */
+  installedAppPackage?: string;
+  /** Must match the category given during external app verification. Only for app installs. */
+  externalAppCategory?: "EXTERNAL_CONTENT_APP_CATEGORY_UNSPECIFIED" | "APP" | "GAME";
 }
 
 export interface ExternalTransactionRefund {
@@ -1408,10 +1421,19 @@ export interface OneTimeProductPurchaseOption {
     rentalPeriod?: string;
     expirationPeriod?: string;
   };
-  regionalPricingAndAvailabilityConfigs?: Record<string, unknown>;
+  regionalPricingAndAvailabilityConfigs?: OneTimeProductPurchaseOptionRegionalConfig[];
   newRegionsConfig?: Record<string, unknown>;
   offerTags?: { tag: string }[];
   taxAndComplianceSettings?: TaxAndComplianceSettings;
+}
+
+/** Per-region price and availability of a one-time product purchase option. */
+export interface OneTimeProductPurchaseOptionRegionalConfig {
+  /** ISO 3166-2 region code, e.g. "US". */
+  regionCode: string;
+  availability?: OneTimeProductAvailability;
+  /** Must be in the region's currency. */
+  price?: Money;
 }
 
 export interface TaxAndComplianceSettings {
@@ -1438,19 +1460,35 @@ export interface OneTimeOffer {
   purchaseOptionId: string;
   offerId: string;
   state?: OneTimeOfferState;
-  regionalPricingAndAvailabilityConfigs?: Record<string, OneTimeOfferRegionalConfig>;
-  /** @deprecated Use regionalPricingAndAvailabilityConfigs instead */
-  regionalConfigs?: Record<string, OneTimeOfferRegionalConfig>;
-  otherRegionsConfig?: { usdPrice: { units: string; nanos?: number } };
+  regionalPricingAndAvailabilityConfigs?: OneTimeOfferRegionalConfig[];
   offerTags?: Array<{ tag: string }>;
   regionsVersion?: { version: string };
-  preOrderOffer?: Record<string, unknown>;
-  discountedOffer?: Record<string, unknown>;
+  /** An offer has exactly one of preOrderOffer, discountedOffer or gameRewardOffer. */
+  preOrderOffer?: {
+    startTime: string;
+    endTime: string;
+    releaseTime: string;
+    priceChangeBehavior:
+      | "PRE_ORDER_PRICE_CHANGE_BEHAVIOR_TWO_POINT_LOWEST"
+      | "PRE_ORDER_PRICE_CHANGE_BEHAVIOR_NEW_ORDERS_ONLY";
+  };
+  /** redemptionLimit: "0" or unset is unlimited. */
+  discountedOffer?: { startTime?: string; endTime?: string; redemptionLimit?: string };
+  /** Play Games Rewards offer. redemptionLimit: "0" or unset is unlimited, otherwise "1"-"50". */
+  gameRewardOffer?: { redemptionLimit?: string };
 }
 
+/** Per-region offer pricing. Set one of absoluteDiscount, relativeDiscount or noOverride. */
 export interface OneTimeOfferRegionalConfig {
-  price: { currencyCode: string; units: string; nanos?: number };
-  newSubscriberAvailability?: boolean;
+  /** ISO 3166-2 region code, e.g. "US". */
+  regionCode: string;
+  availability: "AVAILABLE" | "NO_LONGER_AVAILABLE";
+  /** Amount subtracted from the purchase option price. */
+  absoluteDiscount?: Money;
+  /** Fraction of the purchase option price the user pays, strictly between 0 and 1. */
+  relativeDiscount?: number;
+  /** Use the purchase option's price for this region. */
+  noOverride?: Record<string, never>;
 }
 
 export interface OneTimeProductsListResponse {

@@ -1,5 +1,18 @@
 # @gpc-cli/core
 
+## 0.10.5
+
+### Patch Changes
+
+- `gpc external-transactions refund` now sends the refund time Google Play requires on every refund, and partial refunds need a unique `--refund-id`, which Google also requires. Previously neither was sent, so Google Play rejected refunds reported through GPC. New `--refund-id` and `--refund-time` (default: now) options. A refund must now say which kind it is (`--full` or `--partial-amount`); a partial refund also needs `--currency` and a positive amount in micros. Invalid options fail with `EXT_TXN_REFUND_INVALID` (exit 2) before anything is sent. The core package exports `buildExternalTransactionRefund`.
+- Aligned with Google Play Developer API revision 20260924 (new fields only; no new endpoints). External transactions accept `externalContentLinkDetails` for Google's US external content links program, and one-time product offers accept `gameRewardOffer` for Play Games Rewards. Both already passed through `--file` unchanged, so they are now typed and documented, and the docs note the program's reporting deadlines. The SDK's `OneTimeOffer` type now matches Google's schema: `regionalPricingAndAvailabilityConfigs` is a list of `{ regionCode, availability, relativeDiscount | absoluteDiscount | noOverride }`, `preOrderOffer`/`discountedOffer` are typed, and the fields Google never accepted (`regionalConfigs`, `otherRegionsConfig`) are removed. `OneTimeProductPurchaseOption.regionalPricingAndAvailabilityConfigs` is likewise typed as the list Google returns (`{ regionCode, availability, price }`), not an object keyed by region. That is a type-level breaking change for SDK users only; CLI behavior is unchanged. The one-time product offer docs had described a subscription-style payload that Google rejects and now show the real one.
+- `gpc preflight` now estimates what one device downloads from an App Bundle instead of adding up the whole `.aab` file (#116). A device receives only its own ABI, so a multi-ABI Flutter or React Native bundle is no longer flagged as several times its real size. Debug symbols and other `BUNDLE-METADATA/`, the bundle signature, and on-demand or fast-follow modules and asset packs are left out too. `native-libs-large` also measures the largest single ABI. The default `maxDownloadSizeMb` is now 200, the size at which Google Play shows users on mobile data a large-download dialog. A threshold you set in `.preflightrc.json` is unchanged; if you run with `--fail-on warning` and no threshold of your own, a download between 150 and 200 MB no longer fails the run. APKs are still measured whole. The example `.preflightrc.example.json` now uses the current `targetSdkMinimum` (36) and a real rule ID in `severityOverrides` (`size-over-limit`; the old `size-exceeds-warning` never matched a rule).
+
+  `foreground-service-type-missing` no longer raises an error for every service without a `foregroundServiceType`. Only services that call `startForeground()` need a type, and ordinary library services (Firebase, WorkManager, push SDKs) made a typical Flutter app fail the default `--fail-on error` gate with around 18 false errors. It is now a single warning, raised only when the app requests `FOREGROUND_SERVICE` but no service declares any type.
+
+- Updated dependencies
+  - @gpc-cli/api@1.1.4
+
 ## 0.10.4
 
 ### Patch Changes

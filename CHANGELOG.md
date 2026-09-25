@@ -7,6 +7,21 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v0.9.99
+
+`gpc preflight` measures what a device actually downloads and stops failing valid apps, `gpc external-transactions refund` works, and GPC matches Google Play's September API update.
+
+- fix: `gpc preflight` now estimates the download for one device instead of adding up the whole App Bundle. A device receives only its own ABI, and debug symbols, bundle metadata and on-demand or fast-follow modules never reach it, so multi-ABI Flutter and React Native bundles are no longer flagged at several times their real size. The default warning threshold is now 200 MB, the size at which Google Play shows users on mobile data a large-download dialog; a threshold you set in `.preflightrc.json` is unchanged. Thanks to @finnvyrn for the report (#116).
+- fix: `gpc preflight` no longer raises an error for every service without a foreground service type. Library services such as Firebase, WorkManager and push SDKs do not need one, and a typical Flutter app failed the default CI gate with around 18 false errors. It is now a single warning when the app requests foreground services but no service declares a type.
+- fix: `gpc external-transactions refund` now sends the refund time and refund ID that Google Play requires, so refunds are accepted. A refund must say whether it is `--full` or `--partial-amount` (with `--currency` and a unique `--refund-id`), the confirmation prompt shows the amount, and invalid options stop before anything is sent.
+- feat: `gpc external-transactions create` supports Google's US external content links program, and one-time product offers support Play Games Rewards, with documented payloads and the program's reporting deadlines.
+- breaking: SDK only. The TypeScript types for one-time product offers and purchase option regional pricing now match Google's schema. CLI behavior is unchanged.
+- docs: the external transactions and one-time product offer pages now show the flags and payloads Google Play actually accepts, and the preflight docs note that manifest checks currently run on App Bundles only (#117).
+
+**Tests:** 2,809 (+56).
+
+---
+
 ## v0.9.98
 
 `gpc users` works again against the live API, proxies are applied reliably and never silently bypassed, and a dependency security fix.

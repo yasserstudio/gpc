@@ -190,7 +190,7 @@ Create a `.preflightrc.json` in your project root:
 {
   "failOn": "error",
   "targetSdkMinimum": 36,
-  "maxDownloadSizeMb": 150,
+  "maxDownloadSizeMb": 200,
   "allowedPermissions": ["android.permission.READ_SMS"],
   "disabledRules": ["cleartext-traffic"],
   "severityOverrides": {
@@ -203,7 +203,7 @@ Create a `.preflightrc.json` in your project root:
 | -------------------- | ---------- | ---------------------------------------------------------- |
 | `failOn`             | `string`   | Severity threshold: `critical`, `error`, `warning`, `info` |
 | `targetSdkMinimum`   | `number`   | Minimum required targetSdkVersion (default: 36)            |
-| `maxDownloadSizeMb`  | `number`   | Download size warning threshold in MB (default: 150)       |
+| `maxDownloadSizeMb`  | `number`   | Download size warning threshold in MB (default: 200)       |
 | `allowedPermissions` | `string[]` | Permissions to skip (e.g., approved via declaration form)  |
 | `disabledRules`      | `string[]` | Rule IDs to suppress entirely                              |
 | `severityOverrides`  | `object`   | Override severity for specific rule IDs                    |
@@ -241,7 +241,9 @@ preflight:
 
 ### Manifest parsing limitations
 
-Some large or complex AABs have manifests that cannot be fully decoded. When this happens, GPC does **not** crash — instead it:
+Manifest checks currently run on **AABs only**. An APK stores its manifest in Android's binary XML format, which the scanner does not decode yet, so scanning an APK reports "Manifest could not be fully parsed" and runs the non-manifest scanners. Scan the AAB you upload to Play for full coverage.
+
+Some large or complex AABs also have manifests that cannot be fully decoded. When this happens, GPC does **not** crash — instead it:
 
 1. Emits a **warning** finding: "Manifest could not be fully parsed"
 2. **Skips** manifest-dependent scanners (manifest, permissions, policy, privacy)

@@ -19,7 +19,7 @@ describe("loadPreflightConfig", () => {
     const config = await loadPreflightConfig(join(tmpDir, "nonexistent.json"));
     expect(config.failOn).toBe("error");
     expect(config.targetSdkMinimum).toBe(36);
-    expect(config.maxDownloadSizeMb).toBe(150);
+    expect(config.maxDownloadSizeMb).toBe(200);
     expect(config.allowedPermissions).toEqual([]);
     expect(config.disabledRules).toEqual([]);
     expect(config.severityOverrides).toEqual({});
@@ -32,7 +32,7 @@ describe("loadPreflightConfig", () => {
       JSON.stringify({
         failOn: "warning",
         targetSdkMinimum: 34,
-        maxDownloadSizeMb: 200,
+        maxDownloadSizeMb: 120,
         allowedPermissions: ["android.permission.READ_SMS"],
         disabledRules: ["cleartext-traffic"],
         severityOverrides: { "debuggable-true": "warning" },
@@ -42,7 +42,7 @@ describe("loadPreflightConfig", () => {
     const config = await loadPreflightConfig(configPath);
     expect(config.failOn).toBe("warning");
     expect(config.targetSdkMinimum).toBe(34);
-    expect(config.maxDownloadSizeMb).toBe(200);
+    expect(config.maxDownloadSizeMb).toBe(120);
     expect(config.allowedPermissions).toEqual(["android.permission.READ_SMS"]);
     expect(config.disabledRules).toEqual(["cleartext-traffic"]);
     expect(config.severityOverrides).toEqual({ "debuggable-true": "warning" });

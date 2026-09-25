@@ -128,21 +128,90 @@ describe("manifestScanner", () => {
     expect(findings.find((f) => f.ruleId === "missing-exported")).toBeUndefined();
   });
 
-  it("flags missing foregroundServiceType on API 34+", async () => {
+  it("warns once when FOREGROUND_SERVICE is requested but no service declares a type", async () => {
     const findings = await manifestScanner.scan(
       makeCtx(
         makeManifest({
           targetSdk: 36,
           permissions: ["android.permission.FOREGROUND_SERVICE"],
           services: [
-            { name: ".MyService", hasIntentFilter: false, foregroundServiceType: undefined },
+            { name: ".SyncService", hasIntentFilter: false },
+            {
+              name: "com.google.firebase.messaging.FirebaseMessagingService",
+              hasIntentFilter: true,
+            },
           ],
         }),
       ),
     );
+    const f = findings.filter((f) => f.ruleId === "foreground-service-type-missing");
+    expect(f).toHaveLength(1);
+    expect(f[0]!.severity).toBe("warning");
+    expect(f[0]!.message).toContain("startForeground()");
+  });
+
+  it("names typed foreground service permissions when no service declares a type", async () => {
+    const findings = await manifestScanner.scan(
+      makeCtx(
+        makeManifest({
+          targetSdk: 36,
+          permissions: [
+            "android.permission.FOREGROUND_SERVICE",
+            "android.permission.FOREGROUND_SERVICE_DATA_SYNC",
+          ],
+          services: [{ name: ".SyncService", hasIntentFilter: false }],
+        }),
+      ),
+    );
     const f = findings.find((f) => f.ruleId === "foreground-service-type-missing");
-    expect(f).toBeDefined();
-    expect(f!.severity).toBe("error");
+    expect(f!.message).toContain("FOREGROUND_SERVICE_DATA_SYNC");
+  });
+
+  it("does not flag untyped background services when another service declares a type (#116 smoke test)", async () => {
+    // Real Flutter/Firebase apps ship many library services that never run in the
+    // foreground; only services that call startForeground() need a type.
+    const findings = await manifestScanner.scan(
+      makeCtx(
+        makeManifest({
+          targetSdk: 36,
+          permissions: ["android.permission.FOREGROUND_SERVICE"],
+          services: [
+            {
+              name: ".PlayerService",
+              hasIntentFilter: false,
+              foregroundServiceType: "mediaPlayback",
+            },
+            {
+              name: "androidx.work.impl.background.systemjob.SystemJobService",
+              hasIntentFilter: false,
+            },
+            {
+              name: "com.google.firebase.messaging.FirebaseMessagingService",
+              hasIntentFilter: true,
+            },
+          ],
+        }),
+      ),
+    );
+    expect(findings.find((f) => f.ruleId === "foreground-service-type-missing")).toBeUndefined();
+  });
+
+  it("does not flag apps without FOREGROUND_SERVICE or below API 34", async () => {
+    const service = { name: ".SyncService", hasIntentFilter: false };
+    const noPerm = await manifestScanner.scan(
+      makeCtx(makeManifest({ targetSdk: 36, services: [service] })),
+    );
+    const oldTarget = await manifestScanner.scan(
+      makeCtx(
+        makeManifest({
+          targetSdk: 33,
+          permissions: ["android.permission.FOREGROUND_SERVICE"],
+          services: [service],
+        }),
+      ),
+    );
+    expect(noPerm.find((f) => f.ruleId === "foreground-service-type-missing")).toBeUndefined();
+    expect(oldTarget.find((f) => f.ruleId === "foreground-service-type-missing")).toBeUndefined();
   });
 
   it("does not flag foregroundServiceType when declared", async () => {

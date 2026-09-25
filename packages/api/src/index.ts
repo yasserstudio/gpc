@@ -184,6 +184,7 @@ export type {
   TaxAndComplianceSettings,
   OneTimeOffer,
   OneTimeOfferRegionalConfig,
+  OneTimeProductPurchaseOptionRegionalConfig,
   OneTimeProductsListResponse,
   OneTimeOffersListResponse,
   InternalAppSharingArtifact,

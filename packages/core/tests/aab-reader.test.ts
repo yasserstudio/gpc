@@ -30,6 +30,10 @@ vi.mock("../src/preflight/manifest-parser.js", () => ({
     receivers: [],
     providers: [],
   }),
+  isInstallTimeModule: vi.fn((buf: Buffer) => {
+    if (buf.toString() === "broken") throw new Error("bad proto");
+    return buf.toString() !== "on-demand";
+  }),
 }));
 
 import { readAab } from "../src/preflight/aab-reader";
@@ -43,7 +47,14 @@ const mockedFromBuffer = vi.mocked(yauzlFromBuffer);
 const mockedDecodeManifest = vi.mocked(decodeManifest);
 const mockedReadFile = vi.mocked(readFile);
 
-function createMockZipfile(entries: Array<{ fileName: string; data?: Buffer }>) {
+function createMockZipfile(
+  entries: Array<{
+    fileName: string;
+    data?: Buffer;
+    uncompressedSize?: number;
+    streamError?: boolean;
+  }>,
+) {
   const emitter = new EventEmitter() as EventEmitter & {
     readEntry: () => void;
     openReadStream: (entry: unknown, cb: (err: Error | null, stream?: Readable) => void) => void;
@@ -55,7 +66,7 @@ function createMockZipfile(entries: Array<{ fileName: string; data?: Buffer }>) 
   const entryList = entries.map((e) => ({
     fileName: e.fileName,
     compressedSize: e.data?.length ?? 100,
-    uncompressedSize: e.data?.length ?? 200,
+    uncompressedSize: e.uncompressedSize ?? e.data?.length ?? 200,
   }));
 
   emitter.entryCount = entries.length;
@@ -76,6 +87,10 @@ function createMockZipfile(entries: Array<{ fileName: string; data?: Buffer }>) 
     cb: (err: Error | null, stream?: Readable) => void,
   ) => {
     const e = entries[idx - 1];
+    if (e?.streamError) {
+      cb(new Error("invalid code lengths set"));
+      return;
+    }
     const stream = new Readable({
       read() {
         this.push(e?.data ?? Buffer.from("mock"));
@@ -110,6 +125,69 @@ describe("readAab", () => {
     expect(result.manifest.packageName).toBe("com.example.app");
     expect(result.entries).toHaveLength(3);
     expect(result.entries[0]!.path).toBe("base/manifest/AndroidManifest.xml");
+  });
+
+  it("lists modules that are not delivered at install time (#116)", async () => {
+    const zipfile = createMockZipfile([
+      { fileName: "base/manifest/AndroidManifest.xml", data: Buffer.from("protobuf") },
+      { fileName: "camera/manifest/AndroidManifest.xml", data: Buffer.from("on-demand") },
+      { fileName: "ar/manifest/AndroidManifest.xml", data: Buffer.from("install-time") },
+      // Unreadable module manifests count toward the download (conservative).
+      { fileName: "broken/manifest/AndroidManifest.xml", data: Buffer.from("broken") },
+    ]);
+    mockedFromBuffer.mockImplementation((_buf: any, _opts: any, cb: any) => {
+      cb(null, zipfile);
+    });
+
+    const result = await readAab("/fake/app.aab");
+    expect(result.isAppBundle).toBe(true);
+    expect(result.deferredModules).toEqual(["camera"]);
+  });
+
+  it("does not read an oversized module manifest; it counts as install-time (#116)", async () => {
+    const zipfile = createMockZipfile([
+      { fileName: "base/manifest/AndroidManifest.xml", data: Buffer.from("protobuf") },
+      {
+        fileName: "huge/manifest/AndroidManifest.xml",
+        data: Buffer.from("on-demand"),
+        uncompressedSize: 100 * 1024 * 1024,
+      },
+    ]);
+    mockedFromBuffer.mockImplementation((_buf: any, _opts: any, cb: any) => {
+      cb(null, zipfile);
+    });
+
+    const result = await readAab("/fake/app.aab");
+    expect(result.deferredModules).toEqual([]);
+  });
+
+  it("a module manifest that fails to read does not abort the scan (#116)", async () => {
+    const zipfile = createMockZipfile([
+      { fileName: "base/manifest/AndroidManifest.xml", data: Buffer.from("protobuf") },
+      { fileName: "feature/manifest/AndroidManifest.xml", streamError: true },
+      { fileName: "base/dex/classes.dex" },
+    ]);
+    mockedFromBuffer.mockImplementation((_buf: any, _opts: any, cb: any) => {
+      cb(null, zipfile);
+    });
+
+    const result = await readAab("/fake/app.aab");
+    expect(result.entries).toHaveLength(3);
+    expect(result.deferredModules).toEqual([]);
+  });
+
+  it("an APK is never treated as a bundle, whatever its entry names", async () => {
+    const zipfile = createMockZipfile([
+      { fileName: "AndroidManifest.xml", data: Buffer.from("protobuf") },
+      { fileName: "base/manifest/AndroidManifest.xml", data: Buffer.from("on-demand") },
+    ]);
+    mockedFromBuffer.mockImplementation((_buf: any, _opts: any, cb: any) => {
+      cb(null, zipfile);
+    });
+
+    const result = await readAab("/fake/app.apk");
+    expect(result.isAppBundle).toBe(false);
+    expect(result.deferredModules).toEqual([]);
   });
 
   it("reads the archive into a buffer (no file-descriptor path, #89)", async () => {

@@ -128,6 +128,68 @@ describe("nativeLibsScanner", () => {
   });
 });
 
+describe("nativeLibsScanner size on app bundles (#116)", () => {
+  const MB = 1024 * 1024;
+  const manifest = {
+    path: "base/manifest/AndroidManifest.xml",
+    compressedSize: 1,
+    uncompressedSize: 1,
+  };
+  const so = (abi: string, mb: number, module = "base"): ZipEntryInfo => ({
+    path: `${module}/lib/${abi}/libapp.so`,
+    compressedSize: mb * MB,
+    uncompressedSize: mb * MB,
+  });
+  const bundleCtx = (entries: ZipEntryInfo[], deferredModules?: string[]): PreflightContext => ({
+    ...makeCtx(entries),
+    isAppBundle: true,
+    deferredModules,
+  });
+
+  it("measures the largest single ABI, since a device downloads only one", async () => {
+    const findings = await nativeLibsScanner.scan(
+      bundleCtx([manifest, so("armeabi-v7a", 90), so("arm64-v8a", 100), so("x86_64", 100)]),
+    );
+    expect(findings.find((f) => f.ruleId === "native-libs-large")).toBeUndefined();
+  });
+
+  it("warns when one ABI alone is over the limit, naming it", async () => {
+    const findings = await nativeLibsScanner.scan(
+      bundleCtx([manifest, so("arm64-v8a", 100), so("arm64-v8a", 60, "ar"), so("x86_64", 100)]),
+    );
+    const f = findings.find((f) => f.ruleId === "native-libs-large");
+    expect(f).toBeDefined();
+    expect(f!.message).toContain("arm64-v8a");
+    expect(f!.message).toContain("160.0 MB");
+  });
+
+  it("does not fall back to the whole bundle when all native code is deferred", async () => {
+    const findings = await nativeLibsScanner.scan(
+      bundleCtx([manifest, so("arm64-v8a", 120, "ar"), so("armeabi-v7a", 110, "ar")], ["ar"]),
+    );
+    expect(findings.find((f) => f.ruleId === "native-libs-large")).toBeUndefined();
+  });
+
+  it("an APK still counts every ABI", async () => {
+    const lib = (abi: string): ZipEntryInfo => ({
+      path: `lib/${abi}/libapp.so`,
+      compressedSize: 60 * MB,
+      uncompressedSize: 60 * MB,
+    });
+    const findings = await nativeLibsScanner.scan(
+      makeCtx([lib("arm64-v8a"), lib("armeabi-v7a"), lib("x86_64")]),
+    );
+    expect(findings.find((f) => f.ruleId === "native-libs-large")).toBeDefined();
+  });
+
+  it("ignores native libs in modules not delivered at install time", async () => {
+    const findings = await nativeLibsScanner.scan(
+      bundleCtx([manifest, so("arm64-v8a", 100), so("arm64-v8a", 100, "camera")], ["camera"]),
+    );
+    expect(findings.find((f) => f.ruleId === "native-libs-large")).toBeUndefined();
+  });
+});
+
 describe("checkElfAlignment", () => {
   it("returns null for non-ELF data", () => {
     expect(checkElfAlignment(Buffer.from("not an elf"))).toBeNull();

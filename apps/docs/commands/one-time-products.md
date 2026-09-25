@@ -94,7 +94,7 @@ Update an existing offer. The `updateMask` is automatically derived, and `region
 
 ```bash
 gpc otp offers update premium_upgrade launch_discount --file offer-update.json --purchase-option buy_once
-gpc otp offers update premium_upgrade launch_discount --file offer-update.json --update-mask pricingPhases
+gpc otp offers update premium_upgrade launch_discount --file offer-update.json --update-mask discountedOffer
 gpc otp offers update premium_upgrade launch_discount --file offer-update.json --regions-version 2025/01
 ```
 
@@ -108,76 +108,57 @@ Google Play only serves batch endpoints for one-time product offers, so `offers 
 
 ### Offer Creation Payload
 
-When creating an offer with `gpc otp offers create`, the JSON file describes pricing phases, eligibility criteria, and regional overrides.
+The JSON file for `gpc otp offers create` is a Google Play [`OneTimeProductOffer`](https://developers.google.com/android-publisher/api-ref/rest/v3/monetization.onetimeproducts.purchaseOptions.offers). Every offer is one of three types: `discountedOffer`, `preOrderOffer` or `gameRewardOffer`. Its price in each region is set relative to the purchase option's price.
+
+A discounted offer, 30% off in the US and a fixed 1.00 off in the UK, limited to 1,000 redemptions:
 
 ```json
 {
-  "offerId": "launch_discount",
-  "pricingPhases": {
-    "pricingPhases": [
-      {
-        "recurrenceMode": "NON_RECURRING",
-        "billingPeriod": "",
-        "price": {
-          "currencyCode": "USD",
-          "units": "0",
-          "nanos": 990000000
-        }
-      }
-    ]
+  "offerId": "launch-discount",
+  "discountedOffer": {
+    "startTime": "2026-10-01T00:00:00Z",
+    "endTime": "2026-10-31T23:59:59Z",
+    "redemptionLimit": "1000"
   },
-  "targeting": {
-    "acquisitionRule": {
-      "scope": {
-        "anySubscriptionInApp": true
-      }
+  "regionalPricingAndAvailabilityConfigs": [
+    { "regionCode": "US", "availability": "AVAILABLE", "relativeDiscount": 0.7 },
+    {
+      "regionCode": "GB",
+      "availability": "AVAILABLE",
+      "absoluteDiscount": { "currencyCode": "GBP", "units": "1" }
     }
-  }
+  ],
+  "offerTags": [{ "tag": "launch" }]
 }
 ```
 
 ### Regional Pricing in Offers
 
-Override prices per region by adding `regionalConfigs` to the offer payload. Each entry maps a region code to a price override:
+`regionalPricingAndAvailabilityConfigs` is a list with one entry per region. Each entry sets `regionCode`, `availability` (`AVAILABLE` or `NO_LONGER_AVAILABLE`), and exactly one of:
+
+| Field              | Meaning                                                                                |
+| ------------------ | -------------------------------------------------------------------------------------- |
+| `relativeDiscount` | Fraction of the purchase option price the user pays, between 0 and 1 (`0.7` = 30% off) |
+| `absoluteDiscount` | Amount subtracted from the purchase option price, as `{ currencyCode, units, nanos }`  |
+| `noOverride`       | `{}` to charge the purchase option's price in that region                              |
+
+Prices themselves live on the purchase option. Use `gpc pricing convert` to generate per-region purchase option prices from a single base price.
+
+### Play Games Rewards offers
+
+A `gameRewardOffer` is a [Play Games Rewards](https://developer.android.com/games/rewards) offer: an in-game item that Google Play hands out through Quests and other Play Games experiences. `redemptionLimit` caps how many times it can be redeemed: `"1"` to `"50"`, or `"0"`/unset for unlimited.
 
 ```json
 {
-  "offerId": "regional_promo",
-  "regionalConfigs": {
-    "US": {
-      "newSubscriberAvailability": true,
-      "price": { "currencyCode": "USD", "units": "4", "nanos": 990000000 }
-    },
-    "GB": {
-      "newSubscriberAvailability": true,
-      "price": { "currencyCode": "GBP", "units": "3", "nanos": 990000000 }
-    },
-    "JP": {
-      "newSubscriberAvailability": true,
-      "price": { "currencyCode": "JPY", "units": "700", "nanos": 0 }
-    },
-    "IN": {
-      "newSubscriberAvailability": true,
-      "price": { "currencyCode": "INR", "units": "349", "nanos": 0 }
-    },
-    "BR": {
-      "newSubscriberAvailability": true,
-      "price": { "currencyCode": "BRL", "units": "24", "nanos": 990000000 }
-    }
-  },
-  "pricingPhases": {
-    "pricingPhases": [
-      {
-        "recurrenceMode": "NON_RECURRING",
-        "billingPeriod": "",
-        "price": { "currencyCode": "USD", "units": "4", "nanos": 990000000 }
-      }
-    ]
-  }
+  "offerId": "quest-reward-skin",
+  "gameRewardOffer": { "redemptionLimit": "1" },
+  "regionalPricingAndAvailabilityConfigs": [
+    { "regionCode": "US", "availability": "AVAILABLE", "noOverride": {} }
+  ]
 }
 ```
 
-Use `gpc pricing convert` to generate region prices from a single base price, then merge the output into your offer JSON.
+Google's guide sets up rewards offers in Play Console (Monetize with Play > Products > One-time products), and rewards must be available in every region where your game is published. The Play Developer API exposes the same `gameRewardOffer` field, so GPC lists, reads and updates these offers like any other.
 
 ### `gpc otp offers cancel <product-id> <offer-id>`
 

@@ -27,6 +27,10 @@ export interface PreflightContext {
   aabPath?: string;
   manifest?: ParsedManifest;
   zipEntries?: ZipEntryInfo[];
+  /** True for an AAB, false for an APK (decided by the reader from the file type). */
+  isAppBundle?: boolean;
+  /** AAB modules that are not part of the first download (on-demand, fast-follow). */
+  deferredModules?: string[];
   /** First 4096 bytes of each .so file, keyed by ZIP entry path. */
   nativeLibHeaders?: EntryHeaderMap;
   metadataDir?: string;
@@ -119,7 +123,7 @@ export type EntryHeaderMap = Map<string, Buffer>;
 export const DEFAULT_PREFLIGHT_CONFIG: PreflightConfig = {
   failOn: "error",
   targetSdkMinimum: 36,
-  maxDownloadSizeMb: 150,
+  maxDownloadSizeMb: 200,
   allowedPermissions: [],
   disabledRules: [],
   severityOverrides: {},

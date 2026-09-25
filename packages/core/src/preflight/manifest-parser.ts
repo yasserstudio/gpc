@@ -201,6 +201,25 @@ interface XmlNodeParsed {
 
 /** Decode a protobuf-encoded AndroidManifest.xml buffer into a parsed manifest. */
 export function decodeManifest(buf: Buffer): ParsedManifest {
+  return extractManifestData(decodeManifestElement(buf));
+}
+
+/**
+ * Whether an AAB module's manifest puts it in the first download. Mirrors
+ * bundletool's AndroidManifest.getModuleDeliveryType(): a <dist:delivery> with
+ * <dist:install-time> (conditional or not) installs with the app, any other
+ * <dist:delivery> (on-demand, fast-follow) does not, the legacy dist:onDemand="true"
+ * does not, and a module that declares nothing installs with the app.
+ */
+export function isInstallTimeModule(buf: Buffer): boolean {
+  const module = getChildren(decodeManifestElement(buf), "module")[0];
+  if (!module) return true;
+  const delivery = getChildren(module, "delivery")[0];
+  if (delivery) return getChildren(delivery, "install-time").length > 0;
+  return !getBoolByName(module.attribute || [], "onDemand", false);
+}
+
+function decodeManifestElement(buf: Buffer): XmlElem {
   const root = getSchema();
   const XmlNode = root.lookupType("aapt.pb.XmlNode");
   const decoded = XmlNode.decode(buf) as unknown as XmlNodeParsed;
@@ -209,7 +228,7 @@ export function decodeManifest(buf: Buffer): ParsedManifest {
     throw new Error("Invalid AAB manifest: root element is not <manifest>");
   }
 
-  return extractManifestData(decoded.element);
+  return decoded.element;
 }
 
 function getAttrByName(attrs: XmlAttr[], name: string): string | undefined {
