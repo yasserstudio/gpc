@@ -16,7 +16,7 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 - fix: `gpc external-transactions refund` now sends the refund time and refund ID that Google Play requires, so refunds are accepted. A refund must say whether it is `--full` or `--partial-amount` (with `--currency` and a unique `--refund-id`), the confirmation prompt shows the amount, and invalid options stop before anything is sent.
 - feat: `gpc external-transactions create` supports Google's US external content links program, and one-time product offers support Play Games Rewards, with documented payloads and the program's reporting deadlines.
 - breaking: SDK only. The TypeScript types for one-time product offers and purchase option regional pricing now match Google's schema. CLI behavior is unchanged.
-- docs: the external transactions and one-time product offer pages now show the flags and payloads Google Play actually accepts, and the preflight docs note that manifest checks currently run on App Bundles only (#117).
+- docs: the external transactions and one-time product offer pages now show the flags and payloads Google Play actually accepts, and the preflight docs note that manifest checks currently run on App Bundles only.
 
 **Tests:** 2,809 (+56).
 
