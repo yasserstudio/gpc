@@ -49,7 +49,7 @@ jobs:
               continue
             fi
             echo "--- dry-run: $pkg ($PKG_NAME@$PKG_VER) ---"
-            (cd "$pkg" && npm publish --dry-run 2>&1) || exit 1
+            (cd "$pkg" && npm publish --dry-run --tag latest 2>&1) || exit 1
           done
 
       - name: Create Release PR or Stage Packages
