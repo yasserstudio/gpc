@@ -1,5 +1,13 @@
 # @gpc-cli/cli
 
+## 1.0.0-rc.1
+
+### Patch Changes
+
+- Release candidate for 1.0.0, with the fixes from the pre-1.0 security review. Refunds, chargeback responses, subscription revokes and external-transaction refunds need `--yes` in non-interactive runs (`CONFIRMATION_REQUIRED`, exit 2); `--dry-run` is exempt. `gpc vitals` and `anomalies list` rethrow a Reporting API 403 (exit 4) instead of printing empty data, and `--threshold` with no metric value fails with `THRESHOLD_NO_DATA` (exit 6). Commander usage errors exit 2. `--pending-refund-token` is redacted from webhook payloads and plugin hook arguments. Report files are tightened to 0600 before writing. `isNewerVersion` understands prereleases, so release-candidate users are offered the final release.
+- Updated dependencies
+  - @gpc-cli/core@0.10.6
+
 ## 0.9.99
 
 ### Patch Changes

@@ -375,6 +375,32 @@ describe("syncImages", () => {
     ).toBe(true);
   });
 
+  it.skipIf(process.platform === "win32" || process.getuid?.() === 0)(
+    "--delete fails without touching Play when a local directory is unreadable",
+    async () => {
+      const { chmod } = await import("node:fs/promises");
+      await writeImage(tmp, "en-US", "tvScreenshots", "1.png", "shot");
+      const unreadable = join(tmp, "en-US", "tvScreenshots");
+      await chmod(unreadable, 0o111); // stat() sees a directory, readdir() fails with EACCES
+      const client = mockClient({
+        "en-US/tvScreenshots": [makeImage("tv1", "tvhash")],
+      });
+
+      try {
+        await expect(
+          syncImages(client, PKG, tmp, { delete: true, type: "tvScreenshots" }),
+        ).rejects.toMatchObject({ code: "IMAGE_SYNC_DIR_UNREADABLE" });
+      } finally {
+        await chmod(unreadable, 0o755);
+      }
+
+      expect(client.images.deleteAll).not.toHaveBeenCalled();
+      expect(client.images.delete).not.toHaveBeenCalled();
+      expect(client.edits.commit).not.toHaveBeenCalled();
+      expect(client.edits.delete).toHaveBeenCalled();
+    },
+  );
+
   it("--delete clears a remote combo when the local directory is present but empty", async () => {
     // Explicit intent: the icon/ directory exists locally but is empty.
     await mkdir(join(tmp, "en-US", "icon"), { recursive: true });

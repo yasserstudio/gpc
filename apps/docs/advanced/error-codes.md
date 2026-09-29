@@ -233,10 +233,11 @@ Exit code: `5`
 
 Exit code: `6`
 
-| Code                   | Message                       | Cause                                  | Fix                               |
-| ---------------------- | ----------------------------- | -------------------------------------- | --------------------------------- |
-| `THRESHOLD_CRASH_RATE` | Crash rate threshold breached | Crash rate exceeds `--threshold` value | Investigate crashes, halt rollout |
-| `THRESHOLD_ANR_RATE`   | ANR rate threshold breached   | ANR rate exceeds `--threshold` value   | Investigate ANRs, halt rollout    |
+| Code                   | Message                       | Cause                                                                                          | Fix                                                                |
+| ---------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `THRESHOLD_CRASH_RATE` | Crash rate threshold breached | Crash rate exceeds `--threshold` value                                                         | Investigate crashes, halt rollout                                  |
+| `THRESHOLD_ANR_RATE`   | ANR rate threshold breached   | ANR rate exceeds `--threshold` value                                                           | Investigate ANRs, halt rollout                                     |
+| `THRESHOLD_NO_DATA`    | No value to compare           | `--threshold` set but the query returned no metric value (wrong `--app`, data lag, no traffic) | Check `--app` and widen `--days`; a gate never passes without data |
 
 ### CHANGELOG\_\* -- Changelog Generation Errors
 
@@ -250,6 +251,13 @@ Emitted by `gpc changelog generate` (v0.9.61+).
 | `CHANGELOG_BAD_REF`           | Invalid `--from` or `--to` ref            | Ref does not resolve to a commit                  | Verify with `git rev-parse --verify <ref>`                                  |
 | `CHANGELOG_FETCH_FAILED`      | Could not fetch changelog                 | GitHub API unreachable or returned an error       | Check network; view online at the docs site                                 |
 | `CHANGELOG_VERSION_NOT_FOUND` | Version not found                         | Requested version does not exist in releases      | Run `gpc changelog --limit 10` to see available versions                    |
+
+### Safety Errors
+
+| Code                        | Exit | Message                     | Cause                                                                                               | Fix                                                               |
+| --------------------------- | ---- | --------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `CONFIRMATION_REQUIRED`     | 2    | Confirmation required       | A refund or revocation ran non-interactively (CI, piped stdin, `--no-interactive`) without `--yes`  | Add `--yes` once you are sure, or preview with `--dry-run`        |
+| `IMAGE_SYNC_DIR_UNREADABLE` | 1    | Cannot read image directory | `listings images sync` found a local image directory it cannot read (permissions, volume ownership) | Fix the directory permissions; nothing was changed on Google Play |
 
 ### REPORT\_\* -- Bulk Report Errors
 

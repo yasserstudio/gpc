@@ -136,6 +136,24 @@ describe("games config commands", () => {
       expect(client.achievements.update).toHaveBeenCalledWith("ach-1", SAMPLE_ACHIEVEMENT);
     });
 
+    it("updateAchievementConfig never sends a redacted token back to Google", async () => {
+      const client = mockConfigClient();
+      await updateAchievementConfig(client, "ach-1", {
+        ...SAMPLE_ACHIEVEMENT,
+        token: "[REDACTED]",
+      });
+      expect(client.achievements.update).toHaveBeenCalledWith("ach-1", SAMPLE_ACHIEVEMENT);
+    });
+
+    it("updateAchievementConfig keeps a real token", async () => {
+      const client = mockConfigClient();
+      await updateAchievementConfig(client, "ach-1", { ...SAMPLE_ACHIEVEMENT, token: "tok-1" });
+      expect(client.achievements.update).toHaveBeenCalledWith("ach-1", {
+        ...SAMPLE_ACHIEVEMENT,
+        token: "tok-1",
+      });
+    });
+
     it("deleteAchievementConfig calls delete with correct ID", async () => {
       const client = mockConfigClient();
       await deleteAchievementConfig(client, "ach-1");

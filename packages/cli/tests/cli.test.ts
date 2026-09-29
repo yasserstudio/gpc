@@ -1500,11 +1500,11 @@ describe("plugin command lifecycle", () => {
 
     await expect(
       runProgram(program, ["node", "gpc", "plugins", "approve"], manager),
-    ).rejects.toMatchObject({ code: "commander.missingArgument", exitCode: 1, silent: true });
+    ).rejects.toMatchObject({ code: "commander.missingArgument", exitCode: 2, silent: true });
 
     expect(errorSpy).toHaveBeenCalledWith(
       expect.objectContaining({ command: "plugins approve" }),
-      expect.objectContaining({ code: "commander.missingArgument", exitCode: 1 }),
+      expect.objectContaining({ code: "commander.missingArgument", exitCode: 2 }),
     );
   });
 

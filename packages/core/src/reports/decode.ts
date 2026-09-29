@@ -72,20 +72,40 @@ export interface ZipCsvEntry {
 }
 
 const ZIP_READ_TIMEOUT_MS = 30_000;
+/** Financial report archives hold one CSV or a handful; anything far past that is hostile. */
+const MAX_CSV_ENTRIES = 64;
+
+export interface ExtractCsvEntriesOptions {
+  /** Ceiling on the inflated size of a single CSV entry. Defaults to MAX_INFLATED_BYTES. */
+  maxEntryBytes?: number;
+  /** Ceiling on the decoded text of all entries combined. Defaults to MAX_INFLATED_BYTES. */
+  maxTotalBytes?: number;
+}
 
 /**
  * Extract the CSV entries from a financial report ZIP archive, returned as decoded text.
  * Uses yauzl's `fromBuffer` (no file descriptor) so it behaves identically under the
  * Bun-compiled standalone binary, and is bounded by a timeout so a corrupt archive can
  * never hang the process (same hardening as the preflight AAB reader).
+ *
+ * Each entry is also bounded by `maxEntryBytes`: a ZIP entry's declared sizes are
+ * attacker-controlled, so a small archive can otherwise inflate to gigabytes of buffers
+ * (a 408 KB archive reached 1.35 GB RSS before this cap).
  */
-export function extractCsvEntriesFromZip(buffer: Buffer): Promise<ZipCsvEntry[]> {
+export function extractCsvEntriesFromZip(
+  buffer: Buffer,
+  options: ExtractCsvEntriesOptions = {},
+): Promise<ZipCsvEntry[]> {
+  const maxEntryBytes = options.maxEntryBytes ?? MAX_INFLATED_BYTES;
+  const maxTotalBytes = options.maxTotalBytes ?? MAX_INFLATED_BYTES;
   return new Promise<ZipCsvEntry[]>((resolve, reject) => {
     let settled = false;
+    // Left ref'd on purpose: a buffer-backed read has no other pending handle, so an
+    // unref'd timer would let the process exit before the rejection lands (same reasoning
+    // as the preflight AAB reader). Every settle path clears it.
     const timer = setTimeout(() => {
       settleReject(new Error("Timed out reading report archive"));
     }, ZIP_READ_TIMEOUT_MS);
-    timer.unref?.();
 
     function settleResolve(v: ZipCsvEntry[]): void {
       if (settled) return;
@@ -110,6 +130,8 @@ export function extractCsvEntriesFromZip(buffer: Buffer): Promise<ZipCsvEntry[]>
         const entries: ZipCsvEntry[] = [];
         let pending = 0;
         let entriesDone = false;
+        let csvEntries = 0;
+        let totalBytes = 0;
 
         function fail(e: Error): void {
           try {
@@ -128,6 +150,10 @@ export function extractCsvEntriesFromZip(buffer: Buffer): Promise<ZipCsvEntry[]>
             zipfile.readEntry();
             return;
           }
+          if (++csvEntries > MAX_CSV_ENTRIES) {
+            fail(new Error(`Report archive holds more than ${MAX_CSV_ENTRIES} CSV entries`));
+            return;
+          }
           pending++;
           zipfile.openReadStream(entry, (streamErr, stream) => {
             if (streamErr || !stream) {
@@ -135,10 +161,39 @@ export function extractCsvEntriesFromZip(buffer: Buffer): Promise<ZipCsvEntry[]>
               return;
             }
             const chunks: Buffer[] = [];
-            stream.on("data", (c: Buffer) => chunks.push(c));
+            let read = 0;
+            stream.on("data", (c: Buffer) => {
+              read += c.length;
+              if (read > maxEntryBytes) {
+                stream.destroy();
+                fail(
+                  new Error(
+                    `Entry "${entry.fileName}" exceeds the ${maxEntryBytes}-byte limit for a report CSV`,
+                  ),
+                );
+                return;
+              }
+              chunks.push(c);
+            });
             stream.on("error", fail);
             stream.on("end", () => {
-              entries.push({ name: entry.fileName, text: decodeStatsCsv(Buffer.concat(chunks)) });
+              // decodeStatsCsv can throw (corrupt gzip, ERR_BUFFER_TOO_LARGE). Inside a
+              // stream listener that would escape as an uncaught exception and leave the
+              // promise pending, so route it to the reject path instead.
+              let text: string;
+              try {
+                text = decodeStatsCsv(Buffer.concat(chunks));
+              } catch (e) {
+                fail(e instanceof Error ? e : new Error(String(e)));
+                return;
+              }
+              // The per-entry cap alone lets many entries under it add up to gigabytes.
+              totalBytes += text.length;
+              if (totalBytes > maxTotalBytes) {
+                fail(new Error(`Report archive exceeds the ${maxTotalBytes}-byte total limit`));
+                return;
+              }
+              entries.push({ name: entry.fileName, text });
               pending--;
               zipfile.readEntry();
               maybeResolve();

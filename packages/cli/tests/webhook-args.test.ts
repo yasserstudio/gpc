@@ -93,6 +93,49 @@ describe("sanitizeWebhookCommandArgs", () => {
     });
   });
 
+  it("keeps a refund-review token out of webhooks and plugin hooks", async () => {
+    expect(
+      sanitizeWebhookCommandArgs([
+        "purchases",
+        "orders",
+        "review-refund",
+        "ORD-1",
+        "--pending-refund-token",
+        "refund-review-secret",
+        "--preference",
+        "approve",
+      ]),
+    ).toEqual(["purchases", "orders", "review-refund", "ORD-1", "--preference", "approve"]);
+    expect(
+      sanitizeWebhookCommandArgs([
+        "purchases",
+        "orders",
+        "review-refund",
+        "ORD-1",
+        "--pending-refund-token=refund-review-secret",
+      ]),
+    ).toEqual(["purchases", "orders", "review-refund", "ORD-1"]);
+
+    const program = new Command().exitOverride();
+    const command = program
+      .command("review-refund")
+      .argument("<order-id>")
+      .option("--pending-refund-token <token>");
+    command.action(() => {});
+    await program.parseAsync([
+      "node",
+      "gpc",
+      "review-refund",
+      "ORD-1",
+      "--pending-refund-token",
+      "refund-review-secret",
+    ]);
+
+    expect(buildSafeCommandArguments(command)).toMatchObject({
+      pendingRefundToken: "***REDACTED***",
+    });
+  });
+
   it.each([
     [
       ["purchases", "get", "sku", "product-secret", "--app", "com.example"],

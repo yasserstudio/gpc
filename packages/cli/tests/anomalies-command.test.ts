@@ -107,7 +107,7 @@ describe("anomalies list command", () => {
     expect(parsed).toHaveProperty("anomalies");
   });
 
-  it("degrades gracefully on 403 Reporting API disabled (Bug Q)", async () => {
+  it("fails on 403 with the Reporting API hint on stderr", async () => {
     const { PlayApiError } = await import("@gpc-cli/api");
     mockGetVitalsAnomalies.mockRejectedValue(
       new PlayApiError("Forbidden", "API_FORBIDDEN", 403, "Enable the Reporting API"),
@@ -115,29 +115,32 @@ describe("anomalies list command", () => {
 
     const { registerAnomaliesCommands } = await import("../src/commands/anomalies.js");
     const program = makeProgram();
+    program.exitOverride();
     registerAnomaliesCommands(program);
 
-    await program.parseAsync(["node", "gpc", "anomalies", "list"]);
-
-    const output = (console.log as ReturnType<typeof vi.fn>).mock.calls.map((c) => c[0]).join("\n");
-    expect(output).toContain("No anomaly data available");
-    expect(output).toContain("Reporting API");
+    await expect(program.parseAsync(["node", "gpc", "anomalies", "list"])).rejects.toThrow(
+      "Forbidden",
+    );
+    const stderr = (console.error as ReturnType<typeof vi.fn>).mock.calls
+      .map((c) => c[0])
+      .join("\n");
+    expect(stderr).toContain("Reporting API");
+    expect(console.log).not.toHaveBeenCalled();
   });
 
-  it("degrades gracefully on 403 in JSON mode (Bug Q)", async () => {
+  it("fails on 403 in JSON mode without printing an empty result", async () => {
     const { PlayApiError } = await import("@gpc-cli/api");
     mockGetVitalsAnomalies.mockRejectedValue(new PlayApiError("Forbidden", "API_FORBIDDEN", 403));
 
     const { registerAnomaliesCommands } = await import("../src/commands/anomalies.js");
     const program = makeProgram();
+    program.exitOverride();
     registerAnomaliesCommands(program);
 
-    await program.parseAsync(["node", "gpc", "anomalies", "list", "--output", "json"]);
-
-    const output = (console.log as ReturnType<typeof vi.fn>).mock.calls[0]?.[0] ?? "";
-    const parsed = JSON.parse(output);
-    expect(parsed.anomalies).toEqual([]);
-    expect(parsed.message).toContain("Reporting API");
+    await expect(
+      program.parseAsync(["node", "gpc", "anomalies", "list", "--output", "json"]),
+    ).rejects.toThrow("Forbidden");
+    expect(console.log).not.toHaveBeenCalled();
   });
 
   it("re-throws non-403 errors", async () => {

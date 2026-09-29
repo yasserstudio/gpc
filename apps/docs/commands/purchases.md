@@ -253,7 +253,14 @@ gpc purchases subscription revoke <token>
 
 ### Options
 
-No command-specific options.
+| Flag            | Type     | Default    | Description                                               |
+| --------------- | -------- | ---------- | --------------------------------------------------------- |
+| `--refund-type` | `string` | `prorated` | `full`, `prorated`, or `item`                             |
+| `--product-id`  | `string` | —          | Product ID to refund (required with `--refund-type item`) |
+
+::: warning Non-interactive runs need `--yes`
+This command moves money and cannot be undone. In CI, with piped stdin, or with `--no-interactive`, it refuses to run without `--yes` (exit `2`, `CONFIRMATION_REQUIRED`). `--dry-run` never needs it.
+:::
 
 ### Example
 
@@ -316,7 +323,7 @@ gpc purchases voided \
 
 ## `purchases orders refund`
 
-Refund an order by order ID.
+Refund an order by order ID. Google's `orders.refund` always issues a full refund; add `--revoke` to also remove the user's access. For a partial refund of a subscription, use [`purchases subscription revoke`](#purchases-subscription-revoke) with `--refund-type prorated`.
 
 ### Synopsis
 
@@ -326,27 +333,30 @@ gpc purchases orders refund <order-id> [options]
 
 ### Options
 
-| Flag                | Short | Type      | Default | Description             |
-| ------------------- | ----- | --------- | ------- | ----------------------- |
-| `--full-refund`     |       | `boolean` | `false` | Issue a full refund     |
-| `--prorated-refund` |       | `boolean` | `false` | Issue a prorated refund |
+| Flag       | Type      | Default | Description                                                 |
+| ---------- | --------- | ------- | ----------------------------------------------------------- |
+| `--revoke` | `boolean` | `false` | Also revoke the purchase (the user loses access right away) |
+
+::: warning Non-interactive runs need `--yes`
+This command moves money and cannot be undone. In CI, with piped stdin, or with `--no-interactive`, it refuses to run without `--yes` (exit `2`, `CONFIRMATION_REQUIRED`). `--dry-run` never needs it.
+:::
 
 ### Example
 
-Full refund:
+Refund, keep access:
 
 ```bash
 gpc purchases orders refund "GPA.1234-5678-9012-34567" \
-  --app com.example.myapp \
-  --full-refund
+  --app com.example.myapp
 ```
 
-Prorated refund:
+Refund and revoke access, in CI:
 
 ```bash
 gpc purchases orders refund "GPA.1234-5678-9012-34567" \
   --app com.example.myapp \
-  --prorated-refund
+  --revoke \
+  --yes
 ```
 
 Preview without executing:
@@ -354,7 +364,7 @@ Preview without executing:
 ```bash
 gpc purchases orders refund "GPA.1234-5678-9012-34567" \
   --app com.example.myapp \
-  --full-refund \
+  --revoke \
   --dry-run
 ```
 
@@ -395,6 +405,10 @@ gpc purchases orders review-refund <order-id> [options]
 | `--no-sample-content-provided` | `boolean` | —       | Required. Nothing was offered before purchase                     |
 | `--consumption-percent`        | `number`  | —       | How much of the purchase was consumed, 0-100 (sent as milliunits) |
 | `--usage-events-file`          | `path`    | —       | JSON file with an array of consumption usage events (max 1,000)   |
+
+::: warning Non-interactive runs need `--yes`
+This command moves money and cannot be undone. In CI, with piped stdin, or with `--no-interactive`, it refuses to run without `--yes` (exit `2`, `CONFIRMATION_REQUIRED`). `--dry-run` never needs it.
+:::
 
 One of `--sample-content-provided` / `--no-sample-content-provided` is required — Google Play
 has no default for it.

@@ -330,7 +330,10 @@ export async function runProgram(
 
 function overrideCommanderExits(command: Command): void {
   command.exitOverride((error) => {
-    throw createSilentCliError(error, error.code, error.exitCode);
+    // Commander only exits on its own parse failures (unknown option, missing
+    // argument, ...), which are usage errors: exit 2 per the documented contract.
+    // Help and --version keep their 0.
+    throw createSilentCliError(error, error.code, error.exitCode === 0 ? 0 : 2);
   });
   for (const child of command.commands) overrideCommanderExits(child);
 }

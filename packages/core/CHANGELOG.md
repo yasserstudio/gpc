@@ -1,5 +1,11 @@
 # @gpc-cli/core
 
+## 0.10.6
+
+### Patch Changes
+
+- Pre-1.0 security review fixes. The preflight AAB reader buffers at most 512 native-library headers, one stream at a time, and the native-libs scanner reports `native-libs-16kb-unchecked` when some were not inspected. Financial report ZIPs are capped per entry, in total, and at 64 CSV entries; GCS downloads are capped while streaming; decode errors reject instead of escaping as uncaught exceptions. `syncImages` throws `IMAGE_SYNC_DIR_UNREADABLE` for an unreadable local directory instead of treating it as empty under `--delete`. Games config writes drop a redacted `token` placeholder. Review CSV export uses the shared escaper (`escapeCsvField` is now exported from the output module).
+
 ## 0.10.5
 
 ### Patch Changes

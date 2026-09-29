@@ -30,6 +30,23 @@ import {
 import { getOutputFormat } from "../format.js";
 import { red, yellow, green } from "../colors.js";
 
+/**
+ * A 403 from the Reporting API means the Reporting API is disabled or the
+ * service account cannot read vitals. It must fail (exit 4) rather than read as
+ * "no data": an empty result with exit 0 let `--threshold` CI gates pass
+ * without ever seeing a metric. Human output gets the likely fix on stderr;
+ * the thrown error carries the code and Google's message.
+ */
+export function warnIfReportingForbidden(err: unknown, format: string): void {
+  if (!(err instanceof PlayApiError) || err.statusCode !== 403 || format === "json") return;
+  console.error(
+    `${yellow("⚠")} Could not read vitals. The Play Developer Reporting API may be disabled for this project, or the service account lacks access to this app.`,
+  );
+  console.error(
+    `  Enable it at: https://console.cloud.google.com/apis/library/playdeveloperreporting.googleapis.com`,
+  );
+}
+
 async function getReportingClient(config: GpcConfig) {
   const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });
   return createReportingClient({ auth });
@@ -115,31 +132,12 @@ function registerMetricCommand(
           days: options.days,
         });
       } catch (err) {
-        if (err instanceof PlayApiError && err.statusCode === 403) {
-          if (format === "json") {
-            console.log(
-              formatOutput(
-                { rows: [], message: "Reporting API not enabled or insufficient permissions" },
-                format,
-              ),
-            );
-          } else {
-            console.log(
-              `${yellow("⚠")} No vitals data available. The Reporting API may not be enabled for this project.`,
-            );
-            console.log(
-              `  Enable it at: https://console.cloud.google.com/apis/library/playdeveloperreporting.googleapis.com`,
-            );
-          }
-          return;
-        }
+        warnIfReportingForbidden(err, format);
         throw err;
       }
       if (format !== "json" && (!result.rows || result.rows.length === 0)) {
         console.log(`${yellow("⚠")} No vitals data available.`);
-        return;
-      }
-      if (format !== "json" && result.rows) {
+      } else if (format !== "json" && result.rows) {
         const rows = result.rows.map((row: unknown) => {
           const rowR = row as Record<string, unknown>;
           const startTime = rowR["startTime"] as Record<string, unknown> | undefined;
@@ -218,6 +216,16 @@ function registerMetricCommand(
         const metricKeys = latestRow?.metrics ? Object.keys(latestRow.metrics) : [];
         const metric = thresholdMetric ?? metricKeys[0];
         const value = metric ? Number(latestRow?.metrics[metric]?.decimalValue?.value) : undefined;
+        // A gate that cannot read a value must not pass: a wrong --app, a data
+        // freshness gap, or an app with no traffic would otherwise exit 0.
+        if (value === undefined || !Number.isFinite(value)) {
+          throw new GpcError(
+            `No ${name} value to compare against the threshold of ${threshold}.`,
+            "THRESHOLD_NO_DATA",
+            6,
+            "Check --app and --days. Vitals data lags 1-2 days and apps with little traffic may have none; widen --days or drop --threshold for this run.",
+          );
+        }
         const check = checkThreshold(value, threshold);
         if (check.breached) {
           console.error(`${red("✗")} Threshold breached: ${check.value} > ${check.threshold}`);
@@ -338,24 +346,7 @@ export function registerVitalsCommands(program: Command): void {
       try {
         result = await getVitalsAnomalies(reporting, packageName);
       } catch (err) {
-        if (err instanceof PlayApiError && err.statusCode === 403) {
-          if (format === "json") {
-            console.log(
-              formatOutput(
-                { anomalies: [], message: "Reporting API not enabled or insufficient permissions" },
-                format,
-              ),
-            );
-          } else {
-            console.log(
-              `${yellow("⚠")} No anomaly data available. The Reporting API may not be enabled for this project.`,
-            );
-            console.log(
-              `  Enable it at: https://console.cloud.google.com/apis/library/playdeveloperreporting.googleapis.com`,
-            );
-          }
-          return;
-        }
+        warnIfReportingForbidden(err, format);
         throw err;
       }
       console.log(formatOutput(result, format));

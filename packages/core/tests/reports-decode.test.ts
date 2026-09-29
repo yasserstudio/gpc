@@ -132,6 +132,45 @@ describe("report decode helpers", () => {
       extractCsvEntriesFromZip(deflateRawSync(Buffer.from("not a zip"))),
     ).rejects.toThrow();
   });
+
+  // A decode throw used to escape the stream's "end" listener as an uncaught exception,
+  // leaving the promise pending forever instead of surfacing REPORT_ARCHIVE_UNREADABLE.
+  it("extractCsvEntriesFromZip rejects when an entry is not valid gzip", async () => {
+    const badGzip = Buffer.concat([Buffer.from([0x1f, 0x8b]), Buffer.alloc(64)]);
+    const zip = makeZip([{ name: "b.csv", content: badGzip }]);
+    await expect(extractCsvEntriesFromZip(zip)).rejects.toThrow();
+  });
+
+  it("extractCsvEntriesFromZip rejects an entry past the size ceiling", async () => {
+    const zip = makeZip([{ name: "big.csv", content: Buffer.alloc(4096, 0x41) }]);
+    await expect(extractCsvEntriesFromZip(zip, { maxEntryBytes: 64 })).rejects.toThrow(
+      /exceeds the 64-byte limit/,
+    );
+  });
+
+  it("extractCsvEntriesFromZip rejects entries that each fit but add up past the total", async () => {
+    const files = Array.from({ length: 5 }, (_, i) => ({
+      name: `part-${i}.csv`,
+      content: Buffer.alloc(100, 0x41),
+    }));
+    await expect(
+      extractCsvEntriesFromZip(makeZip(files), { maxEntryBytes: 128, maxTotalBytes: 300 }),
+    ).rejects.toThrow(/300-byte total limit/);
+  });
+
+  it("extractCsvEntriesFromZip rejects an archive with too many CSV entries", async () => {
+    const files = Array.from({ length: 65 }, (_, i) => ({
+      name: `e-${i}.csv`,
+      content: Buffer.from("a\n"),
+    }));
+    await expect(extractCsvEntriesFromZip(makeZip(files))).rejects.toThrow(/more than 64 CSV/);
+  });
+
+  it("extractCsvEntriesFromZip still reads entries that fit the ceiling", async () => {
+    const zip = makeZip([{ name: "ok.csv", content: Buffer.from("a,b\n1,2\n") }]);
+    const entries = await extractCsvEntriesFromZip(zip, { maxEntryBytes: 1024 });
+    expect(entries).toEqual([{ name: "ok.csv", text: "a,b\n1,2\n" }]);
+  });
 });
 
 describe("report error factories", () => {

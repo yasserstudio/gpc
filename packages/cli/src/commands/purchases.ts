@@ -29,7 +29,7 @@ import {
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { getOutputFormat } from "../format.js";
-import { isInteractive, requireOption, requireConfirm } from "../prompt.js";
+import { isInteractive, requireOption, requireConfirm, requireMoneyConfirm } from "../prompt.js";
 import { readJsonFile } from "../json.js";
 
 export function registerPurchasesCommands(program: Command): void {
@@ -283,7 +283,7 @@ export function registerPurchasesCommands(program: Command): void {
         return;
       }
 
-      await requireConfirm(
+      await requireMoneyConfirm(
         `Revoke subscription (${refundType} refund)? This cannot be undone.`,
         program,
       );
@@ -366,7 +366,7 @@ export function registerPurchasesCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
 
-      await requireConfirm(`Refund order "${orderId}"?`, program);
+      await requireMoneyConfirm(`Refund order "${orderId}"?`, program);
 
       if (isDryRun(program)) {
         const format = getOutputFormat(program, config);
@@ -481,7 +481,7 @@ export function registerPurchasesCommands(program: Command): void {
           consumptionUsageEvents = parsed as ConsumptionUsageEvent[];
         }
 
-        await requireConfirm(
+        await requireMoneyConfirm(
           `Submit a "${options.preference}" refund preference for order "${orderId}"?`,
           program,
         );

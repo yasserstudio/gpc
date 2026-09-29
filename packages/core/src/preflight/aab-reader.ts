@@ -16,6 +16,12 @@ const MODULE_MANIFEST_RE = /^([^/]+)\/manifest\/AndroidManifest\.xml$/;
 // a crafted bundle cannot make the scan buffer gigabytes of "manifests".
 const MAX_MODULE_MANIFEST_BYTES = 1024 * 1024;
 const MAX_MODULE_MANIFESTS = 256;
+// Same reasoning for native libraries: a real bundle ships one `.so` per ABI per
+// module (a few dozen at most), so anything past this cap is not a shape Play
+// produces. Past it the header read is skipped and the scan keeps going, which
+// bounds the buffered headers at MAX_SO_HEADER_READS * SO_HEADER_BYTES (~2 MB)
+// instead of growing with a crafted bundle's entry count.
+const MAX_SO_HEADER_READS = 512;
 
 // Safety backstop. An offline scan of an in-memory buffer completes in well
 // under a second; if the ZIP layer ever wedges we reject rather than hang the
@@ -130,6 +136,12 @@ function createFallbackManifest(): ParsedManifest {
  * manifest buffer. yauzl's lazyEntries mode ensures we control iteration — the
  * "end" event only fires after the last readEntry() call with no more entries.
  *
+ * Iteration is strictly serial: when an entry needs its contents, the next
+ * readEntry() is deferred until that read settles, so at most one read stream is
+ * ever open. Advancing immediately opened one stream (and its inflate buffers)
+ * per matching entry, which a bundle with tens of thousands of tiny `.so`
+ * entries turned into gigabytes of resident memory.
+ *
  * The returned promise is guaranteed to settle exactly once: every error path
  * routes through `settleReject`, and a bounded timeout is a final backstop so a
  * wedged read can never hang the caller (issue #89).
@@ -185,6 +197,7 @@ function openAndScan(
         const soHeaders: EntryHeaderMap = new Map();
         const moduleManifests = new Map<string, Buffer>();
         let moduleManifestReads = 0;
+        let soHeaderReads = 0;
         let manifestBuf: Buffer | null = null;
         let pendingStreams = 0;
         let entrysDone = false;
@@ -205,9 +218,16 @@ function openAndScan(
           }
         }
 
+        /** Queue the next entry. Only ever called with no read stream open. */
+        function advance(): void {
+          if (settled) return;
+          zipfile.readEntry();
+        }
+
         /**
-         * Read one entry. With `optional`, a read error drops the entry instead of
-         * failing the whole scan (used for entries the scan can do without).
+         * Read one entry, then advance to the next. With `optional`, a read error
+         * drops the entry instead of failing the whole scan (used for entries the
+         * scan can do without).
          */
         function readEntryStream(
           entry: Entry,
@@ -225,6 +245,7 @@ function openAndScan(
             if (done) return;
             done = true;
             pendingStreams--;
+            advance();
             maybeResolve();
           };
           zipfile.openReadStream(entry, (streamErr, stream) => {
@@ -252,6 +273,7 @@ function openAndScan(
               const buf = Buffer.concat(chunks);
               onData(maxBytes ? buf.subarray(0, maxBytes) : buf);
               pendingStreams--;
+              advance();
               maybeResolve();
             };
             stream.on("end", finish);
@@ -304,7 +326,8 @@ function openAndScan(
               );
             }
             // Extract first N bytes of .so files for ELF header analysis (early stream destroy)
-            else if (SO_PATH_RE.test(path)) {
+            else if (SO_PATH_RE.test(path) && soHeaderReads < MAX_SO_HEADER_READS) {
+              soHeaderReads++;
               readEntryStream(
                 entry,
                 (buf) => {
@@ -313,8 +336,11 @@ function openAndScan(
                 SO_HEADER_BYTES,
               );
             }
-
-            zipfile.readEntry();
+            // Nothing to read from this entry (or a cap was hit) — next entry now.
+            // Otherwise the read advances once it settles, so only one is ever open.
+            else {
+              advance();
+            }
           } catch (e) {
             fail(e instanceof Error ? e : new Error(String(e)));
           }

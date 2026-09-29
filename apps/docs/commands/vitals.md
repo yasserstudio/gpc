@@ -29,7 +29,7 @@ outline: deep
 | [`vitals compare`](#vitals-compare)             | Compare metric trend across periods    |
 
 ::: info Reporting API Required
-Vitals commands use the Google Play Developer Reporting API, which must be enabled separately in your GCP project. If the API is not enabled, vitals commands will show "No vitals data available" instead of failing with a 403 error — other non-vitals commands continue to work normally.
+Vitals commands use the Google Play Developer Reporting API, which must be enabled separately in your GCP project. If the API is not enabled, or the service account cannot read this app's vitals, vitals commands fail with exit code `4` and a hint to enable the API. They never report "no data" in its place, so a `--threshold` gate cannot pass without reading a metric. For the same reason, a `--threshold` run that returns no data (wrong `--app`, data lag, an app with no traffic) exits `6` with `THRESHOLD_NO_DATA`. Other commands are unaffected.
 
 Enable it at: `https://console.cloud.google.com/apis/library/playdeveloperreporting.googleapis.com`
 :::

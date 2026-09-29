@@ -12,6 +12,7 @@ import type {
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { extname, join } from "node:path";
 import { GpcError } from "../errors.js";
+import { REDACTED } from "../output.js";
 
 export type {
   Leaderboard,
@@ -105,7 +106,7 @@ export async function createAchievementConfig(
   data: AchievementConfiguration,
 ): Promise<AchievementConfiguration> {
   validateApplicationId(applicationId);
-  return client.achievements.insert(applicationId, data);
+  return client.achievements.insert(applicationId, withoutRedactedToken(data));
 }
 
 export async function updateAchievementConfig(
@@ -114,7 +115,7 @@ export async function updateAchievementConfig(
   data: AchievementConfiguration,
 ): Promise<AchievementConfiguration> {
   validateResourceId(achievementId, "achievement");
-  return client.achievements.update(achievementId, data);
+  return client.achievements.update(achievementId, withoutRedactedToken(data));
 }
 
 export async function deleteAchievementConfig(
@@ -171,7 +172,7 @@ export async function createLeaderboardConfig(
   data: LeaderboardConfiguration,
 ): Promise<LeaderboardConfiguration> {
   validateApplicationId(applicationId);
-  return client.leaderboards.insert(applicationId, data);
+  return client.leaderboards.insert(applicationId, withoutRedactedToken(data));
 }
 
 export async function updateLeaderboardConfig(
@@ -180,7 +181,7 @@ export async function updateLeaderboardConfig(
   data: LeaderboardConfiguration,
 ): Promise<LeaderboardConfiguration> {
   validateResourceId(leaderboardId, "leaderboard");
-  return client.leaderboards.update(leaderboardId, data);
+  return client.leaderboards.update(leaderboardId, withoutRedactedToken(data));
 }
 
 export async function deleteLeaderboardConfig(
@@ -277,12 +278,25 @@ export interface GamesPushOptions {
   dryRun?: boolean;
 }
 
+/**
+ * Games configs carry a Google `token` field, and `--json` output redacts every
+ * `token` key. A config saved from `get --json` and fed back to `update` or
+ * `push` would otherwise send the placeholder to Google as the real value.
+ */
+function withoutRedactedToken<T extends { token?: string }>(config: T): T {
+  if (config.token !== REDACTED) return config;
+  const { token: _token, ...rest } = config;
+  return rest as T;
+}
+
 /** Filename-safe form of a Google resource id (ids are alphanumeric tokens). */
 function safeConfigFilename(id: string): string {
   return `${id.replace(/[^a-zA-Z0-9_-]/g, "_")}.json`;
 }
 
-async function readConfigDir<T>(dir: string): Promise<{ file: string; config: T }[]> {
+async function readConfigDir<T extends { token?: string }>(
+  dir: string,
+): Promise<{ file: string; config: T }[]> {
   const entries = (await readdir(dir)).filter((f) => f.toLowerCase().endsWith(".json"));
   const out: { file: string; config: T }[] = [];
   for (const file of entries) {
@@ -306,7 +320,7 @@ async function readConfigDir<T>(dir: string): Promise<{ file: string; config: T 
         "Each file must contain a single achievement or leaderboard config object.",
       );
     }
-    out.push({ file, config: parsed as T });
+    out.push({ file, config: withoutRedactedToken(parsed as T) });
   }
   return out;
 }

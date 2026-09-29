@@ -1,4 +1,4 @@
-import { readdir, stat } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import { join, extname } from "node:path";
 import type { PlayApiClient, ImageType, EditCommitOptions, Image } from "@gpc-cli/api";
 import { PlayApiError } from "@gpc-cli/api";
@@ -46,16 +46,29 @@ export interface ImageSyncResult {
   details: ImageSyncDetail[];
 }
 
-async function scanLocalImages(dir: string): Promise<string[]> {
+/**
+ * Returns the image files in `dir`, or `null` when the directory does not exist
+ * ("this combo is not managed here"). Any other read failure throws: reading an
+ * unreadable directory as empty would let `sync --delete` wipe the remote images.
+ */
+async function scanLocalImages(dir: string): Promise<string[] | null> {
+  let entries;
   try {
-    const entries = await readdir(dir, { withFileTypes: true });
-    return entries
-      .filter((e) => e.isFile() && IMAGE_EXTENSIONS.has(extname(e.name).toLowerCase()))
-      .map((e) => e.name)
-      .sort();
-  } catch {
-    return [];
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === "ENOENT" || code === "ENOTDIR") return null;
+    throw new GpcError(
+      `Cannot read image directory "${dir}": ${code ?? String(error)}`,
+      "IMAGE_SYNC_DIR_UNREADABLE",
+      1,
+      "Check the directory's permissions (and container volume ownership in CI). Nothing was changed on Google Play.",
+    );
   }
+  return entries
+    .filter((e) => e.isFile() && IMAGE_EXTENSIONS.has(extname(e.name).toLowerCase()))
+    .map((e) => e.name)
+    .sort();
 }
 
 async function scanLanguages(dir: string): Promise<string[]> {
@@ -67,14 +80,6 @@ async function scanLanguages(dir: string): Promise<string[]> {
       .sort();
   } catch {
     return [];
-  }
-}
-
-async function dirExists(path: string): Promise<boolean> {
-  try {
-    return (await stat(path)).isDirectory();
-  } catch {
-    return false;
   }
 }
 
@@ -106,7 +111,8 @@ export async function syncImages(
     for (const language of languages) {
       for (const imageType of imageTypes) {
         const localDir = join(dir, language, imageType);
-        const localFiles = await scanLocalImages(localDir);
+        const scanned = await scanLocalImages(localDir);
+        const localFiles = scanned ?? [];
 
         let remoteImages: Image[];
         try {
@@ -162,7 +168,7 @@ export async function syncImages(
           // would silently delete e.g. the app icon or feature graphic when someone runs
           // `sync --delete` while keeping only screenshots locally. A directory that is present
           // but empty is still treated as an explicit "clear this combo".
-          if (localFiles.length === 0 && remoteImages.length > 0 && !(await dirExists(localDir))) {
+          if (scanned === null && remoteImages.length > 0) {
             for (const img of remoteImages) {
               details.push({
                 language,

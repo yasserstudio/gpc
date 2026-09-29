@@ -84,9 +84,44 @@ describe("purchases orders review-refund", () => {
       "review-refund",
       ...args,
       "--no-interactive",
+      "--yes",
     ]);
     return program;
   }
+
+  it.each([[[] as string[]], [["--dry-run"]]])(
+    "non-interactive without --yes refuses unless dry-run (%j)",
+    async (extra) => {
+      const { registerPurchasesCommands } = await import("../src/commands/purchases.js");
+      const program = makeProgram();
+      program.exitOverride();
+      registerPurchasesCommands(program);
+      const argv = [
+        "node",
+        "gpc",
+        ...extra,
+        "purchases",
+        "orders",
+        "review-refund",
+        "GPA.1234",
+        "--pending-refund-token",
+        "tok-1",
+        "--preference",
+        "approve",
+        "--no-sample-content-provided",
+        "--no-interactive",
+      ];
+      if (extra.length === 0) {
+        await expect(program.parseAsync(argv)).rejects.toMatchObject({
+          code: "CONFIRMATION_REQUIRED",
+          exitCode: 2,
+        });
+      } else {
+        await program.parseAsync(argv);
+      }
+      expect(mockReviewOrderRefund).not.toHaveBeenCalled();
+    },
+  );
 
   it("maps flags onto the core call", async () => {
     await run([

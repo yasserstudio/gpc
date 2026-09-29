@@ -13,6 +13,7 @@ const REQUIRED_SECRET_FLAGS = new Set([
   "--keystore",
   "--next-page",
   "--page-token",
+  "--pending-refund-token",
 ]);
 const OPTIONAL_SECRET_FLAGS = new Set(["--notify"]);
 

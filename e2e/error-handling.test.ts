@@ -34,7 +34,7 @@ describe.skipIf(!hasCliDist)("CLI error handling", () => {
   it("command requiring auth without credentials produces auth error output", () => {
     const { exitCode, stdout, stderr } = runWithExit(
       "releases",
-      "list",
+      "status",
       "--app",
       "com.example.nonexistent",
     );

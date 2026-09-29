@@ -37,6 +37,11 @@ export interface ListReportObjectsResult {
 const GCS_API_BASE = "https://storage.googleapis.com/storage/v1/b";
 const LIST_TIMEOUT_MS = 60_000;
 const DOWNLOAD_TIMEOUT_MS = 120_000;
+// Ceiling on a downloaded report object. Real Play bulk reports are tens of MB at most
+// (monthly financial ZIPs are the largest), so this is generous; it exists so a wrong
+// bucket/object or a hostile response cannot buffer unbounded bytes into memory. Matches
+// the inflate ceiling in decode.ts.
+const MAX_DOWNLOAD_BYTES = 512 * 1024 * 1024;
 
 interface GcsObjectItem {
   name?: string;
@@ -56,6 +61,16 @@ function networkError(bucket: string, cause: unknown): GpcError {
     "NETWORK_ERROR",
     5,
     "Check your internet connection and retry. Google Cloud Storage may also be briefly unavailable.",
+  );
+}
+
+function tooLargeError(objectName: string, maxBytes: number): GpcError {
+  return new GpcError(
+    `Report object "${objectName}" is larger than the ${maxBytes}-byte download limit.`,
+    "REPORT_DOWNLOAD_FAILED",
+    4,
+    "Play bulk reports are far smaller than this; confirm the bucket and object name, then " +
+      "download the file from Play Console -> Download reports if you really need it.",
   );
 }
 
@@ -157,7 +172,9 @@ export async function downloadReportObject(
   auth: ReportsAuth,
   bucket: string,
   objectName: string,
+  options: { maxBytes?: number } = {},
 ): Promise<Buffer> {
+  const maxBytes = options.maxBytes ?? MAX_DOWNLOAD_BYTES;
   const url = `${GCS_API_BASE}/${encodeURIComponent(bucket)}/o/${encodeURIComponent(objectName)}?alt=media`;
   const res = await gcsFetch(auth, bucket, url, DOWNLOAD_TIMEOUT_MS);
   if (res.status === 404) {
@@ -176,9 +193,27 @@ export async function downloadReportObject(
       "Retry in a moment. If the error persists, list the reports to confirm the object still exists.",
     );
   }
+  const declared = Number(res.headers.get("content-length"));
+  if (Number.isFinite(declared) && declared > maxBytes) {
+    throw tooLargeError(objectName, maxBytes);
+  }
+  // Streamed with a running total rather than arrayBuffer(): Content-Length is optional
+  // (and advisory), so the cap has to hold while the bytes arrive.
+  const body = res.body;
+  if (!body) return Buffer.alloc(0);
+  const chunks: Buffer[] = [];
+  let read = 0;
   try {
-    return Buffer.from(await res.arrayBuffer());
+    for await (const chunk of body as unknown as AsyncIterable<Uint8Array>) {
+      read += chunk.length;
+      // Throwing out of the for-await calls the iterator's return(), which cancels the
+      // body stream, so the rest of the response is never buffered.
+      if (read > maxBytes) throw tooLargeError(objectName, maxBytes);
+      chunks.push(Buffer.from(chunk));
+    }
   } catch (err) {
+    if (err instanceof GpcError) throw err;
     throw networkError(bucket, err);
   }
+  return Buffer.concat(chunks);
 }

@@ -52,7 +52,7 @@ import { withBase } from "vitepress";
     <span class="stat-label">API Endpoints</span>
   </div>
   <div class="stat-item">
-    <span class="stat-number">2,809</span>
+    <span class="stat-number">2,844</span>
     <span class="stat-label">Tests</span>
   </div>
   <div class="stat-item">

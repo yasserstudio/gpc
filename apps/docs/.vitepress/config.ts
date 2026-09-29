@@ -355,7 +355,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
 
         programmingLanguage: "TypeScript",
-        softwareVersion: "0.9.99",
+        softwareVersion: "1.0.0-rc.1",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: {
@@ -493,7 +493,7 @@ export default defineConfig({
             name: "Is it stable enough for production CI/CD?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "2,809 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
+              text: "2,844 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
             },
           },
           {

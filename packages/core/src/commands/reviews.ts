@@ -1,6 +1,7 @@
 import type { PlayApiClient, Review, ReviewsListOptions, ReviewReplyResponse } from "@gpc-cli/api";
 import { paginateAll } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
+import { escapeCsvField } from "../output.js";
 import { analyzeReviews as analyzeReviewsSentiment } from "../utils/sentiment.js";
 import type { ReviewAnalysis } from "../utils/sentiment.js";
 import { sortResults } from "../utils/sort.js";
@@ -207,28 +208,17 @@ function reviewsToCsv(reviews: Review[]): string {
     const uc = r.comments?.[0]?.userComment;
     const fields = [
       r.reviewId,
-      csvEscape(r.authorName),
+      escapeCsvField(r.authorName),
       uc?.starRating ?? "",
-      csvEscape(uc?.text ?? ""),
+      escapeCsvField(uc?.text ?? ""),
       uc?.reviewerLanguage ?? "",
       uc ? new Date(Number(uc.lastModified.seconds) * 1000).toISOString() : "",
-      csvEscape(uc?.device ?? ""),
-      csvEscape(uc?.appVersionName ?? ""),
+      escapeCsvField(uc?.device ?? ""),
+      escapeCsvField(uc?.appVersionName ?? ""),
     ];
     return fields.join(",");
   });
   return [header, ...rows].join("\n");
-}
-
-function csvEscape(value: string): string {
-  let safe = value;
-  if (/^[=+\-@\t\r]/.test(safe)) {
-    safe = `'${safe}`;
-  }
-  if (safe.includes(",") || safe.includes('"') || safe.includes("\n")) {
-    return `"${safe.replace(/"/g, '""')}"`;
-  }
-  return safe;
 }
 
 export { ReviewAnalysis };

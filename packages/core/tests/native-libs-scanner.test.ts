@@ -296,3 +296,29 @@ describe("16KB alignment scanner integration", () => {
     expect(f!.title).toContain("2 native libraries");
   });
 });
+
+describe("native-libs: unchecked libraries are reported, not silently skipped", () => {
+  function lib(abi: string, name: string): ZipEntryInfo {
+    return { path: `base/lib/${abi}/${name}`, compressedSize: 10, uncompressedSize: 20 };
+  }
+
+  it("warns when fewer headers than native libraries were read", async () => {
+    const entries = [
+      lib("arm64-v8a", "liba.so"),
+      lib("arm64-v8a", "libb.so"),
+      lib("arm64-v8a", "libc.so"),
+    ];
+    const headers: EntryHeaderMap = new Map([["base/lib/arm64-v8a/liba.so", fakeElf64(16384)]]);
+    const findings = await nativeLibsScanner.scan(makeCtx(entries, headers));
+    const f = findings.find((x) => x.ruleId === "native-libs-16kb-unchecked");
+    expect(f?.severity).toBe("warning");
+    expect(f?.title).toContain("2 of 3");
+  });
+
+  it("stays quiet when every library was checked", async () => {
+    const entries = [lib("arm64-v8a", "liba.so")];
+    const headers: EntryHeaderMap = new Map([["base/lib/arm64-v8a/liba.so", fakeElf64(16384)]]);
+    const findings = await nativeLibsScanner.scan(makeCtx(entries, headers));
+    expect(findings.some((x) => x.ruleId === "native-libs-16kb-unchecked")).toBe(false);
+  });
+});

@@ -11,7 +11,38 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v0.9.99 <Badge type="tip" text="latest" />
+## v1.0.0-rc.1 <Badge type="tip" text="latest" />
+
+The release candidate for GPC 1.0.0. It carries the fixes from the pre-1.0 security review and a live test against real Play accounts. If nothing critical turns up over the next two weeks, this build becomes 1.0.0.
+
+### Safer by default
+
+- breaking: `gpc purchases orders refund`, `orders review-refund`, `purchases subscription revoke` and `gpc external-transactions refund` now require `--yes` when they run without a terminal (CI, piped input, `--no-interactive`). Before, they confirmed automatically and moved money. `--dry-run` never needs `--yes`.
+- breaking: `gpc vitals` and `gpc anomalies list` now fail (exit 4) when they cannot read vitals because the Reporting API is off or the service account has no access. Before, they printed "no data" and exited 0, so a `--threshold` gate in CI could pass without reading a single metric.
+- breaking: a `gpc vitals ... --threshold` run that gets no value back (wrong `--app`, data lag, an app with no traffic) now exits 6 with `THRESHOLD_NO_DATA` instead of passing.
+- breaking: usage mistakes such as an unknown option or a missing argument now exit 2, as the exit-code reference has always said. They exited 1 before.
+- fix: `gpc listings images sync --delete` stops with an error when it cannot read a local image directory, instead of treating it as empty and deleting the matching images on Google Play.
+- fix: the refund-review token passed to `orders review-refund` is no longer included in `--notify` webhook messages or plugin hook data.
+
+### Reliability
+
+- fix: `gpc preflight` stays within a small, fixed amount of memory on bundles with very many native libraries, and says so when it could not check every library for 16 KB alignment.
+- fix: `gpc reports download` limits how large a downloaded or unpacked report can grow, and a corrupt archive now fails with a clear error instead of crashing.
+- fix: saving a Play Games achievement or leaderboard with `get --json` and pushing it back no longer sends a placeholder in place of its token.
+- fix: review exports to CSV quote every line break, so a review cannot spill into a new spreadsheet row.
+- fix: saved report files stay readable only by you, even when the file already existed.
+- fix: `gpc update` and the update notice understand release candidates, so anyone on this build is offered 1.0.0 when it ships.
+
+### Docs
+
+- docs: `purchases orders refund` documents its real `--revoke` option (the listed `--full-refund` and `--prorated-refund` never existed), and `subscription revoke` documents `--refund-type` and `--product-id`.
+- docs: new error codes `CONFIRMATION_REQUIRED`, `IMAGE_SYNC_DIR_UNREADABLE` and `THRESHOLD_NO_DATA`.
+
+**Tests:** 2,844 (+35).
+
+---
+
+## v0.9.99
 
 `gpc preflight` measures what a device actually downloads and stops failing valid apps, `gpc external-transactions refund` works, and GPC matches Google Play's September API update.
 

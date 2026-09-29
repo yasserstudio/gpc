@@ -22,19 +22,45 @@ function getCacheFilePath(): string {
 }
 
 /**
- * Compare two semver strings numerically.
- * Returns true if `b` is newer than `a`.
+ * Compare two semver strings, including prereleases (`1.0.0-rc.1`).
+ * Returns true if `latest` is newer than `current`. A release outranks its own
+ * prereleases, so `1.0.0-rc.1` users are offered `1.0.0` (per semver 2.0 §11).
  */
 export function isNewerVersion(current: string, latest: string): boolean {
-  const a = current.split(".").map(Number);
-  const b = latest.split(".").map(Number);
-  for (let i = 0; i < Math.max(a.length, b.length); i++) {
-    const av = a[i] ?? 0;
-    const bv = b[i] ?? 0;
-    if (bv > av) return true;
-    if (bv < av) return false;
+  return compareVersions(latest, current) > 0;
+}
+
+function compareVersions(a: string, b: string): number {
+  const [aCore = "", aPre] = (a.replace(/^v/, "").split("+", 1)[0] ?? "").split(/-(.*)/s);
+  const [bCore = "", bPre] = (b.replace(/^v/, "").split("+", 1)[0] ?? "").split(/-(.*)/s);
+  const an = aCore.split(".").map(Number);
+  const bn = bCore.split(".").map(Number);
+  for (let i = 0; i < Math.max(an.length, bn.length); i++) {
+    const diff = (an[i] ?? 0) - (bn[i] ?? 0);
+    if (diff !== 0) return Math.sign(diff);
   }
-  return false;
+  if (!aPre && !bPre) return 0;
+  if (!aPre) return 1;
+  if (!bPre) return -1;
+  const ap = aPre.split(".");
+  const bp = bPre.split(".");
+  for (let i = 0; i < Math.max(ap.length, bp.length); i++) {
+    const x = ap[i];
+    const y = bp[i];
+    if (x === undefined) return -1;
+    if (y === undefined) return 1;
+    const xNum = /^\d+$/.test(x);
+    const yNum = /^\d+$/.test(y);
+    if (xNum && yNum) {
+      const diff = Number(x) - Number(y);
+      if (diff !== 0) return Math.sign(diff);
+    } else if (xNum !== yNum) {
+      return xNum ? -1 : 1;
+    } else if (x !== y) {
+      return x < y ? -1 : 1;
+    }
+  }
+  return 0;
 }
 
 async function readCache(): Promise<CacheData | null> {

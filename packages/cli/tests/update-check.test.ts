@@ -192,6 +192,25 @@ describe("isNewerVersion", () => {
     // Older version is not newer
     expect(isNewerVersion("1.0.0", "0.9.5")).toBe(false);
   });
+
+  it("handles prereleases per semver", async () => {
+    const { isNewerVersion } = await import("../src/update-check.js");
+
+    // 0.9.99 users are offered the release candidate
+    expect(isNewerVersion("0.9.99", "1.0.0-rc.1")).toBe(true);
+    // rc users are offered the final release and later candidates
+    expect(isNewerVersion("1.0.0-rc.1", "1.0.0")).toBe(true);
+    expect(isNewerVersion("1.0.0-rc.1", "1.0.0-rc.2")).toBe(true);
+    expect(isNewerVersion("1.0.0-rc.2", "1.0.0-rc.10")).toBe(true);
+    // never offered a downgrade
+    expect(isNewerVersion("1.0.0", "1.0.0-rc.1")).toBe(false);
+    expect(isNewerVersion("1.0.0-rc.1", "1.0.0-rc.1")).toBe(false);
+    expect(isNewerVersion("1.0.0-rc.1", "0.9.99")).toBe(false);
+    // numeric identifiers sort below alphanumeric ones
+    expect(isNewerVersion("1.0.0-1", "1.0.0-rc.1")).toBe(true);
+    // leading v and build metadata are ignored
+    expect(isNewerVersion("v1.0.0-rc.1", "1.0.0+build.5")).toBe(true);
+  });
 });
 
 describe("formatUpdateNotification", () => {

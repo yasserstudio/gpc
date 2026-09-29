@@ -199,6 +199,34 @@ describe("GCS reports layer", () => {
       exitCode: 4,
     });
   });
+
+  it("downloadReportObject refuses a body that declares more than the size limit", async () => {
+    fetchMock.mockResolvedValueOnce(
+      new Response(new Uint8Array(Buffer.from("tiny")), {
+        status: 200,
+        headers: { "content-length": "1000" },
+      }),
+    );
+    await expect(
+      downloadReportObject(auth, BUCKET, "earnings/huge.zip", { maxBytes: 10 }),
+    ).rejects.toMatchObject({ code: "REPORT_DOWNLOAD_FAILED", exitCode: 4 });
+  });
+
+  it("downloadReportObject enforces the size limit while streaming an undeclared body", async () => {
+    // No Content-Length (the common case for gzip-encoded objects), so the cap has to hold
+    // as the chunks arrive rather than after buffering the whole response.
+    const stream = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new Uint8Array(32));
+        controller.enqueue(new Uint8Array(32));
+        controller.close();
+      },
+    });
+    fetchMock.mockResolvedValueOnce(new Response(stream, { status: 200 }));
+    await expect(
+      downloadReportObject(auth, BUCKET, "earnings/huge.zip", { maxBytes: 40 }),
+    ).rejects.toMatchObject({ code: "REPORT_DOWNLOAD_FAILED", exitCode: 4 });
+  });
 });
 
 describe("listReports", () => {

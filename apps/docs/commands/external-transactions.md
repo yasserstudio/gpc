@@ -130,7 +130,7 @@ gpc external-transactions refund <transaction-id> --partial-amount <micros> --cu
 | `--currency`       | `string` |         | ISO 4217 currency code (required with `--partial-amount`)                                          |
 | `--refund-id`      | `string` |         | Unique ID for this partial refund (required with `--partial-amount`); Google rejects a repeated ID |
 | `--refund-time`    | `string` | now     | When the refund happened, ISO 8601                                                                 |
-| `--yes`            | `flag`   |         | Skip the confirmation prompt (global)                                                              |
+| `--yes`            | `flag`   |         | Skip the confirmation prompt (global). Required in non-interactive runs (CI, piped stdin)          |
 | `--dry-run`        | `flag`   |         | Print the refund request without sending it (global)                                               |
 
 ### Example

@@ -59,6 +59,20 @@ function parseLimit(value: string | undefined): number | undefined {
 // Report CSVs can hold revenue data and review PII — keep saved files owner-only.
 const OUTPUT_FILE_MODE = 0o600;
 
+// `mode` only applies when writeFile creates the file, so an existing 0644 path would stay
+// world-readable. Tighten an existing file *before* writing so the report bytes are never
+// readable by others, even briefly (best-effort: a filesystem without chmod, or a path that
+// does not exist yet, must not fail the download).
+async function writeOwnerOnly(path: string, data: string | Buffer): Promise<void> {
+  const { writeFile, chmod } = await import("node:fs/promises");
+  try {
+    await chmod(path, OUTPUT_FILE_MODE);
+  } catch {
+    // absent (writeFile creates it 0600) or chmod unsupported
+  }
+  await writeFile(path, data, { mode: OUTPUT_FILE_MODE });
+}
+
 async function saveOrPrint(
   text: string,
   outputFile: string | undefined,
@@ -66,8 +80,7 @@ async function saveOrPrint(
   format: string,
 ): Promise<void> {
   if (outputFile) {
-    const { writeFile } = await import("node:fs/promises");
-    await writeFile(outputFile, text, { encoding: "utf8", mode: OUTPUT_FILE_MODE });
+    await writeOwnerOnly(outputFile, text);
     if (format === "json") {
       console.log(
         JSON.stringify({ objectName, outputFile, bytes: Buffer.byteLength(text) }, null, 2),
@@ -187,8 +200,7 @@ export function registerReportsCommands(program: Command): void {
         return;
       }
       if (rawZipSave && options.outputFile) {
-        const { writeFile } = await import("node:fs/promises");
-        await writeFile(options.outputFile, result.raw, { mode: OUTPUT_FILE_MODE });
+        await writeOwnerOnly(options.outputFile, result.raw);
         if (format === "json") {
           console.log(
             JSON.stringify(

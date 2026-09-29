@@ -163,7 +163,7 @@ export const SENSITIVE_KEYS = new Set([
   "key_password",
 ]);
 
-const REDACTED = "[REDACTED]";
+export const REDACTED = "[REDACTED]";
 
 /** Recursively redact sensitive fields from data before output. */
 export function redactSensitive(data: unknown): unknown {
@@ -344,7 +344,7 @@ function formatMarkdown(data: unknown): string {
   return `${header}\n${separator}\n${body}`;
 }
 
-function escapeCsvField(val: string): string {
+export function escapeCsvField(val: string): string {
   // Neutralize spreadsheet formula injection: a cell beginning with = + - @ (or
   // tab/CR) can execute when the CSV is opened in Excel/Google Sheets. Prefix
   // such a value with a single quote so the spreadsheet treats it as text.

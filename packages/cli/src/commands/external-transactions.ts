@@ -13,7 +13,7 @@ import {
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
-import { requireConfirm } from "../prompt.js";
+import { requireMoneyConfirm } from "../prompt.js";
 import { readFileSync } from "node:fs";
 
 export function registerExternalTransactionsCommands(program: Command): void {
@@ -100,7 +100,7 @@ export function registerExternalTransactionsCommands(program: Command): void {
 
       const refundData = buildExternalTransactionRefund(options);
 
-      await requireConfirm(describeRefund(id, refundData), program);
+      await requireMoneyConfirm(describeRefund(id, refundData), program);
 
       if (isDryRun(program)) {
         printDryRun(

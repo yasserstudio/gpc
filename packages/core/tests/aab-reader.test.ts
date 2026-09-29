@@ -306,6 +306,82 @@ describe("readAab", () => {
     expect(result.manifest._parseError).toContain("index out of range");
   });
 
+  it("caps .so header reads and keeps at most one read stream open", async () => {
+    // A crafted bundle can hold tens of thousands of tiny `lib/<abi>/<n>.so`
+    // entries. Every one used to get its own concurrent openReadStream, which
+    // drove RSS linearly with the entry count.
+    const SO_ENTRY_COUNT = 2000;
+    const MAX_SO_HEADER_READS = 512;
+    const entries: Array<{ fileName: string; data?: Buffer }> = [
+      { fileName: "base/manifest/AndroidManifest.xml", data: Buffer.from("protobuf") },
+    ];
+    for (let i = 0; i < SO_ENTRY_COUNT; i++) {
+      entries.push({ fileName: `base/lib/arm64-v8a/lib${i}.so`, data: Buffer.from("\x7fELF") });
+    }
+
+    const zipfile = createMockZipfile(entries);
+    const realOpenReadStream = zipfile.openReadStream.bind(zipfile);
+    let opened = 0;
+    let concurrent = 0;
+    let maxConcurrent = 0;
+    zipfile.openReadStream = (entry, cb) => {
+      opened++;
+      concurrent++;
+      maxConcurrent = Math.max(maxConcurrent, concurrent);
+      realOpenReadStream(entry, (err, stream) => {
+        if (!stream) {
+          concurrent--;
+          cb(err);
+          return;
+        }
+        let closed = false;
+        const release = () => {
+          if (closed) return;
+          closed = true;
+          concurrent--;
+        };
+        // Registered before the reader's own listeners, so this runs first and
+        // the stream is counted as released before the reader queues the next.
+        stream.on("end", release);
+        stream.on("close", release);
+        cb(err, stream);
+      });
+    };
+
+    mockedFromBuffer.mockImplementation((_buf: any, _opts: any, cb: any) => {
+      cb(null, zipfile);
+    });
+
+    const result = await readAab("/fake/crafted.aab");
+
+    // The scan settles and still reports every entry, so size/other scanners
+    // are unaffected — only the header reads are capped.
+    expect(result.entries).toHaveLength(SO_ENTRY_COUNT + 1);
+    expect(result.nativeLibHeaders.size).toBe(MAX_SO_HEADER_READS);
+    // 1 manifest + the capped .so headers, nothing more.
+    expect(opened).toBe(MAX_SO_HEADER_READS + 1);
+    expect(maxConcurrent).toBe(1);
+  });
+
+  it("reads every .so header for a normal bundle", async () => {
+    const zipfile = createMockZipfile([
+      { fileName: "base/manifest/AndroidManifest.xml", data: Buffer.from("protobuf") },
+      { fileName: "base/lib/arm64-v8a/libapp.so", data: Buffer.from("\x7fELF") },
+      { fileName: "base/lib/armeabi-v7a/libapp.so", data: Buffer.from("\x7fELF") },
+      { fileName: "base/lib/x86_64/libapp.so", data: Buffer.from("\x7fELF") },
+    ]);
+    mockedFromBuffer.mockImplementation((_buf: any, _opts: any, cb: any) => {
+      cb(null, zipfile);
+    });
+
+    const result = await readAab("/fake/app.aab");
+    expect([...result.nativeLibHeaders.keys()]).toEqual([
+      "base/lib/arm64-v8a/libapp.so",
+      "base/lib/armeabi-v7a/libapp.so",
+      "base/lib/x86_64/libapp.so",
+    ]);
+  });
+
   it("closes zipfile after reading", async () => {
     const zipfile = createMockZipfile([
       { fileName: "base/manifest/AndroidManifest.xml", data: Buffer.from("pb") },

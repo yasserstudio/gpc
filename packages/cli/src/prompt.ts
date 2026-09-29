@@ -1,4 +1,5 @@
 import { createInterface } from "node:readline";
+import { isDryRun } from "./dry-run.js";
 
 /**
  * Check if interactive prompts are allowed.
@@ -72,6 +73,29 @@ export async function requireConfirm(
     process.exitCode = 0;
     throw Object.assign(new Error(""), { code: "USER_ABORTED", exitCode: 0, silent: true });
   }
+}
+
+/**
+ * Confirmation for irreversible money operations (refunds, revocations).
+ * Unlike requireConfirm, a non-interactive run (CI, piped stdin,
+ * --no-interactive) does not auto-confirm: it must pass --yes, so no pipeline
+ * issues a refund by default. A --dry-run sends nothing and is exempt.
+ */
+export async function requireMoneyConfirm(
+  message: string,
+  program: { opts(): Record<string, unknown>; parent?: unknown },
+): Promise<void> {
+  if (skipConfirm(program)) return;
+  if (!isInteractive(program)) {
+    if (isDryRun(program)) return;
+    throw Object.assign(new Error(`Confirmation required: ${message}`), {
+      code: "CONFIRMATION_REQUIRED",
+      exitCode: 2,
+      suggestion:
+        "This moves money and cannot be undone. Pass --yes to confirm it in a non-interactive run (CI, piped stdin, --no-interactive).",
+    });
+  }
+  await requireConfirm(message, program);
 }
 
 /**

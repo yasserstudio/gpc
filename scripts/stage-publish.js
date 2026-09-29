@@ -183,7 +183,9 @@ function main() {
     writeFileSync(pkgPath, `${JSON.stringify(resolved, null, 2)}\n`);
     let publishFailed = false;
     try {
-      execFileSync("npm", ["stage", "publish"], { cwd: pkg, stdio: "inherit" });
+      // Explicit dist-tag: npm 11 refuses to publish a prerelease (1.0.0-rc.N) without
+      // one, and release candidates ship on `latest` so the pre-1.0 soak sees real users.
+      execFileSync("npm", ["stage", "publish", "--tag", "latest"], { cwd: pkg, stdio: "inherit" });
       staged++;
     } catch {
       publishFailed = true;

@@ -142,6 +142,24 @@ export const nativeLibsScanner: PreflightScanner = {
     // 16KB page size alignment check (enforced since Nov 2025)
     check16KBAlignment(ctx.nativeLibHeaders, ctx.manifest, findings);
 
+    // The reader caps how many .so headers it buffers. Say so rather than let a
+    // truncated alignment check read as a clean one.
+    if (ctx.nativeLibHeaders) {
+      const soCount = entries.filter((e) => nativeLibAbi(e.path) && e.path.endsWith(".so")).length;
+      const unchecked = soCount - ctx.nativeLibHeaders.size;
+      if (unchecked > 0) {
+        findings.push({
+          scanner: "native-libs",
+          ruleId: "native-libs-16kb-unchecked",
+          severity: "warning",
+          title: `${unchecked} of ${soCount} native libraries not checked for 16KB alignment`,
+          message: `Preflight checked the first ${ctx.nativeLibHeaders.size} native libraries in this bundle; the remaining ${unchecked} were not inspected, so a misaligned library among them would not be reported.`,
+          suggestion:
+            "Verify alignment of the full bundle with Android Studio's APK Analyzer or `zipalign -c -P 16 -v 4 app.apk` on a universal APK.",
+        });
+      }
+    }
+
     // Report detected ABIs
     const detectedAbis = KNOWN_ABIS.filter((abi) => abisFound.has(abi));
     const unknownAbis = [...abisFound].filter(
