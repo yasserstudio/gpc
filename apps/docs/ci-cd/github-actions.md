@@ -19,7 +19,7 @@ gh secret set GPC_SERVICE_ACCOUNT < service-account.json
 
 ## Quickest path: the GPC Action
 
-The simplest way to publish from CI is the official [GPC Action](https://github.com/marketplace/actions/gpc-publish-to-google-play) on the GitHub Marketplace ([source](https://github.com/yasserstudio/gpc-action)): one step, with a built-in preflight compliance gate. It runs a checksum-verified GPC binary (0.9.99 by default as of action v1.1.1; set `gpc-version` to pin another).
+The simplest way to publish from CI is the official [GPC Action](https://github.com/marketplace/actions/gpc-publish-to-google-play) on the GitHub Marketplace ([source](https://github.com/yasserstudio/gpc-action)): one step, with a built-in preflight compliance gate. It runs a checksum-verified GPC binary (1.0.0-rc.1 by default as of action v1.1.3; set `gpc-version` to pin another).
 
 ```yaml
 - uses: yasserstudio/gpc-action@v1
