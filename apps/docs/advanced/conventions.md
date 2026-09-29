@@ -295,7 +295,8 @@ Settings are resolved in this order (highest priority first):
 - **Semantic versioning** (semver)
 - All packages versioned independently
 - `@gpc-cli/cli` version displayed as the "GPC version" to users
-- Current series: `0.9.x` pre-release → `1.0.0` public launch
+- Current series: `1.0.0-rc.N` release candidates → `1.0.0` stable (after the `0.9.x` pre-release series)
+- Release candidates publish to npm `latest` with an explicit `--tag` (npm 11 refuses a prerelease without one), so an ordinary update installs them
 - Pre-1.0: breaking changes bump minor, features/fixes bump patch
 - Post-1.0: standard semver rules
 
