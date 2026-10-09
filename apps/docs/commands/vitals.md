@@ -172,6 +172,11 @@ gpc vitals anr --app com.example.myapp --dim deviceModel --days 14
 
 Query cold and warm startup time metrics.
 
+::: warning Known issue (v1.0.0-rc.1)
+`--dim` currently replaces the required `startType` dimension instead of adding to it, so `gpc vitals startup --dim
+versionCode` fails with `400 INVALID_ARGUMENT … Required dimensions [startType]`. Run without `--dim` until v1.0.1.
+:::
+
 ### Synopsis
 
 ```bash
@@ -197,6 +202,12 @@ gpc vitals startup --app com.example.myapp --days 7
 ## `vitals rendering`
 
 Query slow rendering (frame rate) metrics.
+
+::: warning Games only
+Google's Play Developer Reporting API serves slow-rendering metrics **only for apps categorised as games**. For other
+apps the API returns `403 PERMISSION_DENIED: slowRenderingRateMetricSet resource is only accessible to games`. That
+is expected; it's not a credentials problem.
+:::
 
 ### Synopsis
 
