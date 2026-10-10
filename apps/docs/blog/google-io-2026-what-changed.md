@@ -4,6 +4,8 @@ date: 2026-05-20
 description: "Google I/O 2026 stabilized Android CLI 1.0, launched AI Studio internal-track publishing, and shipped new Play Developer API fields. Here is what it means for GPC."
 author: Yasser Berrehail
 tags: [google-io-2026, android-cli, play-api, ai-studio]
+image: /blog/google-io-2026-what-changed.webp
+ogImage: /blog/google-io-2026-what-changed.jpg
 ---
 
 <BlogPost />

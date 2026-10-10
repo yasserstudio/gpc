@@ -72,6 +72,10 @@ import {
   searchVitalsErrors,
   checkThreshold,
   compareVitalsTrend,
+  readMetricValue,
+  latestQueryableEndDate,
+  latestWorstValue,
+  worstSliceAverage,
 } from "../src/commands/vitals.js";
 import { isValidBcp47, GOOGLE_PLAY_LANGUAGES } from "../src/utils/bcp47.js";
 import { readListingsFromDir, writeListingsToDir, diffListings } from "../src/utils/fastlane.js";
@@ -2161,6 +2165,170 @@ describe("getVitalsOverview", () => {
     const result = await getVitalsOverview(reporting, PKG);
     expect(result.crashRate).toHaveLength(1);
     expect(result.anrRate).toBeUndefined();
+    expect(result.unavailable).toEqual([
+      { metric: "anrRate", code: "UNKNOWN_ERROR", reason: "anr fail" },
+    ]);
+  });
+
+  it("sends the required startType dimension for slow starts", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsOverview(reporting, PKG);
+    const startCall = reporting.queryMetricSet.mock.calls.find(
+      (c: unknown[]) => c[1] === "slowStartRateMetricSet",
+    );
+    expect(startCall?.[2].dimensions).toEqual(["startType"]);
+  });
+
+  // Every query failing (e.g. six 403s from bad credentials) used to read as
+  // "No vitals data available" with exit 0.
+  it("throws when every metric set fails instead of returning empty", async () => {
+    const reporting = mockReportingClient();
+    const denied = Object.assign(new Error("Forbidden"), { code: "API_FORBIDDEN" });
+    reporting.queryMetricSet.mockRejectedValue(denied);
+
+    await expect(getVitalsOverview(reporting, PKG)).rejects.toBe(denied);
+  });
+
+  it("lists games-only slow rendering as unavailable, not as a failure", async () => {
+    const reporting = mockReportingClient();
+    reporting.queryMetricSet.mockImplementation(async (_pkg: string, set: string) => {
+      if (set === "slowRenderingRateMetricSet") {
+        throw Object.assign(new Error("games only"), { code: "API_METRIC_GAMES_ONLY" });
+      }
+      return { rows: [{ metrics: {} }] };
+    });
+
+    const result = await getVitalsOverview(reporting, PKG);
+    expect(result.slowRenderingRate).toBeUndefined();
+    expect(result.crashRate).toHaveLength(1);
+    expect(result.unavailable).toEqual([
+      {
+        metric: "slowRenderingRate",
+        code: "API_METRIC_GAMES_ONLY",
+        reason: "Only available for apps categorised as games.",
+      },
+    ]);
+  });
+
+  it("omits unavailable when every metric set succeeds", async () => {
+    const reporting = mockReportingClient();
+    const result = await getVitalsOverview(reporting, PKG);
+    expect(result).not.toHaveProperty("unavailable");
+  });
+});
+
+describe("latestQueryableEndDate", () => {
+  const freshness = (d: Date) => ({
+    getMetricSetFreshness: vi.fn().mockResolvedValue({
+      freshnessInfo: {
+        freshnesses: [
+          {
+            aggregationPeriod: "DAILY",
+            latestEndTime: {
+              year: d.getUTCFullYear(),
+              month: d.getUTCMonth() + 1,
+              day: d.getUTCDate(),
+            },
+          },
+        ],
+      },
+    }),
+  });
+
+  // Capping freshness at "two days ago" hid a day Google had already published
+  // from one-day gates (train advance, --vitals-gate).
+  it("uses Google's freshness even when it is newer than two days ago", async () => {
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const end = await latestQueryableEndDate(
+      freshness(yesterday) as any,
+      PKG,
+      "crashRateMetricSet",
+    );
+    expect(end.toISOString().slice(0, 10)).toBe(yesterday.toISOString().slice(0, 10));
+  });
+
+  it("falls back to two days ago when freshness is unavailable", async () => {
+    const reporting = { getMetricSetFreshness: vi.fn().mockRejectedValue(new Error("x")) };
+    const end = await latestQueryableEndDate(reporting as any, PKG, "crashRateMetricSet");
+    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+    expect(end.toISOString().slice(0, 10)).toBe(twoDaysAgo.toISOString().slice(0, 10));
+  });
+});
+
+describe("readMetricValue", () => {
+  const arrayRow = {
+    metrics: [
+      { metric: "anrRate", decimalValue: { value: "0.0929" } },
+      { metric: "distinctUsers", decimalValue: { value: "70" } },
+    ],
+  } as any;
+
+  it("reads Google's array shape by name and by position", () => {
+    expect(readMetricValue(arrayRow, "anrRate")).toBe(0.0929);
+    expect(readMetricValue(arrayRow, "distinctUsers")).toBe(70);
+    expect(readMetricValue(arrayRow)).toBe(0.0929);
+  });
+
+  it("reads the name-keyed map shape", () => {
+    const row = { metrics: { crashRate: { decimalValue: { value: "0.01" } } } } as any;
+    expect(readMetricValue(row, "crashRate")).toBe(0.01);
+    expect(readMetricValue(row)).toBe(0.01);
+  });
+
+  it("returns undefined for a missing metric, row or non-numeric value", () => {
+    expect(readMetricValue(arrayRow, "crashRate")).toBeUndefined();
+    expect(readMetricValue(undefined)).toBeUndefined();
+    expect(
+      readMetricValue({ metrics: [{ metric: "x", decimalValue: { value: "n/a" } }] } as any),
+    ).toBeUndefined();
+  });
+});
+
+describe("latestWorstValue / worstSliceAverage", () => {
+  const row = (day: number, startType: string, value: string) =>
+    ({
+      startTime: { year: 2026, month: 10, day },
+      dimensions: [{ dimension: "startType", stringValue: startType }],
+      metrics: [{ metric: "slowStartRate", decimalValue: { value } }],
+    }) as any;
+
+  // Rows come one per day per start type; the old gate read whichever row was
+  // last, so a bad cold-start rate could hide behind a good hot-start one.
+  const rows = [
+    row(5, "COLD", "0.30"),
+    row(5, "WARM", "0.01"),
+    row(6, "COLD", "0.20"),
+    row(6, "WARM", "0.02"),
+    row(6, "HOT", "0.01"),
+  ];
+
+  it("gates on the worst slice of the most recent day", () => {
+    expect(latestWorstValue(rows)).toBe(0.2);
+    expect(latestWorstValue(rows, "slowStartRate")).toBe(0.2);
+  });
+
+  it("averages each slice over the window and reports the worst", () => {
+    expect(worstSliceAverage(rows)).toBeCloseTo(0.25);
+  });
+
+  it("is the plain latest value / average without dimensions", () => {
+    const plain = [
+      {
+        startTime: { year: 2026, month: 10, day: 5 },
+        metrics: [{ metric: "crashRate", decimalValue: { value: "0.1" } }],
+      },
+      {
+        startTime: { year: 2026, month: 10, day: 6 },
+        metrics: [{ metric: "crashRate", decimalValue: { value: "0.3" } }],
+      },
+    ] as any;
+    expect(latestWorstValue(plain)).toBe(0.3);
+    expect(worstSliceAverage(plain)).toBeCloseTo(0.2);
+  });
+
+  it("returns undefined for no rows", () => {
+    expect(latestWorstValue([])).toBeUndefined();
+    expect(worstSliceAverage(undefined)).toBeUndefined();
   });
 });
 
@@ -2242,6 +2410,29 @@ describe("getVitalsStartup", () => {
       "slowStartRateMetricSet",
       expect.any(Object),
     );
+  });
+
+  it("sends startType when no dimension is given", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsStartup(reporting, PKG);
+    expect(reporting.queryMetricSet.mock.calls[0][2].dimensions).toEqual(["startType"]);
+  });
+
+  // `--dim versionCode` used to replace startType and Google answered 400
+  // "Required dimensions [startType]".
+  it("keeps startType and adds the requested dimension", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsStartup(reporting, PKG, { dimension: "versionCode" });
+    expect(reporting.queryMetricSet.mock.calls[0][2].dimensions).toEqual([
+      "startType",
+      "versionCode",
+    ]);
+  });
+
+  it("does not duplicate startType when it is requested explicitly", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsStartup(reporting, PKG, { dimension: "startType" });
+    expect(reporting.queryMetricSet.mock.calls[0][2].dimensions).toEqual(["startType"]);
   });
 });
 
@@ -2345,6 +2536,15 @@ describe("getVitalsMemoryBitmap", () => {
 });
 
 describe("getVitalsErrorCount", () => {
+  it("keeps the required reportType dimension alongside --dim", async () => {
+    const reporting = mockReportingClient();
+    await getVitalsErrorCount(reporting, PKG, { dimension: "versionCode" });
+    expect(reporting.queryMetricSet.mock.calls[0][2].dimensions).toEqual([
+      "reportType",
+      "versionCode",
+    ]);
+  });
+
   it("queries errorCountMetricSet", async () => {
     const reporting = mockReportingClient();
     await getVitalsErrorCount(reporting, PKG);
@@ -2417,6 +2617,15 @@ describe("checkThreshold", () => {
 // Vitals – compareVitalsTrend date logic
 // ---------------------------------------------------------------------------
 describe("compareVitalsTrend", () => {
+  it("sends startType on both slow-start trend queries", async () => {
+    const reporting = mockReportingClient();
+    await compareVitalsTrend(reporting, "com.test.app", "slowStartRateMetricSet", 7);
+    expect(reporting.queryMetricSet).toHaveBeenCalledTimes(2);
+    for (const c of reporting.queryMetricSet.mock.calls) {
+      expect(c[2].dimensions).toEqual(["startType"]);
+    }
+  });
+
   it("sends non-overlapping date ranges to the API", async () => {
     const capturedQueries: { startTime: unknown; endTime: unknown }[] = [];
     const mockReporting = {

@@ -2637,6 +2637,18 @@ describe("403 classification", () => {
     expect(err.message).toContain("insufficient authentication scopes");
   });
 
+  // Slow rendering is served to games only; for other apps the 403 is expected,
+  // and the generic hint sent people to check credentials that were fine.
+  it("classifies the games-only Reporting 403 without blaming credentials", async () => {
+    const err = await classify("slowRenderingRateMetricSet resource is only accessible to games.");
+
+    expect(err.code).toBe("API_METRIC_GAMES_ONLY");
+    expect(err.exitCode).toBe(4);
+    expect(err.message).toContain("games");
+    expect(err.suggestion).toContain("not a credentials problem");
+    expect(err.suggestion).not.toContain("gpc doctor");
+  });
+
   it("passes through an unrecognised 403 with Google's message intact", async () => {
     const err = await classify("Your app currently targets API level 33.");
 

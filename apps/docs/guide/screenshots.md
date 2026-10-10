@@ -306,7 +306,7 @@ Do not loop `gpc listings images upload` (or `delete`) per file — each call is
 
 These are tracked for future GPC versions. Your feedback on which matter most drives prioritization:
 
-- **`gpc listings images delete --all`** — bulk-delete all images for a locale + type from the CLI directly. The underlying API supports it (`deleteAll`), and `gpc listings images sync --delete` already uses it internally, but a standalone bulk-delete command is not exposed.
+- **Bulk image delete** — a flag on `gpc listings images delete` to clear every image for a locale + type in one call. The underlying API supports it (`deleteAll`), and `gpc listings images sync --delete` already uses it internally, but a standalone bulk-delete command is not exposed.
 - **Fastlane-layout compat for images.** GPC writes `<dir>/<lang>/<type>/` while Fastlane uses `<dir>/<lang>/images/<type>/`. Adding a `--fastlane-layout` flag to `export`/`upload` would enable direct round-trips with existing Fastlane repos.
 - **Pre-upload image validation surfaced in preflight.** Currently only checked at upload time; could be moved to `gpc preflight` for earlier feedback.
 - **Store Listing Experiments** — A/B testing of icons, graphics, and descriptions is available in Play Console, but Google does not expose a public API for it.

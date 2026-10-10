@@ -263,6 +263,89 @@ describe("getAppStatus", () => {
     expect(status.releases.length).toBeGreaterThanOrEqual(0);
   });
 
+  it("sends startType on slow-start queries (required by the Reporting API)", async () => {
+    const client = makePlayClient();
+    const reporting = makeReportingClient({ slowStart: 0.01 });
+
+    await getAppStatus(client, reporting, "com.example.app");
+
+    const calls = (reporting.queryMetricSet as ReturnType<typeof vi.fn>).mock.calls;
+    const startCalls = calls.filter((c) => c[1] === "slowStartRateMetricSet");
+    expect(startCalls.length).toBeGreaterThan(0);
+    for (const c of startCalls) expect(c[2].dimensions).toEqual(["startType"]);
+  });
+
+  it("ends vitals windows at the metric's freshness date", async () => {
+    const client = makePlayClient();
+    const reporting = {
+      ...makeReportingClient({ crashes: 0.005 }),
+      getMetricSetFreshness: vi.fn().mockResolvedValue({
+        freshnessInfo: {
+          freshnesses: [
+            { aggregationPeriod: "DAILY", latestEndTime: { year: 2020, month: 1, day: 15 } },
+          ],
+        },
+      }),
+    } as unknown as ReportingApiClient;
+
+    await getAppStatus(client, reporting, "com.example.app");
+
+    const calls = (reporting.queryMetricSet as ReturnType<typeof vi.fn>).mock.calls;
+    const ends = calls.map((c) => c[2].timelineSpec.endTime);
+    // current window ends at freshness; previous window ends `days` earlier
+    expect(ends).toContainEqual({ year: 2020, month: 1, day: 15 });
+    expect(ends).toContainEqual({ year: 2020, month: 1, day: 8 });
+  });
+
+  it("reports the worst start type for slow starts instead of blending them", async () => {
+    const client = makePlayClient();
+    const reporting = {
+      ...makeReportingClient(),
+      queryMetricSet: vi.fn().mockImplementation((_pkg: string, set: string) =>
+        Promise.resolve(
+          set === "slowStartRateMetricSet"
+            ? {
+                rows: [
+                  {
+                    dimensions: [{ dimension: "startType", stringValue: "COLD" }],
+                    metrics: [{ metric: "slowStartRate", decimalValue: { value: "0.3" } }],
+                  },
+                  {
+                    dimensions: [{ dimension: "startType", stringValue: "HOT" }],
+                    metrics: [{ metric: "slowStartRate", decimalValue: { value: "0.01" } }],
+                  },
+                ],
+              }
+            : { rows: [] },
+        ),
+      ),
+    } as unknown as ReportingApiClient;
+
+    const status = await getAppStatus(client, reporting, "com.example.app");
+
+    expect(status.vitals.slowStarts.value).toBeCloseTo(0.3);
+  });
+
+  it("does not report games-only slow rendering as a section error", async () => {
+    const client = makePlayClient();
+    const base = makeReportingClient({ crashes: 0.005 });
+    const reporting = {
+      ...base,
+      queryMetricSet: vi
+        .fn()
+        .mockImplementation((pkg: string, set: string, q: unknown) =>
+          set === "slowRenderingRateMetricSet"
+            ? Promise.reject(Object.assign(new Error("games"), { code: "API_METRIC_GAMES_ONLY" }))
+            : base.queryMetricSet(pkg, set as never, q as never),
+        ),
+    } as unknown as ReportingApiClient;
+
+    const status = await getAppStatus(client, reporting, "com.example.app");
+
+    expect(status.vitals.slowRender.status).toBe("unknown");
+    expect(status.errors ?? []).not.toContainEqual(expect.stringContaining("slowRender"));
+  });
+
   it("marks vitals ok when below threshold", async () => {
     const client = makePlayClient();
     const reporting = makeReportingClient({

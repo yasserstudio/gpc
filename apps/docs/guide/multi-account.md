@@ -83,7 +83,7 @@ Use this for one-off operations against a profile that isn't your active default
 ```bash
 export GPC_PROFILE=client-acme
 gpc releases upload app.aab --track production
-gpc vitals crashes --threshold 2.0
+gpc vitals crashes --threshold 0.02
 gpc reviews list --since 7d
 ```
 
@@ -297,7 +297,7 @@ jobs:
         run: gpc listings push --dir ./metadata/${{ matrix.customer.name }}
 
       - name: Check vitals
-        run: gpc vitals crashes --threshold 2.0
+        run: gpc vitals crashes --threshold 0.02
 ```
 
 `fail-fast: false` ensures one customer's failure doesn't abort the others. Each matrix job runs in its own runner with its own profile, so there's no cross-contamination of auth state.

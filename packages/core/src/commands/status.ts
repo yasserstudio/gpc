@@ -7,6 +7,12 @@ import { getCacheDir } from "@gpc-cli/config";
 import { GpcError } from "../errors.js";
 import { getReleasesStatus } from "./releases.js";
 import { listReviews } from "./reviews.js";
+import {
+  isGamesOnlyMetricError,
+  latestQueryableEndDate,
+  withRequiredDimensions,
+  worstSliceAverage,
+} from "./vitals.js";
 import { analyzeReviews } from "../utils/sentiment.js";
 import type { ReviewAnalysis } from "../utils/sentiment.js";
 import type { VitalsMetricSet, MetricSetQuery } from "@gpc-cli/api";
@@ -171,35 +177,26 @@ async function queryVitalForStatus(
   packageName: string,
   metricSet: VitalsMetricSet,
   days: number,
+  latestEnd: Date,
   offsetDays = 0,
 ): Promise<number | undefined> {
   const DAY_MS = 24 * 60 * 60 * 1000;
-  const baseMs = Date.now() - 2 * DAY_MS - offsetDays * DAY_MS;
+  const baseMs = latestEnd.getTime() - offsetDays * DAY_MS;
   const end = new Date(baseMs);
   const start = new Date(baseMs - days * DAY_MS);
   const metrics = METRIC_SET_METRICS[metricSet] ?? ["distinctUsers"];
 
-  const query: MetricSetQuery = {
+  const query: MetricSetQuery = withRequiredDimensions(metricSet, {
     metrics,
     timelineSpec: {
       aggregationPeriod: "DAILY",
       startTime: toApiDate(start),
       endTime: toApiDate(end),
     },
-  };
+  });
 
   const result = await reporting.queryMetricSet(packageName, metricSet, query);
-  if (!result.rows || result.rows.length === 0) return undefined;
-
-  const values = result.rows
-    .map((row) => {
-      const firstKey = Object.keys(row.metrics)[0];
-      return firstKey ? Number(row.metrics[firstKey]?.decimalValue?.value) : NaN;
-    })
-    .filter((v) => !isNaN(v));
-
-  if (values.length === 0) return undefined;
-  return values.reduce((a, b) => a + b, 0) / values.length;
+  return worstSliceAverage(result.rows, metrics[0]);
 }
 
 interface VitalWithTrend {
@@ -214,9 +211,10 @@ async function queryVitalWithTrend(
   metricSet: VitalsMetricSet,
   days: number,
 ): Promise<VitalWithTrend> {
+  const latestEnd = await latestQueryableEndDate(reporting, packageName, metricSet);
   const [current, previous] = await Promise.all([
-    queryVitalForStatus(reporting, packageName, metricSet, days, 0),
-    queryVitalForStatus(reporting, packageName, metricSet, days, days),
+    queryVitalForStatus(reporting, packageName, metricSet, days, latestEnd, 0),
+    queryVitalForStatus(reporting, packageName, metricSet, days, latestEnd, days),
   ]);
 
   let trend: "up" | "down" | "flat" | null = null;
@@ -367,7 +365,9 @@ export async function getAppStatus(
     sectionErrors.push(`vitals/slowStarts: ${String(slowStartResult.reason)}`);
   const slowRender =
     slowRenderResult.status === "fulfilled" ? slowRenderResult.value : SKIPPED_VITAL;
-  if (slowRenderResult.status === "rejected")
+  // Slow rendering is games-only in the Reporting API; for other apps it is
+  // simply not measured, which is not a section error.
+  if (slowRenderResult.status === "rejected" && !isGamesOnlyMetricError(slowRenderResult.reason))
     sectionErrors.push(`vitals/slowRender: ${String(slowRenderResult.reason)}`);
 
   const rawReviews = reviewsResult.status === "fulfilled" ? reviewsResult.value.reviews : [];

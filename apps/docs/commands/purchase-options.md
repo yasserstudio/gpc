@@ -22,13 +22,13 @@ For batch operations on purchase options, use:
 
 All commands below redirect to their `gpc otp offers` equivalents:
 
-| Command                       | Redirects to                           |
-| ----------------------------- | -------------------------------------- |
-| `purchase-options list`       | `gpc otp offers list <product-id>`     |
-| `purchase-options get <id>`   | `gpc otp offers get <product-id> <id>` |
-| `purchase-options create`     | `gpc otp offers create <product-id>`   |
-| `purchase-options activate`   | `gpc otp offers activate ...`          |
-| `purchase-options deactivate` | `gpc otp offers deactivate ...`        |
+| Command                       | Redirects to                                                              |
+| ----------------------------- | ------------------------------------------------------------------------- |
+| `purchase-options list`       | `gpc otp offers list <product-id>`                                        |
+| `purchase-options get <id>`   | `gpc otp offers get <product-id> <id>`                                    |
+| `purchase-options create`     | `gpc otp offers create <product-id>`                                      |
+| `purchase-options activate`   | `gpc otp purchase-options batch-update-states <product-id> --file <path>` |
+| `purchase-options deactivate` | `gpc otp purchase-options batch-update-states <product-id> --file <path>` |
 
 ## `purchase-options list`
 

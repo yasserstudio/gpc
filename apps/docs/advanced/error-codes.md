@@ -151,16 +151,17 @@ GPC pattern-matches Google Play API error responses to provide specific, actiona
 
 #### Access & Session Errors
 
-| Code                           | HTTP | What happened                                     | What to do                                                                      |
-| ------------------------------ | ---- | ------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `API_APP_NOT_FOUND`            | 404  | App not in developer account                      | Verify package name. List apps: `gpc apps list`                                 |
-| `API_TRACK_NOT_FOUND`          | 404  | Track doesn't exist                               | Built-in: internal, alpha, beta, production. List custom: `gpc tracks list`     |
-| `API_INSUFFICIENT_PERMISSIONS` | 403  | Service account missing permissions               | Grant permissions in Play Console → Users and permissions. Verify: `gpc doctor` |
-| `API_DECLARATION_REQUIRED`     | 403  | An App content declaration is incomplete          | Play Console → your app → Policy → App content. **Not** a permissions problem   |
-| `API_EDIT_CONFLICT`            | 409  | Another edit session open                         | Wait and retry. GPC auto-retries once. Or discard stale edit in Play Console    |
-| `API_ALREADY_EXISTS`           | 409  | The resource you tried to create is already there | Use the matching `update` command instead of `create`                           |
-| `API_EDIT_EXPIRED`             | 400  | Edit session expired (~1 hour TTL)                | Safe to retry -- no data was lost. GPC opens a fresh edit automatically         |
-| `API_ENDPOINT_RETIRED`         | 404  | Google removed the endpoint from its API          | Use the Play Console for this task. Currently affects `gpc games ... set-icon`  |
+| Code                           | HTTP | What happened                                       | What to do                                                                      |
+| ------------------------------ | ---- | --------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `API_APP_NOT_FOUND`            | 404  | App not in developer account                        | Verify package name. List apps: `gpc apps list`                                 |
+| `API_TRACK_NOT_FOUND`          | 404  | Track doesn't exist                                 | Built-in: internal, alpha, beta, production. List custom: `gpc tracks list`     |
+| `API_INSUFFICIENT_PERMISSIONS` | 403  | Service account missing permissions                 | Grant permissions in Play Console → Users and permissions. Verify: `gpc doctor` |
+| `API_DECLARATION_REQUIRED`     | 403  | An App content declaration is incomplete            | Play Console → your app → Policy → App content. **Not** a permissions problem   |
+| `API_METRIC_GAMES_ONLY`        | 403  | Vitals metric served to games only (slow rendering) | Expected for non-game apps. **Not** a permissions problem; nothing to change    |
+| `API_EDIT_CONFLICT`            | 409  | Another edit session open                           | Wait and retry. GPC auto-retries once. Or discard stale edit in Play Console    |
+| `API_ALREADY_EXISTS`           | 409  | The resource you tried to create is already there   | Use the matching `update` command instead of `create`                           |
+| `API_EDIT_EXPIRED`             | 400  | Edit session expired (~1 hour TTL)                  | Safe to retry -- no data was lost. GPC opens a fresh edit automatically         |
+| `API_ENDPOINT_RETIRED`         | 404  | Google removed the endpoint from its API            | Use the Play Console for this task. Currently affects `gpc games ... set-icon`  |
 
 #### Review State Errors
 
@@ -231,13 +232,15 @@ Exit code: `5`
 
 ### THRESHOLD\_\* -- Vitals Threshold Errors
 
-Exit code: `6`
+A breached threshold has no error code: the command prints `✗ Threshold breached: <value> > <threshold>` and exits `6`.
 
-| Code                   | Message                       | Cause                                                                                          | Fix                                                                |
-| ---------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `THRESHOLD_CRASH_RATE` | Crash rate threshold breached | Crash rate exceeds `--threshold` value                                                         | Investigate crashes, halt rollout                                  |
-| `THRESHOLD_ANR_RATE`   | ANR rate threshold breached   | ANR rate exceeds `--threshold` value                                                           | Investigate ANRs, halt rollout                                     |
-| `THRESHOLD_NO_DATA`    | No value to compare           | `--threshold` set but the query returned no metric value (wrong `--app`, data lag, no traffic) | Check `--app` and widen `--days`; a gate never passes without data |
+| Code                      | Exit | Message                    | Cause                                                                                                                                        | Fix                                                                        |
+| ------------------------- | ---- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `THRESHOLD_NO_DATA`       | 6    | No value to compare        | `--threshold` (or `releases rollout increase --vitals-gate`) found no metric value: wrong `--app`, data lag, no traffic                      | Check `--app` and widen `--days`; a gate never passes without data         |
+| `THRESHOLD_INVALID`       | 2    | Threshold can't be reached | A rate threshold of 1 or more (rates are fractions: `0.02` = 2%), a non-number, or `--vitals-gate` with no `vitals.thresholds.crashRate` set | Write the fraction, e.g. `--threshold 0.02`; check `vitals.thresholds` too |
+| `TRAIN_GATE_NO_DATA`      | 6    | Train gate has no data     | `gpc train advance` found no crash or ANR value for its gate, so it stayed on the current stage                                              | Vitals lag 2 to 4 days; run `gpc train advance` again later                |
+| `TRAIN_CRASH_GATE_FAILED` | 6    | Crash gate failed          | The crash rate is over the train's `gates.crashes.max` (a percentage); the train is paused                                                   | Investigate crashes, then resume the train                                 |
+| `TRAIN_ANR_GATE_FAILED`   | 6    | ANR gate failed            | The ANR rate is over the train's `gates.anr.max` (a percentage); the train is paused                                                         | Investigate ANRs, then resume the train                                    |
 
 ### CHANGELOG\_\* -- Changelog Generation Errors
 
@@ -258,6 +261,7 @@ Emitted by `gpc changelog generate` (v0.9.61+).
 | --------------------------- | ---- | --------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | `CONFIRMATION_REQUIRED`     | 2    | Confirmation required       | A refund or revocation ran non-interactively (CI, piped stdin, `--no-interactive`) without `--yes`  | Add `--yes` once you are sure, or preview with `--dry-run`        |
 | `IMAGE_SYNC_DIR_UNREADABLE` | 1    | Cannot read image directory | `listings images sync` found a local image directory it cannot read (permissions, volume ownership) | Fix the directory permissions; nothing was changed on Google Play |
+| `INVALID_PACKAGE_NAME`      | 2    | Invalid package name        | `--app`, `GPC_APP` or the config `app` is not a valid application ID (a stray space, or `-a=com.x`) | Use `--app com.example.app` or `-a com.example.app`               |
 
 ### REPORT\_\* -- Bulk Report Errors
 
@@ -309,7 +313,7 @@ Emitted by `gpc watch` (v0.9.67+).
 
 Exit code: `1`
 
-Emitted by any command that shells out to `git` (`gpc changelog generate`, `gpc publish --notes-from-git`, `gpc releases create --notes-from-git`).
+Emitted by any command that shells out to `git` (`gpc changelog generate`, `gpc publish --notes-from-git`, `gpc releases upload --notes-from-git`).
 
 | Code             | Message                             | Cause                                         | Fix                                                |
 | ---------------- | ----------------------------------- | --------------------------------------------- | -------------------------------------------------- |
@@ -436,9 +440,9 @@ Error [API_APP_NOT_FOUND]: This app was not found in your Google Play developer 
 ### "Threshold breach" halting rollout
 
 ```
-Error [THRESHOLD_CRASH_RATE]: Crash rate 2.4% exceeds threshold 2.0%.
-
-  Investigate crash clusters with 'gpc vitals crashes' and consider halting the rollout.
+✗ Threshold breached: 0.024 > 0.02
 ```
 
-**Fix:** Run `gpc vitals crashes --json` to identify crash clusters. Halt the rollout with `gpc releases rollout halt --track production`.
+The command exits 6. Rates are fractions, so `0.024` is 2.4% and the gate was set with `--threshold 0.02` (2%). A rate threshold of 1 or more can never breach and is rejected up front with `THRESHOLD_INVALID` (exit 2).
+
+**Fix:** Run `gpc vitals crashes --json` to see the daily rows, then halt the rollout with `gpc releases rollout halt --track production`.

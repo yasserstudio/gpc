@@ -11,12 +11,13 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Pl
 
 - Install: `npm install -g @gpc-cli/cli`
 - Binary: `gpc`
-- Version: 1.0.0-rc.1
+- Version: 1.0.0-rc.2
 - API endpoints covered: 234 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1 + Games Configuration v1configuration)
-- Tests: 2,844 (90%+ coverage)
+- Tests: 2,906 (90%+ coverage)
 - Licensing: MIT-licensed open source, free to use. Source code is on GitHub.
 - Repo: https://github.com/yasserstudio/gpc
 - GitHub Action: yasserstudio/gpc-action on the GitHub Actions Marketplace (one-step Play publishing from CI with built-in preflight gate, drop-in r0adkll migration)
+- Notable v1.0.0-rc.2: Vitals gates that could not fire now work. `gpc watch` reads values and halts on breach; `watch` and `gpc status` respect Google's data freshness; startup and error-count queries keep the dimension Google requires; `--threshold` checks the worst value of the latest day; rate thresholds are fractions (0.02 = 2%) and values of 1 or more are refused with `THRESHOLD_INVALID`; `releases rollout increase --vitals-gate` and `gpc train` block on missing data instead of advancing; slow rendering is reported as games-only (`API_METRIC_GAMES_ONLY`); malformed `--app` values fail with `INVALID_PACKAGE_NAME`.
 - Notable v1.0.0-rc.1: Release candidate for 1.0.0. Safety fixes from the pre-1.0 security review: refunds, chargeback responses and subscription revokes need `--yes` in non-interactive runs (CI, piped stdin); `gpc vitals` fails with exit 4 when it cannot read vitals and a `--threshold` run with no data exits 6 instead of passing; usage errors exit 2 as documented; `listings images sync --delete` refuses an unreadable local directory instead of deleting remote images; preflight and report downloads are bounded against oversized or crafted archives; refund-review tokens are kept out of webhooks and plugin hooks.
 - Notable v0.9.99: `gpc preflight` estimates the per-device download of an App Bundle (one ABI, no debug symbols or on-demand modules) instead of the whole file, the default size threshold is 200 MB, and the foreground service type check no longer fails apps with ordinary library services. `gpc external-transactions refund` sends the refund time and refund ID Google requires. Types and docs cover the US external content links program and Play Games Rewards offers.
 - Notable v0.9.98: `gpc users list` and `users get` work against the live API again (Google requires an unpaginated request). HTTPS_PROXY/HTTP_PROXY are applied reliably on npm installs, NO_PROXY is honored, and a proxy that cannot be applied stops the command (exit 5) instead of sending requests and credentials around it. `gpc doctor` no longer flags GPC's own config keys. AI SDK dependencies moved to releases with a published security fix.
@@ -300,7 +301,7 @@ Image types: phoneScreenshots, sevenInchScreenshots, tenInchScreenshots, tvScree
 ### Crash Rate
 ```
 gpc vitals crashes
-gpc vitals crashes --threshold 2.0    # Exit code 6 if ≥ 2.0%
+gpc vitals crashes --threshold 0.02    # Exit code 6 if ≥ 2.0%
 gpc vitals crashes --days 14
 gpc vitals crashes --json
 ```
@@ -308,7 +309,7 @@ gpc vitals crashes --json
 ### ANR Rate
 ```
 gpc vitals anr
-gpc vitals anr --threshold 0.5
+gpc vitals anr --threshold 0.005
 ```
 
 ### All Vitals
@@ -322,7 +323,7 @@ gpc vitals lmk                        # Low-memory kills
 ### CI Threshold Gating
 ```
 # Exit code 6 if threshold breached — use in CI to halt rollouts
-gpc vitals crashes --threshold 1.5 || gpc releases rollout halt --track production
+gpc vitals crashes --threshold 0.015 || gpc releases rollout halt --track production
 ```
 
 ---
@@ -647,13 +648,13 @@ Fastlane supply --track beta  → gpc releases upload --track beta
   run: |
     npm install -g @gpc-cli/cli
     gpc releases upload app.aab --track internal
-    gpc vitals crashes --threshold 2.0
+    gpc vitals crashes --threshold 0.02
     gpc releases promote --from internal --to production --rollout 10
 ```
 
 ### Exit Code Gating
 ```bash
-gpc vitals crashes --threshold 1.5
+gpc vitals crashes --threshold 0.015
 if [ $? -eq 6 ]; then
   echo "Crash rate too high — aborting rollout"
   gpc releases rollout halt --track production

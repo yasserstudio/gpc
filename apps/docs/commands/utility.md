@@ -246,9 +246,9 @@ gpc update --check --output json | jq '.updateAvailable'
 **Update available:**
 
 ```
-Update available: 0.9.99 → 1.0.0-rc.1
+Update available: 1.0.0-rc.1 → 1.0.0-rc.2
 Install method: homebrew
-Release: https://github.com/yasserstudio/gpc/releases/tag/v1.0.0-rc.1
+Release: https://github.com/yasserstudio/gpc/releases/tag/v1.0.0-rc.2
 
 Run: gpc update
 ```
@@ -256,18 +256,18 @@ Run: gpc update
 **Already on latest:**
 
 ```
-Already on latest version: v1.0.0-rc.1
+Already on latest version: v1.0.0-rc.2
 ```
 
 **`--output json` (update available):**
 
 ```json
 {
-  "current": "0.9.99",
-  "latest": "1.0.0-rc.1",
+  "current": "1.0.0-rc.1",
+  "latest": "1.0.0-rc.2",
   "updateAvailable": true,
   "installMethod": "homebrew",
-  "releaseUrl": "https://github.com/yasserstudio/gpc/releases/tag/v1.0.0-rc.1"
+  "releaseUrl": "https://github.com/yasserstudio/gpc/releases/tag/v1.0.0-rc.2"
 }
 ```
 
@@ -294,70 +294,52 @@ gpc update --check --output json | jq -e '.updateAvailable' && echo "Update requ
 
 ## `gpc docs`
 
-Open the GPC documentation in your default browser. Optionally navigate directly to a specific topic page.
+Browse the GPC documentation. Pages ship embedded in the CLI, so `list`, `show`
+and `search` work offline; `web` opens the published site in your browser.
+
+See the [full `gpc docs` reference](/commands/docs) for details.
 
 ### Synopsis
 
 ```bash
-gpc docs [topic] [--list]
+gpc docs <subcommand>
 ```
 
-### Options
+### Subcommands
 
-| Flag      | Description                                  |
-| --------- | -------------------------------------------- |
-| `[topic]` | Topic name to open directly (see list below) |
-| `--list`  | Print all available topics and exit          |
-
-### Available Topics
-
-| Topic           | Opens                  |
-| --------------- | ---------------------- |
-| `releases`      | commands/releases      |
-| `status`        | commands/status        |
-| `vitals`        | commands/vitals        |
-| `reviews`       | commands/reviews       |
-| `listings`      | commands/listings      |
-| `subscriptions` | commands/subscriptions |
-| `bundle`        | commands/bundle        |
-| `users`         | commands/users         |
-| `audit`         | commands/audit         |
-| `config`        | commands/config        |
-| `doctor`        | commands/doctor        |
-| `publish`       | commands/publish       |
+| Subcommand            | Description                                              |
+| --------------------- | -------------------------------------------------------- |
+| `docs list`           | Print all available topics and exit                      |
+| `docs show <topic>`   | Render a documentation page in the terminal              |
+| `docs search <query>` | Full-text search across the embedded pages               |
+| `docs web [topic]`    | Open the docs site (or one topic) in the default browser |
+| `docs init`           | Write a `GPC.md` quick reference for AI agents           |
 
 ### Example
-
-Open the docs home:
-
-```bash
-gpc docs
-```
-
-Open a specific topic:
-
-```bash
-gpc docs releases
-gpc docs vitals
-```
 
 List all available topics:
 
 ```bash
-gpc docs --list
+gpc docs list
 ```
 
-```
-Available topics:
-  gpc docs releases
-  gpc docs status
-  gpc docs vitals
-  ...
+Read a topic in the terminal:
+
+```bash
+gpc docs show commands/releases
+gpc docs show commands/vitals
 ```
 
-If an unknown topic is passed, the command exits code 2 with a suggestion to run `gpc docs --list`.
+Open the docs home in a browser:
 
-Opens `https://yasserstudio.github.io/gpc/` (or the topic-specific page) in the default browser. If the browser cannot be opened, prints the URL to stdout.
+```bash
+gpc docs web
+```
+
+Topic names are fuzzy-matched against the page slugs printed by `gpc docs list`
+(for example `commands/releases`, `advanced/troubleshooting`). `gpc docs web`
+falls back to the docs home page when a topic cannot be matched; if the browser
+cannot be opened, the URL is printed to stdout.
 
 ---
 

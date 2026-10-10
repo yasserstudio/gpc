@@ -27,7 +27,7 @@ afterEach(() => {
   vi.resetModules();
 });
 
-describe("setupNetworking proxy (real undici)", () => {
+describe("setupNetworking proxy (real undici)", { timeout: 30_000 }, () => {
   let server: Server;
   let proxyUrl: string;
   let seen: string[];
@@ -52,8 +52,10 @@ describe("setupNetworking proxy (real undici)", () => {
     await new Promise<void>((resolve) => server.close(() => resolve()));
   });
 
+  // The fake proxy answers at once, so this settles fast; the generous timeout only
+  // covers a cold import under a fully parallel `pnpm test`, where 3s was flaky.
   async function probe(url: string): Promise<void> {
-    await fetch(url, { signal: AbortSignal.timeout(3000) }).catch(() => undefined);
+    await fetch(url, { signal: AbortSignal.timeout(15_000) }).catch(() => undefined);
   }
 
   it("routes HTTPS requests through the proxy without an experimental warning", async () => {

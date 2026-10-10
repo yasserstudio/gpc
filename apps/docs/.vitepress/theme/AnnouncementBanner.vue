@@ -3,7 +3,7 @@ import { ref, onMounted, onBeforeUnmount } from "vue";
 
 // Bump this with each release so dismissals from the previous version
 // don't silently suppress the new banner.
-const STORAGE_KEY = "gpc-banner-dismissed-v0970-at";
+const STORAGE_KEY = "gpc-banner-dismissed-v100rc2-at";
 const DISMISS_WINDOW_MS = 24 * 60 * 60 * 1000; // 24h — banner re-appears after this
 const TAP_PAUSE_MS = 6000; // pause ticker for 6s after a tap so touch users
 // have time to read and activate the link inside the banner
@@ -51,7 +51,7 @@ function pauseTicker() {
 
 <template>
   <div v-if="visible" class="ann-banner" role="banner">
-    <span class="ann-badge">Pre-release</span>
+    <span class="ann-badge">Release candidate</span>
     <div
       class="ann-text-wrapper"
       :class="{ 'ann-paused': paused }"
@@ -59,11 +59,11 @@ function pauseTicker() {
       @touchstart.passive="pauseTicker"
     >
       <span class="ann-text">
-        v0.9.70 &middot; New: <code>--in-app-update-priority</code>,
-        <code>--retain-version-codes</code>, Fastlane-style <code>default.txt</code> changelog
-        fallback.
+        v1.0.0-rc.2 &middot; Vitals gates that now fire: <code>gpc watch</code> halts on breach,
+        thresholds are fractions (<code>0.02</code> = 2%), and missing data blocks instead of
+        passing.
         <a href="/gpc/reference/changelog" class="ann-link">See what changed</a>
-        &middot; last stop before v1.0
+        &middot; v1.0.0 is next
       </span>
     </div>
     <button class="ann-close" aria-label="Dismiss" @click="dismiss">
@@ -149,7 +149,7 @@ function pauseTicker() {
     gap: 0;
   }
   /* Hide the PRE-RELEASE chip on mobile — it eats ~80px of precious width
-     and the ticker text carries the same context ("v0.9.70 · New: ..."). */
+     and the ticker text carries the same context ("v1.0.0-rc.2 · ..."). */
   .ann-badge {
     display: none;
   }

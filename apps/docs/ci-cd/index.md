@@ -34,7 +34,7 @@ Every GPC command exits with a code that CI systems can act on.
 
 ```bash
 # Branch on exit code in a CI script
-gpc vitals crashes --threshold 2.0
+gpc vitals crashes --threshold 0.02
 EXIT_CODE=$?
 
 case $EXIT_CODE in

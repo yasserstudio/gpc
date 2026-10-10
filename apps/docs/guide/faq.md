@@ -77,7 +77,7 @@ See the [CI/CD guide](../ci-cd/) for copy-pasteable GitHub Actions, GitLab CI, B
 
 ### Is it stable enough for production CI/CD?
 
-2,844 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The current release, v1.0.0-rc.1, is the release candidate for v1.0.0: if nothing critical turns up during its two-week stability soak, the same build becomes v1.0.0.
+2,906 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The current release, v1.0.0-rc.2, is the release candidate for v1.0.0: if nothing critical turns up during its stability soak, the same build becomes v1.0.0.
 
 ## Configuration
 
@@ -88,6 +88,10 @@ Yes. Use the `--app` flag per command, set `GPC_APP` as an environment variable,
 ### Is GPC free?
 
 Yes. GPC is MIT-licensed open source and free to use with no tiers, seat pricing, or usage limits. Contributions are welcome through the repository's contribution guide. See [Why GPC Is Free to Use](./free-to-use) for the full stance, what is not for sale today, and what may change after v1.0.0.
+
+### Does GPC collect telemetry?
+
+No. GPC sends no telemetry, usage analytics or crash reports, and needs no account. Your Play data goes only to Google's APIs. Apart from those, it checks the npm registry for updates at most once a day (skipped in CI, off with `GPC_NO_UPDATE_CHECK=1`) and contacts GitHub or your own LLM provider only for the commands that need them. See [Security: No Telemetry](../advanced/security#no-telemetry).
 
 ## Features
 
@@ -131,13 +135,29 @@ Add `--rollout 10` for staged rollouts, `--changelog-ai --locales auto` for AI-t
 
 ### How do I automate staged rollouts?
 
-Use `gpc train` for automated staged rollouts with time gates and crash rate gates:
+Use `gpc train` for automated staged rollouts with time gates and crash rate gates. The stages and gates live in a config file (`.gpcrc-train.json` by default), not in flags:
 
-```bash
-gpc train --track production --stages 1,5,10,25,50,100 --gate crash-rate:2
+```json
+// .gpcrc-train.json
+{
+  "stages": [
+    { "track": "production", "rollout": 1 },
+    { "track": "production", "rollout": 5, "after": "1d" },
+    { "track": "production", "rollout": 25, "after": "2d" },
+    { "track": "production", "rollout": 100, "after": "4d" }
+  ],
+  "gates": {
+    "crashes": { "max": 2 },
+    "anr": { "max": 0.5 }
+  }
+}
 ```
 
-Each stage advances only after the gate conditions are met. See [train](/commands/train) for the full pipeline configuration.
+```bash
+gpc train start
+```
+
+Each stage advances only after its `after` delay has elapsed and the gates pass. Gate values are percentages (`"max": 2` is 2%). See [train](/commands/train) for the full pipeline configuration.
 
 ### How do I translate release notes for the Play Store?
 

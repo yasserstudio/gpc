@@ -66,7 +66,8 @@ vi.mock("@gpc-cli/api", () => ({
   createReportingClient: vi.fn().mockReturnValue({}),
 }));
 
-vi.mock("@gpc-cli/core", () => {
+vi.mock("@gpc-cli/core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@gpc-cli/core")>();
   class GpcError extends Error {
     constructor(
       message: string,
@@ -134,7 +135,9 @@ vi.mock("@gpc-cli/core", () => {
       .mockResolvedValue({ fromTrack: "internal", toTrack: "production", diffs: [] }),
     sortResults: vi.fn().mockImplementation((arr: unknown[]) => arr),
     getVitalsCrashes: vi.fn().mockResolvedValue({ data: [] }),
-    checkThreshold: vi.fn().mockReturnValue({ breached: false }),
+    checkThreshold: actual.checkThreshold,
+    latestWorstValue: actual.latestWorstValue,
+    assertRateThreshold: actual.assertRateThreshold,
   };
 });
 
@@ -326,19 +329,85 @@ describe("gpc releases rollout increase --vitals-gate", () => {
     vi.clearAllMocks();
   });
 
-  it("warns and skips gate when no crashRate threshold configured", async () => {
-    await run([
-      "releases",
-      "rollout",
-      "increase",
-      "--track",
-      "production",
-      "--to",
-      "50",
-      "--vitals-gate",
-    ]);
-    const allErrors = errSpy.mock.calls.flat().join("\n");
-    expect(allErrors).toContain("vitals.thresholds.crashRate");
+  const INCREASE = [
+    "releases",
+    "rollout",
+    "increase",
+    "--track",
+    "production",
+    "--to",
+    "50",
+    "--vitals-gate",
+  ];
+
+  async function withThreshold(crashRate: unknown) {
+    const { loadConfig } = await import("@gpc-cli/config");
+    vi.mocked(loadConfig).mockResolvedValueOnce({
+      app: "com.example.app",
+      output: "table",
+      vitals: { thresholds: { crashRate } },
+    } as never);
+  }
+
+  const crashRows = (value: string) => ({
+    rows: [{ metrics: [{ metric: "crashRate", decimalValue: { value } }] }],
+  });
+
+  // The gate used to warn and continue: --vitals-gate without a threshold
+  // increased the rollout ungated.
+  it("blocks the increase when no crashRate threshold is configured", async () => {
+    const core = await import("@gpc-cli/core");
+    await expect(run(INCREASE)).rejects.toMatchObject({ code: "THRESHOLD_INVALID", exitCode: 2 });
+    expect(core.updateRollout).not.toHaveBeenCalled();
+  });
+
+  // vitals.thresholds.crashRate is a fraction everywhere; this gate alone used
+  // to divide it by 100, so 0.02 meant 0.02% here and 2% elsewhere.
+  it("treats the configured threshold as a fraction and blocks on breach", async () => {
+    const core = await import("@gpc-cli/core");
+    await withThreshold(0.02);
+    vi.mocked(core.getVitalsCrashes).mockResolvedValueOnce(crashRows("0.03") as never);
+
+    await run(INCREASE);
+
+    expect(process.exitCode).toBe(6);
+    expect(core.updateRollout).not.toHaveBeenCalled();
+    process.exitCode = 0;
+  });
+
+  it("increases the rollout when the crash rate is under the fraction", async () => {
+    const core = await import("@gpc-cli/core");
+    await withThreshold(0.02);
+    vi.mocked(core.getVitalsCrashes).mockResolvedValueOnce(crashRows("0.004") as never);
+
+    await run(INCREASE);
+
+    expect(core.updateRollout).toHaveBeenCalled();
+  });
+
+  it("refuses a percent-style threshold such as 2", async () => {
+    const core = await import("@gpc-cli/core");
+    await withThreshold(2);
+    await expect(run(INCREASE)).rejects.toMatchObject({ code: "THRESHOLD_INVALID" });
+    expect(core.updateRollout).not.toHaveBeenCalled();
+  });
+
+  it("blocks the increase when vitals cannot be read", async () => {
+    const core = await import("@gpc-cli/core");
+    await withThreshold(0.02);
+    vi.mocked(core.getVitalsCrashes).mockRejectedValueOnce(
+      Object.assign(new Error("Forbidden"), { code: "API_FORBIDDEN", exitCode: 4 }),
+    );
+    await expect(run(INCREASE)).rejects.toThrow("Forbidden");
+    expect(core.updateRollout).not.toHaveBeenCalled();
+  });
+
+  it("blocks the increase when there is no crash value (THRESHOLD_NO_DATA)", async () => {
+    const core = await import("@gpc-cli/core");
+    await withThreshold(0.02);
+    vi.mocked(core.getVitalsCrashes).mockResolvedValueOnce({ rows: [] } as never);
+    await expect(run(INCREASE)).rejects.toMatchObject({ code: "THRESHOLD_NO_DATA", exitCode: 6 });
+    expect(core.updateRollout).not.toHaveBeenCalled();
   });
 
   it("warns that --vitals-gate is ignored in --dry-run mode", async () => {

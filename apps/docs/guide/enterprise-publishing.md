@@ -116,7 +116,7 @@ Once the private app exists, it's a regular app in your developer account. New v
 gpc --app com.google.customapp.A1B2C3D4E5 \
     releases upload ./app-v2.aab \
     --track production \
-    --rollout 0.10
+    --rollout 10
 ```
 
 All standard GPC commands work: `releases`, `tracks`, `listings`, `reviews`, `vitals`. The only thing you can't do via the API is add or remove enterprise organizations after creation.

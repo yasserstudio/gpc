@@ -122,9 +122,11 @@ Configure thresholds in `.gpcrc.json`:
 Or with `gpc config set`:
 
 ```bash
-gpc config set vitals.thresholds.crashRate 2.0
-gpc config set vitals.thresholds.anrRate 1.0
+gpc config set vitals.thresholds.crashRate 0.02
+gpc config set vitals.thresholds.anrRate 0.01
 ```
+
+Rate thresholds are fractions, the way Google reports them: `0.02` is 2%, `0.01` is 1%. A rate threshold of 1 or more can never breach and is rejected with `THRESHOLD_INVALID` (exit 2).
 
 If any metric breaches its threshold, `gpc status` exits **code 6** — consistent with `gpc vitals`.
 

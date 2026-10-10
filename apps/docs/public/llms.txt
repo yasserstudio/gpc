@@ -14,8 +14,8 @@ GPC is a TypeScript CLI that covers 234 publisher-focused endpoints across four 
 - Exit codes: 0 success, 1 error, 2 usage, 3 auth, 4 API, 5 network, 6 threshold breach, 10 plugin
 - Config: `.gpcrc.json` (project), `~/.config/gpc/config.json` (user), `GPC_*` env vars
 - Uploads: Resumable protocol (8 MB chunks, auto-resume on failure, real-time progress bar)
-- Tests: 2,844 total, 90%+ line coverage on all core packages
-- Version: 1.0.0-rc.1 (release candidate for 1.0.0 stable)
+- Tests: 2,906 total, 90%+ line coverage on all core packages
+- Version: 1.0.0-rc.2 (release candidate for 1.0.0 stable)
 - GitHub Action: yasserstudio/gpc-action on the GitHub Actions Marketplace (one-step Play publishing from CI with built-in preflight gate)
 - Licensing: MIT-licensed open source, free to use. Source code is on GitHub.
 - Managed Google Play: GPC is the first Android publishing CLI to support the Play Custom App Publishing API (gpc enterprise publish)
@@ -57,8 +57,8 @@ gpc status --full                                      # Health snapshot + revie
 gpc releases upload app.aab --track internal           # Upload AAB to internal track
 gpc releases promote --from internal --to production --rollout 10  # Promote with staged rollout
 gpc releases rollout increase --track production --rollout 50      # Increase rollout
-gpc vitals crashes --threshold 2.0                     # CI gate on crash rate (exit 6 if breached)
-gpc vitals anr --threshold 0.5                         # CI gate on ANR rate
+gpc vitals crashes --threshold 0.02                     # CI gate on crash rate (exit 6 if breached)
+gpc vitals anr --threshold 0.005                         # CI gate on ANR rate
 gpc listings pull --dir metadata/                      # Download store listings
 gpc listings push --dir metadata/                      # Upload store listings
 gpc reviews list --stars 1-3 --since 7d                # Recent low-rated reviews

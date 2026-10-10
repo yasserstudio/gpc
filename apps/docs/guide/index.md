@@ -11,7 +11,7 @@ Upload a release, promote to production, check crash rates, reply to reviews, ma
 ```bash
 gpc releases upload app.aab --track beta
 gpc releases promote --from beta --to production --rollout 10
-gpc vitals crashes --threshold 2.0    # Exit code 6 if breached
+gpc vitals crashes --threshold 0.02    # Exit code 6 if breached
 gpc reviews list --stars 1-2 --since 7d
 ```
 

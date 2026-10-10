@@ -42,7 +42,9 @@ Create `.gpcrc-train.json` in your project root:
 | `crashes.max` | Maximum crash rate % (e.g. `1.5` = 1.5%) |
 | `anr.max`     | Maximum ANR rate %                       |
 
-If a gate fails during `advance`, the train is automatically **paused**.
+Train gates are percentages, unlike `gpc vitals crashes --threshold` and `gpc watch`, which take fractions (`0.015` = 1.5%).
+
+Gates read the worst value of the most recent day of vitals. If a gate fails during `advance`, the train is automatically **paused** and the command exits 6 (`TRAIN_CRASH_GATE_FAILED` or `TRAIN_ANR_GATE_FAILED`). If a gate has no data yet (vitals lag 2 to 4 days), the train stays on its current stage and exits 6 with `TRAIN_GATE_NO_DATA`; run `advance` again later.
 
 ## Subcommands
 
@@ -68,7 +70,7 @@ gpc train status --output json
 
 ### `train advance`
 
-Manually advance to the next stage (after checking delay and gates).
+Advance to the next stage (after checking delay and gates). Nothing advances on its own: run this on a schedule, for example a CI cron job.
 
 ```sh
 gpc train advance
@@ -83,7 +85,7 @@ If both pass, the next stage is executed.
 
 ### `train pause`
 
-Pause a running train.
+Pause a running train. `advance` will not move it. Pausing does not change any rollout on Google Play. There is no resume command: restart with `gpc train start --force`, which runs stage 0 again.
 
 ```sh
 gpc train pause
@@ -91,10 +93,11 @@ gpc train pause
 
 ### `train abort`
 
-Abort and clear the train state. Prompts for confirmation.
+Abort and clear the train state. Prompts for confirmation. Aborting does **not** halt the rollout; to stop a release, halt it:
 
 ```sh
 gpc train abort
+gpc releases rollout halt --track production
 ```
 
 ## State File

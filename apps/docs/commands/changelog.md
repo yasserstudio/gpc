@@ -254,4 +254,4 @@ Requirements:
 - [GitHub Release Notes Template](/advanced/conventions#github-release-notes-template) — the template this command targets
 - [`gpc publish`](/commands/publish) — end-to-end upload + release workflow
 - [Multilingual Release Notes](/guide/multilingual-release-notes) — per-locale Play Store output + AI translation + `--apply`
-- [`gpc releases create`](/commands/releases) — Play Console release creation
+- [`gpc releases upload`](/commands/releases) — Play Console release creation

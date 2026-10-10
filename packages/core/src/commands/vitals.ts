@@ -1,3 +1,4 @@
+import { GpcError } from "../errors.js";
 import type {
   ReportingApiClient,
   VitalsMetricSet,
@@ -23,6 +24,8 @@ export interface VitalsOverview {
   slowRenderingRate?: MetricRow[];
   excessiveWakeupRate?: MetricRow[];
   stuckWakelockRate?: MetricRow[];
+  /** Metrics that could not be read, with the reason. Absent when every query succeeded. */
+  unavailable?: { metric: string; code: string; reason: string }[];
 }
 
 export interface ThresholdResult {
@@ -68,6 +71,151 @@ const METRIC_SET_METRICS: Record<VitalsMetricSet, string[]> = {
   errorCountMetricSet: ["errorReportCount", "distinctUsers"],
 };
 
+/**
+ * Dimensions the Reporting API rejects a query without (400 "Required dimensions
+ * [startType]"). They are always sent, and a caller's dimension is added on top.
+ */
+const REQUIRED_DIMENSIONS: Partial<Record<VitalsMetricSet, ReportingDimension[]>> = {
+  slowStartRateMetricSet: ["startType"],
+  errorCountMetricSet: ["reportType"],
+};
+
+/** Returns `query` with the metric set's required dimensions added (no duplicates). */
+export function withRequiredDimensions(
+  metricSet: VitalsMetricSet,
+  query: MetricSetQuery,
+): MetricSetQuery {
+  const required = REQUIRED_DIMENSIONS[metricSet];
+  if (!required) return query;
+  const dimensions = [...required];
+  for (const dim of query.dimensions ?? []) {
+    if (!dimensions.includes(dim)) dimensions.push(dim);
+  }
+  return { ...query, dimensions };
+}
+
+/**
+ * Numeric value of `metric` in a row (the first metric when no name is given).
+ * Google returns `metrics` as an array of `{ metric, decimalValue }`; the
+ * `MetricRow` type describes a name-keyed map, so both shapes are read. A lookup
+ * by name on the array always missed, which left `gpc watch` blind.
+ */
+export function readMetricValue(row: MetricRow | undefined, metric?: string): number | undefined {
+  type Entry = { metric?: string; decimalValue?: { value?: string } } | undefined;
+  const metrics = row?.metrics as unknown;
+  if (!metrics || typeof metrics !== "object") return undefined;
+  let entry: Entry;
+  if (Array.isArray(metrics)) {
+    entry = (metric ? metrics.find((m: Entry) => m?.metric === metric) : metrics[0]) as Entry;
+  } else {
+    const map = metrics as Record<string, Entry>;
+    const key = metric ?? Object.keys(map)[0];
+    entry = key ? map[key] : undefined;
+  }
+  const raw = entry?.decimalValue?.value;
+  if (raw === undefined) return undefined;
+  const value = Number(raw);
+  return Number.isFinite(value) ? value : undefined;
+}
+
+function rowDateKey(row: MetricRow): string {
+  const t = (row as { startTime?: { year?: number; month?: number; day?: number; hours?: number } })
+    .startTime;
+  if (!t) return "";
+  const pad = (n: number | undefined) => String(n ?? 0).padStart(2, "0");
+  return `${t.year ?? 0}-${pad(t.month)}-${pad(t.day)}T${pad(t.hours)}`;
+}
+
+/** Identifies a row's slice (start type, report type, --dim value); both API shapes. */
+function rowSliceKey(row: MetricRow): string {
+  type Dim = { dimension?: string; stringValue?: string; int64Value?: string } | undefined;
+  const dims = row.dimensions as unknown;
+  if (!dims || typeof dims !== "object") return "";
+  const pairs = Array.isArray(dims)
+    ? (dims as Dim[]).map((d) => [d?.dimension ?? "", d?.stringValue ?? d?.int64Value ?? ""])
+    : Object.entries(dims as Record<string, Dim>).map(([k, d]) => [
+        k,
+        d?.stringValue ?? d?.int64Value ?? "",
+      ]);
+  return JSON.stringify(pairs.sort());
+}
+
+/**
+ * Worst (highest) value of `metric` on the most recent day in `rows`. Rows come
+ * one per day per slice (start type, report type, --dim value), so "the last
+ * row" is an arbitrary slice; a gate must compare the worst one.
+ */
+export function latestWorstValue(
+  rows: MetricRow[] | undefined,
+  metric?: string,
+): number | undefined {
+  if (!rows || rows.length === 0) return undefined;
+  const latest = rows.map(rowDateKey).reduce((a, b) => (b > a ? b : a));
+  let worst: number | undefined;
+  for (const row of rows) {
+    if (rowDateKey(row) !== latest) continue;
+    const value = readMetricValue(row, metric);
+    if (value !== undefined && (worst === undefined || value > worst)) worst = value;
+  }
+  return worst;
+}
+
+/**
+ * Average of `metric` over the window for each slice, then the worst slice. Without
+ * dimensions this is the plain average; with start types it reports the worst of
+ * cold, warm and hot instead of blending them.
+ */
+export function worstSliceAverage(
+  rows: MetricRow[] | undefined,
+  metric?: string,
+): number | undefined {
+  const sums = new Map<string, { total: number; count: number }>();
+  for (const row of rows ?? []) {
+    const value = readMetricValue(row, metric);
+    if (value === undefined) continue;
+    const key = rowSliceKey(row);
+    const entry = sums.get(key) ?? { total: 0, count: 0 };
+    entry.total += value;
+    entry.count++;
+    sums.set(key, entry);
+  }
+  let worst: number | undefined;
+  for (const { total, count } of sums.values()) {
+    const avg = total / count;
+    if (worst === undefined || avg > worst) worst = avg;
+  }
+  return worst;
+}
+
+/**
+ * Rejects a rate threshold that can never be reached. Google reports rates as
+ * fractions (0.02 = 2%), so 1 or more is almost always a percentage written by
+ * mistake, and it left the gate silently open.
+ */
+export function assertRateThreshold(label: string, threshold: number): void {
+  if (!Number.isFinite(threshold) || threshold < 0) {
+    throw new GpcError(
+      `Invalid ${label} threshold: expected a fraction such as 0.02.`,
+      "THRESHOLD_INVALID",
+      2,
+      "Write rates as fractions: 0.02 means 2%.",
+    );
+  }
+  if (threshold >= 1) {
+    throw new GpcError(
+      `${label} threshold ${threshold} can never be reached: rates are between 0 and 1.`,
+      "THRESHOLD_INVALID",
+      2,
+      `Write rates as fractions: ${threshold / 100} means ${threshold}%. Check vitals.thresholds in your config too.`,
+    );
+  }
+}
+
+/** True when the Reporting API refused a metric set because the app is not a game. */
+export function isGamesOnlyMetricError(err: unknown): boolean {
+  return (err as { code?: unknown } | null)?.code === "API_METRIC_GAMES_ONLY";
+}
+
 async function getFreshnessEndDate(
   reporting: ReportingApiClient,
   packageName: string,
@@ -88,6 +236,23 @@ async function getFreshnessEndDate(
   return undefined;
 }
 
+/**
+ * Latest end date a query for `metricSet` may use. Google rejects an end date past
+ * the metric's freshness (400 "end_date should be at most the current freshness"),
+ * and data commonly lags more than two days, so a fixed "two days ago" fails.
+ * Freshness is authoritative when known: capping it at two days ago would hide a
+ * day Google has already published from one-day gates (train, --vitals-gate).
+ */
+export async function latestQueryableEndDate(
+  reporting: ReportingApiClient,
+  packageName: string,
+  metricSet: VitalsMetricSet,
+): Promise<Date> {
+  const fallback = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+  const freshnessEnd = await getFreshnessEndDate(reporting, packageName, metricSet);
+  return freshnessEnd ?? fallback;
+}
+
 function buildQuery(
   metricSet: VitalsMetricSet,
   options?: VitalsQueryOptions,
@@ -97,8 +262,8 @@ function buildQuery(
 
   const days = options?.days ?? 30;
   const DAY_MS = 24 * 60 * 60 * 1000;
-  const yesterday = new Date(Date.now() - DAY_MS);
-  const end = freshnessEnd && freshnessEnd < yesterday ? freshnessEnd : yesterday;
+  // Same rule as latestQueryableEndDate: freshness when known, else two days ago.
+  const end = freshnessEnd ?? new Date(Date.now() - 2 * DAY_MS);
   const start = new Date(end.getTime() - days * DAY_MS);
 
   const query: MetricSetQuery = {
@@ -122,7 +287,7 @@ function buildQuery(
     query.dimensions = [options.dimension];
   }
 
-  return query;
+  return withRequiredDimensions(metricSet, query);
 }
 
 async function queryMetric(
@@ -145,7 +310,7 @@ export async function getVitalsOverview(
   reporting: ReportingApiClient,
   packageName: string,
 ): Promise<VitalsOverview> {
-  const metricSets: [VitalsMetricSet, keyof VitalsOverview][] = [
+  const metricSets: [VitalsMetricSet, Exclude<keyof VitalsOverview, "unavailable">][] = [
     ["crashRateMetricSet", "crashRate"],
     ["anrRateMetricSet", "anrRate"],
     ["slowStartRateMetricSet", "slowStartRate"],
@@ -170,18 +335,38 @@ export async function getVitalsOverview(
     }),
   );
 
+  // A failed metric is reported, never silently dropped: dropping them all let
+  // wrong credentials read as "No vitals data available" with exit 0. The one
+  // expected refusal is slow rendering for non-game apps.
   const overview: VitalsOverview = {};
+  const unavailable: NonNullable<VitalsOverview["unavailable"]> = [];
+  let firstFailure: unknown;
+  let succeeded = 0;
   for (let i = 0; i < metricSets.length; i++) {
     const entry = metricSets[i];
-    if (!entry) continue;
-    const key = entry[1];
     const result = results[i];
-    if (!result) continue;
+    if (!entry || !result) continue;
+    const key = entry[1];
     if (result.status === "fulfilled") {
       overview[key] = result.value.rows || [];
+      succeeded++;
+      continue;
     }
+    const err = result.reason as { code?: unknown; message?: unknown } | undefined;
+    if (!isGamesOnlyMetricError(err)) firstFailure ??= result.reason;
+    unavailable.push({
+      metric: key,
+      code: typeof err?.code === "string" ? err.code : "UNKNOWN_ERROR",
+      reason: isGamesOnlyMetricError(err)
+        ? "Only available for apps categorised as games."
+        : typeof err?.message === "string"
+          ? err.message
+          : String(result.reason),
+    });
   }
 
+  if (succeeded === 0 && firstFailure !== undefined) throw firstFailure;
+  if (unavailable.length > 0) overview.unavailable = unavailable;
   return overview;
 }
 
@@ -206,12 +391,8 @@ export async function getVitalsStartup(
   packageName: string,
   options?: VitalsQueryOptions,
 ): Promise<MetricSetResponse> {
-  // API requires startType as a dimension for slowStartRateMetricSet;
-  // auto-include it if no dimension is explicitly specified
-  const opts = options?.dimension
-    ? options
-    : { ...options, dimension: "startType" as ReportingDimension };
-  return queryMetric(reporting, packageName, "slowStartRateMetricSet", opts);
+  // startType is required on every slow-start query; buildQuery adds it.
+  return queryMetric(reporting, packageName, "slowStartRateMetricSet", options);
 }
 
 export async function getVitalsRendering(
@@ -279,11 +460,8 @@ export async function getVitalsErrorCount(
   packageName: string,
   options?: VitalsQueryOptions,
 ): Promise<MetricSetResponse> {
-  // API requires reportType as a dimension for errorCountMetricSet
-  const opts = options?.dimension
-    ? options
-    : { ...options, dimension: "reportType" as ReportingDimension };
-  return queryMetric(reporting, packageName, "errorCountMetricSet", opts);
+  // reportType is required on every error-count query; buildQuery adds it.
+  return queryMetric(reporting, packageName, "errorCountMetricSet", options);
 }
 
 export async function getVitalsAnomalies(
@@ -339,14 +517,15 @@ export async function compareVitalsTrend(
     day: d.getUTCDate(),
   });
 
-  const makeQuery = (start: Date, end: Date): MetricSetQuery => ({
-    metrics,
-    timelineSpec: {
-      aggregationPeriod: "DAILY",
-      startTime: toApiDate(start),
-      endTime: toApiDate(end),
-    },
-  });
+  const makeQuery = (start: Date, end: Date): MetricSetQuery =>
+    withRequiredDimensions(metricSet, {
+      metrics,
+      timelineSpec: {
+        aggregationPeriod: "DAILY",
+        startTime: toApiDate(start),
+        endTime: toApiDate(end),
+      },
+    });
 
   const [currentResult, previousResult] = await Promise.all([
     reporting.queryMetricSet(packageName, metricSet, makeQuery(currentStart, currentEnd)),
@@ -489,6 +668,8 @@ export interface WatchVitalsOptions {
   onHalt?: (value: number) => Promise<void>;
   /** Called on each poll result (value may be undefined if no data). */
   onPoll?: (value: number | undefined, breached: boolean) => void;
+  /** Called when a poll fails; polling continues. */
+  onError?: (err: unknown) => void;
 }
 
 /**
@@ -506,6 +687,7 @@ export function watchVitalsWithAutoHalt(
     metricSet = "crashRateMetricSet",
     onHalt,
     onPoll,
+    onError,
   } = options;
 
   let stopped = false;
@@ -515,12 +697,7 @@ export function watchVitalsWithAutoHalt(
     if (stopped) return;
     try {
       const result = await queryMetric(reporting, packageName, metricSet, { days: 1 });
-      const latestRow = result.rows?.[result.rows.length - 1];
-      const firstMetric = latestRow?.metrics ? Object.keys(latestRow.metrics)[0] : undefined;
-      const value = firstMetric
-        ? Number(latestRow?.metrics[firstMetric]?.decimalValue?.value)
-        : undefined;
-
+      const value = latestWorstValue(result.rows, METRIC_SET_METRICS[metricSet]?.[0]);
       const breached = value !== undefined && value > threshold;
       onPoll?.(value, breached);
 
@@ -528,8 +705,9 @@ export function watchVitalsWithAutoHalt(
         haltTriggered = true;
         await onHalt(value as number);
       }
-    } catch {
-      // swallow errors in background polling
+    } catch (err) {
+      // Keep polling, but say so: a silent failure looked like a healthy metric.
+      onError?.(err);
     }
 
     if (!stopped) {

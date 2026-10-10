@@ -21,6 +21,8 @@ import {
   diffReleases,
   fetchReleaseNotes,
   getVitalsCrashes,
+  latestWorstValue,
+  assertRateThreshold,
   checkThreshold,
   GpcError,
 } from "@gpc-cli/core";
@@ -46,10 +48,12 @@ function resolvePackageName(packageArg: string | undefined, config: GpcConfig): 
       "Set a default app: gpc config set app <package>",
     );
   }
+  assertValidPackageName(name);
   return name;
 }
 
 import { buildCommitOptions } from "../commit-options.js";
+import { assertValidPackageName } from "../resolve.js";
 
 function createRetryLogger(retryLogPath?: string): ((entry: RetryLogEntry) => void) | undefined {
   if (!retryLogPath) return undefined;
@@ -763,42 +767,41 @@ export function registerReleasesCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      // Vitals gate: check crash rate BEFORE rollout increase
+      // Vitals gate: check crash rate BEFORE rollout increase. It fails closed: no
+      // threshold, a read error or no data blocks the increase instead of skipping
+      // the gate, as `vitals --threshold` and `train` do.
       if (action === "increase" && options.vitalsGate) {
         const threshold = config.vitals?.thresholds?.crashRate;
-        if (!threshold) {
-          console.error(
-            "Warning: --vitals-gate requires vitals.thresholds.crashRate in config. Skipping gate.",
+        if (threshold === undefined) {
+          throw new GpcError(
+            "--vitals-gate needs a crash rate threshold, and none is configured.",
+            "THRESHOLD_INVALID",
+            2,
+            "Set one as a fraction: gpc config set vitals.thresholds.crashRate 0.02 (2%)",
           );
-        } else {
-          try {
-            const { auth: authConfig } = config;
-            const vitalsAuth = await resolveAuth({
-              serviceAccountPath: authConfig?.serviceAccount,
-            });
-            const reportingClient = createReportingClient({ auth: vitalsAuth });
-            const vitalsResult = await getVitalsCrashes(reportingClient, packageName, {
-              days: 1,
-            });
-            const latestRow = vitalsResult.rows?.[vitalsResult.rows.length - 1];
-            const firstMetric = latestRow?.metrics ? Object.keys(latestRow.metrics)[0] : undefined;
-            const latest = firstMetric
-              ? Number(latestRow?.metrics[firstMetric]?.decimalValue?.value)
-              : undefined;
-            const check = checkThreshold(latest, threshold / 100);
-            if (check.breached) {
-              const pct = latest !== undefined ? (latest * 100).toFixed(3) : "unknown";
-              console.error(
-                `Vitals gate: crash rate ${pct}% > threshold ${String(threshold)}%. Rollout increase blocked.`,
-              );
-              process.exitCode = 6;
-              return;
-            }
-          } catch (vitalsErr) {
-            console.error(
-              `Warning: Vitals gate check failed: ${vitalsErr instanceof Error ? vitalsErr.message : String(vitalsErr)}`,
-            );
-          }
+        }
+        const limit = Number(threshold);
+        assertRateThreshold("vitals.thresholds.crashRate", limit);
+        const vitalsAuth = await resolveAuth({
+          serviceAccountPath: config.auth?.serviceAccount,
+        });
+        const reportingClient = createReportingClient({ auth: vitalsAuth });
+        const vitalsResult = await getVitalsCrashes(reportingClient, packageName, { days: 1 });
+        const latest = latestWorstValue(vitalsResult.rows, "crashRate");
+        if (latest === undefined) {
+          throw new GpcError(
+            "No crash rate value to check the vitals gate against. Rollout increase blocked.",
+            "THRESHOLD_NO_DATA",
+            6,
+            "Vitals data often lags 2-4 days. Retry later, or check with: gpc vitals crashes --days 3",
+          );
+        }
+        if (checkThreshold(latest, limit).breached) {
+          console.error(
+            `Vitals gate: crash rate ${(latest * 100).toFixed(3)}% > threshold ${(limit * 100).toFixed(3)}%. Rollout increase blocked.`,
+          );
+          process.exitCode = 6;
+          return;
         }
       }
 

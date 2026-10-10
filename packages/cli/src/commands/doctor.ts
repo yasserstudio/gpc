@@ -584,7 +584,8 @@ export function checkVerificationDeadline(): CheckResult {
   return {
     name: "verification",
     status: "warn",
-    message: "Android developer verification is being enforced. Ensure your account is verified.",
+    message:
+      "Android developer verification is enforced since September 30, 2026 (BR/ID/SG/TH). Ensure your account is verified.",
     suggestion: "Run 'gpc verify checklist' to check your readiness",
   };
 }

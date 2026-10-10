@@ -259,6 +259,47 @@ describe("watchVitalsWithAutoHalt", () => {
     expect(onHalt).toHaveBeenCalledWith(value);
   });
 
+  it("halts on Google's array-shaped metrics", async () => {
+    const reporting = {
+      queryMetricSet: vi.fn().mockResolvedValue({
+        rows: [{ metrics: [{ metric: "crashRate", decimalValue: { value: "0.1" } }] }],
+      }),
+    } as any;
+
+    const halted = await new Promise<number>((resolve) => {
+      const stop = watchVitalsWithAutoHalt(reporting, "com.example", {
+        threshold: 0.05,
+        intervalMs: 0,
+        onHalt: async (v) => {
+          stop();
+          resolve(v);
+        },
+      });
+    });
+
+    expect(halted).toBe(0.1);
+  });
+
+  // Failed polls used to be swallowed with no output at all.
+  it("reports a failed poll through onError", async () => {
+    const reporting = {
+      queryMetricSet: vi.fn().mockRejectedValue(new Error("Forbidden")),
+    } as any;
+
+    const err = await new Promise<unknown>((resolve) => {
+      const stop = watchVitalsWithAutoHalt(reporting, "com.example", {
+        threshold: 0.05,
+        intervalMs: 0,
+        onError: (e) => {
+          stop();
+          resolve(e);
+        },
+      });
+    });
+
+    expect((err as Error).message).toBe("Forbidden");
+  });
+
   it("calls onPoll on each poll", async () => {
     const reporting = {
       queryMetricSet: vi.fn().mockResolvedValue({ rows: [] }),
@@ -291,7 +332,7 @@ describe("watchVitalsWithAutoHalt", () => {
   it("does not call onHalt twice for same breach", async () => {
     const reporting = {
       queryMetricSet: vi.fn().mockResolvedValue({
-        rows: [{ metrics: { rate: { decimalValue: { value: "0.1" } } } }],
+        rows: [{ metrics: { crashRate: { decimalValue: { value: "0.1" } } } }],
       }),
       getAnomalies: vi.fn(),
       searchErrorIssues: vi.fn(),

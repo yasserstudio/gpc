@@ -53,7 +53,7 @@ export function createReportingClient(options: ApiClientOptions): ReportingApiCl
     async queryMetricSet(packageName, metricSet, query) {
       await limiter.acquire("reporting");
       const { data } = await http.post<MetricSetResponse>(
-        `/apps/${packageName}/${metricSet}:query`,
+        `/apps/${encodeURIComponent(packageName)}/${metricSet}:query`,
         query,
       );
       return data;
@@ -61,13 +61,17 @@ export function createReportingClient(options: ApiClientOptions): ReportingApiCl
 
     async getMetricSetFreshness(packageName, metricSet) {
       await limiter.acquire("reporting");
-      const { data } = await http.get<FreshnessResponse>(`/apps/${packageName}/${metricSet}`);
+      const { data } = await http.get<FreshnessResponse>(
+        `/apps/${encodeURIComponent(packageName)}/${metricSet}`,
+      );
       return data;
     },
 
     async getAnomalies(packageName) {
       await limiter.acquire("reporting");
-      const { data } = await http.get<AnomalyDetectionResponse>(`/apps/${packageName}/anomalies`);
+      const { data } = await http.get<AnomalyDetectionResponse>(
+        `/apps/${encodeURIComponent(packageName)}/anomalies`,
+      );
       return data;
     },
 
@@ -78,7 +82,7 @@ export function createReportingClient(options: ApiClientOptions): ReportingApiCl
       if (pageSize) params["pageSize"] = String(pageSize);
       if (pageToken) params["pageToken"] = pageToken;
       const { data } = await http.get<ErrorIssuesResponse>(
-        `/apps/${packageName}/errorIssues:search`,
+        `/apps/${encodeURIComponent(packageName)}/errorIssues:search`,
         params,
       );
       return data;
@@ -100,7 +104,7 @@ export function createReportingClient(options: ApiClientOptions): ReportingApiCl
       if (pageSize) params["pageSize"] = String(pageSize);
       if (pageToken) params["pageToken"] = pageToken;
       const { data } = await http.get<ErrorReportsResponse>(
-        `/apps/${packageName}/errorReports:search`,
+        `/apps/${encodeURIComponent(packageName)}/errorReports:search`,
         params,
       );
       return data;

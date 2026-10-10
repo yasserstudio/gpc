@@ -76,21 +76,21 @@ Map common Google Play Console browser tasks to GPC CLI commands. Every operatio
 | Check memory issues   | `gpc vitals memory`                   | Low memory killer rate  |
 | View anomalies        | `gpc vitals anomalies`                | Detected anomalies      |
 | Compare weeks         | `gpc vitals compare crashes --days 7` | This week vs last       |
-| CI quality gate       | `gpc vitals crashes --threshold 2.0`  | Exit code 6 if breached |
+| CI quality gate       | `gpc vitals crashes --threshold 0.02` | Exit code 6 if breached |
 
 ### Monetization
 
-| Play Console UI       | GPC Command                                              | Notes            |
-| --------------------- | -------------------------------------------------------- | ---------------- |
-| View subscriptions    | `gpc subscriptions list`                                 |                  |
-| Create subscription   | `gpc subscriptions create --file subscription.json`      |                  |
-| Edit subscription     | `gpc subscriptions update <id> --file subscription.json` |                  |
-| View base plans       | `gpc subscriptions base-plans list <id>`                 |                  |
-| View offers           | `gpc subscriptions offers list <id> <plan-id>`           |                  |
-| View in-app products  | `gpc iap list`                                           |                  |
-| Create in-app product | `gpc iap create --file product.json`                     |                  |
-| Bulk sync products    | `gpc iap sync --dir products/`                           | From local files |
-| Convert pricing       | `gpc pricing convert --from USD --amount 9.99`           | Regional prices  |
+| Play Console UI       | GPC Command                                              | Notes             |
+| --------------------- | -------------------------------------------------------- | ----------------- |
+| View subscriptions    | `gpc subscriptions list`                                 |                   |
+| Create subscription   | `gpc subscriptions create --file subscription.json`      |                   |
+| Edit subscription     | `gpc subscriptions update <id> --file subscription.json` |                   |
+| View base plans       | `gpc subscriptions get <id>`                             | Base plans inline |
+| View offers           | `gpc subscriptions offers list <id> <plan-id>`           |                   |
+| View in-app products  | `gpc iap list`                                           |                   |
+| Create in-app product | `gpc iap create --file product.json`                     |                   |
+| Bulk sync products    | `gpc iap sync --dir products/`                           | From local files  |
+| Convert pricing       | `gpc pricing convert --from USD --amount 9.99`           | Regional prices   |
 
 ### Purchases and Orders
 
@@ -98,7 +98,7 @@ Map common Google Play Console browser tasks to GPC CLI commands. Every operatio
 | -------------------------- | ------------------------------------------- | -------------------- |
 | View order details         | `gpc purchases get <token>`                 | Product purchase     |
 | View subscription purchase | `gpc purchases subscription get <token>`    | Subscription details |
-| Refund order               | `gpc orders refund <order-id>`              |                      |
+| Refund order               | `gpc purchases orders refund <order-id>`    |                      |
 | View voided purchases      | `gpc purchases voided list`                 | Last 30 days         |
 | Cancel subscription        | `gpc purchases subscription cancel <token>` |                      |
 
@@ -125,12 +125,12 @@ Map common Google Play Console browser tasks to GPC CLI commands. Every operatio
 
 ### App Overview
 
-| Play Console UI    | GPC Command                       | Notes |
-| ------------------ | --------------------------------- | ----- |
-| View all apps      | `gpc apps list`                   |       |
-| View app details   | `gpc apps info com.example.myapp` |       |
-| View all tracks    | `gpc tracks list`                 |       |
-| View track details | `gpc tracks get production`       |       |
+| Play Console UI    | GPC Command                              | Notes |
+| ------------------ | ---------------------------------------- | ----- |
+| View all apps      | `gpc apps list`                          |       |
+| View app details   | `gpc apps info com.example.myapp`        |       |
+| View all tracks    | `gpc tracks list`                        |       |
+| View track details | `gpc releases status --track production` |       |
 
 ## Common Workflows
 

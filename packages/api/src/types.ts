@@ -335,7 +335,8 @@ export type ReportingDimension =
   | "deviceScreenDpi"
   | "processName"
   | "appState"
-  | "startType";
+  | "startType"
+  | "reportType";
 
 export type ReportingAggregation = "DAILY" | "HOURLY";
 

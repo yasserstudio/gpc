@@ -14,7 +14,6 @@ outline: deep
 | Command                           | Description                          |
 | --------------------------------- | ------------------------------------ |
 | [`tracks list`](#tracks-list)     | List all tracks with status          |
-| [`tracks get`](#tracks-get)       | Get track details including releases |
 | [`tracks create`](#tracks-create) | Create a custom closed testing track |
 | [`tracks update`](#tracks-update) | Update track configuration           |
 
@@ -48,40 +47,8 @@ gpc tracks list --app com.example.myapp
 ```
 
 ::: tip List output shape (v0.9.87+)
-`tracks list --json` returns the unified list envelope `{ tracks, nextPageToken, meta.count }`. Each row is a summary: `releases` is the release **count** (a number), and `latestStatus` / `latestVersion` describe the most recent release. Use `gpc tracks get <track>` for the full release objects (`versionCodes`, `userFraction`, etc.).
+`tracks list --json` returns the unified list envelope `{ tracks, nextPageToken, meta.count }`. Each row is a summary: `releases` is the release **count** (a number), and `latestStatus` / `latestVersion` describe the most recent release. Use `gpc releases status --track <track>` for the full release objects (`versionCodes`, `userFraction`, etc.).
 :::
-
----
-
-## `tracks get`
-
-Get detailed information about a specific track, including all releases and their statuses.
-
-### Synopsis
-
-```bash
-gpc tracks get <track> [options]
-```
-
-### Example
-
-```bash
-gpc tracks get beta --app com.example.myapp
-```
-
-```json
-{
-  "track": "beta",
-  "releases": [
-    {
-      "name": "Beta 41",
-      "versionCodes": ["41"],
-      "status": "completed",
-      "releaseNotes": [{ "language": "en-US", "text": "Bug fixes and performance improvements" }]
-    }
-  ]
-}
-```
 
 ---
 

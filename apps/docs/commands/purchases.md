@@ -521,20 +521,21 @@ Defer a subscription renewal using the v2 API. Supports subscriptions with add-o
 ### Synopsis
 
 ```bash
-gpc purchases subscription defer-v2 <token> --until <date> [options]
+gpc purchases subscription defer-v2 <token> --duration <seconds> [options]
 ```
 
 ### Options
 
-| Flag      | Type     | Required | Description                         |
-| --------- | -------- | -------- | ----------------------------------- |
-| `--until` | `string` | Yes      | Desired expiry time (ISO 8601 date) |
+| Flag                   | Type     | Required | Description                                          |
+| ---------------------- | -------- | -------- | ---------------------------------------------------- |
+| `--duration <seconds>` | `string` | Yes      | Duration to defer by (e.g. `2592000s` for 30 days)   |
+| `--etag <etag>`        | `string` | No       | Subscription etag (fetched automatically if omitted) |
 
 ### Example
 
 ```bash
 gpc purchases subscription defer-v2 "purchase-token-abc" \
-  --until 2026-07-01T00:00:00Z \
+  --duration 2592000s \
   --app com.example.myapp
 ```
 

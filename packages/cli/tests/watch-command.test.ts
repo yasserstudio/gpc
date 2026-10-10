@@ -155,3 +155,75 @@ describe("VALID_WATCH_METRICS (re-exported)", () => {
     expect(VALID_WATCH_METRICS.size).toBe(6);
   });
 });
+
+describe("watch command: config thresholds and exit codes", () => {
+  let program: Command;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.exitCode = 0;
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    program = new Command();
+    program.option("--app <package>");
+    program.option("-o, --output <format>");
+    program.option("--json");
+    registerWatchCommand(program);
+  });
+
+  // `gpc config set vitals.thresholds.crashRate 0.02` stores the string "0.02";
+  // the rate check only accepts numbers, so every configured watch failed to start.
+  it("converts string thresholds from config to numbers", async () => {
+    const { loadConfig } = await import("@gpc-cli/config");
+    vi.mocked(loadConfig).mockResolvedValueOnce({
+      app: "com.example.app",
+      vitals: { thresholds: { crashRate: "0.02", anrRate: "0.005" } },
+    } as never);
+
+    await program.parseAsync(["node", "gpc", "watch", "--rounds", "1"]);
+
+    const config = mockRunWatch.mock.calls[0]![2];
+    expect(config.thresholds.crashes).toBe(0.02);
+    expect(config.thresholds.anr).toBe(0.005);
+  });
+
+  it("exits 4 when the final round could not read a watched metric", async () => {
+    mockRunWatch.mockResolvedValueOnce({
+      rounds: 2,
+      durationMs: 1,
+      finalRollout: null,
+      breachCount: 0,
+      unreadableRounds: 1,
+      lastRoundUnreadable: true,
+      halted: false,
+      events: [],
+    });
+    await program.parseAsync(["node", "gpc", "--app", "com.example.app", "watch", "--rounds", "2"]);
+    expect(process.exitCode).toBe(4);
+    process.exitCode = 0;
+  });
+
+  // A blip mid-run that later reads fine must not fail a long watch.
+  it("exits 0 when an earlier round was unreadable but the final round read fine", async () => {
+    mockRunWatch.mockResolvedValueOnce({
+      rounds: 48,
+      durationMs: 1,
+      finalRollout: null,
+      breachCount: 0,
+      unreadableRounds: 1,
+      lastRoundUnreadable: false,
+      halted: false,
+      events: [],
+    });
+    await program.parseAsync([
+      "node",
+      "gpc",
+      "--app",
+      "com.example.app",
+      "watch",
+      "--rounds",
+      "48",
+    ]);
+    expect(process.exitCode).toBe(0);
+  });
+});

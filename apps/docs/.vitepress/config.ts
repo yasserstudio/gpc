@@ -1,4 +1,39 @@
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig, type PageData } from "vitepress";
+
+const SITE_URL = "https://yasserstudio.github.io/gpc";
+
+interface BlogEntry {
+  slug: string;
+  title: string;
+  date: string;
+  description: string;
+}
+
+/** Blog posts for the sidebar and the RSS feed, newest first. Reads frontmatter only. */
+function readBlogPosts(): BlogEntry[] {
+  const dir = fileURLToPath(new URL("../blog", import.meta.url));
+  const field = (fm: string, key: string) =>
+    fm.match(new RegExp(`^${key}:\\s*"?(.*?)"?\\s*$`, "m"))?.[1] ?? "";
+  return readdirSync(dir)
+    .filter((f) => f.endsWith(".md") && f !== "index.md")
+    .map((f) => {
+      const fm = readFileSync(join(dir, f), "utf-8").split(/^---$/m)[1] ?? "";
+      return {
+        slug: f.replace(/\.md$/, ""),
+        title: field(fm, "title"),
+        date: field(fm, "date"),
+        description: field(fm, "description"),
+      };
+    })
+    .filter((p) => p.title && p.date)
+    .sort((a, b) => (a.date > b.date ? -1 : 1));
+}
+
+const escapeXml = (v: string) =>
+  v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const safeJsonLd = (v: unknown): string =>
   JSON.stringify(v).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/&/g, "\\u0026");
@@ -313,6 +348,15 @@ export default defineConfig({
   },
 
   head: [
+    [
+      "link",
+      {
+        rel: "alternate",
+        type: "application/rss+xml",
+        title: "GPC Blog",
+        href: "https://yasserstudio.github.io/gpc/blog/feed.xml",
+      },
+    ],
     // Google Analytics 4
     ["script", { async: "", src: "https://www.googletagmanager.com/gtag/js?id=G-LS7V08EJHQ" }],
     [
@@ -355,7 +399,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
 
         programmingLanguage: "TypeScript",
-        softwareVersion: "1.0.0-rc.1",
+        softwareVersion: "1.0.0-rc.2",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: {
@@ -402,6 +446,34 @@ export default defineConfig({
 
   lastUpdated: true,
 
+  buildEnd({ outDir }) {
+    const posts = readBlogPosts();
+    const items = posts
+      .map(
+        (p) => `    <item>
+      <title>${escapeXml(p.title)}</title>
+      <link>${SITE_URL}/blog/${p.slug}</link>
+      <guid>${SITE_URL}/blog/${p.slug}</guid>
+      <pubDate>${new Date(`${p.date}T00:00:00Z`).toUTCString()}</pubDate>
+      <description>${escapeXml(p.description)}</description>
+    </item>`,
+      )
+      .join("\n");
+    const feed = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>GPC Blog</title>
+    <link>${SITE_URL}/blog/</link>
+    <atom:link href="${SITE_URL}/blog/feed.xml" rel="self" type="application/rss+xml"/>
+    <description>Shipping Android releases to Google Play from the terminal and CI.</description>
+    <language>en-us</language>
+${items}
+  </channel>
+</rss>
+`;
+    writeFileSync(join(outDir, "blog", "feed.xml"), feed);
+  },
+
   transformPageData(pageData) {
     const desc = getPageDescription(pageData);
     const title = pageData.title
@@ -413,6 +485,13 @@ export default defineConfig({
     // Override VitePress default description with per-page description
     pageData.description = desc;
 
+    // Blog posts carry their own social preview (frontmatter ogImage, a JPEG under
+    // public/); everything else uses the site card.
+    const ogImage =
+      typeof pageData.frontmatter.ogImage === "string"
+        ? `${SITE_URL}${pageData.frontmatter.ogImage}`
+        : `${SITE_URL}/og-image.png`;
+
     pageData.frontmatter.head ??= [];
     pageData.frontmatter.head.push(
       // Canonical
@@ -421,17 +500,11 @@ export default defineConfig({
       ["meta", { property: "og:title", content: title }],
       ["meta", { property: "og:description", content: desc }],
       ["meta", { property: "og:url", content: canonicalUrl }],
-      [
-        "meta",
-        { property: "og:image", content: "https://yasserstudio.github.io/gpc/og-image.png" },
-      ],
+      ["meta", { property: "og:image", content: ogImage }],
       // Twitter (dynamic per page)
       ["meta", { name: "twitter:title", content: title }],
       ["meta", { name: "twitter:description", content: desc }],
-      [
-        "meta",
-        { name: "twitter:image", content: "https://yasserstudio.github.io/gpc/og-image.png" },
-      ],
+      ["meta", { name: "twitter:image", content: ogImage }],
     );
 
     // FAQPage schema on FAQ page
@@ -440,6 +513,14 @@ export default defineConfig({
         "@context": "https://schema.org",
         "@type": "FAQPage",
         mainEntity: [
+          {
+            "@type": "Question",
+            name: "Does GPC collect telemetry?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "No. GPC sends no telemetry, usage analytics or crash reports, and needs no account. Your Play data goes only to Google's APIs. Apart from those, it checks the npm registry for updates at most once a day (skipped in CI, off with GPC_NO_UPDATE_CHECK=1) and contacts GitHub or your own LLM provider only for the commands that need them.",
+            },
+          },
           {
             "@type": "Question",
             name: "Can GPC tell me if my app is ready to release?",
@@ -493,7 +574,7 @@ export default defineConfig({
             name: "Is it stable enough for production CI/CD?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "2,844 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
+              text: "2,906 tests across 7 packages at 90%+ line coverage. Every write operation supports --dry-run. Semantic exit codes for CI branching.",
             },
           },
           {
@@ -1303,7 +1384,7 @@ export default defineConfig({
           text: si(ICONS.bookOpen, "Blog"),
           items: [
             { text: "All Posts", link: "/blog/" },
-            { text: "Google I/O 2026", link: "/blog/google-io-2026-what-changed" },
+            ...readBlogPosts().map((p) => ({ text: p.title, link: `/blog/${p.slug}` })),
           ],
         },
       ],
@@ -1396,6 +1477,7 @@ export default defineConfig({
     },
 
     socialLinks: [
+      // Shown below 1024px; wider screens show the GitHub star button (GitHubStars.vue) instead.
       { icon: "github", link: "https://github.com/yasserstudio/gpc" },
       { icon: "linkedin", link: "https://www.linkedin.com/in/yasserberrehail/" },
       { icon: "x", link: "https://x.com/yassersstudio" },

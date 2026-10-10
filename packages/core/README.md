@@ -13,34 +13,39 @@ npm install @gpc-cli/core
 ## Usage
 
 ```typescript
+import { resolveAuth } from "@gpc-cli/auth";
+import { createApiClient, createReportingClient } from "@gpc-cli/api";
 import {
   uploadRelease,
   promoteRelease,
-  getVitalsOverview,
+  getVitalsCrashes,
+  latestWorstValue,
   listReviews,
   analyzeBundle,
   formatOutput,
 } from "@gpc-cli/core";
 
-// Upload a release
-const result = await uploadRelease(context, {
-  file: "app.aab",
-  track: "internal",
-  validateOnly: true, // dry-run: server-side validation without committing
-});
+const auth = await resolveAuth({ serviceAccountPath: "./play-sa.json" });
+const client = createApiClient({ auth });
+const reporting = createReportingClient({ auth });
+const app = "com.example.app";
 
-// Promote between tracks
-await promoteRelease(context, {
-  from: "internal",
-  to: "production",
-  rollout: 0.1,
-});
+// Upload a release (validateOnly: server-side validation without committing)
+await uploadRelease(client, app, "app.aab", { track: "internal", validateOnly: true });
 
-// Check vitals
-const vitals = await getVitalsOverview(context);
-console.log(formatOutput(vitals, "table")); // also: "json", "csv", "tsv"
+// Promote between tracks at a 10% staged rollout
+await promoteRelease(client, app, "internal", "production", { userFraction: 0.1 });
 
-// Analyze bundle size
+// Gate on vitals: rates are fractions (0.02 = 2%)
+const crashes = await getVitalsCrashes(reporting, app, { days: 7 });
+const crashRate = latestWorstValue(crashes.rows, "crashRate");
+if (crashRate !== undefined && crashRate > 0.02) process.exitCode = 6;
+
+// Recent reviews as a table (also: "json", "csv", "tsv")
+const { reviews } = await listReviews(client, app);
+console.log(formatOutput(reviews, "table"));
+
+// Analyze bundle size offline
 const analysis = await analyzeBundle("./app.aab");
 ```
 
@@ -52,7 +57,7 @@ const analysis = await analyzeBundle("./app.aab");
 | **Listings**      | `getListings`, `updateListing`, `pullListings`, `pushListings`, `diffListings`                                                                                                             |
 | **Images**        | `listImages`, `uploadImage`, `deleteImage`                                                                                                                                                 |
 | **Reviews**       | `listReviews`, `getReview`, `replyToReview`, `exportReviews`                                                                                                                               |
-| **Vitals**        | `getVitalsOverview`, `getVitalsCrashes`, `getVitalsAnr`, `getVitalsStartup`, `compareVitalsTrend`, `checkThreshold`                                                                        |
+| **Vitals**        | `getVitalsOverview`, `getVitalsCrashes`, `getVitalsAnr`, `getVitalsStartup`, `compareVitalsTrend`, `checkThreshold`, `latestWorstValue`, `readMetricValue`                                 |
 | **Subscriptions** | `listSubscriptions`, `createSubscription`, `updateSubscription`, `deleteSubscription`, `listOffers`, `createOffer`                                                                         |
 | **IAP**           | `listInAppProducts`, `createInAppProduct`, `syncInAppProducts`                                                                                                                             |
 | **Purchases**     | `getProductPurchase`, `acknowledgeProductPurchase`, `refundOrder`                                                                                                                          |

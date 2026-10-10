@@ -240,10 +240,10 @@ Slow frames              4.2%      —           —
 Excessive wakeups        0.1%      —           —
 ```
 
-Check crash clusters for a specific version:
+Break crash rate down by version:
 
 ```bash
-gpc vitals crashes --version 42
+gpc vitals crashes --dim versionCode
 ```
 
 Expected output:
@@ -259,7 +259,7 @@ OutOfMemoryError at ImageLoader:88         43       0.10%
 Use vitals as a CI quality gate (exits with code 6 if threshold is breached):
 
 ```bash
-gpc vitals crashes --threshold 2.0
+gpc vitals crashes --threshold 0.02
 ```
 
 If the crash rate is below 2.0%, exit code is 0. If it exceeds 2.0%, exit code is 6.
@@ -382,8 +382,8 @@ gpc config set app com.example.myapp
 gpc publish app-release.aab --track internal --notes "Build $CI_BUILD_NUMBER"
 
 # Check vitals before promoting (exit code 6 = threshold breach)
-gpc vitals crashes --threshold 2.0
-gpc vitals anr --threshold 0.47
+gpc vitals crashes --threshold 0.02
+gpc vitals anr --threshold 0.0047
 
 # Promote to production with staged rollout
 gpc releases promote --from internal --to production --rollout 10

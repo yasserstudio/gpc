@@ -285,6 +285,108 @@ describe("watch", () => {
       expect(cb.events[0]!.breaches).toContain("crashes");
     });
 
+    // Google returns `metrics` as an array. The old lookup by name on that array
+    // always missed, so live gates never saw a value and never breached.
+    it("detects a breach from Google's array-shaped metrics", async () => {
+      const reporting = mockReporting();
+      reporting.queryMetricSet.mockResolvedValue({
+        rows: [
+          {
+            metrics: [
+              { metric: "crashRate", decimalValue: { value: "0.05" } },
+              { metric: "distinctUsers", decimalValue: { value: "1000" } },
+            ],
+          },
+        ],
+      });
+      const client = mockClient();
+      const cb = collectCallbacks();
+
+      const summary = await runWatch(client, reporting, baseConfig(), cb);
+
+      expect(summary.breachCount).toBe(1);
+      expect(cb.events[0]!.vitals["crashes"]?.value).toBe(0.05);
+    });
+
+    // A fixed "two days ago" end date is past the data's freshness whenever Google
+    // lags more than that, and the 400 was swallowed as "no value".
+    it("ends the query window at the metric's freshness date", async () => {
+      const reporting = {
+        ...mockReporting(),
+        getMetricSetFreshness: vi.fn().mockResolvedValue({
+          freshnessInfo: {
+            freshnesses: [
+              { aggregationPeriod: "DAILY", latestEndTime: { year: 2020, month: 1, day: 15 } },
+            ],
+          },
+        }),
+      };
+      const client = mockClient();
+
+      await runWatch(client, reporting, baseConfig(), collectCallbacks());
+
+      const query = reporting.queryMetricSet.mock.calls[0]![2];
+      expect(query.timelineSpec.endTime).toEqual({ year: 2020, month: 1, day: 15 });
+    });
+
+    // A failed read used to come back as "no value", which never breaches.
+    it("reports a metric it cannot read instead of passing it silently", async () => {
+      const reporting = mockReporting();
+      reporting.queryMetricSet.mockRejectedValue(
+        Object.assign(new Error("Forbidden"), { code: "API_FORBIDDEN" }),
+      );
+      const cb = collectCallbacks();
+
+      const summary = await runWatch(mockClient(), reporting, baseConfig(), cb);
+
+      expect(summary.breachCount).toBe(0);
+      expect(summary.unreadableRounds).toBe(1);
+      expect(summary.lastRoundUnreadable).toBe(true);
+      expect(cb.events[0]!.vitals["crashes"]).toMatchObject({
+        value: undefined,
+        error: "API_FORBIDDEN",
+      });
+    });
+
+    it("does not count games-only slow rendering as unreadable", async () => {
+      const reporting = mockReporting();
+      reporting.queryMetricSet.mockRejectedValue(
+        Object.assign(new Error("games"), { code: "API_METRIC_GAMES_ONLY" }),
+      );
+      const summary = await runWatch(
+        mockClient(),
+        reporting,
+        baseConfig({ metrics: ["slowRender"], thresholds: { slowRender: 0.1 } }),
+        collectCallbacks(),
+      );
+      expect(summary.unreadableRounds).toBe(0);
+    });
+
+    // A 7-day app-wide average diluted a fresh rollout's spike below any threshold.
+    it("gates on the latest day, not the window average", async () => {
+      const reporting = mockReporting();
+      const day = (d: number, v: string) => ({
+        startTime: { year: 2026, month: 10, day: d },
+        metrics: [{ metric: "crashRate", decimalValue: { value: v } }],
+      });
+      reporting.queryMetricSet.mockResolvedValue({
+        rows: [day(1, "0.004"), day(2, "0.004"), day(3, "0.004"), day(4, "0.05")],
+      });
+      const summary = await runWatch(mockClient(), reporting, baseConfig(), collectCallbacks());
+      expect(summary.breachCount).toBe(1);
+    });
+
+    it("refuses a percent-style rate threshold", async () => {
+      await expect(
+        runWatch(
+          mockClient(),
+          mockReporting(),
+          baseConfig({ thresholds: { crashes: 2 } }),
+          collectCallbacks(),
+        ),
+      ).rejects.toMatchObject({ code: "THRESHOLD_INVALID", exitCode: 2 });
+    });
+
     it("respects maxRounds", async () => {
       vi.useFakeTimers();
       const reporting = mockReporting();

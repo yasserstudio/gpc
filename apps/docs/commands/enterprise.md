@@ -99,7 +99,7 @@ Once a private app is created, it becomes a regular app in your developer accoun
 ```sh
 # v1 of com.google.customapp.xyz already exists via `gpc enterprise publish`
 # Ship v2 like any other release:
-gpc --app com.google.customapp.xyz releases upload ./app-v2.aab --track production --rollout 0.10
+gpc --app com.google.customapp.xyz releases upload ./app-v2.aab --track production --rollout 10
 ```
 
 ## Adding organizations later

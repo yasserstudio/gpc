@@ -467,10 +467,28 @@ describe("checkShellCompletion", () => {
 // ---------------------------------------------------------------------------
 
 describe("checkVerificationDeadline", () => {
-  it("returns a result with days remaining", () => {
-    const result = checkVerificationDeadline();
-    expect(result.name).toBe("verification");
-    expect(result.message).toContain("September 30, 2026");
+  it("returns a result with days remaining before enforcement", () => {
+    vi.useFakeTimers({ now: new Date("2026-09-01T00:00:00Z") });
+    try {
+      const result = checkVerificationDeadline();
+      expect(result.name).toBe("verification");
+      expect(result.message).toContain("September 30, 2026");
+      expect(result.message).toContain("days");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("reports enforcement, with its regions, after the deadline", () => {
+    vi.useFakeTimers({ now: new Date("2026-10-10T00:00:00Z") });
+    try {
+      const result = checkVerificationDeadline();
+      expect(result.status).toBe("warn");
+      expect(result.message).toContain("enforced since September 30, 2026");
+      expect(result.message).toContain("BR/ID/SG/TH");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

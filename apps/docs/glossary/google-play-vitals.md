@@ -37,7 +37,7 @@ gpc vitals lmk           # low-memory kill rate
 CI-gated thresholds:
 
 ```bash
-gpc vitals crashes --threshold 2.0 --window 7d
+gpc vitals crashes --threshold 0.02 --days 7
 ```
 
 Exit code 6 on breach.
@@ -53,7 +53,8 @@ gpc status
 - **Vitals data takes 24-72 hours to populate** after a release. Monitoring within the first day may show stale data.
 - **User-perceived vs raw rates** — Play Console defaults to user-perceived metrics (percent of users affected). Raw counts are available but less meaningful for thresholds.
 - **Data requires a minimum installed base** — small apps may not have enough data for all metrics.
-- **`--window 7d` vs `--window 28d`** — Play Console dashboards usually show 28-day. 7-day is better for catching regressions post-release.
+- **`--days 7` vs `--days 28`** — Play Console dashboards usually show 28-day. 7-day is better for catching regressions post-release.
+- **`--threshold` takes a fraction, not a percent**: Google reports rates as fractions, so 2% is `--threshold 0.02`. A value of 1 or more is rejected with `THRESHOLD_INVALID` (exit 2).
 
 ## Related
 

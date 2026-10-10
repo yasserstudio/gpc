@@ -7,6 +7,50 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v1.0.0-rc.2
+
+Fixes found by using rc.1 on a real app during the soak. All of them are in vitals: `gpc vitals`, `gpc watch`, `gpc status`, `gpc train` and the rollout `--vitals-gate`. Several gates you may rely on in CI could not fire, so check the two breaking changes before you upgrade a pipeline.
+
+### Vitals gates
+
+- fix: `gpc watch` now reads vitals values and breaches. Before, it never got a value back from Google, so `--on-breach halt` could not halt a rollout, however bad the crash or ANR rate was.
+- fix: `gpc watch` and `gpc status` no longer ask for days Google has not published yet. Vitals data often lags three days or more, and those requests failed, which left the watch gate blind and `gpc status` showing "No vitals data available".
+- breaking: a vitals rate threshold is a fraction (`--threshold 0.02` means 2%), and a value of 1 or more is now refused with `THRESHOLD_INVALID` (exit 2). Our docs showed `--threshold 2.0`, which a crash or ANR rate can never reach, so a gate copied from them never fired. If your CI uses one, change it to the fraction. The same applies to `gpc watch --crash-threshold` and the other watch rate thresholds.
+- breaking: `gpc train advance` no longer moves to the next stage when its crash or ANR gate has no data. It stays where it is and exits 6 with `TRAIN_GATE_NO_DATA`; run it again once Google has published the data.
+- fix: `--threshold` compares the worst value of the most recent day. Startup and error-count results have one row per start type or report type, and `--dim` adds more, so the old gate checked whichever row happened to come last.
+- fix: `gpc watch` shows a metric it cannot read as unreadable, with the reason, and exits 4 instead of 0 when a watched metric could not be checked. It also judges the latest day instead of an 8-day average, which hid a spike in a fresh rollout.
+- fix: `gpc releases rollout increase --vitals-gate` blocks the increase when it has no threshold, cannot read vitals or gets no data, instead of warning and increasing anyway. Its threshold, `vitals.thresholds.crashRate`, is now a fraction like everywhere else; it was the one place that read it as a percentage.
+- fix: `gpc vitals watch --threshold` validates the value and shows it as a percentage, and failed polls print a warning instead of nothing.
+- fix: `gpc status` and `gpc watch` report slow starts for the worst start type (cold, warm or hot) instead of averaging them, which hid a bad cold-start rate.
+- note: `gpc vitals startup --threshold` and `vitals error-count --threshold` now compare the worst start type or report type of the latest day. A threshold tuned on rc.1, which compared whichever row came last, may start to breach.
+- fix: `gpc vitals memory-rss --threshold` and `memory-bitmap --threshold` compare against the P90 value instead of always stopping with `THRESHOLD_NO_DATA`.
+
+### Vitals commands
+
+- fix: `gpc vitals startup --dim <dimension>` works. It used to drop the start type that Google requires, so every `--dim` query failed. Results now show the start type alongside your dimension. The same fix applies to `vitals error-count --dim`, and slow starts now appear in `vitals overview`, `vitals compare`, `vitals compare-versions` and `gpc status`.
+- fix: `gpc vitals rendering` on an app that is not a game now explains that Google serves slow-rendering data to games only (`API_METRIC_GAMES_ONLY`), instead of suggesting your credentials are wrong. `vitals overview` and `gpc status` skip it for non-game apps.
+- fix: `gpc vitals overview` names any metric it could not read (on stderr, and under `unavailable` with `--json`), and exits 4 when every metric fails. Before, it printed "No vitals data available" and exited 0.
+
+### Everything else
+
+- fix: a malformed `--app` value, such as one with a stray space or `-a=com.example.app`, now fails at once with `INVALID_PACKAGE_NAME` (exit 2) instead of a confusing "not found" from Google.
+- fix: `gpc doctor` states that developer verification has been enforced since September 30, 2026 in Brazil, Indonesia, Singapore and Thailand.
+- docs: every vitals and watch threshold example uses fractions, examples no longer show options that do not exist (`--window`, `--version`, `--duration`), and `gpc train` examples show its real config file. `vitals overview` documents its real `--json` output. New error codes `API_METRIC_GAMES_ONLY`, `INVALID_PACKAGE_NAME`, `THRESHOLD_INVALID` and `TRAIN_GATE_NO_DATA`.
+- fix: messages now say vitals data lags 2 to 4 days, not 1 to 2.
+- docs: the SDK guide and the `@gpc-cli/core` README show the real API (`resolveAuth`, `createApiClient`, `createReportingClient`); both described functions and options that do not exist. The CI vitals-gate samples read the real `--json` output.
+- docs: every command in the docs now exists. A check of all 1,944 documented `gpc` command lines against the real CLI found 105 that did not, such as `gpc upload --package`, `gpc vitals check`, `releases halt` and `--rollout 0.1` (rollout takes a percentage, `--rollout 10`). They are fixed, and the check now runs with the test suite so the docs cannot drift again.
+- fix: the hint printed by `gpc purchase-options` pointed to `otp offers activate` and `deactivate`, which do not exist. It now points to `gpc otp purchase-options batch-update-states`.
+- docs: the blog now carries the earlier articles first published on Dev.to and X (updated for 1.0), each with a cover image.
+- docs: `gpc train` documents what it really does: `advance` has to be scheduled, a paused train restarts with `start --force`, and `abort` does not halt the rollout (use `gpc releases rollout halt`).
+- docs: the README preview shows real `gpc status` output (slow starts as a rate, not a time).
+- docs: GPC collects no telemetry, and the docs now say so. The security guide lists every request GPC makes outside Google's APIs (the daily update check, off with `GPC_NO_UPDATE_CHECK=1` and skipped in CI, and the GitHub calls behind a few commands). The homepage leads with the standalone binary install.
+- docs: the blog has an RSS feed (`/blog/feed.xml`), cover images on posts and in the list, reading times, a social preview image per post, and every post in the sidebar.
+- docs: the docs site shows the GitHub star count in its header, the release banner is current again (it still announced v0.9.70), and shell examples no longer draw the window dots over the "terminal" label.
+
+**Tests:** 2,906 (+62).
+
+---
+
 ## v1.0.0-rc.1
 
 The release candidate for GPC 1.0.0. It carries the fixes from the pre-1.0 security review and a live test against real Play accounts. If nothing critical turns up over the next two weeks, this build becomes 1.0.0.

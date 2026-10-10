@@ -233,6 +233,23 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
     };
   }
 
+  // — Games-only Reporting metric (403)
+  //
+  // The Reporting API serves some metric sets (slow rendering) only to apps
+  // categorised as games and answers a plain 403 PERMISSION_DENIED otherwise.
+  // Nothing about the credentials is wrong, so this must stay ahead of the
+  // permissions branch below.
+  if (status === 403 && errorMsg.includes("only accessible to games")) {
+    return {
+      code: "API_METRIC_GAMES_ONLY",
+      message: "This vitals metric is only available for apps categorised as games.",
+      suggestion: [
+        "Google's Play Developer Reporting API serves slow-rendering metrics to games only.",
+        "This is not a credentials problem; no setting in GPC or Play Console changes it.",
+      ].join("\n"),
+    };
+  }
+
   // — App content declaration required (403)
   //
   // Play returns a plain 403 when a Play Console "App content" declaration is
