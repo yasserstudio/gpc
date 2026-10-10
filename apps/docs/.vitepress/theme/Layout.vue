@@ -4,11 +4,15 @@ import DefaultTheme from "vitepress/theme";
 import BackToTop from "./BackToTop.vue";
 import CopyForAI from "./CopyForAI.vue";
 import AnnouncementBanner from "./AnnouncementBanner.vue";
+import GitHubStars from "./GitHubStars.vue";
+import BlogFooter from "./BlogFooter.vue";
 
 const { Layout } = DefaultTheme;
 const { page } = useData();
 
 const isHome = () => page.value.frontmatter.layout === "home";
+const isBlogPost = () =>
+  page.value.relativePath.startsWith("blog/") && page.value.relativePath !== "blog/index.md";
 </script>
 
 <template>
@@ -16,6 +20,11 @@ const isHome = () => page.value.frontmatter.layout === "home";
     <!-- Announcement banner -->
     <template #layout-top>
       <AnnouncementBanner />
+    </template>
+
+    <!-- GitHub star count, right end of the nav bar -->
+    <template #nav-bar-content-after>
+      <GitHubStars />
     </template>
 
     <!-- Hero terminal mockup -->
@@ -79,6 +88,11 @@ const isHome = () => page.value.frontmatter.layout === "home";
     <!-- Copy for AI button -->
     <template #doc-before>
       <CopyForAI v-if="!isHome()" />
+    </template>
+
+    <!-- About GPC and the author, end of each blog post -->
+    <template #doc-after>
+      <BlogFooter v-if="isBlogPost()" />
     </template>
 
     <!-- Back to top -->

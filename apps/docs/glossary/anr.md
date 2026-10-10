@@ -23,7 +23,7 @@ gpc vitals anr
 Gate a CI pipeline on ANR threshold:
 
 ```bash
-gpc vitals anr --threshold 0.47 --window 7d
+gpc vitals anr --threshold 0.0047 --days 7
 ```
 
 Exit code 6 on threshold breach lets your CI halt a rollout or block a promote.
@@ -37,7 +37,8 @@ gpc status --sections vitals
 ## Common issues
 
 - **User-perceived ANR rate vs raw ANR count** — Google's "bad behavior" threshold uses the user-perceived rate (28-day, percent of users who experienced an ANR). GPC reports both.
-- **7-day thresholds vs 28-day** — Google Vitals dashboards default to 28-day windows. GPC supports both via `--window 7d` or `--window 28d`.
+- **7-day thresholds vs 28-day** — Google Vitals dashboards default to 28-day windows. GPC supports both via `--days 7` or `--days 28`.
+- **`--threshold` takes a fraction**: Google reports rates as fractions, so Google's 0.47% ANR threshold is `--threshold 0.0047`. A value of 1 or more is rejected with `THRESHOLD_INVALID` (exit 2).
 - **Missing ANR data for new apps** — Google requires a minimum installed-base to aggregate ANR data. New apps under that threshold return empty responses.
 
 ## Related

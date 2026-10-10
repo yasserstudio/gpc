@@ -1,6 +1,13 @@
 import type { PlayApiClient, ReportingApiClient, VitalsMetricSet } from "@gpc-cli/api";
 import { getReleasesStatus } from "./releases.js";
-import { checkThreshold } from "./vitals.js";
+import {
+  checkThreshold,
+  latestQueryableEndDate,
+  assertRateThreshold,
+  isGamesOnlyMetricError,
+  latestWorstValue,
+  withRequiredDimensions,
+} from "./vitals.js";
 import { trackBreachState, sendNotification } from "./status.js";
 import { GpcError } from "../errors.js";
 
@@ -34,6 +41,8 @@ export interface WatchVitalReading {
   value: number | undefined;
   threshold: number | undefined;
   breached: boolean;
+  /** Set when the metric could not be read this round (error code, or message). */
+  error?: string;
 }
 
 export interface WatchEvent {
@@ -50,6 +59,10 @@ export interface WatchSummary {
   durationMs: number;
   finalRollout: number | null;
   breachCount: number;
+  /** Rounds in which a metric with a threshold could not be read (games-only metrics excluded). */
+  unreadableRounds: number;
+  /** True when the last round had such an unreadable metric: the gate ended blind. */
+  lastRoundUnreadable: boolean;
   halted: boolean;
   events: WatchEvent[];
 }
@@ -107,13 +120,11 @@ async function queryWatchMetric(
   reporting: ReportingApiClient,
   packageName: string,
   metric: WatchMetric,
-): Promise<number | undefined> {
+): Promise<{ value: number | undefined; error?: string; gamesOnly?: boolean }> {
   const metricSet = METRIC_TO_SET[metric];
   const metricKey = METRIC_KEY[metric];
 
   const DAY_MS = 24 * 60 * 60 * 1000;
-  const end = new Date(Date.now() - 2 * DAY_MS);
-  const start = new Date(end.getTime() - 7 * DAY_MS);
 
   const toDate = (d: Date) => ({
     year: d.getUTCFullYear(),
@@ -121,27 +132,33 @@ async function queryWatchMetric(
     day: d.getUTCDate(),
   });
 
+  // A failed read is reported, not swallowed: it used to read as "no value",
+  // which never breaches, so a revoked key left auto-halt silently blind.
   try {
-    const result = await reporting.queryMetricSet(packageName, metricSet, {
-      metrics: [metricKey, "distinctUsers"],
-      timelineSpec: {
-        aggregationPeriod: "DAILY",
-        startTime: toDate(start),
-        endTime: toDate(end),
-      },
-    });
-
-    if (!result.rows || result.rows.length === 0) return undefined;
-    const values = result.rows
-      .map((row) => {
-        const val = row.metrics[metricKey]?.decimalValue?.value;
-        return val !== undefined ? Number(val) : NaN;
-      })
-      .filter((v) => !isNaN(v));
-    if (values.length === 0) return undefined;
-    return values.reduce((a, b) => a + b, 0) / values.length;
-  } catch {
-    return undefined;
+    const end = await latestQueryableEndDate(reporting, packageName, metricSet);
+    const start = new Date(end.getTime() - 7 * DAY_MS);
+    const result = await reporting.queryMetricSet(
+      packageName,
+      metricSet,
+      withRequiredDimensions(metricSet, {
+        metrics: [metricKey, "distinctUsers"],
+        timelineSpec: {
+          aggregationPeriod: "DAILY",
+          startTime: toDate(start),
+          endTime: toDate(end),
+        },
+      }),
+    );
+    // The latest day's worst slice, as the other gates use: a 7-day app-wide
+    // average dilutes a spike in a fresh rollout below any threshold.
+    return { value: latestWorstValue(result.rows, metricKey) };
+  } catch (err) {
+    const code = (err as { code?: unknown } | null)?.code;
+    return {
+      value: undefined,
+      error: typeof code === "string" ? code : err instanceof Error ? err.message : String(err),
+      gamesOnly: isGamesOnlyMetricError(err),
+    };
   }
 }
 
@@ -257,13 +274,19 @@ export async function runWatch(
       "Watch interval must be at least 60 seconds",
       "WATCH_USAGE_ERROR",
       2,
-      "Use --interval 60 or higher. Google vitals data is delayed 24-48h, so frequent polling wastes API quota.",
+      "Use --interval 60 or higher. Google vitals data is delayed 2-4 days, so frequent polling wastes API quota.",
     );
+  }
+
+  for (const [metric, threshold] of Object.entries(config.thresholds)) {
+    if (metric !== "errorCount" && threshold !== undefined) assertRateThreshold(metric, threshold);
   }
 
   let running = true;
   const events: WatchEvent[] = [];
   let breachCount = 0;
+  let unreadableRounds = 0;
+  let lastRoundUnreadable = false;
   let halted = false;
   const startTime = Date.now();
 
@@ -284,20 +307,26 @@ export async function runWatch(
       const vitals: Partial<Record<WatchMetric, WatchVitalReading>> = {};
       const metricResults = await Promise.all(
         config.metrics.map(async (metric) => {
-          const value = await queryWatchMetric(reporting, config.packageName, metric);
-          return { metric, value };
+          const reading = await queryWatchMetric(reporting, config.packageName, metric);
+          return { metric, ...reading };
         }),
       );
-      for (const { metric, value } of metricResults) {
+      let unreadable = false;
+      for (const { metric, value, error, gamesOnly } of metricResults) {
         const threshold = config.thresholds[metric];
+        if (error && threshold !== undefined && !gamesOnly) unreadable = true;
         const result =
           threshold !== undefined ? checkThreshold(value, threshold) : { breached: false };
         vitals[metric] = {
           value,
           threshold,
           breached: result.breached,
+          ...(error ? { error } : {}),
         };
       }
+
+      if (unreadable) unreadableRounds++;
+      lastRoundUnreadable = unreadable;
 
       const breaches = Object.entries(vitals)
         .filter(([, v]) => v.breached)
@@ -369,6 +398,8 @@ export async function runWatch(
     durationMs: Date.now() - startTime,
     finalRollout: events[events.length - 1]?.rollout?.userFraction ?? null,
     breachCount,
+    unreadableRounds,
+    lastRoundUnreadable,
     halted,
     events,
   };

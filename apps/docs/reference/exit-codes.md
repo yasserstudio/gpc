@@ -60,14 +60,15 @@ esac
 ### Vitals Gating (Exit Code 6)
 
 ```bash
-# Gate deployment on crash rate
-gpc vitals crashes --threshold 2.0
-# Exit code 0: crash rate is below 2.0%, safe to proceed
-# Exit code 6: crash rate is at or above 2.0%, do not proceed
+# Gate deployment on crash rate (the value is a fraction: 0.02 = 2%)
+gpc vitals crashes --threshold 0.02
+# Exit code 0: crash rate is below 2%, safe to proceed
+# Exit code 6: crash rate is above 2%, do not proceed
+# Exit code 2: THRESHOLD_INVALID, a rate threshold of 1 or more can never breach
 
 # Gate on multiple metrics
-gpc vitals crashes --threshold 2.0 && \
-gpc vitals anr --threshold 0.5 && \
+gpc vitals crashes --threshold 0.02 && \
+gpc vitals anr --threshold 0.005 && \
 echo "All vitals within thresholds" || \
 echo "Vitals breached, halting deployment"
 ```

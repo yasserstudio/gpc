@@ -169,6 +169,20 @@ Redaction is applied before formatting and cannot be disabled.
 
 A configured proxy is never silently skipped. If GPC cannot apply it, the command stops before any request, so OAuth tokens cannot leave through a direct connection. Proxy URLs are not echoed in errors or `gpc doctor` output.
 
+### No Telemetry
+
+GPC collects no telemetry, usage analytics or crash reports, and has no account or sign-up. Your Play data goes only to Google's APIs. The only other requests GPC makes:
+
+| Request                                           | When                                                        | Turn off                                |
+| ------------------------------------------------- | ----------------------------------------------------------- | --------------------------------------- |
+| npm registry (`registry.npmjs.org`)               | Update check, at most once a day; `gpc doctor`              | `GPC_NO_UPDATE_CHECK=1` (skipped in CI) |
+| GitHub releases API (`api.github.com`)            | `gpc update`, `gpc changelog`, `gpc skills check`           | Don't run those commands                |
+| GPC plugin registry (`raw.githubusercontent.com`) | `gpc plugins search`                                        | Don't run that command                  |
+| Your LLM provider                                 | `--ai` release-note translation, with your own API key      | Omit `--ai`                             |
+| Your webhook URL                                  | `--notify` / `gpc watch --webhook-url`, only if you set one | Don't configure one                     |
+
+These requests send no identifiers, Play data or credentials, apart from your own API key to your own LLM provider.
+
 ### Client-Side Rate Limiting
 
 | Bucket        | Default Limit | Protects Against             |

@@ -19,7 +19,7 @@ gpc publish app.aab --track beta --notes "Bug fixes"                # One-shot u
 gpc publish app.aab --validate-only                                 # Dry-run validation without releasing
 gpc preflight app.aab                         # 9 offline policy scanners
 gpc watch --on-breach halt                     # Real-time rollout monitoring + auto-halt
-gpc vitals crashes --threshold 2.0            # Exit code 6 if breached
+gpc vitals crashes --threshold 0.02            # Exit code 6 if breached
 gpc reviews list --stars 1-2 --since 7d       # Filter reviews
 gpc reviews reply <review-id> --text "Thanks for the feedback!"
 gpc listings push --dir metadata/             # Sync store metadata (Fastlane-compatible)
@@ -97,7 +97,7 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 - [Commands reference](https://yasserstudio.github.io/gpc/commands/)
 - [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/)
 
-Free to use. 2,844 tests. 90%+ coverage. Every write operation supports `--dry-run`.
+Free to use. 2,906 tests. 90%+ coverage. Every write operation supports `--dry-run`.
 
 ## Licensing
 

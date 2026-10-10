@@ -7,10 +7,13 @@ export interface Post {
   description: string;
   author: string;
   tags: string[];
+  image: string;
+  readingMinutes: number;
 }
 
 export default createContentLoader("blog/*.md", {
   excerpt: false,
+  includeSrc: true,
   transform(raw): Post[] {
     return raw
       .filter((page) => page.url !== "/blog/")
@@ -29,6 +32,10 @@ export default createContentLoader("blog/*.md", {
         description: page.frontmatter.description ?? "",
         author: page.frontmatter.author ?? "Yasser Berrehail",
         tags: page.frontmatter.tags ?? [],
+        image: page.frontmatter.image ?? "",
+        // ~230 words a minute for technical prose; frontmatter and code count too,
+        // which is close enough for a list badge.
+        readingMinutes: Math.max(1, Math.round((page.src ?? "").split(/\s+/).length / 230)),
       }))
       .sort((a, b) => (a.date > b.date ? -1 : 1));
   },

@@ -65,7 +65,11 @@ function formatHumanEvent(event: WatchEvent): string {
     if (!reading) continue;
     const val = pct(reading.value);
     const thresh = reading.threshold !== undefined ? pct(reading.threshold) : "—";
-    const label = reading.breached ? red("BREACH") : green("OK");
+    const label = reading.error
+      ? yellow(`UNREADABLE (${reading.error})`)
+      : reading.breached
+        ? red("BREACH")
+        : green("OK");
     lines.push(`  ${metric}: ${val} (threshold: ${thresh}) ${label}`);
   }
 
@@ -176,12 +180,16 @@ export function registerWatchCommand(program: Command): void {
         ...DEFAULT_WATCH_THRESHOLDS,
       };
       if (configThresholds?.thresholds) {
-        const ct = configThresholds.thresholds;
-        if (ct["crashRate"] !== undefined) thresholds.crashes = ct["crashRate"];
-        if (ct["anrRate"] !== undefined) thresholds.anr = ct["anrRate"];
-        if (ct["lmkRate"] !== undefined) thresholds.lmk = ct["lmkRate"];
-        if (ct["slowStartRate"] !== undefined) thresholds.slowStarts = ct["slowStartRate"];
-        if (ct["slowRenderingRate"] !== undefined) thresholds.slowRender = ct["slowRenderingRate"];
+        // `gpc config set` stores values as strings ("0.02"), so convert before
+        // the rate check, which only accepts numbers.
+        const ct = configThresholds.thresholds as Record<string, unknown>;
+        const num = (v: unknown) => (v === undefined ? undefined : Number(v));
+        if (ct["crashRate"] !== undefined) thresholds.crashes = num(ct["crashRate"]);
+        if (ct["anrRate"] !== undefined) thresholds.anr = num(ct["anrRate"]);
+        if (ct["lmkRate"] !== undefined) thresholds.lmk = num(ct["lmkRate"]);
+        if (ct["slowStartRate"] !== undefined) thresholds.slowStarts = num(ct["slowStartRate"]);
+        if (ct["slowRenderingRate"] !== undefined)
+          thresholds.slowRender = num(ct["slowRenderingRate"]);
       }
       if (opts["crashThreshold"]) thresholds.crashes = parseFloat(opts["crashThreshold"]);
       if (opts["anrThreshold"]) thresholds.anr = parseFloat(opts["anrThreshold"]);
@@ -217,7 +225,7 @@ export function registerWatchCommand(program: Command): void {
       if (!jsonMode) {
         console.log(`gpc watch ${dim("—")} ${packageName} (${opts["track"]} track)`);
         console.log(
-          dim("Vitals data is typically 24-48h behind. Rollout status is near real-time.\n"),
+          dim("Vitals data is typically 2-4 days behind. Rollout status is near real-time.\n"),
         );
       }
 
@@ -256,6 +264,18 @@ export function registerWatchCommand(program: Command): void {
         },
       );
 
-      process.exitCode = summary.breachCount > 0 ? 6 : 0;
+      // A gate that could not read its metric must not report success.
+      if (summary.breachCount > 0) {
+        process.exitCode = 6;
+      } else if (summary.lastRoundUnreadable) {
+        // Judged on the final round: a blip in round 3 of 48 that later reads
+        // fine must not fail the run, but ending blind must.
+        console.error(
+          `${yellow("⚠")} A watched metric could not be read in the final round (${summary.unreadableRounds} round(s) in total); the gate could not check it.`,
+        );
+        process.exitCode = 4;
+      } else {
+        process.exitCode = 0;
+      }
     });
 }

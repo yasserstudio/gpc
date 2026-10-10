@@ -221,7 +221,7 @@ The `--repo` value must match `owner/name` format (no URLs, no paths). Bad value
 
 ## What this is NOT
 
-- **Not the only way to write Play Store release notes** — for piped uploads alongside an AAB, `gpc publish --notes-from-git` and `gpc releases create --notes-from-git` handle Play Store `recentChanges[]` directly. For per-locale "What's new" text generation from your git log, use `gpc changelog generate --target play-store --locales <csv|auto>` (v0.9.62+), and add `--ai` (v0.9.63+) to translate non-source locales via your own LLM key. See [Multilingual Release Notes](/guide/multilingual-release-notes).
+- **Not the only way to write Play Store release notes** — for piped uploads alongside an AAB, `gpc publish --notes-from-git` and `gpc releases upload --notes-from-git` handle Play Store `recentChanges[]` directly. For per-locale "What's new" text generation from your git log, use `gpc changelog generate --target play-store --locales <csv|auto>` (v0.9.62+), and add `--ai` (v0.9.63+) to translate non-source locales via your own LLM key. See [Multilingual Release Notes](/guide/multilingual-release-notes).
 - **Not a `CHANGELOG.md` generator** — GPC publishes its release notes as GitHub Releases, not a `CHANGELOG.md` file. If you want a `CHANGELOG.md` workflow, pipe the output to a file: `gpc changelog generate >> CHANGELOG.md`.
 - **Not an AI rewrite of the `--target github` output** — the GitHub-target renderer stays dependency-free and doesn't call an LLM. If you want a polished narrative, pipe `--format prompt` into your model of choice. AI translation is scoped to the Play Store target via `--ai` (v0.9.63+) for localizing the 500-char "What's new" field — [see the AI translation guide](/guide/multilingual-release-notes#ai-translation).
 
@@ -233,4 +233,4 @@ See the [`changelog` command reference](/commands/changelog) for the full option
 
 - [Release strategy](/advanced/conventions#github-release-notes-template) — the template this command targets
 - [`gpc publish`](/commands/publish) — end-to-end upload + release workflow
-- [`gpc releases create`](/commands/releases) — manage Play Console releases
+- [`gpc releases upload`](/commands/releases) — manage Play Console releases

@@ -210,4 +210,4 @@ The terminal renderer uses GPC's built-in ANSI color utilities (no external depe
 ## Related
 
 - [GPC Documentation Site](https://yasserstudio.github.io/gpc/) -- the full browsable docs
-- [`gpc help`](/commands/utility#help) -- inline help for any command
+- [`gpc help`](/commands/utility) -- inline help for any command

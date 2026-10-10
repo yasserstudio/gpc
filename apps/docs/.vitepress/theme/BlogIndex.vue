@@ -11,13 +11,25 @@ function formatDate(dateStr: string): string {
 
 <template>
   <div class="blog-index">
+    <header class="blog-index-header">
+      <h1 class="blog-index-title">Blog</h1>
+      <p class="blog-index-lede">
+        Engineering notes and guides on shipping Android releases to Google Play from the terminal
+        and CI.
+        <a :href="withBase('/blog/feed.xml')">RSS feed</a>
+      </p>
+    </header>
     <div v-for="post in posts" :key="post.url" class="blog-card">
+      <a v-if="post.image" :href="withBase(post.url)" class="blog-card-cover" tabindex="-1">
+        <img :src="withBase(post.image)" alt="" loading="lazy" width="1600" height="686" />
+      </a>
       <a :href="withBase(post.url)" class="blog-card-link">
         <h2 class="blog-card-title">{{ post.title }}</h2>
       </a>
       <div class="blog-card-meta">
         <time :datetime="post.date">{{ formatDate(post.date) }}</time>
-        <span v-if="post.author" class="blog-card-author">{{ post.author }}</span>
+        <span v-if="post.author" class="blog-card-dot">{{ post.author }}</span>
+        <span class="blog-card-dot">{{ post.readingMinutes }} min read</span>
       </div>
       <p class="blog-card-desc">{{ post.description }}</p>
       <div v-if="post.tags.length" class="blog-card-tags">
@@ -33,6 +45,36 @@ function formatDate(dateStr: string): string {
   max-width: 720px;
   margin: 0 auto;
   padding: 0 24px;
+}
+
+.blog-index-header {
+  padding: 48px 0 8px;
+}
+
+.blog-index-title {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--vp-c-text-1);
+}
+
+.blog-index-lede {
+  margin: 10px 0 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--vp-c-text-2);
+}
+
+.blog-index-lede a {
+  margin-left: 6px;
+  color: var(--vp-c-brand-1);
+  text-decoration: none;
+}
+
+.blog-index-lede a:hover {
+  text-decoration: underline;
 }
 
 .blog-card {
@@ -71,7 +113,29 @@ function formatDate(dateStr: string): string {
   color: var(--vp-c-text-3);
 }
 
-.blog-card-author::before {
+.blog-card-cover {
+  display: block;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--vp-c-divider);
+  background: #0b1a4a;
+}
+
+.blog-card-cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1600 / 686;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.blog-card-cover:hover img {
+  transform: scale(1.02);
+}
+
+.blog-card-dot::before {
   content: "\00b7";
   margin-right: 12px;
 }

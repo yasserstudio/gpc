@@ -24,7 +24,8 @@
     "license:check": "tsx scripts/check-licenses.ts",
     "audit": "pnpm audit --prod --audit-level=high",
     "audit:all": "pnpm audit --audit-level=moderate",
-    "security:check": "pnpm audit --prod --audit-level=high && pnpm license:check"
+    "security:check": "pnpm audit --prod --audit-level=high && pnpm license:check",
+    "docs:check-commands": "node scripts/validate-doc-commands.mjs"
   },
   "prettier": {
     "semi": true,

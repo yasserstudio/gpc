@@ -44,17 +44,33 @@ Complete the rollout to 100%:
 gpc releases rollout complete --track production
 ```
 
-For automated stage progression with time and vitals gates:
+For automated stage progression with time and vitals gates, describe the stages in `.gpcrc-train.json` and start the train:
+
+```json
+// .gpcrc-train.json
+{
+  "stages": [
+    { "track": "production", "rollout": 1 },
+    { "track": "production", "rollout": 5, "after": "1d" },
+    { "track": "production", "rollout": 25, "after": "2d" },
+    { "track": "production", "rollout": 100, "after": "4d" }
+  ],
+  "gates": {
+    "crashes": { "max": 2 },
+    "anr": { "max": 0.5 }
+  }
+}
+```
 
 ```bash
-gpc train --track production --stages 5,20,50,100 --time-gate 24h --vitals-gate
+gpc train start
 ```
 
 ## Common issues
 
 - **Fastlane rollout format mismatch** — Fastlane uses decimals (0.1 = 10%); GPC uses integers (10 = 10%). Most common migration bug.
 - **Rollout halted accidentally** — halted rollouts do not auto-resume. Must run `gpc releases rollout resume`.
-- **Crash spike during rollout** — pair rollouts with `--vitals-gate` on the `gpc train` command to auto-halt on threshold breach.
+- **Crash spike during rollout** — put `gates` in the train config, or pass `--vitals-gate` to `gpc releases rollout increase`, to stop a ramp on threshold breach.
 
 ## Related
 

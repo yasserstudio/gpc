@@ -203,7 +203,7 @@ gpc preflight --metadata fastlane/metadata/android
 gpc apps list
 
 # Check your configured package name
-gpc config get app
+gpc config show
 ```
 
 #### 403 Forbidden
@@ -227,8 +227,8 @@ gpc config get app
 **Fix:**
 
 ```bash
-# Reduce concurrency for batch operations
-gpc <command> --concurrency 1
+# Check how close you are to the daily and per-minute quotas
+gpc quota status
 
 # GPC automatically retries with backoff, but you can wait and retry
 ```
@@ -295,7 +295,7 @@ export NODE_EXTRA_CA_CERTS=/path/to/ca-bundle.crt
 
 ```bash
 # List available profiles
-gpc config profiles
+gpc auth profiles
 
 # Check current profile
 echo $GPC_PROFILE

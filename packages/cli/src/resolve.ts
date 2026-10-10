@@ -16,8 +16,27 @@ export function resolvePackageName(
       suggestion: "Use --app <package> or gpc config set app <package>",
     });
   }
+  assertValidPackageName(name);
   return name;
 }
+
+/**
+ * Rejects a malformed name before it reaches a URL: " com.x" (a quoting slip) or
+ * "=com.x" (`-a=com.x`, where Commander keeps the "=") otherwise surface as a
+ * confusing 404 from Google.
+ */
+export function assertValidPackageName(name: string): void {
+  if (!PACKAGE_NAME_PATTERN.test(name)) {
+    throw Object.assign(new Error(`Invalid package name "${name}"`), {
+      code: "INVALID_PACKAGE_NAME",
+      exitCode: 2,
+      suggestion:
+        "Use the application ID, e.g. --app com.example.app (segments start with a letter; letters, digits and _ only). For the short flag, use -a com.example.app, not -a=com.example.app.",
+    });
+  }
+}
+
+const PACKAGE_NAME_PATTERN = /^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$/;
 
 export async function getClient(config: GpcConfig) {
   const auth = await resolveAuth({ serviceAccountPath: config.auth?.serviceAccount });

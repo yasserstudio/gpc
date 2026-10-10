@@ -6,7 +6,7 @@ description: "Ship Android releases to Google Play from the terminal or CI. Uplo
 hero:
   name: "GPC"
   text: "Google Play Console CLI"
-  tagline: "Ship Android releases from the terminal. Upload, roll out, monitor, and halt on regressions, all scriptable, all in CI. No browser, no Ruby."
+  tagline: "Ship Android releases from the terminal. Upload, roll out, monitor, and halt on regressions, all scriptable, all in CI. One standalone binary: no Node, no Ruby, no browser, no telemetry."
   actions:
     - theme: brand
       text: Get Started
@@ -52,7 +52,7 @@ import { withBase } from "vitepress";
     <span class="stat-label">API Endpoints</span>
   </div>
   <div class="stat-item">
-    <span class="stat-number">2,844</span>
+    <span class="stat-number">2,906</span>
     <span class="stat-label">Tests</span>
   </div>
   <div class="stat-item">
@@ -63,6 +63,20 @@ import { withBase } from "vitepress";
     <span class="stat-number">Free</span>
     <span class="stat-label">to Use</span>
   </div>
+</div>
+
+<div class="home-install">
+
+```bash
+# One binary, no Node needed
+brew install yasserstudio/tap/gpc
+
+# Or with npm (Node.js 20+)
+npm install -g @gpc-cli/cli
+```
+
+<p class="home-install-more">Linux install script, Windows <code>.exe</code>, Docker and CI: see <a :href="withBase('/guide/installation')">Installation</a>. No account, no telemetry.</p>
+
 </div>
 
 <section class="home-section section-coverage">

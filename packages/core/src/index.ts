@@ -153,7 +153,14 @@ export {
   compareVitalsTrend,
   checkThreshold,
 } from "./commands/vitals.js";
-export { compareVersionVitals, watchVitalsWithAutoHalt } from "./commands/vitals.js";
+export {
+  assertRateThreshold,
+  compareVersionVitals,
+  latestWorstValue,
+  readMetricValue,
+  worstSliceAverage,
+  watchVitalsWithAutoHalt,
+} from "./commands/vitals.js";
 export type {
   VitalsQueryOptions,
   VitalsOverview,

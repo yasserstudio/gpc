@@ -36,27 +36,29 @@ Two common patterns:
 
 ### Automated rollout with `gpc train`
 
-The [`gpc train`](/commands/train) command runs a staged rollout pipeline for you. It advances through each stage, waits for the configured time gate, checks vitals quality gates, and proceeds or halts automatically.
+The [`gpc train`](/commands/train) command runs a staged rollout pipeline for you. It advances through each stage, waits out the configured delay, checks vitals quality gates, and proceeds or pauses automatically. Stages and gates live in a config file, not in flags:
 
-```bash
-gpc train \
-  --app com.example.app \
-  --track production \
-  --stages 1,5,10,25,50,100 \
-  --wait 24h \
-  --on-breach halt
+```json
+// .gpcrc-train.json
+{
+  "stages": [
+    { "track": "production", "rollout": 1 },
+    { "track": "production", "rollout": 5, "after": "1d" },
+    { "track": "production", "rollout": 25, "after": "2d" },
+    { "track": "production", "rollout": 100, "after": "4d" }
+  ],
+  "gates": {
+    "crashes": { "max": 2 },
+    "anr": { "max": 0.5 }
+  }
+}
 ```
 
-This starts at 1%, waits 24 hours between each stage, checks crash and ANR rates before advancing, and halts the rollout if any quality gate is breached.
-
-You can also use a named stage preset:
-
 ```bash
-gpc train \
-  --app com.example.app \
-  --track production \
-  --preset conservative
+gpc train start
 ```
+
+This starts at 1%, waits at least a day between each stage, and checks crash and ANR rates before advancing. Gate values are percentages (`"max": 2` is 2%). If a gate fails during `gpc train advance`, the train is paused instead of ramping further. Use `gpc train status`, `gpc train pause` and `gpc train abort` to drive it from there.
 
 ## Monitoring during rollout
 
@@ -68,8 +70,10 @@ gpc train \
 gpc watch \
   --app com.example.app \
   --track production \
-  --interval 15m
+  --interval 900
 ```
+
+`--interval` is in seconds and must be at least 60.
 
 ### Checking crash rates
 
@@ -83,14 +87,14 @@ gpc vitals crashes \
 
 ### Auto-halt on threshold breach
 
-Pass `--on-breach halt` to `gpc watch` or `gpc train` to automatically halt the rollout if vitals exceed your thresholds:
+Pass `--on-breach halt` to `gpc watch` to automatically halt the rollout if vitals exceed your thresholds. Rate thresholds are fractions, so 2% is `0.02` and 0.5% is `0.005`:
 
 ```bash
 gpc watch \
   --app com.example.app \
   --track production \
-  --crash-threshold 2.0 \
-  --anr-threshold 0.5 \
+  --crash-threshold 0.02 \
+  --anr-threshold 0.005 \
   --on-breach halt
 ```
 
@@ -103,10 +107,10 @@ Sometimes you need to intervene directly. The [`gpc releases`](/commands/release
 ### Set a specific rollout percentage
 
 ```bash
-gpc releases promote \
+gpc releases rollout increase \
   --app com.example.app \
   --track production \
-  --rollout 10
+  --to 10
 ```
 
 This sets the current release to 10% of users.
@@ -114,7 +118,7 @@ This sets the current release to 10% of users.
 ### Halt a rollout
 
 ```bash
-gpc releases halt \
+gpc releases rollout halt \
   --app com.example.app \
   --track production
 ```
@@ -128,7 +132,7 @@ Google Play does not allow lowering a staged rollout percentage. If you need to 
 ### Resume a halted rollout
 
 ```bash
-gpc releases resume \
+gpc releases rollout resume \
   --app com.example.app \
   --track production
 ```
@@ -138,10 +142,9 @@ This resumes the rollout from where it was halted.
 ### Complete a rollout
 
 ```bash
-gpc releases promote \
+gpc releases rollout complete \
   --app com.example.app \
-  --track production \
-  --rollout 100
+  --track production
 ```
 
 ## CI/CD integration
@@ -165,10 +168,10 @@ jobs:
       - name: Upload AAB
         run: |
           gpc releases upload \
+            app/build/outputs/bundle/release/app-release.aab \
             --app com.example.app \
             --track production \
-            --rollout 1 \
-            --aab app/build/outputs/bundle/release/app-release.aab
+            --rollout 1
         env:
           GPC_SERVICE_ACCOUNT_KEY: ${{ secrets.GPC_SERVICE_ACCOUNT_KEY }}
 
@@ -177,10 +180,11 @@ jobs:
           gpc watch \
             --app com.example.app \
             --track production \
-            --crash-threshold 2.0 \
-            --anr-threshold 0.5 \
+            --crash-threshold 0.02 \
+            --anr-threshold 0.005 \
             --on-breach halt \
-            --duration 24h
+            --interval 900 \
+            --rounds 96
         env:
           GPC_SERVICE_ACCOUNT_KEY: ${{ secrets.GPC_SERVICE_ACCOUNT_KEY }}
 ```
@@ -199,7 +203,7 @@ GPC uses semantic exit codes so CI pipelines can branch on failure reason:
 | 5    | Network error    |
 | 6    | Threshold breach |
 
-Exit code 6 is the one that matters for rollout gating. When `gpc watch` or `gpc train` exits with code 6, the rollout has been halted because a vitals threshold was exceeded. Your CI workflow can use this to trigger alerts, open an incident, or block promotion to the next stage.
+Exit code 6 is the one that matters for rollout gating. When `gpc watch` exits with code 6, the rollout has been halted because a vitals threshold was exceeded. Your CI workflow can use this to trigger alerts, open an incident, or block promotion to the next stage.
 
 ## When to halt
 

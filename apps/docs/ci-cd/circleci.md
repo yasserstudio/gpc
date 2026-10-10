@@ -161,8 +161,8 @@ jobs:
       - run:
           name: Check vitals before promotion
           command: |
-            gpc vitals crashes --threshold 2.0 --json
-            gpc vitals anr --threshold 0.5 --json
+            gpc vitals crashes --threshold 0.02 --json
+            gpc vitals anr --threshold 0.005 --json
       - run:
           name: Promote to production (staged)
           command: |

@@ -403,13 +403,11 @@ html {
   font-weight: 600 !important;
   color: var(--vp-c-brand-1) !important;
   background: var(--vp-c-brand-soft) !important;
-  box-shadow: inset 2px 0 0 var(--vp-c-brand-1) !important;
 }
 
 .dark .VPSidebarItem.level-1.is-active > .item > .link,
 .dark .VPSidebarItem.level-2.is-active > .item > .link {
   background: rgba(77, 149, 241, 0.08) !important;
-  box-shadow: inset 2px 0 0 #4d95f1 !important;
 }
 
 /* ================================================================
@@ -980,6 +978,12 @@ html {
     14px center,
     30px center,
     46px center;
+  /* Without a size each gradient spans the whole bar, so the dots ignore their
+     offsets and land on the centered "terminal" label. */
+  background-size:
+    10px 10px,
+    10px 10px,
+    10px 10px;
   background-repeat: no-repeat;
   font-family: var(--vp-font-family-base);
   font-size: 0.7rem;
@@ -1060,17 +1064,19 @@ html {
   padding: 14px 18px !important;
 }
 
+/* No left-edge accent bars anywhere on the site: callouts carry their colour
+   through a full thin border and the tinted background. */
 .vp-doc .custom-block.tip {
-  border-left: 3px solid var(--vp-c-brand-1);
+  border: 1px solid color-mix(in srgb, var(--vp-c-brand-1) 35%, transparent);
 }
 .vp-doc .custom-block.warning {
-  border-left: 3px solid #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.35);
 }
 .vp-doc .custom-block.danger {
-  border-left: 3px solid #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.35);
 }
 .vp-doc .custom-block.info {
-  border-left: 3px solid #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.35);
 }
 
 .vp-doc .custom-block-title {
@@ -1196,6 +1202,12 @@ html {
     14px center,
     30px center,
     46px center;
+  /* Without a size each gradient spans the whole bar, so the dots ignore their
+     offsets and land on the centered "terminal" label. */
+  background-size:
+    10px 10px,
+    10px 10px,
+    10px 10px;
   background-repeat: no-repeat;
   font-family: var(--vp-font-family-base);
   font-size: 0.7rem;
@@ -1311,9 +1323,9 @@ html {
 }
 
 .vp-doc blockquote {
-  border-left: 3px solid var(--vp-c-brand-1);
+  border: 1px solid color-mix(in srgb, var(--vp-c-brand-1) 25%, transparent);
   background: var(--vp-c-brand-soft);
-  border-radius: 0 var(--gpc-radius) var(--gpc-radius) 0;
+  border-radius: var(--gpc-radius);
   padding: 10px 18px;
   font-style: italic;
   color: var(--vp-c-text-2);
@@ -1355,23 +1367,7 @@ html {
   font-weight: 700 !important;
   letter-spacing: -0.025em !important;
   margin-bottom: 28px !important;
-  padding-left: 16px !important;
   position: relative;
-}
-
-.section-title::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 5px;
-  bottom: 5px;
-  width: 3px;
-  background: var(--vp-c-brand-1);
-  border-radius: 2px;
-}
-
-.dark .section-title::before {
-  background: #4d95f1;
 }
 
 /* ── Alternating section backgrounds ─────────────────────────────── */
@@ -1612,7 +1608,7 @@ html {
 /* Dark blockquote */
 .dark .vp-doc blockquote {
   background: rgba(77, 149, 241, 0.05);
-  border-left-color: #4d95f1;
+  border-color: rgba(77, 149, 241, 0.25);
 }
 
 /* Dark footer */
@@ -1842,6 +1838,23 @@ html {
   padding: 32px 0 8px;
 }
 
+.home-install {
+  max-width: 720px;
+  margin: 16px auto 0;
+  padding: 0 24px;
+}
+
+.home-install div[class*="language-"] {
+  margin: 0;
+}
+
+.home-install-more {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--vp-c-text-2);
+}
+
 .stat-item {
   flex: 1;
   display: flex;
@@ -1958,4 +1971,32 @@ html.dark .yasser-logo-light {
 }
 html.dark .yasser-logo-dark {
   display: inline-block !important;
+}
+
+/* The GitHub star button in the nav bar replaces the plain GitHub icon from
+   1024px up; below that the icon shows (and stays in the phone menu). */
+@media (min-width: 1024px) {
+  .VPNavBar .VPSocialLinks a[href="https://github.com/yasserstudio/gpc"] {
+    display: none;
+  }
+}
+
+/* No left-edge accent bars: drop VitePress's outline rule and its sliding marker. */
+.VPDocAsideOutline .content {
+  border-left: none !important;
+  padding-left: 0 !important;
+}
+
+.VPDocAsideOutline .outline-marker {
+  display: none !important;
+}
+
+/* No left-edge accent bars: VitePress's active-item indicator and the rule
+   beside nested sidebar groups. */
+.VPSidebarItem .indicator {
+  display: none !important;
+}
+
+.VPSidebarItem .items {
+  border-left: none !important;
 }

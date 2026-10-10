@@ -32,34 +32,34 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 ## Edits: Bundles
 
-| API Endpoint           | Method | GPC Command                       |
-| ---------------------- | ------ | --------------------------------- |
-| `edits.bundles.list`   | GET    | `gpc releases list --type bundle` |
-| `edits.bundles.upload` | POST   | `gpc releases upload <file.aab>`  |
+| API Endpoint           | Method | GPC Command                      |
+| ---------------------- | ------ | -------------------------------- |
+| `edits.bundles.list`   | GET    | `gpc bundles list`               |
+| `edits.bundles.upload` | POST   | `gpc releases upload <file.aab>` |
 
 ## Edits: APKs
 
 | API Endpoint                     | Method | GPC Command                      |
 | -------------------------------- | ------ | -------------------------------- |
-| `edits.apks.list`                | GET    | `gpc releases list --type apk`   |
+| `edits.apks.list`                | GET    | (via SDK)                        |
 | `edits.apks.upload`              | POST   | `gpc releases upload <file.apk>` |
 | `edits.apks.addExternallyHosted` | POST   | (via SDK)                        |
 
 ## Edits: Tracks
 
-| API Endpoint          | Method | GPC Command                         |
-| --------------------- | ------ | ----------------------------------- |
-| `edits.tracks.list`   | GET    | `gpc tracks list`                   |
-| `edits.tracks.get`    | GET    | `gpc tracks get <track>`            |
-| `edits.tracks.update` | PUT    | `gpc tracks update <track>`         |
-| `edits.tracks.patch`  | PATCH  | `gpc tracks update <track> --patch` |
-| `edits.tracks.create` | POST   | `gpc tracks create <name>`          |
+| API Endpoint          | Method | GPC Command                           |
+| --------------------- | ------ | ------------------------------------- |
+| `edits.tracks.list`   | GET    | `gpc tracks list`                     |
+| `edits.tracks.get`    | GET    | `gpc releases status --track <track>` |
+| `edits.tracks.update` | PUT    | `gpc tracks update <track>`           |
+| `edits.tracks.patch`  | PATCH  | `gpc tracks update <track>`           |
+| `edits.tracks.create` | POST   | `gpc tracks create <name>`            |
 
 ## Release Lifecycle
 
-| API Endpoint                        | Method | GPC Command                     |
-| ----------------------------------- | ------ | ------------------------------- |
-| `applications.tracks.releases.list` | GET    | `gpc releases list --lifecycle` |
+| API Endpoint                        | Method | GPC Command           |
+| ----------------------------------- | ------ | --------------------- |
+| `applications.tracks.releases.list` | GET    | `gpc releases status` |
 
 ## Edits: Deobfuscation Files
 
@@ -78,31 +78,31 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 ## Edits: Listings
 
-| API Endpoint               | Method | GPC Command                                 |
-| -------------------------- | ------ | ------------------------------------------- |
-| `edits.listings.list`      | GET    | `gpc listings get` (all languages)          |
-| `edits.listings.get`       | GET    | `gpc listings get --lang <lang>`            |
-| `edits.listings.update`    | PUT    | `gpc listings update --lang <lang>`         |
-| `edits.listings.delete`    | DELETE | `gpc listings delete --lang <lang>`         |
-| `edits.listings.deleteall` | DELETE | `gpc listings delete --all`                 |
-| `edits.listings.patch`     | PATCH  | `gpc listings update --lang <lang> --patch` |
+| API Endpoint               | Method | GPC Command                         |
+| -------------------------- | ------ | ----------------------------------- |
+| `edits.listings.list`      | GET    | `gpc listings get` (all languages)  |
+| `edits.listings.get`       | GET    | `gpc listings get --lang <lang>`    |
+| `edits.listings.update`    | PUT    | `gpc listings update --lang <lang>` |
+| `edits.listings.delete`    | DELETE | `gpc listings delete --lang <lang>` |
+| `edits.listings.deleteall` | DELETE | (via SDK)                           |
+| `edits.listings.patch`     | PATCH  | `gpc listings update --lang <lang>` |
 
 ## Edits: Images
 
-| API Endpoint             | Method | GPC Command                        |
-| ------------------------ | ------ | ---------------------------------- |
-| `edits.images.list`      | GET    | `gpc listings images list`         |
-| `edits.images.upload`    | POST   | `gpc listings images upload`       |
-| `edits.images.delete`    | DELETE | `gpc listings images delete`       |
-| `edits.images.deleteall` | DELETE | `gpc listings images delete --all` |
+| API Endpoint             | Method | GPC Command                         |
+| ------------------------ | ------ | ----------------------------------- |
+| `edits.images.list`      | GET    | `gpc listings images list`          |
+| `edits.images.upload`    | POST   | `gpc listings images upload`        |
+| `edits.images.delete`    | DELETE | `gpc listings images delete`        |
+| `edits.images.deleteall` | DELETE | `gpc listings images sync --delete` |
 
 ## Edits: Details
 
-| API Endpoint           | Method | GPC Command                         |
-| ---------------------- | ------ | ----------------------------------- |
-| `edits.details.get`    | GET    | `gpc apps info <package>`           |
-| `edits.details.update` | PUT    | `gpc apps update <package>`         |
-| `edits.details.patch`  | PATCH  | `gpc apps update <package> --patch` |
+| API Endpoint           | Method | GPC Command               |
+| ---------------------- | ------ | ------------------------- |
+| `edits.details.get`    | GET    | `gpc apps info <package>` |
+| `edits.details.update` | PUT    | `gpc apps update`         |
+| `edits.details.patch`  | PATCH  | `gpc apps update`         |
 
 ## Edits: Country Availability
 
@@ -116,7 +116,7 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 | ---------------------- | ------ | ---------------------------------- |
 | `edits.testers.get`    | GET    | `gpc testers list --track <track>` |
 | `edits.testers.update` | PUT    | `gpc testers add / remove`         |
-| `edits.testers.patch`  | PATCH  | `gpc testers update`               |
+| `edits.testers.patch`  | PATCH  | `gpc testers import`               |
 
 ## Reviews
 
@@ -128,39 +128,39 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 ## In-App Products
 
-| API Endpoint                | Method | GPC Command                    |
-| --------------------------- | ------ | ------------------------------ |
-| `inappproducts.list`        | GET    | `gpc iap list`                 |
-| `inappproducts.get`         | GET    | `gpc iap get <sku>`            |
-| `inappproducts.insert`      | POST   | `gpc iap create`               |
-| `inappproducts.update`      | PUT    | `gpc iap update <sku>`         |
-| `inappproducts.delete`      | DELETE | `gpc iap delete <sku>`         |
-| `inappproducts.patch`       | PATCH  | `gpc iap update <sku> --patch` |
-| `inappproducts.batchGet`    | POST   | `gpc iap batch-get`            |
-| `inappproducts.batchUpdate` | POST   | `gpc iap sync`                 |
-| `inappproducts.batchDelete` | POST   | `gpc iap batch-delete`         |
+| API Endpoint                | Method | GPC Command            |
+| --------------------------- | ------ | ---------------------- |
+| `inappproducts.list`        | GET    | `gpc iap list`         |
+| `inappproducts.get`         | GET    | `gpc iap get <sku>`    |
+| `inappproducts.insert`      | POST   | `gpc iap create`       |
+| `inappproducts.update`      | PUT    | `gpc iap update <sku>` |
+| `inappproducts.delete`      | DELETE | `gpc iap delete <sku>` |
+| `inappproducts.patch`       | PATCH  | `gpc iap update <sku>` |
+| `inappproducts.batchGet`    | POST   | `gpc iap batch-get`    |
+| `inappproducts.batchUpdate` | POST   | `gpc iap sync`         |
+| `inappproducts.batchDelete` | POST   | (via SDK)              |
 
 ## Monetization: Subscriptions
 
-| API Endpoint                             | Method | GPC Command                      |
-| ---------------------------------------- | ------ | -------------------------------- |
-| `monetization.subscriptions.list`        | GET    | `gpc subscriptions list`         |
-| `monetization.subscriptions.get`         | GET    | `gpc subscriptions get <id>`     |
-| `monetization.subscriptions.create`      | POST   | `gpc subscriptions create`       |
-| `monetization.subscriptions.patch`       | PATCH  | `gpc subscriptions update <id>`  |
-| `monetization.subscriptions.delete`      | DELETE | `gpc subscriptions delete <id>`  |
-| `monetization.subscriptions.batchGet`    | GET    | `gpc subscriptions batch-get`    |
-| `monetization.subscriptions.batchUpdate` | POST   | `gpc subscriptions batch-update` |
+| API Endpoint                             | Method | GPC Command                     |
+| ---------------------------------------- | ------ | ------------------------------- |
+| `monetization.subscriptions.list`        | GET    | `gpc subscriptions list`        |
+| `monetization.subscriptions.get`         | GET    | `gpc subscriptions get <id>`    |
+| `monetization.subscriptions.create`      | POST   | `gpc subscriptions create`      |
+| `monetization.subscriptions.patch`       | PATCH  | `gpc subscriptions update <id>` |
+| `monetization.subscriptions.delete`      | DELETE | `gpc subscriptions delete <id>` |
+| `monetization.subscriptions.batchGet`    | GET    | (via SDK)                       |
+| `monetization.subscriptions.batchUpdate` | POST   | (via SDK)                       |
 
 ## Monetization: Base Plans
 
-| API Endpoint                   | Method | GPC Command                                         |
-| ------------------------------ | ------ | --------------------------------------------------- |
-| `basePlans.activate`           | POST   | `gpc subscriptions base-plans activate`             |
-| `basePlans.deactivate`         | POST   | `gpc subscriptions base-plans deactivate`           |
-| `basePlans.delete`             | DELETE | `gpc subscriptions base-plans delete`               |
-| `basePlans.migratePrices`      | POST   | `gpc subscriptions base-plans migrate-prices`       |
-| `basePlans.batchMigratePrices` | POST   | `gpc subscriptions base-plans batch-migrate-prices` |
+| API Endpoint                   | Method | GPC Command                                   |
+| ------------------------------ | ------ | --------------------------------------------- |
+| `basePlans.activate`           | POST   | `gpc subscriptions base-plans activate`       |
+| `basePlans.deactivate`         | POST   | `gpc subscriptions base-plans deactivate`     |
+| `basePlans.delete`             | DELETE | `gpc subscriptions base-plans delete`         |
+| `basePlans.migratePrices`      | POST   | `gpc subscriptions base-plans migrate-prices` |
+| `basePlans.batchMigratePrices` | POST   | (via SDK)                                     |
 
 ## Monetization: Subscription Offers
 
@@ -176,21 +176,21 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 ## Purchases
 
-| API Endpoint                          | Method | GPC Command                                      |
-| ------------------------------------- | ------ | ------------------------------------------------ |
-| `purchases.products.get`              | GET    | `gpc purchases get <product-id> <token>`         |
-| `purchases.products.acknowledge`      | POST   | `gpc purchases acknowledge <token>`              |
-| `purchases.products.consume`          | POST   | `gpc purchases consume <token>`                  |
-| `purchases.subscriptions.get`         | GET    | `gpc purchases subscription get <token>`         |
-| `purchases.subscriptions.acknowledge` | POST   | (via SDK)                                        |
-| `purchases.subscriptions.cancel`      | POST   | `gpc purchases subscription cancel <token>`      |
-| `purchases.subscriptions.defer`       | POST   | `gpc purchases subscription defer <token>`       |
-| `purchases.subscriptionsv2.get`       | GET    | `gpc purchases subscription get <token> --v2`    |
-| `purchases.subscriptionsv2.revoke`    | POST   | `gpc purchases subscription revoke <token> --v2` |
-| `purchases.subscriptionsv2.cancel`    | POST   | `gpc purchases subscription cancel-v2 <token>`   |
-| `purchases.subscriptionsv2.defer`     | POST   | `gpc purchases subscription defer-v2 <token>`    |
-| `purchases.productsv2.get`            | GET    | `gpc purchases product get-v2 <id> <token>`      |
-| `purchases.voidedpurchases.list`      | GET    | `gpc purchases voided list`                      |
+| API Endpoint                          | Method | GPC Command                                    |
+| ------------------------------------- | ------ | ---------------------------------------------- |
+| `purchases.products.get`              | GET    | `gpc purchases get <product-id> <token>`       |
+| `purchases.products.acknowledge`      | POST   | `gpc purchases acknowledge <token>`            |
+| `purchases.products.consume`          | POST   | `gpc purchases consume <token>`                |
+| `purchases.subscriptions.get`         | GET    | `gpc purchases subscription get <token>`       |
+| `purchases.subscriptions.acknowledge` | POST   | (via SDK)                                      |
+| `purchases.subscriptions.cancel`      | POST   | `gpc purchases subscription cancel <token>`    |
+| `purchases.subscriptions.defer`       | POST   | `gpc purchases subscription defer <token>`     |
+| `purchases.subscriptionsv2.get`       | GET    | `gpc purchases subscription get <token>`       |
+| `purchases.subscriptionsv2.revoke`    | POST   | `gpc purchases subscription revoke <token>`    |
+| `purchases.subscriptionsv2.cancel`    | POST   | `gpc purchases subscription cancel-v2 <token>` |
+| `purchases.subscriptionsv2.defer`     | POST   | `gpc purchases subscription defer-v2 <token>`  |
+| `purchases.productsv2.get`            | GET    | `gpc purchases product get-v2 <id> <token>`    |
+| `purchases.voidedpurchases.list`      | GET    | `gpc purchases voided list`                    |
 
 ## Orders
 
@@ -239,22 +239,22 @@ Bulk reports are served from the Play-linked Cloud Storage bucket (`pubsite_prod
 
 ## Play Developer Reporting API: Vitals
 
-| API Endpoint                                     | Method | GPC Command                                |
-| ------------------------------------------------ | ------ | ------------------------------------------ |
-| `crashRateMetricSet.query`                       | POST   | `gpc vitals crashes`                       |
-| `anrRateMetricSet.query`                         | POST   | `gpc vitals anr`                           |
-| `slowStartRateMetricSet.query`                   | POST   | `gpc vitals startup`                       |
-| `slowRenderingRateMetricSet.query`               | POST   | `gpc vitals rendering`                     |
-| `excessiveWakeupRateMetricSet.query`             | POST   | `gpc vitals battery` / `gpc vitals wakeup` |
-| `stuckBackgroundWakelockRateMetricSet.query`     | POST   | `gpc vitals memory`                        |
-| `lmkRateMetricSet.query`                         | POST   | `gpc vitals lmk`                           |
-| `anonRssAndSwapMemoryUsageMetricSet.query`       | POST   | `gpc vitals memory-rss`                    |
-| `bitmapMemoryUsageMetricSet.query`               | POST   | `gpc vitals memory-bitmap`                 |
-| `errorCountMetricSet.query`                      | POST   | `gpc vitals error-count`                   |
-| `*.get` metric-set metadata and freshness routes | GET    | Used automatically before each query       |
-| `anomalies.list`                                 | GET    | `gpc vitals anomalies`                     |
-| `errorIssues.search`                             | GET    | `gpc vitals errors search`                 |
-| `errorReports.search`                            | GET    | `gpc vitals errors reports`                |
+| API Endpoint                                     | Method | GPC Command                                 |
+| ------------------------------------------------ | ------ | ------------------------------------------- |
+| `crashRateMetricSet.query`                       | POST   | `gpc vitals crashes`                        |
+| `anrRateMetricSet.query`                         | POST   | `gpc vitals anr`                            |
+| `slowStartRateMetricSet.query`                   | POST   | `gpc vitals startup`                        |
+| `slowRenderingRateMetricSet.query`               | POST   | `gpc vitals rendering`                      |
+| `excessiveWakeupRateMetricSet.query`             | POST   | `gpc vitals battery` / `gpc vitals wakeup`  |
+| `stuckBackgroundWakelockRateMetricSet.query`     | POST   | `gpc vitals memory`                         |
+| `lmkRateMetricSet.query`                         | POST   | `gpc vitals lmk`                            |
+| `anonRssAndSwapMemoryUsageMetricSet.query`       | POST   | `gpc vitals memory-rss`                     |
+| `bitmapMemoryUsageMetricSet.query`               | POST   | `gpc vitals memory-bitmap`                  |
+| `errorCountMetricSet.query`                      | POST   | `gpc vitals error-count`                    |
+| `*.get` metric-set metadata and freshness routes | GET    | Used automatically before each query        |
+| `anomalies.list`                                 | GET    | `gpc vitals anomalies`                      |
+| `errorIssues.search`                             | GET    | `gpc vitals errors search`                  |
+| `errorReports.search`                            | GET    | `gpc vitals errors search` (sample reports) |
 
 ## App Recovery Actions
 
@@ -331,8 +331,8 @@ System APKs are bundled, unsigned variants produced for a specific version. Used
 | `monetization.onetimeproducts.patch`                | PATCH  | `gpc otp create` (`allowMissing`), `gpc otp update <id>`        |
 | `monetization.oneTimeProducts.delete`               | DELETE | `gpc otp delete <id>`                                           |
 | `oneTimeProducts.offers.list`                       | GET    | `gpc otp offers list`                                           |
-| `oneTimeProducts.offers.activate`                   | POST   | `gpc otp offers activate`                                       |
-| `oneTimeProducts.offers.deactivate`                 | POST   | `gpc otp offers deactivate`                                     |
+| `oneTimeProducts.offers.activate`                   | POST   | (via SDK)                                                       |
+| `oneTimeProducts.offers.deactivate`                 | POST   | (via SDK)                                                       |
 | `oneTimeProducts.offers.cancel`                     | POST   | `gpc otp offers cancel`                                         |
 | `oneTimeProducts.offers.batchGet`                   | POST   | `gpc otp offers batch-get`, `offers get`                        |
 | `oneTimeProducts.offers.batchUpdate`                | POST   | `gpc otp offers batch-update`, `offers create`, `offers update` |
@@ -426,12 +426,12 @@ GPC's RTDN decoder covers all documented event types: 18 subscription (1-13, 17-
 
 | Endpoint                               | Use-case                                                                                      | Target |
 | -------------------------------------- | --------------------------------------------------------------------------------------------- | ------ |
-| `apps.search`                          | `gpc apps list --source reporting`: list service-account-visible apps via Reporting ACL       | Future |
+| `apps.search`                          | Reporting-ACL app discovery, to back a future `--source` option on `gpc apps list`            | Future |
 | `apps.fetchReleaseFilterOptions`       | Validate `--version-code` / `--track` filters, power shell completion for vitals queries      | Future |
 | `errorIssues.search` (extended params) | Add `orderBy`, `sampleErrorReportLimit`, `interval.*` windowing to `gpc vitals errors search` | Future |
 
 ::: info Fixed
-`gpc vitals errors reports` now calls the correct `GET /apps/{pkg}/errorReports:search` endpoint with an `errorIssueId` filter.
+`gpc vitals errors search` now calls the correct `GET /apps/{pkg}/errorReports:search` endpoint with an `errorIssueId` filter for its sample reports.
 :::
 
 ### Managed Google Play (playcustomapp): minor polish
@@ -454,7 +454,7 @@ GPC v0.9.86 implements the full live `gamesconfiguration v1configuration` API (r
 
 The live discovery document contains no `imageConfigurations` resource. Achievement and leaderboard icon upload was removed from the published API surface in revision `20260820`; GPC retains the legacy call only to return a clear `API_ENDPOINT_RETIRED` error when Google rejects the route.
 
-The runtime `games v1` API (revision `20260907`) is preserved read-only under `gpc games runtime` for inspection. `gpc games events` was removed (runtime-only, no publisher equivalent).
+The runtime `games v1` API (revision `20260907`) is preserved read-only under `gpc games runtime` for inspection. The former `games events` command was removed (runtime-only, no publisher equivalent).
 
 `gamesManagement v1management` (revision `20260907`, 18 methods) will not be expanded. It is a QA/reset and player-moderation surface that requires a developer-console user or whitelisted tester account, rather than GPC's service-account publishing workflow.
 

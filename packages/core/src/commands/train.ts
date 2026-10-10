@@ -8,7 +8,7 @@ import {
 } from "../utils/train-state.js";
 import type { TrainConfig, TrainState } from "../utils/train-state.js";
 import { updateRollout } from "./releases.js";
-import { getVitalsCrashes, getVitalsAnr } from "./vitals.js";
+import { getVitalsCrashes, getVitalsAnr, latestWorstValue } from "./vitals.js";
 import { GpcError } from "../errors.js";
 
 export type { TrainConfig, TrainState };
@@ -114,12 +114,10 @@ export async function advanceTrain(
   if (state.gates) {
     if (state.gates.crashes?.max !== undefined) {
       const result = await getVitalsCrashes(reportingClient, packageName, { days: 1 });
-      const latestRow = result.rows?.[result.rows.length - 1];
-      const firstMetric = latestRow?.metrics ? Object.keys(latestRow.metrics)[0] : undefined;
-      const value = firstMetric
-        ? Number(latestRow?.metrics[firstMetric]?.decimalValue?.value)
-        : undefined;
-      if (value !== undefined && value > state.gates.crashes.max / 100) {
+      const value = latestWorstValue(result.rows, "crashRate");
+      // No value means the gate cannot judge this stage: hold, never advance blind.
+      if (value === undefined) throw trainGateNoData("Crash", "crashes");
+      if (value > state.gates.crashes.max / 100) {
         state.status = "paused";
         state.updatedAt = new Date().toISOString();
         await writeTrainState(packageName, state);
@@ -134,12 +132,10 @@ export async function advanceTrain(
 
     if (state.gates.anr?.max !== undefined) {
       const result = await getVitalsAnr(reportingClient, packageName, { days: 1 });
-      const latestRow = result.rows?.[result.rows.length - 1];
-      const firstMetric = latestRow?.metrics ? Object.keys(latestRow.metrics)[0] : undefined;
-      const value = firstMetric
-        ? Number(latestRow?.metrics[firstMetric]?.decimalValue?.value)
-        : undefined;
-      if (value !== undefined && value > state.gates.anr.max / 100) {
+      const value = latestWorstValue(result.rows, "anrRate");
+      // No value means the gate cannot judge this stage: hold, never advance blind.
+      if (value === undefined) throw trainGateNoData("ANR", "anr");
+      if (value > state.gates.anr.max / 100) {
         state.status = "paused";
         state.updatedAt = new Date().toISOString();
         await writeTrainState(packageName, state);
@@ -179,4 +175,13 @@ async function executeStage(
   state.currentStage = stageIndex;
   state.updatedAt = new Date().toISOString();
   await writeTrainState(packageName, state);
+}
+
+function trainGateNoData(label: string, command: string): GpcError {
+  return new GpcError(
+    `${label} gate has no data to check, so the train was not advanced.`,
+    "TRAIN_GATE_NO_DATA",
+    6,
+    `Vitals data often lags 2-4 days. Run the train again later, or check with: gpc vitals ${command} --days 3`,
+  );
 }

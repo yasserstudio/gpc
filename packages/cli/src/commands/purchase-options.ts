@@ -6,8 +6,8 @@ Use the following commands instead:
   gpc otp offers list <product-id>        List purchase options for a product
   gpc otp offers get <product-id> <id>    Get a specific purchase option
   gpc otp offers create <product-id>      Create a purchase option
-  gpc otp offers activate <product-id> <id>
-  gpc otp offers deactivate <product-id> <id>
+  gpc otp purchase-options batch-update-states <product-id>
+                                          Activate or deactivate purchase options
 
 See: gpc otp offers --help`;
 

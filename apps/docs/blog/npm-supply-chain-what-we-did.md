@@ -4,7 +4,8 @@ date: 2026-05-30
 description: "npm supply chain attacks compromised hundreds of packages in 2025-2026. Here is every concrete protection a small CLI project shipped, and how you can adopt the same patterns."
 author: Yasser Berrehail
 tags: [security, supply-chain, npm, ci-cd, oidc]
-image: ./npm-supply-chain-cover.png
+image: /blog/npm-supply-chain-what-we-did.webp
+ogImage: /blog/npm-supply-chain-what-we-did.jpg
 ---
 
 <BlogPost />
@@ -242,4 +243,4 @@ The npm ecosystem has a supply chain problem. Waiting for npm to solve it is not
 
 ---
 
-_GPC is a TypeScript CLI for Google Play APIs. 234 publisher-focused endpoints, 2,844 tests, free to use. [Install](../guide/installation) | [Security model](../advanced/security) | [GitHub](https://github.com/yasserstudio/gpc)_
+_GPC is a TypeScript CLI for Google Play APIs. 234 publisher-focused endpoints, 2,906 tests, free to use. [Install](../guide/installation) | [Security model](../advanced/security) | [GitHub](https://github.com/yasserstudio/gpc)_

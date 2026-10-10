@@ -4,7 +4,7 @@ outline: deep
 
 # How to Automate Google Play Releases from the Command Line
 
-Automate your entire Google Play release pipeline with GPC, a free command-line tool: `gpc upload` sends the AAB, `gpc promote` moves it between tracks, and `gpc train` gates the staged rollout on crash and ANR vitals. The whole flow runs from your terminal or CI/CD with no browser and no Play Console clicks.
+Automate your entire Google Play release pipeline with GPC, a free command-line tool: `gpc releases upload` sends the AAB, `gpc releases promote` moves it between tracks, and `gpc train` gates the staged rollout on crash and ANR vitals. The whole flow runs from your terminal or CI/CD with no browser and no Play Console clicks.
 
 ## The problem
 
@@ -48,11 +48,27 @@ Before increasing rollout, GPC checks your crash and ANR rates against configure
 
 ### Automated rollout pipeline
 
-```bash
-gpc train --track production --stages 5,20,50,100 --time-gate 24h --vitals-gate
+```json
+// .gpcrc-train.json
+{
+  "stages": [
+    { "track": "production", "rollout": 1 },
+    { "track": "production", "rollout": 5, "after": "1d" },
+    { "track": "production", "rollout": 25, "after": "2d" },
+    { "track": "production", "rollout": 100, "after": "4d" }
+  ],
+  "gates": {
+    "crashes": { "max": 2 },
+    "anr": { "max": 0.5 }
+  }
+}
 ```
 
-Rolls out through stages automatically. Waits 24 hours between each stage. Checks vitals before proceeding. Halts if thresholds are breached.
+```bash
+gpc train start
+```
+
+Rolls out through the stages automatically. Each stage waits out its `after` delay. Gates are checked before proceeding, and the train pauses if a gate is breached.
 
 ### Pre-upload compliance scanning
 

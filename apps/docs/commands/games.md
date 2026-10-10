@@ -269,7 +269,7 @@ All subcommands support the standard `--output` formats: `table`, `json`, `yaml`
 
 ## Breaking Changes (v0.9.86)
 
-- `gpc games events` removed. Events are configured through the Play Console UI. The previous command was read-only against the player-facing runtime API.
+- The `games events` command was removed. Events are configured through the Play Console UI. The previous command was read-only against the player-facing runtime API.
 - Existing runtime list commands moved under `gpc games runtime`.
 
 ## See Also

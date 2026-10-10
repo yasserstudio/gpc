@@ -38,7 +38,8 @@ vi.mock("@gpc-cli/config", () => ({
   getConfigDir: vi.fn().mockReturnValue("/home/user/.config/gpc"),
 }));
 
-vi.mock("@gpc-cli/core", () => {
+vi.mock("@gpc-cli/core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@gpc-cli/core")>();
   // GpcError for validation throws
   class GpcError extends Error {
     constructor(
@@ -136,6 +137,7 @@ vi.mock("@gpc-cli/core", () => {
     getVitalsAnomalies: vi.fn().mockResolvedValue({ anomalies: [] }),
     searchVitalsErrors: vi.fn().mockResolvedValue({ errorIssues: [] }),
     checkThreshold: vi.fn().mockReturnValue({ breached: false, value: 0, threshold: 0 }),
+    latestWorstValue: actual.latestWorstValue,
     listSubscriptions: vi.fn().mockResolvedValue({ subscriptions: [] }),
     getSubscription: vi.fn().mockResolvedValue({}),
     createSubscription: vi.fn().mockResolvedValue({}),

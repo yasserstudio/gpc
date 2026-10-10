@@ -132,3 +132,54 @@ describe("clearTrainState", () => {
     await expect(clearTrainState("com.example.app")).resolves.toBeUndefined();
   });
 });
+
+// ---------------------------------------------------------------------------
+// advanceTrain vitals gates
+// ---------------------------------------------------------------------------
+
+describe("advanceTrain vitals gates", () => {
+  const runningState = () => ({
+    packageName: "com.example.app",
+    status: "running",
+    currentStage: 0,
+    updatedAt: "2026-10-01T00:00:00.000Z",
+    stages: [
+      { track: "production", rollout: 1, executedAt: "2026-10-01T00:00:00.000Z" },
+      { track: "production", rollout: 5 },
+    ],
+    gates: { crashes: { max: 2 } },
+  });
+
+  function reportingWith(rows: unknown[]) {
+    return {
+      queryMetricSet: vi.fn().mockResolvedValue({ rows }),
+      getMetricSetFreshness: vi.fn().mockRejectedValue(new Error("n/a")),
+    } as any;
+  }
+
+  // A gate without a value used to let the train advance to the next stage blind.
+  it("holds the train when the crash gate has no data", async () => {
+    const fs = await import("node:fs/promises");
+    const { advanceTrain } = await import("../src/commands/train.js");
+    vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(runningState()) as any);
+    vi.mocked(fs.writeFile).mockClear();
+    const apiClient = { edits: { insert: vi.fn() } } as any;
+
+    await expect(
+      advanceTrain(apiClient, reportingWith([]), "com.example.app"),
+    ).rejects.toMatchObject({ code: "TRAIN_GATE_NO_DATA", exitCode: 6 });
+    expect(apiClient.edits.insert).not.toHaveBeenCalled();
+    expect(fs.writeFile).not.toHaveBeenCalled();
+  });
+
+  it("pauses on a breach read from Google's array-shaped metrics", async () => {
+    const fs = await import("node:fs/promises");
+    const { advanceTrain } = await import("../src/commands/train.js");
+    vi.mocked(fs.readFile).mockResolvedValueOnce(JSON.stringify(runningState()) as any);
+    const rows = [{ metrics: [{ metric: "crashRate", decimalValue: { value: "0.05" } }] }];
+
+    await expect(
+      advanceTrain({} as any, reportingWith(rows), "com.example.app"),
+    ).rejects.toMatchObject({ code: "TRAIN_CRASH_GATE_FAILED" });
+  });
+});

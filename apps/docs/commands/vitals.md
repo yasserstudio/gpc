@@ -48,6 +48,10 @@ The metric commands (`crashes`, `anr`, `startup`, `rendering`, `battery`, `memor
 | `--days`      |       | `number` |         | Number of days to query                                   |
 | `--threshold` |       | `number` |         | Threshold value for CI alerting (exit code 6 if breached) |
 
+Rate metrics (`crashes`, `anr`, `startup`, `rendering`, `battery`, `memory`, `wakeup`, `lmk`) take the **fraction** Google reports, not a percentage: 2% is `--threshold 0.02`, 1.09% is `0.0109`, 0.47% is `0.0047`. A rate can never exceed 1, so a threshold of 1 or more is rejected with `THRESHOLD_INVALID` (exit 2). `error-count` is a count and `memory-rss` / `memory-bitmap` are sizes, so those take their value as-is.
+
+The gate compares the **worst value of the most recent day**. Startup results have one row per start type (cold, warm, hot) and error counts one per report type, so the worst of those is checked. With `--dim`, every value of that dimension is a separate row too, so `--dim deviceModel --threshold 0.02` fails if any single device model is over 2%, including one with very few users.
+
 Valid dimensions include `apiLevel`, `versionCode`, `deviceModel`, `deviceType`, `countryCode`, `deviceRamBucket`, `deviceBrand`, GPU/CPU/SoC details, screen size and density, `processName`, and `appState`. Google supports different subsets for each metric set.
 
 ## `vitals overview`
@@ -70,16 +74,26 @@ No command-specific options. Uses global `--app` flag.
 gpc vitals overview --app com.example.myapp
 ```
 
+The table shows each metric's latest value and how many daily data points came back. With `--json`, each metric
+holds Google's daily rows, and any metric that could not be read is listed under `unavailable`:
+
 ```json
 {
-  "crashRate": { "value": 1.2, "threshold": "bad" },
-  "anrRate": { "value": 0.3, "threshold": "good" },
-  "slowStartRate": { "value": 5.1, "threshold": "acceptable" },
-  "slowRenderingRate": { "value": 2.8, "threshold": "good" },
-  "excessiveWakeupRate": { "value": 0.1, "threshold": "good" },
-  "stuckWakelockRate": { "value": 0.05, "threshold": "good" }
+  "crashRate": [{ "startTime": { "year": 2026, "month": 10, "day": 6 }, "metrics": [...] }],
+  "anrRate": [...],
+  "slowStartRate": [...],
+  "unavailable": [
+    {
+      "metric": "slowRenderingRate",
+      "code": "API_METRIC_GAMES_ONLY",
+      "reason": "Only available for apps categorised as games."
+    }
+  ]
 }
 ```
+
+A metric that fails is named on stderr and listed in `unavailable`. If every metric fails (for example, the
+Reporting API is off or the service account has no access), the command exits 4 instead of printing an empty result.
 
 ---
 
@@ -95,11 +109,11 @@ gpc vitals crashes [options]
 
 ### Options
 
-| Flag          | Short | Type     | Default | Description                                    |
-| ------------- | ----- | -------- | ------- | ---------------------------------------------- |
-| `--dim`       |       | `string` |         | Group by dimension                             |
-| `--days`      |       | `number` |         | Number of days to query                        |
-| `--threshold` |       | `number` |         | Crash rate threshold (exit code 6 if breached) |
+| Flag          | Short | Type     | Default | Description                                                                      |
+| ------------- | ----- | -------- | ------- | -------------------------------------------------------------------------------- |
+| `--dim`       |       | `string` |         | Group by dimension                                                               |
+| `--days`      |       | `number` |         | Number of days to query                                                          |
+| `--threshold` |       | `number` |         | Crash rate threshold as a fraction, e.g. `0.02` for 2% (exit code 6 if breached) |
 
 ### Example
 
@@ -118,20 +132,20 @@ gpc vitals crashes --app com.example.myapp --dim versionCode --days 30
 CI gating with threshold:
 
 ```bash
-gpc vitals crashes --app com.example.myapp --threshold 2.0
+gpc vitals crashes --app com.example.myapp --threshold 0.02
 ```
 
-If the crash rate exceeds 2.0%, the command exits with code 6:
+If the crash rate exceeds 2% (`0.02`), the command exits with code 6:
 
 ```
-Threshold breached: 2.4 > 2.0
+✗ Threshold breached: 0.024 > 0.02
 ```
 
 Use in CI pipelines:
 
 ```yaml
 - name: Check crash rate
-  run: gpc vitals crashes --app com.example.myapp --threshold 2.0
+  run: gpc vitals crashes --app com.example.myapp --threshold 0.02
 ```
 
 ---
@@ -148,16 +162,16 @@ gpc vitals anr [options]
 
 ### Options
 
-| Flag          | Short | Type     | Default | Description                                  |
-| ------------- | ----- | -------- | ------- | -------------------------------------------- |
-| `--dim`       |       | `string` |         | Group by dimension                           |
-| `--days`      |       | `number` |         | Number of days to query                      |
-| `--threshold` |       | `number` |         | ANR rate threshold (exit code 6 if breached) |
+| Flag          | Short | Type     | Default | Description                                                                         |
+| ------------- | ----- | -------- | ------- | ----------------------------------------------------------------------------------- |
+| `--dim`       |       | `string` |         | Group by dimension                                                                  |
+| `--days`      |       | `number` |         | Number of days to query                                                             |
+| `--threshold` |       | `number` |         | ANR rate threshold as a fraction, e.g. `0.0047` for 0.47% (exit code 6 if breached) |
 
 ### Example
 
 ```bash
-gpc vitals anr --app com.example.myapp --threshold 0.5
+gpc vitals anr --app com.example.myapp --threshold 0.005
 ```
 
 Group by device model:
@@ -172,6 +186,10 @@ gpc vitals anr --app com.example.myapp --dim deviceModel --days 14
 
 Query cold and warm startup time metrics.
 
+Google requires the start type (cold, warm, hot) on every startup query, so results always include a `startType`
+column. `--dim` adds a second grouping, e.g. `--dim versionCode` gives one row per start type and version. (Fixed in
+v1.0.0-rc.2; rc.1 dropped the start type when `--dim` was set.)
+
 ### Synopsis
 
 ```bash
@@ -180,11 +198,11 @@ gpc vitals startup [options]
 
 ### Options
 
-| Flag          | Short | Type     | Default | Description                                         |
-| ------------- | ----- | -------- | ------- | --------------------------------------------------- |
-| `--dim`       |       | `string` |         | Group by dimension                                  |
-| `--days`      |       | `number` |         | Number of days to query                             |
-| `--threshold` |       | `number` |         | Slow start rate threshold (exit code 6 if breached) |
+| Flag          | Short | Type     | Default | Description                                                                           |
+| ------------- | ----- | -------- | ------- | ------------------------------------------------------------------------------------- |
+| `--dim`       |       | `string` |         | Group by dimension                                                                    |
+| `--days`      |       | `number` |         | Number of days to query                                                               |
+| `--threshold` |       | `number` |         | Slow start rate threshold as a fraction, e.g. `0.05` for 5% (exit code 6 if breached) |
 
 ### Example
 
@@ -198,6 +216,13 @@ gpc vitals startup --app com.example.myapp --days 7
 
 Query slow rendering (frame rate) metrics.
 
+::: warning Games only
+Google's Play Developer Reporting API serves slow-rendering metrics **only for apps categorised as games**. For other
+apps the command exits 4 with `API_METRIC_GAMES_ONLY` (Google's `403 PERMISSION_DENIED: slowRenderingRateMetricSet
+resource is only accessible to games`). That is expected; it's not a credentials problem. `vitals overview` and
+`gpc status` skip slow rendering for non-game apps.
+:::
+
 ### Synopsis
 
 ```bash
@@ -206,11 +231,11 @@ gpc vitals rendering [options]
 
 ### Options
 
-| Flag          | Short | Type     | Default | Description                                             |
-| ------------- | ----- | -------- | ------- | ------------------------------------------------------- |
-| `--dim`       |       | `string` |         | Group by dimension                                      |
-| `--days`      |       | `number` |         | Number of days to query                                 |
-| `--threshold` |       | `number` |         | Slow rendering rate threshold (exit code 6 if breached) |
+| Flag          | Short | Type     | Default | Description                                                                               |
+| ------------- | ----- | -------- | ------- | ----------------------------------------------------------------------------------------- |
+| `--dim`       |       | `string` |         | Group by dimension                                                                        |
+| `--days`      |       | `number` |         | Number of days to query                                                                   |
+| `--threshold` |       | `number` |         | Slow rendering rate threshold as a fraction, e.g. `0.1` for 10% (exit code 6 if breached) |
 
 ### Example
 
@@ -233,16 +258,16 @@ gpc vitals wakeup [options]   # alias
 
 ### Options
 
-| Flag          | Short | Type     | Default | Description                                               |
-| ------------- | ----- | -------- | ------- | --------------------------------------------------------- |
-| `--dim`       |       | `string` |         | Group by dimension                                        |
-| `--days`      |       | `number` |         | Number of days to query                                   |
-| `--threshold` |       | `number` |         | Excessive wakeup rate threshold (exit code 6 if breached) |
+| Flag          | Short | Type     | Default | Description                                                             |
+| ------------- | ----- | -------- | ------- | ----------------------------------------------------------------------- |
+| `--dim`       |       | `string` |         | Group by dimension                                                      |
+| `--days`      |       | `number` |         | Number of days to query                                                 |
+| `--threshold` |       | `number` |         | Excessive wakeup rate threshold as a fraction (exit code 6 if breached) |
 
 ### Example
 
 ```bash
-gpc vitals battery --app com.example.myapp --threshold 1.0
+gpc vitals battery --app com.example.myapp --threshold 0.01
 ```
 
 ---
@@ -259,11 +284,11 @@ gpc vitals memory [options]
 
 ### Options
 
-| Flag          | Short | Type     | Default | Description                                             |
-| ------------- | ----- | -------- | ------- | ------------------------------------------------------- |
-| `--dim`       |       | `string` |         | Group by dimension                                      |
-| `--days`      |       | `number` |         | Number of days to query                                 |
-| `--threshold` |       | `number` |         | Stuck wakelock rate threshold (exit code 6 if breached) |
+| Flag          | Short | Type     | Default | Description                                                                                  |
+| ------------- | ----- | -------- | ------- | -------------------------------------------------------------------------------------------- |
+| `--dim`       |       | `string` |         | Group by dimension                                                                           |
+| `--days`      |       | `number` |         | Number of days to query                                                                      |
+| `--threshold` |       | `number` |         | Stuck wakelock rate threshold as a fraction, e.g. `0.007` for 0.7% (exit code 6 if breached) |
 
 ### Example
 
@@ -289,11 +314,11 @@ gpc vitals lmk [options]
 
 ### Options
 
-| Flag          | Short | Type     | Default | Description                                  |
-| ------------- | ----- | -------- | ------- | -------------------------------------------- |
-| `--dim`       |       | `string` |         | Group by dimension                           |
-| `--days`      |       | `number` |         | Number of days to query                      |
-| `--threshold` |       | `number` |         | LMK rate threshold (exit code 6 if breached) |
+| Flag          | Short | Type     | Default | Description                                                                    |
+| ------------- | ----- | -------- | ------- | ------------------------------------------------------------------------------ |
+| `--dim`       |       | `string` |         | Group by dimension                                                             |
+| `--days`      |       | `number` |         | Number of days to query                                                        |
+| `--threshold` |       | `number` |         | LMK rate threshold as a fraction, e.g. `0.03` for 3% (exit code 6 if breached) |
 
 ### Example
 

@@ -86,8 +86,8 @@
   <text class="muted" x="230" y="302">stable</text>
 
   <text class="warn" x="24" y="326">⚠</text>
-  <text class="dim" x="44" y="326">cold start</text>
-  <text class="val" x="160" y="326">842ms</text>
+  <text class="dim" x="44" y="326">slow starts</text>
+  <text class="val" x="160" y="326">4.2%</text>
   <text class="warn" x="230" y="326">↑ watch</text>
 
   <text class="ok" x="24" y="350">✓</text>
@@ -108,8 +108,9 @@
   <text class="muted" x="416" y="410">│</text>
   <text class="good" x="436" y="410">↑ from 4.4</text>
 
-  <!-- PREFLIGHT line -->
-  <text class="label" x="24" y="446">PREFLIGHT</text>
+  <!-- Line 2: $ gpc preflight app.aab -->
+  <text class="prompt" x="24" y="446">$</text>
+  <text class="cmd" x="40" y="446">gpc preflight app.aab</text>
   <text class="ok" x="24" y="470">✓</text>
   <text class="dim" x="44" y="470">9 scanners passed — no policy violations</text>
 

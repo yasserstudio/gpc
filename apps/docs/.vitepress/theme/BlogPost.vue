@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useData } from "vitepress";
+import { useData, withBase } from "vitepress";
 
 const { frontmatter } = useData();
 
@@ -25,6 +25,14 @@ function formatDate(dateStr: string): string {
     <div v-if="frontmatter.tags?.length" class="blog-post-tags">
       <span v-for="tag in frontmatter.tags" :key="tag" class="blog-tag">{{ tag }}</span>
     </div>
+    <img
+      v-if="frontmatter.image"
+      class="blog-post-cover"
+      :src="withBase(frontmatter.image)"
+      alt=""
+      width="1600"
+      height="686"
+    />
   </div>
 </template>
 
@@ -33,6 +41,17 @@ function formatDate(dateStr: string): string {
   margin-bottom: 24px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.blog-post-cover {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1600 / 686;
+  margin-top: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--vp-c-divider);
+  background: #0b1a4a;
 }
 
 .blog-back {

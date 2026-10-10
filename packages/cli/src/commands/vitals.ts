@@ -24,6 +24,8 @@ import {
   compareVersionVitals,
   watchVitalsWithAutoHalt,
   checkThreshold,
+  latestWorstValue,
+  assertRateThreshold,
   formatOutput,
   GpcError,
 } from "@gpc-cli/core";
@@ -39,6 +41,8 @@ import { red, yellow, green } from "../colors.js";
  */
 export function warnIfReportingForbidden(err: unknown, format: string): void {
   if (!(err instanceof PlayApiError) || err.statusCode !== 403 || format === "json") return;
+  // Games-only metrics: the error's own message and suggestion are the whole story.
+  if (err.code === "API_METRIC_GAMES_ONLY") return;
   console.error(
     `${yellow("⚠")} Could not read vitals. The Play Developer Reporting API may be disabled for this project, or the service account lacks access to this app.`,
   );
@@ -76,7 +80,8 @@ const VALID_DIMENSIONS: ReportingDimension[] = [
   "deviceScreenDpi",
   "processName",
   "appState",
-  "startType", // Required dimension for slowStartRateMetricSet
+  "startType", // Always sent for startup (required by the API)
+  "reportType", // Always sent for error-count (required by the API)
 ];
 
 const THRESHOLD_CONFIG_KEYS: Record<string, string> = {
@@ -103,6 +108,31 @@ function validateDimension(dim: string): ReportingDimension {
   return dim as ReportingDimension;
 }
 
+/** Commands whose metric is a rate Google reports as a fraction (0.02 = 2%). */
+const RATE_COMMANDS = new Set([
+  "crashes",
+  "anr",
+  "startup",
+  "rendering",
+  "battery",
+  "memory",
+  "wakeup",
+  "lmk",
+]);
+
+function validateThreshold(name: string, threshold: number): void {
+  if (RATE_COMMANDS.has(name)) {
+    assertRateThreshold(name, threshold);
+  } else if (!Number.isFinite(threshold)) {
+    throw new GpcError(
+      `Invalid --threshold for ${name}: expected a number.`,
+      "THRESHOLD_INVALID",
+      2,
+      "Pass a number, e.g. --threshold 100",
+    );
+  }
+}
+
 type MetricFn = typeof getVitalsCrashes;
 
 function registerMetricCommand(
@@ -124,6 +154,28 @@ function registerMetricCommand(
       const packageName = resolvePackageName(program.opts()["app"], config);
       const reporting = await getReportingClient(config);
       const format = getOutputFormat(program, config);
+
+      // Check threshold from flag or config
+      const configKey = THRESHOLD_CONFIG_KEYS[name];
+      const configThreshold = configKey
+        ? (config as unknown as Record<string, unknown>)["vitals"]
+          ? ((config as unknown as Record<string, unknown>)["vitals"] as Record<string, unknown>)[
+              "thresholds"
+            ]
+            ? (
+                (
+                  (config as unknown as Record<string, unknown>)["vitals"] as Record<
+                    string,
+                    unknown
+                  >
+                )["thresholds"] as Record<string, unknown>
+              )[configKey]
+            : undefined
+          : undefined
+        : undefined;
+      const threshold =
+        options.threshold ?? (configThreshold !== undefined ? Number(configThreshold) : undefined);
+      if (threshold !== undefined) validateThreshold(name, threshold);
 
       let result;
       try {
@@ -191,31 +243,9 @@ function registerMetricCommand(
         console.log(formatOutput(result, format));
       }
 
-      // Check threshold from flag or config
-      const configKey = THRESHOLD_CONFIG_KEYS[name];
-      const configThreshold = configKey
-        ? (config as unknown as Record<string, unknown>)["vitals"]
-          ? ((config as unknown as Record<string, unknown>)["vitals"] as Record<string, unknown>)[
-              "thresholds"
-            ]
-            ? (
-                (
-                  (config as unknown as Record<string, unknown>)["vitals"] as Record<
-                    string,
-                    unknown
-                  >
-                )["thresholds"] as Record<string, unknown>
-              )[configKey]
-            : undefined
-          : undefined
-        : undefined;
-      const threshold =
-        options.threshold ?? (configThreshold !== undefined ? Number(configThreshold) : undefined);
       if (threshold !== undefined) {
-        const latestRow = result.rows?.[result.rows.length - 1];
-        const metricKeys = latestRow?.metrics ? Object.keys(latestRow.metrics) : [];
-        const metric = thresholdMetric ?? metricKeys[0];
-        const value = metric ? Number(latestRow?.metrics[metric]?.decimalValue?.value) : undefined;
+        // Worst slice (start type, report type, --dim value) of the latest day.
+        const value = latestWorstValue(result.rows, thresholdMetric);
         // A gate that cannot read a value must not pass: a wrong --app, a data
         // freshness gap, or an app with no traffic would otherwise exit 0.
         if (value === undefined || !Number.isFinite(value)) {
@@ -223,7 +253,7 @@ function registerMetricCommand(
             `No ${name} value to compare against the threshold of ${threshold}.`,
             "THRESHOLD_NO_DATA",
             6,
-            "Check --app and --days. Vitals data lags 1-2 days and apps with little traffic may have none; widen --days or drop --threshold for this run.",
+            "Check --app and --days. Vitals data often lags 2-4 days and apps with little traffic may have none; widen --days or drop --threshold for this run.",
           );
         }
         const check = checkThreshold(value, threshold);
@@ -249,8 +279,20 @@ export function registerVitalsCommands(program: Command): void {
       const reporting = await getReportingClient(config);
       const format = getOutputFormat(program, config);
 
-      const result = await getVitalsOverview(reporting, packageName);
-      if (Object.keys(result).length === 0) {
+      let result;
+      try {
+        result = await getVitalsOverview(reporting, packageName);
+      } catch (err) {
+        warnIfReportingForbidden(err, format);
+        throw err;
+      }
+      const { unavailable, ...metricsByName } = result;
+      if (format !== "json") {
+        for (const u of unavailable ?? []) {
+          console.error(`${yellow("⚠")} ${u.metric} unavailable: ${u.reason}`);
+        }
+      }
+      if (Object.keys(metricsByName).length === 0) {
         if (format === "json") {
           console.log(formatOutput({ vitals: [], message: "No vitals data available" }, format));
         } else {
@@ -259,7 +301,7 @@ export function registerVitalsCommands(program: Command): void {
         return;
       }
       if (format !== "json") {
-        const overview = result as Record<string, unknown>;
+        const overview = metricsByName as Record<string, unknown>;
         const rows = Object.entries(overview).map(([metric, data]) => {
           const metricRows = data as Record<string, unknown>[] | undefined;
           const latest = metricRows?.[metricRows.length - 1];
@@ -486,6 +528,7 @@ export function registerVitalsCommands(program: Command): void {
     .option("--track <name>", "Track to halt rollout on (required with --auto-halt-rollout)")
     .action(async (options) => {
       const metricSet = METRIC_MAP[options.metric as string];
+      if (metricSet) validateThreshold(options.metric as string, options.threshold as number);
       if (!metricSet) {
         throw new GpcError(
           `Unknown metric "${options.metric}". Use: ${Object.keys(METRIC_MAP).join(", ")}`,
@@ -510,7 +553,11 @@ export function registerVitalsCommands(program: Command): void {
       const intervalMs = (options.interval as number) * 1000;
 
       console.log(`Watching ${options.metric} for ${packageName}`);
-      console.log(`Threshold: ${options.threshold}  Interval: ${options.interval}s`);
+      const thresholdLabel =
+        options.metric === "error-count"
+          ? String(options.threshold)
+          : `${((options.threshold as number) * 100).toFixed(3)}%`;
+      console.log(`Threshold: ${thresholdLabel}  Interval: ${options.interval}s`);
       if (options.autoHaltRollout) {
         console.log(`Auto-halt enabled on track: ${options.track}`);
       }
@@ -526,10 +573,18 @@ export function registerVitalsCommands(program: Command): void {
           const indicator = breached ? red("✗ BREACH") : green("✓ OK");
           console.log(`[${ts}] ${options.metric}: ${valStr} — ${indicator}`);
         },
+        onError: (err) => {
+          const ts = new Date().toISOString();
+          const code = (err as { code?: unknown } | null)?.code;
+          const reason = typeof code === "string" ? code : err instanceof Error ? err.message : err;
+          console.error(
+            `[${ts}] ${yellow("⚠")} ${options.metric}: could not read vitals (${String(reason)}); the gate cannot check this round.`,
+          );
+        },
         onHalt: options.autoHaltRollout
           ? async (value: number) => {
               console.error(
-                `\n${red("✗")} Threshold breached (${(value * 100).toFixed(3)}% > ${options.threshold}%). Halting rollout on track "${options.track}"...`,
+                `\n${red("✗")} Threshold breached (${(value * 100).toFixed(3)}% > ${thresholdLabel}). Halting rollout on track "${options.track}"...`,
               );
               try {
                 const { resolveAuth } = await import("@gpc-cli/auth");
