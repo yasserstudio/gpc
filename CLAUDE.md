@@ -151,3 +151,12 @@ Read the relevant `SKILL.md` and its `references/` when working on these workflo
 - Every error needs a code, message, and suggestion
 - --json flag on every command
 - Exit codes: 0 success, 1 error, 2 usage, 3 auth, 4 API, 5 network, 6 threshold breach
+
+## Claude cloud sessions
+
+**Status:** supported. Written 2026-10-14 from the local checkout; not yet run in a cloud session.
+
+- **Works:** install, build, lint, typecheck and run tests; commit to a branch and open a PR.
+- **Setup:** `pnpm install`.
+- **Secrets to add in the cloud environment** (names only; values live in `.env` files, never in git): `GPC_APP`, `GPC_SERVICE_ACCOUNT`.
+- **Only pushed work is visible.** Unpushed commits and local `.env` files on a Mac are not.
