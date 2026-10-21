@@ -26,22 +26,6 @@ function flagNames(cmd) {
   return set;
 }
 
-function resolve(path) {
-  // returns { cmd, chain } or { unknown: token, depth }
-  let cmd = program;
-  const chain = [program];
-  for (let i = 0; i < path.length; i++) {
-    const tok = path[i];
-    const next = (cmd.commands ?? []).find(
-      (c) => c.name() === tok || (c.aliases?.() ?? []).includes(tok),
-    );
-    if (!next) return { unknown: tok, depth: i, cmd, chain };
-    cmd = next;
-    chain.push(cmd);
-  }
-  return { cmd, chain };
-}
-
 function hasFlag(chain, flag) {
   return chain.some((c) => flagNames(c).has(flag));
 }
