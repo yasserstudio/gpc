@@ -78,37 +78,31 @@ esac
     exit 1
 ```
 
-## JSON Error Format
+## Error Format
 
-When a command fails, JSON output follows this structure:
+Errors are plain text on stderr, never JSON, whatever `--output` you passed. Stdout stays empty and the exit code carries the category:
 
-```json
-{
-  "success": false,
-  "error": {
-    "code": "AUTH_TOKEN_EXPIRED",
-    "message": "Access token has expired",
-    "suggestion": "Run 'gpc auth login' to re-authenticate"
-  }
-}
+```
+Error [AUTH_TOKEN_EXPIRED]: Access token has expired
+Suggestion: Run 'gpc auth login' to re-authenticate
 ```
 
-| Field              | Type      | Description                       |
-| ------------------ | --------- | --------------------------------- |
-| `success`          | `boolean` | Always `false` for errors         |
-| `error.code`       | `string`  | Machine-readable error identifier |
-| `error.message`    | `string`  | Human-readable description        |
-| `error.suggestion` | `string`  | Actionable fix (when available)   |
+| Line          | Always present | Description                                         |
+| ------------- | -------------- | --------------------------------------------------- |
+| `Error [...]` | yes            | The code in brackets, then a human-readable message |
+| `Suggestion:` | when available | Actionable fix                                      |
+| `Details:`    | when available | The upstream API message, quoted verbatim           |
 
 Parse errors in CI scripts:
 
 ```bash
-RESULT=$(gpc releases status --json 2>&1) || true
-ERROR_CODE=$(echo "$RESULT" | jq -r '.error.code // empty')
+gpc releases status --json >out.json 2>err.txt
+STATUS=$?
 
-if [[ -n "$ERROR_CODE" ]]; then
-  SUGGESTION=$(echo "$RESULT" | jq -r '.error.suggestion // "No suggestion available"')
-  echo "Error: $ERROR_CODE — $SUGGESTION"
+if [[ $STATUS -ne 0 ]]; then
+  CODE=$(sed -n 's/^Error \[\([A-Z_]*\)\].*/\1/p' err.txt)
+  echo "Error: ${CODE:-unknown} (exit $STATUS)"
+  cat err.txt
 fi
 ```
 

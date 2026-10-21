@@ -67,8 +67,9 @@ stages:
 variables:
   GPC_APP: com.example.myapp
   GPC_SERVICE_ACCOUNT: $GPC_SERVICE_ACCOUNT
-  CRASH_THRESHOLD: "2.0"
-  ANR_THRESHOLD: "0.5"
+  # Vitals thresholds are fractions: 0.02 is 2%
+  CRASH_THRESHOLD: "0.02"
+  ANR_THRESHOLD: "0.005"
 
 .gpc_setup: &gpc_setup
   image: node:20
@@ -149,22 +150,36 @@ monitor:vitals:
   <<: *gpc_setup
   script:
     - |
-      CRASH_RATE=$(gpc vitals crashes --json | jq -r '.data.crashRate')
-      ANR_RATE=$(gpc vitals anr --json | jq -r '.data.anrRate')
+      # gpc status reports each metric as a fraction under .vitals.<metric>.value
+      # status exits 6 on a breach but still prints the JSON
+      STATUS_JSON=$(gpc status --json || true)
+      CRASH_RATE=$(echo "$STATUS_JSON" | jq -r '.vitals.crashes.value // "unknown"')
+      ANR_RATE=$(echo "$STATUS_JSON" | jq -r '.vitals.anr.value // "unknown"')
 
-      echo "Crash rate: ${CRASH_RATE}%"
-      echo "ANR rate: ${ANR_RATE}%"
+      echo "Crash rate: ${CRASH_RATE}"
+      echo "ANR rate: ${ANR_RATE}"
 
-      if (( $(echo "$CRASH_RATE > $CRASH_THRESHOLD" | bc -l) )); then
-        echo "Crash rate ${CRASH_RATE}% exceeds threshold ${CRASH_THRESHOLD}%"
+      # --threshold is the built-in gate: exit 6 on breach, exit 4 if the metric is unreadable
+      code=0
+      gpc vitals crashes --threshold "$CRASH_THRESHOLD" --json > /dev/null || code=$?
+      if [ "$code" -eq 6 ]; then
+        echo "Crash rate ${CRASH_RATE} exceeds threshold ${CRASH_THRESHOLD}"
         gpc releases rollout halt --track production --json
         exit 1
+      elif [ "$code" -ne 0 ]; then
+        echo "Could not check crash rate (exit $code); rollout left unchanged"
+        exit "$code"
       fi
 
-      if (( $(echo "$ANR_RATE > $ANR_THRESHOLD" | bc -l) )); then
-        echo "ANR rate ${ANR_RATE}% exceeds threshold ${ANR_THRESHOLD}%"
+      code=0
+      gpc vitals anr --threshold "$ANR_THRESHOLD" --json > /dev/null || code=$?
+      if [ "$code" -eq 6 ]; then
+        echo "ANR rate ${ANR_RATE} exceeds threshold ${ANR_THRESHOLD}"
         gpc releases rollout halt --track production --json
         exit 1
+      elif [ "$code" -ne 0 ]; then
+        echo "Could not check ANR rate (exit $code); rollout left unchanged"
+        exit "$code"
       fi
 
       echo "Vitals healthy"

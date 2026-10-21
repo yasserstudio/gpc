@@ -235,8 +235,8 @@ Drop GPC into any pipeline. JSON output, semantic exit codes (0-6), env var conf
   run: gpc releases upload app.aab --track internal
 
 - name: Gate on Vitals
-  run: |
-    gpc vitals crashes --output json | jq -e '.data.crashRate < 2.0'
+  # Thresholds are fractions (0.02 is 2%); a breach exits 6 and fails the job
+  run: gpc vitals crashes --threshold 0.02
 ```
 
 ### GitLab CI
@@ -270,7 +270,7 @@ See the full [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/) for GitH
 
 ## Developer Experience
 
-- **Smart output** - formatted tables in your terminal, structured JSON when piped or in CI. Override with `--output json|yaml|markdown|csv|tsv`.
+- **Smart output** - formatted tables by default, structured JSON whenever you ask for it with `--json` or `--ci`. Also `--output yaml|markdown|csv|tsv|junit`.
 - **Guided setup** - `gpc setup` walks you through first-time configuration. Use `gpc setup --auto` for unattended CI provisioning.
 - **Dry run everything** - every write command supports `--dry-run`. Run your full pipeline against real data without publishing a thing.
 - **Validate without committing** - `--validate-only` on publish and release commands checks everything server-side without creating a release.

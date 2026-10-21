@@ -172,13 +172,15 @@ Instead of manually checking reviews:
 set -euo pipefail
 
 echo "=== Low-rated reviews (last 24h) ==="
-gpc reviews list --stars 1-2 --since 24h --json | \
-  jq -r '.data.reviews[] | "[\(.stars)] \(.text[:120])..."'
+SINCE=$(date -u -v-24H +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -d '24 hours ago' +%Y-%m-%dT%H:%M:%SZ)
+gpc reviews list --since "$SINCE" --json | \
+  jq -r '.reviews[].comments[0].userComment | select(.starRating != null and .starRating <= 2) | "[\(.starRating)] \((.text // "")[:120])..."'
 
 echo ""
 echo "=== Vitals summary ==="
+# Each metric key holds Google's rows; the last row is the most recent day
 gpc vitals overview --json | \
-  jq -r '.data | to_entries[] | "  \(.key): \(.value)"'
+  jq -r 'to_entries[] | select(.key != "unavailable") | "  \(.key): \(.value[-1].metrics[0].decimalValue.value)"'
 ```
 
 ### Multi-App Release

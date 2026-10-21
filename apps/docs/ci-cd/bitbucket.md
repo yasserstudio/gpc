@@ -165,18 +165,22 @@ pipelines:
           script:
             - npm install -g @gpc-cli/cli
             - |
-              CRASH_RATE=$(gpc vitals crashes --json | jq -r '.data.crashRate')
-              ANR_RATE=$(gpc vitals anr --json | jq -r '.data.anrRate')
+              # gpc status reports each metric as a fraction under .vitals.<metric>.value
+              # status exits 6 on a breach but still prints the JSON
+              STATUS_JSON=$(gpc status --json || true)
+              CRASH_RATE=$(echo "$STATUS_JSON" | jq -r '.vitals.crashes.value // "unknown"')
+              ANR_RATE=$(echo "$STATUS_JSON" | jq -r '.vitals.anr.value // "unknown"')
 
-              echo "Crash rate: ${CRASH_RATE}%"
-              echo "ANR rate: ${ANR_RATE}%"
+              echo "Crash rate: ${CRASH_RATE}"
+              echo "ANR rate: ${ANR_RATE}"
 
-              if (( $(echo "$CRASH_RATE > 2.0" | bc -l) )); then
+              # --threshold is the built-in gate (fractions: 0.02 is 2%), exit 6 on breach
+              if ! gpc vitals crashes --threshold 0.02 --json > /dev/null; then
                 echo "Crash rate exceeds threshold"
                 exit 1
               fi
 
-              if (( $(echo "$ANR_RATE > 0.5" | bc -l) )); then
+              if ! gpc vitals anr --threshold 0.005 --json > /dev/null; then
                 echo "ANR rate exceeds threshold"
                 exit 1
               fi

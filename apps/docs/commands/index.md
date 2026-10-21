@@ -159,15 +159,17 @@ Every command accepts these flags:
 
 ## Output Behavior
 
-GPC auto-detects the output environment:
+Every command prints a table unless you ask for something else. Piping, redirecting, and `CI=true` do not change the format.
 
-| Context                    | Default Format | Reason                          |
-| -------------------------- | -------------- | ------------------------------- |
-| TTY (interactive terminal) | `table`        | Human-readable formatted output |
-| Non-TTY (pipe, redirect)   | `json`         | Machine-parseable for scripting |
-| CI environment (`CI=true`) | `json`         | Deterministic for automation    |
+| How you ask                  | Format  | Notes                                                      |
+| ---------------------------- | ------- | ---------------------------------------------------------- |
+| nothing                      | `table` | The default everywhere                                     |
+| `--json` / `-j`              | `json`  | Shorthand for `--output json`                              |
+| `--output <format>` / `-o`   | chosen  | `table`, `json`, `yaml`, `markdown`, `junit`, `csv`, `tsv` |
+| `--ci`                       | `json`  | Also disables prompts and color                            |
+| `output` in your config file | chosen  | Applies when no flag is passed                             |
 
-The `--output` flag overrides auto-detection in all cases.
+Precedence is flag, then config file, then `table`.
 
 ## Output Formats
 
@@ -180,9 +182,9 @@ gpc apps info com.example.app
 ```
 
 ```
-Package Name   com.example.app
-Title          My App
-Default Lang   en-US
+packageName      defaultLanguage  contactEmail
+───────────────  ───────────────  ────────────────
+com.example.app  en-US            dev@example.com
 ```
 
 ### json
@@ -193,17 +195,19 @@ gpc apps info com.example.app --output json
 
 ```json
 {
-  "success": true,
-  "data": {
-    "packageName": "com.example.app",
-    "title": "My App",
-    "defaultLanguage": "en-US"
-  },
-  "metadata": {
-    "command": "apps info",
-    "timestamp": "2026-03-09T12:00:00Z",
-    "duration_ms": 342
-  }
+  "packageName": "com.example.app",
+  "defaultLanguage": "en-US",
+  "contactEmail": "dev@example.com"
+}
+```
+
+There is no envelope around the payload. Each command prints its own object, so read the fields that command documents. List commands wrap their rows in a shared shape:
+
+```json
+{
+  "tracks": [{ "track": "production", "releases": 1, "latestVersion": "143" }],
+  "nextPageToken": null,
+  "meta": { "count": 38 }
 }
 ```
 
@@ -214,15 +218,9 @@ gpc apps info com.example.app --output yaml
 ```
 
 ```yaml
-success: true
-data:
-  packageName: com.example.app
-  title: My App
-  defaultLanguage: en-US
-metadata:
-  command: apps info
-  timestamp: "2026-03-09T12:00:00Z"
-  duration_ms: 342
+packageName: com.example.app
+defaultLanguage: en-US
+contactEmail: dev@example.com
 ```
 
 ### markdown
@@ -281,17 +279,20 @@ gpc apps info com.example.app -j
 
 ## Error Output
 
-All errors follow a consistent JSON structure:
+Errors are never JSON, in any output format. They go to stderr as plain text, stdout stays empty, and the exit code carries the category:
 
-```json
-{
-  "success": false,
-  "error": {
-    "code": "AUTH_INVALID_KEY",
-    "message": "Service account JSON is malformed",
-    "suggestion": "Download a fresh key from Google Cloud Console"
-  }
-}
+```
+Error [AUTH_INVALID_KEY]: Service account JSON is malformed
+Suggestion: Download a fresh key from Google Cloud Console
+```
+
+A `Details:` line follows when the upstream API said something worth quoting verbatim. Branch on the exit code, and capture stderr if you need the code:
+
+```bash
+if ! out=$(gpc apps info com.example.app --json 2>err.txt); then
+  echo "failed with code $?"
+  cat err.txt
+fi
 ```
 
 ## Exit Codes

@@ -184,16 +184,25 @@ jobs:
       - run:
           name: Check vitals
           command: |
-            CRASH_RATE=$(gpc vitals crashes --json | jq -r '.data.crashRate')
-            ANR_RATE=$(gpc vitals anr --json | jq -r '.data.anrRate')
+            # gpc status reports each metric as a fraction under .vitals.<metric>.value
+            # status exits 6 on a breach but still prints the JSON
+            STATUS_JSON=$(gpc status --json || true)
+            CRASH_RATE=$(echo "$STATUS_JSON" | jq -r '.vitals.crashes.value // "unknown"')
+            ANR_RATE=$(echo "$STATUS_JSON" | jq -r '.vitals.anr.value // "unknown"')
 
-            echo "Crash rate: ${CRASH_RATE}%"
-            echo "ANR rate: ${ANR_RATE}%"
+            echo "Crash rate: ${CRASH_RATE}"
+            echo "ANR rate: ${ANR_RATE}"
 
-            if (( $(echo "$CRASH_RATE > 2.0" | bc -l) )); then
+            # --threshold is the built-in gate (fractions: 0.02 is 2%), exit 6 on breach
+            code=0
+            gpc vitals crashes --threshold 0.02 --json > /dev/null || code=$?
+            if [ "$code" -eq 6 ]; then
               echo "Crash rate too high, halting rollout"
               gpc releases rollout halt --track production --json
               exit 1
+            elif [ "$code" -ne 0 ]; then
+              echo "Could not check crash rate (exit $code); rollout left unchanged"
+              exit "$code"
             fi
 
             echo "Vitals healthy"

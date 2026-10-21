@@ -219,8 +219,9 @@ on:
 env:
   GPC_SERVICE_ACCOUNT: ${{ secrets.GPC_SERVICE_ACCOUNT }}
   GPC_APP: com.example.myapp
-  CRASH_THRESHOLD: "2.0"
-  ANR_THRESHOLD: "0.5"
+  # Vitals thresholds are fractions: 0.02 is 2%
+  CRASH_THRESHOLD: "0.02"
+  ANR_THRESHOLD: "0.005"
 
 jobs:
   rollout:
@@ -237,8 +238,9 @@ jobs:
         id: status
         run: |
           STATUS=$(gpc releases status --track production --json)
-          CURRENT=$(echo "$STATUS" | jq -r '.data.rolloutPercentage // "100"')
-          RELEASE_STATUS=$(echo "$STATUS" | jq -r '.data.status // "completed"')
+          # releases status prints an array of tracks; userFraction is a fraction
+          CURRENT=$(echo "$STATUS" | jq -r '((.[0].userFraction // 1) * 100) | round')
+          RELEASE_STATUS=$(echo "$STATUS" | jq -r '.[0].status // "completed"')
           echo "current=$CURRENT" >> "$GITHUB_OUTPUT"
           echo "release_status=$RELEASE_STATUS" >> "$GITHUB_OUTPUT"
           echo "Current rollout: ${CURRENT}% (status: $RELEASE_STATUS)"
@@ -247,35 +249,47 @@ jobs:
         id: vitals
         if: steps.status.outputs.release_status == 'inProgress'
         run: |
-          CRASH_RATE=$(gpc vitals crashes --json | jq -r '.data.crashRate')
-          ANR_RATE=$(gpc vitals anr --json | jq -r '.data.anrRate')
+          # gpc status reports each vitals metric as a fraction under .vitals.<metric>.value.
+          # It exits 6 on a breach but still prints the JSON, so keep -e from killing the step.
+          STATUS_JSON=$(gpc status --json || true)
+          CRASH_RATE=$(echo "$STATUS_JSON" | jq -r '.vitals.crashes.value // "unknown"')
+          ANR_RATE=$(echo "$STATUS_JSON" | jq -r '.vitals.anr.value // "unknown"')
           echo "crash_rate=$CRASH_RATE" >> "$GITHUB_OUTPUT"
           echo "anr_rate=$ANR_RATE" >> "$GITHUB_OUTPUT"
-          echo "Crash rate: ${CRASH_RATE}%, ANR rate: ${ANR_RATE}%"
+          echo "Crash rate: ${CRASH_RATE}, ANR rate: ${ANR_RATE}"
 
       - name: Gate on vitals
         if: steps.status.outputs.release_status == 'inProgress'
         run: |
-          CRASH="${{ steps.vitals.outputs.crash_rate }}"
-          ANR="${{ steps.vitals.outputs.anr_rate }}"
-
-          if (( $(echo "$CRASH > $CRASH_THRESHOLD" | bc -l) )); then
-            echo "::error::Crash rate ${CRASH}% exceeds threshold ${CRASH_THRESHOLD}%"
+          # --threshold is the built-in gate: exit 6 on a breach halts the rollout.
+          # Any other failure (4 unreadable, 3 auth, 5 network) stops the job without halting.
+          code=0
+          gpc vitals crashes --threshold "$CRASH_THRESHOLD" --json > /dev/null || code=$?
+          if [ "$code" -eq 6 ]; then
+            echo "::error::Crash rate exceeds threshold ${CRASH_THRESHOLD}"
             gpc releases rollout halt --track production --json
             echo "## Rollout Halted" >> $GITHUB_STEP_SUMMARY
-            echo "Crash rate **${CRASH}%** exceeded threshold **${CRASH_THRESHOLD}%**" >> $GITHUB_STEP_SUMMARY
+            echo "Crash rate exceeded **${CRASH_THRESHOLD}**" >> $GITHUB_STEP_SUMMARY
             exit 1
+          elif [ "$code" -ne 0 ]; then
+            echo "::error::Could not check crash rate (exit $code); rollout left unchanged"
+            exit "$code"
           fi
 
-          if (( $(echo "$ANR > $ANR_THRESHOLD" | bc -l) )); then
-            echo "::error::ANR rate ${ANR}% exceeds threshold ${ANR_THRESHOLD}%"
+          code=0
+          gpc vitals anr --threshold "$ANR_THRESHOLD" --json > /dev/null || code=$?
+          if [ "$code" -eq 6 ]; then
+            echo "::error::ANR rate exceeds threshold ${ANR_THRESHOLD}"
             gpc releases rollout halt --track production --json
             echo "## Rollout Halted" >> $GITHUB_STEP_SUMMARY
-            echo "ANR rate **${ANR}%** exceeded threshold **${ANR_THRESHOLD}%**" >> $GITHUB_STEP_SUMMARY
+            echo "ANR rate exceeded **${ANR_THRESHOLD}**" >> $GITHUB_STEP_SUMMARY
             exit 1
+          elif [ "$code" -ne 0 ]; then
+            echo "::error::Could not check ANR rate (exit $code); rollout left unchanged"
+            exit "$code"
           fi
 
-          echo "Vitals healthy. Crash: ${CRASH}%, ANR: ${ANR}%"
+          echo "Vitals healthy. Crash: ${{ steps.vitals.outputs.crash_rate }}, ANR: ${{ steps.vitals.outputs.anr_rate }}"
 
       - name: Increase rollout
         if: steps.status.outputs.release_status == 'inProgress'
@@ -307,8 +321,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Metric | Value | Threshold |" >> $GITHUB_STEP_SUMMARY
           echo "|--------|-------|-----------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Crash rate | ${{ steps.vitals.outputs.crash_rate }}% | ${CRASH_THRESHOLD}% |" >> $GITHUB_STEP_SUMMARY
-          echo "| ANR rate | ${{ steps.vitals.outputs.anr_rate }}% | ${ANR_THRESHOLD}% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Crash rate | ${{ steps.vitals.outputs.crash_rate }} | ${CRASH_THRESHOLD} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ANR rate | ${{ steps.vitals.outputs.anr_rate }} | ${ANR_THRESHOLD} |" >> $GITHUB_STEP_SUMMARY
 
       - name: Skip if not in progress
         if: steps.status.outputs.release_status != 'inProgress'
@@ -350,20 +364,20 @@ jobs:
         run: |
           echo "## Vitals Dashboard" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
-          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value (fraction) |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------------------|" >> $GITHUB_STEP_SUMMARY
 
-          CRASHES=$(gpc vitals crashes --json)
-          ANR=$(gpc vitals anr --json)
-          STARTUP=$(gpc vitals startup --json)
+          # One call covers all three rates: .vitals.<metric>.value is a fraction.
+          # status exits 6 on a breach but still prints the JSON.
+          STATUS_JSON=$(gpc status --json || true)
 
-          CRASH_RATE=$(echo "$CRASHES" | jq -r '.data.crashRate')
-          ANR_RATE=$(echo "$ANR" | jq -r '.data.anrRate')
-          COLD_START=$(echo "$STARTUP" | jq -r '.data.coldStartTime // "N/A"')
+          CRASH_RATE=$(echo "$STATUS_JSON" | jq -r '.vitals.crashes.value // "N/A"')
+          ANR_RATE=$(echo "$STATUS_JSON" | jq -r '.vitals.anr.value // "N/A"')
+          SLOW_STARTS=$(echo "$STATUS_JSON" | jq -r '.vitals.slowStarts.value // "N/A"')
 
-          echo "| Crash rate | ${CRASH_RATE}% |" >> $GITHUB_STEP_SUMMARY
-          echo "| ANR rate | ${ANR_RATE}% |" >> $GITHUB_STEP_SUMMARY
-          echo "| Cold start | ${COLD_START}ms |" >> $GITHUB_STEP_SUMMARY
+          echo "| Crash rate | ${CRASH_RATE} |" >> $GITHUB_STEP_SUMMARY
+          echo "| ANR rate | ${ANR_RATE} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Slow cold starts | ${SLOW_STARTS} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "crash_rate=$CRASH_RATE" >> "$GITHUB_OUTPUT"
@@ -371,13 +385,14 @@ jobs:
 
       - name: Check for anomalies
         run: |
-          ANOMALIES=$(gpc vitals anomalies --json | jq -r '.data.anomalies // []')
+          # anomalies prints { "anomalies": [...] }, or {} when Google reports none
+          ANOMALIES=$(gpc vitals anomalies --json | jq -c '.anomalies // []')
           COUNT=$(echo "$ANOMALIES" | jq 'length')
 
           if [[ "$COUNT" -gt 0 ]]; then
             echo "### Anomalies Detected" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "$ANOMALIES" | jq -r '.[] | "- **\(.metric)**: \(.description)"' >> $GITHUB_STEP_SUMMARY
+            echo "$ANOMALIES" | jq -r '.[] | "- **\(.metricSet)**: \(.name)"' >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Week-over-week comparison
@@ -393,13 +408,14 @@ jobs:
 
           ALERT=false
 
-          if (( $(echo "$CRASH > 3.0" | bc -l) )); then
-            echo "::error::Critical crash rate: ${CRASH}% (threshold: 3.0%)"
+          # Fractions: 0.03 is 3%
+          if (( $(echo "$CRASH > 0.03" | bc -l) )); then
+            echo "::error::Critical crash rate: ${CRASH} (threshold: 0.03)"
             ALERT=true
           fi
 
-          if (( $(echo "$ANR > 1.0" | bc -l) )); then
-            echo "::error::Critical ANR rate: ${ANR}% (threshold: 1.0%)"
+          if (( $(echo "$ANR > 0.01" | bc -l) )); then
+            echo "::error::Critical ANR rate: ${ANR} (threshold: 0.01)"
             ALERT=true
           fi
 
@@ -451,7 +467,8 @@ jobs:
           # Show what would change
           echo "### Changes Preview" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          jq -r '.data.changes[]? | "- **\(.language)**: \(.field) changed"' dry-run.json >> $GITHUB_STEP_SUMMARY || echo "No changes detected" >> $GITHUB_STEP_SUMMARY
+          # A dry-run push prints { "diffs": [ { language, field, local, remote } ] }
+          jq -r '.diffs[]? | "- **\(.language)**: \(.field) changed"' dry-run.json >> $GITHUB_STEP_SUMMARY || echo "No changes detected" >> $GITHUB_STEP_SUMMARY
 
   sync:
     if: github.event_name == 'push'

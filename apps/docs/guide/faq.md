@@ -67,7 +67,7 @@ Yes. See [Migrating from Console UI](../migration/from-console-ui) for a mapping
 
 Yes. GPC is designed for CI/CD:
 
-- **JSON output** when piped (automatic)
+- **JSON output** on every command (`--json`, or `--ci` for JSON plus no prompts)
 - **Semantic exit codes** (0-6) for branching logic
 - **Environment variable config** (`GPC_SERVICE_ACCOUNT`, `GPC_APP`)
 - **`--dry-run`** on every write operation

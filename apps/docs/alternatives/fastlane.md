@@ -81,7 +81,7 @@ GPC is TypeScript and ships a standalone binary for teams that do not want Ruby,
 
 `gpc changelog generate --target play-store --locales auto --ai` handles the multilingual changelog case end-to-end. Each locale gets its own 500-character budget; the AI-translation flag (v0.9.63) fills non-source locales using the user's own LLM key.
 
-**CI integration.** GPC outputs structured JSON when piped, uses semantic exit codes (0-6), and reads configuration from environment variables. No wrapper scripts needed.
+**CI integration.** Every GPC command takes `--json` (or `--ci` for JSON plus no prompts), uses semantic exit codes (0-6), and reads configuration from environment variables. No wrapper scripts needed.
 
 **Preflight scanning.** GPC can scan your AAB against Google Play policies before upload — offline, free, and CI-ready. No other tool does this.
 

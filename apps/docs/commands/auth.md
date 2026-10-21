@@ -136,7 +136,7 @@ No command-specific options.
 When authenticated:
 
 ```bash
-gpc auth status
+gpc auth status --json
 ```
 
 ```json
@@ -151,7 +151,7 @@ gpc auth status
 When not authenticated:
 
 ```bash
-gpc auth status
+gpc auth status --json
 ```
 
 ```json

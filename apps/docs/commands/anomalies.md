@@ -61,28 +61,28 @@ JSON output:
 gpc anomalies list --app com.example.myapp --output json
 ```
 
+GPC prints Google's response as-is, with no envelope around it:
+
 ```json
 {
-  "success": true,
-  "data": {
-    "anomalies": [
-      {
-        "name": "apps/com.example.myapp/anomalies/abc123",
-        "metricSet": "crashRateMetricSet",
-        "timelineSpec": { "aggregationPeriod": "DAILY" },
-        "dimensions": [{ "dimension": "versionCode", "value": "43" }],
-        "metric": "crashRate",
-        "anomalyValue": 4.2,
-        "baselineValue": 1.1
-      }
-    ]
-  }
+  "anomalies": [
+    {
+      "name": "apps/com.example.myapp/anomalies/abc123",
+      "metricSet": "crashRateMetricSet",
+      "timelineSpec": { "aggregationPeriod": "DAILY" },
+      "dimensions": [{ "dimension": "versionCode", "int64Value": "43" }],
+      "metric": { "crashRate": { "decimalValue": { "value": "0.042" } } }
+    }
+  ]
 }
 ```
 
-When there are no anomalies:
+When there are no anomalies, Google returns an empty object and GPC prints it verbatim:
 
 ```bash
+gpc anomalies list --app com.example.myapp --output json
+# {}
+
 gpc anomalies list --app com.example.myapp
 # No anomalies detected.
 ```

@@ -73,20 +73,16 @@ echo "All vitals within thresholds" || \
 echo "Vitals breached, halting deployment"
 ```
 
-## JSON Error Format
+## Error Format
 
-When an error occurs with `--output json`, the response follows this structure:
+Errors are never JSON, not even with `--output json`. They print to stderr as plain text, stdout stays empty, and the exit code tells you the category:
 
-```json
-{
-  "success": false,
-  "error": {
-    "code": "AUTH_INVALID_KEY",
-    "message": "Service account JSON is malformed",
-    "suggestion": "Download a fresh key from Google Cloud Console"
-  }
-}
 ```
+Error [AUTH_INVALID_KEY]: Service account JSON is malformed
+Suggestion: Download a fresh key from Google Cloud Console
+```
+
+A `Details:` line follows when there is an upstream message worth quoting. Branch on the exit code, not on parsed output.
 
 ### Error Code Prefixes
 

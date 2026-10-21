@@ -165,7 +165,7 @@ gpc releases status --app com.example.app --track production --json
 gpc vitals crashes --app com.example.app --days 7 --json
 ```
 
-The `--json` flag returns a stable, versioned schema. When stdout is piped (non-TTY), GPC auto-detects and emits JSON by default without the flag. See the [JSON Output Contract](/reference/json-contract) for the full schema.
+Output is a table unless you ask for JSON: pass `--json` (or `--output json`, or `--ci` for JSON plus no prompts and no color). Piping does not change the format. See the [JSON Output Contract](/reference/json-contract) for the shapes each command prints.
 
 ### Semantic exit codes
 

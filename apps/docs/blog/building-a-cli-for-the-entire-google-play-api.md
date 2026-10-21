@@ -101,7 +101,7 @@ On GitHub Actions you can skip the plumbing entirely: `yasserstudio/gpc-action@v
 
 A few things that make this work well:
 
-- **TTY-aware output.** Tables in your terminal, JSON when piped. No flags needed.
+- **Output you choose.** Tables by default, JSON on any command with `--json`, or `--ci` for JSON plus no prompts and no color.
 - **Semantic exit codes.** `3` means auth failed, `4` means API error, `6` means a threshold was breached. Your CI can react differently to each.
 - **`--dry-run` on every write operation.** Test your pipeline without shipping to production.
 - **Vitals gating.** Block a rollout increase when crash or ANR rates exceed your threshold. One flag.

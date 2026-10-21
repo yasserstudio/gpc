@@ -143,41 +143,49 @@ Never hardcode credentials in workflow files, echo credential values in logs, or
 
 ## JSON Output Contract
 
-All GPC commands in CI default to JSON output (auto-detected when stdout is not a TTY). The format is consistent across all commands:
+Output is a table by default, even when stdout is piped or running in CI. Ask for JSON explicitly with `--json`, `--output json`, or `--ci`.
+
+There is no envelope: each command prints its own object at the top level. An upload, for example:
 
 ```json
 {
-  "success": true,
-  "data": {},
-  "metadata": {
-    "command": "releases upload",
-    "timestamp": "2026-03-09T12:00:00Z",
-    "duration_ms": 4200
-  }
+  "versionCode": 143,
+  "track": "internal",
+  "status": "draft"
 }
 ```
 
-Error responses:
+List commands share one shape, keyed by what they list:
 
 ```json
 {
-  "success": false,
-  "error": {
-    "code": "AUTH_EXPIRED",
-    "message": "Access token has expired",
-    "suggestion": "Run 'gpc auth login' to re-authenticate"
-  }
+  "reviews": [],
+  "nextPageToken": null,
+  "meta": { "count": 0 },
+  "message": "No reviews found"
 }
 ```
+
+Errors are never JSON. The message goes to stderr as plain text and stdout stays empty:
+
+```
+Error [AUTH_EXPIRED]: Access token has expired
+Suggestion: Run 'gpc auth login' to re-authenticate
+```
+
+So success is the exit code, not a field. See [exit codes](../reference/exit-codes) for the full table.
 
 Parse JSON output with `jq` in CI scripts:
 
 ```bash
 # Extract version code after upload
-VERSION=$(gpc releases upload app.aab --track internal --json | jq -r '.data.versionCode')
+VERSION=$(gpc releases upload app.aab --track internal --json | jq -r '.versionCode')
 
-# Check if command succeeded
-gpc releases status --json | jq -e '.success' > /dev/null
+# Check if a command succeeded
+if ! gpc releases status --json > /dev/null; then
+  echo "Status check failed"
+  exit 1
+fi
 ```
 
 ## Next Steps

@@ -558,7 +558,7 @@ ${items}
             name: "Can I use GPC in CI/CD?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Yes. GPC outputs JSON when piped, uses semantic exit codes (0-6), and supports env var configuration. Works with GitHub Actions, GitLab CI, Bitbucket, and CircleCI.",
+              text: "Yes. Every GPC command takes --json (or --ci for JSON plus no prompts), uses semantic exit codes (0-6), and supports env var configuration. Works with GitHub Actions, GitLab CI, Bitbucket, and CircleCI.",
             },
           },
           {

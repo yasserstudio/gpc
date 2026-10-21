@@ -48,7 +48,7 @@ gpc doctor                                    # 22 setup checks
 
 ## CI/CD
 
-JSON, CSV, and TSV output when piped. Semantic exit codes your pipeline can react to.
+JSON, CSV, and TSV output on any command via `--json` or `--output <format>`. Semantic exit codes your pipeline can react to.
 
 ```yaml
 - name: Ship to Play Store

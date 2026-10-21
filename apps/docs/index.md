@@ -27,7 +27,7 @@ features:
   - icon:
       src: /icons/lightning-bolt.png
     title: CI/CD Native
-    details: "JSON output when piped. Semantic exit codes. Env var config. --dry-run on every write. Drop into any pipeline."
+    details: "--json on every command. Semantic exit codes. Env var config. --dry-run on every write. Drop into any pipeline."
   - icon:
       src: /icons/plug.png
     title: Translated Release Notes
