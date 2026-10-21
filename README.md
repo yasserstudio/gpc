@@ -11,6 +11,8 @@
 
 **Ship Android apps from your terminal.** No Ruby. No browser. No ceremony.
 
+**v1.0 is stable.** Commands, flags, exit codes and `--json` output follow semantic versioning, so a pinned CI pipeline keeps working. [What 1.0 promises](https://yasserstudio.github.io/gpc/reference/stability).
+
 **GPC** is a command-line interface covering 234 publisher-focused endpoints across four Google Play APIs from a single binary. It handles releases, rollouts, store listings, vitals monitoring, reviews, subscriptions, reports, and Managed Google Play publishing without requiring Ruby, a JVM, or a browser. Built for Android developers, release engineers, and DevOps teams who ship from the terminal.
 
 GPC also includes an offline compliance scanner that catches Google Play policy violations before you upload, and a real-time rollout monitor that auto-halts on crash rate spikes.

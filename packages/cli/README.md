@@ -2,6 +2,8 @@
 
 **Ship Android apps from your terminal.** The complete CLI for the Google Play Developer API.
 
+**v1.0 is stable.** Commands, flags, exit codes and `--json` output follow semantic versioning, so a pinned CI pipeline keeps working. [What 1.0 promises](https://yasserstudio.github.io/gpc/reference/stability).
+
 234 API endpoints. No Ruby. No browser. No ceremony. First publishing CLI with Managed Google Play support and AI-assisted Play Store release notes in 80+ locales.
 
 ```bash

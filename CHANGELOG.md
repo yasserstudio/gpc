@@ -7,6 +7,16 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v1.0.0
+
+GPC is stable. This is the same code as 1.0.0-rc.2, which passed its soak with a live check of every vitals gate on a production app, through the npm package and the standalone binary. Nothing you run changes when you upgrade from rc.2.
+
+- feat: semantic versioning from here on. Commands, flags, exit codes, `--json` output, error codes and config keys stay stable within 1.x, and anything deprecated keeps working until 2.0. See [Versioning and Stability](https://yasserstudio.github.io/gpc/reference/stability).
+- docs: new [Versioning and Stability](https://yasserstudio.github.io/gpc/reference/stability) page.
+- chore: development-only dependency updates (docs site and test tooling); no change to the installed packages.
+
+If you are coming from 0.9.x, read the rc.1 and rc.2 notes below first: both contain changes that can affect a CI pipeline, such as vitals thresholds now being fractions (`0.02` means 2%).
+
 ## v1.0.0-rc.2
 
 Fixes found by using rc.1 on a real app during the soak. All of them are in vitals: `gpc vitals`, `gpc watch`, `gpc status`, `gpc train` and the rollout `--vitals-gate`. Several gates you may rely on in CI could not fire, so check the two breaking changes before you upgrade a pipeline.

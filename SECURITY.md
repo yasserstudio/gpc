@@ -23,11 +23,14 @@ Instead, use [GitHub's private vulnerability reporting](https://github.com/yasse
 
 ## Supported Versions
 
-| Version        | Supported           |
-| -------------- | ------------------- |
-| Latest         | Yes                 |
-| Previous minor | Security fixes only |
-| Older          | No                  |
+| Version                         | Supported           |
+| ------------------------------- | ------------------- |
+| Latest 1.x release              | Yes                 |
+| Previous 1.x minor              | Security fixes only |
+| 1.0.0 release candidates (rc.N) | No, upgrade to 1.x  |
+| 0.9.x and older                 | No, upgrade to 1.x  |
+
+Fixes ship in a new release. Upgrade with `gpc update`, `npm install -g @gpc-cli/cli@latest` or `brew upgrade gpc`. See [Versioning and Stability](https://yasserstudio.github.io/gpc/reference/stability) for what each release type can contain.
 
 ## Security Practices
 

@@ -77,7 +77,7 @@ See the [CI/CD guide](../ci-cd/) for copy-pasteable GitHub Actions, GitLab CI, B
 
 ### Is it stable enough for production CI/CD?
 
-2,906 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The current release, v1.0.0-rc.2, is the release candidate for v1.0.0: if nothing critical turns up during its stability soak, the same build becomes v1.0.0.
+2,906 tests across 7 packages. 90%+ line coverage on all core packages. Every write operation supports `--dry-run`. Semantic exit codes for CI branching. Validated against production apps. The current release is v1.0.0, the first stable release, which follows semantic versioning; see [Versioning and Stability](/reference/stability) for what it keeps stable.
 
 ## Configuration
 

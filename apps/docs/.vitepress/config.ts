@@ -131,6 +131,8 @@ function getPageDescription(page: PageData): string {
       "All GPC_* environment variables: authentication, output, network, debugging, and proxy configuration.",
     "reference/exit-codes.md":
       "GPC semantic exit codes: 0 success, 2 usage, 3 auth, 4 API, 5 network, 6 vitals threshold breach. CI scripting patterns.",
+    "reference/stability.md":
+      "What GPC 1.0 keeps stable under semver: commands, flags, exit codes, --json output, error codes, config and deprecation rules.",
     "reference/changelog.md": "GPC changelog: all notable changes across every release.",
     "advanced/architecture.md": "GPC system design, package architecture, and dependency graph.",
     "advanced/security.md":
@@ -399,7 +401,7 @@ export default defineConfig({
         codeRepository: "https://github.com/yasserstudio/gpc",
 
         programmingLanguage: "TypeScript",
-        softwareVersion: "1.0.0-rc.2",
+        softwareVersion: "1.0.0",
         releaseNotes: "https://yasserstudio.github.io/gpc/reference/changelog",
         documentation: "https://yasserstudio.github.io/gpc/",
         author: {
@@ -1095,6 +1097,7 @@ ${items}
           { text: "Environment Variables", link: "/reference/environment-variables" },
           { text: "Exit Codes", link: "/reference/exit-codes" },
           { text: "JSON Output Contract", link: "/reference/json-contract" },
+          { text: "Versioning and Stability", link: "/reference/stability" },
           { text: "API Coverage Map", link: "/reference/api-coverage" },
           { text: "Rate Limits", link: "/reference/rate-limits" },
           { text: "Changelog", link: "/reference/changelog" },
@@ -1335,6 +1338,7 @@ ${items}
             { text: "Environment Variables", link: "/reference/environment-variables" },
             { text: "Exit Codes", link: "/reference/exit-codes" },
             { text: "JSON Output Contract", link: "/reference/json-contract" },
+            { text: "Versioning and Stability", link: "/reference/stability" },
             { text: "API Coverage Map", link: "/reference/api-coverage" },
             { text: "API Deprecations", link: "/reference/deprecations" },
             { text: "Rate Limits", link: "/reference/rate-limits" },

@@ -13,7 +13,7 @@ ogImage: /blog/two-halves-of-agent-first-android.jpg
 # The Two Halves of Agent-First Android
 
 ::: info Updated October 2026
-First published as an X Article on April 18, 2026 ([read it there](https://x.com/yassersstudio/status/2045485852231414228)) and as a [LinkedIn article](https://www.linkedin.com/pulse/two-halves-agent-first-android-yasser-berrehail-qt4qc/) two days later. The thesis has not moved; the numbers have. Google's Android CLI reached stable 1.0 at I/O on May 19, 2026, GPC is now at v1.0.0-rc.2 with 234 typed endpoints and 19 agent skills, and the commands below are verified against that release.
+First published as an X Article on April 18, 2026 ([read it there](https://x.com/yassersstudio/status/2045485852231414228)) and as a [LinkedIn article](https://www.linkedin.com/pulse/two-halves-agent-first-android-yasser-berrehail-qt4qc/) two days later. The thesis has not moved; the numbers have. Google's Android CLI reached stable 1.0 at I/O on May 19, 2026, GPC is now at v1.0.0 with 234 typed endpoints and 19 agent skills, and the commands below are verified against that release.
 :::
 
 Android shipping has two halves, and only one of them has an official CLI. Google's Android CLI covers environment setup, project creation, device management, and the build itself. Play Store publishing is out of scope by design: no releases, no rollouts, no vitals, no listings. GPC is the publishing half, and the two compose into a single agent-driven workflow because they share one instruction format and hand off at one clean boundary.

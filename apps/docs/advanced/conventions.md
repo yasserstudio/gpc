@@ -295,10 +295,10 @@ Settings are resolved in this order (highest priority first):
 - **Semantic versioning** (semver)
 - All packages versioned independently
 - `@gpc-cli/cli` version displayed as the "GPC version" to users
-- Current series: `1.0.0-rc.N` release candidates → `1.0.0` stable (after the `0.9.x` pre-release series)
-- Release candidates publish to npm `latest` with an explicit `--tag` (npm 11 refuses a prerelease without one), so an ordinary update installs them
-- Pre-1.0: breaking changes bump minor, features/fixes bump patch
-- Post-1.0: standard semver rules
+- Stable since `1.0.0` (October 2026), after the `0.9.x` pre-release series and the `1.0.0-rc.N` release candidates
+- Fixes bump patch, features bump minor, breaking changes bump major. What counts as breaking is defined in [Versioning and Stability](/reference/stability)
+- Packages still at `0.x` (core, auth, config, plugin-sdk, plugin-ci) follow semver's 0.x rules until they reach 1.0
+- A prerelease (`-rc.N`) needs an explicit npm `--tag`, because npm 11 refuses to publish one without it
 
 ### Release Process
 

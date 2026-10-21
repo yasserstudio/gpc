@@ -6,7 +6,7 @@ outline: deep
 
 GPC is free. The code is on GitHub. Your company does not need a license, a subscription, or a support contract to ship with it.
 
-This page explains what that means in practice, how contributions work, and what might change after v1.0.0.
+This page explains what that means in practice, how contributions work, and what might change now that v1.0.0 has shipped.
 
 ## What "Free to Use" Means
 
@@ -54,7 +54,7 @@ Opening a pull request does not guarantee that a change will merge or set a deli
 
 ## What Might Change After v1.0.0
 
-After v1.0.0, we may ship:
+Now that v1.0.0 has shipped, we may add:
 
 - **Premium plugins** for capabilities adjacent to the core CLI (for example, reporting dashboards, multi-org management)
 - **Hosted services** for teams that want managed versions of specific workflows

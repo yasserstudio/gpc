@@ -13,7 +13,7 @@ ogImage: /blog/building-a-cli-for-the-entire-google-play-api.jpg
 # I Built a CLI That Covers the Entire Google Play Developer API
 
 ::: info Updated October 2026
-First published on Dev.to on March 31, 2026. Updated for GPC 1.0: coverage grew from 215 to 234 publisher operations across four Google Play APIs, the test suite from 1,874 to 2,906 tests, and the flags shown below match the 1.0.0-rc.2 release candidate.
+First published on Dev.to on March 31, 2026. Updated for GPC 1.0: coverage grew from 215 to 234 publisher operations across four Google Play APIs, the test suite from 1,874 to 2,906 tests, and the flags shown below match the 1.0.0 release.
 :::
 
 I was uploading an AAB to the Play Console last year and thought: why am I still clicking through this in 2026?
@@ -134,7 +134,7 @@ Go would have given me a fast binary with zero dependencies, and that was tempti
 - Plugin system with lifecycle hooks
 - Interactive mode for when you do not remember the flags
 
-It is at 1.0.0-rc.2 as I write this update, soaking before the 1.0.0 tag. It is the most tested project I have shipped, and I use it for my own apps.
+It reached 1.0.0, its first stable release, in October 2026. It is the most tested project I have shipped, and I use it for my own apps.
 
 ## How do you install it?
 

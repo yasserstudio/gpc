@@ -11,12 +11,13 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Pl
 
 - Install: `npm install -g @gpc-cli/cli`
 - Binary: `gpc`
-- Version: 1.0.0-rc.2
+- Version: 1.0.0
 - API endpoints covered: 234 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1 + Games Configuration v1configuration)
 - Tests: 2,906 (90%+ coverage)
 - Licensing: MIT-licensed open source, free to use. Source code is on GitHub.
 - Repo: https://github.com/yasserstudio/gpc
 - GitHub Action: yasserstudio/gpc-action on the GitHub Actions Marketplace (one-step Play publishing from CI with built-in preflight gate, drop-in r0adkll migration)
+- Notable v1.0.0: First stable release. The same code as 1.0.0-rc.2, now under semantic versioning: commands, flags, exit codes, `--json` output, error codes and config keys stay stable within 1.x (https://yasserstudio.github.io/gpc/reference/stability).
 - Notable v1.0.0-rc.2: Vitals gates that could not fire now work. `gpc watch` reads values and halts on breach; `watch` and `gpc status` respect Google's data freshness; startup and error-count queries keep the dimension Google requires; `--threshold` checks the worst value of the latest day; rate thresholds are fractions (0.02 = 2%) and values of 1 or more are refused with `THRESHOLD_INVALID`; `releases rollout increase --vitals-gate` and `gpc train` block on missing data instead of advancing; slow rendering is reported as games-only (`API_METRIC_GAMES_ONLY`); malformed `--app` values fail with `INVALID_PACKAGE_NAME`.
 - Notable v1.0.0-rc.1: Release candidate for 1.0.0. Safety fixes from the pre-1.0 security review: refunds, chargeback responses and subscription revokes need `--yes` in non-interactive runs (CI, piped stdin); `gpc vitals` fails with exit 4 when it cannot read vitals and a `--threshold` run with no data exits 6 instead of passing; usage errors exit 2 as documented; `listings images sync --delete` refuses an unreadable local directory instead of deleting remote images; preflight and report downloads are bounded against oversized or crafted archives; refund-review tokens are kept out of webhooks and plugin hooks.
 - Notable v0.9.99: `gpc preflight` estimates the per-device download of an App Bundle (one ABI, no debug symbols or on-demand modules) instead of the whole file, the default size threshold is 200 MB, and the foreground service type check no longer fails apps with ordinary library services. `gpc external-transactions refund` sends the refund time and refund ID Google requires. Types and docs cover the US external content links program and Play Games Rewards offers.
