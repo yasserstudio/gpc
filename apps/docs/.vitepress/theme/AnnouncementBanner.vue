@@ -1,18 +1,50 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, watch, nextTick, onMounted, onBeforeUnmount } from "vue";
 
 // Bump this with each release so dismissals from the previous version
 // don't silently suppress the new banner.
-const STORAGE_KEY = "gpc-banner-dismissed-v100rc2-at";
+const STORAGE_KEY = "gpc-banner-dismissed-v100-at";
 const DISMISS_WINDOW_MS = 24 * 60 * 60 * 1000; // 24h — banner re-appears after this
 const TAP_PAUSE_MS = 6000; // pause ticker for 6s after a tap so touch users
 // have time to read and activate the link inside the banner
 
 const visible = ref(false);
 const paused = ref(false);
+const bannerEl = ref<HTMLElement | null>(null);
 let resumeTimer: ReturnType<typeof setTimeout> | undefined;
+let resizeObserver: ResizeObserver | undefined;
+let desktopQuery: MediaQueryList | undefined;
+
+// The banner sits in the #layout-top slot. From 960px up, VitePress's nav is
+// position: fixed at top: var(--vp-layout-top-height), so without this
+// variable the nav covers the banner. Below 960px the nav is in normal flow
+// and already sits under the banner, so the variable must stay 0 there or it
+// adds a blank band. Track the banner's real height and clear it on dismiss.
+function setTopHeight(px: number) {
+  document.documentElement.style.setProperty("--vp-layout-top-height", `${px}px`);
+}
+
+function syncTopHeight() {
+  const navIsFixed = desktopQuery?.matches ?? false;
+  setTopHeight(visible.value && navIsFixed && bannerEl.value ? bannerEl.value.offsetHeight : 0);
+}
+
+watch(visible, async (isVisible) => {
+  resizeObserver?.disconnect();
+  if (!isVisible) {
+    setTopHeight(0);
+    return;
+  }
+  await nextTick();
+  if (!bannerEl.value) return;
+  syncTopHeight();
+  resizeObserver = new ResizeObserver(syncTopHeight);
+  resizeObserver.observe(bannerEl.value);
+});
 
 onMounted(() => {
+  desktopQuery = window.matchMedia("(min-width: 960px)");
+  desktopQuery.addEventListener("change", syncTopHeight);
   try {
     const dismissedAt = Number(localStorage.getItem(STORAGE_KEY) ?? 0);
     const ageMs = Date.now() - dismissedAt;
@@ -25,6 +57,9 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   if (resumeTimer) clearTimeout(resumeTimer);
+  resizeObserver?.disconnect();
+  desktopQuery?.removeEventListener("change", syncTopHeight);
+  setTopHeight(0);
 });
 
 function dismiss() {
@@ -50,8 +85,8 @@ function pauseTicker() {
 </script>
 
 <template>
-  <div v-if="visible" class="ann-banner" role="banner">
-    <span class="ann-badge">Release candidate</span>
+  <div v-if="visible" ref="bannerEl" class="ann-banner" role="banner">
+    <span class="ann-badge">Stable</span>
     <div
       class="ann-text-wrapper"
       :class="{ 'ann-paused': paused }"
@@ -59,11 +94,9 @@ function pauseTicker() {
       @touchstart.passive="pauseTicker"
     >
       <span class="ann-text">
-        v1.0.0-rc.2 &middot; Vitals gates that now fire: <code>gpc watch</code> halts on breach,
-        thresholds are fractions (<code>0.02</code> = 2%), and missing data blocks instead of
-        passing.
-        <a href="/gpc/reference/changelog" class="ann-link">See what changed</a>
-        &middot; v1.0.0 is next
+        v1.0.0 &middot; GPC is stable. Commands, flags, exit codes and <code>--json</code> output
+        now follow semantic versioning.
+        <a href="/gpc/reference/stability" class="ann-link">What 1.0 promises</a>
       </span>
     </div>
     <button class="ann-close" aria-label="Dismiss" @click="dismiss">
@@ -148,8 +181,8 @@ function pauseTicker() {
     text-align: left;
     gap: 0;
   }
-  /* Hide the PRE-RELEASE chip on mobile — it eats ~80px of precious width
-     and the ticker text carries the same context ("v1.0.0-rc.2 · ..."). */
+  /* Hide the chip on mobile — it eats ~80px of precious width
+     and the ticker text carries the same context ("v1.0.0 · ..."). */
   .ann-badge {
     display: none;
   }
