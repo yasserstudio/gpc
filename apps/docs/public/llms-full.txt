@@ -703,7 +703,6 @@ VERSION=$(echo $STATUS | jq -r '.releases[0].versionCode')
 | 4 | API | Google Play API error |
 | 5 | Network | DNS, timeout, proxy error |
 | 6 | Threshold | Vitals metric exceeded threshold |
-| 10 | Plugin | Plugin load or runtime error |
 
 ---
 
