@@ -37,7 +37,7 @@ Android 17 reaches stable in June 2026 with a major behavior change: **mandatory
 
 The target SDK deadline for API 37 has not been announced yet (historically 12-18 months after stable release; for reference, the API 36 deadline is August 31, 2026). GPC will add a manifest scanner check when the deadline is announced. In the meantime, test your app on large-screen devices and remove hardcoded orientation locks.
 
-Two sensitive-permission policies **are** already dated: broad contacts access and precise-location minimum scope become mandatory for apps targeting API 37+ on **October 28, 2026**. Preflight flags both today (`contacts-permission-broad`, `location-minimal-scope`).
+Two sensitive-permission policies **are** already dated: broad contacts access and precise-location minimum scope become mandatory for apps targeting API 37+ on **January 27, 2027** (moved from October 28, 2026 in Google's October 29, 2026 policy update). Preflight flags both today (`contacts-permission-broad`, `location-minimal-scope`).
 :::
 
 ## Commands

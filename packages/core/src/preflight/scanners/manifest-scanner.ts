@@ -152,7 +152,7 @@ export const manifestScanner: PreflightScanner = {
             ruleId: "geofencing-foreground-service",
             severity: "warning",
             title: `Possible geofencing via foreground service "${service.name}"`,
-            message: `Service "${service.name}" uses foregroundServiceType "location" and the app declares ACCESS_BACKGROUND_LOCATION. Google Play no longer approves geofencing as a foreground service use case (sensitive-permissions policy announced April 15, 2026); enforcement for apps targeting Android 17 (API 37+) begins October 28, 2026.`,
+            message: `Service "${service.name}" uses foregroundServiceType "location" and the app declares ACCESS_BACKGROUND_LOCATION. Google Play no longer approves geofencing as a foreground service use case (sensitive-permissions policy announced April 15, 2026).`,
             suggestion:
               'If this service performs geofencing, migrate to the Geofencing API (LocationServices.getGeofencingClient) or WorkManager/AlarmManager. If this is legitimate background location tracking (navigation, fitness), suppress this rule via .preflightrc.json: "disabledRules": ["geofencing-foreground-service"].',
             policyUrl: "https://support.google.com/googleplay/android-developer/answer/16926792",

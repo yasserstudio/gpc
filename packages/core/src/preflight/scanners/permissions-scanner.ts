@@ -66,7 +66,7 @@ const RESTRICTED_PERMISSIONS: RestrictedPermission[] = [
     severity: "critical",
     title: "READ_CALL_LOG requires declaration form",
     message:
-      "READ_CALL_LOG is restricted to default phone/assistant handler apps. As of July 15, 2026, account verification via phone call is no longer an accepted use case for the Call Log permissions.",
+      "READ_CALL_LOG is restricted to default phone/assistant handler apps. From January 27, 2027, account verification via phone call is no longer an accepted use case for the Call Log permissions.",
     suggestion:
       "Remove READ_CALL_LOG unless your app is a default phone or assistant handler. For phone-number verification, use the Digital Credentials API; for one-time codes, use the SMS Retriever API instead of reading the call log.",
     policyUrl: "https://support.google.com/googleplay/android-developer/answer/10208820",
@@ -229,9 +229,10 @@ export const permissionsScanner: PreflightScanner = {
       }
     }
 
-    // Sensitive-permissions policy (announced April 15, 2026): broad contacts
-    // access is deprecated in favor of the Android Contact Picker. Mandatory for
-    // apps targeting Android 17 (API 37+) on October 28, 2026.
+    // Sensitive-permissions policy (announced April 15, 2026, updated October 29,
+    // 2026): broad contacts access needs a Play Console declaration, otherwise the
+    // Android Contact Picker. Mandatory for apps targeting Android 17 (API 37+) on
+    // January 27, 2027.
     const contactsPerms = [
       "android.permission.READ_CONTACTS",
       "android.permission.WRITE_CONTACTS",
@@ -241,24 +242,24 @@ export const permissionsScanner: PreflightScanner = {
       const names = contactsPerms.map((p) => p.split(".").pop()).join(", ");
       const enforced =
         manifest.targetSdk >= 37
-          ? ` Your app targets API ${manifest.targetSdk}, so this is enforced.`
+          ? ` Your app targets API ${manifest.targetSdk}, so this applies to it.`
           : "";
       findings.push({
         scanner: "permissions",
         ruleId: "contacts-permission-broad",
         severity: "warning",
         title: "Broad contacts access requires migration to Contact Picker",
-        message: `Your app declares ${names}. Google Play's Contacts Permissions policy requires the Android Contact Picker (Intent.ACTION_PICK_CONTACTS) unless broad access is core to your app. Mandatory for apps targeting Android 17 (API 37+) on October 28, 2026.${enforced}`,
+        message: `Your app declares ${names}. Google Play's Contacts Permissions policy requires the Android Contact Picker (Intent.ACTION_PICK_CONTACTS) unless broad access is core to your app and you submit a Play Console declaration. Mandatory for apps targeting Android 17 (API 37+) on January 27, 2027.${enforced}`,
         suggestion:
-          "Migrate to the Android Contact Picker (Intent.ACTION_PICK_CONTACTS) for user-initiated contact selection, or file a Permissions Declaration Form before October 28, 2026 if the picker cannot serve your core functionality. Remove READ_CONTACTS/WRITE_CONTACTS unless your app is a dialer, messaging, or contacts management app.",
+          "Migrate to the Android Contact Picker (Intent.ACTION_PICK_CONTACTS) for user-initiated contact selection, or submit the contacts declaration in Play Console before January 27, 2027 if the picker cannot serve your core functionality. Remove READ_CONTACTS/WRITE_CONTACTS unless your app is a dialer, messaging, or contacts management app.",
         policyUrl: "https://support.google.com/googleplay/android-developer/answer/16935362",
       });
     }
 
-    // Sensitive-permissions policy (announced April 15, 2026): the Android
-    // location button is the recommended minimum scope for transactional
-    // (one-time) precise location. Mandatory for apps targeting Android 17
-    // (API 37+) on October 28, 2026.
+    // Sensitive-permissions policy (announced April 15, 2026, updated October 29,
+    // 2026): the Android location button is required for one-time precise
+    // location, and ACCESS_FINE_LOCATION needs a Play Console declaration.
+    // Mandatory for apps targeting Android 17 (API 37+) on January 27, 2027.
     const fineLocation = "android.permission.ACCESS_FINE_LOCATION";
     if (manifest.permissions.includes(fineLocation) && !allowed.has(fineLocation)) {
       const targetsApi37 = manifest.targetSdk >= 37;
@@ -267,9 +268,9 @@ export const permissionsScanner: PreflightScanner = {
         ruleId: "location-minimal-scope",
         severity: targetsApi37 ? "warning" : "info",
         title: "Precise location — consider the location button (minimum scope)",
-        message: `Your app declares ACCESS_FINE_LOCATION. Google Play's Location Permissions policy makes the Android location button the recommended minimum scope for transactional (one-time) precise location. Mandatory for apps targeting Android 17 (API 37+) on October 28, 2026.${targetsApi37 ? ` Your app targets API ${manifest.targetSdk}.` : ""}`,
+        message: `Your app declares ACCESS_FINE_LOCATION. Google Play's Location Permissions policy requires the Android location button for one-time or infrequent precise location, and a Play Console declaration explaining why coarse location or the location button is not enough. Mandatory for apps targeting Android 17 (API 37+) on January 27, 2027.${targetsApi37 ? ` Your app targets API ${manifest.targetSdk}.` : ""}`,
         suggestion:
-          'For one-time/transactional precise location, use the system location button instead of requesting ACCESS_FINE_LOCATION up front. Only keep continuous fine location if navigation, fitness, or a similar feature is core functionality. Suppress via .preflightrc.json "disabledRules": ["location-minimal-scope"] if fine location is essential.',
+          'For one-time/transactional precise location, use the system location button instead of requesting ACCESS_FINE_LOCATION up front. Only keep continuous fine location if navigation, fitness, or a similar feature is core functionality, and complete the precise location declaration in Play Console. Suppress via .preflightrc.json "disabledRules": ["location-minimal-scope"] if fine location is essential.',
         policyUrl: "https://support.google.com/googleplay/android-developer/answer/17033915",
       });
     }

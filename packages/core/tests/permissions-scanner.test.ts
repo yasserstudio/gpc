@@ -52,10 +52,11 @@ describe("permissionsScanner", () => {
     expect(f!.severity).toBe("critical");
   });
 
-  it("notes the July 15 2026 removal of phone-call verification for READ_CALL_LOG", async () => {
+  it("notes the January 27 2027 removal of phone-call verification for READ_CALL_LOG", async () => {
     const findings = await permissionsScanner.scan(makeCtx(["android.permission.READ_CALL_LOG"]));
     const f = findings.find((f) => f.ruleId.includes("read_call_log"));
-    expect(f!.message).toContain("July 15, 2026");
+    expect(f!.message).toContain("January 27, 2027");
+    expect(f!.message).not.toContain("As of July 15");
     expect(f!.suggestion).toContain("Digital Credentials API");
     expect(f!.suggestion).toContain("SMS Retriever API");
   });
@@ -172,24 +173,25 @@ describe("permissionsScanner", () => {
     expect(findings.find((f) => f.ruleId === "contacts-permission-broad")).toBeUndefined();
   });
 
-  it("cites the October 28, 2026 enforcement date in contacts finding", async () => {
+  it("cites the January 27, 2027 enforcement date in contacts finding", async () => {
     const findings = await permissionsScanner.scan(makeCtx(["android.permission.READ_CONTACTS"]));
     const f = findings.find((f) => f.ruleId === "contacts-permission-broad");
-    expect(f!.message).toContain("October 28, 2026");
+    expect(f!.message).toContain("January 27, 2027");
     expect(f!.message).toContain("Contact Picker");
+    expect(f!.message).toContain("Play Console declaration");
   });
 
-  it("adds an 'enforced' note to contacts finding when targeting API 37+", async () => {
+  it("adds an 'applies to it' note to contacts finding when targeting API 37+", async () => {
     const ctx: PreflightContext = {
       manifest: { ...makeManifest(["android.permission.READ_CONTACTS"]), targetSdk: 37 },
       config: { ...DEFAULT_PREFLIGHT_CONFIG, allowedPermissions: [] },
     };
     const findings = await permissionsScanner.scan(ctx);
     const f = findings.find((f) => f.ruleId === "contacts-permission-broad");
-    expect(f!.message).toContain("so this is enforced");
+    expect(f!.message).toContain("so this applies to it");
   });
 
-  // --- Sensitive-permissions policy: Location minimum scope (Oct 28, 2026) ---
+  // --- Sensitive-permissions policy: Location minimum scope (Jan 27, 2027) ---
 
   it("flags ACCESS_FINE_LOCATION as location-minimal-scope info", async () => {
     const findings = await permissionsScanner.scan(
@@ -199,7 +201,8 @@ describe("permissionsScanner", () => {
     expect(f).toBeDefined();
     expect(f!.severity).toBe("info");
     expect(f!.message).toContain("location button");
-    expect(f!.message).toContain("October 28, 2026");
+    expect(f!.message).toContain("January 27, 2027");
+    expect(f!.message).toContain("Play Console declaration");
   });
 
   it("escalates location-minimal-scope to warning when targeting API 37+", async () => {
