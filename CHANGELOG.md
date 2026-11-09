@@ -7,6 +7,21 @@ Versioning: `0.9.x` pre-release series → `1.0.0` public launch.
 
 ---
 
+## v1.0.1
+
+A patch release: proxy support on Node 26, corrected policy dates in `gpc preflight`, and dependency security updates. Nothing to change in your scripts unless you rely on `NO_PROXY` (see below).
+
+- fix: on Node 26, `HTTPS_PROXY` / `HTTP_PROXY` were ignored for Google Play API calls, so those requests and their access tokens went around your proxy. GPC now sends them through it. Node 22 and 24, and the standalone binary, were not affected.
+- fix: an empty `no_proxy=` no longer hides a `NO_PROXY` that is set.
+- fix: a `NO_PROXY` domain now also covers its subdomains, the usual convention: `NO_PROXY=googleapis.com` sends `androidpublisher.googleapis.com` direct. If your network only allows traffic out through the proxy, check that `NO_PROXY` does not list a Google domain.
+- fix: `gpc preflight` follows Google's October 29, 2026 policy update. The contacts and precise-location rules for apps targeting Android 17 become mandatory on January 27, 2027 (not October 28, 2026), and both findings now say a Play Console declaration is required.
+- fix: the `READ_CALL_LOG` finding no longer says phone-call verification ended on July 15, 2026. Google's policy makes that change on January 27, 2027.
+- fix: the geofencing foreground-service finding no longer gives an Android 17 date that Google never published.
+- chore: security updates to dependencies of the optional AI translation feature. `npm audit` is clean on a fresh install.
+- chore: GPC now needs Node.js 20.18.1 or later.
+
+**Tests:** 2,908 (+2).
+
 ## v1.0.0
 
 GPC is stable. This is the same code as 1.0.0-rc.2, which passed its soak with a live check of every vitals gate on a production app, through the npm package and the standalone binary. Nothing you run changes when you upgrade from rc.2.

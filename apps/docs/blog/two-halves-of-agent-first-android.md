@@ -111,7 +111,7 @@ Full catalog in the [exit codes reference](/reference/exit-codes).
 
 **No hidden interactivity.** `--no-interactive`, `--ci`, and `--dry-run` exist on the root command so every input is explicit and every output is parseable.
 
-Google's announcement names "third-party agents like Claude Code or Codex" as supported clients. Tools that bolted agent support on afterwards are rewriting their CLI. GPC has run on this rail since day one, with 2,906 tests holding the contract in place.
+Google's announcement names "third-party agents like Claude Code or Codex" as supported clients. Tools that bolted agent support on afterwards are rewriting their CLI. GPC has run on this rail since day one, with 2,908 tests holding the contract in place.
 
 ## A full release, both halves
 
