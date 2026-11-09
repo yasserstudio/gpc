@@ -22,27 +22,21 @@ export async function setupNetworking(): Promise<void> {
   // set uppercase one and send traffic direct.
   const httpsProxy = process.env["https_proxy"] || process.env["HTTPS_PROXY"];
   const httpProxy = process.env["http_proxy"] || process.env["HTTP_PROXY"];
+  const noProxy = process.env["no_proxy"] || process.env["NO_PROXY"];
   if (!httpsProxy && !httpProxy) return;
 
   try {
+    // undici 7+ registers the dispatcher under both global keys Node's built-in
+    // fetch may read; undici 6 set only the older one, which Node 26 ignores.
     const { EnvHttpProxyAgent, setGlobalDispatcher } = await import("undici");
-    // EnvHttpProxyAgent adds NO_PROXY support; it warns once that it is
-    // experimental, which would pollute every proxied run (including --json).
-    const emitWarning = process.emitWarning;
-    process.emitWarning = ((warning: string | Error, ...rest: unknown[]) => {
-      if ((rest[0] as { code?: string } | undefined)?.code === "UNDICI-EHPA") return;
-      (emitWarning as (...args: unknown[]) => void).call(process, warning, ...rest);
-    }) as typeof process.emitWarning;
-    try {
-      setGlobalDispatcher(
-        new EnvHttpProxyAgent({
-          ...(httpProxy ? { httpProxy } : {}),
-          ...(httpsProxy ? { httpsProxy } : {}),
-        }),
-      );
-    } finally {
-      process.emitWarning = emitWarning;
-    }
+    // EnvHttpProxyAgent adds NO_PROXY support.
+    setGlobalDispatcher(
+      new EnvHttpProxyAgent({
+        ...(httpProxy ? { httpProxy } : {}),
+        ...(httpsProxy ? { httpsProxy } : {}),
+        ...(noProxy ? { noProxy } : {}),
+      }),
+    );
   } catch (error) {
     // The underlying message is not included: it can echo a proxy URL with credentials.
     const reason = error instanceof Error ? error.name : "unknown error";

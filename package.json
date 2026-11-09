@@ -3,7 +3,7 @@
   "private": true,
   "packageManager": "pnpm@10.33.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=20.18.1"
   },
   "scripts": {
     "build": "turbo run build",
@@ -44,6 +44,7 @@
       "postcss@8.5.14": "8.5.23",
       "postcss@8.5.19": "8.5.23",
       "source-map-js@1.2.1": "1.2.2",
+      "undici@6.28.1": "6.29.1",
       "vite@5.4.21": "6.4.4",
       "zod@4.3.6": "4.6.7"
     },

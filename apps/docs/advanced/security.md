@@ -528,28 +528,25 @@ This is a review discipline, not a subscription. It costs attention rather than 
 | `commander`           | CLI framework    | Industry standard, 150M+ weekly downloads        |
 | `protobufjs`          | Protocol Buffers | Required for AAB manifest parsing                |
 | `yauzl`               | ZIP extraction   | Required for AAB file reading                    |
+| `undici`              | Proxy support    | Routes API calls through `HTTPS_PROXY` on Node   |
 
 New dependencies are reviewed for: maintenance status, download count, transitive dependency count, license compatibility (MIT, Apache-2.0, BSD preferred), and [Socket.dev security score](https://socket.dev).
 
-### Known advisory: `undici` via the AI SDK
+### `undici` and `npm audit`
 
-Running `npm audit` after installing GPC reports advisories against `undici`, including one rated high. This is expected and tracked. Here is the full picture so you can make your own call.
+GPC ships two copies of `undici`, for different jobs:
 
-**Where it comes from.** The AI SDK powers the optional `gpc changelog generate --ai` translation feature:
+- **GPC's own (`undici` 7).** Routes Google Play API calls through `HTTPS_PROXY` / `HTTP_PROXY` and honors `NO_PROXY`. It is loaded only when a proxy is set.
+- **The AI SDK's (`undici` 6).** Pulled in by `@ai-sdk/provider-utils` for the optional `gpc changelog generate --ai` translation feature. The AI SDK is lazy-loaded, so this copy never loads unless you run that command.
 
 ```
-@gpc-cli/cli -> @gpc-cli/core -> @ai-sdk/anthropic -> @ai-sdk/provider-utils -> undici
+@gpc-cli/cli -> undici@7
+@gpc-cli/cli -> @gpc-cli/core -> @ai-sdk/* -> @ai-sdk/provider-utils -> undici@6
 ```
 
-**Why it is not fixed yet.** Only `@ai-sdk/provider-utils` v5 moves to a patched `undici`, and reaching it requires a major upgrade of the `@ai-sdk/*` packages. GPC holds all dependency majors until after the 1.0.0 release so that migrations get a deliberate, tested pass rather than riding along with a patch. This hold is recorded in `.github/dependabot.yml`.
+Both ranges resolve to patched releases on a fresh install. If `npm audit` reports `undici` in an existing project, refresh your lockfile (`npm update`) so it picks up the latest patch.
 
-**Why the practical risk is low:**
-
-- The AI SDK is **lazy-loaded**. Nothing imports it unless you actually run `gpc changelog generate --ai`. If you never use that flag, the vulnerable code never loads.
-- GPC's own Google Play API calls use the Node.js built-in `fetch`, not `undici`.
-- When the AI path does run, it talks to the LLM endpoint you configured with your own key.
-
-**If you want it gone now:** GPC works fully without the AI translation feature. `pnpm audit --omit=dev`, `npm audit fix --force`, or your own `overrides` entry pinning `undici` will resolve it in your project, since dependency overrides apply from the installing project rather than from a published package.
+**Do not pin `undici` to 6.x with an `overrides` entry.** Node 26's built-in `fetch` ignores the proxy setting `undici` 6 installs, so with such an override GPC's Play API requests, and their OAuth tokens, would go around your proxy on Node 26.
 
 ## Security Checklist
 

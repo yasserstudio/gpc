@@ -105,6 +105,29 @@ describe("setupNetworking proxy (real undici)", { timeout: 30_000 }, () => {
     expect(seen).toEqual([]);
   });
 
+  it("treats a NO_PROXY domain as covering its subdomains", async () => {
+    process.env["HTTPS_PROXY"] = proxyUrl;
+    process.env["NO_PROXY"] = "example.invalid";
+
+    const { setupNetworking } = await import("../src/networking.js");
+    await setupNetworking();
+    await probe("https://api.example.invalid/");
+
+    expect(seen).toEqual([]);
+  });
+
+  it("still honors NO_PROXY when an empty lowercase no_proxy shadows it", async () => {
+    process.env["HTTPS_PROXY"] = proxyUrl;
+    process.env["no_proxy"] = "";
+    process.env["NO_PROXY"] = "example.invalid";
+
+    const { setupNetworking } = await import("../src/networking.js");
+    await setupNetworking();
+    await probe("https://example.invalid/");
+
+    expect(seen).toEqual([]);
+  });
+
   it("fails closed on a malformed proxy URL without echoing it", async () => {
     process.env["HTTPS_PROXY"] = "http://user:s3cret@[bad";
 

@@ -35,7 +35,7 @@
     "@gpc-cli/core": "workspace:*",
     "@gpc-cli/plugin-sdk": "workspace:*",
     "commander": "^14.0.3",
-    "undici": "^6.28.1"
+    "undici": "^7.30.1"
   },
   "homepage": "https://yasserstudio.github.io/gpc/",
   "keywords": [
@@ -61,7 +61,7 @@
     "upload"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=20.18.1"
   },
   "license": "MIT",
   "publishConfig": {

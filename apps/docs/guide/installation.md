@@ -175,7 +175,7 @@ For contributors or if you need the latest unreleased changes.
 
 ### Prerequisites
 
-- Node.js 20 or later
+- Node.js 20.18.1 or later
 - pnpm 9.15 or later
 
 ### Steps
