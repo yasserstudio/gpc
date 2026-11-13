@@ -11,12 +11,13 @@ GPC is a TypeScript CLI for the Google Play Developer API v3. It replaces the Pl
 
 - Install: `npm install -g @gpc-cli/cli`
 - Binary: `gpc`
-- Version: 1.0.1
+- Version: 1.1.0
 - API endpoints covered: 234 (Android Publisher v3 + Play Developer Reporting v1beta1 + Play Custom App Publishing v1 + Games Configuration v1configuration)
-- Tests: 2,908 (90%+ coverage)
+- Tests: 2,938 (90%+ coverage)
 - Licensing: MIT-licensed open source, free to use. Source code is on GitHub.
 - Repo: https://github.com/yasserstudio/gpc
 - GitHub Action: yasserstudio/gpc-action on the GitHub Actions Marketplace (one-step Play publishing from CI with built-in preflight gate, drop-in r0adkll migration)
+- Notable v1.1.0: Minor release. gpc preflight checks the Google Play Billing Library version (an AAB on Billing Library 7 or older fails the default failOn error, matching Google Play after the November 1, 2026 extension deadline), new ACCESS_LOCAL_NETWORK declaration advisory for Android 17 targets, gpc status rates cached data against the current thresholds and rejects thresholds that can never fire, gpc apps info honors --app.
 - Notable v1.0.1: Patch release. Proxy support on Node 26 (HTTPS_PROXY was ignored for Play API calls), NO_PROXY fixes, gpc preflight policy dates aligned with Google's October 29, 2026 update (contacts and precise location mandatory for Android 17 targets on January 27, 2027), dependency security updates, Node.js 20.18.1+.
 - Notable v1.0.0: First stable release. The same code as 1.0.0-rc.2, now under semantic versioning: commands, flags, exit codes, `--json` output, error codes and config keys stay stable within 1.x (https://yasserstudio.github.io/gpc/reference/stability).
 - Notable v1.0.0-rc.2: Vitals gates that could not fire now work. `gpc watch` reads values and halts on breach; `watch` and `gpc status` respect Google's data freshness; startup and error-count queries keep the dimension Google requires; `--threshold` checks the worst value of the latest day; rate thresholds are fractions (0.02 = 2%) and values of 1 or more are refused with `THRESHOLD_INVALID`; `releases rollout increase --vitals-gate` and `gpc train` block on missing data instead of advancing; slow rendering is reported as games-only (`API_METRIC_GAMES_ONLY`); malformed `--app` values fail with `INVALID_PACKAGE_NAME`.

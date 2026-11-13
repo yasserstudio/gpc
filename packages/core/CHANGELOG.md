@@ -1,5 +1,21 @@
 # @gpc-cli/core
 
+## 0.11.0
+
+### Minor Changes
+
+- 9767631: **CI impact:** `gpc preflight` now fails the default `failOn: "error"` for an AAB built on Google Play Billing Library 7 or older. This matches Google Play, which stopped accepting new apps and app updates on Billing Library 7 after its November 1, 2026 extension deadline, so the fix is to move to Billing Library 8 or later. For a pipeline that never uploads to Google Play, `"disabledRules": ["billing-library-deprecated"]` turns the check off.
+
+  New Google Play Billing Library version check in the policy scanner. When an app holds `com.android.vending.BILLING`, preflight reads the library version from the manifest and rates it against Google's deprecation deadlines on the day of the scan: error after the extension deadline, warning after the update deadline, info in the 12 months before it. A billing app whose version cannot be read gets a `billing-library-version-unknown` info finding. AAB only.
+
+- 14e7434: New `policy-local-network-declaration` preflight advisory (info). When an app targeting Android 17 (API 37) or higher requests `ACCESS_LOCAL_NETWORK`, preflight reminds you that Google Play requires a Play Console declaration for it from August 25, 2027, and allows it only when device pickers are insufficient. Apps targeting API 36 or lower get no finding.
+
+### Patch Changes
+
+- 2299355: `gpc status` now rates a cached status against the thresholds of the current run. A status served from the cache (while the cache entry is fresh, or with `--cached`) kept the thresholds of the run that fetched it, so `--threshold` and config `vitals.thresholds` were ignored until the entry expired, and a loose threshold from one run could let a later CI gate pass. Core exports `applyVitalThresholds` for SDK users who cache statuses themselves.
+- Updated dependencies [190d33f]
+  - @gpc-cli/api@1.2.0
+
 ## 0.10.8
 
 ### Patch Changes

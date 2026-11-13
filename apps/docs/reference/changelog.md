@@ -11,7 +11,19 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v1.0.1 <Badge type="tip" text="latest" />
+## v1.1.0 <Badge type="tip" text="latest" />
+
+A minor release: `gpc preflight` now checks which Google Play Billing Library version your app ships, and `gpc status` gates hold on cached data. **CI impact:** an AAB built on Google Play Billing Library 7 or older now fails `gpc preflight` with the default `failOn: "error"` (see below).
+
+- feat: `gpc preflight` checks the Google Play Billing Library version. When an app holds `com.android.vending.BILLING`, preflight reads the library version from the manifest and rates it against Google's deprecation deadlines on the day of the scan: error after the extension deadline, warning after the update deadline, info in the 12 months before it. Google Play stopped accepting new apps and updates on Billing Library 7 after its November 1, 2026 extension deadline, so an AAB on 7 or older now fails the default `failOn: "error"`; the fix is to move to Billing Library 8 or later. A pipeline that never uploads to Google Play can turn the check off with `"disabledRules": ["billing-library-deprecated"]`. A billing app whose version cannot be read gets a `billing-library-version-unknown` info finding. AAB only.
+- feat: new `policy-local-network-declaration` preflight advisory. An app targeting Android 17 (API 37) or higher that requests `ACCESS_LOCAL_NETWORK` is reminded that Google Play requires a Play Console declaration for it from August 25, 2027.
+- feat: the API client types `RegionalTaxRateInfo.eligibleForStreamingServiceTaxRate`, added by Google in October 2026.
+- fix: `gpc status` rates a cached status against the thresholds of the current run. A cached status kept the thresholds of the run that fetched it, so `--threshold` and config `vitals.thresholds` were ignored until the cache entry expired, and a loose threshold from an earlier run could let a later CI gate pass.
+- fix: `gpc status` rejects a rate threshold that can never fire, as the docs already promised: a config rate of 1 or more, negative, blank or not a number, or a `--threshold` of 100 percent or more, exits with `THRESHOLD_INVALID` (exit 2) before any API call instead of leaving the gate open.
+- fix: `gpc apps info --app <package>` shows that app instead of the profile's app. A malformed package name is rejected with `INVALID_PACKAGE_NAME`.
+- docs: `gpc status --threshold` help and docs say its values are percent, unlike config thresholds, which are fractions. The `gpc status` exit code table is corrected.
+
+## v1.0.1
 
 A patch release: proxy support on Node 26, corrected policy dates in `gpc preflight`, and dependency security updates. Nothing to change in your scripts unless you rely on `NO_PROXY` (see below).
 
