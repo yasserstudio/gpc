@@ -128,6 +128,8 @@ gpc config set vitals.thresholds.anrRate 0.01
 
 Rate thresholds are fractions, the way Google reports them: `0.02` is 2%, `0.01` is 1%. A rate threshold of 1 or more can never breach and is rejected with `THRESHOLD_INVALID` (exit 2).
 
+The `--threshold` flag is the exception: it takes percent and converts it, so `--threshold crashes=1.5` means 1.5% (a `crashRate` of `0.015`).
+
 If any metric breaches its threshold, `gpc status` exits **code 6** — consistent with `gpc vitals`.
 
 ### REVIEWS (last 30 days)

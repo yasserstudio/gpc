@@ -7,6 +7,7 @@ import { formatOutput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { buildCommitOptions } from "../commit-options.js";
+import { assertValidPackageName } from "../resolve.js";
 
 export function registerAppsCommands(program: Command): void {
   const apps = program.command("apps").description("Manage applications");
@@ -16,16 +17,18 @@ export function registerAppsCommands(program: Command): void {
     .description("Show app details")
     .action(async (packageArg?: string) => {
       const config = await loadConfig();
-      const packageName = packageArg || config.app;
+      // -a/--app is a root option, so Commander hands it to the root, never here.
+      const packageName = packageArg || program.opts()["app"] || config.app;
 
       if (!packageName) {
         throw new GpcError(
           "No package name provided. Usage: gpc apps info <package>",
           "MISSING_PACKAGE",
           2,
-          "gpc config set app com.example.app",
+          "gpc apps info --app com.example.app, or gpc config set app com.example.app",
         );
       }
+      assertValidPackageName(packageName);
 
       const auth = await resolveAuth({
         serviceAccountPath: config.auth?.serviceAccount,

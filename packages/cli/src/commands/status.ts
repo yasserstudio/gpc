@@ -218,7 +218,10 @@ export function registerStatusCommand(program: Command): void {
     .option("--since-last", "Show diff from last cached status")
     .option("--all-apps", `Run status for all configured app profiles (max ${MAX_ALL_APPS})`)
     .option("--desktop-notify", "Send desktop notification on threshold breach or clear")
-    .option("--threshold <overrides>", "Override vitals thresholds: crashes=1.5,anr=0.5 (percent)")
+    .option(
+      "--threshold <overrides>",
+      "Override vitals thresholds in percent (crashes=1.5 means 1.5%); config thresholds are fractions",
+    )
     .action(
       async (opts: {
         days: number;
