@@ -88,6 +88,8 @@ export interface ParsedManifest {
   services: ManifestComponent[];
   receivers: ManifestComponent[];
   providers: ManifestComponent[];
+  /** `<meta-data>` entries of `<application>`, name to value. Entries without a value are omitted. */
+  metaData: Record<string, string>;
   /** Android 16+ compat shim for non-16KB-aligned native libs. */
   pageSizeCompat?: boolean;
   /** Set when the manifest could not be fully parsed -- manifest-dependent scanners should skip. */

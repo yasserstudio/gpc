@@ -27,6 +27,7 @@ function makeManifest(permissions: string[]): ParsedManifest {
     services: [],
     receivers: [],
     providers: [],
+    metaData: {},
   };
 }
 

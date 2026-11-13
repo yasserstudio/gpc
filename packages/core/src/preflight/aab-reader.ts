@@ -128,6 +128,7 @@ function createFallbackManifest(): ParsedManifest {
     services: [],
     receivers: [],
     providers: [],
+    metaData: {},
   };
 }
 

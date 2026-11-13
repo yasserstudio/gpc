@@ -153,8 +153,9 @@ Umbrella for the Play policies that apply to specific app categories:
 - **UGC**: content-moderation reminder
 - **Overlay permissions**: `SYSTEM_ALERT_WINDOW` triggers UGC-adjacent rules
 - **App content declaration** (`policy-app-content-declaration`) — **info**. Fires when the AAB requests any `FOREGROUND_SERVICE*` permission, as a reminder that Play Console requires a completed "Foreground service permissions" declaration under App content. This is distinct from the manifest scanner's `foreground-service-type-missing` rule: that one checks the `android:foregroundServiceType` attribute in your manifest, which you can get entirely right and still be blocked by the missing Console declaration. Because the declaration lives in the Console and cannot be read from the AAB, the rule can only advise. If it is incomplete, the Play API rejects the upload with a 403 that reads like a credentials error; GPC surfaces that as `API_DECLARATION_REQUIRED`.
+- **Google Play Billing Library version** (`billing-library-deprecated`, `billing-library-version-unknown`). When the AAB requests `com.android.vending.BILLING`, preflight reads the Billing Library version from the manifest and rates it against Google's deprecation deadlines on the day of the scan. Past a version's extension deadline this is an `error`, because Google Play rejects the upload. See [Google Play Billing Library version](/commands/preflight#google-play-billing-library-version).
 
-These are **reminders**, not automatic rejections. But missing declarations in review delays your release.
+Apart from the Billing Library error, these are **reminders**, not automatic rejections. But missing declarations in review delays your release.
 
 ### 9. Size
 

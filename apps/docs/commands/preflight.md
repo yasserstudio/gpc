@@ -19,17 +19,17 @@ See the [Preflight Deep-Dive](/guide/preflight-deep-dive) guide — how the 9 sc
 
 **9 scanners** run in parallel:
 
-| Scanner         | What it checks                                                                                                                                                                   |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **manifest**    | targetSdk, debuggable, testOnly, cleartext traffic, missing `exported`, foreground service types, exported-without-permission, geofencing foreground service (April 2026 policy) |
-| **permissions** | 18 restricted permissions, contacts broad-access check, Health Connect granular permissions (April 2026 policy)                                                                  |
-| **native-libs** | 64-bit compliance, **16KB page size alignment** (ELF LOAD segment check, enforced since Nov 2025)                                                                                |
-| **metadata**    | Store listing character limits, missing title, screenshots, privacy policy URL                                                                                                   |
-| **secrets**     | Hardcoded API keys (AWS, Google, Stripe, private keys)                                                                                                                           |
-| **billing**     | Non-Play billing SDKs (Stripe, Braintree, PayPal)                                                                                                                                |
-| **privacy**     | Tracking SDKs (Facebook, Adjust, AppsFlyer), Advertising ID, data collection                                                                                                     |
-| **policy**      | Families/COPPA, financial apps, health apps, UGC, overlay permissions, App content declaration advisory (foreground service), developer verification advisory                    |
-| **size**        | Download size warnings, large native libs, large assets                                                                                                                          |
+| Scanner         | What it checks                                                                                                                                                                                     |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **manifest**    | targetSdk, debuggable, testOnly, cleartext traffic, missing `exported`, foreground service types, exported-without-permission, geofencing foreground service (April 2026 policy)                   |
+| **permissions** | 18 restricted permissions, contacts broad-access check, Health Connect granular permissions (April 2026 policy)                                                                                    |
+| **native-libs** | 64-bit compliance, **16KB page size alignment** (ELF LOAD segment check, enforced since Nov 2025)                                                                                                  |
+| **metadata**    | Store listing character limits, missing title, screenshots, privacy policy URL                                                                                                                     |
+| **secrets**     | Hardcoded API keys (AWS, Google, Stripe, private keys)                                                                                                                                             |
+| **billing**     | Non-Play billing SDKs (Stripe, Braintree, PayPal)                                                                                                                                                  |
+| **privacy**     | Tracking SDKs (Facebook, Adjust, AppsFlyer), Advertising ID, data collection                                                                                                                       |
+| **policy**      | Families/COPPA, financial apps, health apps, UGC, overlay permissions, App content declaration advisory (foreground service), developer verification advisory, Google Play Billing Library version |
+| **size**        | Download size warnings, large native libs, large assets                                                                                                                                            |
 
 ::: tip Android 17 (API 37) -- Stable June 2026
 
@@ -170,6 +170,49 @@ Compares the `certificateSha256Fingerprint` from `generatedApks` for the two lat
 Exit code `6` on mismatch, `0` on match or first release. JSON output with `--json`.
 
 See the [Preflight Deep-Dive](/guide/preflight-deep-dive#signing-key-consistency-gpc-preflight-signing) for detailed output examples and architecture rationale.
+
+## Google Play Billing Library version
+
+Google Play stops accepting new apps and app updates built on an old Google Play Billing Library major version. Each version has two dates in [Google's deprecation FAQ](https://developer.android.com/google/play/billing/deprecation-faq): an **update deadline**, after which an app needs an extension granted in Play Console, and an **extension deadline**, after which there are no exceptions.
+
+The policy scanner reads the Billing Library version from the AAB's merged manifest (the `com.google.android.play.billingclient.version` entry that the library adds, also through `billing-ktx`) and rates it on the date the scan runs:
+
+| When the scan runs                               | Severity  |
+| ------------------------------------------------ | --------- |
+| After the extension deadline                     | `error`   |
+| After the update deadline                        | `warning` |
+| Within 12 months before the update deadline      | `info`    |
+| Earlier, or a version newer than GPC knows about | none      |
+
+| Major | Update deadline | Extension deadline |
+| ----- | --------------- | ------------------ |
+| 5     | 2024-08-31      | 2024-11-01         |
+| 6     | 2025-08-31      | 2025-11-01         |
+| 7     | 2026-08-31      | 2026-11-01         |
+| 8     | 2027-08-31      | 2027-11-01         |
+| 9     | 2028-08-31      | 2028-11-01         |
+
+Deadlines are UTC calendar days, and the deadline day itself still counts as "not yet past". Versions older than 5 are an error. Because severity follows the calendar, the same AAB can move from info to warning to error without a GPC upgrade; every finding states the date that applies.
+
+| Rule ID                           | Severity               | When                                                                                          |
+| --------------------------------- | ---------------------- | --------------------------------------------------------------------------------------------- |
+| `billing-library-deprecated`      | error / warning / info | The app requests `com.android.vending.BILLING` and ships a version at or near its deadlines   |
+| `billing-library-version-unknown` | info                   | The app requests `com.android.vending.BILLING` but the version entry is missing or unreadable |
+
+Apps that don't request the billing permission get no Billing Library finding. The check needs an **AAB**: APK manifests are not decoded yet (see [Manifest parsing limitations](#manifest-parsing-limitations)).
+
+An `error` here means Google Play rejects the upload, so the fix is to migrate, not to lower the rule. Between the two deadlines the finding is a `warning`. If you run with `failOn: "warning"` and Play Console granted your app an extension, lower the rule to `info` in `.preflightrc.json` until you migrate:
+
+```json
+{
+  "failOn": "warning",
+  "severityOverrides": {
+    "billing-library-deprecated": "info"
+  }
+}
+```
+
+For a build that never goes to Google Play, add both rule IDs to `disabledRules` to turn the check off.
 
 ## Severity Levels
 

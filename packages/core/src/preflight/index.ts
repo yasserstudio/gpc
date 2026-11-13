@@ -4,6 +4,7 @@ export { runPreflight, getAllScannerNames } from "./orchestrator.js";
 export { loadPreflightConfig } from "./config.js";
 export { readAab } from "./aab-reader.js";
 export { decodeManifest } from "./manifest-parser.js";
+export { BILLING_LIBRARY_DEADLINES, billingLibrarySeverity } from "./billing-library.js";
 export { manifestScanner } from "./scanners/manifest-scanner.js";
 export { permissionsScanner } from "./scanners/permissions-scanner.js";
 export { nativeLibsScanner } from "./scanners/native-libs-scanner.js";

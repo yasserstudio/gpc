@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simulates a merged manifest that lost the Billing Library version entry. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application>
+        <meta-data
+            android:name="com.google.android.play.billingclient.version"
+            tools:node="remove" />
+    </application>
+</manifest>

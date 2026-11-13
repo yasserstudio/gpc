@@ -20,6 +20,7 @@ const RESOURCE_IDS: Record<number, string> = {
   0x01010270: "targetSdkVersion",
   0x0101001e: "debuggable",
   0x01010022: "permission",
+  0x01010024: "value",
   0x0101002b: "exported",
   0x01010272: "testOnly",
   0x010103f0: "usesCleartextTraffic",
@@ -312,6 +313,7 @@ function extractManifestData(manifest: XmlElem): ParsedManifest {
   const services = app ? extractComponents(app, "service") : [];
   const receivers = app ? extractComponents(app, "receiver") : [];
   const providers = app ? extractComponents(app, "provider") : [];
+  const metaData = app ? extractMetaData(app) : {};
 
   return {
     packageName,
@@ -330,7 +332,20 @@ function extractManifestData(manifest: XmlElem): ParsedManifest {
     services,
     receivers,
     providers,
+    metaData,
   };
+}
+
+/** Name-to-value map of an element's direct `<meta-data>` children; entries without a value are skipped. */
+function extractMetaData(elem: XmlElem): Record<string, string> {
+  const entries: Record<string, string> = {};
+  for (const el of getChildren(elem, "meta-data")) {
+    const attrs = el.attribute || [];
+    const name = getAttrByName(attrs, "name");
+    const value = getAttrByName(attrs, "value");
+    if (name && value !== undefined) entries[name] = value;
+  }
+  return entries;
 }
 
 function extractComponents(appElement: XmlElem, tagName: string): ManifestComponent[] {

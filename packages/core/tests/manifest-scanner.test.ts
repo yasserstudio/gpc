@@ -20,6 +20,7 @@ function makeManifest(overrides: Partial<ParsedManifest> = {}): ParsedManifest {
     services: [],
     receivers: [],
     providers: [],
+    metaData: {},
     ...overrides,
   };
 }

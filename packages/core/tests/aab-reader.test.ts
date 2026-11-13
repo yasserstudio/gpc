@@ -29,6 +29,7 @@ vi.mock("../src/preflight/manifest-parser.js", () => ({
     services: [],
     receivers: [],
     providers: [],
+    metaData: {},
   }),
   isInstallTimeModule: vi.fn((buf: Buffer) => {
     if (buf.toString() === "broken") throw new Error("bad proto");

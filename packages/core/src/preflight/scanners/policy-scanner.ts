@@ -1,6 +1,7 @@
 // Named exports only. No default export.
 
 import type { PreflightScanner, PreflightContext, PreflightFinding } from "../types.js";
+import { billingLibraryFindings } from "../billing-library.js";
 
 /** Heuristic policy checks based on manifest permissions and features. */
 export const policyScanner: PreflightScanner = {
@@ -140,6 +141,10 @@ export const policyScanner: PreflightScanner = {
         policyUrl: "https://support.google.com/googleplay/android-developer/answer/13392821",
       });
     }
+
+    // Google Play Billing Library version against Google's deadlines, rated on
+    // the scan date (docs/adr/0001).
+    findings.push(...billingLibraryFindings(manifest, new Date()));
 
     // System alert window / overlay
     if (perms.has("android.permission.SYSTEM_ALERT_WINDOW")) {

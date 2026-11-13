@@ -262,6 +262,7 @@ describe("16KB alignment scanner integration", () => {
       services: [],
       receivers: [],
       providers: [],
+      metaData: {},
     };
     const findings = await nativeLibsScanner.scan(ctx);
     const f = findings.find((f) => f.ruleId === "native-libs-16kb-alignment");
