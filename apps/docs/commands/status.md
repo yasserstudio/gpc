@@ -68,7 +68,7 @@ gpc status [options]
 | Slow render | Reporting API v1beta1 | `slowRenderingRateMetricSet.query` | 2                                       |
 | Reviews     | Publisher API v3      | `reviews.list`                     | 1                                       |
 
-Results are cached in `~/.cache/gpc/status-<packageName>.json` (XDG-compliant). Default TTL: 1 hour. Individual API failures do not abort the command — the failed section shows `—` and the exit code reflects overall health.
+Results are cached in `~/.cache/gpc/status-<packageName>.json` (XDG-compliant). Default TTL: 1 hour. A cached status is rated against the thresholds of the current run, so `--threshold` and `vitals.thresholds` apply whether the data is live or cached. Individual API failures do not abort the command — the failed section shows `—` and the exit code reflects overall health.
 
 The header timestamp uses relative time: `fetched 5 min ago`, `fetched 2h ago`, `fetched 1d ago`.
 
@@ -385,13 +385,14 @@ gpc status --watch 300 --desktop-notify --sections vitals
 
 ## Exit Codes
 
-| Code | Meaning                                                                                     |
-| ---- | ------------------------------------------------------------------------------------------- |
-| `0`  | All clear — no threshold breaches                                                           |
-| `1`  | No cached data (only when `--cached` is used)                                               |
-| `2`  | Usage error — missing package name, invalid section, watch interval too short, `--days` < 1 |
-| `4`  | API error                                                                                   |
-| `6`  | One or more vitals thresholds breached                                                      |
+| Code | Meaning                                                                                                                                                                                   |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `0`  | All clear — no threshold breaches                                                                                                                                                         |
+| `1`  | Unexpected error                                                                                                                                                                          |
+| `2`  | Usage error — missing package name, invalid section, watch interval too short, `--days` < 1, no cached data with `--cached` (`STATUS_NO_CACHE`), unusable threshold (`THRESHOLD_INVALID`) |
+| `3`  | Authentication error                                                                                                                                                                      |
+| `4`  | API error                                                                                                                                                                                 |
+| `6`  | One or more vitals thresholds breached                                                                                                                                                    |
 
 ## Related Commands
 

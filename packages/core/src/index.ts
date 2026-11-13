@@ -430,6 +430,7 @@ export {
   loadStatusCache,
   saveStatusCache,
   statusHasBreach,
+  applyVitalThresholds,
   runWatchLoop,
   trackBreachState,
   sendNotification,

@@ -11,6 +11,7 @@ import {
   computeStatusDiff,
   formatStatusDiff,
   statusHasBreach,
+  applyVitalThresholds,
   loadStatusCache,
   saveStatusCache,
   runWatchLoop,
@@ -530,6 +531,60 @@ describe("statusHasBreach", () => {
       },
     };
     expect(statusHasBreach(status)).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// applyVitalThresholds
+// ---------------------------------------------------------------------------
+
+describe("applyVitalThresholds", () => {
+  // A status saved by an earlier run that used --threshold crashes=50 (0.5).
+  const cachedStatus: AppStatus = {
+    packageName: "com.example.app",
+    fetchedAt: new Date().toISOString(),
+    cached: true,
+    sections: ["releases", "vitals", "reviews"],
+    releases: [],
+    vitals: {
+      windowDays: 7,
+      crashes: { value: 0.005, threshold: 0.5, status: "ok", previousValue: 0.001, trend: "up" },
+      anr: { value: 0.009, threshold: 0.5, status: "ok" },
+      slowStarts: { value: undefined, threshold: 0.5, status: "unknown" },
+      slowRender: { value: 0.03, threshold: 0.1, status: "ok" },
+    },
+    reviews: {
+      windowDays: 30,
+      averageRating: undefined,
+      previousAverageRating: undefined,
+      totalNew: 0,
+      positivePercent: undefined,
+    },
+  };
+
+  it("re-rates every metric against the defaults when no thresholds are given", () => {
+    const rated = applyVitalThresholds(cachedStatus, undefined);
+    expect(rated.vitals.crashes).toEqual({
+      value: 0.005,
+      threshold: 0.02,
+      status: "ok",
+      previousValue: 0.001,
+      trend: "up",
+    });
+    expect(rated.vitals.anr).toMatchObject({ threshold: 0.01, status: "warn" });
+    expect(rated.vitals.slowStarts).toMatchObject({ threshold: 0.05, status: "unknown" });
+    expect(rated.vitals.slowRender).toMatchObject({ threshold: 0.1, status: "ok" });
+  });
+
+  it("applies the current thresholds, so a stricter gate breaches", () => {
+    const rated = applyVitalThresholds(cachedStatus, { crashRate: 0.001 });
+    expect(rated.vitals.crashes).toMatchObject({ threshold: 0.001, status: "breach" });
+    expect(statusHasBreach(rated)).toBe(true);
+  });
+
+  it("does not mutate the cached status", () => {
+    applyVitalThresholds(cachedStatus, { crashRate: 0.001 });
+    expect(cachedStatus.vitals.crashes.threshold).toBe(0.5);
   });
 });
 

@@ -12,6 +12,7 @@ import {
   loadStatusCache,
   saveStatusCache,
   statusHasBreach,
+  applyVitalThresholds,
   runWatchLoop,
   trackBreachState,
   sendNotification,
@@ -449,15 +450,16 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
 
   // --cached: serve from cache only (never fetches — cannot recompute --full)
   if (opts.cached) {
-    const cached = await loadStatusCache(packageName, opts.ttl);
-    if (!cached) {
+    const saved = await loadStatusCache(packageName, opts.ttl);
+    if (!saved) {
       throw Object.assign(new Error("No cached status found"), {
         code: "STATUS_NO_CACHE",
         exitCode: 2,
         suggestion: "Run without --cached to fetch live data",
       });
     }
-    if (!cacheSatisfiesFull(cached, !!opts.full, sections) && ctx.format !== "json") {
+    const cached = applyVitalThresholds(saved, vitalThresholds);
+    if (!cacheSatisfiesFull(saved, !!opts.full, sections) && ctx.format !== "json") {
       process.stderr.write(
         "Tip: cached status has no --full insights. Run without --cached to compute them.\n",
       );
@@ -471,8 +473,9 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
   // Try cache (unless --refresh). Skip the cache when --full needs an analysis
   // the cache lacks, so --full never silently no-ops against a stale entry.
   if (!opts.refresh) {
-    const cached = await loadStatusCache(packageName, opts.ttl);
-    if (cached && cacheSatisfiesFull(cached, !!opts.full, sections)) {
+    const saved = await loadStatusCache(packageName, opts.ttl);
+    if (saved && cacheSatisfiesFull(saved, !!opts.full, sections)) {
+      const cached = applyVitalThresholds(saved, vitalThresholds);
       const display = applyDisplaySections(stripStaleAnalysis(cached, !!opts.full), sections);
       if (ctx.format !== "json" && display.sections.length < cached.sections.length) {
         process.stderr.write(

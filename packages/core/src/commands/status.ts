@@ -229,6 +229,17 @@ async function queryVitalWithTrend(
 
 const SKIPPED_VITAL: VitalWithTrend = { current: undefined, previous: undefined, trend: null };
 
+function resolveStatusThresholds(
+  overrides: GetAppStatusOptions["vitalThresholds"],
+): Required<NonNullable<GetAppStatusOptions["vitalThresholds"]>> {
+  return {
+    crashRate: overrides?.crashRate ?? DEFAULT_THRESHOLDS.crashRate,
+    anrRate: overrides?.anrRate ?? DEFAULT_THRESHOLDS.anrRate,
+    slowStartRate: overrides?.slowStartRate ?? DEFAULT_THRESHOLDS.slowStartRate,
+    slowRenderingRate: overrides?.slowRenderingRate ?? DEFAULT_THRESHOLDS.slowRenderingRate,
+  };
+}
+
 function toVitalMetric(
   value: number | undefined,
   threshold: number,
@@ -308,13 +319,7 @@ export async function getAppStatus(
   const days = options.days ?? 7;
   const reviewDays = options.reviewDays ?? 30;
   const sections = new Set(options.sections ?? ["releases", "vitals", "reviews"]);
-  const thresholds = {
-    crashRate: options.vitalThresholds?.crashRate ?? DEFAULT_THRESHOLDS.crashRate,
-    anrRate: options.vitalThresholds?.anrRate ?? DEFAULT_THRESHOLDS.anrRate,
-    slowStartRate: options.vitalThresholds?.slowStartRate ?? DEFAULT_THRESHOLDS.slowStartRate,
-    slowRenderingRate:
-      options.vitalThresholds?.slowRenderingRate ?? DEFAULT_THRESHOLDS.slowRenderingRate,
-  };
+  const thresholds = resolveStatusThresholds(options.vitalThresholds);
 
   const [
     releasesResult,
@@ -833,6 +838,31 @@ export function sendNotification(title: string, body: string): void {
 // ---------------------------------------------------------------------------
 // Status indicator for exit code (mirrors gpc vitals behaviour)
 // ---------------------------------------------------------------------------
+
+/**
+ * Re-rates a saved status against the thresholds of the current run. A cached
+ * status keeps the thresholds of the run that fetched it, so serving it as-is
+ * would gate on values the caller never asked for.
+ */
+export function applyVitalThresholds(
+  status: AppStatus,
+  vitalThresholds: GetAppStatusOptions["vitalThresholds"],
+): AppStatus {
+  const t = resolveStatusThresholds(vitalThresholds);
+  const rate = (metric: StatusVitalMetric, threshold: number): StatusVitalMetric =>
+    toVitalMetric(metric.value, threshold, metric.previousValue, metric.trend);
+  const v = status.vitals;
+  return {
+    ...status,
+    vitals: {
+      ...v,
+      crashes: rate(v.crashes, t.crashRate),
+      anr: rate(v.anr, t.anrRate),
+      slowStarts: rate(v.slowStarts, t.slowStartRate),
+      slowRender: rate(v.slowRender, t.slowRenderingRate),
+    },
+  };
+}
 
 export function statusHasBreach(status: AppStatus): boolean {
   return (
