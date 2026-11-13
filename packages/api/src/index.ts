@@ -182,6 +182,8 @@ export type {
   OneTimeProductListing,
   OneTimeProductPurchaseOption,
   TaxAndComplianceSettings,
+  RegionalTaxRateInfo,
+  RegionalTaxConfig,
   OneTimeOffer,
   OneTimeOfferRegionalConfig,
   OneTimeProductPurchaseOptionRegionalConfig,

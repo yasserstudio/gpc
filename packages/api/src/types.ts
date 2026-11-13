@@ -617,13 +617,13 @@ export interface InAppProduct {
   gracePeriod?: string;
   managedProductTaxesAndComplianceSettings?: {
     eeaWithdrawalRightType?: string;
-    taxRateInfoByRegionCode?: Record<string, unknown>;
+    taxRateInfoByRegionCode?: Record<string, RegionalTaxRateInfo>;
     isTokenizedDigitalAsset?: boolean;
     productTaxCategoryCode?: string;
   };
   subscriptionTaxesAndComplianceSettings?: {
     eeaWithdrawalRightType?: string;
-    taxRateInfoByRegionCode?: Record<string, unknown>;
+    taxRateInfoByRegionCode?: Record<string, RegionalTaxRateInfo>;
     isTokenizedDigitalAsset?: boolean;
   };
 }
@@ -1439,10 +1439,38 @@ export interface OneTimeProductPurchaseOptionRegionalConfig {
 
 export interface TaxAndComplianceSettings {
   eeaWithdrawalRightType?: "WITHDRAWAL_RIGHT_DIGITAL_CONTENT" | "WITHDRAWAL_RIGHT_SERVICE";
+  /**
+   * @deprecated Not part of Google's one-time product schema (androidpublisher rev
+   * 20261112). Use `regionalTaxConfigs`.
+   */
   taxRateInfoByRegionCode?: Record<string, { streamingTaxType?: string; taxTier?: string }>;
+  /** Per-region tax configuration for one-time products. */
+  regionalTaxConfigs?: RegionalTaxConfig[];
   isTokenizedDigitalAsset?: boolean;
   regionalProductAgeRatingInfos?: Record<string, unknown>;
   productTaxCategoryCode?: string;
+}
+
+/** Tax details for one region of a one-time product (androidpublisher `RegionalTaxConfig`). */
+export interface RegionalTaxConfig {
+  /** Region code, as defined by Unicode CLDR. */
+  regionCode?: string;
+  /** US communications or amusement tax category, e.g. "STREAMING_TAX_TYPE_TELCO_VIDEO_RENTAL". */
+  streamingTaxType?: string;
+  /** Reduced tax rate tier, e.g. "TAX_TIER_BOOKS_1". */
+  taxTier?: string;
+  /** Whether the app contains streaming products, for US state and local sales tax. US only. */
+  eligibleForStreamingServiceTaxRate?: boolean;
+}
+
+/** Tax details for one region of a subscription or managed product (androidpublisher `RegionalTaxRateInfo`). */
+export interface RegionalTaxRateInfo {
+  /** US communications or amusement tax category, e.g. "STREAMING_TAX_TYPE_TELCO_VIDEO_RENTAL". */
+  streamingTaxType?: string;
+  /** Reduced tax rate tier, e.g. "TAX_TIER_BOOKS_1". */
+  taxTier?: string;
+  /** Whether the app contains streaming products, for US state and local sales tax. US only. */
+  eligibleForStreamingServiceTaxRate?: boolean;
 }
 
 export type OneTimeOfferState =
