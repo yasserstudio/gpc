@@ -99,6 +99,50 @@ describe("policyScanner", () => {
     });
   });
 
+  // Google Play policy announced Oct 29, 2026, effective Aug 25, 2027: apps targeting
+  // Android 17 (API 37) or higher need a Play Console declaration to use
+  // ACCESS_LOCAL_NETWORK. Lower targets keep implicit access through INTERNET.
+  describe("Local network permission declaration advisory", () => {
+    const LOCAL_NETWORK = "android.permission.ACCESS_LOCAL_NETWORK";
+    const RULE = "policy-local-network-declaration";
+
+    it("flags ACCESS_LOCAL_NETWORK on an app targeting API 37", async () => {
+      const findings = await policyScanner.scan(
+        makeCtx(makeManifest({ targetSdk: 37, permissions: [LOCAL_NETWORK] })),
+      );
+
+      const f = findings.find((x) => x.ruleId === RULE);
+      expect(f).toBeDefined();
+      expect(f!.severity).toBe("info");
+      expect(f!.scanner).toBe("policy");
+      expect(f!.message).toContain("ACCESS_LOCAL_NETWORK");
+      expect(f!.message).toContain("August 25, 2027");
+      expect(f!.suggestion).toContain("device picker");
+      expect(f!.policyUrl).toContain("support.google.com/googleplay/android-developer");
+    });
+
+    it("flags it on targets above 37 too", async () => {
+      const findings = await policyScanner.scan(
+        makeCtx(makeManifest({ targetSdk: 38, permissions: [LOCAL_NETWORK] })),
+      );
+      expect(findings.find((x) => x.ruleId === RULE)).toBeDefined();
+    });
+
+    it("stays silent below API 37, where INTERNET still grants local network access", async () => {
+      const findings = await policyScanner.scan(
+        makeCtx(makeManifest({ targetSdk: 36, permissions: [LOCAL_NETWORK] })),
+      );
+      expect(findings.find((x) => x.ruleId === RULE)).toBeUndefined();
+    });
+
+    it("stays silent when the permission is not requested", async () => {
+      const findings = await policyScanner.scan(
+        makeCtx(makeManifest({ targetSdk: 37, permissions: ["android.permission.INTERNET"] })),
+      );
+      expect(findings.find((x) => x.ruleId === RULE)).toBeUndefined();
+    });
+  });
+
   it("always emits the developer-verification advisory (info, cites date + markets)", async () => {
     // present even alongside other findings; never fails a run
     const findings = await policyScanner.scan(

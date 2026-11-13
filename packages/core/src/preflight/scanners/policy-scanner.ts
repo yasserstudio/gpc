@@ -142,6 +142,25 @@ export const policyScanner: PreflightScanner = {
       });
     }
 
+    // Play Console declaration for the Android 17 local network permission (policy
+    // announced Oct 29, 2026, effective Aug 25, 2027). Applies only to targetSdk 37+:
+    // lower targets keep implicit local network access through INTERNET. Like the
+    // foreground-service advisory above, the declaration lives in Play Console, so
+    // this is info only and never fails a run.
+    if (perms.has("android.permission.ACCESS_LOCAL_NETWORK") && manifest.targetSdk >= 37) {
+      findings.push({
+        scanner: "policy",
+        ruleId: "policy-local-network-declaration",
+        severity: "info",
+        title: "ACCESS_LOCAL_NETWORK requires a Play Console declaration",
+        message: `This app targets API ${manifest.targetSdk} and requests ACCESS_LOCAL_NETWORK. From August 25, 2027, Google Play requires apps targeting Android 17 (API 37) or higher to submit a Play Console declaration to use this permission, and allows it only for core functionality that device pickers cannot provide. The declaration is stored in Play Console, so it cannot be verified from the AAB.`,
+        suggestion:
+          "If a device picker (for example NsdManager discovery through the system picker) covers your use case, use it and drop ACCESS_LOCAL_NETWORK. Otherwise submit the local network declaration in Play Console, explaining why device pickers are not sufficient.",
+        policyUrl:
+          "https://support.google.com/googleplay/android-developer/answer/16935362#local_network_permission",
+      });
+    }
+
     // Google Play Billing Library version against Google's deadlines, rated on
     // the scan date (docs/adr/0001).
     findings.push(...billingLibraryFindings(manifest, new Date()));
