@@ -281,6 +281,12 @@ export function registerStatusCommand(program: Command): void {
           usageError(`--review-days must be a positive integer (got: ${opts.reviewDays})`);
         }
 
+        // An unset CI variable (`--ttl ""`) parses to NaN, and no age is ever
+        // greater than NaN, so it would serve a cache of any age.
+        if (!Number.isFinite(opts.ttl) || opts.ttl < 0) {
+          usageError(`--ttl must be a whole number of seconds, 0 or more (got: ${opts.ttl})`);
+        }
+
         const config = await loadConfig();
         const format = getOutputFormat(program, config);
         const vitalThresholds = resolveVitalThresholds(
@@ -313,6 +319,8 @@ export function registerStatusCommand(program: Command): void {
         };
 
         let anyBreach = false;
+        // --all-apps keeps going after a failed app, but the run must still fail.
+        let failureExitCode: number | undefined;
 
         for (const packageName of packages) {
           if (packages.length > 1) {
@@ -334,10 +342,13 @@ export function registerStatusCommand(program: Command): void {
             if (packages.length === 1) throw error;
             // For --all-apps, print error and continue to next app
             console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+            failureExitCode ??= (error as { exitCode?: number }).exitCode ?? 1;
           }
         }
 
-        if (anyBreach) process.exitCode = 6;
+        // A failed app wins over a breach: its gate was never evaluated.
+        if (failureExitCode !== undefined) process.exitCode = failureExitCode;
+        else if (anyBreach) process.exitCode = 6;
       },
     );
 }
@@ -393,6 +404,63 @@ export function cacheSatisfiesFull(
 }
 
 /**
+ * Why a cached status cannot answer this run, or null when it can. A cache
+ * written for other sections or another window would make a threshold gate read
+ * the wrong data (or none) without fetching.
+ */
+function cacheMismatch(
+  cached: AppStatus,
+  request: { sections: string[]; days: number; reviewDays: number },
+): string | null {
+  const missing = request.sections.filter((s) => !cached.sections.includes(s));
+  if (missing.length > 0) return `it has no ${missing.join(", ")} section`;
+  if (request.sections.includes("vitals") && cached.vitals?.windowDays !== request.days) {
+    return `it covers ${describeWindow(cached.vitals?.windowDays)} of vitals, not ${request.days} days`;
+  }
+  if (request.sections.includes("reviews") && cached.reviews?.windowDays !== request.reviewDays) {
+    return `it covers ${describeWindow(cached.reviews?.windowDays)} of reviews, not ${request.reviewDays} days`;
+  }
+  return null;
+}
+
+function describeWindow(days: number | undefined): string {
+  return days === undefined ? "an unknown window" : `${days} days`;
+}
+
+function noCacheError(message: string): GpcError {
+  return new GpcError(message, "STATUS_NO_CACHE", 2, "Run without --cached to fetch live data");
+}
+
+/** Section errors (e.g. "vitals/crashes: ...") recorded for any of `sections`. */
+function errorsFor(status: AppStatus, sections: string[]): string[] {
+  return (status.errors ?? []).filter((e) =>
+    sections.some((s) => e.startsWith(`${s}:`) || e.startsWith(`${s}/`)),
+  );
+}
+
+/**
+ * Returns true on a breach. With a threshold gate set (`--threshold` or config
+ * `vitals.thresholds`), a vitals query that failed means the gate was never
+ * evaluated, so it fails with exit 4 instead of passing on unknown values.
+ */
+function concludeGate(status: AppStatus, sections: string[], gated: boolean): boolean {
+  // A cache can hold vitals this run did not ask for; they must not gate it.
+  if (!sections.includes("vitals")) return false;
+  if (statusHasBreach(status)) return true;
+  if (!gated) return false;
+  const failed = errorsFor(status, ["vitals"]);
+  if (failed.length > 0) {
+    throw new GpcError(
+      `Vitals could not be read, so the threshold gate was not evaluated: ${failed.join("; ")}`,
+      "STATUS_VITALS_UNREADABLE",
+      4,
+      "Check that the service account can read the Play Developer Reporting API, then retry with --refresh.",
+    );
+  }
+  return false;
+}
+
+/**
  * Drop stale `--full` insights from a cached status when the current run did not
  * request them, so a plain `gpc status` after a `--full` run does not show
  * insights the user did not ask for. Exported for testing.
@@ -407,6 +475,8 @@ export function stripStaleAnalysis(status: AppStatus, wantFull: boolean): AppSta
 /** Returns true if a breach was detected. */
 async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
   const { packageName, opts, sections, vitalThresholds, watchInterval } = ctx;
+  const gated = vitalThresholds !== undefined;
+  const request = { sections, days: opts.days, reviewDays: opts.reviewDays };
 
   const fetchLive = async (): Promise<AppStatus> => {
     const { client, reporting } = await ctx.makeClients();
@@ -452,11 +522,11 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
   if (opts.cached) {
     const saved = await loadStatusCache(packageName, opts.ttl);
     if (!saved) {
-      throw Object.assign(new Error("No cached status found"), {
-        code: "STATUS_NO_CACHE",
-        exitCode: 2,
-        suggestion: "Run without --cached to fetch live data",
-      });
+      throw noCacheError("No cached status found");
+    }
+    const mismatch = cacheMismatch(saved, request);
+    if (mismatch) {
+      throw noCacheError(`Cached status cannot answer this run: ${mismatch}`);
     }
     const cached = applyVitalThresholds(saved, vitalThresholds);
     if (!cacheSatisfiesFull(saved, !!opts.full, sections) && ctx.format !== "json") {
@@ -467,14 +537,20 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
     const display = applyDisplaySections(stripStaleAnalysis(cached, !!opts.full), sections);
     printWithDiff(display, prevStatus, opts.sinceLast, render, ctx.format);
     await handleNotify(packageName, cached, opts.desktopNotify);
-    return statusHasBreach(cached);
+    return concludeGate(cached, sections, gated);
   }
 
-  // Try cache (unless --refresh). Skip the cache when --full needs an analysis
-  // the cache lacks, so --full never silently no-ops against a stale entry.
+  // Try cache (unless --refresh). Fetch live instead when the entry was written
+  // for other sections or windows, recorded a section error, or lacks the
+  // analysis --full needs, so a gate never runs on data it did not ask for.
   if (!opts.refresh) {
     const saved = await loadStatusCache(packageName, opts.ttl);
-    if (saved && cacheSatisfiesFull(saved, !!opts.full, sections)) {
+    if (
+      saved &&
+      cacheMismatch(saved, request) === null &&
+      errorsFor(saved, sections).length === 0 &&
+      cacheSatisfiesFull(saved, !!opts.full, sections)
+    ) {
       const cached = applyVitalThresholds(saved, vitalThresholds);
       const display = applyDisplaySections(stripStaleAnalysis(cached, !!opts.full), sections);
       if (ctx.format !== "json" && display.sections.length < cached.sections.length) {
@@ -484,7 +560,7 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
       }
       printWithDiff(display, prevStatus, opts.sinceLast, render, ctx.format);
       await handleNotify(packageName, cached, opts.desktopNotify);
-      return statusHasBreach(cached);
+      return concludeGate(cached, sections, gated);
     }
   }
 
@@ -503,7 +579,7 @@ async function runStatusForPackage(ctx: RunCtx): Promise<boolean> {
 
   printWithDiff(status, prevStatus, opts.sinceLast, render, ctx.format);
   await handleNotify(packageName, status, opts.desktopNotify);
-  return statusHasBreach(status);
+  return concludeGate(status, sections, gated);
 }
 
 // ---------------------------------------------------------------------------

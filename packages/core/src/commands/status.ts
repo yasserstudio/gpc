@@ -118,7 +118,9 @@ export async function loadStatusCache(
     const raw = await readFile(cacheFilePath(packageName), "utf-8");
     const entry = JSON.parse(raw) as CacheEntry;
     const age = (Date.now() - new Date(entry.fetchedAt).getTime()) / 1000;
-    if (age > (entry.ttl ?? ttlSeconds)) return null;
+    // The caller's TTL decides freshness; the TTL saved with the entry is only
+    // a record of the run that wrote it, so `--ttl` always takes effect.
+    if (age > ttlSeconds) return null;
     const data = entry.data;
     return {
       ...data,

@@ -88,7 +88,7 @@ GPC covers **234 publisher-focused Google Play API endpoints** in one CLI. No Ru
 | CI/CD native            | JSON + exit codes + env vars           | Partial         | Gradle tasks          | No           |
 | Preflight scanner       | **9 offline policy checks**            | No              | No                    | No           |
 | Interactive mode        | Yes (guided prompts)                   | No              | No                    | N/A          |
-| Test suite              | 2,938 tests, 90%+ coverage             |                 |                       |              |
+| Test suite              | 2,952 tests, 90%+ coverage             |                 |                       |              |
 
 Already on Fastlane? See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane). Most commands map one-to-one.
 

@@ -13,6 +13,7 @@
 ### Patch Changes
 
 - 2299355: `gpc status` now rates a cached status against the thresholds of the current run. A status served from the cache (while the cache entry is fresh, or with `--cached`) kept the thresholds of the run that fetched it, so `--threshold` and config `vitals.thresholds` were ignored until the entry expired, and a loose threshold from one run could let a later CI gate pass. Core exports `applyVitalThresholds` for SDK users who cache statuses themselves.
+- `loadStatusCache(packageName, ttlSeconds)` judges freshness by the caller's `ttlSeconds` only. It used to prefer the TTL saved with the entry, so a run with a shorter `--ttl` could still be served an entry saved with a longer one.
 - Updated dependencies [190d33f]
   - @gpc-cli/api@1.2.0
 

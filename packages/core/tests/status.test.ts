@@ -347,6 +347,27 @@ describe("getAppStatus", () => {
     expect(status.errors ?? []).not.toContainEqual(expect.stringContaining("slowRender"));
   });
 
+  // The cli's `gpc status` gate finds failed vitals by this "vitals/" prefix;
+  // changing it would let a gate pass on vitals it never read.
+  it("records a failed vitals query under the vitals/ prefix", async () => {
+    const client = makePlayClient();
+    const base = makeReportingClient({ crashes: 0.005 });
+    const reporting = {
+      ...base,
+      queryMetricSet: vi
+        .fn()
+        .mockImplementation((pkg: string, set: string, q: unknown) =>
+          set === "crashRateMetricSet"
+            ? Promise.reject(new Error("403 forbidden"))
+            : base.queryMetricSet(pkg, set as never, q as never),
+        ),
+    } as unknown as ReportingApiClient;
+
+    const status = await getAppStatus(client, reporting, "com.example.app");
+
+    expect(status.errors).toContainEqual(expect.stringMatching(/^vitals\/crashes: /));
+  });
+
   it("marks vitals ok when below threshold", async () => {
     const client = makePlayClient();
     const reporting = makeReportingClient({
@@ -1327,5 +1348,11 @@ describe("status cache", () => {
     await new Promise((r) => setTimeout(r, 10));
     const loaded = await loadStatusCache(pkg, 0);
     expect(loaded).toBeNull();
+  });
+
+  it("uses the caller's TTL, not the one saved with the entry", async () => {
+    await saveStatusCache(pkg, sampleStatus, 3600);
+    await new Promise((r) => setTimeout(r, 10));
+    expect(await loadStatusCache(pkg, 0)).toBeNull();
   });
 });

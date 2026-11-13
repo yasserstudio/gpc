@@ -132,6 +132,8 @@ The `--threshold` flag is the exception: it takes percent and converts it, so `-
 
 If any metric breaches its threshold, `gpc status` exits **code 6** — consistent with `gpc vitals`.
 
+When a threshold is set (by `--threshold` or `vitals.thresholds` in config) and the vitals could not be read, `gpc status` exits **code 4** with `STATUS_VITALS_UNREADABLE` instead of passing the gate on missing data. Without a threshold, unreadable vitals are shown as errors and the exit code stays 0.
+
 ### REVIEWS (last 30 days)
 
 Computed locally from `reviews.list` — no external service.
@@ -182,7 +184,7 @@ gpc status --sections vitals --output json
 
 Valid sections: `releases`, `vitals`, `reviews`. Invalid values exit code 2.
 
-When using `--cached`, the `--sections` filter applies at display time — only the requested sections are shown even if the cache contains all three. If the requested section was not fetched in the cached run, it shows `—`.
+When using `--cached`, the `--sections` filter applies at display time: only the requested sections are shown even if the cache contains all three. If a requested section was not fetched in the cached run, or the cache covers a different `--days` or `--review-days` window, `--cached` fails with `STATUS_NO_CACHE` (exit 2) rather than answer a different question.
 
 ## Polling Mode
 
@@ -239,6 +241,8 @@ Works with `--refresh` to force a fresh fetch before diffing.
 | `--refresh`           | Always fetch live, update cache                  |
 | `--ttl 300`           | Override TTL to 5 minutes for this run           |
 
+A fresh cache is reused only when it holds every requested section for the same `--days` and `--review-days` windows and recorded no errors; otherwise `gpc status` fetches live. The `--ttl` of the current run decides freshness, whatever TTL the cached run used. A `--ttl` that is not a whole number of seconds, 0 or more, exits 2. Cached vitals are always rated against the current thresholds, never the ones saved with the cache.
+
 ## Multi-App Mode
 
 `--all-apps` runs `gpc status` for every app configured across your profiles, sequentially:
@@ -261,6 +265,7 @@ App: com.example.app  (fetched 11:00:01 AM)
 - Per-app errors are printed and skipped — other apps continue
 - Maximum 5 apps. Use `--app` for targeted runs if you have more
 - Exits code 6 if **any** app has a breach
+- If any app fails, exits with that app's error code (for example 4 for an API error), even when another app breached
 
 ## Desktop Notifications
 
