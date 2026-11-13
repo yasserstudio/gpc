@@ -539,6 +539,18 @@ describe("statusHasBreach", () => {
 // ---------------------------------------------------------------------------
 
 describe("applyVitalThresholds", () => {
+  it("tolerates a cache entry with a missing vitals block or metric", () => {
+    const partial = {
+      ...cachedStatus,
+      vitals: { crashes: cachedStatus.vitals.crashes },
+    } as unknown as AppStatus;
+    const rated = applyVitalThresholds(partial, { crashRate: 0.001 });
+    expect(rated.vitals.crashes).toMatchObject({ threshold: 0.001, status: "breach" });
+    expect(rated.vitals.anr).toBeUndefined();
+    const empty = { ...cachedStatus, vitals: undefined } as unknown as AppStatus;
+    expect(applyVitalThresholds(empty, undefined)).toEqual(empty);
+  });
+
   // A status saved by an earlier run that used --threshold crashes=50 (0.5).
   const cachedStatus: AppStatus = {
     packageName: "com.example.app",

@@ -848,10 +848,13 @@ export function applyVitalThresholds(
   status: AppStatus,
   vitalThresholds: GetAppStatusOptions["vitalThresholds"],
 ): AppStatus {
+  // The cache is a file on disk: an older GPC or a hand edit can leave the
+  // vitals block or a metric out. A missing metric has no value to gate on.
+  const v = status.vitals;
+  if (!v) return status;
   const t = resolveStatusThresholds(vitalThresholds);
   const rate = (metric: StatusVitalMetric, threshold: number): StatusVitalMetric =>
-    toVitalMetric(metric.value, threshold, metric.previousValue, metric.trend);
-  const v = status.vitals;
+    metric && toVitalMetric(metric.value, threshold, metric.previousValue, metric.trend);
   return {
     ...status,
     vitals: {
