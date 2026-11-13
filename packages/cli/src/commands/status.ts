@@ -18,6 +18,8 @@ import {
   relativeTime,
   formatOutput,
   createSpinner,
+  assertRateThreshold,
+  GpcError,
 } from "@gpc-cli/core";
 import type { AppStatus } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
@@ -67,7 +69,7 @@ export function parseSections(raw: string): string[] {
   return sections;
 }
 
-export function parseThresholdOverrides(raw: string): Record<string, number> {
+export function parseThresholdOverrides(raw: string): VitalRateThresholds {
   const result: Record<string, number> = {};
   for (const pair of raw.split(",")) {
     const [key, val] = pair.split("=").map((s) => s.trim());
@@ -76,14 +78,18 @@ export function parseThresholdOverrides(raw: string): Record<string, number> {
     if (!mapped) {
       usageError(`Unknown threshold "${key}"`, "Valid: crashes, anr, slow-starts, slow-render");
     }
-    const n = parseFloat(val);
-    if (isNaN(n) || n < 0) {
-      usageError(
-        `Invalid threshold value "${val}" for ${key}`,
-        "Must be a positive number (percent)",
+    // Percent here, unlike config fractions. 100% or more can never breach,
+    // which would leave the gate silently open.
+    const n = Number(val);
+    if (!Number.isFinite(n) || n < 0 || n >= 100) {
+      throw new GpcError(
+        `Invalid --threshold ${key}=${val}: expected a percent from 0 to under 100.`,
+        "THRESHOLD_INVALID",
+        2,
+        `--threshold takes percent: ${key}=2 means 2%.`,
       );
     }
-    result[mapped] = n / 100; // Convert percent to decimal
+    result[mapped] = n / 100;
   }
   return result;
 }
@@ -95,22 +101,44 @@ export function resolveWatchInterval(watch: string | boolean | undefined): numbe
   return isNaN(n) ? 30 : n;
 }
 
-function resolveVitalThresholds(config: ResolvedConfig) {
+export interface VitalRateThresholds {
+  crashRate?: number;
+  anrRate?: number;
+  slowStartRate?: number;
+  slowRenderingRate?: number;
+}
+
+/**
+ * Merges config `vitals.thresholds` (fractions) with already-parsed `--threshold`
+ * overrides. An override wins over config, as in `gpc vitals`, so only config
+ * values that are actually used are validated; an unusable one throws
+ * THRESHOLD_INVALID rather than silently dropping the gate.
+ */
+export function resolveVitalThresholds(
+  config: ResolvedConfig,
+  overrides: VitalRateThresholds = {},
+): VitalRateThresholds | undefined {
   const raw = config as unknown as Record<string, unknown>;
   const vitals = raw["vitals"] as Record<string, unknown> | undefined;
-  if (!vitals || typeof vitals !== "object") return undefined;
-  const t = vitals["thresholds"] as Record<string, unknown> | undefined;
-  if (!t || typeof t !== "object") return undefined;
-  const toN = (v: unknown): number | undefined => {
+  const t = (vitals && typeof vitals === "object" ? vitals["thresholds"] : undefined) as
+    Record<string, unknown> | undefined;
+  const configured = t && typeof t === "object" ? t : {};
+  if (!t && Object.keys(overrides).length === 0) return undefined;
+
+  const rate = (key: keyof VitalRateThresholds): number | undefined => {
+    if (overrides[key] !== undefined) return overrides[key];
+    const v = configured[key];
     if (v === undefined || v === null) return undefined;
-    const n = Number(v);
-    return isNaN(n) ? undefined : n;
+    // Number("") and Number(false) are 0, which would breach on any crash.
+    const n = typeof v === "number" || (typeof v === "string" && v.trim() !== "") ? Number(v) : NaN;
+    assertRateThreshold(`vitals.thresholds.${key}`, n);
+    return n;
   };
   return {
-    crashRate: toN(t["crashRate"]),
-    anrRate: toN(t["anrRate"]),
-    slowStartRate: toN(t["slowStartRate"]),
-    slowRenderingRate: toN(t["slowRenderingRate"]),
+    crashRate: rate("crashRate"),
+    anrRate: rate("anrRate"),
+    slowStartRate: rate("slowStartRate"),
+    slowRenderingRate: rate("slowRenderingRate"),
   };
 }
 
@@ -254,11 +282,10 @@ export function registerStatusCommand(program: Command): void {
 
         const config = await loadConfig();
         const format = getOutputFormat(program, config);
-        let vitalThresholds: RunCtx["vitalThresholds"] = resolveVitalThresholds(config);
-        if (opts.threshold) {
-          const overrides = parseThresholdOverrides(opts.threshold);
-          vitalThresholds = { ...vitalThresholds, ...overrides } as RunCtx["vitalThresholds"];
-        }
+        const vitalThresholds = resolveVitalThresholds(
+          config,
+          opts.threshold ? parseThresholdOverrides(opts.threshold) : {},
+        );
         const watchInterval = resolveWatchInterval(opts.watch);
         const packages = resolvePackages(program, config, opts.allApps);
 
@@ -333,14 +360,7 @@ interface RunCtx {
   };
   sections: string[];
   format: string;
-  vitalThresholds:
-    | {
-        crashRate?: number;
-        anrRate?: number;
-        slowStartRate?: number;
-        slowRenderingRate?: number;
-      }
-    | undefined;
+  vitalThresholds: VitalRateThresholds | undefined;
   watchInterval: number | null;
   makeClients: () => Promise<{
     client: ReturnType<typeof createApiClient>;

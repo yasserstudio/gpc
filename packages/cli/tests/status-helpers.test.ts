@@ -3,6 +3,7 @@ import type { AppStatus } from "@gpc-cli/core";
 import {
   parseSections,
   parseThresholdOverrides,
+  resolveVitalThresholds,
   resolveWatchInterval,
   cacheSatisfiesFull,
   stripStaleAnalysis,
@@ -175,5 +176,71 @@ describe("resolveWatchInterval", () => {
 
   it("parses '10' correctly", () => {
     expect(resolveWatchInterval("10")).toBe(10);
+  });
+});
+
+// A rate threshold of 1 (100%) or more can never breach, so a CI gate built on it
+// passed blind. The docs promised THRESHOLD_INVALID; `gpc vitals` enforced it and
+// `gpc status` did not.
+describe("status rate threshold validation", () => {
+  const errorOf = (fn: () => unknown): { code?: string; exitCode?: number } => {
+    try {
+      fn();
+    } catch (e) {
+      return e as { code?: string; exitCode?: number };
+    }
+    return {};
+  };
+  const invalid = { code: "THRESHOLD_INVALID", exitCode: 2 };
+  const withConfig = (thresholds: Record<string, unknown>) => ({ vitals: { thresholds } }) as never;
+
+  it("rejects a --threshold override of 100 percent or more", () => {
+    for (const raw of ["crashes=100", "anr=150", "slow-starts=1000"]) {
+      expect(errorOf(() => parseThresholdOverrides(raw))).toMatchObject(invalid);
+    }
+  });
+
+  it("rejects negative, non-numeric and partly numeric --threshold values", () => {
+    for (const raw of ["crashes=-1", "crashes=abc", "crashes=1abc"]) {
+      expect(errorOf(() => parseThresholdOverrides(raw))).toMatchObject(invalid);
+    }
+  });
+
+  it("still accepts a --threshold override just under 100 percent", () => {
+    expect(parseThresholdOverrides("crashes=99.9").crashRate).toBeCloseTo(0.999);
+  });
+
+  it("rejects a config rate threshold of 1 or more", () => {
+    for (const v of [1, 2, "5"]) {
+      expect(errorOf(() => resolveVitalThresholds(withConfig({ crashRate: v })))).toMatchObject(
+        invalid,
+      );
+    }
+  });
+
+  it("rejects negative, non-numeric, blank and boolean config values instead of dropping or zeroing the gate", () => {
+    for (const v of [-0.01, "high", "", " ", false]) {
+      expect(errorOf(() => resolveVitalThresholds(withConfig({ anrRate: v })))).toMatchObject(
+        invalid,
+      );
+    }
+  });
+
+  it("accepts fractions, numeric strings, 0, null and missing keys", () => {
+    expect(
+      resolveVitalThresholds(
+        withConfig({ crashRate: 0.02, anrRate: "0.01", slowStartRate: 0, slowRenderingRate: null }),
+      ),
+    ).toEqual({ crashRate: 0.02, anrRate: 0.01, slowStartRate: 0, slowRenderingRate: undefined });
+    expect(resolveVitalThresholds({} as never)).toBeUndefined();
+  });
+
+  it("lets a --threshold override win over an unusable config value, as gpc vitals does", () => {
+    const result = resolveVitalThresholds(withConfig({ crashRate: 2 }), { crashRate: 0.015 });
+    expect(result?.crashRate).toBe(0.015);
+  });
+
+  it("applies overrides when the config has no thresholds", () => {
+    expect(resolveVitalThresholds({} as never, { anrRate: 0.005 })?.anrRate).toBe(0.005);
   });
 });
