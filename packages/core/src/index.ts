@@ -245,6 +245,7 @@ export {
   getProductPurchaseV2,
   cancelSubscriptionV2,
   deferSubscriptionV2,
+  normalizeSubscriptionEtag,
 } from "./commands/purchases.js";
 export { convertRegionPrices } from "./commands/pricing.js";
 export {

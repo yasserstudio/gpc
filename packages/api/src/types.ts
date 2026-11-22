@@ -1107,6 +1107,8 @@ export type CancellationType =
 export interface SubscriptionsV2CancelRequest {
   cancellationContext: {
     cancellationType: CancellationType;
+    /** Optional. The cancellation proceeds only if this matches the subscription's current etag (Nov 2026). */
+    etag?: string;
   };
 }
 
@@ -1121,6 +1123,8 @@ export interface RevokeSubscriptionV2Request {
     fullRefund?: Record<string, never>;
     proratedRefund?: Record<string, never>;
     itemBasedRefund?: { productId: string };
+    /** Optional. The revocation proceeds only if this matches the subscription's current etag (Nov 2026). */
+    etag?: string;
   };
 }
 

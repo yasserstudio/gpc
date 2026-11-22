@@ -2,6 +2,7 @@ import { PlayApiError } from "@gpc-cli/api";
 import type { PlayApiClient } from "@gpc-cli/api";
 import { validatePackageName } from "../utils/validation.js";
 import { GpcError } from "../errors.js";
+import { googleErrorText } from "../utils/google-error.js";
 
 /**
  * Per-user retention offers (Google Play, Nov 2026): target or untarget one
@@ -72,7 +73,7 @@ function translate(error: unknown, direction: Direction, offerId: string): unkno
   // Google's own words: kept in `details` when http.ts mapped the error, else
   // after the "<METHOD> <path> failed with status N: " prefix. The path itself
   // (":activateOfferTargeting") must never feed the keyword match below.
-  const googleText = error.details ?? error.message.replace(/^.*? failed with status \d+: /s, "");
+  const googleText = googleErrorText(error);
   const remap = (code: string, message: string, suggestion: string) =>
     new PlayApiError(message, code, error.statusCode, suggestion, googleText);
 

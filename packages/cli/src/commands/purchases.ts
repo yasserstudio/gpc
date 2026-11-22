@@ -16,6 +16,7 @@ import {
   getSubscriptionPurchase,
   cancelSubscriptionPurchase,
   cancelSubscriptionV2,
+  normalizeSubscriptionEtag,
   deferSubscriptionPurchase,
   deferSubscriptionV2,
   revokeSubscriptionPurchase,
@@ -38,6 +39,9 @@ import { isDryRun, printDryRun } from "../dry-run.js";
 import { getOutputFormat } from "../format.js";
 import { isInteractive, requireOption, requireConfirm, requireMoneyConfirm } from "../prompt.js";
 import { readJsonFile } from "../json.js";
+
+const ETAG_HELP =
+  "Only act if the subscription still has this etag (from 'purchases subscription get --output json')";
 
 export function registerPurchasesCommands(program: Command): void {
   const purchases = program.command("purchases").description("Manage purchases and orders");
@@ -277,43 +281,55 @@ export function registerPurchasesCommands(program: Command): void {
       "--product-id <id>",
       "Product ID for item-based refund (required with --refund-type item)",
     )
-    .action(async (token: string, opts: { refundType?: string; productId?: string }) => {
-      const config = await loadConfig();
-      const packageName = resolvePackageName(program.opts()["app"], config);
-      const refundType = (opts.refundType ?? "prorated") as "full" | "prorated" | "item";
+    .option("--etag <etag>", ETAG_HELP)
+    .action(
+      async (token: string, opts: { refundType?: string; productId?: string; etag?: string }) => {
+        const config = await loadConfig();
+        const packageName = resolvePackageName(program.opts()["app"], config);
+        const refundType = (opts.refundType ?? "prorated") as "full" | "prorated" | "item";
 
-      if (!["full", "prorated", "item"].includes(refundType)) {
-        throw new Error(`Invalid --refund-type "${refundType}". Use: full, prorated, or item`);
-      }
+        if (!["full", "prorated", "item"].includes(refundType)) {
+          throw new Error(`Invalid --refund-type "${refundType}". Use: full, prorated, or item`);
+        }
+        const etag = normalizeSubscriptionEtag(opts.etag);
 
-      if (isDryRun(program)) {
-        const format = getOutputFormat(program, config);
-        printDryRun(
-          {
-            command: "purchases subscription revoke",
-            action: "revoke subscription",
-            target: token,
-            details: {
-              refundType,
-              ...(opts.productId && { productId: opts.productId }),
+        if (isDryRun(program)) {
+          const format = getOutputFormat(program, config);
+          printDryRun(
+            {
+              command: "purchases subscription revoke",
+              action: "revoke subscription",
+              target: token,
+              details: {
+                refundType,
+                ...(opts.productId && { productId: opts.productId }),
+                ...(etag && { etag }),
+              },
             },
-          },
-          format,
-          formatOutput,
+            format,
+            formatOutput,
+          );
+          return;
+        }
+
+        await requireMoneyConfirm(
+          `Revoke subscription (${refundType} refund)? This cannot be undone.`,
+          program,
         );
-        return;
-      }
 
-      await requireMoneyConfirm(
-        `Revoke subscription (${refundType} refund)? This cannot be undone.`,
-        program,
-      );
+        const client = await getClient(config);
 
-      const client = await getClient(config);
-
-      await revokeSubscriptionPurchase(client, packageName, token, refundType, opts.productId);
-      console.log(`Subscription revoked (${refundType} refund).`);
-    });
+        await revokeSubscriptionPurchase(
+          client,
+          packageName,
+          token,
+          refundType,
+          opts.productId,
+          etag,
+        );
+        console.log(`Subscription revoked (${refundType} refund).`);
+      },
+    );
 
   // Per-user retention offers (Nov 2026). Google calls these
   // activate/deactivateOfferTargeting; the CLI names avoid a clash with
@@ -704,9 +720,11 @@ export function registerPurchasesCommands(program: Command): void {
       "--type <cancellationType>",
       "USER_REQUESTED_STOP_RENEWALS (default) or DEVELOPER_REQUESTED_STOP_PAYMENTS",
     )
-    .action(async (token: string, options: { type?: string }) => {
+    .option("--etag <etag>", ETAG_HELP)
+    .action(async (token: string, options: { type?: string; etag?: string }) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
+      const etag = normalizeSubscriptionEtag(options.etag);
 
       if (isDryRun(program)) {
         const format = getOutputFormat(program, config);
@@ -715,7 +733,7 @@ export function registerPurchasesCommands(program: Command): void {
             command: "purchases subscription cancel-v2",
             action: "cancel",
             target: token.slice(0, 16) + "...",
-            details: { cancellationType: options.type },
+            details: { cancellationType: options.type, ...(etag && { etag }) },
           },
           format,
           formatOutput,
@@ -730,7 +748,7 @@ export function registerPurchasesCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      await cancelSubscriptionV2(client, packageName, token, options.type);
+      await cancelSubscriptionV2(client, packageName, token, options.type, etag);
       console.log("Subscription cancelled.");
     });
 

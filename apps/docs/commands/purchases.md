@@ -347,6 +347,7 @@ gpc purchases subscription revoke <token>
 | --------------- | -------- | ---------- | --------------------------------------------------------- |
 | `--refund-type` | `string` | `prorated` | `full`, `prorated`, or `item`                             |
 | `--product-id`  | `string` | —          | Product ID to refund (required with `--refund-type item`) |
+| `--etag`        | `string` | —          | Only revoke if the subscription still has this etag       |
 
 ::: warning Non-interactive runs need `--yes`
 This command moves money and cannot be undone. In CI, with piped stdin, or with `--no-interactive`, it refuses to run without `--yes` (exit `2`, `CONFIRMATION_REQUIRED`). `--dry-run` never needs it.
@@ -358,6 +359,8 @@ This command moves money and cannot be undone. In CI, with piped stdin, or with 
 gpc purchases subscription revoke "sub-token-xyz789" \
   --app com.example.myapp
 ```
+
+See [Etag guard](#etag-guard) to make the revoke conditional on the subscription's current state.
 
 ---
 
@@ -576,7 +579,7 @@ gpc purchases product get-v2 "purchase-token-abc" --app com.example.myapp
 
 ## `purchases subscription cancel-v2`
 
-Cancel a subscription using the v2 API. Supports cancellation type parameter.
+Cancel a subscription using the v2 API. Supports the cancellation type parameter.
 
 ### Synopsis
 
@@ -586,21 +589,35 @@ gpc purchases subscription cancel-v2 <token> [options]
 
 ### Options
 
-| Flag     | Type     | Description                                                                             |
-| -------- | -------- | --------------------------------------------------------------------------------------- |
-| `--type` | `string` | Cancellation type: `USER_CANCELED`, `SYSTEM_CANCELED`, `DEVELOPER_CANCELED`, `REPLACED` |
+| Flag     | Type     | Description                                                                         |
+| -------- | -------- | ----------------------------------------------------------------------------------- |
+| `--type` | `string` | `USER_REQUESTED_STOP_RENEWALS` (default) or `DEVELOPER_REQUESTED_STOP_PAYMENTS`     |
+| `--etag` | `string` | Only cancel if the subscription still has this etag (see [Etag guard](#etag-guard)) |
+
+`USER_REQUESTED_STOP_RENEWALS` stops the next renewal; the subscription can be restored. `DEVELOPER_REQUESTED_STOP_PAYMENTS` stops the next payment and cannot be restored; for an installment subscription the user no longer finishes the commitment period. Neither type refunds anything, so `cancel-v2` asks for confirmation when interactive but does not require `--yes` in CI (use `revoke` to refund).
 
 ### Example
 
 ```bash
 gpc purchases subscription cancel-v2 "purchase-token-abc" \
-  --type DEVELOPER_CANCELED \
+  --type DEVELOPER_REQUESTED_STOP_PAYMENTS \
   --app com.example.myapp
 ```
 
 ::: tip
 The v1 `cancel` command requires both `subscription-id` and `token`. The v2 `cancel-v2` only requires the `token` and supports cancellation types.
 :::
+
+### Etag guard
+
+`cancel-v2` and `revoke` accept `--etag`. Google then applies the request only if the subscription has not changed since you read it, for example after the subscriber accepted a retention offer or renewed. Read the current etag first:
+
+```bash
+ETAG=$(gpc purchases subscription get "purchase-token-abc" --output json | jq -r .etag)
+gpc purchases subscription cancel-v2 "purchase-token-abc" --etag "$ETAG" --yes
+```
+
+If the subscription changed in between, Google rejects the request and the command fails with `SUBSCRIPTION_ETAG_MISMATCH` (exit `4`): read it again, check it is still in the state you expect, and retry with the current etag. GPC retries timeouts and server errors, so if an earlier attempt timed out, the mismatch can mean that attempt was applied; `subscription get` shows which. Use `jq -r` so the etag is passed without quotes. A blank `--etag` (for example an unset CI variable) fails with `SUBSCRIPTION_ETAG_BLANK` (exit `2`) instead of running without the guard. Without `--etag`, both commands act on whatever state the subscription is in.
 
 ---
 

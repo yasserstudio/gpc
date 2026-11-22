@@ -11,6 +11,8 @@ import type {
   ConsumptionUsageEvent,
   RefundPreference,
 } from "@gpc-cli/api";
+import { PlayApiError } from "@gpc-cli/api";
+import { googleErrorText } from "../utils/google-error.js";
 import { validatePackageName } from "../utils/validation.js";
 import { GpcError } from "../errors.js";
 
@@ -90,8 +92,10 @@ export async function revokeSubscriptionPurchase(
   token: string,
   refundType: RevocationRefundType = "prorated",
   productId?: string,
+  etag?: string,
 ): Promise<void> {
   validatePackageName(packageName);
+  const checkedEtag = normalizeSubscriptionEtag(etag);
   let body: RevokeSubscriptionV2Request;
   if (refundType === "item") {
     if (!productId) {
@@ -108,7 +112,12 @@ export async function revokeSubscriptionPurchase(
   } else {
     body = { revocationContext: { proratedRefund: {} } };
   }
-  return client.purchases.revokeSubscriptionV2(packageName, token, body);
+  const request: RevokeSubscriptionV2Request = {
+    revocationContext: { ...body.revocationContext, ...(checkedEtag && { etag: checkedEtag }) },
+  };
+  return withEtagGuard(checkedEtag, () =>
+    client.purchases.revokeSubscriptionV2(packageName, token, request),
+  );
 }
 
 // refundSubscriptionV2 removed: endpoint does not exist in official API.
@@ -226,11 +235,73 @@ export async function cancelSubscriptionV2(
   packageName: string,
   token: string,
   cancellationType: string = "USER_REQUESTED_STOP_RENEWALS",
+  etag?: string,
 ): Promise<void> {
   validatePackageName(packageName);
-  return client.purchases.cancelSubscriptionV2(packageName, token, {
-    cancellationContext: { cancellationType: cancellationType as CancellationType },
-  });
+  const checkedEtag = normalizeSubscriptionEtag(etag);
+  return withEtagGuard(checkedEtag, () =>
+    client.purchases.cancelSubscriptionV2(packageName, token, {
+      cancellationContext: {
+        cancellationType: cancellationType as CancellationType,
+        ...(checkedEtag && { etag: checkedEtag }),
+      },
+    }),
+  );
+}
+
+// --- Etag guard (cancel/revoke, Nov 2026) ---
+// Google: "If provided, the cancellation [revocation] will only proceed if it
+// matches the current server state." Google documents no status or message for
+// a mismatch, so the remap applies only when an etag was sent (see
+// isEtagMismatch); anything else passes through. TODO(T11): replace the guess
+// with the real response from the live smoke.
+
+/**
+ * Trim an optional etag. A blank one is refused: dropping it would silently
+ * remove the guard. Exported so the CLI checks it before a dry run too.
+ */
+export function normalizeSubscriptionEtag(etag: string | undefined): string | undefined {
+  if (etag === undefined) return undefined;
+  const trimmed = etag.trim();
+  if (!trimmed) {
+    throw new GpcError(
+      "The --etag value is blank.",
+      "SUBSCRIPTION_ETAG_BLANK",
+      2,
+      "Pass the etag from: gpc purchases subscription get <token> --output json (field: etag), or omit --etag to act without the guard.",
+    );
+  }
+  return trimmed;
+}
+
+async function withEtagGuard(etag: string | undefined, call: () => Promise<void>): Promise<void> {
+  try {
+    await call();
+  } catch (error) {
+    if (!etag || !(error instanceof PlayApiError)) throw error;
+    const googleText = googleErrorText(error);
+    if (isEtagMismatch(error.statusCode, googleText)) {
+      throw new PlayApiError(
+        "Google rejected this request: the subscription no longer matches the etag you passed.",
+        "SUBSCRIPTION_ETAG_MISMATCH",
+        error.statusCode,
+        "Re-run gpc purchases subscription get <token> and check its state before retrying with the current etag. If an earlier attempt timed out, it may already have been applied.",
+        googleText,
+      );
+    }
+    throw error;
+  }
+}
+
+/**
+ * 409/412, or a 400 that is ABORTED (Google's concurrency status) or names the
+ * etag. A 400 INVALID_ARGUMENT is a malformed request (e.g. a quoted etag), not
+ * a changed subscription, so it passes through with Google's message.
+ */
+function isEtagMismatch(status: number | undefined, googleText: string): boolean {
+  if (status === 409 || status === 412) return true;
+  if (status !== 400 || /\bINVALID_ARGUMENT\b/.test(googleText)) return false;
+  return /\bABORTED\b/.test(googleText) || /\betag\b/i.test(googleText);
 }
 
 export async function deferSubscriptionV2(

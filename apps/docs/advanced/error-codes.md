@@ -306,6 +306,15 @@ Emitted by `gpc purchases subscription target-offer` and `untarget-offer`. Googl
 | `OFFER_NEVER_ACTIVATED` | 4    | The offer is not on the subscription's current base plan, or is a never-activated draft | Check `gpc subscriptions offers list`; activate a draft once with `subscriptions offers activate` |
 | `SUBSCRIPTION_EXPIRED`  | 4    | The subscription has already expired                                                    | Check its state with `gpc purchases subscription get <token>`                                     |
 
+### SUBSCRIPTION_ETAG\_\* -- Etag Guard Errors
+
+Emitted by `gpc purchases subscription cancel-v2` and `revoke` when `--etag` is passed. Google documents no specific response for a stale etag, so with an etag sent GPC reports a 409, a 412, or a 400 that is `ABORTED` or names the etag as a mismatch. A 400 `INVALID_ARGUMENT` (for example an etag still wrapped in quotes) passes through as `API_HTTP_400`. Google's text is always kept in `details`.
+
+| Code                         | Exit | Cause                                                                           | Fix                                                                                                                                                        |
+| ---------------------------- | ---- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUBSCRIPTION_ETAG_MISMATCH` | 4    | Google rejected the request because the subscription no longer matches the etag | Re-run `gpc purchases subscription get <token>`, check its state, retry with the current etag. If an earlier attempt timed out it may already have applied |
+| `SUBSCRIPTION_ETAG_BLANK`    | 2    | `--etag` was passed empty                                                       | Pass the etag from `subscription get --output json`, or omit `--etag`                                                                                      |
+
 ### WATCH\_\* -- Watch Errors
 
 Exit code: `5`
