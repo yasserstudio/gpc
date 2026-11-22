@@ -3701,6 +3701,22 @@ describe("purchases.acknowledgeSubscription", () => {
     expect(JSON.parse(init.body)).toEqual({});
   });
 
+  // Acknowledge is not deprecated (discovery rev 20261119; subscriptionsv2 has no
+  // acknowledge), so it must not print a deprecation warning.
+  it("purchases.acknowledgeSubscription emits no deprecation warning", async () => {
+    mockFetch.mockResolvedValueOnce(mockResponse({}));
+    const emit = vi.spyOn(process, "emitWarning").mockImplementation(() => {});
+    // A fresh module: warnOnce remembers codes per module, and earlier tests in this
+    // file already call acknowledgeSubscription.
+    vi.resetModules();
+    const fresh = await import("../src/client");
+    const client = fresh.createApiClient({ auth: mockAuth(), maxRetries: 0 });
+
+    await client.purchases.acknowledgeSubscription(PKG, "sub_monthly", "purchase-token-abc");
+
+    expect(emit).not.toHaveBeenCalled();
+  });
+
   it("purchases.acknowledgeSubscription sends externalAccountId when provided", async () => {
     mockFetch.mockResolvedValueOnce(mockResponse({}));
 

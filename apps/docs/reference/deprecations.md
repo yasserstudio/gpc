@@ -29,7 +29,7 @@ Deprecated as of **May 19, 2026**. Shutdown on **August 31, 2028** (extension av
 | `purchases.subscriptions:cancel` | `GPC_DEP002`     | `subscriptionsv2.cancel` |
 | `purchases.subscriptions:defer`  | `GPC_DEP003`     | `subscriptionsv2.defer`  |
 
-GPC emits deprecation warnings on both methods. `cancelSubscriptionV2` and `deferSubscriptionV2` are the v2 replacements.
+GPC emits deprecation warnings on both methods. `cancelSubscriptionV2` and `deferSubscriptionV2` are the v2 replacements (`gpc purchases subscription cancel-v2` and `defer-v2`). The v1 `gpc purchases subscription defer` reads the current expiry through `subscriptionsv2.get`, because v1 `subscriptions.get` shuts down a year earlier (August 31, 2027).
 
 ### Deprecated Order field
 
@@ -90,11 +90,11 @@ GPC's `SubscriptionPurchaseV2` type already includes `latestSuccessfulOrderId` o
 
 ### `SubscriptionNotification.subscriptionId`
 
-**Status:** Deprecated -- no replacement. Real-time developer notifications will no longer include the `subscriptionId` field in `SubscriptionNotification`.
+**Status:** Deprecated -- no replacement. Real-time developer notifications will no longer include the `subscriptionId` field in `SubscriptionNotification`. `gpc rtdn decode` shows the field only when a payload still has it, with a `deprecated` note.
 
 ### `SUBSCRIPTION_PRICE_CHANGE_CONFIRMED` notification type
 
-**Status:** Deprecated -- use `SUBSCRIPTION_PRICE_CHANGE_UPDATED` instead.
+**Status:** Deprecated -- use `SUBSCRIPTION_PRICE_CHANGE_UPDATED` (type 19) instead. `gpc rtdn decode` adds a `deprecated` note to type 8.
 
 ## V2 Field Mapping
 

@@ -63,16 +63,21 @@ export function registerRtdnCommands(program: Command): void {
 
       if (format === "json") {
         console.log(formatOutput(redacted, format));
-      } else {
-        console.log(formatOutput(formatted, format));
+      } else if (format === "table") {
+        // A table column would cut the deprecation note off, so print it in full below.
+        const { deprecated, ...row } = formatted;
+        console.log(formatOutput(row, format));
+        if (typeof deprecated === "string") {
+          console.log(`\nDeprecated: ${deprecated}`);
+        }
         // The table truncates the token, but review-refund needs it in full. Only the
-        // table gets the hint -- csv/tsv/yaml/markdown/junit output is meant to be piped.
-        if (format === "table" && formatted["type"] === "pending-refund-review") {
+        // table gets these hints: csv/tsv/yaml/markdown/junit output is meant to be piped.
+        if (formatted["type"] === "pending-refund-review") {
           console.log(
             dim("\n  The pending refund token is truncated above. Get it with: --output json"),
           );
         }
-        if (format === "table" && formatted["event"] === "SUBSCRIPTION_PLAN_TRANSITION_UPDATED") {
+        if (formatted["event"] === "SUBSCRIPTION_PLAN_TRANSITION_UPDATED") {
           console.log(
             dim(
               "\n  A plan transition changed (for example, the subscriber accepted a retention offer)." +
@@ -81,6 +86,8 @@ export function registerRtdnCommands(program: Command): void {
             ),
           );
         }
+      } else {
+        console.log(formatOutput(formatted, format));
       }
     });
 

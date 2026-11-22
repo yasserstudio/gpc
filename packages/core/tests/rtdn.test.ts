@@ -171,4 +171,48 @@ describe("formatNotification", () => {
     });
     expect(result.purchaseToken).toBe("abcdefghijklmnop...");
   });
+
+  // Google's RTDN reference (read 2026-11-22): type 8 is marked DEPRECATED and the
+  // SubscriptionNotification schema lists only version, notificationType and
+  // purchaseToken, so subscriptionId is gone with no replacement field.
+  describe("deprecated subscription fields", () => {
+    const sub = (notificationType: number, subscriptionId?: string) =>
+      formatNotification({
+        ...BASE,
+        subscriptionNotification: {
+          version: "1.0",
+          notificationType,
+          purchaseToken: "abcdefghijklmnopqrstuvwxyz",
+          ...(subscriptionId ? { subscriptionId } : {}),
+        },
+      });
+
+    it("flags type 8 and points to type 19", () => {
+      const result = sub(8);
+      expect(result.event).toBe("SUBSCRIPTION_PRICE_CHANGE_CONFIRMED");
+      expect(result.deprecated).toContain("Type 8");
+      expect(result.deprecated).toContain("type 19 (SUBSCRIPTION_PRICE_CHANGE_UPDATED)");
+    });
+
+    it("flags a subscriptionId when Google still sends one", () => {
+      const result = sub(4, "sub_monthly");
+      expect(result.subscriptionId).toBe("sub_monthly");
+      expect(result.deprecated).toContain("subscriptionId");
+      expect(result.deprecated).toContain("lineItems");
+    });
+
+    it("omits subscriptionId and the note for a current payload", () => {
+      const result = sub(4);
+      expect("subscriptionId" in result).toBe(false);
+      expect("deprecated" in result).toBe(false);
+    });
+
+    it("joins both notes when a payload has both", () => {
+      const result = sub(8, "sub_monthly");
+      expect(result.deprecated).toBe(
+        "Type 8 is deprecated. Handle type 19 (SUBSCRIPTION_PRICE_CHANGE_UPDATED) instead. " +
+          "subscriptionId is deprecated and has no replacement. Read the product IDs from lineItems in gpc purchases subscription get.",
+      );
+    });
+  });
 });

@@ -1605,10 +1605,8 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       },
 
       async acknowledgeSubscription(packageName, subscriptionId, token, body?) {
-        warnOnce(
-          "GPC_DEP004",
-          "purchases.subscriptions.acknowledge (v1) is deprecated. Use purchases.subscriptionsv2.get to check acknowledgement state instead.",
-        );
+        // Not deprecated: discovery rev 20261119 lists v1 acknowledge without a
+        // deprecated flag and subscriptionsv2 has no acknowledge method.
         await http.post(
           `/${p(packageName)}/purchases/subscriptions/${p(subscriptionId)}/tokens/${p(token)}:acknowledge`,
           body ?? {},

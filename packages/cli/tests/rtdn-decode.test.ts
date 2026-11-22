@@ -79,8 +79,8 @@ describe("gpc rtdn decode", () => {
         subscriptionNotification: {
           version: "1.0",
           notificationType: 21,
+          // Google's current SubscriptionNotification has no subscriptionId.
           purchaseToken: "abcdefghijklmnopqrstuvwxyz",
-          subscriptionId: "premium_monthly_sub",
         },
       }),
     ).toString("base64");
@@ -100,6 +100,37 @@ describe("gpc rtdn decode", () => {
         await runCli("rtdn", "decode", PLAN_TRANSITION, "--output", format);
         expect(logs.join("\n"), format).not.toContain(NEXT);
       }
+    });
+  });
+
+  describe("deprecated type 8 with a legacy subscriptionId", () => {
+    const LEGACY = Buffer.from(
+      JSON.stringify({
+        version: "1.0",
+        packageName: "com.example.app",
+        eventTimeMillis: "1700000000000",
+        subscriptionNotification: {
+          version: "1.0",
+          notificationType: 8,
+          purchaseToken: "abcdefghijklmnopqrstuvwxyz",
+          subscriptionId: "premium_monthly",
+        },
+      }),
+    ).toString("base64");
+
+    it("prints each note in full under the table, not cut off in a column", async () => {
+      await runCli("rtdn", "decode", LEGACY);
+      const out = logs.join("\n");
+      expect(out).toContain("type 19 (SUBSCRIPTION_PRICE_CHANGE_UPDATED) instead.");
+      expect(out).toContain("lineItems in gpc purchases subscription get.");
+      expect(out).toContain("\nDeprecated: Type 8 is deprecated.");
+    });
+
+    it("keeps the notes as a deprecated field in csv", async () => {
+      await runCli("rtdn", "decode", LEGACY, "--output", "csv");
+      const out = logs.join("\n");
+      expect(out.split("\n")[0]).toContain("deprecated");
+      expect(out).toContain("SUBSCRIPTION_PRICE_CHANGE_UPDATED");
     });
   });
 });

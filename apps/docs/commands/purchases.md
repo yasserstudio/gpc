@@ -17,8 +17,8 @@ outline: deep
 | [`purchases acknowledge`](#purchases-acknowledge)                                 | Acknowledge a product purchase                      |
 | [`purchases consume`](#purchases-consume)                                         | Consume a consumable purchase                       |
 | [`purchases subscription get`](#purchases-subscription-get)                       | Get a subscription purchase (v2 API)                |
-| [`purchases subscription cancel`](#purchases-subscription-cancel)                 | Cancel a subscription (v1 API)                      |
-| [`purchases subscription defer`](#purchases-subscription-defer)                   | Defer a subscription expiry                         |
+| [`purchases subscription cancel`](#purchases-subscription-cancel)                 | Cancel a subscription (v1 API, deprecated)          |
+| [`purchases subscription defer`](#purchases-subscription-defer)                   | Defer a subscription expiry (v1 API, deprecated)    |
 | [`purchases subscription revoke`](#purchases-subscription-revoke)                 | Revoke a subscription (v2 API)                      |
 | [`purchases subscription target-offer`](#purchases-subscription-target-offer)     | Target a per-user retention offer at one subscriber |
 | [`purchases subscription untarget-offer`](#purchases-subscription-untarget-offer) | Remove a per-user retention offer targeting         |
@@ -280,6 +280,10 @@ gpc purchases subscription untarget-offer "sub-token-xyz789" \
 
 Cancel an active subscription. The subscription remains active until the end of the current billing period.
 
+::: warning Deprecated
+Google deprecated the v1 `subscriptions.cancel` method. It shuts down on August 31, 2028. Use [`purchases subscription cancel-v2`](#purchases-subscription-cancel-v2), which also supports cancellation types.
+:::
+
 ### Synopsis
 
 ```bash
@@ -302,6 +306,10 @@ gpc purchases subscription cancel premium_monthly "sub-token-xyz789" \
 ## `purchases subscription defer`
 
 Defer a subscription's expiry date to a later time.
+
+::: warning Deprecated
+Google deprecated the v1 `subscriptions.defer` method. It shuts down on August 31, 2028. Use [`purchases subscription defer-v2`](#purchases-subscription-defer-v2), which also supports add-ons. v1 `subscriptions.get` shuts down a year earlier, on August 31, 2027. GPC reads the current expiry through the v2 `subscriptionsv2.get` method instead, so this command works until August 31, 2028.
+:::
 
 ### Synopsis
 

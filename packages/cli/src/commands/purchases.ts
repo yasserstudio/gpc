@@ -217,7 +217,7 @@ export function registerPurchasesCommands(program: Command): void {
 
   sub
     .command("defer <subscription-id> <token>")
-    .description("Defer a subscription expiry")
+    .description("Defer a subscription expiry (v1)")
     .option("--expiry <iso-date>", "Desired new expiry date (ISO 8601)")
     .action(async (subscriptionId: string, token: string, options) => {
       const config = await loadConfig();

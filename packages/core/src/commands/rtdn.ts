@@ -23,7 +23,8 @@ export interface DecodedNotification {
     version: string;
     notificationType: number;
     purchaseToken: string;
-    subscriptionId: string;
+    /** Deprecated by Google with no replacement; current payloads omit it. */
+    subscriptionId?: string;
   };
   oneTimeProductNotification?: {
     version: string;
@@ -78,6 +79,14 @@ const SUBSCRIPTION_NOTIFICATION_TYPES: Record<number, string> = {
   21: "SUBSCRIPTION_PLAN_TRANSITION_UPDATED",
   22: "SUBSCRIPTION_PRICE_STEP_UP_CONSENT_UPDATED",
 };
+
+// Google's RTDN reference (read 2026-11-22) marks these deprecated. Shown in the
+// decoded table so a handler still keyed on them gets a pointer to what replaced them.
+const DEPRECATED_TYPE_NOTES: Record<number, string> = {
+  8: "Type 8 is deprecated. Handle type 19 (SUBSCRIPTION_PRICE_CHANGE_UPDATED) instead.",
+};
+const SUBSCRIPTION_ID_NOTE =
+  "subscriptionId is deprecated and has no replacement. Read the product IDs from lineItems in gpc purchases subscription get.";
 
 const OTP_NOTIFICATION_TYPES: Record<number, string> = {
   1: "ONE_TIME_PRODUCT_PURCHASED",
@@ -152,13 +161,18 @@ export function formatNotification(notification: DecodedNotification): Record<st
 
   if (notification.subscriptionNotification) {
     const n = notification.subscriptionNotification;
+    const notes = [
+      DEPRECATED_TYPE_NOTES[n.notificationType],
+      n.subscriptionId ? SUBSCRIPTION_ID_NOTE : undefined,
+    ].filter(Boolean);
     return {
       ...base,
       type: "subscription",
       event:
         SUBSCRIPTION_NOTIFICATION_TYPES[n.notificationType] || `UNKNOWN(${n.notificationType})`,
-      subscriptionId: n.subscriptionId,
+      ...(n.subscriptionId ? { subscriptionId: n.subscriptionId } : {}),
       purchaseToken: n.purchaseToken.slice(0, 16) + "...",
+      ...(notes.length ? { deprecated: notes.join(" ") } : {}),
     };
   }
 

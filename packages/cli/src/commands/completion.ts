@@ -186,8 +186,8 @@ export function getCommandTree(): Record<string, CommandDef> {
           description: "Manage subscription purchases",
           subcommands: {
             get: { description: "Get a subscription purchase" },
-            cancel: { description: "Cancel a subscription" },
-            defer: { description: "Defer a subscription expiry" },
+            cancel: { description: "Cancel a subscription (v1)" },
+            defer: { description: "Defer a subscription expiry (v1)" },
             revoke: { description: "Revoke a subscription" },
           },
         },

@@ -3154,8 +3154,11 @@ describe("purchases commands", () => {
     expect(client.purchases.cancelSubscription).toHaveBeenCalledWith("com.example", "sub1", "tok");
   });
 
-  it("deferSubscriptionPurchase reads v1 expiry then defers", async () => {
+  it("deferSubscriptionPurchase reads the v2 line item expiry then defers", async () => {
     const client = mockClient();
+    client.purchases.getSubscriptionV2.mockResolvedValue({
+      lineItems: [{ productId: "sub1", expiryTime: "1970-01-01T00:01:40Z" }],
+    });
     const result = await deferSubscriptionPurchase(
       client,
       "com.example",
@@ -3163,7 +3166,8 @@ describe("purchases commands", () => {
       "tok",
       "2025-12-31T00:00:00Z",
     );
-    expect(client.purchases.getSubscriptionV1).toHaveBeenCalledWith("com.example", "sub1", "tok");
+    expect(client.purchases.getSubscriptionV2).toHaveBeenCalledWith("com.example", "tok");
+    expect(client.purchases.getSubscriptionV1).not.toHaveBeenCalled();
     expect(client.purchases.deferSubscription).toHaveBeenCalled();
     const deferCall = client.purchases.deferSubscription.mock.calls[0];
     expect(deferCall[3].deferralInfo.expectedExpiryTimeMillis).toBe("100000");

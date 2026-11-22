@@ -81,9 +81,10 @@ eventTime     2026-03-28T10:00:00.000Z
 version       1.0
 type          subscription
 event         SUBSCRIPTION_PURCHASED
-subscriptionId  premium_monthly
-purchaseToken   abc123def456...
+purchaseToken abc123def456...
 ```
+
+When a payload uses a field or type that Google has deprecated, a `Deprecated:` line under the table names the replacement. In csv, tsv, yaml and markdown output the same text is a `deprecated` field. `--output json` prints the decoded payload as Google sent it, without this field. Google no longer sends `subscriptionId`, so it appears only on older payloads; read the product IDs from `lineItems` in `gpc purchases subscription get`.
 
 ### JSON Output
 
@@ -97,27 +98,27 @@ Returns the full decoded notification object including all fields.
 
 **Subscription events:**
 
-| Code | Event                                        |
-| ---- | -------------------------------------------- |
-| 1    | `SUBSCRIPTION_RECOVERED`                     |
-| 2    | `SUBSCRIPTION_RENEWED`                       |
-| 3    | `SUBSCRIPTION_CANCELED`                      |
-| 4    | `SUBSCRIPTION_PURCHASED`                     |
-| 5    | `SUBSCRIPTION_ON_HOLD`                       |
-| 6    | `SUBSCRIPTION_IN_GRACE_PERIOD`               |
-| 7    | `SUBSCRIPTION_RESTARTED`                     |
-| 8    | `SUBSCRIPTION_PRICE_CHANGE_CONFIRMED`        |
-| 9    | `SUBSCRIPTION_DEFERRED`                      |
-| 10   | `SUBSCRIPTION_PAUSED`                        |
-| 11   | `SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED`        |
-| 12   | `SUBSCRIPTION_REVOKED`                       |
-| 13   | `SUBSCRIPTION_EXPIRED`                       |
-| 17   | `SUBSCRIPTION_ITEMS_CHANGED`                 |
-| 18   | `SUBSCRIPTION_CANCELLATION_SCHEDULED`        |
-| 19   | `SUBSCRIPTION_PRICE_CHANGE_UPDATED`          |
-| 20   | `SUBSCRIPTION_PENDING_PURCHASE_CANCELED`     |
-| 21   | `SUBSCRIPTION_PLAN_TRANSITION_UPDATED`       |
-| 22   | `SUBSCRIPTION_PRICE_STEP_UP_CONSENT_UPDATED` |
+| Code | Event                                                                 |
+| ---- | --------------------------------------------------------------------- |
+| 1    | `SUBSCRIPTION_RECOVERED`                                              |
+| 2    | `SUBSCRIPTION_RENEWED`                                                |
+| 3    | `SUBSCRIPTION_CANCELED`                                               |
+| 4    | `SUBSCRIPTION_PURCHASED`                                              |
+| 5    | `SUBSCRIPTION_ON_HOLD`                                                |
+| 6    | `SUBSCRIPTION_IN_GRACE_PERIOD`                                        |
+| 7    | `SUBSCRIPTION_RESTARTED`                                              |
+| 8    | `SUBSCRIPTION_PRICE_CHANGE_CONFIRMED` (deprecated, handle 19 instead) |
+| 9    | `SUBSCRIPTION_DEFERRED`                                               |
+| 10   | `SUBSCRIPTION_PAUSED`                                                 |
+| 11   | `SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED`                                 |
+| 12   | `SUBSCRIPTION_REVOKED`                                                |
+| 13   | `SUBSCRIPTION_EXPIRED`                                                |
+| 17   | `SUBSCRIPTION_ITEMS_CHANGED`                                          |
+| 18   | `SUBSCRIPTION_CANCELLATION_SCHEDULED`                                 |
+| 19   | `SUBSCRIPTION_PRICE_CHANGE_UPDATED`                                   |
+| 20   | `SUBSCRIPTION_PENDING_PURCHASE_CANCELED`                              |
+| 21   | `SUBSCRIPTION_PLAN_TRANSITION_UPDATED`                                |
+| 22   | `SUBSCRIPTION_PRICE_STEP_UP_CONSENT_UPDATED`                          |
 
 `SUBSCRIPTION_PLAN_TRANSITION_UPDATED` (21) means a subscription's plan transition changed. Google sends it when a subscriber accepts a retention offer in the cancellation flow; the subscription stays active and auto-renewing with the same purchase token, so keep granting access. The notification carries no transition details: run `gpc purchases subscription get <token>` and check `subscriptionState` and the `planTransition` row (`lineItems[].autoRenewingPlan.planTransitionDetails` in JSON). `rtdn decode` shortens the token in every output format; the full token is in the raw payload (`echo <payload> | base64 -d`). In table output, `rtdn decode` prints this hint.
 

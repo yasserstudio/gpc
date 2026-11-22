@@ -75,10 +75,30 @@ export async function deferSubscriptionPurchase(
   desiredExpiry: string,
 ): Promise<SubscriptionDeferResponse> {
   validatePackageName(packageName);
-  const sub = await client.purchases.getSubscriptionV1(packageName, subscriptionId, token);
+  // v1 get shuts down Aug 31 2027, a year before v1 defer (Aug 31 2028), so the
+  // current expiry comes from the v2 line item for this subscription.
+  const sub = await client.purchases.getSubscriptionV2(packageName, token);
+  const item = sub.lineItems?.find((li) => li.productId === subscriptionId);
+  if (!item) {
+    throw new GpcError(
+      `This purchase token has no subscription "${subscriptionId}".`,
+      "SUBSCRIPTION_LINE_ITEM_NOT_FOUND",
+      2,
+      `Check the subscription ID. To see the IDs on this token, run gpc purchases subscription get <token> --output json and read lineItems[].productId.`,
+    );
+  }
+  const expiryMs = item.expiryTime ? Date.parse(item.expiryTime) : NaN;
+  if (Number.isNaN(expiryMs)) {
+    throw new GpcError(
+      `Google returned no expiry date for subscription "${subscriptionId}" on this purchase token.`,
+      "SUBSCRIPTION_EXPIRY_UNKNOWN",
+      4,
+      `Check the subscription state with gpc purchases subscription get <token>. To defer without the current expiry, use gpc purchases subscription defer-v2.`,
+    );
+  }
   return client.purchases.deferSubscription(packageName, subscriptionId, token, {
     deferralInfo: {
-      expectedExpiryTimeMillis: sub.expiryTimeMillis,
+      expectedExpiryTimeMillis: String(expiryMs),
       desiredExpiryTimeMillis: String(new Date(desiredExpiry).getTime()),
     },
   });
