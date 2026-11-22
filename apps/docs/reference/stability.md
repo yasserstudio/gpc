@@ -33,6 +33,7 @@ Within a major version, these do not change in a breaking way:
 - **Packages still at 0.x.** `@gpc-cli/core`, `@gpc-cli/auth`, `@gpc-cli/config`, `@gpc-cli/plugin-sdk` and `@gpc-cli/plugin-ci` are building blocks of the CLI. Under semver, a 0.x minor release may break them. They join this promise when they reach 1.0.
 - **Google's own changes.** When Google retires an API or changes what it returns, GPC follows. Known shutdowns are tracked on [API Deprecations](/reference/deprecations).
 - **Hidden commands**, such as the shell-completion helper, which are not part of the documented interface.
+- **Experimental commands.** A command marked "experimental" in its help and docs wraps an API method Google has not fully documented. Its flags, error codes and `--json` output can change in a minor release. The label is removed once the command is stable.
 
 ## Fixes that change results
 

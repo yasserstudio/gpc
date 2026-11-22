@@ -76,7 +76,8 @@ export async function requireConfirm(
 }
 
 /**
- * Confirmation for irreversible money operations (refunds, revocations).
+ * Confirmation for money operations (refunds, revocations, plan changes).
+ * `reason` opens the suggestion; the default fits irreversible operations.
  * Unlike requireConfirm, a non-interactive run (CI, piped stdin,
  * --no-interactive) does not auto-confirm: it must pass --yes, so no pipeline
  * issues a refund by default. A --dry-run sends nothing and is exempt.
@@ -84,6 +85,7 @@ export async function requireConfirm(
 export async function requireMoneyConfirm(
   message: string,
   program: { opts(): Record<string, unknown>; parent?: unknown },
+  reason = "This moves money and cannot be undone.",
 ): Promise<void> {
   if (skipConfirm(program)) return;
   if (!isInteractive(program)) {
@@ -91,8 +93,7 @@ export async function requireMoneyConfirm(
     throw Object.assign(new Error(`Confirmation required: ${message}`), {
       code: "CONFIRMATION_REQUIRED",
       exitCode: 2,
-      suggestion:
-        "This moves money and cannot be undone. Pass --yes to confirm it in a non-interactive run (CI, piped stdin, --no-interactive).",
+      suggestion: `${reason} Pass --yes to confirm it in a non-interactive run (CI, piped stdin, --no-interactive).`,
     });
   }
   await requireConfirm(message, program);

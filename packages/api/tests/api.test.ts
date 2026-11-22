@@ -1375,6 +1375,50 @@ describe("monetization API endpoints", () => {
       expect(JSON.parse(init.body)).toEqual({ offerId: "retention-peruser-30off" });
     });
 
+    // flatPaths from discovery rev 20261119 (camelCase; Play routes case-sensitively).
+    it("cancelPlanTransition POSTs productId + etag to .../:cancelPlanTransition", async () => {
+      mockFetch.mockResolvedValueOnce(mockResponse({}));
+      const client = makeClient();
+      await expect(
+        client.purchases.cancelPlanTransition(PKG, "tok456", {
+          productId: "premium",
+          etag: "CgQIARAB",
+        }),
+      ).resolves.toBeUndefined();
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(
+        `${BASE_URL}/${PKG}/purchases/subscriptionsv2/tokens/tok456:cancelPlanTransition`,
+      );
+      expect(init.method).toBe("POST");
+      expect(JSON.parse(init.body)).toEqual({ productId: "premium", etag: "CgQIARAB" });
+    });
+
+    it("schedulePlanTransition POSTs to .../:schedulePlanTransition and returns the details", async () => {
+      const details = {
+        planTransitionDetails: {
+          productId: "premium",
+          basePlanId: "monthly",
+          transitionInfo: { transitionState: "SCHEDULED" },
+        },
+      };
+      mockFetch.mockResolvedValueOnce(mockResponse(details));
+      const client = makeClient();
+      const body = {
+        productId: "premium",
+        earliestTransitionEffectiveTime: "2099-01-01T00:00:00Z",
+        tentativeTransition: {},
+      };
+      await expect(client.purchases.schedulePlanTransition(PKG, "tok456", body)).resolves.toEqual(
+        details,
+      );
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(
+        `${BASE_URL}/${PKG}/purchases/subscriptionsv2/tokens/tok456:schedulePlanTransition`,
+      );
+      expect(init.method).toBe("POST");
+      expect(JSON.parse(init.body)).toEqual(body);
+    });
+
     it("revokeSubscriptionV2 calls POST .../:revoke with proratedRefund", async () => {
       mockFetch.mockResolvedValueOnce(mockResponse({}));
       const client = makeClient();

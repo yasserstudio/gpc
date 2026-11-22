@@ -269,6 +269,49 @@ export async function cancelSubscriptionV2(
   );
 }
 
+// --- Plan transitions (rev 20261119, experimental) ---
+
+/**
+ * Trim and require a subscription product id. Exported so the CLI checks it
+ * before a dry run too.
+ */
+export function normalizeProductId(productId: string): string {
+  const id = productId.trim();
+  if (!id) {
+    throw new GpcError(
+      "A subscription product id is required.",
+      "PRODUCT_ID_REQUIRED",
+      2,
+      "Pass --product-id <id>: the subscription product of this purchase, as shown by gpc purchases subscription get <token>.",
+    );
+  }
+  return id;
+}
+
+/**
+ * Cancel a plan transition that is still in progress: a scheduled move to the
+ * transition target base plan (`BasePlan.transitionTargetConfig`). Google documents no errors for this
+ * method, so only an etag mismatch is mapped; anything else passes through
+ * with Google's message. TODO(T11): record real responses.
+ */
+export async function cancelPlanTransition(
+  client: PlayApiClient,
+  packageName: string,
+  token: string,
+  productId: string,
+  etag?: string,
+): Promise<void> {
+  validatePackageName(packageName);
+  const id = normalizeProductId(productId);
+  const checkedEtag = normalizeSubscriptionEtag(etag);
+  return withEtagGuard(checkedEtag, () =>
+    client.purchases.cancelPlanTransition(packageName, token, {
+      productId: id,
+      ...(checkedEtag && { etag: checkedEtag }),
+    }),
+  );
+}
+
 // --- Etag guard (cancel/revoke, Nov 2026) ---
 // Google: "If provided, the cancellation [revocation] will only proceed if it
 // matches the current server state." Google documents no status or message for

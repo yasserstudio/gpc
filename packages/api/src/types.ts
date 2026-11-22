@@ -488,6 +488,16 @@ export interface BasePlan {
     newSubscriberAvailability?: boolean;
   };
   offerTags?: { tag: string }[];
+  /** The base plan a plan transition moves subscribers to (rev 20261119). */
+  transitionTargetConfig?: TransitionTargetConfig;
+}
+
+/** Configuration for a transition target base plan (rev 20261119). */
+export interface TransitionTargetConfig {
+  /** Required. The subscription the target base plan belongs to. */
+  productId: string;
+  /** Required. The target base plan. */
+  basePlanId: string;
 }
 
 export interface SubscriptionListing {
@@ -1110,6 +1120,40 @@ export interface SubscriptionsV2CancelRequest {
     /** Optional. The cancellation proceeds only if this matches the subscription's current etag (Nov 2026). */
     etag?: string;
   };
+}
+
+/**
+ * Request body for purchases.subscriptionsv2.cancelPlanTransition (rev 20261119).
+ * Cancels a plan transition that is still in progress.
+ */
+export interface CancelPlanTransitionRequest {
+  /** Required. The subscription product whose in-progress transition is cancelled. */
+  productId: string;
+  /** Optional. The call fails unless this matches the subscription's current etag. */
+  etag?: string;
+}
+
+/**
+ * Request body for purchases.subscriptionsv2.schedulePlanTransition (rev 20261119).
+ *
+ * The request has no field naming the plan to move to: the target is set on
+ * the base plan, in `BasePlan.transitionTargetConfig`. GPC exposes this method
+ * for SDK users only; there is no CLI command for it.
+ */
+export interface SchedulePlanTransitionRequest {
+  /** Required. The subscription product the transition is scheduled for. */
+  productId: string;
+  /** Required. The transition takes effect at the first renewal on or after this time (RFC 3339). */
+  earliestTransitionEffectiveTime: string;
+  /** Set exactly one of tentativeTransition (can be cancelled) or definiteTransition (cannot). */
+  tentativeTransition?: Record<string, never>;
+  definiteTransition?: Record<string, never>;
+  /** Optional. The call fails unless this matches the subscription's current etag. */
+  etag?: string;
+}
+
+export interface SchedulePlanTransitionResponse {
+  planTransitionDetails?: PlanTransitionDetails;
 }
 
 /**

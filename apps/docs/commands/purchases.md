@@ -11,25 +11,26 @@ outline: deep
 
 ## Commands
 
-| Command                                                                           | Description                                         |
-| --------------------------------------------------------------------------------- | --------------------------------------------------- |
-| [`purchases get`](#purchases-get)                                                 | Get a product purchase                              |
-| [`purchases acknowledge`](#purchases-acknowledge)                                 | Acknowledge a product purchase                      |
-| [`purchases consume`](#purchases-consume)                                         | Consume a consumable purchase                       |
-| [`purchases subscription get`](#purchases-subscription-get)                       | Get a subscription purchase (v2 API)                |
-| [`purchases subscription cancel`](#purchases-subscription-cancel)                 | Cancel a subscription (v1 API, deprecated)          |
-| [`purchases subscription defer`](#purchases-subscription-defer)                   | Defer a subscription expiry (v1 API, deprecated)    |
-| [`purchases subscription revoke`](#purchases-subscription-revoke)                 | Revoke a subscription (v2 API)                      |
-| [`purchases subscription target-offer`](#purchases-subscription-target-offer)     | Target a per-user retention offer at one subscriber |
-| [`purchases subscription untarget-offer`](#purchases-subscription-untarget-offer) | Remove a per-user retention offer targeting         |
-| [`purchases product get-v2`](#purchases-product-get-v2)                           | Get product purchase (v2 — multi-offer OTPs)        |
-| [`purchases subscription cancel-v2`](#purchases-subscription-cancel-v2)           | Cancel a subscription (v2 — cancellation types)     |
-| [`purchases subscription defer-v2`](#purchases-subscription-defer-v2)             | Defer subscription renewal (v2 — add-ons)           |
-| [`purchases voided`](#purchases-voided)                                           | List voided purchases                               |
-| [`purchases orders get`](#purchases-orders-get)                                   | Get order details                                   |
-| [`purchases orders batch-get`](#purchases-orders-batch-get)                       | Batch get orders (up to 1000)                       |
-| [`purchases orders refund`](#purchases-orders-refund)                             | Refund an order                                     |
-| [`purchases orders review-refund`](#purchases-orders-review-refund)               | Respond to a chargeback review                      |
+| Command                                                                                 | Description                                         |
+| --------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| [`purchases get`](#purchases-get)                                                       | Get a product purchase                              |
+| [`purchases acknowledge`](#purchases-acknowledge)                                       | Acknowledge a product purchase                      |
+| [`purchases consume`](#purchases-consume)                                               | Consume a consumable purchase                       |
+| [`purchases subscription get`](#purchases-subscription-get)                             | Get a subscription purchase (v2 API)                |
+| [`purchases subscription cancel`](#purchases-subscription-cancel)                       | Cancel a subscription (v1 API, deprecated)          |
+| [`purchases subscription defer`](#purchases-subscription-defer)                         | Defer a subscription expiry (v1 API, deprecated)    |
+| [`purchases subscription revoke`](#purchases-subscription-revoke)                       | Revoke a subscription (v2 API)                      |
+| [`purchases subscription target-offer`](#purchases-subscription-target-offer)           | Target a per-user retention offer at one subscriber |
+| [`purchases subscription untarget-offer`](#purchases-subscription-untarget-offer)       | Remove a per-user retention offer targeting         |
+| [`purchases subscription cancel-transition`](#purchases-subscription-cancel-transition) | Cancel a pending plan change (experimental)         |
+| [`purchases product get-v2`](#purchases-product-get-v2)                                 | Get product purchase (v2 — multi-offer OTPs)        |
+| [`purchases subscription cancel-v2`](#purchases-subscription-cancel-v2)                 | Cancel a subscription (v2 — cancellation types)     |
+| [`purchases subscription defer-v2`](#purchases-subscription-defer-v2)                   | Defer subscription renewal (v2 — add-ons)           |
+| [`purchases voided`](#purchases-voided)                                                 | List voided purchases                               |
+| [`purchases orders get`](#purchases-orders-get)                                         | Get order details                                   |
+| [`purchases orders batch-get`](#purchases-orders-batch-get)                             | Batch get orders (up to 1000)                       |
+| [`purchases orders refund`](#purchases-orders-refund)                                   | Refund an order                                     |
+| [`purchases orders review-refund`](#purchases-orders-review-refund)                     | Respond to a chargeback review                      |
 
 ## `purchases get`
 
@@ -618,14 +619,46 @@ The v1 `cancel` command requires both `subscription-id` and `token`. The v2 `can
 
 ### Etag guard
 
-`cancel-v2` and `revoke` accept `--etag`. Google then applies the request only if the subscription has not changed since you read it, for example after the subscriber accepted a retention offer or renewed. Read the current etag first:
+`cancel-v2`, `cancel-transition` and `revoke` accept `--etag`. Google then applies the request only if the subscription has not changed since you read it, for example after the subscriber accepted a retention offer or renewed. Read the current etag first:
 
 ```bash
 ETAG=$(gpc purchases subscription get "purchase-token-abc" --output json | jq -r .etag)
 gpc purchases subscription cancel-v2 "purchase-token-abc" --etag "$ETAG" --yes
 ```
 
-If the subscription changed in between, Google rejects the request and the command fails with `SUBSCRIPTION_ETAG_MISMATCH` (exit `4`): read it again, check it is still in the state you expect, and retry with the current etag. GPC retries timeouts and server errors, so if an earlier attempt timed out, the mismatch can mean that attempt was applied; `subscription get` shows which. Use `jq -r` so the etag is passed without quotes. A blank `--etag` (for example an unset CI variable) fails with `SUBSCRIPTION_ETAG_BLANK` (exit `2`) instead of running without the guard. Without `--etag`, both commands act on whatever state the subscription is in.
+If the subscription changed in between, Google rejects the request and the command fails with `SUBSCRIPTION_ETAG_MISMATCH` (exit `4`): read it again, check it is still in the state you expect, and retry with the current etag. GPC retries timeouts and server errors, so if an earlier attempt timed out, the mismatch can mean that attempt was applied; `subscription get` shows which. Use `jq -r` so the etag is passed without quotes. A blank `--etag` (for example an unset CI variable) fails with `SUBSCRIPTION_ETAG_BLANK` (exit `2`) instead of running without the guard. Without `--etag`, these commands act on whatever state the subscription is in.
+
+---
+
+## `purchases subscription cancel-transition`
+
+Cancel a plan change that has not taken effect yet: a scheduled move to another base plan. The subscriber stays on the current plan. Google added this method in API revision 20261119 and documents no error responses for it yet, so the command is marked experimental.
+
+### Synopsis
+
+```bash
+gpc purchases subscription cancel-transition <token> --product-id <id> [options]
+```
+
+### Options
+
+| Flag           | Type     | Description                                                                         |
+| -------------- | -------- | ----------------------------------------------------------------------------------- |
+| `--product-id` | `string` | Required. The subscription product of this purchase                                 |
+| `--etag`       | `string` | Only cancel if the subscription still has this etag (see [Etag guard](#etag-guard)) |
+
+The change affects what the subscriber pays, so a non-interactive run needs `--yes`. Without it the command fails with `CONFIRMATION_REQUIRED` (exit `2`). `--dry-run` sends nothing and needs no `--yes`.
+
+### Example
+
+```bash
+gpc purchases subscription cancel-transition "purchase-token-abc" \
+  --product-id premium \
+  --app com.example.app \
+  --yes
+```
+
+To schedule a plan change, `@gpc-cli/api` exposes `schedulePlanTransition`. There is no CLI command for it. The request does not name the plan to move to: Google uses the transition target set on the base plan (`transitionTargetConfig`).
 
 ---
 

@@ -262,6 +262,8 @@ export {
   cancelSubscriptionV2,
   deferSubscriptionV2,
   normalizeSubscriptionEtag,
+  normalizeProductId,
+  cancelPlanTransition,
 } from "./commands/purchases.js";
 export { convertRegionPrices } from "./commands/pricing.js";
 export {

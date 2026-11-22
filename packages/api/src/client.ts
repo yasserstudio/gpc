@@ -92,6 +92,9 @@ import type {
   AcknowledgeSubscriptionRequest,
   RevokeSubscriptionV2Request,
   SubscriptionsV2CancelRequest,
+  CancelPlanTransitionRequest,
+  SchedulePlanTransitionRequest,
+  SchedulePlanTransitionResponse,
   SubscriptionsV2DeferRequest,
   ActivateOfferTargetingRequest,
   DeactivateOfferTargetingRequest,
@@ -488,6 +491,21 @@ export interface PlayApiClient {
     activateOfferTargeting(packageName: string, token: string, offerId: string): Promise<void>;
     /** Remove a per-user offer targeting from one purchase. 204, idempotent. (Nov 2026) */
     deactivateOfferTargeting(packageName: string, token: string, offerId: string): Promise<void>;
+    /** Cancel an in-progress plan transition. Empty response. (rev 20261119, experimental) */
+    cancelPlanTransition(
+      packageName: string,
+      token: string,
+      body: CancelPlanTransitionRequest,
+    ): Promise<void>;
+    /**
+     * Schedule a plan transition to the base plan's transition target
+     * (`BasePlan.transitionTargetConfig`). SDK only, no CLI command.
+     */
+    schedulePlanTransition(
+      packageName: string,
+      token: string,
+      body: SchedulePlanTransitionRequest,
+    ): Promise<SchedulePlanTransitionResponse>;
     /** V2 defer for subscriptions with add-ons. (Jan 2026) */
     deferSubscriptionV2(
       packageName: string,
@@ -1641,6 +1659,21 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
           `/${p(packageName)}/purchases/subscriptionsv2/tokens/${p(token)}:deactivateOfferTargeting`,
           body,
         );
+      },
+
+      async cancelPlanTransition(packageName, token, body) {
+        await http.post(
+          `/${p(packageName)}/purchases/subscriptionsv2/tokens/${p(token)}:cancelPlanTransition`,
+          body,
+        );
+      },
+
+      async schedulePlanTransition(packageName, token, body) {
+        const { data } = await http.post<SchedulePlanTransitionResponse>(
+          `/${p(packageName)}/purchases/subscriptionsv2/tokens/${p(token)}:schedulePlanTransition`,
+          body,
+        );
+        return data;
       },
 
       async deferSubscriptionV2(packageName, token, body) {

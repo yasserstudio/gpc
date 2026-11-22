@@ -17,6 +17,8 @@ import {
   cancelSubscriptionPurchase,
   cancelSubscriptionV2,
   normalizeSubscriptionEtag,
+  normalizeProductId,
+  cancelPlanTransition,
   deferSubscriptionPurchase,
   deferSubscriptionV2,
   revokeSubscriptionPurchase,
@@ -750,6 +752,50 @@ export function registerPurchasesCommands(program: Command): void {
 
       await cancelSubscriptionV2(client, packageName, token, options.type, etag);
       console.log("Subscription cancelled.");
+    });
+
+  sub
+    .command("cancel-transition <token>")
+    .description(
+      "Cancel a pending move to another base plan. The subscriber stays on the current plan (experimental)",
+    )
+    .requiredOption("--product-id <id>", "Subscription product of this purchase")
+    .option("--etag <etag>", ETAG_HELP)
+    .action(async (token: string, options: { productId: string; etag?: string }) => {
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const format = getOutputFormat(program, config);
+      const productId = normalizeProductId(options.productId);
+      const etag = normalizeSubscriptionEtag(options.etag);
+
+      if (isDryRun(program)) {
+        printDryRun(
+          {
+            command: "purchases subscription cancel-transition",
+            action: "cancel plan transition",
+            target: token.slice(0, 16) + "...",
+            details: { productId, ...(etag && { etag }) },
+          },
+          format,
+          formatOutput,
+        );
+        return;
+      }
+
+      await requireMoneyConfirm(
+        `Cancel the pending plan change for this subscription (product ${productId})? The subscriber stays on the current plan.`,
+        program,
+        "This changes what the subscriber pays.",
+      );
+
+      const client = await getClient(config);
+      await cancelPlanTransition(client, packageName, token, productId, etag);
+
+      if (format === "json") {
+        console.log(formatOutput({ productId, cancelled: true }, format));
+      } else {
+        console.log("Pending plan change cancelled. The subscriber stays on the current plan.");
+      }
     });
 
   sub

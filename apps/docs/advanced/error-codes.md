@@ -295,20 +295,21 @@ An empty or whitespace-only `--consumption-percent` is treated as not provided, 
 
 ### OFFER\_\* -- Retention Offer Targeting Errors
 
-Emitted by `gpc purchases subscription target-offer` and `untarget-offer`. Google documents these failures by status, not message text, so GPC uses these codes only when Google's message names the cause; anything else passes through as `API_HTTP_400` with Google's message. Google's text is always kept in `details`.
+Mostly emitted by `gpc purchases subscription target-offer` and `untarget-offer`. Rows that name another command say so in the Cause column. For errors from Google, which documents these failures by status, not message text, GPC uses these codes only when Google's message names the cause; anything else passes through as `API_HTTP_400` with Google's message. Google's text is always kept in `details`.
 
-| Code                               | Exit | Cause                                                                                   | Fix                                                                                               |
-| ---------------------------------- | ---- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `OFFER_ID_REQUIRED`                | 2    | `--offer` is empty                                                                      | Pass the id of a per-user retention offer                                                         |
-| `OFFER_NOT_PER_USER`               | 4    | The offer's targeting is not `retentionPerUserRule`                                     | Create one with `gpc subscriptions offers template retention --per-user`                          |
-| `OFFER_NEVER_ACTIVATED`            | 4    | The offer is not on the subscription's current base plan, or is a never-activated draft | Check `gpc subscriptions offers list`; activate a draft once with `subscriptions offers activate` |
-| `SUBSCRIPTION_EXPIRED`             | 4    | The subscription has already expired                                                    | Check its state with `gpc purchases subscription get <token>`                                     |
-| `SUBSCRIPTION_LINE_ITEM_NOT_FOUND` | 2    | `purchases subscription defer`: the purchase token has no subscription with that ID     | Read `lineItems[].productId` from `gpc purchases subscription get <token> --output json`          |
-| `SUBSCRIPTION_EXPIRY_UNKNOWN`      | 4    | `purchases subscription defer`: Google returned no expiry date for that subscription    | Check its state with `gpc purchases subscription get <token>`, or use `defer-v2`                  |
+| Code                               | Exit | Cause                                                                                   | Fix                                                                                                 |
+| ---------------------------------- | ---- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `OFFER_ID_REQUIRED`                | 2    | `--offer` is empty                                                                      | Pass the id of a per-user retention offer                                                           |
+| `OFFER_NOT_PER_USER`               | 4    | The offer's targeting is not `retentionPerUserRule`                                     | Create one with `gpc subscriptions offers template retention --per-user`                            |
+| `OFFER_NEVER_ACTIVATED`            | 4    | The offer is not on the subscription's current base plan, or is a never-activated draft | Check `gpc subscriptions offers list`; activate a draft once with `subscriptions offers activate`   |
+| `SUBSCRIPTION_EXPIRED`             | 4    | The subscription has already expired                                                    | Check its state with `gpc purchases subscription get <token>`                                       |
+| `SUBSCRIPTION_LINE_ITEM_NOT_FOUND` | 2    | `purchases subscription defer`: the purchase token has no subscription with that ID     | Read `lineItems[].productId` from `gpc purchases subscription get <token> --output json`            |
+| `SUBSCRIPTION_EXPIRY_UNKNOWN`      | 4    | `purchases subscription defer`: Google returned no expiry date for that subscription    | Check its state with `gpc purchases subscription get <token>`, or use `defer-v2`                    |
+| `PRODUCT_ID_REQUIRED`              | 2    | `purchases subscription cancel-transition`: `--product-id` was passed empty             | Pass the subscription product of the purchase, as shown by `gpc purchases subscription get <token>` |
 
 ### SUBSCRIPTION_ETAG\_\* -- Etag Guard Errors
 
-Emitted by `gpc purchases subscription cancel-v2` and `revoke` when `--etag` is passed. Google documents no specific response for a stale etag, so with an etag sent GPC reports a 409, a 412, or a 400 that is `ABORTED` or names the etag as a mismatch. A 400 `INVALID_ARGUMENT` (for example an etag still wrapped in quotes) passes through as `API_HTTP_400`. Google's text is always kept in `details`.
+Emitted by `gpc purchases subscription cancel-v2`, `cancel-transition` and `revoke` when `--etag` is passed. Google documents no specific response for a stale etag, so with an etag sent GPC reports a 409, a 412, or a 400 that is `ABORTED` or names the etag as a mismatch. A 400 `INVALID_ARGUMENT` (for example an etag still wrapped in quotes) passes through as `API_HTTP_400`. Google's text is always kept in `details`.
 
 | Code                         | Exit | Cause                                                                           | Fix                                                                                                                                                        |
 | ---------------------------- | ---- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
