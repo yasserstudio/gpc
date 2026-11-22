@@ -4,6 +4,9 @@ import { Command } from "commander";
 const mockRefundOrder = vi.fn();
 const mockRevoke = vi.fn();
 const mockRefundExternal = vi.fn();
+const mockCancelV2 = vi.fn();
+const mockDefer = vi.fn();
+const mockUntarget = vi.fn();
 
 vi.mock("@gpc-cli/core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@gpc-cli/core")>();
@@ -12,6 +15,9 @@ vi.mock("@gpc-cli/core", async (importOriginal) => {
     refundOrder: mockRefundOrder,
     revokeSubscriptionPurchase: mockRevoke,
     refundExternalTransaction: mockRefundExternal,
+    cancelSubscriptionV2: mockCancelV2,
+    deferSubscriptionPurchase: mockDefer,
+    untargetSubscriptionOffer: mockUntarget,
   };
 });
 
@@ -36,7 +42,7 @@ vi.mock("@gpc-cli/api", async (importOriginal) => {
   return { ...actual, createApiClient: vi.fn().mockReturnValue({}) };
 });
 
-// Every command that moves money must refuse a non-interactive run without --yes.
+// Every command that moves money or changes what a subscriber pays must refuse a non-interactive run without --yes.
 const CASES = [
   {
     name: "purchases orders refund",
@@ -52,6 +58,29 @@ const CASES = [
     name: "external-transactions refund",
     argv: ["external-transactions", "refund", "txn-1", "--full"],
     mock: mockRefundExternal,
+  },
+  {
+    name: "purchases subscription cancel-v2",
+    argv: ["purchases", "subscription", "cancel-v2", "sub-token"],
+    mock: mockCancelV2,
+  },
+  {
+    name: "purchases subscription defer",
+    argv: [
+      "purchases",
+      "subscription",
+      "defer",
+      "premium_monthly",
+      "sub-token",
+      "--expiry",
+      "2026-12-31T00:00:00Z",
+    ],
+    mock: mockDefer,
+  },
+  {
+    name: "purchases subscription untarget-offer",
+    argv: ["purchases", "subscription", "untarget-offer", "sub-token", "--offer", "save-30"],
+    mock: mockUntarget,
   },
 ];
 

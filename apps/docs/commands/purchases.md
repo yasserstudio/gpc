@@ -209,7 +209,7 @@ gpc purchases subscription target-offer <token> --offer <offer-id>
 | --------- | ----- | -------- | -------------- | ------------------------------------------------------ |
 | `--offer` |       | `string` | **(required)** | Offer id; its targeting must be `retentionPerUserRule` |
 
-Asks for confirmation when interactive (`--yes` skips it). Supports `--dry-run` and `--json`.
+Asks for confirmation when interactive. It changes the price this subscriber is offered, so a non-interactive run (CI, piped stdin, `--no-interactive`) needs `--yes`, or it fails with `CONFIRMATION_REQUIRED` (exit `2`). Supports `--dry-run`, which needs no `--yes`, and `--json`.
 
 ### Example
 
@@ -258,7 +258,7 @@ gpc purchases subscription untarget-offer <token> --offer <offer-id>
 | --------- | ----- | -------- | -------------- | ----------- |
 | `--offer` |       | `string` | **(required)** | Offer id    |
 
-Asks for confirmation when interactive (`--yes` skips it). Supports `--dry-run` and `--json`.
+Asks for confirmation when interactive. It changes the price this subscriber is offered, so a non-interactive run (CI, piped stdin, `--no-interactive`) needs `--yes`, or it fails with `CONFIRMATION_REQUIRED` (exit `2`). Supports `--dry-run`, which needs no `--yes`, and `--json`.
 
 ### Example
 
@@ -320,9 +320,9 @@ gpc purchases subscription defer <subscription-id> <token> --expiry <iso-date>
 
 ### Options
 
-| Flag       | Short | Type     | Default        | Description                        |
-| ---------- | ----- | -------- | -------------- | ---------------------------------- |
-| `--expiry` |       | `string` | **(required)** | Desired new expiry date (ISO 8601) |
+| Flag       | Short | Type     | Default        | Description                                                                   |
+| ---------- | ----- | -------- | -------------- | ----------------------------------------------------------------------------- |
+| `--expiry` |       | `string` | **(required)** | New expiry, an RFC 3339 time with a time zone, such as `2026-12-31T23:59:59Z` |
 
 ### Example
 
@@ -337,6 +337,8 @@ gpc purchases subscription defer premium_monthly "sub-token-xyz789" \
   "newExpiryTimeMillis": "1748736000000"
 }
 ```
+
+An invalid date, such as February 30 or a time without a zone, fails with `SUBSCRIPTION_EXPIRY_INVALID` (exit `2`) before anything is sent. The added time is free for the subscriber, so a non-interactive run needs `--yes`, or it fails with `CONFIRMATION_REQUIRED` (exit `2`).
 
 ---
 
@@ -603,7 +605,7 @@ gpc purchases subscription cancel-v2 <token> [options]
 | `--type` | `string` | `USER_REQUESTED_STOP_RENEWALS` (default) or `DEVELOPER_REQUESTED_STOP_PAYMENTS`     |
 | `--etag` | `string` | Only cancel if the subscription still has this etag (see [Etag guard](#etag-guard)) |
 
-`USER_REQUESTED_STOP_RENEWALS` stops the next renewal; the subscription can be restored. `DEVELOPER_REQUESTED_STOP_PAYMENTS` stops the next payment and cannot be restored; for an installment subscription the user no longer finishes the commitment period. Neither type refunds anything, so `cancel-v2` asks for confirmation when interactive but does not require `--yes` in CI (use `revoke` to refund).
+`USER_REQUESTED_STOP_RENEWALS` stops the next renewal; the subscription can be restored. `DEVELOPER_REQUESTED_STOP_PAYMENTS` stops the next payment and cannot be restored; for an installment subscription the user no longer finishes the commitment period. Neither type refunds anything (use `revoke` to refund). Both change what the subscriber pays, so a non-interactive run needs `--yes`, or it fails with `CONFIRMATION_REQUIRED` (exit `2`). Any other `--type`, including an empty one, fails with `CANCELLATION_TYPE_INVALID` (exit `2`) before anything is sent.
 
 ### Example
 

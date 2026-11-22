@@ -107,9 +107,27 @@ describe("purchases subscription target-offer / untarget-offer", () => {
     expect(out).toContain(OFFER);
   });
 
-  it("is a normal (not money) confirm: a non-interactive run proceeds without --yes", async () => {
+  it("a non-interactive run needs --yes (exit 2, nothing sent)", async () => {
+    const err = await runCli(
+      "--no-interactive",
+      "purchases",
+      "subscription",
+      "target-offer",
+      "tok-1",
+      "--offer",
+      OFFER,
+    ).then(
+      () => undefined,
+      (e: unknown) => e,
+    );
+    expect(err).toMatchObject({ code: "CONFIRMATION_REQUIRED", exitCode: 2 });
+    expect(activateOfferTargeting).not.toHaveBeenCalled();
+  });
+
+  it("a non-interactive run with --yes proceeds", async () => {
     await runCli(
       "--no-interactive",
+      "--yes",
       "purchases",
       "subscription",
       "target-offer",

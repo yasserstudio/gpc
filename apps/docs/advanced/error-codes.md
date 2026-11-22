@@ -251,11 +251,11 @@ Emitted by `gpc changelog generate` (v0.9.61+).
 
 ### Safety Errors
 
-| Code                        | Exit | Message                     | Cause                                                                                               | Fix                                                               |
-| --------------------------- | ---- | --------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `CONFIRMATION_REQUIRED`     | 2    | Confirmation required       | A refund or revocation ran non-interactively (CI, piped stdin, `--no-interactive`) without `--yes`  | Add `--yes` once you are sure, or preview with `--dry-run`        |
-| `IMAGE_SYNC_DIR_UNREADABLE` | 1    | Cannot read image directory | `listings images sync` found a local image directory it cannot read (permissions, volume ownership) | Fix the directory permissions; nothing was changed on Google Play |
-| `INVALID_PACKAGE_NAME`      | 2    | Invalid package name        | `--app`, `GPC_APP` or the config `app` is not a valid application ID (a stray space, or `-a=com.x`) | Use `--app com.example.app` or `-a com.example.app`               |
+| Code                        | Exit | Message                     | Cause                                                                                                                                    | Fix                                                               |
+| --------------------------- | ---- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `CONFIRMATION_REQUIRED`     | 2    | Confirmation required       | A refund, revocation, cancellation, defer or offer targeting ran non-interactively (CI, piped stdin, `--no-interactive`) without `--yes` | Add `--yes` once you are sure, or preview with `--dry-run`        |
+| `IMAGE_SYNC_DIR_UNREADABLE` | 1    | Cannot read image directory | `listings images sync` found a local image directory it cannot read (permissions, volume ownership)                                      | Fix the directory permissions; nothing was changed on Google Play |
+| `INVALID_PACKAGE_NAME`      | 2    | Invalid package name        | `--app`, `GPC_APP` or the config `app` is not a valid application ID (a stray space, or `-a=com.x`)                                      | Use `--app com.example.app` or `-a com.example.app`               |
 
 ### REPORT\_\* -- Bulk Report Errors
 

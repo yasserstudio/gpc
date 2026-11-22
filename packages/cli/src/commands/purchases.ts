@@ -255,6 +255,12 @@ export function registerPurchasesCommands(program: Command): void {
         return;
       }
 
+      await requireMoneyConfirm(
+        `Move the expiry of subscription ${subscriptionId} to ${options.expiry}? The added time is free for the subscriber.`,
+        program,
+        "This gives the subscriber time without payment.",
+      );
+
       const client = await getClient(config);
 
       const result = await deferSubscriptionPurchase(
@@ -385,7 +391,11 @@ export function registerPurchasesCommands(program: Command): void {
           return;
         }
 
-        await requireConfirm(`${t.verb} offer ${offerId} for this subscription?`, program);
+        await requireMoneyConfirm(
+          `${t.verb} offer ${offerId} for this subscription?`,
+          program,
+          "This changes the price this subscriber is offered.",
+        );
 
         const client = await getClient(config);
         await t.run(client, packageName, token, offerId);
@@ -748,9 +758,10 @@ export function registerPurchasesCommands(program: Command): void {
         return;
       }
 
-      await requireConfirm(
+      await requireMoneyConfirm(
         `Cancel subscription (token: ${shortToken(token)})? This cannot be undone.`,
         program,
+        "This changes what the subscriber pays.",
       );
 
       const client = await getClient(config);
