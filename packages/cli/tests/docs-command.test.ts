@@ -1,9 +1,20 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { Command } from "commander";
 import { mkdtemp, rm, readFile as fsReadFile, writeFile as fsWriteFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { registerDocsCommand } from "../src/commands/docs.js";
+
+// Never launch a real browser from the test suite.
+const { execFileMock, execMock } = vi.hoisted(() => ({
+  execFileMock: vi.fn(),
+  execMock: vi.fn(),
+}));
+vi.mock("node:child_process", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("node:child_process")>()),
+  execFile: execFileMock,
+  exec: execMock,
+}));
 
 function makeProgram(json = false): Command {
   const program = new Command();
@@ -155,9 +166,11 @@ describe("docs init", () => {
 });
 
 describe("docs web", () => {
-  it("does not throw for bare web command", async () => {
-    // execFile will fail in test env (no browser), but the command itself shouldn't throw
+  it("opens the docs site without launching a real browser", async () => {
     const result = await run(["docs", "web"]);
     expect(result.exitCode).toBeUndefined();
+    const calls = [...execFileMock.mock.calls, ...execMock.mock.calls];
+    expect(calls).toHaveLength(1);
+    expect(JSON.stringify(calls[0])).toContain("https://yasserstudio.github.io/gpc/");
   });
 });
