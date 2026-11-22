@@ -108,11 +108,13 @@ function targetMajor(major: number, now: Date): number {
   return next ?? NEWEST_KNOWN + 1;
 }
 
+/** Google's Android CLI skill that automates the upgrade (named in the deprecation FAQ). */
+const UPGRADE_SKILL = "android skills add play-billing-library-version-upgrade";
+
 function migrationAdvice(target: number): string {
   const guide = MIGRATION_GUIDES[target];
-  return guide
-    ? `Move to Billing Library ${target} or later. Migration guide: ${guide}`
-    : `Move to Billing Library ${target} or later. Release notes: ${RELEASE_NOTES}`;
+  const reference = guide ? `Migration guide: ${guide}` : `Release notes: ${RELEASE_NOTES}`;
+  return `Move to Billing Library ${target} or later (Google's Android CLI can automate it: ${UPGRADE_SKILL}). ${reference}`;
 }
 
 /** Findings for the Billing Library version recorded in an AAB's merged manifest. */

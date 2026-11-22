@@ -69,6 +69,8 @@ describe("Billing Library version check (real AABs)", () => {
     expect(f?.suggestion).toContain(
       "https://developer.android.com/google/play/billing/migrate-gpblv8",
     );
+    // Google's Android CLI skill that automates the upgrade (deprecation FAQ, read 2026-11-22).
+    expect(f?.suggestion).toContain("android skills add play-billing-library-version-upgrade");
     expect(f?.policyUrl).toBe("https://developer.android.com/google/play/billing/deprecation-faq");
   });
 

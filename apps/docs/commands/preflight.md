@@ -201,6 +201,8 @@ Deadlines are UTC calendar days, and the deadline day itself still counts as "no
 
 Apps that don't request the billing permission get no Billing Library finding. The check needs an **AAB**: APK manifests are not decoded yet (see [Manifest parsing limitations](#manifest-parsing-limitations)).
 
+Each finding links the migration guide for the version to move to. Google's [Android CLI](../guide/android-cli-interop.md) also ships a skill that automates the upgrade in your project: run `android skills add play-billing-library-version-upgrade`, then ask your agent to upgrade your Play Billing Library implementation. Rebuild the AAB and run `gpc preflight` again to confirm the new version.
+
 An `error` here means Google Play rejects the upload, so the fix is to migrate, not to lower the rule. Between the two deadlines the finding is a `warning`. If you run with `failOn: "warning"` and Play Console granted your app an extension, lower the rule to `info` in `.preflightrc.json` until you migrate:
 
 ```json
