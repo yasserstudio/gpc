@@ -11,23 +11,25 @@ outline: deep
 
 ## Commands
 
-| Command                                                                 | Description                                     |
-| ----------------------------------------------------------------------- | ----------------------------------------------- |
-| [`purchases get`](#purchases-get)                                       | Get a product purchase                          |
-| [`purchases acknowledge`](#purchases-acknowledge)                       | Acknowledge a product purchase                  |
-| [`purchases consume`](#purchases-consume)                               | Consume a consumable purchase                   |
-| [`purchases subscription get`](#purchases-subscription-get)             | Get a subscription purchase (v2 API)            |
-| [`purchases subscription cancel`](#purchases-subscription-cancel)       | Cancel a subscription (v1 API)                  |
-| [`purchases subscription defer`](#purchases-subscription-defer)         | Defer a subscription expiry                     |
-| [`purchases subscription revoke`](#purchases-subscription-revoke)       | Revoke a subscription (v2 API)                  |
-| [`purchases product get-v2`](#purchases-product-get-v2)                 | Get product purchase (v2 — multi-offer OTPs)    |
-| [`purchases subscription cancel-v2`](#purchases-subscription-cancel-v2) | Cancel a subscription (v2 — cancellation types) |
-| [`purchases subscription defer-v2`](#purchases-subscription-defer-v2)   | Defer subscription renewal (v2 — add-ons)       |
-| [`purchases voided`](#purchases-voided)                                 | List voided purchases                           |
-| [`purchases orders get`](#purchases-orders-get)                         | Get order details                               |
-| [`purchases orders batch-get`](#purchases-orders-batch-get)             | Batch get orders (up to 1000)                   |
-| [`purchases orders refund`](#purchases-orders-refund)                   | Refund an order                                 |
-| [`purchases orders review-refund`](#purchases-orders-review-refund)     | Respond to a chargeback review                  |
+| Command                                                                           | Description                                         |
+| --------------------------------------------------------------------------------- | --------------------------------------------------- |
+| [`purchases get`](#purchases-get)                                                 | Get a product purchase                              |
+| [`purchases acknowledge`](#purchases-acknowledge)                                 | Acknowledge a product purchase                      |
+| [`purchases consume`](#purchases-consume)                                         | Consume a consumable purchase                       |
+| [`purchases subscription get`](#purchases-subscription-get)                       | Get a subscription purchase (v2 API)                |
+| [`purchases subscription cancel`](#purchases-subscription-cancel)                 | Cancel a subscription (v1 API)                      |
+| [`purchases subscription defer`](#purchases-subscription-defer)                   | Defer a subscription expiry                         |
+| [`purchases subscription revoke`](#purchases-subscription-revoke)                 | Revoke a subscription (v2 API)                      |
+| [`purchases subscription target-offer`](#purchases-subscription-target-offer)     | Target a per-user retention offer at one subscriber |
+| [`purchases subscription untarget-offer`](#purchases-subscription-untarget-offer) | Remove a per-user retention offer targeting         |
+| [`purchases product get-v2`](#purchases-product-get-v2)                           | Get product purchase (v2 — multi-offer OTPs)        |
+| [`purchases subscription cancel-v2`](#purchases-subscription-cancel-v2)           | Cancel a subscription (v2 — cancellation types)     |
+| [`purchases subscription defer-v2`](#purchases-subscription-defer-v2)             | Defer subscription renewal (v2 — add-ons)           |
+| [`purchases voided`](#purchases-voided)                                           | List voided purchases                               |
+| [`purchases orders get`](#purchases-orders-get)                                   | Get order details                                   |
+| [`purchases orders batch-get`](#purchases-orders-batch-get)                       | Batch get orders (up to 1000)                       |
+| [`purchases orders refund`](#purchases-orders-refund)                             | Refund an order                                     |
+| [`purchases orders review-refund`](#purchases-orders-review-refund)               | Respond to a chargeback review                      |
 
 ## `purchases get`
 
@@ -183,6 +185,92 @@ GPC v0.9.79 also surfaces two top-level convenience fields so you do not need to
 
 A new delayed charging optimization lets low-risk users keep access while payment retries happen in the background. No GPC configuration changes needed.
 :::
+
+In table output, a subscription with per-user retention offers targeted at it shows a `targetedOffers` row, for example `retention-peruser-30off (activated 2026-12-03T15:04:05Z)`. JSON output keeps Google's `lineItems[].developerTargetedOffers` as returned.
+
+---
+
+## `purchases subscription target-offer`
+
+Target a per-user retention offer at one subscriber, so that only this purchase sees it in the Play Store's cancellation flow. The offer's targeting must be `{ "retentionPerUserRule": {} }` (see [`subscriptions offers template retention --per-user`](./subscriptions.md)) and it must have been activated at least once.
+
+### Synopsis
+
+```bash
+gpc purchases subscription target-offer <token> --offer <offer-id>
+```
+
+### Options
+
+| Flag      | Short | Type     | Default        | Description                                            |
+| --------- | ----- | -------- | -------------- | ------------------------------------------------------ |
+| `--offer` |       | `string` | **(required)** | Offer id; its targeting must be `retentionPerUserRule` |
+
+Asks for confirmation when interactive (`--yes` skips it). Supports `--dry-run` and `--json`.
+
+### Example
+
+```bash
+gpc purchases subscription target-offer "sub-token-xyz789" \
+  --offer retention-peruser-30off \
+  --app com.example.app
+```
+
+```json
+{
+  "offerId": "retention-peruser-30off",
+  "targeted": true
+}
+```
+
+Targeting is idempotent: running it again on the same offer only updates its activation time. Several offers can be targeted at one subscription. Google removes the targeting 60 days after the subscription expires, and it does not carry over to a new purchase token.
+
+### Errors
+
+| Code                    | Exit | When                                                                                       |
+| ----------------------- | ---- | ------------------------------------------------------------------------------------------ |
+| `OFFER_ID_REQUIRED`     | 2    | `--offer` is empty                                                                         |
+| `OFFER_NOT_PER_USER`    | 4    | The offer's targeting is not `retentionPerUserRule`                                        |
+| `OFFER_NEVER_ACTIVATED` | 4    | The offer is not on the subscription's current base plan, or it is a draft never activated |
+| `SUBSCRIPTION_EXPIRED`  | 4    | The subscription has already expired                                                       |
+| `API_NOT_FOUND`         | 4    | Google does not know this purchase token for this app                                      |
+
+Google documents these failures by status, not by message text. GPC uses the specific code when Google's message names the cause; otherwise Google's error passes through as `API_HTTP_400` with its own message. Google's text is always kept in the error's `details`.
+
+---
+
+## `purchases subscription untarget-offer`
+
+Remove a per-user retention offer targeting from one subscriber. Removing an offer that is not targeted succeeds and changes nothing.
+
+### Synopsis
+
+```bash
+gpc purchases subscription untarget-offer <token> --offer <offer-id>
+```
+
+### Options
+
+| Flag      | Short | Type     | Default        | Description |
+| --------- | ----- | -------- | -------------- | ----------- |
+| `--offer` |       | `string` | **(required)** | Offer id    |
+
+Asks for confirmation when interactive (`--yes` skips it). Supports `--dry-run` and `--json`.
+
+### Example
+
+```bash
+gpc purchases subscription untarget-offer "sub-token-xyz789" \
+  --offer retention-peruser-30off \
+  --app com.example.app
+```
+
+```json
+{
+  "offerId": "retention-peruser-30off",
+  "targeted": false
+}
+```
 
 ---
 

@@ -1345,6 +1345,36 @@ describe("monetization API endpoints", () => {
       expect(JSON.parse(init.body)).toEqual(body);
     });
 
+    // Google's flatPath is camelCase (`:activateOfferTargeting`) and Play routes
+    // case-sensitively (lesson of #107), so the exact path is pinned.
+    it("activateOfferTargeting POSTs the offer id to .../:activateOfferTargeting and accepts 204", async () => {
+      mockFetch.mockResolvedValueOnce(new Response(null, { status: 204 }));
+      const client = makeClient();
+      await expect(
+        client.purchases.activateOfferTargeting(PKG, "tok456", "retention-peruser-30off"),
+      ).resolves.toBeUndefined();
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(
+        `${BASE_URL}/${PKG}/purchases/subscriptionsv2/tokens/tok456:activateOfferTargeting`,
+      );
+      expect(init.method).toBe("POST");
+      expect(JSON.parse(init.body)).toEqual({ offerId: "retention-peruser-30off" });
+    });
+
+    it("deactivateOfferTargeting POSTs the offer id to .../:deactivateOfferTargeting and accepts 204", async () => {
+      mockFetch.mockResolvedValueOnce(new Response(null, { status: 204 }));
+      const client = makeClient();
+      await expect(
+        client.purchases.deactivateOfferTargeting(PKG, "tok456", "retention-peruser-30off"),
+      ).resolves.toBeUndefined();
+      const [url, init] = mockFetch.mock.calls[0];
+      expect(url).toBe(
+        `${BASE_URL}/${PKG}/purchases/subscriptionsv2/tokens/tok456:deactivateOfferTargeting`,
+      );
+      expect(init.method).toBe("POST");
+      expect(JSON.parse(init.body)).toEqual({ offerId: "retention-peruser-30off" });
+    });
+
     it("revokeSubscriptionV2 calls POST .../:revoke with proratedRefund", async () => {
       mockFetch.mockResolvedValueOnce(mockResponse({}));
       const client = makeClient();

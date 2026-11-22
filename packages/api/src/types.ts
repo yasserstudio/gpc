@@ -741,6 +741,23 @@ export interface SubscriptionPurchaseV2 {
   };
 }
 
+/** A per-user retention offer targeted at this line item via activateOfferTargeting. */
+export interface DeveloperTargetedOffer {
+  offerId?: string;
+  /** RFC 3339; updated on each activate call. */
+  activateTime?: string;
+}
+
+/** Body of purchases.subscriptionsv2.activateOfferTargeting. */
+export interface ActivateOfferTargetingRequest {
+  offerId: string;
+}
+
+/** Body of purchases.subscriptionsv2.deactivateOfferTargeting. */
+export interface DeactivateOfferTargetingRequest {
+  offerId: string;
+}
+
 export interface SubscriptionPurchaseLineItem {
   productId: string;
   expiryTime?: string;
@@ -767,6 +784,8 @@ export interface SubscriptionPurchaseLineItem {
     replacementMode?: string;
   };
   deferredItemReplacement?: { productId?: string; replacementMode?: string };
+  /** Per-user retention offers targeted at this line item (rev 20261119). */
+  developerTargetedOffers?: DeveloperTargetedOffer[];
   /**
    * Information for deferred item removal. The DeferredItemRemoval schema declares no fields
    * yet (androidpublisher discovery rev 20260826) -- presence signals the pending removal.

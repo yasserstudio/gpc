@@ -295,6 +295,17 @@ Emitted by `gpc purchases orders review-refund`, which submits chargeback-disput
 
 An empty or whitespace-only `--consumption-percent` is treated as not provided, so a typo never claims "0% consumed" on your behalf.
 
+### OFFER\_\* -- Retention Offer Targeting Errors
+
+Emitted by `gpc purchases subscription target-offer` and `untarget-offer`. Google documents these failures by status, not message text, so GPC uses these codes only when Google's message names the cause; anything else passes through as `API_HTTP_400` with Google's message. Google's text is always kept in `details`.
+
+| Code                    | Exit | Cause                                                                                   | Fix                                                                                               |
+| ----------------------- | ---- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `OFFER_ID_REQUIRED`     | 2    | `--offer` is empty                                                                      | Pass the id of a per-user retention offer                                                         |
+| `OFFER_NOT_PER_USER`    | 4    | The offer's targeting is not `retentionPerUserRule`                                     | Create one with `gpc subscriptions offers template retention --per-user`                          |
+| `OFFER_NEVER_ACTIVATED` | 4    | The offer is not on the subscription's current base plan, or is a never-activated draft | Check `gpc subscriptions offers list`; activate a draft once with `subscriptions offers activate` |
+| `SUBSCRIPTION_EXPIRED`  | 4    | The subscription has already expired                                                    | Check its state with `gpc purchases subscription get <token>`                                     |
+
 ### WATCH\_\* -- Watch Errors
 
 Exit code: `5`

@@ -2,7 +2,7 @@ import { resolvePackageName, getClient } from "../resolve.js";
 import type { Command } from "commander";
 import { Option } from "commander";
 import { loadConfig } from "@gpc-cli/config";
-import type { ConsumptionUsageEvent } from "@gpc-cli/api";
+import type { ConsumptionUsageEvent, DeveloperTargetedOffer } from "@gpc-cli/api";
 
 import {
   getProductPurchase,
@@ -15,6 +15,9 @@ import {
   deferSubscriptionPurchase,
   deferSubscriptionV2,
   revokeSubscriptionPurchase,
+  normalizeOfferId,
+  targetSubscriptionOffer,
+  untargetSubscriptionOffer,
   listVoidedPurchases,
   refundOrder,
   reviewOrderRefund,
@@ -142,6 +145,9 @@ export function registerPurchasesCommands(program: Command): void {
         const inGracePending = (
           inGrace?.["renewalDeclined"] as Record<string, unknown> | undefined
         )?.["pendingOrderId"] as string | undefined;
+        const targeted = (lineItems ?? []).flatMap(
+          (li) => (li["developerTargetedOffers"] as DeveloperTargetedOffer[] | undefined) ?? [],
+        );
         const row: Record<string, unknown> = {
           subscriptionState: r["subscriptionState"] || "-",
           startTime: r["startTime"] || "-",
@@ -151,6 +157,11 @@ export function registerPurchasesCommands(program: Command): void {
           acknowledgement: r["acknowledgementState"] || "-",
           ...(onHoldPending && { onHoldPendingOrderId: onHoldPending }),
           ...(inGracePending && { gracePeriodPendingOrderId: inGracePending }),
+          ...(targeted.length > 0 && {
+            targetedOffers: targeted
+              .map((o) => `${o.offerId ?? "?"} (activated ${o.activateTime ?? "?"})`)
+              .join(", "),
+          }),
         };
         console.log(formatOutput(row, format));
       } else {
@@ -293,6 +304,66 @@ export function registerPurchasesCommands(program: Command): void {
       await revokeSubscriptionPurchase(client, packageName, token, refundType, opts.productId);
       console.log(`Subscription revoked (${refundType} refund).`);
     });
+
+  // Per-user retention offers (Nov 2026). Google calls these
+  // activate/deactivateOfferTargeting; the CLI names avoid a clash with
+  // `subscriptions offers activate`, which changes the offer's own state.
+  const targetingCommands = [
+    {
+      name: "target-offer",
+      description: "Target a per-user retention offer at one subscription purchase",
+      run: targetSubscriptionOffer,
+      verb: "Target",
+      done: "targeted at",
+      targeted: true,
+    },
+    {
+      name: "untarget-offer",
+      description: "Remove a per-user retention offer targeting from one subscription purchase",
+      run: untargetSubscriptionOffer,
+      verb: "Remove targeting of",
+      done: "no longer targeted at",
+      targeted: false,
+    },
+  ] as const;
+
+  for (const t of targetingCommands) {
+    sub
+      .command(`${t.name} <token>`)
+      .description(t.description)
+      .requiredOption("--offer <offer-id>", "Offer id (its targeting must be retentionPerUserRule)")
+      .action(async (token: string, opts: { offer: string }) => {
+        const config = await loadConfig();
+        const packageName = resolvePackageName(program.opts()["app"], config);
+        const format = getOutputFormat(program, config);
+        const offerId = normalizeOfferId(opts.offer);
+
+        if (isDryRun(program)) {
+          printDryRun(
+            {
+              command: `purchases subscription ${t.name}`,
+              action: `${t.name} ${offerId}`,
+              target: token,
+              details: { offerId: offerId },
+            },
+            format,
+            formatOutput,
+          );
+          return;
+        }
+
+        await requireConfirm(`${t.verb} offer ${offerId} for this subscription?`, program);
+
+        const client = await getClient(config);
+        await t.run(client, packageName, token, offerId);
+
+        if (format === "json") {
+          console.log(formatOutput({ offerId: offerId, targeted: t.targeted }, format));
+        } else {
+          console.log(`Offer ${offerId} ${t.done} this subscription.`);
+        }
+      });
+  }
 
   // --- Voided purchases ---
   purchases

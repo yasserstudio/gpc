@@ -559,3 +559,8 @@ export type {
   ReadinessBreakdownEntry,
   ReadinessScore,
 } from "./commands/readiness.js";
+export {
+  normalizeOfferId,
+  targetSubscriptionOffer,
+  untargetSubscriptionOffer,
+} from "./commands/offer-targeting.js";

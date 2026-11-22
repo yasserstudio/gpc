@@ -169,6 +169,8 @@ vi.mock("@gpc-cli/core", async (importOriginal) => {
     cancelSubscriptionPurchase: vi.fn().mockResolvedValue(undefined),
     deferSubscriptionPurchase: vi.fn().mockResolvedValue({}),
     revokeSubscriptionPurchase: vi.fn().mockResolvedValue(undefined),
+    targetSubscriptionOffer: vi.fn().mockResolvedValue(undefined),
+    untargetSubscriptionOffer: vi.fn().mockResolvedValue(undefined),
     listVoidedPurchases: vi.fn().mockResolvedValue({ voidedPurchases: [] }),
     refundOrder: vi.fn().mockResolvedValue(undefined),
     convertRegionPrices: vi.fn().mockResolvedValue({ convertedRegionPrices: {} }),

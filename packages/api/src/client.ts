@@ -93,6 +93,8 @@ import type {
   RevokeSubscriptionV2Request,
   SubscriptionsV2CancelRequest,
   SubscriptionsV2DeferRequest,
+  ActivateOfferTargetingRequest,
+  DeactivateOfferTargetingRequest,
   SubscriptionsV2DeferResponse,
   ReleaseSummary,
   ReleasesListResponse,
@@ -479,6 +481,13 @@ export interface PlayApiClient {
       token: string,
       body: SubscriptionsV2CancelRequest,
     ): Promise<void>;
+    /**
+     * Target a per-user retention offer (`retentionPerUserRule`) at one purchase.
+     * Google answers 204 with no body; idempotent. (Nov 2026)
+     */
+    activateOfferTargeting(packageName: string, token: string, offerId: string): Promise<void>;
+    /** Remove a per-user offer targeting from one purchase. 204, idempotent. (Nov 2026) */
+    deactivateOfferTargeting(packageName: string, token: string, offerId: string): Promise<void>;
     /** V2 defer for subscriptions with add-ons. (Jan 2026) */
     deferSubscriptionV2(
       packageName: string,
@@ -1616,6 +1625,22 @@ export function createApiClient(options: ApiClientOptions): PlayApiClient {
       async cancelSubscriptionV2(packageName, token, body) {
         await http.post(
           `/${p(packageName)}/purchases/subscriptionsv2/tokens/${p(token)}:cancel`,
+          body,
+        );
+      },
+
+      async activateOfferTargeting(packageName, token, offerId) {
+        const body: ActivateOfferTargetingRequest = { offerId };
+        await http.post(
+          `/${p(packageName)}/purchases/subscriptionsv2/tokens/${p(token)}:activateOfferTargeting`,
+          body,
+        );
+      },
+
+      async deactivateOfferTargeting(packageName, token, offerId) {
+        const body: DeactivateOfferTargetingRequest = { offerId };
+        await http.post(
+          `/${p(packageName)}/purchases/subscriptionsv2/tokens/${p(token)}:deactivateOfferTargeting`,
           body,
         );
       },
