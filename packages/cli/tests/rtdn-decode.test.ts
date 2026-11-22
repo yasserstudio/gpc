@@ -69,4 +69,37 @@ describe("gpc rtdn decode", () => {
       expect(logs.join("\n"), format).not.toContain(HINT);
     }
   });
+
+  describe("type 21: a subscriber accepted a retention offer", () => {
+    const PLAN_TRANSITION = Buffer.from(
+      JSON.stringify({
+        version: "1.0",
+        packageName: "com.example.app",
+        eventTimeMillis: "1700000000000",
+        subscriptionNotification: {
+          version: "1.0",
+          notificationType: 21,
+          purchaseToken: "abcdefghijklmnopqrstuvwxyz",
+          subscriptionId: "premium_monthly_sub",
+        },
+      }),
+    ).toString("base64");
+    const NEXT = "gpc purchases subscription get";
+
+    it("names the event and points at purchases subscription get", async () => {
+      await runCli("rtdn", "decode", PLAN_TRANSITION);
+      const out = logs.join("\n");
+      expect(out).toContain("SUBSCRIPTION_PLAN_TRANSITION_UPDATED");
+      expect(out).toContain(NEXT);
+      expect(out).toContain("base64 -d");
+    });
+
+    it("keeps the hint out of machine-readable output", async () => {
+      for (const format of ["json", "csv", "tsv", "yaml", "markdown"]) {
+        logs = [];
+        await runCli("rtdn", "decode", PLAN_TRANSITION, "--output", format);
+        expect(logs.join("\n"), format).not.toContain(NEXT);
+      }
+    });
+  });
 });

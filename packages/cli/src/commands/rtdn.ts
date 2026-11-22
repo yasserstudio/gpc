@@ -72,6 +72,15 @@ export function registerRtdnCommands(program: Command): void {
             dim("\n  The pending refund token is truncated above. Get it with: --output json"),
           );
         }
+        if (format === "table" && formatted["event"] === "SUBSCRIPTION_PLAN_TRANSITION_UPDATED") {
+          console.log(
+            dim(
+              "\n  A plan transition changed (for example, the subscriber accepted a retention offer)." +
+                "\n  See it with: gpc purchases subscription get <token>" +
+                "\n  The token is shortened above; the full one is in the payload: echo <payload> | base64 -d",
+            ),
+          );
+        }
       }
     });
 

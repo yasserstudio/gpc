@@ -53,7 +53,7 @@ export interface DecodedNotification {
 }
 
 // Values match Google's SubscriptionNotification.notificationType enum.
-// Gaps (14-16, 21) are reserved by Google and intentionally omitted.
+// Gaps (14-16) are reserved by Google and intentionally omitted.
 const SUBSCRIPTION_NOTIFICATION_TYPES: Record<number, string> = {
   1: "SUBSCRIPTION_RECOVERED",
   2: "SUBSCRIPTION_RENEWED",
@@ -72,6 +72,10 @@ const SUBSCRIPTION_NOTIFICATION_TYPES: Record<number, string> = {
   18: "SUBSCRIPTION_CANCELLATION_SCHEDULED",
   19: "SUBSCRIPTION_PRICE_CHANGE_UPDATED",
   20: "SUBSCRIPTION_PENDING_PURCHASE_CANCELED",
+  // A scheduled plan transition was updated, for example when a subscriber
+  // accepts a retention offer (Nov 2026). The payload carries only the token;
+  // the transition is in subscriptionsv2.get.
+  21: "SUBSCRIPTION_PLAN_TRANSITION_UPDATED",
   22: "SUBSCRIPTION_PRICE_STEP_UP_CONSENT_UPDATED",
 };
 

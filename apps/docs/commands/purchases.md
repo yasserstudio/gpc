@@ -188,6 +188,8 @@ A new delayed charging optimization lets low-risk users keep access while paymen
 
 In table output, a subscription with per-user retention offers targeted at it shows a `targetedOffers` row, for example `retention-peruser-30off (activated 2026-12-03T15:04:05Z)`. JSON output keeps Google's `lineItems[].developerTargetedOffers` as returned.
 
+A subscription with a plan transition (for example after the subscriber accepted a retention offer) shows a `planTransition` row with the state, the target offer (or base plan) and the expected time, for example `IN_PROGRESS retention-50off-2m at 2026-12-15T10:00:00Z`. The expected time can move later if the renewal shifts (pause, account hold). JSON output keeps `lineItems[].autoRenewingPlan.planTransitionDetails` as returned.
+
 ---
 
 ## `purchases subscription target-offer`

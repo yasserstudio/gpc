@@ -741,6 +741,33 @@ export interface SubscriptionPurchaseV2 {
   };
 }
 
+/** State of a scheduled plan transition (TransitionInfo.transitionState, rev 20261119). */
+export type TransitionState =
+  "TRANSITION_STATE_UNSPECIFIED" | "SCHEDULED" | "IN_PROGRESS" | "COMPLETED" | "CANCELED";
+
+/** Information related to a scheduled plan transition. */
+export interface TransitionInfo {
+  /** Output only. */
+  transitionState?: TransitionState;
+  /** Subject to change (to a later time) when renewal shifts, e.g. pause or account hold. */
+  expectedTransitionTime?: string;
+  /** The default base plan price the plan will transition to. */
+  price?: Money;
+}
+
+/**
+ * The plan an auto-renewing item will transition to, e.g. after the subscriber
+ * accepts a retention offer. Only the latest transition is reported.
+ */
+export interface PlanTransitionDetails {
+  productId?: string;
+  basePlanId?: string;
+  /** Only present when the target is a discounted offer. */
+  offerId?: string;
+  /** Present only once a transition has been scheduled. */
+  transitionInfo?: TransitionInfo;
+}
+
 /** A per-user retention offer targeted at this line item via activateOfferTargeting. */
 export interface DeveloperTargetedOffer {
   offerId?: string;
@@ -774,6 +801,7 @@ export interface SubscriptionPurchaseLineItem {
       lastConsentTime?: string;
     };
     installmentDetails?: Record<string, unknown>;
+    planTransitionDetails?: PlanTransitionDetails;
   };
   prepaidPlan?: { allowExtendAfterTime?: string };
   offerDetails?: { basePlanId?: string; offerId?: string; offerTags?: string[] };

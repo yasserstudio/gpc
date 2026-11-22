@@ -2,7 +2,11 @@ import { resolvePackageName, getClient } from "../resolve.js";
 import type { Command } from "commander";
 import { Option } from "commander";
 import { loadConfig } from "@gpc-cli/config";
-import type { ConsumptionUsageEvent, DeveloperTargetedOffer } from "@gpc-cli/api";
+import type {
+  ConsumptionUsageEvent,
+  DeveloperTargetedOffer,
+  PlanTransitionDetails,
+} from "@gpc-cli/api";
 
 import {
   getProductPurchase,
@@ -148,6 +152,9 @@ export function registerPurchasesCommands(program: Command): void {
         const targeted = (lineItems ?? []).flatMap(
           (li) => (li["developerTargetedOffers"] as DeveloperTargetedOffer[] | undefined) ?? [],
         );
+        const transitions = (result.lineItems ?? []).flatMap(
+          (li) => li.autoRenewingPlan?.planTransitionDetails ?? [],
+        );
         const row: Record<string, unknown> = {
           subscriptionState: r["subscriptionState"] || "-",
           startTime: r["startTime"] || "-",
@@ -161,6 +168,9 @@ export function registerPurchasesCommands(program: Command): void {
             targetedOffers: targeted
               .map((o) => `${o.offerId ?? "?"} (activated ${o.activateTime ?? "?"})`)
               .join(", "),
+          }),
+          ...(transitions.length > 0 && {
+            planTransition: transitions.map(describeTransition).join(", "),
           }),
         };
         console.log(formatOutput(row, format));
@@ -763,4 +773,16 @@ export function registerPurchasesCommands(program: Command): void {
         console.log(`${item.productId}: new expiry ${item.expiryTime}`);
       }
     });
+}
+
+/**
+ * "IN_PROGRESS retention-50off-2m at 2026-12-15T10:00:00Z": state, target
+ * offer (or base plan when the target is not an offer) and expected time,
+ * short enough for a table cell.
+ */
+function describeTransition(t: PlanTransitionDetails): string {
+  const state = t.transitionInfo?.transitionState ?? "-";
+  const target = t.offerId ?? t.basePlanId ?? "?";
+  const when = t.transitionInfo?.expectedTransitionTime;
+  return `${state} ${target}${when ? ` at ${when}` : ""}`;
 }

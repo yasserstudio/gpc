@@ -130,6 +130,7 @@ describe("formatNotification", () => {
     [18, "SUBSCRIPTION_CANCELLATION_SCHEDULED"],
     [19, "SUBSCRIPTION_PRICE_CHANGE_UPDATED"],
     [20, "SUBSCRIPTION_PENDING_PURCHASE_CANCELED"],
+    [21, "SUBSCRIPTION_PLAN_TRANSITION_UPDATED"],
     [22, "SUBSCRIPTION_PRICE_STEP_UP_CONSENT_UPDATED"],
   ])("subscription type %i → %s", (type, expected) => {
     const result = formatNotification({

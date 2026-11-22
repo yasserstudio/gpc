@@ -202,3 +202,59 @@ describe("purchases subscription get lists targeted offers", () => {
     expect(out).not.toMatch(/targetedOffers/);
   });
 });
+
+describe("purchases subscription get shows a pending plan transition", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    getClient.mockReset();
+  });
+
+  // Verbatim from Google's retention-offers guide: the subscriptionsv2.get
+  // response after the subscriber accepts a retention offer.
+  const accepted = {
+    lineItems: [
+      {
+        productId: "premium_monthly_sub",
+        expiryTime: "2026-12-15T10:00:00Z",
+        offerDetails: {
+          basePlanId: "monthly-base",
+        },
+        autoRenewingPlan: {
+          autoRenewEnabled: true,
+          planTransitionDetails: {
+            productId: "premium_monthly_sub",
+            basePlanId: "monthly-base",
+            offerId: "retention-50off-2m",
+            transitionInfo: {
+              transitionState: "IN_PROGRESS",
+              expectedTransitionTime: "2026-12-15T10:00:00Z",
+            },
+          },
+        },
+      },
+    ],
+  };
+
+  it("table output names the state, the target offer and the expected time", async () => {
+    getClient.mockResolvedValue({
+      purchases: { getSubscriptionV2: vi.fn().mockResolvedValue(accepted) },
+    });
+    const out = await runCli("purchases", "subscription", "get", "tok-1");
+    expect(out).toMatch(/planTransition/);
+    expect(out).toContain("IN_PROGRESS");
+    expect(out).toContain("retention-50off-2m");
+    expect(out).toContain("2026-12-15T10:00:00Z");
+  });
+
+  it("omits the row when there is no transition", async () => {
+    getClient.mockResolvedValue({
+      purchases: {
+        getSubscriptionV2: vi
+          .fn()
+          .mockResolvedValue({ lineItems: [{ productId: "premium_monthly_sub" }] }),
+      },
+    });
+    const out = await runCli("purchases", "subscription", "get", "tok-1");
+    expect(out).not.toMatch(/planTransition/);
+  });
+});
