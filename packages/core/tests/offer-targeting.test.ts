@@ -96,6 +96,15 @@ describe("targetSubscriptionOffer / untargetSubscriptionOffer", () => {
     expect(err.details).toContain("already expired");
   });
 
+  it("does not blame the subscription when Google says the offer has expired", async () => {
+    mockFetch.mockResolvedValueOnce(
+      googleError(400, "FAILED_PRECONDITION", "The offer has expired."),
+    );
+    const err = await caught(targetSubscriptionOffer(client(), PKG, "tok", OFFER));
+    expect(err.code).not.toBe("SUBSCRIPTION_EXPIRED");
+    expect(err.message).toContain("The offer has expired.");
+  });
+
   it("maps INVALID_ARGUMENT to OFFER_NEVER_ACTIVATED, naming both of Google's causes", async () => {
     mockFetch.mockResolvedValueOnce(googleError(400, "INVALID_ARGUMENT", "Invalid offer id."));
     const err = await caught(targetSubscriptionOffer(client(), PKG, "tok", OFFER));
@@ -113,6 +122,7 @@ describe("targetSubscriptionOffer / untargetSubscriptionOffer", () => {
     expect(err.code).toBe("API_NOT_FOUND");
     expect(err.statusCode).toBe(404);
     expect(err.suggestion).toMatch(/purchase token/);
+    expect(err.suggestion).toMatch(/offer ID/);
   });
 
   it("leaves an app-not-found 404 alone (the token is not the problem)", async () => {

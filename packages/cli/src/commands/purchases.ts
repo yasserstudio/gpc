@@ -42,6 +42,11 @@ import { getOutputFormat } from "../format.js";
 import { isInteractive, requireOption, requireConfirm, requireMoneyConfirm } from "../prompt.js";
 import { readJsonFile } from "../json.js";
 
+/** Dry runs and prompts show only the start of a purchase token. */
+function shortToken(token: string): string {
+  return token.length > 16 ? `${token.slice(0, 16)}...` : token;
+}
+
 const ETAG_HELP =
   "Only act if the subscription still has this etag (from 'purchases subscription get --output json')";
 
@@ -89,7 +94,7 @@ export function registerPurchasesCommands(program: Command): void {
           {
             command: "purchases acknowledge",
             action: "acknowledge",
-            target: `${productId}/${token}`,
+            target: `${productId}/${shortToken(token)}`,
             details: { payload: options.payload },
           },
           format,
@@ -117,7 +122,7 @@ export function registerPurchasesCommands(program: Command): void {
           {
             command: "purchases consume",
             action: "consume",
-            target: `${productId}/${token}`,
+            target: `${productId}/${shortToken(token)}`,
           },
           format,
           formatOutput,
@@ -198,7 +203,7 @@ export function registerPurchasesCommands(program: Command): void {
           {
             command: "purchases subscription cancel",
             action: "cancel subscription",
-            target: `${subscriptionId}/${token}`,
+            target: `${subscriptionId}/${shortToken(token)}`,
           },
           format,
           formatOutput,
@@ -241,7 +246,7 @@ export function registerPurchasesCommands(program: Command): void {
           {
             command: "purchases subscription defer",
             action: "defer subscription",
-            target: `${subscriptionId}/${token}`,
+            target: `${subscriptionId}/${shortToken(token)}`,
             details: { expiry: options.expiry },
           },
           format,
@@ -301,7 +306,7 @@ export function registerPurchasesCommands(program: Command): void {
             {
               command: "purchases subscription revoke",
               action: "revoke subscription",
-              target: token,
+              target: shortToken(token),
               details: {
                 refundType,
                 ...(opts.productId && { productId: opts.productId }),
@@ -371,7 +376,7 @@ export function registerPurchasesCommands(program: Command): void {
             {
               command: `purchases subscription ${t.name}`,
               action: `${t.name} ${offerId}`,
-              target: token,
+              target: shortToken(token),
               details: { offerId: offerId },
             },
             format,
@@ -734,7 +739,7 @@ export function registerPurchasesCommands(program: Command): void {
           {
             command: "purchases subscription cancel-v2",
             action: "cancel",
-            target: token.slice(0, 16) + "...",
+            target: shortToken(token),
             details: { cancellationType: options.type, ...(etag && { etag }) },
           },
           format,
@@ -744,7 +749,7 @@ export function registerPurchasesCommands(program: Command): void {
       }
 
       await requireConfirm(
-        `Cancel subscription (token: ${token.slice(0, 16)}...)? This cannot be undone.`,
+        `Cancel subscription (token: ${shortToken(token)})? This cannot be undone.`,
         program,
       );
 
@@ -773,7 +778,7 @@ export function registerPurchasesCommands(program: Command): void {
           {
             command: "purchases subscription cancel-transition",
             action: "cancel plan transition",
-            target: token.slice(0, 16) + "...",
+            target: shortToken(token),
             details: { productId, ...(etag && { etag }) },
           },
           format,
@@ -815,7 +820,7 @@ export function registerPurchasesCommands(program: Command): void {
           {
             command: "purchases subscription defer-v2",
             action: "defer",
-            target: token.slice(0, 16) + "...",
+            target: shortToken(token),
             details: { deferDuration: options.duration },
           },
           format,

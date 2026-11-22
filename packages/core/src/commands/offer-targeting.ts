@@ -81,7 +81,7 @@ function translate(error: unknown, direction: Direction, offerId: string): unkno
     return remap(
       error.code,
       error.message,
-      "Google did not find this purchase token for this app. Check the token and --app, then run: gpc purchases subscription get <token>",
+      "Google did not find this purchase token or offer ID for this app. Check the token, --offer and --app, then run: gpc purchases subscription get <token>",
     );
   }
 
@@ -90,7 +90,7 @@ function translate(error: unknown, direction: Direction, offerId: string): unkno
   if (direction !== "target" || error.statusCode !== 400) return error;
 
   if (/\bFAILED_PRECONDITION\b/.test(googleText)) {
-    if (/expire/i.test(googleText)) {
+    if (/subscription[^.]*expire|expired subscription/i.test(googleText)) {
       return remap(
         "SUBSCRIPTION_EXPIRED",
         `Offer ${offerId} cannot be targeted: the subscription has already expired.`,

@@ -3174,6 +3174,30 @@ describe("purchases commands", () => {
     expect(result.newExpiryTimeMillis).toBe("200000");
   });
 
+  it.each(["2026-02-30T00:00:00Z", "2026-12-31T23:59:59", "garbage", ""])(
+    "deferSubscriptionPurchase refuses expiry %j before calling Google",
+    async (expiry) => {
+      const client = mockClient();
+      await expect(
+        deferSubscriptionPurchase(client, "com.example", "sub1", "tok", expiry),
+      ).rejects.toMatchObject({ code: "SUBSCRIPTION_EXPIRY_INVALID", exitCode: 2 });
+      expect(client.purchases.getSubscriptionV2).not.toHaveBeenCalled();
+      expect(client.purchases.deferSubscription).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(["", "STOP", "user_requested_stop_renewals"])(
+    "cancelSubscriptionV2 refuses cancellation type %j before calling Google",
+    async (type) => {
+      const client = mockClient();
+      await expect(cancelSubscriptionV2(client, "com.example", "tok", type)).rejects.toMatchObject({
+        code: "CANCELLATION_TYPE_INVALID",
+        exitCode: 2,
+      });
+      expect(client.purchases.cancelSubscriptionV2).not.toHaveBeenCalled();
+    },
+  );
+
   it("revokeSubscriptionPurchase defaults to proratedRefund", async () => {
     const client = mockClient();
     await revokeSubscriptionPurchase(client, "com.example", "tok");

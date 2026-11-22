@@ -15,6 +15,7 @@ import { PlayApiError } from "@gpc-cli/api";
 import { googleErrorText } from "../utils/google-error.js";
 import { validatePackageName } from "../utils/validation.js";
 import { GpcError } from "../errors.js";
+import { parseRfc3339 } from "../utils/rfc3339.js";
 
 export async function getProductPurchase(
   client: PlayApiClient,
@@ -75,6 +76,15 @@ export async function deferSubscriptionPurchase(
   desiredExpiry: string,
 ): Promise<SubscriptionDeferResponse> {
   validatePackageName(packageName);
+  const desired = parseRfc3339(desiredExpiry);
+  if (!desired) {
+    throw new GpcError(
+      `Expiry "${desiredExpiry}" is not a valid date and time with a time zone.`,
+      "SUBSCRIPTION_EXPIRY_INVALID",
+      2,
+      "Use a full RFC 3339 timestamp, for example --expiry 2026-12-31T23:59:59Z.",
+    );
+  }
   // v1 get shuts down Aug 31 2027, a year before v1 defer (Aug 31 2028), so the
   // current expiry comes from the v2 line item for this subscription.
   const sub = await client.purchases.getSubscriptionV2(packageName, token);
@@ -99,7 +109,7 @@ export async function deferSubscriptionPurchase(
   return client.purchases.deferSubscription(packageName, subscriptionId, token, {
     deferralInfo: {
       expectedExpiryTimeMillis: String(expiryMs),
-      desiredExpiryTimeMillis: String(new Date(desiredExpiry).getTime()),
+      desiredExpiryTimeMillis: String(desired.getTime()),
     },
   });
 }
@@ -250,6 +260,11 @@ export async function getProductPurchaseV2(
 
 // --- SubscriptionsV2 cancel/defer (Sep 2025 / Jan 2026) ---
 
+const CANCELLATION_TYPES = [
+  "USER_REQUESTED_STOP_RENEWALS",
+  "DEVELOPER_REQUESTED_STOP_PAYMENTS",
+] as const;
+
 export async function cancelSubscriptionV2(
   client: PlayApiClient,
   packageName: string,
@@ -258,6 +273,14 @@ export async function cancelSubscriptionV2(
   etag?: string,
 ): Promise<void> {
   validatePackageName(packageName);
+  if (!(CANCELLATION_TYPES as readonly string[]).includes(cancellationType)) {
+    throw new GpcError(
+      `Cancellation type "${cancellationType}" is not one Google accepts.`,
+      "CANCELLATION_TYPE_INVALID",
+      2,
+      `Use one of: ${CANCELLATION_TYPES.join(", ")}. Leave out --type to stop renewals only.`,
+    );
+  }
   const checkedEtag = normalizeSubscriptionEtag(etag);
   return withEtagGuard(checkedEtag, () =>
     client.purchases.cancelSubscriptionV2(packageName, token, {
