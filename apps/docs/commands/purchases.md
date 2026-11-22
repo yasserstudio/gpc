@@ -295,6 +295,8 @@ gpc purchases subscription cancel <subscription-id> <token>
 
 No command-specific options.
 
+It changes what the subscriber pays, so a non-interactive run (CI, piped stdin, `--no-interactive`) needs `--yes`, or it fails with `CONFIRMATION_REQUIRED` (exit `2`). `--dry-run` needs no `--yes`.
+
 ### Example
 
 ```bash
@@ -680,6 +682,8 @@ gpc purchases subscription defer-v2 <token> --duration <seconds> [options]
 | ---------------------- | -------- | -------- | ---------------------------------------------------- |
 | `--duration <seconds>` | `string` | Yes      | Duration to defer by (e.g. `2592000s` for 30 days)   |
 | `--etag <etag>`        | `string` | No       | Subscription etag (fetched automatically if omitted) |
+
+The added time is free for the subscriber, so a non-interactive run needs `--yes`, or it fails with `CONFIRMATION_REQUIRED` (exit `2`). `--dry-run` needs no `--yes`.
 
 ### Example
 

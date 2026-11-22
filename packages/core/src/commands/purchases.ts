@@ -68,14 +68,11 @@ export async function cancelSubscriptionPurchase(
   return client.purchases.cancelSubscription(packageName, subscriptionId, token);
 }
 
-export async function deferSubscriptionPurchase(
-  client: PlayApiClient,
-  packageName: string,
-  subscriptionId: string,
-  token: string,
-  desiredExpiry: string,
-): Promise<SubscriptionDeferResponse> {
-  validatePackageName(packageName);
+/**
+ * Parse a v1 defer expiry (RFC 3339 with a time zone). Exported so the CLI
+ * checks it before a dry run or a confirmation prompt too.
+ */
+export function parseSubscriptionExpiry(desiredExpiry: string): Date {
   const desired = parseRfc3339(desiredExpiry);
   if (!desired) {
     throw new GpcError(
@@ -85,6 +82,18 @@ export async function deferSubscriptionPurchase(
       "Use a full RFC 3339 timestamp, for example --expiry 2026-12-31T23:59:59Z.",
     );
   }
+  return desired;
+}
+
+export async function deferSubscriptionPurchase(
+  client: PlayApiClient,
+  packageName: string,
+  subscriptionId: string,
+  token: string,
+  desiredExpiry: string,
+): Promise<SubscriptionDeferResponse> {
+  validatePackageName(packageName);
+  const desired = parseSubscriptionExpiry(desiredExpiry);
   // v1 get shuts down Aug 31 2027, a year before v1 defer (Aug 31 2028), so the
   // current expiry comes from the v2 line item for this subscription.
   const sub = await client.purchases.getSubscriptionV2(packageName, token);
@@ -265,14 +274,13 @@ const CANCELLATION_TYPES = [
   "DEVELOPER_REQUESTED_STOP_PAYMENTS",
 ] as const;
 
-export async function cancelSubscriptionV2(
-  client: PlayApiClient,
-  packageName: string,
-  token: string,
-  cancellationType: string = "USER_REQUESTED_STOP_RENEWALS",
-  etag?: string,
-): Promise<void> {
-  validatePackageName(packageName);
+/**
+ * Check a cancel-v2 cancellation type. Leaving it out means
+ * USER_REQUESTED_STOP_RENEWALS; a blank value (an empty CI variable) is
+ * rejected. Exported so the CLI checks it before a dry run too.
+ */
+export function normalizeCancellationType(cancellationType: string | undefined): CancellationType {
+  if (cancellationType === undefined) return "USER_REQUESTED_STOP_RENEWALS";
   if (!(CANCELLATION_TYPES as readonly string[]).includes(cancellationType)) {
     throw new GpcError(
       `Cancellation type "${cancellationType}" is not one Google accepts.`,
@@ -281,11 +289,23 @@ export async function cancelSubscriptionV2(
       `Use one of: ${CANCELLATION_TYPES.join(", ")}. Leave out --type to stop renewals only.`,
     );
   }
+  return cancellationType as CancellationType;
+}
+
+export async function cancelSubscriptionV2(
+  client: PlayApiClient,
+  packageName: string,
+  token: string,
+  cancellationType: string = "USER_REQUESTED_STOP_RENEWALS",
+  etag?: string,
+): Promise<void> {
+  validatePackageName(packageName);
+  const checkedType = normalizeCancellationType(cancellationType);
   const checkedEtag = normalizeSubscriptionEtag(etag);
   return withEtagGuard(checkedEtag, () =>
     client.purchases.cancelSubscriptionV2(packageName, token, {
       cancellationContext: {
-        cancellationType: cancellationType as CancellationType,
+        cancellationType: checkedType,
         ...(checkedEtag && { etag: checkedEtag }),
       },
     }),

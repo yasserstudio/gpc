@@ -90,7 +90,7 @@ function translate(error: unknown, direction: Direction, offerId: string): unkno
   if (direction !== "target" || error.statusCode !== 400) return error;
 
   if (/\bFAILED_PRECONDITION\b/.test(googleText)) {
-    if (/subscription[^.]*expire|expired subscription/i.test(googleText)) {
+    if (/subscription (?:has |is )?(?:already )?expired|expired subscription/i.test(googleText)) {
       return remap(
         "SUBSCRIPTION_EXPIRED",
         `Offer ${offerId} cannot be targeted: the subscription has already expired.`,

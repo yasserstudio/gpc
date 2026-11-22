@@ -96,6 +96,18 @@ describe("targetSubscriptionOffer / untargetSubscriptionOffer", () => {
     expect(err.details).toContain("already expired");
   });
 
+  it("does not blame the subscription when the sentence names both and the offer expired", async () => {
+    mockFetch.mockResolvedValueOnce(
+      googleError(
+        400,
+        "FAILED_PRECONDITION",
+        "Offer cannot be targeted at this subscription: the offer has expired.",
+      ),
+    );
+    const err = await caught(targetSubscriptionOffer(client(), PKG, "tok", OFFER));
+    expect(err.code).not.toBe("SUBSCRIPTION_EXPIRED");
+  });
+
   it("does not blame the subscription when Google says the offer has expired", async () => {
     mockFetch.mockResolvedValueOnce(
       googleError(400, "FAILED_PRECONDITION", "The offer has expired."),

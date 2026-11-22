@@ -17,6 +17,8 @@ import {
   cancelSubscriptionPurchase,
   cancelSubscriptionV2,
   normalizeSubscriptionEtag,
+  normalizeCancellationType,
+  parseSubscriptionExpiry,
   normalizeProductId,
   cancelPlanTransition,
   deferSubscriptionPurchase,
@@ -39,7 +41,7 @@ import {
 } from "@gpc-cli/core";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { getOutputFormat } from "../format.js";
-import { isInteractive, requireOption, requireConfirm, requireMoneyConfirm } from "../prompt.js";
+import { isInteractive, requireOption, requireMoneyConfirm } from "../prompt.js";
 import { readJsonFile } from "../json.js";
 
 /** Dry runs and prompts show only the start of a purchase token. */
@@ -211,9 +213,10 @@ export function registerPurchasesCommands(program: Command): void {
         return;
       }
 
-      await requireConfirm(
+      await requireMoneyConfirm(
         `Cancel subscription ${subscriptionId}? This cannot be undone.`,
         program,
+        "This changes what the subscriber pays.",
       );
 
       const client = await getClient(config);
@@ -225,7 +228,10 @@ export function registerPurchasesCommands(program: Command): void {
   sub
     .command("defer <subscription-id> <token>")
     .description("Defer a subscription expiry (v1)")
-    .option("--expiry <iso-date>", "Desired new expiry date (ISO 8601)")
+    .option(
+      "--expiry <timestamp>",
+      "New expiry, RFC 3339 with a time zone (e.g. 2026-12-31T23:59:59Z)",
+    )
     .action(async (subscriptionId: string, token: string, options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
@@ -236,10 +242,11 @@ export function registerPurchasesCommands(program: Command): void {
         "expiry",
         options.expiry,
         {
-          message: "New expiry date (ISO 8601, e.g. 2026-12-31T23:59:59Z):",
+          message: "New expiry date and time with a time zone (e.g. 2026-12-31T23:59:59Z):",
         },
         interactive,
       );
+      parseSubscriptionExpiry(options.expiry);
 
       if (isDryRun(program)) {
         printDryRun(
@@ -742,6 +749,7 @@ export function registerPurchasesCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
       const etag = normalizeSubscriptionEtag(options.etag);
+      const cancellationType = normalizeCancellationType(options.type);
 
       if (isDryRun(program)) {
         const format = getOutputFormat(program, config);
@@ -750,7 +758,7 @@ export function registerPurchasesCommands(program: Command): void {
             command: "purchases subscription cancel-v2",
             action: "cancel",
             target: shortToken(token),
-            details: { cancellationType: options.type, ...(etag && { etag }) },
+            details: { cancellationType, ...(etag && { etag }) },
           },
           format,
           formatOutput,
@@ -766,7 +774,7 @@ export function registerPurchasesCommands(program: Command): void {
 
       const client = await getClient(config);
 
-      await cancelSubscriptionV2(client, packageName, token, options.type, etag);
+      await cancelSubscriptionV2(client, packageName, token, cancellationType, etag);
       console.log("Subscription cancelled.");
     });
 
@@ -823,8 +831,6 @@ export function registerPurchasesCommands(program: Command): void {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
 
-      await requireConfirm(`Defer subscription renewal by ${options.duration}?`, program);
-
       if (isDryRun(program)) {
         const format = getOutputFormat(program, config);
         printDryRun(
@@ -839,6 +845,12 @@ export function registerPurchasesCommands(program: Command): void {
         );
         return;
       }
+
+      await requireMoneyConfirm(
+        `Defer subscription renewal by ${options.duration}? The added time is free for the subscriber.`,
+        program,
+        "This gives the subscriber time without payment.",
+      );
 
       const client = await getClient(config);
 

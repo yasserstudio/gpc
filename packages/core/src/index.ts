@@ -262,6 +262,8 @@ export {
   cancelSubscriptionV2,
   deferSubscriptionV2,
   normalizeSubscriptionEtag,
+  normalizeCancellationType,
+  parseSubscriptionExpiry,
   normalizeProductId,
   cancelPlanTransition,
 } from "./commands/purchases.js";
