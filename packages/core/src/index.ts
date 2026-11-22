@@ -155,6 +155,8 @@ export {
 } from "./commands/vitals.js";
 export {
   assertRateThreshold,
+  readConfigThreshold,
+  configVitalThresholds,
   compareVersionVitals,
   latestWorstValue,
   readMetricValue,

@@ -26,6 +26,8 @@ import {
   checkThreshold,
   latestWorstValue,
   assertRateThreshold,
+  readConfigThreshold,
+  configVitalThresholds,
   formatOutput,
   GpcError,
 } from "@gpc-cli/core";
@@ -120,15 +122,20 @@ const RATE_COMMANDS = new Set([
   "lmk",
 ]);
 
-function validateThreshold(name: string, threshold: number): void {
+/** Where a threshold came from, named in the error so the user knows what to fix. */
+type ThresholdSource = "--threshold" | `vitals.thresholds.${string}`;
+
+function validateThreshold(name: string, threshold: number, source: ThresholdSource): void {
   if (RATE_COMMANDS.has(name)) {
-    assertRateThreshold(name, threshold);
+    assertRateThreshold(source === "--threshold" ? name : source, threshold);
   } else if (!Number.isFinite(threshold)) {
     throw new GpcError(
-      `Invalid --threshold for ${name}: expected a number.`,
+      `Invalid ${source} for ${name}: expected a number.`,
       "THRESHOLD_INVALID",
       2,
-      "Pass a number, e.g. --threshold 100",
+      source === "--threshold"
+        ? "Pass a number, e.g. --threshold 100"
+        : `Set it to a number, e.g. gpc config set ${source} 100`,
     );
   }
 }
@@ -152,30 +159,21 @@ function registerMetricCommand(
     .action(async (options) => {
       const config = await loadConfig();
       const packageName = resolvePackageName(program.opts()["app"], config);
-      const reporting = await getReportingClient(config);
       const format = getOutputFormat(program, config);
 
-      // Check threshold from flag or config
+      // Threshold from the flag, else from config. Each is checked under its own name.
       const configKey = THRESHOLD_CONFIG_KEYS[name];
-      const configThreshold = configKey
-        ? (config as unknown as Record<string, unknown>)["vitals"]
-          ? ((config as unknown as Record<string, unknown>)["vitals"] as Record<string, unknown>)[
-              "thresholds"
-            ]
-            ? (
-                (
-                  (config as unknown as Record<string, unknown>)["vitals"] as Record<
-                    string,
-                    unknown
-                  >
-                )["thresholds"] as Record<string, unknown>
-              )[configKey]
-            : undefined
-          : undefined
+      const fromConfig = configKey
+        ? readConfigThreshold(configVitalThresholds(config)?.[configKey])
         : undefined;
-      const threshold =
-        options.threshold ?? (configThreshold !== undefined ? Number(configThreshold) : undefined);
-      if (threshold !== undefined) validateThreshold(name, threshold);
+      if (options.threshold !== undefined) {
+        validateThreshold(name, options.threshold, "--threshold");
+      } else if (fromConfig !== undefined) {
+        validateThreshold(name, fromConfig, `vitals.thresholds.${configKey}`);
+      }
+      const threshold: number | undefined = options.threshold ?? fromConfig;
+      // Checked before credentials, so a bad threshold is a usage error (exit 2).
+      const reporting = await getReportingClient(config);
 
       let result;
       try {
@@ -528,7 +526,8 @@ export function registerVitalsCommands(program: Command): void {
     .option("--track <name>", "Track to halt rollout on (required with --auto-halt-rollout)")
     .action(async (options) => {
       const metricSet = METRIC_MAP[options.metric as string];
-      if (metricSet) validateThreshold(options.metric as string, options.threshold as number);
+      if (metricSet)
+        validateThreshold(options.metric as string, options.threshold as number, "--threshold");
       if (!metricSet) {
         throw new GpcError(
           `Unknown metric "${options.metric}". Use: ${Object.keys(METRIC_MAP).join(", ")}`,

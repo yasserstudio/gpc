@@ -138,6 +138,8 @@ vi.mock("@gpc-cli/core", async (importOriginal) => {
     checkThreshold: actual.checkThreshold,
     latestWorstValue: actual.latestWorstValue,
     assertRateThreshold: actual.assertRateThreshold,
+    readConfigThreshold: actual.readConfigThreshold,
+    configVitalThresholds: actual.configVitalThresholds,
   };
 });
 

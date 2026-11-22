@@ -431,6 +431,8 @@ vi.mock("@gpc-cli/core", async (importOriginal) => {
     }),
     renderPlayStoreMd: vi.fn().mockReturnValue(""),
     renderPlayStorePrompt: vi.fn().mockReturnValue(""),
+    readConfigThreshold: actual.readConfigThreshold,
+    configVitalThresholds: actual.configVitalThresholds,
   };
 });
 

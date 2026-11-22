@@ -188,6 +188,33 @@ export function worstSliceAverage(
 }
 
 /**
+ * The `vitals.thresholds` object from a loaded config, or undefined when it is
+ * absent or not an object. Values are left raw: read each with readConfigThreshold.
+ */
+export function configVitalThresholds(config: unknown): Record<string, unknown> | undefined {
+  const vitals = (config as Record<string, unknown> | null | undefined)?.["vitals"];
+  const t =
+    vitals && typeof vitals === "object"
+      ? (vitals as Record<string, unknown>)["thresholds"]
+      : undefined;
+  return t && typeof t === "object" ? (t as Record<string, unknown>) : undefined;
+}
+
+/**
+ * Reads a `vitals.thresholds.*` config value as a number. Absent (undefined or
+ * null) is undefined; a number or a non-blank numeric string is converted;
+ * anything else (a blank string, a boolean, an object) is NaN, so the caller's
+ * check rejects it. `Number("")` and `Number(false)` are 0, which would have
+ * made a gate fire on any crash.
+ */
+export function readConfigThreshold(value: unknown): number | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value === "number") return value;
+  if (typeof value === "string" && value.trim() !== "") return Number(value);
+  return NaN;
+}
+
+/**
  * Rejects a rate threshold that can never be reached. Google reports rates as
  * fractions (0.02 = 2%), so 1 or more is almost always a percentage written by
  * mistake, and it left the gate silently open.

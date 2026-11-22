@@ -20,6 +20,8 @@ import {
   formatOutput,
   createSpinner,
   assertRateThreshold,
+  readConfigThreshold,
+  configVitalThresholds,
   GpcError,
 } from "@gpc-cli/core";
 import type { AppStatus } from "@gpc-cli/core";
@@ -119,19 +121,14 @@ export function resolveVitalThresholds(
   config: ResolvedConfig,
   overrides: VitalRateThresholds = {},
 ): VitalRateThresholds | undefined {
-  const raw = config as unknown as Record<string, unknown>;
-  const vitals = raw["vitals"] as Record<string, unknown> | undefined;
-  const t = (vitals && typeof vitals === "object" ? vitals["thresholds"] : undefined) as
-    Record<string, unknown> | undefined;
-  const configured = t && typeof t === "object" ? t : {};
+  const t = configVitalThresholds(config);
+  const configured = t ?? {};
   if (!t && Object.keys(overrides).length === 0) return undefined;
 
   const rate = (key: keyof VitalRateThresholds): number | undefined => {
     if (overrides[key] !== undefined) return overrides[key];
-    const v = configured[key];
-    if (v === undefined || v === null) return undefined;
-    // Number("") and Number(false) are 0, which would breach on any crash.
-    const n = typeof v === "number" || (typeof v === "string" && v.trim() !== "") ? Number(v) : NaN;
+    const n = readConfigThreshold(configured[key]);
+    if (n === undefined) return undefined;
     assertRateThreshold(`vitals.thresholds.${key}`, n);
     return n;
   };

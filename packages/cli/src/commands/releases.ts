@@ -23,6 +23,7 @@ import {
   getVitalsCrashes,
   latestWorstValue,
   assertRateThreshold,
+  readConfigThreshold,
   checkThreshold,
   GpcError,
 } from "@gpc-cli/core";
@@ -746,6 +747,23 @@ export function registerReleasesCommands(program: Command): void {
         );
       }
 
+      // The gate's threshold is checked up front, so a bad config value is a
+      // usage error even on --dry-run and before credentials are resolved. A
+      // missing one only blocks a live run (a dry run never reaches the gate).
+      let gateLimit: number | undefined;
+      if (action === "increase" && options.vitalsGate) {
+        gateLimit = readConfigThreshold(config.vitals?.thresholds?.crashRate);
+        if (gateLimit === undefined && !isDryRun(program)) {
+          throw new GpcError(
+            "--vitals-gate needs a crash rate threshold, and none is configured.",
+            "THRESHOLD_INVALID",
+            2,
+            "Set one as a fraction: gpc config set vitals.thresholds.crashRate 0.02 (2%)",
+          );
+        }
+        if (gateLimit !== undefined) assertRateThreshold("vitals.thresholds.crashRate", gateLimit);
+      }
+
       if (isDryRun(program)) {
         if (action === "increase" && options.vitalsGate) {
           console.error(
@@ -771,17 +789,6 @@ export function registerReleasesCommands(program: Command): void {
       // threshold, a read error or no data blocks the increase instead of skipping
       // the gate, as `vitals --threshold` and `train` do.
       if (action === "increase" && options.vitalsGate) {
-        const threshold = config.vitals?.thresholds?.crashRate;
-        if (threshold === undefined) {
-          throw new GpcError(
-            "--vitals-gate needs a crash rate threshold, and none is configured.",
-            "THRESHOLD_INVALID",
-            2,
-            "Set one as a fraction: gpc config set vitals.thresholds.crashRate 0.02 (2%)",
-          );
-        }
-        const limit = Number(threshold);
-        assertRateThreshold("vitals.thresholds.crashRate", limit);
         const vitalsAuth = await resolveAuth({
           serviceAccountPath: config.auth?.serviceAccount,
         });
@@ -796,9 +803,9 @@ export function registerReleasesCommands(program: Command): void {
             "Vitals data often lags 2-4 days. Retry later, or check with: gpc vitals crashes --days 3",
           );
         }
-        if (checkThreshold(latest, limit).breached) {
+        if (checkThreshold(latest, gateLimit as number).breached) {
           console.error(
-            `Vitals gate: crash rate ${(latest * 100).toFixed(3)}% > threshold ${(limit * 100).toFixed(3)}%. Rollout increase blocked.`,
+            `Vitals gate: crash rate ${(latest * 100).toFixed(3)}% > threshold ${((gateLimit as number) * 100).toFixed(3)}%. Rollout increase blocked.`,
           );
           process.exitCode = 6;
           return;

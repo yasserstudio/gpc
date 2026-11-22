@@ -2,7 +2,13 @@ import type { Command } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 import { resolveAuth } from "@gpc-cli/auth";
 import { createApiClient, createReportingClient } from "@gpc-cli/api";
-import { runWatch, VALID_WATCH_METRICS, DEFAULT_WATCH_THRESHOLDS } from "@gpc-cli/core";
+import {
+  runWatch,
+  VALID_WATCH_METRICS,
+  DEFAULT_WATCH_THRESHOLDS,
+  readConfigThreshold,
+  configVitalThresholds,
+} from "@gpc-cli/core";
 import type { WatchMetric, WatchAction, WatchEvent, WatchSummary } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { green, red, yellow, dim } from "../colors.js";
@@ -173,23 +179,23 @@ export function registerWatchCommand(program: Command): void {
       }
 
       // Resolve thresholds: CLI flags > config > defaults
-      const configThresholds = (config as unknown as Record<string, unknown>)["vitals"] as
-        { thresholds?: Record<string, number> } | undefined;
-
       const thresholds: Partial<Record<WatchMetric, number>> = {
         ...DEFAULT_WATCH_THRESHOLDS,
       };
-      if (configThresholds?.thresholds) {
-        // `gpc config set` stores values as strings ("0.02"), so convert before
-        // the rate check, which only accepts numbers.
-        const ct = configThresholds.thresholds as Record<string, unknown>;
-        const num = (v: unknown) => (v === undefined ? undefined : Number(v));
-        if (ct["crashRate"] !== undefined) thresholds.crashes = num(ct["crashRate"]);
-        if (ct["anrRate"] !== undefined) thresholds.anr = num(ct["anrRate"]);
-        if (ct["lmkRate"] !== undefined) thresholds.lmk = num(ct["lmkRate"]);
-        if (ct["slowStartRate"] !== undefined) thresholds.slowStarts = num(ct["slowStartRate"]);
-        if (ct["slowRenderingRate"] !== undefined)
-          thresholds.slowRender = num(ct["slowRenderingRate"]);
+      // `gpc config set` stores values as strings ("0.02"). readConfigThreshold
+      // converts them, and turns a blank or boolean value into NaN so the rate
+      // check rejects it (Number("") would be a 0 gate that breaches on any crash).
+      const ct = configVitalThresholds(config) ?? {};
+      const fromConfig: [WatchMetric, string][] = [
+        ["crashes", "crashRate"],
+        ["anr", "anrRate"],
+        ["lmk", "lmkRate"],
+        ["slowStarts", "slowStartRate"],
+        ["slowRender", "slowRenderingRate"],
+      ];
+      for (const [metric, key] of fromConfig) {
+        const v = readConfigThreshold(ct[key]);
+        if (v !== undefined) thresholds[metric] = v;
       }
       if (opts["crashThreshold"]) thresholds.crashes = parseFloat(opts["crashThreshold"]);
       if (opts["anrThreshold"]) thresholds.anr = parseFloat(opts["anrThreshold"]);
