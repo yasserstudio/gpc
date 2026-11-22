@@ -139,6 +139,22 @@ function pauseTicker() {
   overflow: hidden;
 }
 
+/* From 960px the nav is fixed at top: var(--vp-layout-top-height). A banner in
+   normal flow scrolls away and leaves that band empty above the nav, with the
+   page showing through. Sticky keeps the banner's flow space and pins it there.
+   Opaque background: the brand-soft tint is translucent. */
+@media (min-width: 960px) {
+  .ann-banner {
+    position: sticky;
+    top: 0;
+    z-index: calc(var(--vp-z-index-nav) + 1);
+    background: linear-gradient(var(--vp-c-brand-soft), var(--vp-c-brand-soft)), var(--vp-c-bg);
+  }
+  html.dark .ann-banner {
+    background: linear-gradient(rgba(77, 149, 241, 0.06), rgba(77, 149, 241, 0.06)), var(--vp-c-bg);
+  }
+}
+
 .dark .ann-banner {
   background: rgba(77, 149, 241, 0.06);
   border-bottom-color: rgba(77, 149, 241, 0.15);
