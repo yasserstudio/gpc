@@ -26,7 +26,7 @@ A minor release: GPC now creates, checks and targets subscription retention offe
 - feat: the `billing-library-deprecated` preflight finding names Google's Android CLI skill that upgrades the Billing Library.
 - docs: the authentication pages describe what GPC ships: a service account key or Application Default Credentials. The OAuth browser flow and keychain storage they described never existed.
 
-**Tests:** 3,179 (+227).
+**Tests:** 3,189 (+237).
 
 ## v1.1.0
 
