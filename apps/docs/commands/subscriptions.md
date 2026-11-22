@@ -597,7 +597,7 @@ gpc subscriptions offers update premium_monthly p1m winback-50 \
 
 ## `subscriptions offers delete`
 
-Delete an offer. The offer must be deactivated first.
+Delete a draft offer. Google Play deletes only offers that have never been activated. To stop an activated offer, use [`subscriptions offers deactivate`](#subscriptions-offers-deactivate) instead; otherwise Google returns `API_OFFER_NOT_DRAFT`.
 
 ### Synopsis
 

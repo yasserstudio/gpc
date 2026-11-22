@@ -483,8 +483,57 @@ function enhanceApiError(status: number, body: string): ErrorMapping | undefined
     };
   }
 
+  // — Regions version too old for a region in the price list (400 INVALID_ARGUMENT)
+  // Google: "Region code ET is not billable at the specified regions version 2022/02."
+  if (status === 400 && errorMsg.includes("not billable at the specified regions version")) {
+    const m = rawMsg.match(
+      /region code (\S+) is not billable at the specified regions version (\S+?)\.?$/i,
+    );
+    const region = m?.[1] ?? "?";
+    const version = m?.[2] ?? "?";
+    return {
+      code: "API_REGIONS_VERSION_TOO_OLD",
+      message: `Google Play cannot bill region ${region} with regions version ${version}. The region was added in a later version.`,
+      suggestion: [
+        "Pass a newer version with --regions-version, for example the latest one Google lists:",
+        `  ${REGIONS_VERSION_HELP_URL}`,
+      ].join("\n"),
+    };
+  }
+
+  // — Regions version that does not exist (400 INVALID_ARGUMENT)
+  // Google: "Invalid regions version 2099/01, latest value is ExternalRegionLaunchVersionId{versionId=2026/01}"
+  if (status === 400 && errorMsg.includes("invalid regions version")) {
+    const given = rawMsg.match(/invalid regions version (\S+?),/i)?.[1] ?? "?";
+    const latest = rawMsg.match(/versionId=([^}\s]+)/)?.[1];
+    return {
+      code: "API_REGIONS_VERSION_INVALID",
+      message: `Regions version ${given} does not exist.`,
+      suggestion: latest
+        ? `Google's latest version is ${latest}. Use: --regions-version ${latest}`
+        : `Check the versions Google lists: ${REGIONS_VERSION_HELP_URL}`,
+    };
+  }
+
+  // — Delete of an offer that was activated at least once (400 FAILED_PRECONDITION)
+  // Google: "Cannot delete a subscription offer that is not draft."
+  if (status === 400 && errorMsg.includes("cannot delete a subscription offer that is not draft")) {
+    return {
+      code: "API_OFFER_NOT_DRAFT",
+      message:
+        "This offer cannot be deleted. Google Play deletes only draft offers, and this one has been activated.",
+      suggestion: [
+        "Deactivate it instead. New subscribers stop seeing it:",
+        "  gpc subscriptions offers deactivate <product-id> <base-plan-id> <offer-id>",
+      ].join("\n"),
+    };
+  }
+
   return undefined;
 }
+
+const REGIONS_VERSION_HELP_URL =
+  "https://support.google.com/googleplay/android-developer/answer/10532353";
 
 function mapStatusToError(
   status: number,

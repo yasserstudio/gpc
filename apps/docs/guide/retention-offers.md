@@ -38,6 +38,8 @@ GPC reads the base plan, copies its billing period and regions into the offer, a
 gpc subscriptions offers activate premium_monthly p1m winback-50 --app com.example.app
 ```
 
+If Google answers that a region "is not billable at the specified regions version", the base plan sells in a region that Google added after the version GPC sends by default (`2022/02`). Add `--regions-version` with a newer version, such as the latest one in [Google's list](https://support.google.com/googleplay/android-developer/answer/10532353).
+
 To let a subscriber claim the offer again later, add `--multiple-claims --cooldown 180d`. The cooldown counts from the end of the last discount. Add `--start` and `--end` (RFC 3339 times) to run the offer for a limited time.
 
 Prefer a file? Start from the template, edit it, and create the offer from it. GPC runs the same checks on the file:
@@ -63,6 +65,14 @@ gpc purchases subscription target-offer "<purchase-token>" \
 Google stores the targeting, so you do not need to call it again when the subscriber opens the cancellation flow. The targeting lasts until you remove it with `gpc purchases subscription untarget-offer`, or until 60 days after the subscription expires. It does not carry over to a new purchase token. Both commands are safe to repeat.
 
 The offer must have been activated at least once before you can target it. A deactivated per-user offer still accepts targeting, but Google Play does not show it.
+
+## Stop an offer
+
+Google Play deletes only draft offers. Once an offer has been activated, deactivate it instead:
+
+```bash
+gpc subscriptions offers deactivate premium_monthly p1m winback-50 --app com.example.app
+```
 
 ## Rules Google enforces
 

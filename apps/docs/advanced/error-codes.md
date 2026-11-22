@@ -310,6 +310,16 @@ Emitted by `gpc subscriptions offers create` and `offers update`. GPC checks the
 | `BASE_PLAN_NOT_FOUND`     | 2    | The subscription has no base plan with that ID                                                        | Use a base plan ID from `gpc subscriptions get <product-id>`                    |
 | `OFFER_ACTIVATE_FAILED`   | 4    | `--activate` failed after the draft was created, and Google gave no error code                        | Run the `gpc subscriptions offers activate` command shown in the error          |
 
+### Subscription Catalog Errors
+
+Google's answer when a subscription, base plan or offer is created, changed or deleted. GPC sends the request, so Google's text is kept in `details`.
+
+| Code                          | Exit | Cause                                                                                            | Fix                                                                                                                                                        |
+| ----------------------------- | ---- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `API_REGIONS_VERSION_TOO_OLD` | 4    | A region in the prices was added after the regions version sent (GPC sends `2022/02` by default) | Pass a newer `--regions-version`. Google lists the versions in [its help article](https://support.google.com/googleplay/android-developer/answer/10532353) |
+| `API_REGIONS_VERSION_INVALID` | 4    | The `--regions-version` value does not exist                                                     | Use the latest version named in the error                                                                                                                  |
+| `API_OFFER_NOT_DRAFT`         | 4    | `subscriptions offers delete` on an offer that has been activated. Google deletes only drafts    | Deactivate it instead: `gpc subscriptions offers deactivate <product-id> <base-plan-id> <offer-id>`                                                        |
+
 ### OFFER\_\* -- Retention Offer Targeting Errors
 
 Mostly emitted by `gpc purchases subscription target-offer` and `untarget-offer`. Rows that name another command say so in the Cause column. For errors from Google, which documents these failures by status, not message text, GPC uses these codes only when Google's message names the cause; anything else passes through as `API_HTTP_400` with Google's message. Google's text is always kept in `details`.

@@ -4182,3 +4182,87 @@ describe("changesNotSentForReview error mapping", () => {
     expect((err as PlayApiError).details).toContain(raw);
   });
 });
+
+// Bodies copied verbatim from the v1.2.0 live smoke (2026-11-22). Before this,
+// all three fell through to "Check request parameters and try again."
+describe("subscription catalog 400s from the live smoke", () => {
+  let mockFetch: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    mockFetch = vi.fn();
+    vi.stubGlobal("fetch", mockFetch);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  async function fail(body: object): Promise<PlayApiError> {
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify(body), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const client = createHttpClient({ auth: mockAuth(), maxRetries: 0 });
+    return (await client
+      .post("/com.example.app/subscriptions/p/basePlans/b/offers", {})
+      .catch((e: unknown) => e)) as PlayApiError;
+  }
+
+  it("names the region and tells the user to pass a newer regions version", async () => {
+    const err = await fail({
+      error: {
+        code: 400,
+        message: "Region code ET is not billable at the specified regions version 2022/02.",
+        status: "INVALID_ARGUMENT",
+      },
+    });
+    expect(err.code).toBe("API_REGIONS_VERSION_TOO_OLD");
+    expect(err.exitCode).toBe(4);
+    expect(err.message).toContain("ET");
+    expect(err.message).toContain("2022/02");
+    expect(err.suggestion).toContain("--regions-version");
+    expect(err.suggestion).toContain(
+      "support.google.com/googleplay/android-developer/answer/10532353",
+    );
+    expect(err.details).toContain("not billable");
+  });
+
+  it("quotes Google's latest version when the one given does not exist", async () => {
+    const err = await fail({
+      error: {
+        code: 400,
+        message:
+          "Invalid regions version 2099/01, latest value is ExternalRegionLaunchVersionId{versionId=2026/01}",
+        status: "INVALID_ARGUMENT",
+      },
+    });
+    expect(err.code).toBe("API_REGIONS_VERSION_INVALID");
+    expect(err.message).toContain("2099/01");
+    expect(err.suggestion).toContain("--regions-version 2026/01");
+  });
+
+  it("tells the user to deactivate an offer that is no longer a draft", async () => {
+    const err = await fail({
+      error: {
+        code: 400,
+        message: "Cannot delete a subscription offer that is not draft.",
+        status: "FAILED_PRECONDITION",
+      },
+    });
+    expect(err.code).toBe("API_OFFER_NOT_DRAFT");
+    expect(err.suggestion).toContain("gpc subscriptions offers deactivate");
+  });
+
+  it("leaves Google's bare 'Invalid Value' generic: it does not say which value", async () => {
+    const err = await fail({
+      error: {
+        code: 400,
+        message: "Invalid Value",
+        errors: [{ message: "Invalid Value", domain: "global", reason: "invalid" }],
+      },
+    });
+    expect(err.code).toBe("API_HTTP_400");
+  });
+});

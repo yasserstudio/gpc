@@ -6,9 +6,11 @@ import { targetSubscriptionOffer, untargetSubscriptionOffer } from "../src/index
 // functions translate have exactly the shape http.ts produces. Error bodies use
 // Google's error envelope; the statuses and conditions come from the
 // retention-offers guide ("Handle targeting errors"). Google does not document
-// the message text and publishes no error bodies, so these messages are
-// invented; the mapping keys on the status plus a narrow keyword, and anything
-// else must pass through. Replace them with real bodies from the T11 live smoke.
+// the message text and publishes no error bodies. One body is real: the bad
+// token case, copied from the v1.2.0 live smoke (2026-11-22). The offer errors
+// still need a real purchase token to capture, so their messages are invented;
+// the mapping keys on the status plus a narrow keyword, and anything else must
+// pass through.
 
 const PKG = "com.example.app";
 const OFFER = "retention-peruser-30off";
@@ -129,8 +131,20 @@ describe("targetSubscriptionOffer / untargetSubscriptionOffer", () => {
     expect(err.message).toContain("Something new.");
   });
 
-  it("passes a token-shaped INVALID_ARGUMENT through (it does not blame the offer)", async () => {
-    mockFetch.mockResolvedValueOnce(googleError(400, "INVALID_ARGUMENT", "Invalid Value"));
+  it("passes Google's bad-token answer through (it does not blame the offer)", async () => {
+    // Real body for an unknown token, on both target and untarget.
+    mockFetch.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          error: {
+            code: 400,
+            message: "Invalid Value",
+            errors: [{ message: "Invalid Value", domain: "global", reason: "invalid" }],
+          },
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      ),
+    );
     const err = await caught(targetSubscriptionOffer(client(), PKG, "tok", OFFER));
     expect(err.code).toBe("API_HTTP_400");
   });
