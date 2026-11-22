@@ -30,6 +30,7 @@ Do not conflate this with the _other_ August 31, 2026 deadline: the annual **tar
 | [`subscriptions base-plans migrate-prices`](#subscriptions-base-plans-migrate-prices)   | Migrate base plan prices         |
 | [`subscriptions offers list`](#subscriptions-offers-list)                               | List offers for a base plan      |
 | [`subscriptions offers get`](#subscriptions-offers-get)                                 | Get an offer                     |
+| [`subscriptions offers template`](#subscriptions-offers-template)                       | Print starter offer JSON         |
 | [`subscriptions offers create`](#subscriptions-offers-create)                           | Create an offer from JSON        |
 | [`subscriptions offers update`](#subscriptions-offers-update)                           | Update an offer from JSON        |
 | [`subscriptions offers delete`](#subscriptions-offers-delete)                           | Delete an offer                  |
@@ -406,6 +407,33 @@ gpc subscriptions offers get premium_monthly p1m free-trial-7d \
 
 ---
 
+## `subscriptions offers template`
+
+Print starter JSON for `offers create --file`. Runs offline and makes no API call.
+
+### Synopsis
+
+```bash
+gpc subscriptions offers template retention [--per-user]
+```
+
+### Options
+
+| Flag         | Short | Type      | Default | Description                                                         |
+| ------------ | ----- | --------- | ------- | ------------------------------------------------------------------- |
+| `--per-user` |       | `boolean` | `false` | Per-user retention offer (`retentionPerUserRule`) instead of cohort |
+
+### Example
+
+```bash
+gpc subscriptions offers template retention > offer.json
+gpc subscriptions offers create premium_monthly monthly-base --file offer.json
+```
+
+The cohort template follows the sample in Google's retention offers guide: subscribers who have paid for at least 90 days get 50% off for two billing periods and can claim the offer again 180 days after the discount ends. Add `startTime` and `endTime` yourself if the offer should run for a limited time. The phase `duration` is `P1M`, so change it to your base plan's billing period if the plan is not monthly, and list every region you sell in under `regionalConfigs`.
+
+---
+
 ## `subscriptions offers create`
 
 Create a new offer from a JSON file.
@@ -453,6 +481,24 @@ gpc subscriptions offers create premium_monthly p1m \
   --file offer.json
 ```
 
+### Retention offers
+
+When the file targets `retentionRule` or `retentionPerUserRule`, GPC checks it against Google's retention rules before calling the API and lists every problem at once:
+
+- `targeting` holds exactly one rule.
+- On create, the file has one phase and at least one offer-level `regionalConfigs` entry (Google requires both), and the phase sets a `relativeDiscount` somewhere.
+- `retentionRule.scope` is `{ "thisSubscription": {} }` and `minDuration` is set, in days (`P0D` to `P1826D`; months such as `P3M` are rejected).
+- `minOfferCooldownDuration` (`P1D` to `P1826D`) is set when `allowMultipleClaims` is `true`, and left out otherwise.
+- `retentionPerUserRule` is `{}`.
+- One phase, `recurrenceCount` from 1 to 52, priced with `relativeDiscount` only (greater than 0, less than 1). `price`, `absoluteDiscount` and `free` are not allowed.
+- `startTime` and `endTime` are RFC 3339 timestamps with a timezone; `endTime` is in the future and after `startTime`.
+
+A failed check exits with code 2 and nothing is sent to Google Play. Google also requires an auto-renewing base plan (not installments) and, when `recurrenceCount` is above 1, a phase `duration` equal to the base plan billing period. Google enforces those two server-side. Start from [`offers template retention`](#subscriptions-offers-template).
+
+| Code                      | Exit | Description                                                    |
+| ------------------------- | ---- | -------------------------------------------------------------- |
+| `RETENTION_OFFER_INVALID` | 2    | The retention offer breaks one or more rules; nothing was sent |
+
 ---
 
 ## `subscriptions offers update`
@@ -482,6 +528,8 @@ gpc subscriptions offers update premium_monthly p1m free-trial-7d \
   --update-mask phases \
   --regions-version 2025/01
 ```
+
+A file with retention targeting runs the same [retention checks](#retention-offers) as `offers create`, except that `phases` and `regionalConfigs` may be left out of a partial update. The check reads the whole file, not only the fields in `--update-mask`.
 
 ---
 

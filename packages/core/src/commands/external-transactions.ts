@@ -1,5 +1,6 @@
 import type { PlayApiClient, ExternalTransaction, ExternalTransactionRefund } from "@gpc-cli/api";
 import { GpcError } from "../errors.js";
+import { parseRfc3339 } from "../utils/rfc3339.js";
 
 export async function createExternalTransaction(
   client: PlayApiClient,
@@ -37,8 +38,6 @@ export interface ExternalTransactionRefundOptions {
   refundTime?: string;
 }
 
-/** RFC 3339 with an explicit zone, so the same command means the same instant on every machine. */
-const RFC3339_RE = /^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/i;
 const MAX_INT64 = 2n ** 63n - 1n;
 /** Leeway for clock skew before a refund time counts as in the future. */
 const FUTURE_SKEW_MS = 5 * 60 * 1000;
@@ -75,16 +74,8 @@ export function buildExternalTransactionRefund(
 
   let refundTime = now.toISOString();
   if (options.refundTime !== undefined) {
-    const raw = options.refundTime.trim();
-    const match = RFC3339_RE.exec(raw);
-    const parsed = new Date(raw);
-    // Date() quietly rolls 2026-02-30 over to March; round-trip the calendar date
-    // in the given offset to catch that.
-    const offsetMs = parsed.getTime() - Date.parse(raw.replace(/(?:Z|[+-]\d{2}:\d{2})$/i, "Z"));
-    const calendarDate = match
-      ? new Date(parsed.getTime() - offsetMs).toISOString().slice(0, 10)
-      : undefined;
-    if (!match || Number.isNaN(parsed.getTime()) || calendarDate !== match[1]) {
+    const parsed = parseRfc3339(options.refundTime);
+    if (!parsed) {
       throw refundUsageError(
         `Invalid --refund-time "${options.refundTime}"`,
         "Use an RFC 3339 timestamp with a timezone, for example 2026-09-25T12:00:00Z or 2026-09-25T14:00:00+02:00.",

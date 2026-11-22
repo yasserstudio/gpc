@@ -569,7 +569,26 @@ export interface SubscriptionOfferTargeting {
     scope?: { specificSubscriptionInApp?: boolean; anySubscriptionInApp?: boolean };
     billingPeriodDuration?: string;
   };
+  /** Cohort retention offer: every subscriber meeting the rule is eligible. */
+  retentionRule?: RetentionTargetingRule;
+  /** Per-user retention offer: only purchases targeted via activateOfferTargeting. */
+  retentionPerUserRule?: RetentionPerUserTargetingRule;
 }
+
+/** Eligibility for a cohort retention offer (rev 20261119). Durations are `P<n>D` only. */
+export interface RetentionTargetingRule {
+  /** Must be `{ thisSubscription: {} }` for retention offers. */
+  scope?: { thisSubscription?: Record<string, never> };
+  /** Minimum paid time, `P0D`..`P1826D`. Required. */
+  minDuration?: string;
+  /** Defaults to false. */
+  allowMultipleClaims?: boolean;
+  /** `P1D`..`P1826D`; required when allowMultipleClaims is true, forbidden otherwise. */
+  minOfferCooldownDuration?: string;
+}
+
+/** Per-user retention targeting carries no fields: `{}`. */
+export type RetentionPerUserTargetingRule = Record<string, never>;
 
 export interface SubscriptionOffer {
   packageName?: string;
@@ -587,6 +606,10 @@ export interface SubscriptionOffer {
   otherRegionsConfig?: {
     otherRegionsNewSubscriberAvailability?: boolean;
   };
+  /** RFC 3339. When the offer becomes available; does not activate it. */
+  startTime?: string;
+  /** RFC 3339. When the offer stops being available; must be in the future and after startTime. */
+  endTime?: string;
 }
 
 export interface OffersListResponse {

@@ -1,6 +1,6 @@
 import { resolvePackageName, getClient } from "../resolve.js";
 import type { Command } from "commander";
-import { Option } from "commander";
+import { Argument, Option } from "commander";
 import { loadConfig } from "@gpc-cli/config";
 
 import type { Subscription, BasePlanMigratePricesRequest, SubscriptionOffer } from "@gpc-cli/api";
@@ -28,6 +28,7 @@ import {
   maybePaginate,
   annotateListResult,
   moreResultsFooter,
+  retentionOfferTemplate,
 } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
@@ -419,6 +420,15 @@ export function registerSubscriptionsCommands(program: Command): void {
       } else {
         console.log(formatOutput(result, format));
       }
+    });
+
+  offers
+    .command("template")
+    .description("Print starter JSON for `offers create --file` (offline, no API call)")
+    .addArgument(new Argument("<kind>", "Offer kind").choices(["retention"]))
+    .option("--per-user", "Per-user retention offer (retentionPerUserRule) instead of cohort")
+    .action((_kind: string, options: { perUser?: boolean }) => {
+      console.log(JSON.stringify(retentionOfferTemplate(options.perUser === true), null, 2));
     });
 
   offers

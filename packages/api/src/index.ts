@@ -121,6 +121,8 @@ export type {
   BatchMigratePricesResponse,
   SubscriptionOfferPhase,
   SubscriptionOfferTargeting,
+  RetentionTargetingRule,
+  RetentionPerUserTargetingRule,
   SubscriptionOffer,
   OffersListResponse,
   InAppProductListing,

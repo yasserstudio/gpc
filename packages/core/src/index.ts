@@ -210,6 +210,13 @@ export {
 } from "./commands/subscriptions.js";
 export type { SubscriptionDiff } from "./commands/subscriptions.js";
 export {
+  validateRetentionOffer,
+  assertValidRetentionOffer,
+  isRetentionOffer,
+  retentionOfferTemplate,
+} from "./commands/retention-offers.js";
+export type { RetentionViolation, ValidateRetentionOptions } from "./commands/retention-offers.js";
+export {
   listInAppProducts,
   getInAppProduct,
   createInAppProduct,

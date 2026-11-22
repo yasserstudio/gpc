@@ -9,6 +9,7 @@ import type {
 import { paginateAll } from "@gpc-cli/api";
 import { validatePackageName, validateSku } from "../utils/validation.js";
 import { GpcError } from "../errors.js";
+import { assertValidRetentionOffer, isRetentionOffer } from "./retention-offers.js";
 
 export interface ListSubscriptionsOptions {
   pageToken?: string;
@@ -299,6 +300,7 @@ export async function createOffer(
   validatePackageName(packageName);
   validateSku(productId);
   const sanitized = sanitizeOffer(data);
+  if (isRetentionOffer(sanitized)) assertValidRetentionOffer(sanitized, { requireComplete: true });
   return client.subscriptions.createOffer(
     packageName,
     productId,
@@ -333,6 +335,7 @@ export async function updateOffer(
   validatePackageName(packageName);
   validateSku(productId);
   const sanitized = sanitizeOffer(data);
+  if (isRetentionOffer(sanitized)) assertValidRetentionOffer(sanitized);
   const mask = updateMask || deriveOfferUpdateMask(sanitized);
   return client.subscriptions.updateOffer(
     packageName,
