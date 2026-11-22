@@ -140,7 +140,7 @@ Most Android release tools stop at uploads. GPC covers the full lifecycle:
 | Metadata   | Sync listings, screenshots, 70+ languages | Partial        |
 | Reporting  | Reviews, vitals, financial reports        | Nothing        |
 
-234 API endpoints. One tool. First publishing CLI with Managed Google Play support.
+238 API endpoints. One tool. First publishing CLI with Managed Google Play support.
 
 ## Get started
 

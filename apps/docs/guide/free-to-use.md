@@ -25,7 +25,7 @@ Outside contributions are welcome through the repository's [contribution guide](
 
 ### The honest reason
 
-GPC is a one-maintainer project covering 234 API endpoints across four Google APIs. The maintainer reviews every release and tests it against real production apps. Contributions need to be focused, tested, documented, and aligned with GPC's publisher-CLI mission so that quality bar remains sustainable.
+GPC is a one-maintainer project covering 238 API endpoints across four Google APIs. The maintainer reviews every release and tests it against real production apps. Contributions need to be focused, tested, documented, and aligned with GPC's publisher-CLI mission so that quality bar remains sustainable.
 
 Opening a pull request does not guarantee that a change will merge or set a delivery timeline. It starts a technical review.
 
@@ -95,7 +95,7 @@ Not when merely using GPC. If you distribute the software or substantial portion
 
 ### What happens if the maintainer stops shipping?
 
-The source is on GitHub under MIT, so anyone can fork and continue it. The current approach is single-maintainer by design: that gives us quality control today and succession risk tomorrow. We mitigate the succession risk by keeping the project fully documented, heavily tested (2,952 tests at 90%+ coverage), and publicly versioned.
+The source is on GitHub under MIT, so anyone can fork and continue it. The current approach is single-maintainer by design: that gives us quality control today and succession risk tomorrow. We mitigate the succession risk by keeping the project fully documented, heavily tested (3,179 tests at 90%+ coverage), and publicly versioned.
 
 ### Can I sponsor the project?
 

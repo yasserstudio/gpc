@@ -11,7 +11,26 @@ head:
 
 All notable user-facing changes to GPC are documented here. For full release details, see the [GitHub Releases](https://github.com/yasserstudio/gpc/releases) page.
 
-## v1.1.0 <Badge type="tip" text="latest" />
+## v1.2.0 <Badge type="tip" text="latest" />
+
+A minor release: GPC now creates, checks and targets subscription retention offers, and reads what happens after a subscriber accepts one. **CI impact:** `gpc purchases subscription cancel-v2`, `defer`, `target-offer` and `untarget-offer` now need `--yes` in a non-interactive run, like refunds (see below).
+
+- feat: retention offers. `gpc subscriptions offers create <product> <base-plan> --retention cohort|per-user --offer-id <id> --discount <fraction>` builds the offer from the base plan, copying its billing period and regions. Cohort offers take `--min-duration`, `--multiple-claims`, `--cooldown`, `--start` and `--end`. The offer is created as a draft; `--activate` also activates it. `offers update` accepts the same targeting flags. New [Retention Offers guide](../guide/retention-offers).
+- feat: `offers create` and `offers update` check a retention offer against Google's rules before sending it and list every problem at once (`RETENTION_OFFER_INVALID`, exit 2). `gpc subscriptions offers template retention [--per-user]` prints a starting file.
+- feat: `gpc purchases subscription target-offer <token> --offer <id>` and `untarget-offer` show a per-user retention offer to one subscriber, or stop showing it. Google's errors map to `OFFER_NOT_PER_USER`, `OFFER_NEVER_ACTIVATED` and `SUBSCRIPTION_EXPIRED`.
+- feat: accepted offers. `gpc rtdn decode` names notification type 21, `SUBSCRIPTION_PLAN_TRANSITION_UPDATED`, and `gpc purchases subscription get` shows a `planTransition` row and the offers targeted at the subscriber.
+- feat: `gpc purchases subscription cancel-transition <token> --product-id <id>` cancels a pending plan transition. It is marked experimental because Google documents no error responses for it yet.
+- feat: `cancel-v2` and `revoke` accept `--etag`, so Google applies the request only if the subscription has not changed since you read it. A mismatch exits 4 (`SUBSCRIPTION_ETAG_MISMATCH`).
+- fix (**breaking for CI scripts**): `cancel-v2`, `defer`, `target-offer` and `untarget-offer` used to run without confirmation in CI. They change what a subscriber pays, so a non-interactive run now needs `--yes`, or it fails with `CONFIRMATION_REQUIRED` (exit 2) and sends nothing. `--dry-run` needs no `--yes`.
+- fix: `defer --expiry` must be an RFC 3339 time with a time zone (`SUBSCRIPTION_EXPIRY_INVALID`), and `cancel-v2 --type` must be `USER_REQUESTED_STOP_RENEWALS` or `DEVELOPER_REQUESTED_STOP_PAYMENTS` (`CANCELLATION_TYPE_INVALID`). Both exit 2 before any request.
+- fix: v1 `defer` reads the current expiry through the v2 API, so it keeps working until defer itself shuts down on August 31, 2028. `gpc rtdn decode` marks notification type 8 and `subscriptionId` as deprecated, and v1 `acknowledge` no longer warns, because Google has not deprecated it.
+- fix: a `vitals.thresholds` config value that is blank, `true`/`false` or not a number is rejected with `THRESHOLD_INVALID` (exit 2) by `gpc vitals`, `gpc watch` and `releases rollout increase --vitals-gate`. It used to count as 0, so a gate fired on any crash.
+- fix: an offer or subscription file saved from `get` and passed back to `update` no longer fails on read-only fields.
+- fix: three Google errors now say what to do: `API_REGIONS_VERSION_TOO_OLD` and `API_REGIONS_VERSION_INVALID` for `--regions-version`, and `API_OFFER_NOT_DRAFT` when you delete an offer that was activated (deactivate it instead).
+- feat: the `billing-library-deprecated` preflight finding names Google's Android CLI skill that upgrades the Billing Library.
+- docs: the authentication pages describe what GPC ships: a service account key or Application Default Credentials. The OAuth browser flow and keychain storage they described never existed.
+
+## v1.1.0
 
 A minor release: `gpc preflight` now checks which Google Play Billing Library version your app ships, and `gpc status` gates hold on cached data. **CI impact:** an AAB built on Google Play Billing Library 7 or older now fails `gpc preflight` with the default `failOn: "error"` (see below).
 

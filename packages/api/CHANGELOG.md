@@ -1,5 +1,14 @@
 # @gpc-cli/api
 
+## 1.3.0
+
+### Minor Changes
+
+- f9f7a49: Accepted retention offers: `rtdn decode` names notification type 21 `SUBSCRIPTION_PLAN_TRANSITION_UPDATED` (a plan transition was updated, for example when a subscriber accepts a retention offer) and, in table output, points at `gpc purchases subscription get`. That command's table now shows a `planTransition` row (state, target offer, expected time). API types add `PlanTransitionDetails`, `TransitionInfo` and `TransitionState` under `autoRenewingPlan`.
+- 9d1f124: Per-user retention offers: new `gpc purchases subscription target-offer <token> --offer <id>` and `untarget-offer` target or remove a `retentionPerUserRule` offer for one subscriber (Google's `activateOfferTargeting` / `deactivateOfferTargeting`). Google's documented failures map to `OFFER_NOT_PER_USER`, `OFFER_NEVER_ACTIVATED` and `SUBSCRIPTION_EXPIRED` with Google's text kept in `details`. `purchases subscription get` lists targeted offers, and the API types include `developerTargetedOffers`.
+- 95653f2: Retention offers: `offers create` and `offers update` check a retention offer file against Google's retention rules before calling the API and list every problem at once (`RETENTION_OFFER_INVALID`, exit 2). New `gpc subscriptions offers template retention [--per-user]` prints a starting file. API types cover `retentionRule`, `retentionPerUserRule`, `startTime` and `endTime`.
+- ba22105: `purchases subscription cancel-v2` and `revoke` accept `--etag`: Google applies the request only if the subscription has not changed since you read the etag with `subscription get`. A mismatch fails with `SUBSCRIPTION_ETAG_MISMATCH` (exit 4); a blank `--etag` fails with `SUBSCRIPTION_ETAG_BLANK` (exit 2) rather than dropping the guard. Without the flag, no etag is sent. The `cancel-v2` docs now list Google's real cancellation types (`USER_REQUESTED_STOP_RENEWALS`, `DEVELOPER_REQUESTED_STOP_PAYMENTS`). API types: optional `etag` on the cancel and revoke contexts.
+
 ## 1.2.0
 
 ### Minor Changes
