@@ -38,7 +38,7 @@ features:
     details: "First publishing CLI to support the Play Custom App API. Publish private enterprise apps in 5 minutes via CI/CD instead of 2 hours in Play Console."
   - icon:
       src: /icons/goal.png
-    title: 234 API Endpoints
+    title: 238 API Endpoints
     details: "Releases, vitals, reviews, subscriptions, purchases, reports, Managed Google Play, and more. Fastlane covers ~20. GPC covers everything."
 ---
 
@@ -48,7 +48,7 @@ import { withBase } from "vitepress";
 
 <div class="stats-bar">
   <div class="stat-item">
-    <span class="stat-number">234</span>
+    <span class="stat-number">238</span>
     <span class="stat-label">API Endpoints</span>
   </div>
   <div class="stat-item">
@@ -146,7 +146,7 @@ npm install -g @gpc-cli/cli
 
 |                     | **GPC**                      | Fastlane supply | Console UI   |
 | ------------------- | ---------------------------- | --------------- | ------------ |
-| API coverage        | **234 endpoints**            | ~20             | All (manual) |
+| API coverage        | **238 endpoints**            | ~20             | All (manual) |
 | Runtime             | Node.js or standalone binary | Ruby + Bundler  | Browser      |
 | Cold start          | **<500ms**                   | 2-3s            | 5-10s        |
 | Reviews & Vitals    | Yes                          | No              | Manual       |

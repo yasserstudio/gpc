@@ -4,7 +4,7 @@
 
 **v1.0 is stable.** Commands, flags, exit codes and `--json` output follow semantic versioning, so a pinned CI pipeline keeps working. [What 1.0 promises](https://yasserstudio.github.io/gpc/reference/stability).
 
-234 API endpoints. No Ruby. No browser. No ceremony. First publishing CLI with Managed Google Play support and AI-assisted Play Store release notes in 80+ locales.
+238 API endpoints. No Ruby. No browser. No ceremony. First publishing CLI with Managed Google Play support and AI-assisted Play Store release notes in 80+ locales.
 
 ```bash
 npm install -g @gpc-cli/cli
@@ -35,7 +35,7 @@ gpc doctor                                    # 22 setup checks
 
 |                                 | **GPC**                        | Fastlane supply |
 | ------------------------------- | ------------------------------ | --------------- |
-| API coverage                    | **234 endpoints**              | ~20             |
+| API coverage                    | **238 endpoints**              | ~20             |
 | Runtime                         | Node.js or binary              | Ruby + Bundler  |
 | Cold start                      | <500ms                         | 2-3s            |
 | Reviews & Vitals                | Yes                            | No              |

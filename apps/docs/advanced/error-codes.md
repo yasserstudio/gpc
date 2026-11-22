@@ -293,6 +293,23 @@ Emitted by `gpc purchases orders review-refund`, which submits chargeback-disput
 
 An empty or whitespace-only `--consumption-percent` is treated as not provided, so a typo never claims "0% consumed" on your behalf.
 
+### EXT_TXN\_\* -- External Transaction Refund Errors
+
+| Code                     | Exit | Cause                                                                                                                                                         | Fix                                                  |
+| ------------------------ | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| `EXT_TXN_REFUND_INVALID` | 2    | `gpc external-transactions refund`: neither or both of `--full` and `--partial-amount`, no `--refund-id` for a partial refund, or a bad amount or refund time | Follow the suggestion in the error. Nothing was sent |
+
+### Retention Offer Creation Errors
+
+Emitted by `gpc subscriptions offers create` and `offers update`. GPC checks the offer before anything is sent, so these errors (except `OFFER_ACTIVATE_FAILED`) mean nothing changed in Play Console. See [Retention Offers](/guide/retention-offers).
+
+| Code                      | Exit | Cause                                                                                                 | Fix                                                                             |
+| ------------------------- | ---- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `RETENTION_OFFER_INVALID` | 2    | A retention offer file breaks Google's retention rules. Every problem is listed                       | Fix each listed field; start from `gpc subscriptions offers template retention` |
+| `RETENTION_FLAG_INVALID`  | 2    | A retention flag has a bad value, the times do not fit, or `offers update` targets a non-cohort offer | Follow the suggestion, for example `--discount 0.5` for 50% off                 |
+| `BASE_PLAN_NOT_FOUND`     | 2    | The subscription has no base plan with that ID                                                        | Use a base plan ID from `gpc subscriptions get <product-id>`                    |
+| `OFFER_ACTIVATE_FAILED`   | 4    | `--activate` failed after the draft was created, and Google gave no error code                        | Run the `gpc subscriptions offers activate` command shown in the error          |
+
 ### OFFER\_\* -- Retention Offer Targeting Errors
 
 Mostly emitted by `gpc purchases subscription target-offer` and `untarget-offer`. Rows that name another command say so in the Cause column. For errors from Google, which documents these failures by status, not message text, GPC uses these codes only when Google's message names the cause; anything else passes through as `API_HTTP_400` with Google's message. Google's text is always kept in `details`.

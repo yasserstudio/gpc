@@ -176,21 +176,25 @@ The Edits resource is the transactional wrapper for most write operations. Edits
 
 ## Purchases
 
-| API Endpoint                          | Method | GPC Command                                    |
-| ------------------------------------- | ------ | ---------------------------------------------- |
-| `purchases.products.get`              | GET    | `gpc purchases get <product-id> <token>`       |
-| `purchases.products.acknowledge`      | POST   | `gpc purchases acknowledge <token>`            |
-| `purchases.products.consume`          | POST   | `gpc purchases consume <token>`                |
-| `purchases.subscriptions.get`         | GET    | `gpc purchases subscription get <token>`       |
-| `purchases.subscriptions.acknowledge` | POST   | (via SDK)                                      |
-| `purchases.subscriptions.cancel`      | POST   | `gpc purchases subscription cancel <token>`    |
-| `purchases.subscriptions.defer`       | POST   | `gpc purchases subscription defer <token>`     |
-| `purchases.subscriptionsv2.get`       | GET    | `gpc purchases subscription get <token>`       |
-| `purchases.subscriptionsv2.revoke`    | POST   | `gpc purchases subscription revoke <token>`    |
-| `purchases.subscriptionsv2.cancel`    | POST   | `gpc purchases subscription cancel-v2 <token>` |
-| `purchases.subscriptionsv2.defer`     | POST   | `gpc purchases subscription defer-v2 <token>`  |
-| `purchases.productsv2.get`            | GET    | `gpc purchases product get-v2 <id> <token>`    |
-| `purchases.voidedpurchases.list`      | GET    | `gpc purchases voided list`                    |
+| API Endpoint                                         | Method | GPC Command                                                           |
+| ---------------------------------------------------- | ------ | --------------------------------------------------------------------- |
+| `purchases.products.get`                             | GET    | `gpc purchases get <product-id> <token>`                              |
+| `purchases.products.acknowledge`                     | POST   | `gpc purchases acknowledge <token>`                                   |
+| `purchases.products.consume`                         | POST   | `gpc purchases consume <token>`                                       |
+| `purchases.subscriptions.get`                        | GET    | `gpc purchases subscription get <token>`                              |
+| `purchases.subscriptions.acknowledge`                | POST   | (via SDK)                                                             |
+| `purchases.subscriptions.cancel`                     | POST   | `gpc purchases subscription cancel <token>`                           |
+| `purchases.subscriptions.defer`                      | POST   | `gpc purchases subscription defer <token>`                            |
+| `purchases.subscriptionsv2.get`                      | GET    | `gpc purchases subscription get <token>`                              |
+| `purchases.subscriptionsv2.revoke`                   | POST   | `gpc purchases subscription revoke <token>`                           |
+| `purchases.subscriptionsv2.cancel`                   | POST   | `gpc purchases subscription cancel-v2 <token>`                        |
+| `purchases.subscriptionsv2.defer`                    | POST   | `gpc purchases subscription defer-v2 <token>`                         |
+| `purchases.subscriptionsv2.activateOfferTargeting`   | POST   | `gpc purchases subscription target-offer <token>`                     |
+| `purchases.subscriptionsv2.deactivateOfferTargeting` | POST   | `gpc purchases subscription untarget-offer <token>`                   |
+| `purchases.subscriptionsv2.cancelPlanTransition`     | POST   | `gpc purchases subscription cancel-transition <token>` (experimental) |
+| `purchases.subscriptionsv2.schedulePlanTransition`   | POST   | (via SDK, experimental)                                               |
+| `purchases.productsv2.get`                           | GET    | `gpc purchases product get-v2 <id> <token>`                           |
+| `purchases.voidedpurchases.list`                     | GET    | `gpc purchases voided list`                                           |
 
 ## Orders
 
@@ -366,7 +370,7 @@ Private app publishing for enterprise customers. Separate Google API (`playcusto
 | Reviews                                       | 3         | Publisher    |
 | In-App Products                               | 9         | Publisher    |
 | Subscriptions + Base Plans + Offers           | 19        | Publisher    |
-| Purchases                                     | 13        | Publisher    |
+| Purchases                                     | 17        | Publisher    |
 | Orders                                        | 4         | Publisher    |
 | Monetization (pricing)                        | 1         | Publisher    |
 | Users + Grants                                | 8         | Publisher    |
@@ -383,9 +387,9 @@ Private app publishing for enterprise customers. Separate Google API (`playcusto
 | One-Time Products + Offers                    | 14        | Publisher    |
 | Managed Google Play (Custom Apps)             | 1         | Custom App   |
 | Play Games (Achievements + Leaderboards)      | 10        | Games Config |
-| **Total publisher-focused endpoints covered** | **~234**  |              |
+| **Total publisher-focused endpoints covered** | **~238**  |              |
 
-The domain rows above are a grouped view, not a one-to-one enumeration, so they do not sum exactly to the headline figure. The **~234** total is GPC's tracked count of the publisher-focused operations it covers across four Google Play APIs (Android Publisher v3, Play Developer Reporting v1beta1, Play Custom App Publishing v1, and Games Configuration v1configuration); a single grouped row can map to several underlying endpoints. Counts are approximate: some operations share one Google URL (for example, `reports.download` serves both financial and stats buckets via query parameters).
+The domain rows above are a grouped view, not a one-to-one enumeration, so they do not sum exactly to the headline figure. The **~238** total is GPC's tracked count of the publisher-focused operations it covers across four Google Play APIs (Android Publisher v3, Play Developer Reporting v1beta1, Play Custom App Publishing v1, and Games Configuration v1configuration); a single grouped row can map to several underlying endpoints. Counts are approximate: some operations share one Google URL (for example, `reports.download` serves both financial and stats buckets via query parameters).
 
 ## Planned coverage
 

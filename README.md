@@ -13,7 +13,7 @@
 
 **v1.0 is stable.** Commands, flags, exit codes and `--json` output follow semantic versioning, so a pinned CI pipeline keeps working. [What 1.0 promises](https://yasserstudio.github.io/gpc/reference/stability).
 
-**GPC** is a command-line interface covering 234 publisher-focused endpoints across four Google Play APIs from a single binary. It handles releases, rollouts, store listings, vitals monitoring, reviews, subscriptions, reports, and Managed Google Play publishing without requiring Ruby, a JVM, or a browser. Built for Android developers, release engineers, and DevOps teams who ship from the terminal.
+**GPC** is a command-line interface covering 238 publisher-focused endpoints across four Google Play APIs from a single binary. It handles releases, rollouts, store listings, vitals monitoring, reviews, subscriptions, reports, and Managed Google Play publishing without requiring Ruby, a JVM, or a browser. Built for Android developers, release engineers, and DevOps teams who ship from the terminal.
 
 GPC also includes an offline compliance scanner that catches Google Play policy violations before you upload, and a real-time rollout monitor that auto-halts on crash rate spikes.
 
@@ -74,11 +74,11 @@ Free to use. No account required beyond your existing Google Play service accoun
 
 Every Android release is the same ritual: open the Play Console, upload your AAB, copy-paste release notes, pick a track, set the rollout percentage, click through confirmation screens. Fifteen minutes of clicking, every single time.
 
-GPC covers **234 publisher-focused Google Play API endpoints** in one CLI. No Ruby. No browser. No ceremony.
+GPC covers **238 publisher-focused Google Play API endpoints** in one CLI. No Ruby. No browser. No ceremony.
 
 |                         | **GPC**                                | Fastlane supply | gradle-play-publisher | Console UI   |
 | ----------------------- | -------------------------------------- | --------------- | --------------------- | ------------ |
-| API coverage            | **234 endpoints**                      | ~20             | ~15                   | All (manual) |
+| API coverage            | **238 endpoints**                      | ~20             | ~15                   | All (manual) |
 | Runtime                 | Node.js or standalone binary           | Ruby + Bundler  | JVM                   | Browser      |
 | Cold start              | <500ms                                 | 2-3s            | 3-5s                  | 5-10s        |
 | Reviews & Vitals        | Yes                                    | No              | No                    | Yes (manual) |
@@ -329,7 +329,7 @@ Full docs at **[yasserstudio.github.io/gpc](https://yasserstudio.github.io/gpc/)
 Yes. GPC is free to use. The code is on GitHub. No subscription, no usage limits, no account required beyond your existing Google Play developer account and service account key.
 
 **Does GPC replace Fastlane for Android?**
-For Google Play, yes. GPC covers 234 API endpoints compared to Fastlane supply's ~20. It handles vitals, reviews, subscriptions, Managed Google Play, and offline compliance scanning, none of which Fastlane supports. See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) for a command-by-command mapping.
+For Google Play, yes. GPC covers 238 API endpoints compared to Fastlane supply's ~20. It handles vitals, reviews, subscriptions, Managed Google Play, and offline compliance scanning, none of which Fastlane supports. See the [migration guide](https://yasserstudio.github.io/gpc/migration/from-fastlane) for a command-by-command mapping.
 
 **Can GPC create new apps on Google Play?**
 No. Google Play does not offer an API endpoint to create apps. You create the app once in the Play Console UI, then GPC handles the entire lifecycle after that: uploads, releases, rollouts, metadata, vitals, reviews, and more.
