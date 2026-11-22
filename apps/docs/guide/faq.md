@@ -8,7 +8,7 @@ outline: deep
 
 ### What authentication method should I use?
 
-Use a **service account** for CI/CD pipelines and automation. Use **OAuth** for local development and interactive use. Application Default Credentials (ADC) work automatically in Google Cloud environments (Cloud Build, Cloud Run, GKE). See [Authentication](./authentication) for setup instructions.
+Use a **service account** for CI/CD pipelines, automation and local development. To use your own Google account instead, sign in with `gcloud auth application-default login` and GPC picks it up as Application Default Credentials (ADC), which also work automatically in Google Cloud environments (Cloud Build, Cloud Run, GKE). GPC has no browser login of its own. See [Authentication](./authentication) for setup instructions.
 
 ### How do I install GPC?
 

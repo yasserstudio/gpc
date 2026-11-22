@@ -100,7 +100,7 @@ function getPageDescription(page: PageData): string {
     "guide/installation.md":
       "Install GPC via npm, Homebrew, or standalone binary. No Ruby, no JVM. Works on macOS, Linux, and Windows.",
     "guide/authentication.md":
-      "Authenticate GPC with a service account, OAuth 2.0, or Application Default Credentials. Full setup guide for Play Console.",
+      "Authenticate GPC with a service account or Application Default Credentials. Full setup guide for Play Console.",
     "guide/quick-start.md":
       "Five minutes to your first release. Authenticate, upload, promote, check vitals, and monitor reviews with GPC.",
     "commands/index.md":
@@ -227,7 +227,7 @@ function getPageDescription(page: PageData): string {
     "commands/setup.md":
       "gpc setup: Guided first-time setup for Google Play Console CLI. Auth, config, verification, and shell completion in one command.",
     "commands/auth.md":
-      "gpc auth: Authenticate with service accounts, OAuth, or ADC. Manage profiles and tokens.",
+      "gpc auth: Authenticate with a service account or ADC. Manage profiles and tokens.",
     "commands/config.md":
       "gpc config: View and manage GPC configuration. Set defaults, manage profiles, initialize config files.",
     "commands/users.md":
@@ -552,7 +552,7 @@ ${items}
             name: "What authentication method should I use?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Use a service account for CI/CD pipelines. Use OAuth for local development. Application Default Credentials work in Google Cloud environments.",
+              text: "Use a service account for CI/CD pipelines and local development. To use your own Google account, sign in with gcloud auth application-default login and GPC uses it as Application Default Credentials, which also work in Google Cloud environments.",
             },
           },
           {

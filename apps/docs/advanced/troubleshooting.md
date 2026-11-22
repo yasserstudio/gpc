@@ -48,9 +48,9 @@ Debug mode prints request/response details, timing information, and internal sta
 
 #### No credentials found
 
-**Symptom:** `Error [AUTH_001]: No credentials found`
+**Symptom:** `Error [AUTH_NO_CREDENTIALS]: No credentials found`
 
-**Cause:** GPC cannot locate a service account key or OAuth token.
+**Cause:** GPC found no service account key and no Application Default Credentials.
 
 **Fix:**
 
@@ -58,25 +58,32 @@ Debug mode prints request/response details, timing information, and internal sta
 # Point to your service account key
 export GPC_SERVICE_ACCOUNT=/path/to/service-account.json
 
-# Or log in with OAuth
-gpc auth login
+# Or save the key path in your config
+gpc auth login --service-account /path/to/service-account.json
+
+# Or use your own Google account through gcloud (ADC)
+gcloud auth application-default login --scopes=https://www.googleapis.com/auth/androidpublisher
 ```
 
 #### Token expired
 
-**Symptom:** `Error [AUTH_003]: Token expired`
+**Symptom:** `Error [AUTH_TOKEN_FAILED]` or repeated `401` responses
 
-**Cause:** Your OAuth token has expired and needs to be refreshed.
+**Cause:** A cached access token is stale, or the key was deleted or disabled in Google Cloud. Access tokens last about an hour and GPC refreshes them on its own, so this usually means the key itself no longer works.
 
 **Fix:**
 
 ```bash
-gpc auth login
+# Drop cached tokens and mint a fresh one
+gpc auth clear-cache
+gpc auth status
 ```
+
+If it still fails, create a new key for the service account and point GPC at it.
 
 #### Permission denied
 
-**Symptom:** `Error [AUTH_002]: Permission denied` or `403 Forbidden` on auth
+**Symptom:** `403 Forbidden` from the Play API
 
 **Cause:** Your service account or user account lacks the required permissions.
 

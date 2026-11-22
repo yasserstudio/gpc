@@ -139,7 +139,6 @@ Every config file field has a corresponding environment variable. Environment va
 | `GPC_DEVELOPER_ID`    | `string`                    | `undefined`                       | Developer account ID. Required for `gpc users` commands.                                                                      |
 | `GPC_CA_CERT`         | `string`                    | `undefined`                       | Path to a custom CA certificate file (PEM format). Used for corporate proxies with TLS interception.                          |
 | `HTTPS_PROXY`         | `string`                    | `undefined`                       | HTTP/HTTPS proxy URL. Standard environment variable, not GPC-specific.                                                        |
-| `GPC_SKIP_KEYCHAIN`   | `string`                    | `undefined`                       | Set to any value to skip OS keychain and use file-based credential storage instead.                                           |
 
 ### Setting environment variables
 

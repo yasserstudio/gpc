@@ -17,7 +17,7 @@ GPC is a TypeScript monorepo with a layered architecture. Each package has a foc
 | Package Manager | pnpm                              | Strict dependency resolution, disk efficiency          |
 | CLI Framework   | Commander.js                      | Mature, composable, low overhead                       |
 | API Client      | Native fetch + typed wrappers     | Zero-dependency HTTP client with retry + rate limiting |
-| Auth            | google-auth-library               | Service accounts, OAuth 2.0, ADC                       |
+| Auth            | google-auth-library               | Service accounts and ADC                               |
 | Output          | Built-in formatters               | Human-friendly tables with `--json` machine output     |
 | Config          | Custom loader                     | `.gpcrc.json` discovery, env vars, profiles            |
 | Testing         | Vitest                            | Fast, TypeScript-native, ESM-first                     |
@@ -35,7 +35,7 @@ gpc/
 │   ├── cli/            # CLI entry point (bin: gpc), Commander.js commands
 │   ├── core/           # Business logic, orchestration, plugin manager, preflight scanners
 │   ├── api/            # Google Play Developer API v3 typed client
-│   ├── auth/           # Authentication strategies (SA, OAuth, ADC)
+│   ├── auth/           # Authentication strategies (SA, ADC)
 │   ├── config/         # Configuration loading, validation, profiles
 │   └── plugin-sdk/     # Plugin interface and lifecycle hooks
 ├── plugins/
@@ -109,7 +109,6 @@ gpc/
 ### @gpc-cli/auth
 
 - Service account JSON key file authentication
-- OAuth 2.0 device flow for interactive login
 - Application Default Credentials (ADC) support
 - Two-tier token caching: in-memory (zero I/O) with filesystem persistence
 - Promise-based mutex to deduplicate concurrent token refreshes
@@ -220,17 +219,12 @@ User runs command
        ▼
   Check config file for auth profile
        │
-  Found? ──> Load cached credentials
-       │           │
-       │      Expired? ──> Refresh token
+  Found? ──> Use the profile's service account key
        │
        ▼
   Check Application Default Credentials
        │
   Found? ──> Use ADC
-       │
-       ▼
-  Interactive? ──> OAuth device flow
        │
        ▼
   Error: No credentials found

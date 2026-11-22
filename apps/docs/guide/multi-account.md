@@ -384,9 +384,9 @@ Run `gpc doctor --profile <name>` after granting permissions to confirm each pro
 
 ## Gotchas and limitations
 
-### Token caching is per-profile
+### Token caching is per-account
 
-GPC caches OAuth tokens in `~/.config/gpc/cache/` with the profile name in the path. Switching profiles clears the in-memory token and the next API call fetches a new one. There's no shared token pool across profiles — which is the right behavior for isolation but means the first command after a profile switch has a ~200-500ms auth round trip.
+GPC caches access tokens in `~/.cache/gpc/token-cache.json` (mode `0600`), keyed by service account email and scopes. Profiles that use different service accounts never share a token, so the first command for an account that has no fresh token pays a ~200-500ms auth round trip. `gpc auth clear-cache` empties the cache for every account.
 
 ### No "all profiles at once" command
 
@@ -447,7 +447,7 @@ gpc auth logout --profile <name>
 
 ## Related
 
-- [Authentication](./authentication.md) — single-profile setup, OAuth, ADC, per-profile commands
+- [Authentication](./authentication.md) — single-profile setup, ADC, where tokens are stored
 - [Configuration](./configuration.md) — config file format, environment variables, precedence
 - [`gpc auth`](../commands/auth.md) — per-command flag reference for all auth subcommands
 - [Enterprise Publishing](./enterprise-publishing.md) — multi-account is especially relevant for agencies that manage private apps for multiple enterprise customers

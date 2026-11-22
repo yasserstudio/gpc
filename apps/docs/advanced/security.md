@@ -4,7 +4,7 @@ outline: deep
 
 # Security
 
-GPC handles sensitive credentials (service account keys, OAuth tokens) and interacts with production app releases. This page documents the threat model, security controls, and best practices.
+GPC handles sensitive credentials (service account keys and the short-lived access tokens minted from them) and interacts with production app releases. This page documents the threat model, security controls, and best practices.
 
 ## Threat Model
 
@@ -13,7 +13,7 @@ GPC handles sensitive credentials (service account keys, OAuth tokens) and inter
 | Asset                | Sensitivity | Risk if Compromised                        |
 | -------------------- | ----------- | ------------------------------------------ |
 | Service account keys | Critical    | Full API access to all apps in the account |
-| OAuth tokens         | High        | User-scoped access, time-limited           |
+| Access tokens        | High        | Same access as the key, about 1 hour       |
 | API responses        | Medium      | May contain PII (reviews, user emails)     |
 | Upload artifacts     | Medium      | AAB/APK files (intellectual property)      |
 | Configuration files  | Low         | May reference credential paths             |
@@ -24,7 +24,7 @@ GPC handles sensitive credentials (service account keys, OAuth tokens) and inter
 | ---------------------------- | ------ | -------------------------------------------------------------------------------- |
 | Credential committed to repo | High   | `.gitignore` templates, `gpc doctor` warnings                                    |
 | Credential leaked in logs    | High   | Redaction in verbose/debug output; proxy credentials stripped from diagnostics   |
-| Token theft from disk        | Medium | OS keychain storage, file permissions (0600)                                     |
+| Token theft from disk        | Medium | Token cache file mode 0600 in a 0700 directory; tokens expire in about 1 hour    |
 | Man-in-the-middle            | Low    | TLS-only, custom CA certificate support                                          |
 | Malicious plugin             | Medium | Plugin approval gate before module code executes; permission scoping             |
 | Dependency supply chain      | Medium | Lockfile, audit, 4 runtime deps, `min-release-age=7`, Socket.dev CI + GitHub App |
@@ -66,24 +66,11 @@ Security properties:
 - Cache key validation enforces email format only -- prevents path traversal
 - 5-minute safety margin before expiry triggers proactive refresh
 
-### OAuth Tokens
+### No browser login, no keychain
 
-| Platform    | Storage Location                                        |
-| ----------- | ------------------------------------------------------- |
-| macOS       | Keychain (`security` CLI)                               |
-| Linux       | `libsecret` / `gnome-keyring` / encrypted file fallback |
-| Windows     | Windows Credential Manager                              |
-| CI/headless | Not applicable -- use service account                   |
+GPC does not run an OAuth browser or device flow and does not store refresh tokens or use the OS keychain. It holds two kinds of credential only: a service account key you keep on disk (GPC records its path, not its content) and Application Default Credentials, which stay in `gcloud`'s own files. To act as your own Google account, sign in with `gcloud auth application-default login` and GPC picks it up through ADC.
 
-**Fallback:** If no OS keychain is available, tokens are stored in `~/.config/gpc/credentials.json` with `0600` permissions and a warning on first use.
-
-**Token lifecycle:**
-
-1. OAuth device flow produces access + refresh tokens
-2. Access token cached (1-hour TTL)
-3. On expiry, auto-refreshed using refresh token
-4. On `gpc auth logout`, token is revoked and deleted from storage
-5. Refresh token rotation enforced when supported
+`gpc auth clear-cache` deletes the token cache; `gpc auth logout` also forgets the configured key path. Neither revokes anything at Google: to cut off access, delete the key in Google Cloud or remove the service account in Play Console.
 
 ## Secrets Redaction
 
@@ -135,19 +122,17 @@ Redaction is applied before formatting and cannot be disabled.
 
 ### Files Created by GPC
 
-| File                             | Permissions | Contents                         |
-| -------------------------------- | ----------- | -------------------------------- |
-| `~/.config/gpc/config.json`      | `0644`      | Non-sensitive configuration      |
-| `~/.config/gpc/credentials.json` | `0600`      | OAuth tokens (keychain fallback) |
-| `~/.config/gpc/profiles/`        | `0700`      | Profile directories              |
-| `~/.config/gpc/audit.log`        | `0600`      | Audit log (JSON Lines)           |
+| File                            | Permissions | Contents                                                  |
+| ------------------------------- | ----------- | --------------------------------------------------------- |
+| `~/.config/gpc/config.json`     | `0600`      | Configuration and profiles (key paths, never key content) |
+| `~/.config/gpc/audit.log`       | `0600`      | Audit log (JSON Lines)                                    |
+| `~/.cache/gpc/token-cache.json` | `0600`      | Short-lived access tokens                                 |
 
 ### Files Validated by GPC
 
 | File                | Expected Permissions | Action if Wrong          |
 | ------------------- | -------------------- | ------------------------ |
 | Service account key | `0600`               | Warning via `gpc doctor` |
-| Credentials file    | `0600`               | Auto-fix + warning       |
 | Config directory    | `0700`               | Warning via `gpc doctor` |
 
 ## Network Security
@@ -167,7 +152,7 @@ Redaction is applied before formatting and cannot be disabled.
 | With authentication  | `https://user:pass@proxy:8080`             |
 | If unusable          | Fails closed: exit 5, nothing sent direct  |
 
-A configured proxy is never silently skipped. If GPC cannot apply it, the command stops before any request, so OAuth tokens cannot leave through a direct connection. Proxy URLs are not echoed in errors or `gpc doctor` output.
+A configured proxy is never silently skipped. If GPC cannot apply it, the command stops before any request, so access tokens cannot leave through a direct connection. Proxy URLs are not echoed in errors or `gpc doctor` output.
 
 ### No Telemetry
 
@@ -546,7 +531,7 @@ GPC ships two copies of `undici`, for different jobs:
 
 Both ranges resolve to patched releases on a fresh install. If `npm audit` reports `undici` in an existing project, refresh your lockfile (`npm update`) so it picks up the latest patch.
 
-**Do not pin `undici` to 6.x with an `overrides` entry.** Node 26's built-in `fetch` ignores the proxy setting `undici` 6 installs, so with such an override GPC's Play API requests, and their OAuth tokens, would go around your proxy on Node 26.
+**Do not pin `undici` to 6.x with an `overrides` entry.** Node 26's built-in `fetch` ignores the proxy setting `undici` 6 installs, so with such an override GPC's Play API requests, and their access tokens, would go around your proxy on Node 26.
 
 ## Security Checklist
 

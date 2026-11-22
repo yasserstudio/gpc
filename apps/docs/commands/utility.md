@@ -381,7 +381,7 @@ gpc version --json
 
 ## `gpc cache`
 
-Manage the local GPC cache. GPC caches app status snapshots, OAuth access tokens, and update-check results to reduce API calls and improve responsiveness.
+Manage the local GPC cache. GPC caches app status snapshots, access tokens, and update-check results to reduce API calls and improve responsiveness.
 
 ### Synopsis
 
@@ -442,7 +442,7 @@ curl -H "Authorization: Bearer $(gpc auth token)" \
   "https://androidpublisher.googleapis.com/androidpublisher/v3/applications/com.example.app/tracks"
 ```
 
-The token is fetched using your configured credentials (service account, OAuth, or ADC). It is cached for its remaining lifetime.
+The token is fetched using your configured credentials (service account or ADC). It is cached for its remaining lifetime.
 
 ---
 

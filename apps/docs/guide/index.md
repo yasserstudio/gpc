@@ -57,7 +57,7 @@ Plus: device tiers, internal sharing, data safety, recovery actions, external tr
 | **Plugins**          | SDK with lifecycle hooks                           | Lanes + actions        | None                  | None           |
 | **Output formats**   | `table`, `json`, `yaml`, `markdown`, `csv`, `tsv`  | Stdout                 | Stdout                | N/A            |
 | **Dry run**          | All write operations                               | None                   | None                  | N/A            |
-| **Auth methods**     | Service account, OAuth, ADC, env var               | Service account        | Service account       | Google account |
+| **Auth methods**     | Service account, ADC, env var                      | Service account        | Service account       | Google account |
 | **Cold start**       | <500ms                                             | 2-3s                   | 3-5s                  | 5-10s          |
 
 ## Architecture
@@ -69,7 +69,7 @@ gpc/
   packages/cli        CLI entry point (Commander.js)
   packages/core       Business logic and orchestration
   packages/api        Typed Google Play API v3 client
-  packages/auth       Service account, OAuth, ADC
+  packages/auth       Service account, ADC
   packages/config     Config loading, env vars, profiles
   packages/plugin-sdk Plugin interface and lifecycle hooks
   plugins/plugin-ci   CI/CD helpers (GitHub Actions summaries)
@@ -91,6 +91,6 @@ Each package is independently installable. Use `@gpc-cli/api` and `@gpc-cli/auth
 
 - [Installation](/guide/installation) — Install via Homebrew, npm, standalone binary, or from source
 - [Quick Start](/guide/quick-start) — Authenticate, upload, promote, and monitor in 5 minutes
-- [Authentication](/guide/authentication) — Set up service accounts, OAuth, or ADC
+- [Authentication](/guide/authentication) — Set up a service account or ADC
 - [Configuration](/guide/configuration) — Config files, environment variables, and profiles
 - [CI/CD Integration](/ci-cd/) — GitHub Actions, GitLab CI, Bitbucket, CircleCI recipes

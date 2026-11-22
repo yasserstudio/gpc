@@ -103,7 +103,7 @@ The full GPC skill index:
 
 | Skill                    | Covers                                                               |
 | ------------------------ | -------------------------------------------------------------------- |
-| `gpc-setup`              | Service account, OAuth, ADC, profiles, `gpc doctor`                  |
+| `gpc-setup`              | Service account, ADC, profiles, `gpc doctor`                         |
 | `gpc-onboarding`         | First-run setup and `gpc quickstart` wizard                          |
 | `gpc-release-flow`       | Upload, rollout, promote, `gpc publish`, `gpc diff`, `gpc changelog` |
 | `gpc-train`              | Automated staged rollout pipeline with crash and ANR gates           |

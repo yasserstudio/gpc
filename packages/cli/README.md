@@ -86,7 +86,7 @@ curl -fsSL https://raw.githubusercontent.com/yasserstudio/gpc/main/scripts/insta
 | Package                                                                  | What it does                                     |
 | ------------------------------------------------------------------------ | ------------------------------------------------ |
 | [@gpc-cli/api](https://www.npmjs.com/package/@gpc-cli/api)               | Typed Google Play API v3 client (standalone SDK) |
-| [@gpc-cli/auth](https://www.npmjs.com/package/@gpc-cli/auth)             | Authentication (service account, OAuth, ADC)     |
+| [@gpc-cli/auth](https://www.npmjs.com/package/@gpc-cli/auth)             | Authentication (service account, ADC)            |
 | [@gpc-cli/core](https://www.npmjs.com/package/@gpc-cli/core)             | Business logic and orchestration                 |
 | [@gpc-cli/config](https://www.npmjs.com/package/@gpc-cli/config)         | Configuration and profiles                       |
 | [@gpc-cli/plugin-sdk](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface                                 |

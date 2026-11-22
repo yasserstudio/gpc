@@ -114,15 +114,13 @@ Error codes are namespaced by prefix to indicate the subsystem that generated th
 
 Exit code: `3`
 
-| Code                       | Message                  | Cause                                  | Fix                                               |
-| -------------------------- | ------------------------ | -------------------------------------- | ------------------------------------------------- |
-| `AUTH_TOKEN_EXPIRED`       | Access token has expired | Token TTL exceeded                     | Run `gpc auth login` or check service account     |
-| `AUTH_INVALID_CREDENTIALS` | Invalid credentials      | Malformed service account JSON         | Verify JSON file is valid and complete            |
-| `AUTH_MISSING_CREDENTIALS` | No credentials found     | No auth method configured              | Set `GPC_SERVICE_ACCOUNT` or run `gpc auth login` |
-| `AUTH_INSUFFICIENT_SCOPE`  | Insufficient scopes      | Token missing required scope           | Re-authenticate with correct scopes               |
-| `AUTH_REFRESH_FAILED`      | Token refresh failed     | Refresh token revoked or expired       | Run `gpc auth login` again                        |
-| `AUTH_KEYFILE_NOT_FOUND`   | Key file not found       | File path in config does not exist     | Check `GPC_SERVICE_ACCOUNT` path                  |
-| `AUTH_KEYFILE_INVALID`     | Invalid key file format  | File is not valid service account JSON | Download a fresh key from Google Cloud Console    |
+| Code                  | Message                                  | Cause                                                                 | Fix                                                                                                    |
+| --------------------- | ---------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `AUTH_NO_CREDENTIALS` | No credentials found                     | No service account key and no Application Default Credentials         | Set `GPC_SERVICE_ACCOUNT`, run `gpc auth login --service-account <path>`, or set up ADC                |
+| `AUTH_FILE_NOT_FOUND` | Failed to read service account key file  | The key path in a flag, env var or config does not exist              | Check the path                                                                                         |
+| `AUTH_INVALID_KEY`    | Service account key is invalid           | Not JSON, missing a required field, or not a `service_account` key    | Download a fresh service account key from Google Cloud Console                                         |
+| `AUTH_TOKEN_FAILED`   | Could not get an access token            | Google refused the key (deleted or disabled) or ADC returned no token | Run `gpc auth clear-cache`, then check the key or `gcloud auth application-default print-access-token` |
+| `AUTH_CACHE_INVALID`  | Cache directory must be an absolute path | A relative token cache directory, or a malformed cache key            | Use an absolute path for the cache directory                                                           |
 
 ### API\_\* -- Google Play API Errors
 

@@ -103,7 +103,7 @@ A `Details:` line follows when there is an upstream message worth quoting. Branc
 
 | Code                              | Cause                                                      | Fix                                                                                                |
 | --------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `AUTH_NO_CREDENTIALS`             | No service account or OAuth configured                     | Run `gpc auth login --service-account path/to/key.json`                                            |
+| `AUTH_NO_CREDENTIALS`             | No service account or ADC configured                       | Run `gpc auth login --service-account path/to/key.json`                                            |
 | `AUTH_INVALID_KEY`                | Service account JSON is malformed                          | Download a fresh key from Google Cloud Console                                                     |
 | `AUTH_FILE_NOT_FOUND`             | Key file path does not exist                               | Check the path in `GPC_SERVICE_ACCOUNT` or config                                                  |
 | `AUTH_TOKEN_FAILED`               | Could not obtain access token                              | Verify key is valid and not revoked                                                                |

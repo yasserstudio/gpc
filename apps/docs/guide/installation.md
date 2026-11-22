@@ -311,6 +311,6 @@ Completions fill in live values for `--profile`, `--app`, and `--track` by consu
 ## Next Steps
 
 - [Quick Start](/guide/quick-start) — Authenticate and run your first commands
-- [Authentication](/guide/authentication) — Set up service accounts, OAuth, or ADC
+- [Authentication](/guide/authentication) — Set up a service account or ADC
 - [Configuration](/guide/configuration) — Config files, environment variables, and profiles
 - [Migration from Fastlane](/migration/from-fastlane) — Most commands map one-to-one

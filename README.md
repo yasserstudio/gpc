@@ -277,7 +277,7 @@ See the full [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/) for GitH
 - **Dry run everything** - every write command supports `--dry-run`. Run your full pipeline against real data without publishing a thing.
 - **Validate without committing** - `--validate-only` on publish and release commands checks everything server-side without creating a release.
 - **Interactive prompts** - miss a required flag and GPC asks. In CI, it fails fast instead. Disable with `--no-interactive`.
-- **Four auth methods** - service account, OAuth, env var, or Application Default Credentials.
+- **Service account or ADC** - a key file, a key in `GPC_SERVICE_ACCOUNT`, or Application Default Credentials (including your own `gcloud` login).
 - **Multiple accounts** - `gpc auth profiles`, `gpc auth switch`, `gpc auth whoami`.
 
 ---
@@ -286,15 +286,15 @@ See the full [CI/CD recipes](https://yasserstudio.github.io/gpc/ci-cd/) for GitH
 
 GPC is a TypeScript monorepo. Use the CLI from your terminal, or import the packages into your own projects as a standalone SDK.
 
-| Package                                                                    | Description                                  |
-| -------------------------------------------------------------------------- | -------------------------------------------- |
-| [`@gpc-cli/cli`](https://www.npmjs.com/package/@gpc-cli/cli)               | CLI entry point (the `gpc` command)          |
-| [`@gpc-cli/core`](https://www.npmjs.com/package/@gpc-cli/core)             | Business logic and command orchestration     |
-| [`@gpc-cli/api`](https://www.npmjs.com/package/@gpc-cli/api)               | Typed Google Play Developer API v3 client    |
-| [`@gpc-cli/auth`](https://www.npmjs.com/package/@gpc-cli/auth)             | Authentication (service account, OAuth, ADC) |
-| [`@gpc-cli/config`](https://www.npmjs.com/package/@gpc-cli/config)         | Configuration loading and profiles           |
-| [`@gpc-cli/plugin-sdk`](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface for extensions              |
-| [`@gpc-cli/plugin-ci`](https://www.npmjs.com/package/@gpc-cli/plugin-ci)   | CI/CD helpers and step summaries             |
+| Package                                                                    | Description                               |
+| -------------------------------------------------------------------------- | ----------------------------------------- |
+| [`@gpc-cli/cli`](https://www.npmjs.com/package/@gpc-cli/cli)               | CLI entry point (the `gpc` command)       |
+| [`@gpc-cli/core`](https://www.npmjs.com/package/@gpc-cli/core)             | Business logic and command orchestration  |
+| [`@gpc-cli/api`](https://www.npmjs.com/package/@gpc-cli/api)               | Typed Google Play Developer API v3 client |
+| [`@gpc-cli/auth`](https://www.npmjs.com/package/@gpc-cli/auth)             | Authentication (service account, ADC)     |
+| [`@gpc-cli/config`](https://www.npmjs.com/package/@gpc-cli/config)         | Configuration loading and profiles        |
+| [`@gpc-cli/plugin-sdk`](https://www.npmjs.com/package/@gpc-cli/plugin-sdk) | Plugin interface for extensions           |
+| [`@gpc-cli/plugin-ci`](https://www.npmjs.com/package/@gpc-cli/plugin-ci)   | CI/CD helpers and step summaries          |
 
 See the [SDK usage guide](https://yasserstudio.github.io/gpc/advanced/sdk-usage) for building custom integrations with `@gpc-cli/api`.
 

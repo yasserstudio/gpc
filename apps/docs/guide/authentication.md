@@ -4,12 +4,11 @@ outline: deep
 
 # Authentication
 
-GPC supports four authentication methods. [Service accounts](/glossary/play-service-account) are recommended for CI/CD; OAuth is available for interactive use.
+GPC authenticates with a [service account](/glossary/play-service-account) key or with Google's Application Default Credentials (ADC). A service account is recommended everywhere, including developer machines. GPC has no browser login of its own: to act as your own Google account, sign in through `gcloud` and use ADC.
 
 | Method                                                              | Best For             | Requires                    | Interactive |
 | ------------------------------------------------------------------- | -------------------- | --------------------------- | ----------- |
 | [Service account](#service-account)                                 | CI/CD, automation    | JSON key file               | No          |
-| [OAuth 2.0](#oauth-2-0)                                             | Developer machines   | Google account              | Yes         |
 | [Environment variable](#environment-variable)                       | CI/CD secrets        | `GPC_SERVICE_ACCOUNT`       | No          |
 | [Application Default Credentials](#application-default-credentials) | GCP-hosted workloads | `gcloud` or metadata server | No          |
 
@@ -130,7 +129,7 @@ When using a service account, GPC:
 1. Reads the private key from the JSON key file
 2. Signs a JWT with the `androidpublisher` scope
 3. Exchanges the JWT for an access token (valid for 1 hour)
-4. Caches the access token in memory and on disk
+4. Caches the access token in memory and on disk (see [Where credentials and tokens are stored](#where-credentials-and-tokens-are-stored))
 5. Automatically refreshes the token when it expires (within 5 minutes of expiry)
 
 **Performance optimizations:**
@@ -141,47 +140,31 @@ When using a service account, GPC:
 
 Tokens are never written to logs or command output. The `--verbose` flag shows token exchange timing but redacts the token value.
 
-## OAuth 2.0
+## Where credentials and tokens are stored
 
-For interactive use on developer machines. Opens a browser for Google account authentication.
+GPC never copies your key and does not use the OS keychain. It stores:
 
-```bash
-gpc auth login
-```
+| What                      | Where                                                                       | Notes                                                                          |
+| ------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Path to your key file     | `~/.config/gpc/config.json` (`auth.serviceAccount`, or the profile's entry) | Written by `gpc auth login --service-account`; the key stays where you keep it |
+| Short-lived access tokens | `~/.cache/gpc/token-cache.json`                                             | File mode `0600`, keyed by account and scopes, about 1 hour each               |
 
-Expected output:
+`$XDG_CONFIG_HOME` and `$XDG_CACHE_HOME` replace `~/.config` and `~/.cache` when set. Keys passed as JSON in `GPC_SERVICE_ACCOUNT` are read from the environment and never written to disk. ADC credentials stay in `gcloud`'s own files.
 
-```
-Opening browser for authentication...
-If the browser does not open, visit this URL:
-https://accounts.google.com/o/oauth2/v2/auth?client_id=...&scope=...
-
-Waiting for authorization...
-
-Authenticated as developer@example.com
-Profile "default" saved
-```
-
-OAuth tokens are cached in the profile. The refresh token is used to obtain new access tokens without re-authenticating.
-
-### Token lifecycle
-
-When using OAuth:
-
-1. GPC opens a browser for Google account authorization
-2. The user grants the `androidpublisher` scope
-3. GPC receives an authorization code via local redirect
-4. The code is exchanged for an access token (1 hour) and refresh token (long-lived)
-5. Both tokens are cached in the profile
-6. When the access token expires, GPC uses the refresh token to get a new one automatically
-
-### Revoking OAuth tokens
+Clear the cached tokens (your configured credentials stay):
 
 ```bash
-gpc auth logout
+gpc auth clear-cache
 ```
 
-This revokes the refresh token with Google and deletes the cached credentials from the profile.
+Remove the configured credentials and the token cache:
+
+```bash
+gpc auth logout                    # default config
+gpc auth logout --profile staging  # one profile
+```
+
+`gpc auth logout` only forgets credentials locally. To revoke access, delete the key in the [Google Cloud Console](https://console.cloud.google.com/iam-admin/serviceaccounts) or remove the service account's access in Play Console.
 
 ## Environment Variable
 
@@ -247,7 +230,8 @@ ADC is the lowest-priority auth method. GPC checks for credentials in this order
 1. `--service-account` CLI flag
 2. `GPC_SERVICE_ACCOUNT` environment variable
 3. Profile-based credentials (from `gpc auth login`)
-4. Application Default Credentials
+4. `GOOGLE_APPLICATION_CREDENTIALS`, when it points to a service account key file
+5. Application Default Credentials
 
 ## Play Console Permissions
 
