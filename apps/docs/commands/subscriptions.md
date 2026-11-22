@@ -17,28 +17,28 @@ Do not conflate this with the _other_ August 31, 2026 deadline: the annual **tar
 
 ## Commands
 
-| Command                                                                                 | Description                      |
-| --------------------------------------------------------------------------------------- | -------------------------------- |
-| [`subscriptions list`](#subscriptions-list)                                             | List subscriptions               |
-| [`subscriptions get`](#subscriptions-get)                                               | Get a subscription               |
-| [`subscriptions create`](#subscriptions-create)                                         | Create a subscription from JSON  |
-| [`subscriptions update`](#subscriptions-update)                                         | Update a subscription from JSON  |
-| [`subscriptions delete`](#subscriptions-delete)                                         | Delete a subscription            |
-| [`subscriptions base-plans activate`](#subscriptions-base-plans-activate)               | Activate a base plan             |
-| [`subscriptions base-plans deactivate`](#subscriptions-base-plans-deactivate)           | Deactivate a base plan           |
-| [`subscriptions base-plans delete`](#subscriptions-base-plans-delete)                   | Delete a base plan               |
-| [`subscriptions base-plans migrate-prices`](#subscriptions-base-plans-migrate-prices)   | Migrate base plan prices         |
-| [`subscriptions offers list`](#subscriptions-offers-list)                               | List offers for a base plan      |
-| [`subscriptions offers get`](#subscriptions-offers-get)                                 | Get an offer                     |
-| [`subscriptions offers template`](#subscriptions-offers-template)                       | Print starter offer JSON         |
-| [`subscriptions offers create`](#subscriptions-offers-create)                           | Create an offer from JSON        |
-| [`subscriptions offers update`](#subscriptions-offers-update)                           | Update an offer from JSON        |
-| [`subscriptions offers delete`](#subscriptions-offers-delete)                           | Delete an offer                  |
-| [`subscriptions offers activate`](#subscriptions-offers-activate)                       | Activate an offer                |
-| [`subscriptions offers deactivate`](#subscriptions-offers-deactivate)                   | Deactivate an offer              |
-| [`subscriptions offers batch-get`](#subscriptions-offers-batch-get)                     | Batch get multiple offers        |
-| [`subscriptions offers batch-update-states`](#subscriptions-offers-batch-update-states) | Batch activate/deactivate offers |
-| [`subscriptions diff`](#subscriptions-diff)                                             | Compare local JSON vs remote     |
+| Command                                                                                 | Description                        |
+| --------------------------------------------------------------------------------------- | ---------------------------------- |
+| [`subscriptions list`](#subscriptions-list)                                             | List subscriptions                 |
+| [`subscriptions get`](#subscriptions-get)                                               | Get a subscription                 |
+| [`subscriptions create`](#subscriptions-create)                                         | Create a subscription from JSON    |
+| [`subscriptions update`](#subscriptions-update)                                         | Update a subscription from JSON    |
+| [`subscriptions delete`](#subscriptions-delete)                                         | Delete a subscription              |
+| [`subscriptions base-plans activate`](#subscriptions-base-plans-activate)               | Activate a base plan               |
+| [`subscriptions base-plans deactivate`](#subscriptions-base-plans-deactivate)           | Deactivate a base plan             |
+| [`subscriptions base-plans delete`](#subscriptions-base-plans-delete)                   | Delete a base plan                 |
+| [`subscriptions base-plans migrate-prices`](#subscriptions-base-plans-migrate-prices)   | Migrate base plan prices           |
+| [`subscriptions offers list`](#subscriptions-offers-list)                               | List offers for a base plan        |
+| [`subscriptions offers get`](#subscriptions-offers-get)                                 | Get an offer                       |
+| [`subscriptions offers template`](#subscriptions-offers-template)                       | Print starter offer JSON           |
+| [`subscriptions offers create`](#subscriptions-offers-create)                           | Create an offer from JSON or flags |
+| [`subscriptions offers update`](#subscriptions-offers-update)                           | Update an offer from JSON or flags |
+| [`subscriptions offers delete`](#subscriptions-offers-delete)                           | Delete an offer                    |
+| [`subscriptions offers activate`](#subscriptions-offers-activate)                       | Activate an offer                  |
+| [`subscriptions offers deactivate`](#subscriptions-offers-deactivate)                   | Deactivate an offer                |
+| [`subscriptions offers batch-get`](#subscriptions-offers-batch-get)                     | Batch get multiple offers          |
+| [`subscriptions offers batch-update-states`](#subscriptions-offers-batch-update-states) | Batch activate/deactivate offers   |
+| [`subscriptions diff`](#subscriptions-diff)                                             | Compare local JSON vs remote       |
 
 ## `subscriptions list`
 
@@ -436,19 +436,34 @@ The cohort template follows the sample in Google's retention offers guide: subsc
 
 ## `subscriptions offers create`
 
-Create a new offer from a JSON file.
+Create a new offer from a JSON file, or build a retention offer from flags.
 
 ### Synopsis
 
 ```bash
 gpc subscriptions offers create <product-id> <base-plan-id> --file <path>
+gpc subscriptions offers create <product-id> <base-plan-id> --retention <cohort|per-user> --offer-id <id> --discount <fraction> [options]
 ```
+
+Give either `--file` or `--retention`, not both.
 
 ### Options
 
-| Flag     | Short | Type     | Default        | Description                       |
-| -------- | ----- | -------- | -------------- | --------------------------------- |
-| `--file` |       | `string` | **(required)** | Path to JSON file with offer data |
+| Flag                | Short | Type      | Default           | Description                                                            |
+| ------------------- | ----- | --------- | ----------------- | ---------------------------------------------------------------------- |
+| `--file`            |       | `string`  |                   | Path to JSON file with offer data                                      |
+| `--retention`       |       | `string`  |                   | Build a retention offer from flags: `cohort` or `per-user`             |
+| `--offer-id`        |       | `string`  |                   | Offer ID (required with `--retention`)                                 |
+| `--discount`        |       | `string`  |                   | Discount as a fraction: `0.5` is 50% off (required with `--retention`) |
+| `--periods`         |       | `number`  | `1`               | Billing periods the discount lasts (1 to 52)                           |
+| `--min-duration`    |       | `string`  | `0d`              | Days subscribed before the offer shows, such as `90d` (cohort only)    |
+| `--multiple-claims` |       | `boolean` | `false`           | Let a user claim the offer more than once (cohort only)                |
+| `--cooldown`        |       | `string`  |                   | Days between claims, such as `180d` (cohort, with `--multiple-claims`) |
+| `--regions`         |       | `string`  | base plan regions | Comma-separated region codes, such as `US,GB`                          |
+| `--start`           |       | `string`  |                   | RFC 3339 time the offer becomes available                              |
+| `--end`             |       | `string`  |                   | RFC 3339 time the offer stops being available                          |
+| `--activate`        |       | `boolean` | `false`           | Activate the offer after creating it                                   |
+| `--regions-version` |       | `string`  | `2022/02`         | Regional pricing version                                               |
 
 ### Example
 
@@ -481,6 +496,29 @@ gpc subscriptions offers create premium_monthly p1m \
   --file offer.json
 ```
 
+### Retention offer from flags
+
+`--retention` builds the offer for you. GPC reads the base plan from Google Play and copies its billing period into the phase and its regions into the offer. When the base plan sells in other regions, the offer does too, unless you pass `--regions`.
+
+```bash
+# 50% off for 2 months, shown to users subscribed for 90 days or more
+gpc subscriptions offers create premium_monthly p1m \
+  --app com.example.app \
+  --retention cohort --offer-id winback-50 \
+  --discount 0.5 --periods 2 --min-duration 90d
+
+# 30% off once, for subscribers you target with purchases subscription target-offer
+gpc subscriptions offers create premium_monthly p1m \
+  --app com.example.app \
+  --retention per-user --offer-id save-30 --discount 0.3 --activate
+```
+
+The offer is created as a draft. GPC prints the command to activate it, or add `--activate` to do both. If the activate step fails, the draft stays in Play Console and the error shows the command to activate it. Add `--dry-run` to see the offer without sending it.
+
+Flag values are checked before GPC loads credentials, so a bad value exits with code 2 even on a machine with no key set up.
+
+Durations are in days: `90d` or `P90D`. Google does not accept months for these fields. `--discount` is a fraction, so `--discount 50` fails and suggests `0.5`.
+
 ### Retention offers
 
 When the file targets `retentionRule` or `retentionPerUserRule`, GPC checks it against Google's retention rules before calling the API and lists every problem at once:
@@ -493,31 +531,40 @@ When the file targets `retentionRule` or `retentionPerUserRule`, GPC checks it a
 - One phase, `recurrenceCount` from 1 to 52, priced with `relativeDiscount` only (greater than 0, less than 1). `price`, `absoluteDiscount` and `free` are not allowed.
 - `startTime` and `endTime` are RFC 3339 timestamps with a timezone; `endTime` is in the future and after `startTime`.
 
-A failed check exits with code 2 and nothing is sent to Google Play. Google also requires an auto-renewing base plan (not installments) and, when `recurrenceCount` is above 1, a phase `duration` equal to the base plan billing period. Google enforces those two server-side. Start from [`offers template retention`](#subscriptions-offers-template).
+A failed check exits with code 2 and nothing is sent to Google Play. On create, GPC then reads the base plan and refuses one that is not auto-renewing (prepaid or installments). Google also requires, when `recurrenceCount` is above 1, a phase `duration` equal to the base plan billing period, and checks it server-side. On update, Google checks both. Start from [`offers template retention`](#subscriptions-offers-template).
 
-| Code                      | Exit | Description                                                    |
-| ------------------------- | ---- | -------------------------------------------------------------- |
-| `RETENTION_OFFER_INVALID` | 2    | The retention offer breaks one or more rules; nothing was sent |
+| Code                      | Exit | Description                                                                                                             |
+| ------------------------- | ---- | ----------------------------------------------------------------------------------------------------------------------- |
+| `RETENTION_OFFER_INVALID` | 2    | The retention offer breaks one or more rules; nothing was sent                                                          |
+| `RETENTION_FLAG_INVALID`  | 2    | A retention flag has a bad value; nothing was sent                                                                      |
+| `BASE_PLAN_NOT_FOUND`     | 2    | The subscription has no base plan with that ID                                                                          |
+| `USAGE_ERROR`             | 2    | `--file` and retention flags were mixed, or neither was given, or `--retention` is missing `--offer-id` or `--discount` |
 
 ---
 
 ## `subscriptions offers update`
 
-Update an existing offer from a JSON file.
+Update an existing offer from a JSON file, or change one retention setting with a flag.
 
 ### Synopsis
 
 ```bash
 gpc subscriptions offers update <product-id> <base-plan-id> <offer-id> --file <path> [options]
+gpc subscriptions offers update <product-id> <base-plan-id> <offer-id> [--start <time>] [--end <time>] [--min-duration <days>] [--[no-]multiple-claims] [--cooldown <days>]
 ```
 
 ### Options
 
-| Flag                | Short | Type     | Default        | Description                                             |
-| ------------------- | ----- | -------- | -------------- | ------------------------------------------------------- |
-| `--file`            |       | `string` | **(required)** | Path to JSON file with offer data                       |
-| `--update-mask`     |       | `string` |                | Comma-separated field mask                              |
-| `--regions-version` |       | `string` | `2022/02`      | Regional pricing version (e.g. `2025/01`) for the offer |
+| Flag                | Short | Type      | Default   | Description                                                                         |
+| ------------------- | ----- | --------- | --------- | ----------------------------------------------------------------------------------- |
+| `--file`            |       | `string`  |           | Path to JSON file with offer data                                                   |
+| `--update-mask`     |       | `string`  |           | Comma-separated field mask (with `--file`)                                          |
+| `--start`           |       | `string`  |           | RFC 3339 time the offer becomes available                                           |
+| `--end`             |       | `string`  |           | RFC 3339 time the offer stops being available                                       |
+| `--min-duration`    |       | `string`  |           | Days subscribed before the offer shows (cohort)                                     |
+| `--multiple-claims` |       | `boolean` |           | Allow (`--multiple-claims`) or stop (`--no-multiple-claims`) repeat claims (cohort) |
+| `--cooldown`        |       | `string`  |           | Days between claims (cohort)                                                        |
+| `--regions-version` |       | `string`  | `2022/02` | Regional pricing version (e.g. `2025/01`) for the offer                             |
 
 ### Example
 
@@ -530,6 +577,21 @@ gpc subscriptions offers update premium_monthly p1m free-trial-7d \
 ```
 
 A file with retention targeting runs the same [retention checks](#retention-offers) as `offers create`, except that `phases` and `regionalConfigs` may be left out of a partial update. The check reads the whole file, not only the fields in `--update-mask`.
+
+Without `--file`, each flag changes one setting and GPC builds the update mask. `--min-duration`, `--multiple-claims` and `--cooldown` keep the offer's other targeting values. They work only on a cohort retention offer.
+
+GPC reads the offer first and checks the times it would end up with: `--end` must be in the future and after the start, whether the start comes from `--start` or from the offer.
+
+| Code                     | Exit | Description                                                                                        |
+| ------------------------ | ---- | -------------------------------------------------------------------------------------------------- |
+| `RETENTION_FLAG_INVALID` | 2    | A flag has a bad value, the times do not fit, or the offer is not a cohort offer; nothing was sent |
+| `USAGE_ERROR`            | 2    | `--file` was mixed with flags or `--update-mask`, or nothing to update was given                   |
+
+```bash
+gpc subscriptions offers update premium_monthly p1m winback-50 \
+  --app com.example.app \
+  --min-duration 30d --end 2027-03-01T00:00:00Z
+```
 
 ---
 

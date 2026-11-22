@@ -9,6 +9,7 @@ import type {
 import { paginateAll } from "@gpc-cli/api";
 import { validatePackageName, validateSku } from "../utils/validation.js";
 import { GpcError } from "../errors.js";
+import { findBasePlan } from "./retention-offer-flags.js";
 import { assertValidRetentionOffer, isRetentionOffer } from "./retention-offers.js";
 
 export interface ListSubscriptionsOptions {
@@ -300,7 +301,13 @@ export async function createOffer(
   validatePackageName(packageName);
   validateSku(productId);
   const sanitized = sanitizeOffer(data);
-  if (isRetentionOffer(sanitized)) assertValidRetentionOffer(sanitized, { requireComplete: true });
+  if (isRetentionOffer(sanitized)) {
+    // Check the offer itself first, with no API call, then against its base
+    // plan (auto-renewing, billing period), which needs one read.
+    assertValidRetentionOffer(sanitized, { requireComplete: true });
+    const basePlan = await findBasePlan(client, packageName, productId, basePlanId);
+    assertValidRetentionOffer(sanitized, { requireComplete: true, basePlan });
+  }
   return client.subscriptions.createOffer(
     packageName,
     productId,

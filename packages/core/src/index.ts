@@ -219,6 +219,20 @@ export {
 } from "./commands/retention-offers.js";
 export type { RetentionViolation, ValidateRetentionOptions } from "./commands/retention-offers.js";
 export {
+  parseRetentionFlags,
+  buildRetentionOffer,
+  prepareRetentionOffer,
+  prepareRetentionOfferUpdate,
+  parseRetentionUpdateFlags,
+  findBasePlan,
+} from "./commands/retention-offer-flags.js";
+export type {
+  RetentionKind,
+  RetentionFlagInput,
+  RetentionFlags,
+  RetentionUpdateInput,
+} from "./commands/retention-offer-flags.js";
+export {
   listInAppProducts,
   getInAppProduct,
   createInAppProduct,

@@ -325,6 +325,7 @@ describe("offer create/update run the retention check before any API call", () =
   const client = () =>
     ({
       subscriptions: {
+        get: vi.fn(async () => ({ productId: "premium", basePlans: [monthlyBasePlan] })),
         createOffer: vi.fn(async (_p: string, _s: string, _b: string, body: unknown) => body),
         updateOffer: vi.fn(
           async (_p: string, _s: string, _b: string, _o: string, body: unknown) => body,

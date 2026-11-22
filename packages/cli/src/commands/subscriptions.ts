@@ -29,11 +29,159 @@ import {
   annotateListResult,
   moreResultsFooter,
   retentionOfferTemplate,
+  prepareRetentionOffer,
+  prepareRetentionOfferUpdate,
+  parseRetentionFlags,
+  parseRetentionUpdateFlags,
+  GpcError,
 } from "@gpc-cli/core";
+import type { RetentionFlagInput, RetentionUpdateInput } from "@gpc-cli/core";
 import { getOutputFormat } from "../format.js";
 import { isDryRun, printDryRun } from "../dry-run.js";
 import { requireConfirm } from "../prompt.js";
 import { readJsonFile } from "../json.js";
+
+interface OfferCreateOptions {
+  file?: string;
+  retention?: "cohort" | "per-user";
+  offerId?: string;
+  discount?: string;
+  periods?: string;
+  minDuration?: string;
+  multipleClaims?: boolean;
+  cooldown?: string;
+  regions?: string;
+  start?: string;
+  end?: string;
+  activate?: boolean;
+  regionsVersion?: string;
+}
+
+interface OfferUpdateOptions {
+  file?: string;
+  updateMask?: string;
+  start?: string;
+  end?: string;
+  minDuration?: string;
+  multipleClaims?: boolean;
+  cooldown?: string;
+  regionsVersion?: string;
+}
+
+function usageError(message: string, suggestion: string): GpcError {
+  return new GpcError(message, "USAGE_ERROR", 2, suggestion);
+}
+
+const CREATE_RETENTION_FLAGS: [keyof OfferCreateOptions, string][] = [
+  ["offerId", "--offer-id"],
+  ["discount", "--discount"],
+  ["periods", "--periods"],
+  ["minDuration", "--min-duration"],
+  ["multipleClaims", "--multiple-claims"],
+  ["cooldown", "--cooldown"],
+  ["regions", "--regions"],
+  ["start", "--start"],
+  ["end", "--end"],
+];
+
+/** An offer comes from a JSON file or from flags, never both. */
+type OfferSource<T> = { file: string; flags?: undefined } | { file?: undefined; flags: T };
+
+/** Pick `--file` or `--retention` for offers create. Throws a usage error on a bad mix. */
+function retentionCreateInput(options: OfferCreateOptions): OfferSource<RetentionFlagInput> {
+  const used = CREATE_RETENTION_FLAGS.filter(([key]) => options[key] !== undefined).map(
+    ([, flag]) => flag,
+  );
+  if (options.file !== undefined) {
+    if (options.retention !== undefined || used.length > 0) {
+      const flags = options.retention !== undefined ? ["--retention", ...used] : used;
+      throw usageError(
+        `--file cannot be used with ${flags.join(", ")}.`,
+        "Use --file for an offer written as JSON, or --retention to build a retention offer from flags.",
+      );
+    }
+    return { file: options.file };
+  }
+  if (options.retention === undefined) {
+    if (used.length > 0) {
+      throw usageError(
+        `These flags need --retention cohort or --retention per-user: ${used.join(", ")}.`,
+        "Add --retention, or use --file for other offer types.",
+      );
+    }
+    throw usageError(
+      "Give --file or --retention.",
+      "Use --file offer.json, or build a retention offer with --retention cohort --offer-id <id> --discount 0.5.",
+    );
+  }
+  const { offerId, discount } = options;
+  if (offerId === undefined || discount === undefined) {
+    const missing = [offerId === undefined && "--offer-id", discount === undefined && "--discount"];
+    throw usageError(
+      `--retention needs ${missing.filter(Boolean).join(" and ")}.`,
+      "For example: --retention cohort --offer-id winback --discount 0.5",
+    );
+  }
+  return {
+    flags: {
+      kind: options.retention,
+      offerId,
+      discount,
+      periods: options.periods,
+      minDuration: options.minDuration,
+      multipleClaims: options.multipleClaims,
+      cooldown: options.cooldown,
+      regions: options.regions,
+      start: options.start,
+      end: options.end,
+    },
+  };
+}
+
+const UPDATE_RETENTION_FLAGS: [keyof RetentionUpdateInput, string][] = [
+  ["start", "--start"],
+  ["end", "--end"],
+  ["minDuration", "--min-duration"],
+  ["multipleClaims", "--multiple-claims"],
+  ["cooldown", "--cooldown"],
+];
+
+/** Pick `--file` or flags for offers update. Throws a usage error on a bad mix. */
+function retentionUpdateInput(options: OfferUpdateOptions): OfferSource<RetentionUpdateInput> {
+  const used = UPDATE_RETENTION_FLAGS.filter(([key]) => options[key] !== undefined).map(
+    ([, flag]) => flag,
+  );
+  if (used.length === 0) {
+    if (options.file === undefined) {
+      throw usageError(
+        "Give --file, or at least one of --start, --end, --min-duration, --multiple-claims, --cooldown.",
+        "Use --file offer.json to update any field, or a flag to change one setting.",
+      );
+    }
+    return { file: options.file };
+  }
+  if (options.file !== undefined) {
+    throw usageError(
+      `--file cannot be used with ${used.join(", ")}.`,
+      "Use --file for a JSON offer, or the flags alone.",
+    );
+  }
+  if (options.updateMask !== undefined) {
+    throw usageError(
+      `--update-mask cannot be used with ${used.join(", ")}.`,
+      "The flags set the update mask. Remove --update-mask.",
+    );
+  }
+  return {
+    flags: {
+      start: options.start,
+      end: options.end,
+      minDuration: options.minDuration,
+      multipleClaims: options.multipleClaims,
+      cooldown: options.cooldown,
+    },
+  };
+}
 
 export function registerSubscriptionsCommands(program: Command): void {
   const subs = program.command("subscriptions").description("Manage subscriptions and base plans");
@@ -446,69 +594,140 @@ export function registerSubscriptionsCommands(program: Command): void {
 
   offers
     .command("create <product-id> <base-plan-id>")
-    .description("Create an offer from JSON file")
-    .requiredOption("--file <path>", "JSON file with offer data")
+    .description("Create an offer from a JSON file, or a retention offer from flags")
+    .option("--file <path>", "JSON file with offer data")
+    .addOption(
+      new Option("--retention <kind>", "Build a retention offer from flags").choices([
+        "cohort",
+        "per-user",
+      ]),
+    )
+    .option("--offer-id <id>", "Offer ID (with --retention)")
+    .option(
+      "--discount <fraction>",
+      "Discount as a fraction, e.g. 0.5 for 50% off (with --retention)",
+    )
+    .option("--periods <n>", "Billing periods the discount lasts (default 1)")
+    .option("--min-duration <days>", "Days subscribed before the offer shows, e.g. 90d (cohort)")
+    .option("--multiple-claims", "Let a user claim the offer more than once (cohort)")
+    .option("--cooldown <days>", "Days between claims, e.g. 180d (cohort, with --multiple-claims)")
+    .option("--regions <codes>", "Comma-separated region codes (default: all base plan regions)")
+    .option("--start <time>", "RFC 3339 time the offer becomes available")
+    .option("--end <time>", "RFC 3339 time the offer stops being available")
+    .option("--activate", "Activate the offer after creating it")
     .option("--regions-version <version>", "Regional pricing version (default 2022/02)")
-    .action(
-      async (
-        productId: string,
-        basePlanId: string,
-        options: { file: string; updateMask?: string; regionsVersion?: string },
-      ) => {
-        const config = await loadConfig();
-        const packageName = resolvePackageName(program.opts()["app"], config);
-        const format = getOutputFormat(program, config);
+    .action(async (productId: string, basePlanId: string, options: OfferCreateOptions) => {
+      const source = retentionCreateInput(options);
+      // Bad flag values exit 2 before credentials are needed.
+      if (source.flags) parseRetentionFlags(source.flags);
+      const config = await loadConfig();
+      const packageName = resolvePackageName(program.opts()["app"], config);
+      const format = getOutputFormat(program, config);
 
-        if (isDryRun(program)) {
-          printDryRun(
-            {
-              command: "subscriptions offers create",
-              action: "create offer for",
-              target: `${productId}/${basePlanId}`,
-              details: {
-                file: options.file,
-                ...(options.regionsVersion ? { regionsVersion: options.regionsVersion } : {}),
-              },
+      if (source.file !== undefined && isDryRun(program)) {
+        printDryRun(
+          {
+            command: "subscriptions offers create",
+            action: "create offer for",
+            target: `${productId}/${basePlanId}`,
+            details: {
+              file: options.file,
+              ...(options.regionsVersion ? { regionsVersion: options.regionsVersion } : {}),
             },
-            format,
-            formatOutput,
-          );
-          return;
+          },
+          format,
+          formatOutput,
+        );
+        return;
+      }
+
+      const client = await getClient(config);
+      const data =
+        source.file !== undefined
+          ? ((await readJsonFile(source.file)) as SubscriptionOffer)
+          : await prepareRetentionOffer(client, packageName, productId, basePlanId, source.flags);
+
+      if (isDryRun(program)) {
+        printDryRun(
+          {
+            command: "subscriptions offers create",
+            action: "create offer for",
+            target: `${productId}/${basePlanId}`,
+            details: { offer: data },
+          },
+          format,
+          formatOutput,
+        );
+        if (format !== "json") console.log(`\nOffer to send:\n${JSON.stringify(data, null, 2)}`);
+        return;
+      }
+
+      const created = await createOffer(
+        client,
+        packageName,
+        productId,
+        basePlanId,
+        data,
+        options.regionsVersion,
+      );
+      // Name the app, so the command acts on the same app when pasted.
+      const activateCommand = `gpc subscriptions offers activate ${productId} ${basePlanId} ${created.offerId} --app ${packageName}`;
+      if (!options.activate) {
+        console.log(formatOutput(created, format));
+        if (format !== "json") {
+          console.log(`\nThe offer is a draft. To activate it, run:\n  ${activateCommand}`);
         }
-
-        const client = await getClient(config);
-
-        const data = await readJsonFile(options.file);
-        const result = await createOffer(
+        return;
+      }
+      let activated;
+      try {
+        activated = await activateOffer(
           client,
           packageName,
           productId,
           basePlanId,
-          data as SubscriptionOffer,
-          options.regionsVersion,
+          created.offerId,
         );
-        console.log(formatOutput(result, format));
-      },
-    );
+      } catch (err) {
+        // The create went through, so a rerun of this command would fail on a
+        // duplicate offer ID. Say the draft exists and how to finish.
+        const e = err as { message?: string; code?: string; exitCode?: number };
+        throw new GpcError(
+          `Offer "${created.offerId}" was created as a draft, but activating it failed: ${e.message ?? String(err)}`,
+          e.code ?? "OFFER_ACTIVATE_FAILED",
+          e.exitCode ?? 4,
+          `To activate the draft, run: ${activateCommand}`,
+        );
+      }
+      console.log(formatOutput(activated, format));
+    });
 
   offers
     .command("update <product-id> <base-plan-id> <offer-id>")
-    .description("Update an offer from JSON file")
-    .requiredOption("--file <path>", "JSON file with offer data")
-    .option("--update-mask <fields>", "Comma-separated field mask")
+    .description("Update an offer from a JSON file, or a retention offer from flags")
+    .option("--file <path>", "JSON file with offer data")
+    .option("--update-mask <fields>", "Comma-separated field mask (with --file)")
+    .option("--start <time>", "RFC 3339 time the offer becomes available")
+    .option("--end <time>", "RFC 3339 time the offer stops being available")
+    .option("--min-duration <days>", "Days subscribed before the offer shows, e.g. 90d (cohort)")
+    .option("--multiple-claims", "Let a user claim the offer more than once (cohort)")
+    .option("--no-multiple-claims", "Let a user claim the offer only once (cohort)")
+    .option("--cooldown <days>", "Days between claims, e.g. 180d (cohort)")
     .option("--regions-version <version>", "Regional pricing version (default 2022/02)")
     .action(
       async (
         productId: string,
         basePlanId: string,
         offerId: string,
-        options: { file: string; updateMask?: string; regionsVersion?: string },
+        options: OfferUpdateOptions,
       ) => {
+        const source = retentionUpdateInput(options);
+        if (source.flags) parseRetentionUpdateFlags(source.flags);
         const config = await loadConfig();
         const packageName = resolvePackageName(program.opts()["app"], config);
         const format = getOutputFormat(program, config);
 
-        if (isDryRun(program)) {
+        if (source.file !== undefined && isDryRun(program)) {
           printDryRun(
             {
               command: "subscriptions offers update",
@@ -527,16 +746,50 @@ export function registerSubscriptionsCommands(program: Command): void {
         }
 
         const client = await getClient(config);
+        let data: SubscriptionOffer;
+        let updateMask = options.updateMask;
+        if (source.file !== undefined) {
+          data = (await readJsonFile(source.file)) as SubscriptionOffer;
+        } else {
+          const prepared = await prepareRetentionOfferUpdate(
+            client,
+            packageName,
+            productId,
+            basePlanId,
+            offerId,
+            source.flags,
+          );
+          data = prepared.offer;
+          updateMask = prepared.updateMask;
+        }
 
-        const data = await readJsonFile(options.file);
+        if (isDryRun(program)) {
+          printDryRun(
+            {
+              command: "subscriptions offers update",
+              action: "update offer",
+              target: `${productId}/${basePlanId}/${offerId}`,
+              details: { offer: data, updateMask },
+            },
+            format,
+            formatOutput,
+          );
+          if (format !== "json") {
+            console.log(
+              `\nUpdate mask: ${updateMask}\nOffer to send:\n${JSON.stringify(data, null, 2)}`,
+            );
+          }
+          return;
+        }
+
         const result = await updateOffer(
           client,
           packageName,
           productId,
           basePlanId,
           offerId,
-          data as SubscriptionOffer,
-          options.updateMask,
+          data,
+          updateMask,
           options.regionsVersion,
         );
         console.log(formatOutput(result, format));
