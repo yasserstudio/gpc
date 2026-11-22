@@ -206,7 +206,7 @@ export async function updateSubscription(
   validateSku(productId);
   validateSubscriptionData(data);
   const sanitized = sanitizeSubscription(data);
-  const mask = updateMask || deriveSubscriptionUpdateMask(data);
+  const mask = updateMask || deriveSubscriptionUpdateMask(sanitized);
   return client.subscriptions.update(packageName, productId, sanitized, mask, regionsVersion);
 }
 
@@ -309,7 +309,10 @@ export async function createOffer(
   );
 }
 
-const OFFER_ID_FIELDS = new Set(["productId", "basePlanId", "offerId"]);
+// Identity fields address the offer and never belong in a mask. The output-only
+// `state` is stripped by sanitizeOffer; the mask is derived from the sanitized
+// payload so a file saved from `offers get` never masks it either.
+const OFFER_ID_FIELDS = new Set(["packageName", "productId", "basePlanId", "offerId"]);
 
 function deriveOfferUpdateMask(data: SubscriptionOffer): string {
   return Object.keys(data)
@@ -330,7 +333,7 @@ export async function updateOffer(
   validatePackageName(packageName);
   validateSku(productId);
   const sanitized = sanitizeOffer(data);
-  const mask = updateMask || deriveOfferUpdateMask(data);
+  const mask = updateMask || deriveOfferUpdateMask(sanitized);
   return client.subscriptions.updateOffer(
     packageName,
     productId,

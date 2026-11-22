@@ -6,6 +6,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 
 import { PlayApiError } from "@gpc-cli/api";
+import type { SubscriptionOffer } from "@gpc-cli/api";
 
 // Mock file validation so uploadRelease tests don't need real files
 vi.mock("../src/utils/file-validation.js", () => ({
@@ -4579,6 +4580,25 @@ describe("subscriptions commands – additional coverage", () => {
       "phases,offerTags",
       undefined,
     );
+  });
+
+  it("updateOffer leaves output-only and identity fields out of the derived mask", async () => {
+    // A file saved from `offers get` carries state/packageName; Google refuses
+    // output-only fields in updateMask.
+    const client = subMockClient();
+    const data: SubscriptionOffer = {
+      packageName: "com.example",
+      productId: "sub1",
+      basePlanId: "bp1",
+      offerId: "o1",
+      state: "ACTIVE",
+      phases: [],
+      offerTags: [{ tag: "intro" }],
+    };
+    await updateOffer(client, "com.example", "sub1", "bp1", "o1", data);
+    const [, , , , sent, mask] = vi.mocked(client.subscriptions.updateOffer).mock.calls[0]!;
+    expect(mask).toBe("phases,offerTags");
+    expect(sent).not.toHaveProperty("state");
   });
 
   it("deactivateOffer calls client.subscriptions.deactivateOffer", async () => {
